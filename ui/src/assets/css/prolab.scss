@@ -53,6 +53,16 @@ body {
   color: $button-color;
 }
 
+.pro-sidebar-layout-light .pro-sidebar-header {
+  background: $menu-bg-light;
+  color: $button-color;
+}
+
+.pro-sidebar-layout-light .pro-sidebar-footer {
+  background: $menu-bg-light;
+  color: $button-color;
+}
+
 .pro-sidebar-layout-light .pro-inner-list-item.popper-element {
   color: #FFFFFF;
 }
