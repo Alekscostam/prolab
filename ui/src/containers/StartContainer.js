@@ -12,7 +12,7 @@ function DynamicCard(data, handleClick) {
                     <div className="card-header">{data.title}</div>
                     <div className="card-body">
                         <h5 className="card-title">{data.subtitle}</h5>
-                        <a onClick={(e) => handleClick(e, data.id)}>
+                        <a onClick={() => handleClick}>
                             <p className="card-text">{data.content}</p>
                         </a>
                     </div>
@@ -70,7 +70,7 @@ class StartContainer extends BaseContainer {
         );
     }
 
-    handleClick = (e, params) => {
+    handleClick(e) {
         e.preventDefault();
         alert('cze')
     }

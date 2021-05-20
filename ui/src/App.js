@@ -15,6 +15,7 @@ import withAuth from './utils/withAuth';
 import UserService from "./services/UserService";
 import PrimeReact from 'primereact/api';
 import "@fontsource/roboto"
+import TableContainer from "./containers/TableContainer";
 
 class App extends Component {
     constructor() {
@@ -91,10 +92,12 @@ class App extends Component {
                                         this.setState({user: this.authService.getProfile().sub, collapsed:false});
                                     }}/>)}/>
                                     <Route path='/login' render={(props) => (<Login {...props} onAfterLogin={() => {
-                                        this.setState({user: this.authService.getProfile().sub, collapsed:false});
+                                        this.setState({user: this.authService.getProfile().sub, collapsed: false});
                                     }}/>)}/>
                                     <Route exact path='/start'
                                            component={withAuth(StartContainer, 'VIEW', ['ROLE_ADMIN', 'ROLE_DISPATCHER'], this.handleLogoutUser)}/>
+                                    <Route exact path='/table'
+                                           component={withAuth(TableContainer, 'VIEW', ['ROLE_ADMIN', 'ROLE_DISPATCHER'], this.handleLogoutUser)}/>
                                     <Route exact path='/help-page'
                                            component={withAuth(HelpContainer, 'VIEW', ['ROLE_ADMIN', 'ROLE_DISPATCHER'], this.handleLogoutUser)}/>
                                     <Route exact path='/cookies-page' component={CookiesContainer}/>
