@@ -1,6 +1,7 @@
 import React from 'react';
-import { Prompt } from 'react-router-dom';
-import { ConfirmDialog } from 'primereact/confirmdialog';
+import {Prompt} from 'react-router-dom';
+import {ConfirmDialog} from 'primereact/confirmdialog';
+
 export class LeaveFormConfirmationComponent extends React.Component {
 	state = {
 		modalVisible: false,

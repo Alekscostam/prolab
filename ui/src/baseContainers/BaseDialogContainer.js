@@ -1,10 +1,10 @@
 import React from 'react';
 import BaseDetailsContainer from "./BaseDetailsContainer";
 import PropTypes from 'prop-types';
-import { Dialog } from 'primereact/dialog';
-import { Card } from 'primereact/card';
+import {Dialog} from 'primereact/dialog';
+import {Card} from 'primereact/card';
 import BlockUi from '../components/waitPanel/BlockUi';
-import { Messages } from 'primereact/messages';
+import {Messages} from 'primereact/messages';
 
 class BaseDialogContainer extends BaseDetailsContainer{
     constructor(props, service) {

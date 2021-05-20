@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-handler-names */
 import React from 'react';
-import { DataTable } from 'primereact/datatable';
+import {DataTable} from 'primereact/datatable';
 import Paginator from 'primereact/paginator';
 
 export class CustomDataTable extends DataTable {

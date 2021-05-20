@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import { InputText } from 'primereact/inputtext';
+import {InputText} from 'primereact/inputtext';
 
 class InputTextComponent extends Component {
 	renderView() {

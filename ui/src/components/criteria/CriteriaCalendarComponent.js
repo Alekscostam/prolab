@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Calendar } from 'primereact/calendar';
-import { addLocale } from 'primereact/api';
+import {Calendar} from 'primereact/calendar';
+import {addLocale} from 'primereact/api';
 
 class CriteriaCalendarComponent extends React.Component {
 	componentDidMount() {}

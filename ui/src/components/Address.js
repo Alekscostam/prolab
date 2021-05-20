@@ -3,7 +3,6 @@ import React from 'react';
 import InputTextComponent from './inputs/InputTextComponent';
 import VoivodeshipDropdown from '../components/VoivodeshipDropdown';
 import SimpleReactValidator from './validator';
-import InputNumberComponent from './inputs/InputNumberComponent';
 
 class Address extends React.Component {
 	render() {

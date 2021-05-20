@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { BreadcrumbsItem } from 'react-breadcrumbs-dynamic';
+import {BreadcrumbsItem} from 'react-breadcrumbs-dynamic';
 import BaseDetailsContainer from '../baseContainers/BaseDetailsContainer';
 import InputDropdownComponent from '../components/inputs/InputDropdownComponent';
 import InputTextComponent from '../components/inputs/InputTextComponent';

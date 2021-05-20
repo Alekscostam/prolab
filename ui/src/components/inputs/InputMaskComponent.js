@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import { InputMask } from 'primereact/inputmask';
+import {InputMask} from 'primereact/inputmask';
 
 class InputMaskComponent extends Component {
 

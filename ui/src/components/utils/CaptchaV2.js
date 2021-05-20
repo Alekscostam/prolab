@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import { Captcha } from 'primereact/captcha';
+import {Captcha} from 'primereact/captcha';
 import SettingService from './../../services/SettingService';
 
 export class CaptchaV2 extends Component {

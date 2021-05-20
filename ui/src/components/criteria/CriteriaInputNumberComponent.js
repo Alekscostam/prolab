@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import { InputNumber } from 'primereact/inputnumber';
+import React, {Component} from 'react';
+import {InputNumber} from 'primereact/inputnumber';
+
 //TODO moze wymagać przerobienia, przeniesione z eKOB
 class CriteriaInputNumberComponent extends Component {
 

@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import { SelectButton } from 'primereact/selectbutton';
+import {SelectButton} from 'primereact/selectbutton';
 
 class InputSelectButtonComponent extends Component {
 	renderView() {

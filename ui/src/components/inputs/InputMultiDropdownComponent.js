@@ -1,9 +1,9 @@
 /* eslint-disable max-len */
 /* eslint-disable react/jsx-max-props-per-line */
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import ActionLink from '../ActionLink';
-import { Dropdown } from 'primereact/dropdown';
+import {Dropdown} from 'primereact/dropdown';
 
 class InputMultiDropdownComponent extends Component {
 

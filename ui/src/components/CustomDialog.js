@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Dialog } from 'primereact/dialog';
+import {Dialog} from 'primereact/dialog';
 
 export const CustomDialog = props => {
 	const { children, className, header, id, modal, name, onHide, rendered, visible } = props;

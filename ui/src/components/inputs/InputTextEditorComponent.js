@@ -1,10 +1,10 @@
 /* eslint-disable react/jsx-max-props-per-line */
 /* eslint-disable react/no-danger */
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import sanitizeHtml from 'sanitize-html-react';
 import DomHandler from 'primereact/components/utils/DomHandler';
-import { Editor } from 'primereact/editor';
+import {Editor} from 'primereact/editor';
 import $ from 'jquery';
 
 export const FORMATS = ['header', 'font', 'background', 'color', 'code', 'size', 'bold', 'italic', 'underline', 'strike', 'blockquote', 'list', 'bullet', 'indent', 'script', 'align', 'direction', 'link', 'image', 'code-block', 'formula', 'video'];

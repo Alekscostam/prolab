@@ -1,25 +1,22 @@
-import 'react-app-polyfill/ie11';
-import 'react-app-polyfill/stable';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './App.scss';
+import 'react-app-polyfill/ie11';
+import 'react-app-polyfill/stable';
 import 'primeicons/primeicons.css';
 import 'primereact/resources/primereact.min.css';
-import 'primereact/resources/themes/saga-blue/theme.css';
+import 'primereact/resources/themes/md-light-indigo/theme.css';
 import './assets/quill/quill.bubble.scss';
 import './assets/quill/quill.core.scss';
 import './assets/quill/quill.snow.scss';
-import './assets/css/mdi.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './App.scss';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
-import { ThroughProvider } from 'react-through'
+import {ThroughProvider} from 'react-through'
 
 const theApp = (
   <ThroughProvider>
-
       <App />
-
   </ThroughProvider>
 )
 

@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 // import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
+import {Column} from 'primereact/column';
 import PropTypes from 'prop-types';
 import uuid from 'uuid';
 import InputCalendarComponent from './inputs/InputCalendarComponent';
@@ -10,10 +10,11 @@ import InputDropdownComponent from './inputs/InputDropdownComponent';
 import InputFileUploadComponent from './inputs/InputFileUploadComponent';
 import ActionLink from './ActionLink';
 import ActionButton from './ActionButton';
-import { DataTable } from 'primereact/datatable';
+import {DataTable} from 'primereact/datatable';
 import InputPasswordComponent from './inputs/InputPasswordComponent';
 import InputNumberComponent from './inputs/InputNumberComponent';
 import InputCheckboxComponent from './inputs/InputCheckboxComponent';
+
 class EditableDataTableExt extends Component {
 	constructor(props, context) {
 		super(props, context);

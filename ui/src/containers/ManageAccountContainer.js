@@ -3,7 +3,7 @@ import React from 'react';
 import BaseDetailsContainer from '../baseContainers/BaseDetailsContainer';
 import InputTextComponent from '../components/inputs/InputTextComponent';
 import UserService from '../services/UserService';
-import { BreadcrumbsItem } from 'react-breadcrumbs-dynamic';
+import {BreadcrumbsItem} from 'react-breadcrumbs-dynamic';
 
 class ManageUserContainer extends BaseDetailsContainer {
 	constructor(props) {

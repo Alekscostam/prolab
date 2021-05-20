@@ -1,6 +1,6 @@
-import { InputTextarea } from 'primereact/inputtextarea';
+import {InputTextarea} from 'primereact/inputtextarea';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 
 class InputTextareaComponent extends Component {
 	constructor(props, context) {

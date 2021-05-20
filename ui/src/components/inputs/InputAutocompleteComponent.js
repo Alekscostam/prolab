@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import { AutoComplete } from 'primereact/autocomplete';
+import {AutoComplete} from 'primereact/autocomplete';
 
 class InputAutoCompleteComponent extends Component {
 	constructor(props) {

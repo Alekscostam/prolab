@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Card } from 'primereact/card';
-import { Messages } from 'primereact/messages';
+import {Card} from 'primereact/card';
+import {Messages} from 'primereact/messages';
 import BaseContainer from './BaseContainer';
 import ActionLink from '../components/ActionLink';
 import DivContainer from '../components/DivContainer';

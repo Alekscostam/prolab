@@ -1,4 +1,3 @@
-import { InputText } from 'primereact/inputtext';
 import PropTypes from 'prop-types';
 import React from 'react';
 

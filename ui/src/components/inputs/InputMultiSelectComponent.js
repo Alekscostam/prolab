@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import { MultiSelect } from 'primereact/multiselect';
+import {MultiSelect} from 'primereact/multiselect';
 
 class InputMultiSelectComponent extends Component {
 

@@ -1,6 +1,6 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import { Password } from 'primereact/password';
+import {Password} from 'primereact/password';
 
 class InputPasswordComponent extends Component {
 	renderView() {

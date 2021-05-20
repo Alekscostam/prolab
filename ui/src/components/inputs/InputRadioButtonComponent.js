@@ -1,8 +1,8 @@
 /* eslint-disable max-len */
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import equal from 'react-fast-compare';
-import { RadioButton } from 'primereact/radiobutton';
+import {RadioButton} from 'primereact/radiobutton';
 
 class InputRadioButtonComponent extends Component {
 

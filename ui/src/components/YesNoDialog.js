@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Dialog } from 'primereact/dialog';
+import {Dialog} from 'primereact/dialog';
 import ActionButton from './ActionButton';
 
 export const YesNoDialog = (props) => {

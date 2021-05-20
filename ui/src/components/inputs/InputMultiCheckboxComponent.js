@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-max-props-per-line */
 /* eslint-disable max-len */
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {Checkbox} from 'primereact/checkbox';
 

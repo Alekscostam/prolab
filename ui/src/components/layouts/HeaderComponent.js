@@ -1,6 +1,5 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import AuthService from '../../services/AuthService';
-import ActionLink from '../ActionLink';
 
 class HeaderComponent extends Component {
 	constructor(props) {

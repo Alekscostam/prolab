@@ -1,6 +1,5 @@
 import decode from 'jwt-decode';
 import moment from 'moment';
-import UserService from "./UserService";
 
 export default class AuthService {
 	// Initializing important variables

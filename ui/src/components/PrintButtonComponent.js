@@ -1,10 +1,9 @@
-import React, { Component } from 'react';
-import { saveAs } from 'file-saver';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import moment from 'moment';
-import { ActionButton } from '../components/ActionButton';
-import { Menu } from 'primereact/menu';
+import {ActionButton} from '../components/ActionButton';
+import {Menu} from 'primereact/menu';
 import $ from 'jquery';
+
 export class PrintButtonComponent extends Component {
     constructor(props) {
         super(props);

@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { Calendar } from 'primereact/calendar';
-import { addLocale } from 'primereact/api';
+import {Calendar} from 'primereact/calendar';
+import {addLocale} from 'primereact/api';
 
 class CriteriaCalendarRangeComponent extends React.Component {
 	componentDidMount() { }

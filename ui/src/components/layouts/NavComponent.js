@@ -1,9 +1,8 @@
-import React, { Component } from 'react';
-import { Container, Nav, Navbar } from 'react-bootstrap';
-import { Breadcrumbs } from 'react-breadcrumbs-dynamic';
-import { NavLink, withRouter } from 'react-router-dom';
+import React, {Component} from 'react';
+import {Nav, Navbar} from 'react-bootstrap';
+import {withRouter} from 'react-router-dom';
 import AuthService from '../../services/AuthService';
-import { DivContainer } from './../DivContainer';
+import {DivContainer} from './../DivContainer';
 
 class NavComponent extends Component {
 	constructor(props, context) {

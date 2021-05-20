@@ -1,13 +1,13 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import { ProgressSpinner } from 'primereact/progressspinner';
-import { ProgressBar } from 'primereact/progressbar';
-import { Dialog } from 'primereact/dialog';
+import {ProgressSpinner} from 'primereact/progressspinner';
+import {ProgressBar} from 'primereact/progressbar';
+import {Dialog} from 'primereact/dialog';
 import ActionLink from '../ActionLink';
-import { FileUpload } from 'primereact/fileupload';
+import {FileUpload} from 'primereact/fileupload';
 import BaseService from '../../services/BaseService';
 import AttachmentService from '../../services/AttachmentService';
-import { saveAs } from 'file-saver';
+import {saveAs} from 'file-saver';
 
 class SystemParameterService extends BaseService {
 	constructor(domain, publicMode) {

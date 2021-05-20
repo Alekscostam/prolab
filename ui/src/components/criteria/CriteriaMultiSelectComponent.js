@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { MultiSelect } from 'primereact/multiselect';
+import {MultiSelect} from 'primereact/multiselect';
 
 class CriteriaMultiSelectComponent extends React.Component {
 	componentDidMount() {}

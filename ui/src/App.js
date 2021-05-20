@@ -1,9 +1,8 @@
 import $ from 'jquery';
 import React, {Component} from 'react';
 import {HashRouter as Router, Route, Switch} from 'react-router-dom';
-import CookieConsent from './components/CookieConsent';
-import CookiesContainer from './containers/CookiesContainer';
-import HelpContainer from './containers/HelpContainer';
+import CookiesContainer from './containers/deprecated/CookiesContainer';
+import HelpContainer from './containers/deprecated/HelpContainer';
 import Sidebar from './containers/layout/Sidebar';
 import Login from './containers/LoginContainer';
 import SettingContainer from './containers/SettingContainer';
@@ -14,6 +13,8 @@ import UserListContainer from './containers/UserListContainer';
 import AuthService from './services/AuthService';
 import withAuth from './utils/withAuth';
 import UserService from "./services/UserService";
+import PrimeReact from 'primereact/api';
+import "@fontsource/roboto"
 
 class App extends Component {
     constructor() {
@@ -26,6 +27,16 @@ class App extends Component {
             toggled: false,
         };
         this.handleLogoutUser = this.handleLogoutUser.bind(this);
+        //primereact config
+        PrimeReact.ripple = true;
+        PrimeReact.zIndex = {
+            modal: 1100,    // dialog, sidebar
+            overlay: 1000,  // dropdown, overlaypanel
+            menu: 1000,     // overlay menus
+            tooltip: 1100   // tooltip
+        }
+        PrimeReact.appendTo = 'self'; // Default value is null(document.body).
+
     }
 
     handleToggleSidebar() {
@@ -62,24 +73,6 @@ class App extends Component {
         const authService = this.authService;
         return (
             <React.Fragment>
-                <CookieConsent
-                    location='bottom'
-                    buttonText='Akceptuję'
-                    cookieName='cookiePolicy'
-                    style={{background: 'rgba(0, 0, 0, 0.8)'}}
-                    buttonStyle={{
-                        background: '#1c3275',
-                        color: 'white',
-                        fontSize: '16px',
-                        fontFamily: 'Ubuntu',
-                        fontWeight: 500,
-                        borderRadius: '3px'
-                    }}
-                    expires={150}>
-                    Nasz serwis wykorzystuje pliki cookies. Możesz zrezygnować ze zbierania informacji poprzez pliki
-                    cookies, zmieniając ustawienia Twojej
-                    przeglądarki - w takim przypadku nie gwarantujemy poprawnego działania serwisu.
-                </CookieConsent>
                 <Router>
                     <div className={`${authService.loggedIn() ? 'app' : ''}`}>
                         <Sidebar
@@ -95,10 +88,10 @@ class App extends Component {
                             <div className={`${authService.loggedIn() ? 'container-fluid' : ''}`}>
                                 <Switch>
                                     <Route exact path='/' render={(props) => (<Login {...props} onAfterLogin={() => {
-                                        this.setState({user: this.authService.getProfile().sub});
+                                        this.setState({user: this.authService.getProfile().sub, collapsed:false});
                                     }}/>)}/>
                                     <Route path='/login' render={(props) => (<Login {...props} onAfterLogin={() => {
-                                        this.setState({user: this.authService.getProfile().sub});
+                                        this.setState({user: this.authService.getProfile().sub, collapsed:false});
                                     }}/>)}/>
                                     <Route exact path='/start'
                                            component={withAuth(StartContainer, 'VIEW', ['ROLE_ADMIN', 'ROLE_DISPATCHER'], this.handleLogoutUser)}/>

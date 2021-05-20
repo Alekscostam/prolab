@@ -1,5 +1,5 @@
 import React from 'react';
-import { BreadcrumbsItem } from 'react-breadcrumbs-dynamic';
+import {BreadcrumbsItem} from 'react-breadcrumbs-dynamic';
 import PropTypes from 'prop-types';
 import BaseListContainer from '../baseContainers/BaseListContainer';
 import SettingService from '../services/SettingService';

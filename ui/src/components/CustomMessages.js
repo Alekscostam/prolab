@@ -1,8 +1,8 @@
 /* eslint-disable react/jsx-handler-names */
 /* eslint-disable react/jsx-max-props-per-line */
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import { TransitionGroup } from 'react-transition-group';
+import React, {Component} from 'react';
+import {TransitionGroup} from 'react-transition-group';
 import UIMessage from './UIMessage';
 
 class CustomMessages extends Component {

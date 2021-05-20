@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import { Calendar } from 'primereact/calendar';
+import {Calendar} from 'primereact/calendar';
 
 class InputCalendarRangeComponent extends Component {
 	handleChange(event) {

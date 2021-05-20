@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-handler-names */
-import { PropTypes } from 'prop-types';
-import React, { Component } from 'react';
+import {PropTypes} from 'prop-types';
+import React, {Component} from 'react';
 import VoivodeshipDictionaryService from './../services/dictionary/VoivodeshipDictionaryService'
 import InputDropdownComponent from './inputs/InputDropdownComponent';
 

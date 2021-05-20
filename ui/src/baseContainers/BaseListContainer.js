@@ -14,7 +14,6 @@ import BlockUi from '../components/waitPanel/BlockUi';
 import {Dropdown} from 'primereact/dropdown';
 import {DataTable} from 'primereact/datatable';
 import {Accordion, AccordionTab} from 'primereact/accordion';
-import {Panel} from "primereact/panel";
 
 class BaseListContainer extends BaseContainer {
     constructor(props, service) {

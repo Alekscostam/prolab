@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { BreadcrumbsItem } from 'react-breadcrumbs-dynamic';
-import BaseContainer from '../baseContainers/BaseContainer';
-import DivContainer from '../components/DivContainer';
-import UserService from '../services/UserService';
+import {BreadcrumbsItem} from 'react-breadcrumbs-dynamic';
+import BaseContainer from '../../baseContainers/BaseContainer';
+import DivContainer from '../../components/DivContainer';
+import UserService from '../../services/UserService';
 
 class CookiesContainer extends BaseContainer {
 	constructor(props) {
