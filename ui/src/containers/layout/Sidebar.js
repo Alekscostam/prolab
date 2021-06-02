@@ -7,8 +7,17 @@ import {FaBars, FaSignOutAlt, FaTag, FaUser} from 'react-icons/fa';
 import {Menu, MenuItem, ProSidebar, SidebarContent, SidebarFooter, SidebarHeader, SubMenu} from 'react-pro-sidebar';
 import {Link} from 'react-router-dom';
 import {Button} from "primereact/button";
+import {dynamicMenuStr} from "../../utils/StaticData";
 
-const Sidebar = ({collapsed, toggled, loggedUser, handleToggleSidebar, handleCollapsedChange, handleLogoutUser, authService}) => {
+const Sidebar = ({
+                     collapsed,
+                     toggled,
+                     loggedUser,
+                     handleToggleSidebar,
+                     handleCollapsedChange,
+                     handleLogoutUser,
+                     authService
+                 }) => {
     const userName = authService.getProfile().sub;
     const role = authService.getProfile().role;
     $(document).on('click', '.pro-item-content', function (e) {
@@ -19,7 +28,6 @@ const Sidebar = ({collapsed, toggled, loggedUser, handleToggleSidebar, handleCol
     });
 
     //TODO
-    const dynamicMenuStr = '[ { "ObjectType":"Group", "Name":"Zlecenia i próbki", "Id":"123", "Icon":"jk234jg23bjh4g23g4", "Object":[ { "ObjectType":"Group", "Name":"Zlecenia", "Id":"124", "Icon":null, "Object":[ { "ObjectType":"View", "Name":"Rejestr zleceń", "Id":"2", "Icon":null, "Object":null }, { "ObjectType":"View", "Name":"Rejestr Próbek", "Id":"3", "Icon":null, "Object":null } ] } ] } ]';
     const dynamicMenuJSON = JSON.parse(dynamicMenuStr);
 
     const renderDynamicMenu = items => {

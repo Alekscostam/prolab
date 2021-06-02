@@ -70,9 +70,9 @@ class StartContainer extends BaseContainer {
         );
     }
 
+
     handleClick(e) {
         e.preventDefault();
-        alert('cze')
     }
 
     renderDetails() {
