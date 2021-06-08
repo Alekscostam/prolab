@@ -4,7 +4,6 @@ import DivContainer from "../components/DivContainer";
 //
 //    https://material-table.com/#/docs
 //
-import MaterialTable from "material-table";
 import {
     AddBox,
     ArrowDownward,
@@ -22,15 +21,17 @@ import {
     Search,
     ViewColumn
 } from "@material-ui/icons";
-import {ViewParserUtils} from "../utils/ViewParserUtils";
-import {exampleView1} from "../utils/StaticData";
-import {GridColumns} from "../model/ViewModel";
+import {ViewParserUtils} from "../utils/parser/ViewParserUtils";
+import {exampleView1, exampleViewData1} from "../utils/mock-data/StaticData";
+import {ViewDataParserUtils} from "../utils/parser/ViewDataParserUtils";
+import MaterialTable from "../components/prolab/material-table/material-table";
 
 export class GridContainer extends Component {
     constructor(props) {
         super(props);
         this.state = {
             parsedView: {},
+            parsedViewData: {},
             tableIcons: {
                 Add: forwardRef((props, ref) => <AddBox {...props} ref={ref}/>),
                 Check: forwardRef((props, ref) => <Check {...props} ref={ref}/>),
@@ -55,12 +56,14 @@ export class GridContainer extends Component {
 
     componentDidMount() {
         this.setState({parsedView: ViewParserUtils.parse(exampleView1)})
-    }
-
-    componentDidUpdate() {
+        this.setState({parsedViewData: ViewDataParserUtils.parse(exampleViewData1)})
     }
 
     render() {
+        let gridColumnsArray = ViewParserUtils.parse(exampleView1).gridColumns;
+        const columns = gridColumnsArray[0].columns.map((c) => {
+            return {title: c.fieldName, field: 'number'}
+        })
         return (
             <React.Fragment>
                 <DivContainer colClass='col-12 dashboard-link-container'>
@@ -72,11 +75,7 @@ export class GridContainer extends Component {
                             icons={this.state.tableIcons}
                             title=""
                             columnResizable={true}
-                            columns={this.state.parsedView?.gridColumns?.map((g) => {
-                                g.columns.map((c) => {
-                                    return {title: c.fieldName}
-                                })
-                            })}
+                            columns={columns}
                             options={{
                                 filtering: true,
                                 grouping: true,
@@ -89,38 +88,7 @@ export class GridContainer extends Component {
                                     fontWeight: 600
                                 })
                             }}
-                            data={[
-                                {
-                                    number: 'P1/G.C./2020',
-                                    name: 'Badanie wpływu związków klasy X na zmniejszenie emisji substancji szkodliwych do środowiska, zawartych w ściekach zakładów produkcyjnych',
-                                    status: 'Roboczy',
-                                    sort: 'Surowce',
-                                    desc: "W skutek wejścia w życie ROZPORZĄDZENIA MINISTRA ZDROWIA z dnia X.Z r. zmieniającego rozporządzenie w sprawie list substancji niedozwolonych lub dozwolonych z ograniczeniami do stosowania w kosmetykach oraz znaków graficznych umieszczanych na opakowaniach kosmetyków, siarczan 2,2’-[ (4-aminofenylo) imino]bis(etanolu) nie może być używany z systemami 23, 34",
-                                    target: "Zakres wymaganej specyfikacji poszczególnych parametrów zamieszczono w wymaganiach. Dodatkowym celem jest brak podwyżki kosztów produkcji produktów lub obniżenie tych kosztów.",
-                                    start: "2017-01-01",
-                                    end: "2018-01-01"
-                                },
-                                {
-                                    number: 'NESE PBS1/A1/1/2020',
-                                    name: 'Zmiana składu chemicznego produktu X – dostosowanie do obecnie obowiązujących przepisów prawnych',
-                                    status: 'Roboczy',
-                                    sort: 'Surowce',
-                                    desc: "W skutek wejścia w życie ROZPORZĄDZENIA MINISTRA ZDROWIA z dnia X.Z r. zmieniającego rozporządzenie w sprawie list substancji niedozwolonych lub dozwolonych z ograniczeniami do stosowania w kosmetykach oraz znaków graficznych umieszczanych na opakowaniach kosmetyków, siarczan 2,2’-[ (4-aminofenylo) imino]bis(etanolu) nie może być używany z systemami 23, 34",
-                                    target: "Zakres wymaganej specyfikacji poszczególnych parametrów zamieszczono w wymaganiach. Dodatkowym celem jest brak podwyżki kosztów produkcji produktów lub obniżenie tych kosztów.",
-                                    start: "2017-01-01",
-                                    end: "2018-01-01"
-                                },
-                                {
-                                    number: 'NESE PBS1/A1/2/2020',
-                                    name: 'Opracowanie farby do włosów w kolorze „truskawkowy blond',
-                                    status: 'Roboczy',
-                                    sort: 'Surowce',
-                                    desc: "Analiza rynku potwierdziła potrzebę dodania nowego koloru do gamy produktów producenta. Na rynku istnieją podobne produkty innych marek (KK, BB, XX, HH) i cieszą się popularnością wśród klientów w wieku 15-38 lat. Projekt zakłada, że bazą nowego produktu będzie jeden z kolorów dostępnych w produktach firmy, o właściwościach zbliżonych do opisywanego. Modyfikacj",
-                                    target: "—",
-                                    start: "2017-01-01",
-                                    end: "2018-01-01"
-                                },
-                            ]}
+                            data={this.state.parsedViewData?.data}
                         />
                     </DivContainer>
                 </DivContainer>

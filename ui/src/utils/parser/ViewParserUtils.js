@@ -8,7 +8,7 @@ import {
     ShortcutButtons,
     ViewInfo,
     ViewResponse
-} from "../model/ViewModel";
+} from "../../model/ViewModel";
 import {parseBoolean} from "./ParserUtils";
 
 export class ViewParserUtils {

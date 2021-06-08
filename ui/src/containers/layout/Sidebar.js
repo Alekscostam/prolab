@@ -7,7 +7,7 @@ import {FaBars, FaSignOutAlt, FaTag, FaUser} from 'react-icons/fa';
 import {Menu, MenuItem, ProSidebar, SidebarContent, SidebarFooter, SidebarHeader, SubMenu} from 'react-pro-sidebar';
 import {Link} from 'react-router-dom';
 import {Button} from "primereact/button";
-import {dynamicMenuStr} from "../../utils/StaticData";
+import {exampleMenu1} from "../../utils/mock-data/StaticData";
 
 const Sidebar = ({
                      collapsed,
@@ -28,7 +28,7 @@ const Sidebar = ({
     });
 
     //TODO
-    const dynamicMenuJSON = JSON.parse(dynamicMenuStr);
+    const dynamicMenuJSON = JSON.parse(exampleMenu1);
 
     const renderDynamicMenu = items => {
         return <Menu iconShape='circle' popperArrow='false'>
