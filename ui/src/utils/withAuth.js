@@ -24,7 +24,7 @@ export default function withAuth(AuthComponent, viewMode, roles, logoutFunc) {
             } else {
                 const userRoles = authService.getRoles();
                 let authorized = false;
-                if (roles !== undefined) {
+                if (roles !== undefined && roles !== null) {
                     roles.forEach((role) => {
                         if (userRoles.includes(role)) {
                             authorized = true;

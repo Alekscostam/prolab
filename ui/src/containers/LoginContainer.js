@@ -7,7 +7,6 @@ import {Redirect} from 'react-router-dom';
 import BaseContainer from '../baseContainers/BaseContainer';
 import SimpleReactValidator from '../components/validator';
 import AuthService from '../services/AuthService';
-import UserService from '../services/UserService';
 import BlockUi from './../components/waitPanel/BlockUi';
 import {InputText} from "primereact/inputtext";
 import ActionButton from "../components/ActionButton";
@@ -18,14 +17,11 @@ class LoginContainer extends BaseContainer {
         this.handleChange = this.handleChange.bind(this);
         this.handleFormSubmit = this.handleFormSubmit.bind(this);
         this.authService = new AuthService();
-        this.userService = new UserService();
         this.state = {
             username: '',
             password: '',
             redirectToReferrer: true,
             authValid: true,
-            showCaptcha: false,
-            captchaPreventAction: false
         };
         this.authValidValidator = new SimpleReactValidator({
             validators: {
@@ -45,7 +41,6 @@ class LoginContainer extends BaseContainer {
         super.componentDidMount();
         const values = queryString.parse(this.props.location.search);
         this.targetLocation = values.location;
-        //Messages.multiReadPersistMessage(['login-page'], this.messages);
     }
 
     handleFormSubmit(e) {
@@ -54,63 +49,29 @@ class LoginContainer extends BaseContainer {
         }
         if (this.validator.allValid()) {
             this.blockUi();
-            this.userService
-                .checkStatusPassword(this.state.username, this.state.password, this.state.showCaptcha && !this.state.captchaPreventAction)
-                .then((result) => {
-                    switch (result.status) {
-                        case 'OK':
-                            this.authService
-                                .login(this.state.username, this.state.password)
-                                .then((res) => {
-                                    if (this.props.onAfterLogin) {
-                                        this.props.onAfterLogin();
-                                    }
-                                })
-                                .catch((err) => {
-                                    if (err.response != null) {
-                                        if (err.response.status === 401 || err.response.status === 403) {
-                                            this.setState((state) => ({
-                                                authValid: false,
-                                            }));
-                                            this.validator.showMessages();
-                                            this.forceUpdate();
-                                        } else {
-                                            this.showErrorMessage('Błąd logowania', 10000, true, 'Błąd ' + err.response.status);
-                                        }
-                                    } else {
-                                        this.showErrorMessage('Nie można nawiązać połączenia z serwerem', 10000);
-                                    }
-                                });
-                            break;
-                        case 'REQUIRE_CAPTCHA':
-                            if (this.state.showCaptcha) {
-                                this.setState((prevState) => ({
-                                    ...prevState,
-                                    captchaPreventAction: false
-                                }));
-                            } else {
-                                this.setState((prevState) => ({
-                                    ...prevState,
-                                    showCaptcha: true,
-                                    captchaPreventAction: true
-                                }));
-                            }
-                            this.showErrorMessage('Przekroczono domyślną liczbę prób logowania. Wymagana jest dodatkowa weryfikacja przy użyciu kodu CAPTCHA', 10000);
-                            this.unblockUi();
-                            break;
-                        case 'BLOCKED':
-                            this.showErrorMessage('Konto zostało zablokowane. Skontaktuj się z administratorem systemu', 10000);
-                            this.unblockUi();
-                            break;
-                        default:
-                            this.showErrorMessage('Niepoprawna nazwa użytkownika lub hasło', 10000);
-                            this.unblockUi();
-                            break;
+            this.authService
+                .login(this.state.username, this.state.password)
+                .then((res) => {
+                    if (this.props.onAfterLogin) {
+                        this.props.onAfterLogin();
                     }
                 })
                 .catch((err) => {
-                    this.showErrorMessage('Nie można nawiązać połączenia z serwerem', 10000);
-                    this.unblockUi();
+                    if (err.response != null) {
+                        if (err.response.status === 401 || err.response.status === 403) {
+                            this.setState((state) => ({
+                                authValid: false,
+                            }));
+                            this.validator.showMessages();
+                            this.forceUpdate();
+                        } else {
+                            this.showErrorMessage('Błąd logowania', 10000, true, 'Błąd ' + err.response.status);
+                            this.unblockUi();
+                        }
+                    } else {
+                        this.showErrorMessage('Nie można nawiązać połączenia z serwerem', 10000);
+                        this.unblockUi();
+                    }
                 });
         } else {
             this.validator.showMessages();
@@ -200,8 +161,7 @@ class LoginContainer extends BaseContainer {
                                                         label='Zaloguj się'
                                                         className="mt-4"
                                                         variant='login-button'
-                                                        handleClick={this.handleFormSubmit}
-                                                        disabled={this.state.captchaPreventAction}/>
+                                                        handleClick={this.handleFormSubmit}/>
                                                     <div className="mt-4">
                                                         <p className="font-normal text-center">Nie masz swojego
                                                             konta?&nbsp;

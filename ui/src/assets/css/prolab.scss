@@ -3,6 +3,7 @@ $text-color: #182D67;
 $text-color-highlighted: #30DBCE;
 $text-bg: #FFFFFF;
 $link-color: #0E49EB;
+$link-color-highlighted: #03a9f4;
 $label-color: #717A93;
 $button-color: #0E49EB;
 $button-text-color: #FFFFFF;
@@ -88,7 +89,7 @@ body {
 }
 
 .pro-sidebar > .pro-sidebar-inner {
-  background: none;
+  height: 100%;
 }
 
 .pro-sidebar {
@@ -452,4 +453,15 @@ input:-webkit-autofill, input:autofill {
   color: $link-color;
 }
 
+.prolab-logo{
+  filter: blur(0.4px);
+}
+
+.pro-sidebar ::-webkit-scrollbar-thumb {
+  background: $link-color-highlighted;
+}
+
 /*------------------*/
+
+
+

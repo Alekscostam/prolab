@@ -37,7 +37,9 @@ class App extends Component {
             tooltip: 1100   // tooltip
         }
         PrimeReact.appendTo = 'self'; // Default value is null(document.body).
+    }
 
+    componentDidMount() {
     }
 
     handleToggleSidebar() {
@@ -55,19 +57,26 @@ class App extends Component {
     }
 
     handleLogoutUser(url) {
-        const lastUseToken = this.authService.getToken();
+        /*
+            const lastUseToken = this.authService.getToken();
+            this.authService.logout();
+            if (url) {
+                window.location.href = '/#login?location=' + url;
+            } else {
+                window.location.href = '/#/login?force=true';
+            }
+            if (this.state.user) {
+                this.setState({user: null});
+            }
+            if (lastUseToken !== undefined && lastUseToken !== null) {
+                this.userService.logout(lastUseToken);
+            }
+        */
         this.authService.logout();
-        if (url) {
-            window.location.href = '/#login?location=' + url;
-        } else {
-            window.location.href = '/#/login?force=true';
-        }
         if (this.state.user) {
             this.setState({user: null});
         }
-        if (lastUseToken !== undefined && lastUseToken !== null) {
-            this.userService.logout(lastUseToken);
-        }
+        window.location.href = '/';
     }
 
     render() {
@@ -76,45 +85,46 @@ class App extends Component {
             <React.Fragment>
                 <Router>
                     <div className={`${authService.loggedIn() ? 'app' : ''}`}>
-                        <Sidebar
-                            collapsed={this.state.collapsed}
-                            toggled={this.state.toggled}
-                            loggedUser={this.state.user}
-                            handleToggleSidebar={this.handleToggleSidebar.bind(this)} O
-                            handleCollapsedChange={this.handleCollapsedChange.bind(this)}
-                            handleLogoutUser={this.handleLogoutUser.bind(this)}
-                            authService={this.authService}
-                        />
+                        {authService.loggedIn() ?
+                            <Sidebar
+                                collapsed={this.state.collapsed}
+                                toggled={this.state.toggled}
+                                loggedUser={this.state.user}
+                                handleToggleSidebar={this.handleToggleSidebar.bind(this)} O
+                                handleCollapsedChange={this.handleCollapsedChange.bind(this)}
+                                handleLogoutUser={this.handleLogoutUser.bind(this)}
+                                authService={this.authService}
+                            /> : null}
                         <main>
                             <div className={`${authService.loggedIn() ? 'container-fluid' : ''}`}>
                                 <Switch>
                                     <Route exact path='/' render={(props) => (<Login {...props} onAfterLogin={() => {
-                                        this.setState({user: this.authService.getProfile().sub, collapsed:false});
+                                        this.setState({user: this.authService.getProfile().sub, collapsed: false});
                                     }}/>)}/>
                                     <Route path='/login' render={(props) => (<Login {...props} onAfterLogin={() => {
                                         this.setState({user: this.authService.getProfile().sub, collapsed: false});
                                     }}/>)}/>
                                     <Route exact path='/start'
-                                           component={withAuth(StartContainer, 'VIEW', ['ROLE_ADMIN', 'ROLE_DISPATCHER'], this.handleLogoutUser)}/>
+                                           component={withAuth(StartContainer, 'VIEW', null, this.handleLogoutUser)}/>
                                     <Route exact path='/table'
-                                           component={withAuth(TableContainer, 'VIEW', ['ROLE_ADMIN', 'ROLE_DISPATCHER'], this.handleLogoutUser)}/>
+                                           component={withAuth(TableContainer, 'VIEW', null, this.handleLogoutUser)}/>
                                     <Route exact path='/help-page'
-                                           component={withAuth(HelpContainer, 'VIEW', ['ROLE_ADMIN', 'ROLE_DISPATCHER'], this.handleLogoutUser)}/>
+                                           component={withAuth(HelpContainer, 'VIEW', null, this.handleLogoutUser)}/>
                                     <Route exact path='/cookies-page' component={CookiesContainer}/>
                                     <Route exact path='/user-list'
-                                           component={withAuth(UserListContainer, 'VIEW', ['ROLE_ADMIN', 'ROLE_DISPATCHER'], this.handleLogoutUser)}/>
+                                           component={withAuth(UserListContainer, 'VIEW', null, this.handleLogoutUser)}/>
                                     <Route exact path='/user/create'
-                                           component={withAuth(UserContainer, 'NEW', ['ROLE_ADMIN', 'ROLE_DISPATCHER'], this.handleLogoutUser)}/>
+                                           component={withAuth(UserContainer, 'NEW', null, this.handleLogoutUser)}/>
                                     <Route exact path='/user/details/:id'
-                                           component={withAuth(UserContainer, 'VIEW', ['ROLE_ADMIN', 'ROLE_DISPATCHER'], this.handleLogoutUser)}/>
+                                           component={withAuth(UserContainer, 'VIEW', null, this.handleLogoutUser)}/>
                                     <Route exact path='/user/edit/:id'
-                                           component={withAuth(UserContainer, 'EDIT', ['ROLE_ADMIN', 'ROLE_DISPATCHER'], this.handleLogoutUser)}/>
+                                           component={withAuth(UserContainer, 'EDIT', null, this.handleLogoutUser)}/>
                                     <Route exact path='/setting-list'
-                                           component={withAuth(SettingListContainer, 'VIEW', ['ROLE_ADMIN', 'ROLE_DISPATCHER'], this.handleLogoutUser)}/>
+                                           component={withAuth(SettingListContainer, 'VIEW', null, this.handleLogoutUser)}/>
                                     <Route exact path='/setting/details/:id'
-                                           component={withAuth(SettingContainer, 'VIEW', ['ROLE_ADMIN', 'ROLE_DISPATCHER'], this.handleLogoutUser)}/>
+                                           component={withAuth(SettingContainer, 'VIEW', null, this.handleLogoutUser)}/>
                                     <Route exact path='/setting/edit/:id'
-                                           component={withAuth(SettingContainer, 'EDIT', ['ROLE_ADMIN', 'ROLE_DISPATCHER'], this.handleLogoutUser)}/>
+                                           component={withAuth(SettingContainer, 'EDIT', null, this.handleLogoutUser)}/>
                                 </Switch>
                             </div>
                         </main>

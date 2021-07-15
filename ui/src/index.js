@@ -5,6 +5,7 @@ import 'react-app-polyfill/stable';
 import 'primeicons/primeicons.css';
 import 'primereact/resources/primereact.min.css';
 import 'primereact/resources/themes/md-light-indigo/theme.css';
+import 'devextreme/dist/css/dx.material.blue.light.compact.css';
 import './assets/quill/quill.bubble.scss';
 import './assets/quill/quill.core.scss';
 import './assets/quill/quill.snow.scss';
