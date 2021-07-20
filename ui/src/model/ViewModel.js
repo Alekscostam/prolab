@@ -16,7 +16,7 @@ export const GridOptions = ObjectModel({
 
 export const Column = ObjectModel({
     id: Number,
-    visible: Number,
+    visible: Boolean,
     fieldName: String,
     label: String,
     type: String,
@@ -35,9 +35,8 @@ export const GridColumns = ObjectModel({
     columns: ArrayModel(Column)
 })
 
-export const Buttons = ObjectModel({
-    type: [String],
-    visible: [Boolean],
+export const Operations = ObjectModel({
+    type: String,
     label: String
 })
 
@@ -59,10 +58,10 @@ export const PluginsList = ObjectModel({
 
 export const ViewResponse = ObjectModel({
     viewInfo: ViewInfo,
-    gridOptions: GridOptions,
+    gridOptions: [GridOptions],
     gridColumns: ArrayModel(GridColumns),
-    buttons: ArrayModel(Buttons),
-    shortcutButtons: ArrayModel(ShortcutButtons),
-    documentsList: ArrayModel(DocumentsList),
-    pluginsList: ArrayModel(PluginsList)
+    operations: [ArrayModel(Operations)],
+    shortcutButtons: [ArrayModel(ShortcutButtons)],
+    documentsList: [ArrayModel(DocumentsList)],
+    pluginsList: [ArrayModel(PluginsList)]
 });

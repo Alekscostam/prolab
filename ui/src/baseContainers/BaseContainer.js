@@ -10,6 +10,14 @@ import SimpleReactValidator from '../components/validator';
 import AuthService from '../services/AuthService';
 import $ from 'jquery';
 import Constants from "../utils/constants";
+import {readCookieGlobal, removeCookieGlobal, saveCookie, saveCookieGlobal} from "../utils/cookie";
+import {BreadcrumbsItem} from "react-breadcrumbs-dynamic";
+import {Messages} from "primereact/messages";
+import BlockUi from "../components/waitPanel/BlockUi";
+import DataGrid, {Column, FilterRow, HeaderFilter, Sorting} from "devextreme-react/data-grid";
+import {Toast} from "primereact/toast";
+import {Button} from "primereact/button";
+import {Message} from "primereact/message";
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -44,6 +52,7 @@ class BaseContainer extends React.Component {
         this.jwtRefreshBlocked = false;
         this.scrollToError = false;
         this.scrollToTopOnMount = true;
+        this.messages = null;
     }
 
     componentDidMount() {
@@ -102,19 +111,43 @@ class BaseContainer extends React.Component {
     }
 
     showSuccessMessage(detail, life = Constants.SUCCESS_MSG_LIFE, summary = '') {
-        this.showMessage('success', summary, detail, life, undefined);
+        this.messages.show({
+            severity: 'success', sticky: true, life: Constants.ERROR_MSG_LIFE, content: (
+                <div className="p-flex p-flex-column" style={{flex: '1'}}>
+                    <Message severity={'success'} content={detail}></Message>
+                </div>
+            )
+        });
     }
 
     showInfoMessage(detail, life = Constants.SUCCESS_MSG_LIFE, summary = 'Informacja') {
-        this.showMessage('info', summary, detail, life, undefined);
+        this.messages.show({
+            severity: 'info', sticky: false, life: Constants.ERROR_MSG_LIFE, content: (
+                <div className="p-flex p-flex-column" style={{flex: '1'}}>
+                    <Message severity={'info'} content={detail}></Message>
+                </div>
+            )
+        });
     }
 
     showWarningMessage(detail, life = Constants.ERROR_MSG_LIFE, summary = '') {
-        this.showMessage('warning', summary, detail, life, undefined);
+        this.messages.show({
+            severity: 'warn', sticky: false, life: Constants.ERROR_MSG_LIFE, content: (
+                <div className="p-flex p-flex-column" style={{flex: '1'}}>
+                    <Message severity={'warn'} content={detail}></Message>
+                </div>
+            )
+        });
     }
 
-    showErrorMessage(errMsg, life = Constants.ERROR_MSG_LIFE, closable = true, summary = 'Błąd') {
-        this.showMessage('error', summary, errMsg, life, closable, errMsg);
+    showErrorMessage(errMsg, life = Constants.ERROR_MSG_LIFE, closable = true, summary = 'Błąd!') {
+        this.messages.show({
+            severity: 'error', sticky: false, life: Constants.ERROR_MSG_LIFE, content: (
+                <div className="p-flex p-flex-column" style={{flex: '1'}}>
+                    <Message severity={'error'} content={errMsg}></Message>
+                </div>
+            )
+        });
     }
 
     showMessage(severity, summary, detail, life = 5000, closable = true, errMsg) {
@@ -164,15 +197,15 @@ class BaseContainer extends React.Component {
     }
 
     saveCookie(cookieName, cookieValue) {
-        sessionStorage.setItem(cookieName, cookieValue);
+        saveCookieGlobal(cookieName, cookieValue)
     }
 
     readCookie(cookieName) {
-        return sessionStorage.getItem(cookieName);
+        return readCookieGlobal(cookieName)
     }
 
     removeCookie(cookieName) {
-        return sessionStorage.removeItem(cookieName);
+        return removeCookieGlobal(cookieName)
     }
 
     isEqual(objA, objB) {
@@ -950,14 +983,52 @@ class BaseContainer extends React.Component {
             </div>
         );
     }
+
+    getBreadcrumbsName() {
+        return 'Unnamed';
+    }
+
+    getViewInfoName() {
+        return 'Unnamed';
+    }
+
+    renderContent() {
+        return (
+            <React.Fragment>
+            </React.Fragment>
+        )
+    }
+
+    render() {
+        return (
+            <React.Fragment>
+                <BreadcrumbsItem to='/setting-list'>{this.getBreadcrumbsName()}</BreadcrumbsItem>
+                <Toast id='toast-messages' position='top-center' ref={(el) => this.messages = el}/>
+                <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
+                    <DivContainer colClass='col-12 dashboard-link-container'>
+                        <DivContainer colClass='row'>
+                            <div className="font-medium mb-4">{this.getViewInfoName()}</div>
+                        </DivContainer>
+                        <DivContainer colClass='card-deck'>
+                            {this.state.loading === false ? (this.renderContent()) : null}
+                        </DivContainer>
+                    </DivContainer>
+                </BlockUi>
+            </React.Fragment>
+        );
+    }
 }
 
-BaseContainer.defaultProps = {
-    viewMode: 'VIEW',
-};
+BaseContainer.defaultProps =
+    {
+        viewMode: 'VIEW',
+    }
+;
 
-BaseContainer.propTypes = {
-    viewMode: PropTypes.string,
-};
+BaseContainer.propTypes =
+    {
+        viewMode: PropTypes.string,
+    }
+;
 
 export default BaseContainer;

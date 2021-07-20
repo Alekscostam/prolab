@@ -3,7 +3,7 @@ import BaseContainer from '../baseContainers/BaseContainer';
 import CustomMessages from '../components/CustomMessages';
 import DivContainer from '../components/DivContainer';
 import BlockUi from '../components/waitPanel/BlockUi';
-import {GridContainer} from "./GridContainer";
+import {GridViewContainer} from "./GridViewContainer";
 
 
 class TableContainer extends BaseContainer {
@@ -36,7 +36,7 @@ class TableContainer extends BaseContainer {
     renderDetails() {
         return (
             <React.Fragment>
-                <GridContainer/>
+                <GridViewContainer/>
             </React.Fragment>
         );
     }

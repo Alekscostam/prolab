@@ -1,5 +1,8 @@
 import BaseService from "./BaseService";
 
+/*
+GET wyświetlający strukturę menu, na którą składają się grupy widoków oraz widoki.
+ */
 export default class MenuService extends BaseService {
     // Initializing important variables
     constructor() {

@@ -1,6 +1,10 @@
 import decode from 'jwt-decode';
 import moment from 'moment';
 
+/*
+Żądanie POST służy do uwierzytelnienia użytkownika i uzyskania tokena, który służy do weryfikacji innego interfejsu API
+żądanie. Token jest ważny przez określony czas, po wygaśnięciu należy poprosić o nowy.
+ */
 export default class AuthService {
     // Initializing important variables
     constructor(domain) {
@@ -213,7 +217,8 @@ export default class AuthService {
     getProfile() {
         // Using jwt-decode npm package to decode the token
         try {
-            const decoded = decode(this.getToken());
+            //const decoded = decode(this.getToken());
+            const decoded = 'Janusz'
             return decoded;
         } catch (err) {
             return {};

@@ -10,6 +10,10 @@ $button-text-color: #FFFFFF;
 $shadow-color: #0000004E;
 $menu-bg-light: transparent linear-gradient(90deg, #EDF2FB 0%, #FBFBFD 26%, #FFFFFF 53%, #FAFBFD 77%, #ECF2FB 100%) 0% 0% no-repeat padding-box;
 $menu-bg-dark: transparent linear-gradient(270deg, #1246D3 0%, #0B3CC1 100%) 0% 0% no-repeat padding-box;
+$success-color: #2BB22A;
+$info-color: #25A9B4;
+$warn-color: #CE8E0F;
+$danger-color: #CB0A2F;
 //prosidebar
 
 $sidebar-bg-color: $menu-bg-dark;
@@ -27,8 +31,9 @@ $breakpoint-xl: 1200px !default;
 
 html, body, html * {
   font-family: "Roboto";
-  -webkit-font-smoothing: auto;
+  -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 html {
@@ -449,11 +454,11 @@ input:-webkit-autofill, input:autofill {
   text-align: left;
 }
 
-.card-text:hover{
+.card-text:hover {
   color: $link-color;
 }
 
-.prolab-logo{
+.prolab-logo {
   filter: blur(0.4px);
 }
 
@@ -461,6 +466,35 @@ input:-webkit-autofill, input:autofill {
   background: $link-color-highlighted;
 }
 
+.breadcrumb-link a {
+  font-size: 12px;
+}
+
+.breadcrumb-final.p-link {
+  font-size: 12px;
+}
+
+.breadcrumb-final.p-link {
+  font-size: 12px;
+  margin-left: 5px;
+}
+
+.pro-item-content.active .menu_arrow_active {
+  position: absolute;
+  left: -20px;
+  top: 2px;
+  width: 8px;
+  height: 31px;
+  background: transparent linear-gradient(188deg, #0E49EB 0%, #30DBCE 100%) 0% 0% no-repeat padding-box;
+  border-radius: 0px 4px 4px 0px;
+}
+
+.pro-sidebar > .pro-sidebar-inner > .pro-sidebar-layout .pro-sidebar-footer {
+  
+}
+
+//notifications & messages
+@import 'toast';
 /*------------------*/
 
 

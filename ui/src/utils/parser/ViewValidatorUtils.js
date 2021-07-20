@@ -1,20 +1,20 @@
 import {
-    Buttons,
     Column,
     DocumentsList,
     GridColumns,
     GridOptions,
+    Operations,
     PluginsList,
     ShortcutButtons,
     ViewInfo,
     ViewResponse
 } from "../../model/ViewModel";
-import {parseBoolean} from "./ParserUtils";
+import {parseBoolean} from "./ValidationUtils";
 
-export class ViewParserUtils {
+export class ViewValidatorUtils {
 
-    static parse(jsonData) {
-        let parsedViewObject = JSON.parse(jsonData);
+    static validation(jsonDataArg) {
+        let parsedViewObject = jsonDataArg;
         const viewValidObject = new ViewResponse({
             viewInfo: new ViewInfo({
                 id: parsedViewObject.viewInfo.id,
@@ -46,7 +46,7 @@ export class ViewParserUtils {
                     width: c.width
                 })),
             })),
-            buttons: parsedViewObject.buttons?.map((b) => new Buttons({
+            buttons: parsedViewObject.buttons?.map((b) => new Operations({
                 type: b.type,
                 visible: parseBoolean(b.visible),
                 label: b.label
@@ -60,6 +60,7 @@ export class ViewParserUtils {
             documentsList: parsedViewObject.documentsList?.map((d) => new DocumentsList({id: d.id, label: d.label})),
             pluginsList: parsedViewObject.pluginsList?.map((p) => new PluginsList({id: p.id, label: p.label}))
         });
+
         return viewValidObject;
     }
 

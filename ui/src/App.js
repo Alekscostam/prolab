@@ -1,31 +1,28 @@
 import $ from 'jquery';
 import React, {Component} from 'react';
-import {HashRouter as Router, Route, Switch} from 'react-router-dom';
-import CookiesContainer from './containers/deprecated/CookiesContainer';
-import HelpContainer from './containers/deprecated/HelpContainer';
+import {Router, Route, Switch} from 'react-router-dom';
 import Sidebar from './containers/layout/Sidebar';
 import Login from './containers/LoginContainer';
-import SettingContainer from './containers/SettingContainer';
-import SettingListContainer from './containers/SettingListContainer';
 import StartContainer from './containers/StartContainer';
-import UserContainer from './containers/UserContainer';
-import UserListContainer from './containers/UserListContainer';
 import AuthService from './services/AuthService';
-import withAuth from './utils/withAuth';
+import AuthComponent from './components/AuthComponent';
 import UserService from "./services/UserService";
 import PrimeReact from 'primereact/api';
 import "@fontsource/roboto"
-import TableContainer from "./containers/TableContainer";
+import {GridViewContainer} from "./containers/GridViewContainer";
+import {createBrowserHistory} from 'history';
+import {loadMessages} from "devextreme/localization";
+import {translationPL} from "./utils/translations";
 
 class App extends Component {
     constructor() {
         super();
+        this.history = createBrowserHistory();
         this.authService = new AuthService();
         this.userService = new UserService();
+        this.historyBrowser = this.history;
         this.state = {
             user: this.authService.getProfile(),
-            collapsed: false,
-            toggled: false,
         };
         this.handleLogoutUser = this.handleLogoutUser.bind(this);
         //primereact config
@@ -37,63 +34,35 @@ class App extends Component {
             tooltip: 1100   // tooltip
         }
         PrimeReact.appendTo = 'self'; // Default value is null(document.body).
+        //dexexpress localization
+        loadMessages({
+            'en': translationPL
+        });
     }
 
     componentDidMount() {
     }
 
-    handleToggleSidebar() {
-        this.setState((prevState) => ({toggled: !prevState.toggled}));
-    }
-
-    handleCollapsedChange() {
-        this.setState((prevState) => ({collapsed: !prevState.collapsed}), () => {
-            if (this.state.collapsed) {
-                $(".pro-sidebar-inner").css('position', 'relative');
-            } else {
-                $(".pro-sidebar-inner").css('position', 'fixed');
-            }
-        });
-    }
-
-    handleLogoutUser(url) {
-        /*
-            const lastUseToken = this.authService.getToken();
-            this.authService.logout();
-            if (url) {
-                window.location.href = '/#login?location=' + url;
-            } else {
-                window.location.href = '/#/login?force=true';
-            }
-            if (this.state.user) {
-                this.setState({user: null});
-            }
-            if (lastUseToken !== undefined && lastUseToken !== null) {
-                this.userService.logout(lastUseToken);
-            }
-        */
+    handleLogoutUser() {
         this.authService.logout();
         if (this.state.user) {
             this.setState({user: null});
         }
-        window.location.href = '/';
+        //window.location.href = '/';
+        this.historyBrowser.push('/');
     }
 
     render() {
         const authService = this.authService;
         return (
             <React.Fragment>
-                <Router>
+                <Router history={this.historyBrowser}>
                     <div className={`${authService.loggedIn() ? 'app' : ''}`}>
                         {authService.loggedIn() ?
                             <Sidebar
-                                collapsed={this.state.collapsed}
-                                toggled={this.state.toggled}
-                                loggedUser={this.state.user}
-                                handleToggleSidebar={this.handleToggleSidebar.bind(this)} O
-                                handleCollapsedChange={this.handleCollapsedChange.bind(this)}
-                                handleLogoutUser={this.handleLogoutUser.bind(this)}
                                 authService={this.authService}
+                                historyBrowser={this.historyBrowser}
+                                handleLogoutUser={this.handleLogoutUser}
                             /> : null}
                         <main>
                             <div className={`${authService.loggedIn() ? 'container-fluid' : ''}`}>
@@ -105,26 +74,23 @@ class App extends Component {
                                         this.setState({user: this.authService.getProfile().sub, collapsed: false});
                                     }}/>)}/>
                                     <Route exact path='/start'
-                                           component={withAuth(StartContainer, 'VIEW', null, this.handleLogoutUser)}/>
-                                    <Route exact path='/table'
-                                           component={withAuth(TableContainer, 'VIEW', null, this.handleLogoutUser)}/>
-                                    <Route exact path='/help-page'
-                                           component={withAuth(HelpContainer, 'VIEW', null, this.handleLogoutUser)}/>
-                                    <Route exact path='/cookies-page' component={CookiesContainer}/>
-                                    <Route exact path='/user-list'
-                                           component={withAuth(UserListContainer, 'VIEW', null, this.handleLogoutUser)}/>
-                                    <Route exact path='/user/create'
-                                           component={withAuth(UserContainer, 'NEW', null, this.handleLogoutUser)}/>
-                                    <Route exact path='/user/details/:id'
-                                           component={withAuth(UserContainer, 'VIEW', null, this.handleLogoutUser)}/>
-                                    <Route exact path='/user/edit/:id'
-                                           component={withAuth(UserContainer, 'EDIT', null, this.handleLogoutUser)}/>
-                                    <Route exact path='/setting-list'
-                                           component={withAuth(SettingListContainer, 'VIEW', null, this.handleLogoutUser)}/>
-                                    <Route exact path='/setting/details/:id'
-                                           component={withAuth(SettingContainer, 'VIEW', null, this.handleLogoutUser)}/>
-                                    <Route exact path='/setting/edit/:id'
-                                           component={withAuth(SettingContainer, 'EDIT', null, this.handleLogoutUser)}/>
+                                           render={(props) => {
+                                               return (
+                                                   <AuthComponent viewMode={'VIEW'}
+                                                                  historyBrowser={this.historyBrowser}>
+                                                       <StartContainer/>
+                                                   </AuthComponent>
+                                               )
+                                           }}/>
+                                    <Route path='/grid-view/:id'
+                                           render={(props) => {
+                                               return (
+                                                   <AuthComponent viewMode={'VIEW'}
+                                                                  historyBrowser={this.historyBrowser}>
+                                                       <GridViewContainer id={props.match.params.id}/>
+                                                   </AuthComponent>
+                                               )
+                                           }}/>
                                 </Switch>
                             </div>
                         </main>

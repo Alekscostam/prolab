@@ -1,6 +1,6 @@
 import {MenuItem, MenuResponse} from "../../model/MenuModel";
 
-export class MenuParserUtils {
+export class MenuValidatorUtils {
 
     static flatParse(jsonData) {
         const menuDataValidObject = new MenuResponse({
@@ -14,7 +14,7 @@ export class MenuParserUtils {
         return menuDataValidObject;
     }
 
-    static recurrenceValidation(jsonData) {
+    static validation(jsonData) {
         for (let i = 0; i < jsonData.length; i++) {
             let sub = jsonData[i].sub;
             if (sub !== undefined && sub !== null && (Array.isArray(sub) && sub.length !== 0)) {
@@ -26,7 +26,7 @@ export class MenuParserUtils {
                         icon: sub.icon
                     })
                 })
-                this.recurrenceValidation(sub);
+                this.validation(sub);
             } else {
                 new MenuItem({
                     id: jsonData[i].id,
@@ -34,7 +34,7 @@ export class MenuParserUtils {
                     name: jsonData[i].name,
                     icon: jsonData[i].icon
                 })
-                this.recurrenceValidation(jsonData[i]);
+                this.validation(jsonData[i]);
             }
         }
         return jsonData;

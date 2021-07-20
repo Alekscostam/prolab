@@ -5,39 +5,77 @@ import $ from 'jquery';
 import React from 'react';
 import {FaAngleDoubleRight, FaAngleRight, FaBars, FaSignOutAlt, FaUser} from 'react-icons/fa';
 import {Menu, MenuItem, ProSidebar, SidebarContent, SidebarFooter, SidebarHeader, SubMenu} from 'react-pro-sidebar';
-import {Link} from 'react-router-dom';
+import {Link, withRouter} from 'react-router-dom';
 import {Button} from "primereact/button";
 import * as PropTypes from "prop-types";
 import MenuService from "../../services/MenuService";
 import BlockUi from "../../components/waitPanel/BlockUi";
-import {MenuParserUtils} from "../../utils/parser/MenuParserUtils";
+import {MenuValidatorUtils} from "../../utils/parser/MenuValidatorUtils";
+import ViewService from "../../services/ViewService";
+import {saveCookieGlobal} from "../../utils/cookie";
+import {Cookie} from "../../utils/constants";
 
 class Sidebar extends React.Component {
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             loading: true,
             data: null,
+            collapsed: false,
+            toggled: false
         }
         this.menuService = new MenuService();
+        this.viewService = new ViewService();
+        this.handleLogoutUser = this.handleLogoutUser.bind(this);
+        this.handleCollapseChange = this.handleCollapseChange.bind(this);
     }
 
     componentDidMount() {
         this.menuService.getMenu().then(data => {
-            MenuParserUtils.recurrenceValidation(data.menu);
+            MenuValidatorUtils.validation(data.menu);
             this.setState({
                 loading: false,
                 data: data,
             }, () => {
                 console.log("Initialized menu success")
-            })
+            });
         }).catch(err => {
             console.error('Error initialized menu. Error = ', err)
             this.setState({
                 loading: false
             });
         });
+    }
+
+    //very important !!!
+    shouldComponentUpdate(nextProps, nextState, nextContext) {
+        const history = this.props.history;
+        return (history.action !== "PUSH" || (history.action !== 'PUSH' && nextProps.location.pathname == '/start'))
+            || (this.state.collapsed !== nextState.collapsed)
+            || (this.state.toggled !== nextState.toggled);
+    }
+
+    handleLogoutUser() {
+        this.setState({
+            loading: true
+        }, () => {
+            this.props.handleLogoutUser()
+        })
+    }
+
+    handleCollapseChange() {
+        this.setState((prevState) => ({collapsed: !prevState.collapsed}), () => {
+            if (this.state.collapsed) {
+                $(".pro-sidebar-inner").css('position', 'relative');
+            } else {
+                $(".pro-sidebar-inner").css('position', 'fixed');
+            }
+        });
+    }
+
+    handleToggleSidebar() {
+        this.setState((prevState) => ({toggled: !prevState.toggled}));
     }
 
     render() {
@@ -47,31 +85,39 @@ class Sidebar extends React.Component {
             });
             $(this).addClass('active').siblings().removeClass('active');
         });
-        let {
-            collapsed,
-            toggled,
-            loggedUser,
-            handleToggleSidebar,
-            handleCollapsedChange,
-            handleLogoutUser,
-            authService
-        } = this.props;
+
+        $(document).on('click', '.pro-item-content', function (e) {
+            $('.wiatrak').each(function (index) {
+                $(this).removeClass('active');
+            });
+            $('.wiatrak').addClass('active').siblings().removeClass('active');
+        });
+        /*------------------------  PROPS  ---------------------------*/
+        let {authService} = this.props;
+        /*------------------------  PROPS  ---------------------------*/
         //TODO pobrać się do danych o userze
         const userName = authService.getProfile().sub;
         const dynamicMenuJSON = !authService.loggedIn() ? [] : this.state.data?.menu;
         //TODO pogadać o rolach
         //const role = authService.getProfile().role;
-
+        const nav = (e, item) => {
+            saveCookieGlobal(Cookie.CURRENT_SELECTED_MENU_ITEM, item)
+            this.props.history.push(`/grid-view/${item.id}`)
+        }
         const renderDynamicMenu = items => {
             return <Menu iconShape='circle' popperArrow='false'>
-                {items?.map(i => {
-                    return i.type === "View" ? (<li>
-                            <MenuItem icon={<FaAngleRight/>}> {i?.name}<Link to='/start'/> </MenuItem>
-                            {i?.sub && renderDynamicMenu(i?.sub)}
+                {items?.map(item => {
+                    return item.type === "View" ? (<li>
+                            <MenuItem key={`menu_key_${item.id}`} icon={<FaAngleRight/>}
+                                      onClick={(e) => nav(e, item)}>
+                                <div className='menu_arrow_active'/>
+                                <div className='title'>{item?.name}</div>
+                            </MenuItem>
+                            {item?.sub && renderDynamicMenu(item?.sub)}
                         </li>)
                         :
-                        (<SubMenu icon={<FaAngleDoubleRight/>} title={i?.name}>
-                            {i?.sub && renderDynamicMenu(i?.sub)}
+                        (<SubMenu key={`menu_sub_${item.id}`} icon={<FaAngleDoubleRight/>} title={item?.name}>
+                            {item?.sub && renderDynamicMenu(item?.sub)}
                         </SubMenu>)
                 })}
             </Menu>
@@ -84,18 +130,20 @@ class Sidebar extends React.Component {
         }
 
         return !authService.loggedIn() ? null : (
+
             <React.Fragment>
                 <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
-                    <div className='btn-toggle' onClick={() => handleToggleSidebar(true)}>
+                    <div className='btn-toggle' onClick={() => this.handleToggleSidebar()}>
                         <FaBars/>
                     </div>
-                    <ProSidebar collapsed={collapsed} toggled={toggled} breakPoint='md' onToggle={handleToggleSidebar}
-                                className={collapsed ? 'pro-sidebar-layout-light' : 'pro-sidebar-layout-dark'}>
+                    <ProSidebar collapsed={this.state.collapsed} toggled={this.state.toggled} breakPoint='md'
+                                onToggle={() => this.handleToggleSidebar()}
+                                className={this.state.collapsed ? 'pro-sidebar-layout-light' : 'pro-sidebar-layout-dark'}>
                         <SidebarHeader>
                             <div id={"menu-title"} className={"col-12 mb-4"}>
                                 <div className="row">
                                     <div className={"col-9"}>
-                                        {collapsed ? null : <div style={{
+                                        {this.state.collapsed ? null : <div style={{
                                             padding: '15px',
                                             overflow: 'hidden',
                                             textOverflow: 'ellipsis',
@@ -111,7 +159,7 @@ class Sidebar extends React.Component {
                                                 className="p-button-text p-button-icon-only"
                                                 icon="pi pi-bars"
                                                 iconPos="right"
-                                                onClick={handleCollapsedChange}/>
+                                                onClick={this.handleCollapseChange}/>
                                     </div>
                                 </div>
                             </div>
@@ -131,7 +179,7 @@ class Sidebar extends React.Component {
                                 style={{
                                     padding: '20px 24px',
                                 }}>
-                                <div onClick={handleLogoutUser} className='sidebar-btn' rel='noopener noreferrer'>
+                                <div onClick={this.handleLogoutUser} className='sidebar-btn' rel='noopener noreferrer'>
                                     <FaSignOutAlt/>
                                     <span>Wyloguj</span>
                                 </div>
@@ -145,13 +193,10 @@ class Sidebar extends React.Component {
 }
 
 Sidebar.propTypes = {
-    collapsed: PropTypes.any,
-    toggled: PropTypes.any,
     loggedUser: PropTypes.any,
-    handleToggleSidebar: PropTypes.any,
-    handleCollapsedChange: PropTypes.any,
     handleLogoutUser: PropTypes.any,
-    authService: PropTypes.any
+    authService: PropTypes.any,
+    historyBrowser: PropTypes.any
 }
 
-export default Sidebar;
+export default withRouter(Sidebar);
