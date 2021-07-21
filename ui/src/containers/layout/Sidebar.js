@@ -79,18 +79,11 @@ class Sidebar extends React.Component {
     }
 
     render() {
-        $(document).on('click', '.pro-item-content', function (e) {
-            $('.pro-item-content').each(function (index) {
+        $(document).on('click', '.pro-inner-item', function (e) {
+            $('.pro-inner-item').each(function (index) {
                 $(this).removeClass('active');
             });
             $(this).addClass('active').siblings().removeClass('active');
-        });
-
-        $(document).on('click', '.pro-item-content', function (e) {
-            $('.wiatrak').each(function (index) {
-                $(this).removeClass('active');
-            });
-            $('.wiatrak').addClass('active').siblings().removeClass('active');
         });
         /*------------------------  PROPS  ---------------------------*/
         let {authService} = this.props;

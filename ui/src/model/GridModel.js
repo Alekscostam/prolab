@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-undef
-import { ObjectModel } from "objectmodel"
+import {ObjectModel} from "objectmodel"
 
 export const Order = new ObjectModel({
     product: {

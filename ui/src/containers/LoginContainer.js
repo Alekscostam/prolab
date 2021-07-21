@@ -1,5 +1,4 @@
 import queryString from 'query-string';
-import {Messages} from 'primereact/messages';
 import {Password} from 'primereact/password';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -10,6 +9,7 @@ import AuthService from '../services/AuthService';
 import BlockUi from './../components/waitPanel/BlockUi';
 import {InputText} from "primereact/inputtext";
 import ActionButton from "../components/ActionButton";
+import {Toast} from "primereact/toast";
 
 class LoginContainer extends BaseContainer {
     constructor() {
@@ -101,7 +101,7 @@ class LoginContainer extends BaseContainer {
         return (
             <React.Fragment>
                 <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
-                    <Messages id="custom-messages" ref={(el) => (this.messages = el)}></Messages>
+                    <Toast id='toast-messages' position='top-center' ref={(el) => this.messages = el}/>
                     <div className="container-fluid login">
                         <div className="row no-gutter">
                             <div className="col-md-7 d-none d-md-flex bg-color">

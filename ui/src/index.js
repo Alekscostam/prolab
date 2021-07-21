@@ -15,10 +15,11 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import {ThroughProvider} from 'react-through'
 
+
 const theApp = (
-  <ThroughProvider>
-      <App />
-  </ThroughProvider>
+    <ThroughProvider>
+        <App/>
+    </ThroughProvider>
 )
 
 ReactDOM.render(theApp, document.getElementById('root'));

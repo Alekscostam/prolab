@@ -1,9 +1,10 @@
-import React, {Component} from 'react';
+import React from 'react';
 import {BreadcrumbsItem} from 'react-breadcrumbs-dynamic';
 import BreadcrumbsComponent from './layouts/BreadcrumbsComponent';
 import AuthService from "../services/AuthService";
 import * as PropTypes from "prop-types";
 import Address from "./Address";
+import AppPrefixUtils from "../utils/AppPrefixUtils";
 
 
 class AuthComponent extends React.Component {
@@ -24,7 +25,9 @@ class AuthComponent extends React.Component {
         } = this.props;
         if (!this.authService.loggedIn()) {
             console.log('You not login in !!!')
-            historyBrowser.push('/');
+            //Old
+            //historyBrowser.push('/');
+            window.location.href = AppPrefixUtils.locationHrefUrl('/#/');
         } else {
             const userRoles = this.authService.getRoles();
             let authorized = false;
@@ -71,8 +74,7 @@ class AuthComponent extends React.Component {
     }
 }
 
-Address.defaultProps = {
-};
+Address.defaultProps = {};
 
 AuthComponent.propTypes = {
     historyBrowser: PropTypes.any.isRequired,

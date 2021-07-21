@@ -1,6 +1,5 @@
-import $ from 'jquery';
 import React, {Component} from 'react';
-import {Router, Route, Switch} from 'react-router-dom';
+import {HashRouter, Route, Switch} from 'react-router-dom';
 import Sidebar from './containers/layout/Sidebar';
 import Login from './containers/LoginContainer';
 import StartContainer from './containers/StartContainer';
@@ -13,6 +12,7 @@ import {GridViewContainer} from "./containers/GridViewContainer";
 import {createBrowserHistory} from 'history';
 import {loadMessages} from "devextreme/localization";
 import {translationPL} from "./utils/translations";
+import AppPrefixUtils from "./utils/AppPrefixUtils";
 
 class App extends Component {
     constructor() {
@@ -47,16 +47,15 @@ class App extends Component {
         this.authService.logout();
         if (this.state.user) {
             this.setState({user: null});
+            window.location.href = AppPrefixUtils.locationHrefUrl('/#/');
         }
-        //window.location.href = '/';
-        this.historyBrowser.push('/');
     }
 
     render() {
         const authService = this.authService;
         return (
             <React.Fragment>
-                <Router history={this.historyBrowser}>
+                <HashRouter history={this.historyBrowser}>
                     <div className={`${authService.loggedIn() ? 'app' : ''}`}>
                         {authService.loggedIn() ?
                             <Sidebar
@@ -95,7 +94,7 @@ class App extends Component {
                             </div>
                         </main>
                     </div>
-                </Router>
+                </HashRouter>
             </React.Fragment>
         );
     }

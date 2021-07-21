@@ -14,6 +14,7 @@ import BlockUi from '../components/waitPanel/BlockUi';
 import {Dropdown} from 'primereact/dropdown';
 import {DataTable} from 'primereact/datatable';
 import {Accordion, AccordionTab} from 'primereact/accordion';
+import AppPrefixUtils from "../utils/AppPrefixUtils";
 
 class BaseListContainer extends BaseContainer {
     constructor(props, service) {
@@ -240,7 +241,7 @@ class BaseListContainer extends BaseContainer {
         this.blockUi();
         const {criteria} = this.state;
         this.saveCookie(this.getCriteriaName(), JSON.stringify(criteria));
-        window.location.href = href;
+        window.location.href = AppPrefixUtils.locationHrefUrl(href);
     }
 
     handleGoToNew(e) {
@@ -249,7 +250,7 @@ class BaseListContainer extends BaseContainer {
         const {newUrl} = this.props;
         const {criteria} = this.state;
         this.saveCookie(this.getCriteriaName(), JSON.stringify(criteria));
-        window.location.href = newUrl;
+        window.location.href = AppPrefixUtils.locationHrefUrl(newUrl);
     }
 
     actionTemplate(rowData) {

@@ -6,6 +6,7 @@ import PropTypes from "prop-types";
 import {readCookieGlobal} from "../utils/cookie";
 import {Cookie} from "../utils/constants";
 import BaseContainer from "../baseContainers/BaseContainer";
+import ViewDataService from "../services/ViewDataService";
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -16,6 +17,7 @@ export class GridViewContainer extends BaseContainer {
         console.log('GridViewContainer -> constructor')
         super(props);
         this.viewService = new ViewService();
+        this.viewDataService = new ViewDataService();
         this.state = {
             loading: true,
             elementId: props.id,
@@ -73,9 +75,10 @@ export class GridViewContainer extends BaseContainer {
                         parsedView: responseData,
                         gridViewColumns: gridViewColumnsTmp,
                     }, () => {
-                        this.viewService.getViewData(this.props.id).then(responseData => {
+                        this.viewDataService.getViewData(this.props.id).then(responseData => {
                             this.state = {
-                                loading: false
+                                loading: false,
+                                parsedData: responseData
                             }
                         }).catch(err => {
                             console.error('Error getViewData in GridView. Exception = ', err)
@@ -139,6 +142,7 @@ export class GridViewContainer extends BaseContainer {
                     showBorders={true}
                     wordWrapEnabled={true}
                     columnAutoWidth={columnAutoWidth}
+                    dataSource={this.state.parsedData}
                 >
                     <FilterRow visible={true}/>
                     <HeaderFilter visible={true}/>
