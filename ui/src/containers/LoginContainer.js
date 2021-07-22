@@ -10,13 +10,13 @@ import BlockUi from './../components/waitPanel/BlockUi';
 import {InputText} from "primereact/inputtext";
 import ActionButton from "../components/ActionButton";
 import {Toast} from "primereact/toast";
+import {readCookieGlobal} from "../utils/cookie";
 
 class LoginContainer extends BaseContainer {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.handleChange = this.handleChange.bind(this);
         this.handleFormSubmit = this.handleFormSubmit.bind(this);
-        this.authService = new AuthService();
         this.state = {
             username: '',
             password: '',
@@ -98,6 +98,7 @@ class LoginContainer extends BaseContainer {
     }
 
     renderBeforeAuth() {
+        const REACT_APP_URL_PREFIX = readCookieGlobal("REACT_APP_URL_PREFIX");
         return (
             <React.Fragment>
                 <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
@@ -105,8 +106,10 @@ class LoginContainer extends BaseContainer {
                     <div className="container-fluid login">
                         <div className="row no-gutter">
                             <div className="col-md-7 d-none d-md-flex bg-color">
-                                <img className='login-icon' src={`/images/login_logo.svg`} alt='Prolab'/>
-                                <img className='login-left-bg' src={`/images/login_left_img.svg`}/>
+                                <img className='login-icon'
+                                     src={`${REACT_APP_URL_PREFIX}images/login_logo.svg`} alt='Prolab'/>
+                                <img className='login-left-bg'
+                                     src={`${REACT_APP_URL_PREFIX}images/login_left_img.svg`}/>
                             </div>
                             <div className="col-md-5 bg-light">
                                 <div className="login d-flex align-items-center py-5">
@@ -187,5 +190,6 @@ class LoginContainer extends BaseContainer {
 
 LoginContainer.propTypes = {
     onAfterLogin: PropTypes.func,
+    backendUrl: PropTypes.string.isRequired,
 };
 export default LoginContainer;

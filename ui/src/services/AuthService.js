@@ -1,5 +1,6 @@
 import decode from 'jwt-decode';
 import moment from 'moment';
+import {readCookieGlobal} from "../utils/cookie";
 
 /*
 Żądanie POST służy do uwierzytelnienia użytkownika i uzyskania tokena, który służy do weryfikacji innego interfejsu API
@@ -11,7 +12,7 @@ export default class AuthService {
         if (domain !== null && domain !== undefined) {
             this.domain = domain;
         } else {
-            this.domain = process.env.REACT_APP_BACKEND_URL; // API server domain
+            this.domain = readCookieGlobal("REACT_APP_BACKEND_URL"); // API server domain
         }
         this.fetch = this.fetch.bind(this);
         this.setUiMethods = this.setUiMethods.bind(this);

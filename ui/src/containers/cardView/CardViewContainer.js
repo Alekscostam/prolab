@@ -1,8 +1,8 @@
 import React from 'react';
-import BaseContainer from '../baseContainers/BaseContainer';
-import CustomMessages from '../components/CustomMessages';
-import DivContainer from '../components/DivContainer';
-import BlockUi from '../components/waitPanel/BlockUi';
+import BaseContainer from '../../baseContainers/BaseContainer';
+import CustomMessages from '../../components/CustomMessages';
+import DivContainer from '../../components/DivContainer';
+import BlockUi from '../../components/waitPanel/BlockUi';
 
 function DynamicCard(data, handleClick) {
     return <React.Fragment>

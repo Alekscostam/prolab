@@ -3,7 +3,6 @@ import {Nav} from 'react-bootstrap';
 import {Breadcrumbs} from 'react-breadcrumbs-dynamic';
 import {NavLink, withRouter} from 'react-router-dom';
 import AuthService from '../../services/AuthService';
-import AppPrefixUtils from "../../utils/AppPrefixUtils";
 
 class BreadcrumbsComponent extends Component {
     constructor(props, context) {

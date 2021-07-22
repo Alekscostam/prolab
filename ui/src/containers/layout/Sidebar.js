@@ -12,8 +12,9 @@ import MenuService from "../../services/MenuService";
 import BlockUi from "../../components/waitPanel/BlockUi";
 import {MenuValidatorUtils} from "../../utils/parser/MenuValidatorUtils";
 import ViewService from "../../services/ViewService";
-import {saveCookieGlobal} from "../../utils/cookie";
+import {readCookieGlobal, saveCookieGlobal} from "../../utils/cookie";
 import {Cookie} from "../../utils/constants";
+import packageJson from '../../../package.json';
 
 class Sidebar extends React.Component {
 
@@ -98,10 +99,10 @@ class Sidebar extends React.Component {
             this.props.history.push(`/grid-view/${item.id}`)
         }
         const renderDynamicMenu = items => {
-            return <Menu iconShape='circle' popperArrow='false'>
+            return <Menu key="menu" iconShape='circle' popperArrow='false'>
                 {items?.map(item => {
                     return item.type === "View" ? (<li>
-                            <MenuItem key={`menu_key_${item.id}`} icon={<FaAngleRight/>}
+                            <MenuItem id={`menu_item_id_${item.id}`} key={`menu_item_key_${item.id}`} icon={<FaAngleRight/>}
                                       onClick={(e) => nav(e, item)}>
                                 <div className='menu_arrow_active'/>
                                 <div className='title'>{item?.name}</div>
@@ -117,11 +118,12 @@ class Sidebar extends React.Component {
         }
 
         const DynamicMenu = (data) => {
-            return <SidebarContent id={"menu-content"}>
+            return <SidebarContent id={"menu-content"} key="menu-content-key">
                 {renderDynamicMenu(data?.data)}
             </SidebarContent>
         }
 
+        const REACT_APP_URL_PREFIX = readCookieGlobal("REACT_APP_URL_PREFIX");
         return !authService.loggedIn() ? null : (
 
             <React.Fragment>
@@ -143,7 +145,7 @@ class Sidebar extends React.Component {
                                             color: 'white',
                                             textAlign: 'left'
                                         }}>
-                                            <img height={'34px'} src={`/images/login_logo.svg`} alt='Prolab'
+                                            <img height={'34px'} src={`${REACT_APP_URL_PREFIX}images/login_logo.svg`} alt='Prolab'
                                                  className='prolab-logo'/>
                                         </div>}
                                     </div>
@@ -158,7 +160,7 @@ class Sidebar extends React.Component {
                             </div>
                         </SidebarHeader>
 
-                        <DynamicMenu data={dynamicMenuJSON}/>
+                        <DynamicMenu id="dynamic-menu" key="dynamic-menu-key" data={dynamicMenuJSON}/>
 
                         <SidebarFooter id={"menu-footer"} style={{textAlign: 'center'}}>
                             <Menu iconShape='circle'>
@@ -172,10 +174,11 @@ class Sidebar extends React.Component {
                                 style={{
                                     padding: '20px 24px',
                                 }}>
-                                <div onClick={this.handleLogoutUser} className='sidebar-btn' rel='noopener noreferrer'>
+                                <div onClick={this.handleLogoutUser} className='sidebar-btn' rel='noopener noreferrer' style={{marginRight:'15px'}}>
                                     <FaSignOutAlt/>
                                     <span>Wyloguj</span>
                                 </div>
+                                <div >ver:{packageJson.version}</div>
                             </div>
                         </SidebarFooter>
                     </ProSidebar>

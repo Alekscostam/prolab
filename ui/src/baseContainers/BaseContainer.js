@@ -10,20 +10,17 @@ import SimpleReactValidator from '../components/validator';
 import AuthService from '../services/AuthService';
 import $ from 'jquery';
 import Constants from "../utils/constants";
-import {readCookieGlobal, removeCookieGlobal, saveCookie, saveCookieGlobal} from "../utils/cookie";
+import {readCookieGlobal, removeCookieGlobal, saveCookieGlobal} from "../utils/cookie";
 import {BreadcrumbsItem} from "react-breadcrumbs-dynamic";
-import {Messages} from "primereact/messages";
 import BlockUi from "../components/waitPanel/BlockUi";
-import DataGrid, {Column, FilterRow, HeaderFilter, Sorting} from "devextreme-react/data-grid";
 import {Toast} from "primereact/toast";
-import {Button} from "primereact/button";
 import {Message} from "primereact/message";
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
         super(props);
         this.service = service;
-        this.authService = new AuthService();
+        this.authService = new AuthService(this.props.backendUrl);
         this.readCookie = this.readCookie.bind(this);
         this.removeCookie = this.removeCookie.bind(this);
         this.saveCookie = this.saveCookie.bind(this);

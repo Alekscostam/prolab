@@ -1,5 +1,6 @@
 import moment from 'moment';
 import AuthService from './AuthService';
+import {readCookieGlobal} from "../utils/cookie";
 
 export default class BaseService {
     // Initializing important variables
@@ -7,7 +8,7 @@ export default class BaseService {
         if (domain !== null && domain !== undefined) {
             this.domain = domain;
         } else {
-            this.domain = process.env.REACT_APP_BACKEND_URL; // API server domain
+            this.domain = readCookieGlobal("REACT_APP_BACKEND_URL"); // API server domain
         }
         this.fetch = this.fetch.bind(this);
         this.setUiMethods = this.setUiMethods.bind(this);
