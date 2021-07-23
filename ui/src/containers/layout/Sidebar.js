@@ -145,7 +145,7 @@ class Sidebar extends React.Component {
                                             color: 'white',
                                             textAlign: 'left'
                                         }}>
-                                            <img height={'34px'} src={`${REACT_APP_URL_PREFIX}images/login_logo.svg`} alt='Prolab'
+                                            <img height={'34px'} src={`./images/login_logo.svg`} alt='Prolab'
                                                  className='prolab-logo'/>
                                         </div>}
                                     </div>
@@ -174,11 +174,12 @@ class Sidebar extends React.Component {
                                 style={{
                                     padding: '20px 24px',
                                 }}>
-                                <div onClick={this.handleLogoutUser} className='sidebar-btn' rel='noopener noreferrer' style={{marginRight:'15px'}}>
+                                <div onClick={this.handleLogoutUser} className='sidebar-btn' rel='noopener noreferrer'
+                                     style={{marginRight: '15px'}}>
                                     <FaSignOutAlt/>
                                     <span>Wyloguj</span>
                                 </div>
-                                <div >ver:{packageJson.version}</div>
+                                <div>ver:{packageJson.version}</div>
                             </div>
                         </SidebarFooter>
                     </ProSidebar>

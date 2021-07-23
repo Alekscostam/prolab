@@ -11,12 +11,16 @@ import {InputText} from "primereact/inputtext";
 import ActionButton from "../components/ActionButton";
 import {Toast} from "primereact/toast";
 import {readCookieGlobal} from "../utils/cookie";
+import Constants from "../utils/constants";
+import {Message} from "primereact/message";
 
 class LoginContainer extends BaseContainer {
     constructor(props) {
         super(props);
         this.handleChange = this.handleChange.bind(this);
         this.handleFormSubmit = this.handleFormSubmit.bind(this);
+        this.showWarningMessage = this.showWarningMessage.bind(this);
+        this.showErrorMessage = this.showErrorMessage.bind(this);
         this.state = {
             username: '',
             password: '',
@@ -97,6 +101,26 @@ class LoginContainer extends BaseContainer {
         return <Redirect to={'/start'}/>;
     }
 
+    showWarningMessage(detail, life = Constants.ERROR_MSG_LIFE, summary = '') {
+        this.messages.show({
+            severity: 'warn', sticky: false, life: Constants.ERROR_MSG_LIFE, content: (
+                <div className="p-flex p-flex-column" style={{flex: '1'}}>
+                    <Message severity={'warn'} content={detail}></Message>
+                </div>
+            )
+        });
+    }
+
+    showErrorMessage(errMsg, life = Constants.ERROR_MSG_LIFE, closable = true, summary = 'Błąd!') {
+        this.messages.show({
+            severity: 'error', sticky: false, life: Constants.ERROR_MSG_LIFE, content: (
+                <div className="p-flex p-flex-column" style={{flex: '1'}}>
+                    <Message severity={'error'} content={errMsg}></Message>
+                </div>
+            )
+        });
+    }
+
     renderBeforeAuth() {
         const REACT_APP_URL_PREFIX = readCookieGlobal("REACT_APP_URL_PREFIX");
         return (
@@ -107,9 +131,9 @@ class LoginContainer extends BaseContainer {
                         <div className="row no-gutter">
                             <div className="col-md-7 d-none d-md-flex bg-color">
                                 <img className='login-icon'
-                                     src={`${REACT_APP_URL_PREFIX}images/login_logo.svg`} alt='Prolab'/>
+                                     src={`./images/login_logo.svg`} alt='Prolab'/>
                                 <img className='login-left-bg'
-                                     src={`${REACT_APP_URL_PREFIX}images/login_left_img.svg`}/>
+                                     src={`./images/login_left_img.svg`}/>
                             </div>
                             <div className="col-md-5 bg-light">
                                 <div className="login d-flex align-items-center py-5">

@@ -8,7 +8,7 @@ class AppPrefixUtils {
         } else if (url.startsWith(REACT_APP_URL_PREFIX)) {
             return url;
         } else {
-            return `${REACT_APP_URL_PREFIX}${url}`;
+            return `/${REACT_APP_URL_PREFIX}${url}`;
         }
     }
 }
