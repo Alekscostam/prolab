@@ -1,15 +1,12 @@
-export const Cookie = {
-    CURRENT_SELECTED_MENU_ITEM: 'CURRENT_SELECTED_MENU_ITEM',
-}
+export const Cookie = {}
 
 export const Constants = {
     DATE_FORMAT: {
         DATE_GET_REQUEST_FORMAT: 'YYYY-MM-DD',
-        DATE_TIME_FORMAT_ISO: 'dd-MM-yyyy HH:mm:ss',
-        DATE_FORMAT_ISO: 'dd-MM-YYYY',
-        DATE_FORMAT: 'YYYY-MM-DD',
-        DATE_TIME_FORMAT: 'YYYY-MM-DD HH:mm:ss',
-        DATE_MONTH_FORMAT: 'YYYY-MM',
+        DATE_FORMAT: 'yyyy-MM-dd',
+        DATE_TIME_FORMAT: 'yyyy-MM-dd HH:mm:ss',
+        TIME_FORMAT: 'HH:mm:ss',
+        MONTH_FORMAT: 'yyyy-MM',
     },
     BOOLEAN: {
         BOOLEAN_OPTIONS: [

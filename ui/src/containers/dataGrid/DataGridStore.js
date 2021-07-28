@@ -14,6 +14,8 @@ export default class DataGridStore extends BaseService {
 
     getDataGridStore(viewId) {
         const dataGridStore = new CustomStore({
+            key: 'id',
+            keyExpr: 'id',
             load: (loadOptions) => {
                 let params = '?';
                 [
@@ -42,11 +44,14 @@ export default class DataGridStore extends BaseService {
                     method: 'GET',
                 })
                     .then(response => {
+                        let data = response.data;
+                        console.log('DataGridStore -> fetch ata: ', data)
                         return {
-                            data: response.data,
-                            totalCount: response.totalCount || 1000,
-                            summary: response.summary,
-                            groupCount: response.groupCount
+                            data: data,
+                            //TODO
+                            totalCount: response.totalCount || 50,
+                            summary: response.summary || [],
+                            groupCount: response.groupCount || 0
                         };
                     })
                     .catch((err) => {

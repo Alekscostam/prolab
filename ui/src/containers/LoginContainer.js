@@ -5,7 +5,6 @@ import React from 'react';
 import {Redirect} from 'react-router-dom';
 import BaseContainer from '../baseContainers/BaseContainer';
 import SimpleReactValidator from '../components/validator';
-import AuthService from '../services/AuthService';
 import BlockUi from './../components/waitPanel/BlockUi';
 import {InputText} from "primereact/inputtext";
 import ActionButton from "../components/ActionButton";

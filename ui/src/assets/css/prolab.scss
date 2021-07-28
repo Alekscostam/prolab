@@ -1,3 +1,8 @@
+/*
+font-weight: 400; //normal
+font-weight: 500; //medium
+font-weight: 700; //bold
+*/
 /*Constans*/
 $text-color: #182D67;
 $text-color-highlighted: #30DBCE;
@@ -359,6 +364,15 @@ input:-webkit-autofill, input:autofill {
 //notifications & messages
 @import 'toast';
 /*------------------*/
+
+//shortcuts buttons
+@import 'shortcut';
+/*------------------*/
+
+//grid container
+@import 'grid_container';
+/*------------------*/
+
 
 
 

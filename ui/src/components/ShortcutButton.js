@@ -4,12 +4,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+
 export const ShortcutButton = props => {
     const {
         className,
-        colClass,
         disabled,
-        downloadFile,
         handleClick,
         href,
         iconColor,
@@ -17,97 +16,42 @@ export const ShortcutButton = props => {
         iconSide,
         iconSize,
         id,
-        inputLikeStyle,
         label,
-        openInNewTab,
         params,
         rendered,
-        size,
         title,
-        variant,
     } = props;
     let ariaLabel = '';
-    if (openInNewTab) {
-        ariaLabel = 'kliknięcie linku spowoduje otworzenie nowej karty w przeglądarce';
-    }
-    if (downloadFile) {
-        if (ariaLabel) {
-            ariaLabel = `${ariaLabel} kliknięcie linku spowoduje pobranie pliku`;
-        } else {
-            ariaLabel = 'kliknięcie linku spowoduje pobranie pliku';
-        }
-    }
     if (rendered) {
-        if (inputLikeStyle) {
-            return (
-                <div className={colClass}>
-                    <div className={'row'}>
-                        <div className={'col-md-12'}>
-                            <label className="p-label" style={{width: '100%', margin: '0px'}}>
-                                {''}
-                            </label>
-                            <a
-                                title={`${title ? title : ''}${ariaLabel}`}
-                                tabIndex="0"
-                                className={`p-button p-component p-button-text-only ${
-                                    className !== undefined ? className : ''
-                                } ${variant !== undefined ? variant : ''} ${size !== undefined ? size : ''} ${
-                                    disabled ? 'p-disabled disabled' : ''
-                                }`}
-                                href={disabled ? undefined : href ? href : 'javascript:;'}
-                                onClick={e => (disabled || !handleClick ? false : handleClick(e, params))}
-                                id={id}
-                                key={id === undefined ? `actionButton-${label}` : id}
-                            >
-								<span
-                                    className={`${iconName !== undefined ? 'icon_text' : ''} p-button-text p-c ${
-                                        iconName !== undefined ? iconColor : ''
-                                    }`}
-                                >
-									{iconSide === 'left' && iconName !== undefined ? (
-                                        <i alt="" className={`icon mdi ${iconName} ${iconSize}`}/>
-                                    ) : null}
-                                    {label}
-                                    {iconSide === 'right' && iconName !== undefined ? (
-                                        <i alt="" className={`icon mdi ${iconName} ${iconSize}`}/>
-                                    ) : null}
-								</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            );
-        } else {
-            return (
+        return (
+            <React.Fragment>
+                {props.children}
                 <a
                     title={`${title ? title : ''}${ariaLabel}`}
                     tabIndex="0"
-                    className={`p-button p-component p-button-text-only ${
-                        className !== undefined ? className : ''
-                    } ${variant !== undefined ? variant : ''} ${size !== undefined ? size : ''} ${
-                        disabled ? 'p-disabled disabled' : ''
-                    }`}
+                    className={`shortcut p-button p-component ${className !== undefined ? className : ''} ${disabled ? 'p-disabled disabled' : ''}`}
                     href={disabled ? undefined : href ? href : 'javascript:;'}
                     onClick={e => (disabled || !handleClick ? false : handleClick(e, params))}
                     id={id}
                     key={id === undefined ? `actionButton-${label}` : id}
                 >
 					<span
-                        className={`${iconName !== undefined ? 'icon_text' : ''} p-button-text p-c ${
+                        className={`${iconName !== undefined ? 'icon_text' : ''} shortcut-text p-c ${
                             iconName !== undefined ? iconColor : ''
                         }`}
                     >
 						{iconSide === 'left' && iconName !== undefined ? (
-                            <i alt="" className={`icon mdi ${iconName} ${iconSize}`}/>
+                            <i className={`icon mdi ${iconName} ${iconSize}`}></i>
                         ) : null}
                         {label}
                         {iconSide === 'right' && iconName !== undefined ? (
-                            <i alt="" className={`icon mdi ${iconName} ${iconSize}`}/>
+
+                            <i className={`icon mdi ${iconName} ${iconSize}`}></i>
                         ) : null}
 					</span>
                 </a>
-            );
-        }
+            </React.Fragment>
+        );
     } else {
         return null;
     }
@@ -119,18 +63,13 @@ ShortcutButton.defaultProps = {
     iconSide: 'right',
     rendered: true,
     disabled: false,
-    inputLikeStyle: false,
-    openInNewTab: false,
     params: {},
-    size: 'normal',
-    variant: 'dark',
 };
 
 ShortcutButton.propTypes = {
     className: PropTypes.string,
     colClass: PropTypes.string,
     disabled: PropTypes.bool,
-    downloadFile: PropTypes.bool,
     handleClick: PropTypes.func,
     href: PropTypes.string,
     iconColor: PropTypes.string,
@@ -139,14 +78,11 @@ ShortcutButton.propTypes = {
     iconSide: PropTypes.string,
     iconSize: PropTypes.string,
     id: PropTypes.string,
-    inputLikeStyle: PropTypes.bool,
     label: PropTypes.string.isRequired,
-    openInNewTab: PropTypes.bool,
     params: PropTypes.object,
     rendered: PropTypes.bool,
     size: PropTypes.string,
-    title: PropTypes.string,
-    variant: PropTypes.string,
+    label: PropTypes.string,
 };
 
 export default ShortcutButton;

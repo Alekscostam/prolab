@@ -14,7 +14,7 @@ import './App.scss';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import {ThroughProvider} from 'react-through'
-
+import './assets/css/mdi.scss';
 
 const theApp = (
     <ThroughProvider>

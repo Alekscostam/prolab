@@ -12,8 +12,7 @@ import MenuService from "../../services/MenuService";
 import BlockUi from "../../components/waitPanel/BlockUi";
 import {MenuValidatorUtils} from "../../utils/parser/MenuValidatorUtils";
 import ViewService from "../../services/ViewService";
-import {readCookieGlobal, saveCookieGlobal} from "../../utils/cookie";
-import {Cookie} from "../../utils/constants";
+import {readCookieGlobal} from "../../utils/cookie";
 import packageJson from '../../../package.json';
 
 class Sidebar extends React.Component {
@@ -95,7 +94,6 @@ class Sidebar extends React.Component {
         //TODO pogadać o rolach
         //const role = authService.getProfile().role;
         const nav = (e, item) => {
-            saveCookieGlobal(Cookie.CURRENT_SELECTED_MENU_ITEM, item)
             this.props.history.push(`/grid-view/${item.id}`)
         }
         const renderDynamicMenu = items => {
