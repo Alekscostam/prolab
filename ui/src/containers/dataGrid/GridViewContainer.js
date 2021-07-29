@@ -94,7 +94,7 @@ export class GridViewContainer extends BaseContainer {
                     });
                     console.log('GridViewContainer -> fetch columns: ', gridViewColumnsTmp)
                     for (let plugin in responseView?.pluginsList) {
-                        this.pluginsList.push({
+                        pluginsListTmp.push({
                             id: responseView?.pluginsList[plugin].id,
                             label: responseView?.pluginsList[plugin].label,
                             /*    command:(e) => {
@@ -103,7 +103,7 @@ export class GridViewContainer extends BaseContainer {
                         });
                     }
                     for (let document in responseView?.documentsList) {
-                        this.documentsList.push({
+                        documentsListTmp.push({
                             id: responseView?.documentsList[document].id,
                             label: responseView?.documentsList[document].label,
                             /*    command:(e) => {
@@ -120,6 +120,8 @@ export class GridViewContainer extends BaseContainer {
                         pluginsList: pluginsListTmp,
                         documentsList: documentsListTmp,
                         selectedRowKeys: []
+                    }, () => {
+                        this.setState({loading: false,});
                     });
                 }
             }).catch(err => {
@@ -229,7 +231,6 @@ export class GridViewContainer extends BaseContainer {
     }
 
     customizeColumns = (columns) => {
-        const columnDefinitions = this.state.gridViewColumns;
         let INDEX_COLUMN = 0;
         if (columns?.length > 0) {
             //when viewData respond a lot of data
@@ -239,9 +240,9 @@ export class GridViewContainer extends BaseContainer {
                     column.visible = false;
                 } else {
                     //match column after field name from view and viewData service
-                    let columnDefinition = columnDefinitions.filter(value => value.fieldName?.toUpperCase() == column.dataField?.toUpperCase());
-                    if (columnDefinition) {
-                        const columnTmp = columnDefinition[0];
+                    let columnDefinition = this.state.gridViewColumns?.filter(value => value.fieldName?.toUpperCase() === column.dataField?.toUpperCase());
+                    const columnTmp = columnDefinition[0];
+                    if (columnTmp) {
                         column.visible = columnTmp?.visible;
                         //column.allowCollapsing = true;
                         //column.allowEditing = false;
@@ -275,7 +276,7 @@ export class GridViewContainer extends BaseContainer {
                         column.caption = columnTmp?.label;
                         column.dataType = this.specifyColumnType(columnTmp?.type);
                         column.format = this.specifyColumnFormat(columnTmp?.type);
-                        column.fixed = !!columnTmp ? (columnTmp.freeze?.toLowerCase() === "left" || columnTmp.freeze?.toLowerCase() === "right") : false;
+                        column.fixed = columnTmp.freeze !== undefined && columnTmp.freeze !== null ? (columnTmp.freeze?.toLowerCase() === "left" || columnTmp.freeze?.toLowerCase() === "right") : false;
                         column.fixedPosition = !!columnTmp.freeze ? columnTmp.freeze?.toLowerCase() : null;
                         INDEX_COLUMN++;
                     } else {
@@ -285,7 +286,7 @@ export class GridViewContainer extends BaseContainer {
             });
         } else {
             //when no data
-            columnDefinitions.forEach(columnDefinition => {
+            this.state.gridViewColumns.forEach(columnDefinition => {
                 if (columnDefinition.visible === true) {
                     let column = {}
                     column.allowFiltering = false;
