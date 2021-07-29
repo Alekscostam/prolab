@@ -51,19 +51,6 @@ $table-selection: #DDE6FF;
   font-weight: 500;
 }
 
-.dx-checkbox-icon {
-  display: inline-block;
-  position: relative;
-  background-position: 0 0;
-  background-size: cover;
-  background-repeat: no-repeat;
-  width: 22px;
-  height: 22px;
-  border-radius: 2px;
-  border: 1px solid #af2727;
-  background-color: #dc2e2e;
-}
-
 .dx-command-select .dx-checkbox-checked .dx-checkbox-icon {
   color: white;
   background-color: #0E49EB;
