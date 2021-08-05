@@ -1,5 +1,5 @@
 import React from 'react';
-import { ViewValidatorUtils } from '../../utils/parser/ViewValidatorUtils';
+import {ViewValidatorUtils} from '../../utils/parser/ViewValidatorUtils';
 import DataGrid, {
     Button,
     Column,
@@ -8,7 +8,7 @@ import DataGrid, {
     FilterRow,
     Grouping,
     GroupPanel,
-    HeaderFilter,
+    HeaderFilter, LoadPanel,
     Pager,
     Paging,
     RemoteOperations,
@@ -28,7 +28,7 @@ import ActionButton from '../../components/ActionButton';
 import DivContainer from '../../components/DivContainer';
 import ActionButtonWithMenu from '../../components/ActionButtonWithMenu';
 import SelectionPanel from '../../components/SelectionPanel';
-import { GridViewUtils } from '../../utils/GridViewUtils';
+import {GridViewUtils} from '../../utils/GridViewUtils';
 import Constants from '../../utils/constants';
 import ReactDOM from 'react-dom';
 import ShortcutButton from '../../components/ShortcutButton';
@@ -149,7 +149,7 @@ export class GridViewContainer extends BaseContainer {
                                     selectedRowKeys: [],
                                 },
                                 () => {
-                                    this.setState({ loading: false });
+                                    this.setState({loading: false});
                                 }
                             );
                         }
@@ -193,7 +193,7 @@ export class GridViewContainer extends BaseContainer {
         return this.state.parsedGridView?.viewInfo?.name;
     }
 
-    onSelectionChanged({ selectedRowKeys }) {
+    onSelectionChanged({selectedRowKeys}) {
         this.setState({
             selectedRowKeys: selectedRowKeys,
         });
@@ -274,7 +274,7 @@ export class GridViewContainer extends BaseContainer {
 
     gridViewTypeChange(e) {
         console.log('gridViewTypeChange', e);
-        this.setState({ gridViewType: e.itemData.type });
+        this.setState({gridViewType: e.itemData.type});
     }
 
     customizeColumns = (columns) => {
@@ -328,7 +328,7 @@ export class GridViewContainer extends BaseContainer {
                         column.fixed =
                             columnTmp.freeze !== undefined && columnTmp.freeze !== null
                                 ? columnTmp.freeze?.toLowerCase() === 'left' ||
-                                  columnTmp.freeze?.toLowerCase() === 'right'
+                                columnTmp.freeze?.toLowerCase() === 'right'
                                 : false;
                         column.fixedPosition = !!columnTmp.freeze ? columnTmp.freeze?.toLowerCase() : null;
                         INDEX_COLUMN++;
@@ -469,6 +469,44 @@ export class GridViewContainer extends BaseContainer {
     }
 
     //override
+    renderHeaderButtons() {
+        return (
+            <React.Fragment>
+                {this.showHeaderButtons() ? (
+                    <HeaderButton>
+                        {this.state.oppAddButton === null ? null : (
+                            <ActionButton
+                                label={this.state.oppAddButton?.label}
+                                className='float-right'
+                            ></ActionButton>
+                        )}
+                    </HeaderButton>
+                ) : null}
+                <ShortcutsButton items={this.state.parsedGridView?.shortcutButtons}>
+                    {this.state.documentsList?.length > 0 ? (
+                        <ActionButtonWithMenu
+                            id='button_documents'
+                            className='mr-2'
+                            iconName='mdi-file-document'
+                            items={this.state.documentsList}
+                            title='Pluginy'
+                        />
+                    ) : null}
+                    {this.state.pluginsList?.length > 0 ? (
+                        <ActionButtonWithMenu
+                            id='button_plugins'
+                            className='mr-2'
+                            iconName='mdi-puzzle'
+                            items={this.state.pluginsList}
+                            title='Dokumenty'
+                        />
+                    ) : null}
+                </ShortcutsButton>
+            </React.Fragment>
+        );
+    }
+
+    //override
     renderContent() {
         const showGroupPanel = this.state.parsedGridView?.gridOptions?.showGroupPanel || false;
         const groupExpandAll = this.state.parsedGridView?.gridOptions?.groupExpandAll || false;
@@ -485,36 +523,6 @@ export class GridViewContainer extends BaseContainer {
                 {this.state.loading ? null : (
                     <React.Fragment>
                         <DivContainer>
-                            <DivContainer colClass='row grid-view-header'>
-                                <div className='font-medium'>{this.getViewInfoName()}</div>
-                                {this.showHeaderButtons() && this.state.oppAddButton === null ? null : (
-                                    <ActionButton
-                                        label={this.state.oppAddButton?.label}
-                                        className='float-right'
-                                    ></ActionButton>
-                                )}
-                            </DivContainer>
-                            <ShortcutsButton items={this.state.parsedGridView?.shortcutButtons}>
-                                {this.state.documentsList?.length > 0 ? (
-                                    <ActionButtonWithMenu
-                                        id='button_documents'
-                                        className='mr-2'
-                                        iconName='mdi-file-document'
-                                        items={this.state.documentsList}
-                                        title='Pluginy'
-                                    />
-                                ) : null}
-                                {this.state.pluginsList?.length > 0 ? (
-                                    <ActionButtonWithMenu
-                                        id='button_plugins'
-                                        className='mr-2'
-                                        iconName='mdi-puzzle'
-                                        items={this.state.pluginsList}
-                                        title='Dokumenty'
-                                    />
-                                ) : null}
-                            </ShortcutsButton>
-
                             <SelectionPanel
                                 selectedRowKeys={this.state.selectedRowKeys}
                                 operations={this.state.parsedGridView?.operations}
@@ -576,22 +584,21 @@ export class GridViewContainer extends BaseContainer {
                                         paging={true}
                                     />
 
-                                    <FilterRow visible={true} />
-                                    <FilterPanel visible={true} />
-                                    <HeaderFilter visible={true} allowSearch={true} />
+                                    <FilterRow visible={true}/>
+                                    <FilterPanel visible={true}/>
+                                    <HeaderFilter visible={true} allowSearch={true}/>
 
-                                    <Grouping autoExpandAll={groupExpandAll} />
-                                    <GroupPanel visible={showGroupPanel} />
+                                    <Grouping autoExpandAll={groupExpandAll}/>
+                                    <GroupPanel visible={showGroupPanel}/>
 
-                                    <Sorting mode='multiple' />
+                                    <Sorting mode='multiple'/>
 
-                                    <Selection mode='multiple' selectAllMode='allPages' showCheckBoxesMode='onClick' />
+                                    <Selection mode='multiple' selectAllMode='allPages' showCheckBoxesMode='always'/>
 
-                                    {/* zobaczymy który typ paginacji wybiorą
-                            <Scrolling mode="infinite"/>
-                            <LoadPanel enabled={true}/>
-                            */}
+                                    <Scrolling mode="infinite"/>
+                                    <LoadPanel enabled={true}/>
 
+                                    {/* domyślnie infinite scrolling
                                     <Paging defaultPageSize={10} />
                                     <Pager
                                         visible={true}
@@ -601,8 +608,9 @@ export class GridViewContainer extends BaseContainer {
                                         showInfo={this.state.showInfo}
                                         showNavigationButtons={this.state.showNavButtons}
                                     />
+                                    */}
 
-                                    <Editing mode='cell' />
+                                    <Editing mode='cell'/>
 
                                     {/* tak nie działa :(
                             {this.state.gridViewColumns.map((c) => {
@@ -629,62 +637,62 @@ export class GridViewContainer extends BaseContainer {
                          */}
                                 </DataGrid>
                             ) : this.state.gridViewType === 'tiles' ? (
-                                'TODO'
-                            ) : // <DataGrid
-                            // 	id='grid-container'
-                            // 	className='grid-container'
-                            // 	keyExpr='id'
-                            // 	ref={(ref) => (this.dataGrid = ref)}
-                            // 	dataSource={dataGridStore}
-                            // 	customizeColumns={customizedTileColumns}
-                            // 	wordWrapEnabled={rowAutoHeight}
-                            // 	columnAutoWidth={columnAutoWidth}
-                            // 	remoteOperations={true}
-                            // 	allowColumnReordering={true}
-                            // 	allowColumnResizing={true}
-                            // 	showColumnLines={true}
-                            // 	showRowLines={true}
-                            // 	showBorders={true}
-                            // 	columnHidingEnabled={false}
-                            // 	width='100%'
-                            // 	rowAlternationEnabled={false}
-                            // 	onSelectionChanged={(selectedRowKeys) => {
-                            // 		this.setState({
-                            // 			selectedRowKeys: selectedRowKeys?.selectedRowKeys,
-                            // 		});
-                            // 	}}>
-                            // 	<RemoteOperations
-                            // 		groupPaging={true}
-                            // 		filtering={true}
-                            // 		summary={true}
-                            // 		sorting={true}
-                            // 		paging={true}
-                            // 	/>
+                                    'TODO'
+                                ) : // <DataGrid
+                                // 	id='grid-container'
+                                // 	className='grid-container'
+                                // 	keyExpr='id'
+                                // 	ref={(ref) => (this.dataGrid = ref)}
+                                // 	dataSource={dataGridStore}
+                                // 	customizeColumns={customizedTileColumns}
+                                // 	wordWrapEnabled={rowAutoHeight}
+                                // 	columnAutoWidth={columnAutoWidth}
+                                // 	remoteOperations={true}
+                                // 	allowColumnReordering={true}
+                                // 	allowColumnResizing={true}
+                                // 	showColumnLines={true}
+                                // 	showRowLines={true}
+                                // 	showBorders={true}
+                                // 	columnHidingEnabled={false}
+                                // 	width='100%'
+                                // 	rowAlternationEnabled={false}
+                                // 	onSelectionChanged={(selectedRowKeys) => {
+                                // 		this.setState({
+                                // 			selectedRowKeys: selectedRowKeys?.selectedRowKeys,
+                                // 		});
+                                // 	}}>
+                                // 	<RemoteOperations
+                                // 		groupPaging={true}
+                                // 		filtering={true}
+                                // 		summary={true}
+                                // 		sorting={true}
+                                // 		paging={true}
+                                // 	/>
 
-                            // 	{/* <FilterRow visible={true} /> */}
-                            // 	{/* <FilterPanel visible={true} /> */}
-                            // 	{/* <HeaderFilter visible={true} allowSearch={true} /> */}
+                                // 	{/* <FilterRow visible={true} /> */}
+                                // 	{/* <FilterPanel visible={true} /> */}
+                                // 	{/* <HeaderFilter visible={true} allowSearch={true} /> */}
 
-                            // 	{/* <Grouping autoExpandAll={groupExpandAll} /> */}
-                            // 	{/* <GroupPanel visible={showGroupPanel} /> */}
+                                // 	{/* <Grouping autoExpandAll={groupExpandAll} /> */}
+                                // 	{/* <GroupPanel visible={showGroupPanel} /> */}
 
-                            // 	<Sorting mode='multiple' />
+                                // 	<Sorting mode='multiple' />
 
-                            // 	<Selection mode='multiple' selectAllMode='allPages' showCheckBoxesMode='onClick' />
+                                // 	<Selection mode='multiple' selectAllMode='allPages' showCheckBoxesMode='onClick' />
 
-                            // 	<Paging defaultPageSize={10} />
-                            // 	<Pager
-                            // 		visible={true}
-                            // 		allowedPageSizes={allowedPageSizes}
-                            // 		displayMode={this.state.displayMode}
-                            // 		showPageSizeSelector={this.state.showPageSizeSelector}
-                            // 		showInfo={this.state.showInfo}
-                            // 		showNavigationButtons={this.state.showNavButtons}
-                            // 	/>
+                                // 	<Paging defaultPageSize={10} />
+                                // 	<Pager
+                                // 		visible={true}
+                                // 		allowedPageSizes={allowedPageSizes}
+                                // 		displayMode={this.state.displayMode}
+                                // 		showPageSizeSelector={this.state.showPageSizeSelector}
+                                // 		showInfo={this.state.showInfo}
+                                // 		showNavigationButtons={this.state.showNavButtons}
+                                // 	/>
 
-                            // 	<Editing mode='cell' />
-                            // </DataGrid>
-                            null}
+                                // 	<Editing mode='cell' />
+                                // </DataGrid>
+                                null}
                         </DivContainer>
                     </React.Fragment>
                 )}

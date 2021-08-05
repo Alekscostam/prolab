@@ -15,7 +15,7 @@ export const SelectionPanel = props => {
     const opCopy = GridViewUtils.containsOperationButton(props.operations, 'OP_COPY');
     const opArchive = GridViewUtils.containsOperationButton(props.operations, 'OP_ARCHIVE');
     return (props.selectedRowKeys?.length > 0 ?
-        <div id="grid-selection-panel" className="d-flex flex-row grid-selection-panel mb-4">
+        <div id="grid-selection-panel" className="d-flex flex-row grid-selection-panel">
             <div id="grid-count-panel"
                  className="p-2 grid-count-fragment">Pozycje: {props.selectedRowKeys?.length || 0}</div>
             <div id="grid-separator-panel" className="p-2 grid-separator-fragment"></div>
