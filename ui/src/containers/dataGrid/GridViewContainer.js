@@ -485,16 +485,15 @@ export class GridViewContainer extends BaseContainer {
                 {this.state.loading ? null : (
                     <React.Fragment>
                         <DivContainer>
-                            {this.showHeaderButtons() ? (
-                                <HeaderButton>
-                                    {this.state.oppAddButton === null ? null : (
-                                        <ActionButton
-                                            label={this.state.oppAddButton?.label}
-                                            className='float-right'
-                                        ></ActionButton>
-                                    )}
-                                </HeaderButton>
-                            ) : null}
+                            <DivContainer colClass='row grid-view-header'>
+                                <div className='font-medium'>{this.getViewInfoName()}</div>
+                                {this.showHeaderButtons() && this.state.oppAddButton === null ? null : (
+                                    <ActionButton
+                                        label={this.state.oppAddButton?.label}
+                                        className='float-right'
+                                    ></ActionButton>
+                                )}
+                            </DivContainer>
                             <ShortcutsButton items={this.state.parsedGridView?.shortcutButtons}>
                                 {this.state.documentsList?.length > 0 ? (
                                     <ActionButtonWithMenu

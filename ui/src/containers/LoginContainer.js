@@ -10,7 +10,6 @@ import BaseContainer from '../baseContainers/BaseContainer';
 import ActionButton from '../components/ActionButton';
 import SimpleReactValidator from '../components/validator';
 import Constants from '../utils/constants';
-import { readCookieGlobal } from '../utils/cookie';
 import BlockUi from './../components/waitPanel/BlockUi';
 
 class LoginContainer extends BaseContainer {
@@ -134,7 +133,6 @@ class LoginContainer extends BaseContainer {
     }
 
     renderBeforeAuth() {
-        const REACT_APP_URL_PREFIX = readCookieGlobal('REACT_APP_URL_PREFIX');
         return (
             <React.Fragment>
                 <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>

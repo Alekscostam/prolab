@@ -1003,9 +1003,9 @@ class BaseContainer extends React.Component {
                 <Toast id='toast-messages' position='top-center' ref={(el) => this.messages = el}/>
                 <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
                     <DivContainer colClass='col-12'>
-                        <DivContainer colClass='row'>
+                        {/* <DivContainer colClass='row'>
                             <div className="font-medium mb-4">{this.getViewInfoName()}</div>
-                        </DivContainer>
+                        </DivContainer> */}
                         <DivContainer colClass='row'>
                             {this.state.loading === false ? (this.renderContent()) : null}
                         </DivContainer>
