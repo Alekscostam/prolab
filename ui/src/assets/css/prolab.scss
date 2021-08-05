@@ -362,6 +362,11 @@ input:-webkit-autofill, input:autofill {
   color: $button-text-color;
 }
 
+.grid-view-header .font-medium{
+  margin: auto;
+  margin-left: 0px;
+}
+
 //notifications & messages
 @import 'toast';
 /*------------------*/

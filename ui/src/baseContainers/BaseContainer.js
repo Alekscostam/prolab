@@ -9,12 +9,12 @@ import DivContainer from '../components/DivContainer';
 import SimpleReactValidator from '../components/validator';
 import AuthService from '../services/AuthService';
 import $ from 'jquery';
-import Constants from "../utils/constants";
-import {readCookieGlobal, removeCookieGlobal, saveCookieGlobal} from "../utils/cookie";
-import {BreadcrumbsItem} from "react-breadcrumbs-dynamic";
-import BlockUi from "../components/waitPanel/BlockUi";
-import {Toast} from "primereact/toast";
-import {Message} from "primereact/message";
+import Constants from '../utils/constants';
+import { readCookieGlobal, removeCookieGlobal, saveCookieGlobal } from '../utils/cookie';
+import { BreadcrumbsItem } from 'react-breadcrumbs-dynamic';
+import BlockUi from '../components/waitPanel/BlockUi';
+import { Toast } from 'primereact/toast';
+import { Message } from 'primereact/message';
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -53,8 +53,7 @@ class BaseContainer extends React.Component {
     }
 
     componentDidMount() {
-        window.addEventListener('beforeunload', function () {
-        });
+        window.addEventListener('beforeunload', function () {});
         this._isMounted = true;
         if (!this.jwtRefreshBlocked && this.authService.loggedIn()) {
             this.jwtRefreshBlocked = true;
@@ -109,41 +108,53 @@ class BaseContainer extends React.Component {
 
     showSuccessMessage(detail, life = Constants.SUCCESS_MSG_LIFE, summary = '') {
         this.messages.show({
-            severity: 'success', sticky: true, life: Constants.ERROR_MSG_LIFE, content: (
-                <div className="p-flex p-flex-column" style={{flex: '1'}}>
+            severity: 'success',
+            sticky: true,
+            life: Constants.ERROR_MSG_LIFE,
+            content: (
+                <div className='p-flex p-flex-column' style={{ flex: '1' }}>
                     <Message severity={'success'} content={detail}></Message>
                 </div>
-            )
+            ),
         });
     }
 
     showInfoMessage(detail, life = Constants.SUCCESS_MSG_LIFE, summary = 'Informacja') {
         this.messages.show({
-            severity: 'info', sticky: false, life: Constants.ERROR_MSG_LIFE, content: (
-                <div className="p-flex p-flex-column" style={{flex: '1'}}>
+            severity: 'info',
+            sticky: false,
+            life: Constants.ERROR_MSG_LIFE,
+            content: (
+                <div className='p-flex p-flex-column' style={{ flex: '1' }}>
                     <Message severity={'info'} content={detail}></Message>
                 </div>
-            )
+            ),
         });
     }
 
     showWarningMessage(detail, life = Constants.ERROR_MSG_LIFE, summary = '') {
         this.messages.show({
-            severity: 'warn', sticky: false, life: Constants.ERROR_MSG_LIFE, content: (
-                <div className="p-flex p-flex-column" style={{flex: '1'}}>
+            severity: 'warn',
+            sticky: false,
+            life: Constants.ERROR_MSG_LIFE,
+            content: (
+                <div className='p-flex p-flex-column' style={{ flex: '1' }}>
                     <Message severity={'warn'} content={detail}></Message>
                 </div>
-            )
+            ),
         });
     }
 
     showErrorMessage(errMsg, life = Constants.ERROR_MSG_LIFE, closable = true, summary = 'Błąd!') {
         this.messages.show({
-            severity: 'error', sticky: false, life: Constants.ERROR_MSG_LIFE, content: (
-                <div className="p-flex p-flex-column" style={{flex: '1'}}>
+            severity: 'error',
+            sticky: false,
+            life: Constants.ERROR_MSG_LIFE,
+            content: (
+                <div className='p-flex p-flex-column' style={{ flex: '1' }}>
                     <Message severity={'error'} content={errMsg}></Message>
                 </div>
-            )
+            ),
         });
     }
 
@@ -194,15 +205,15 @@ class BaseContainer extends React.Component {
     }
 
     saveCookie(cookieName, cookieValue) {
-        saveCookieGlobal(cookieName, cookieValue)
+        saveCookieGlobal(cookieName, cookieValue);
     }
 
     readCookie(cookieName) {
-        return readCookieGlobal(cookieName)
+        return readCookieGlobal(cookieName);
     }
 
     removeCookie(cookieName) {
-        return removeCookieGlobal(cookieName)
+        return removeCookieGlobal(cookieName);
     }
 
     isEqual(objA, objB) {
@@ -231,11 +242,15 @@ class BaseContainer extends React.Component {
         if (rowData[field] && rowData[field].label) {
             return (
                 <span
-                    className={`icon_text p-button-text p-c ${rowData[field].iconName !== undefined ? rowData[field].iconColor : ''}`}>
-					{rowData[field].iconName !== undefined ?
-                        <i className={`icon mdi ${rowData[field].iconName}`}/> : null}
+                    className={`icon_text p-button-text p-c ${
+                        rowData[field].iconName !== undefined ? rowData[field].iconColor : ''
+                    }`}
+                >
+                    {rowData[field].iconName !== undefined ? (
+                        <i className={`icon mdi ${rowData[field].iconName}`} />
+                    ) : null}
                     {rowData[field].label}
-				</span>
+                </span>
             );
         } else if (rowData[field]) {
             return <span>{rowData[field]}</span>;
@@ -253,8 +268,13 @@ class BaseContainer extends React.Component {
 
     timeTemplate(field, format, rowData) {
         const today = new Date();
-        if (rowData[field] && moment(new Date(`${moment(today).format('YYYY-MM-DD').toString()}T${rowData[field]}`)).isValid()) {
-            return moment(new Date(`${moment(today).format('YYYY-MM-DD').toString()}T${rowData[field]}`)).format(format);
+        if (
+            rowData[field] &&
+            moment(new Date(`${moment(today).format('YYYY-MM-DD').toString()}T${rowData[field]}`)).isValid()
+        ) {
+            return moment(new Date(`${moment(today).format('YYYY-MM-DD').toString()}T${rowData[field]}`)).format(
+                format
+            );
         } else {
             return '';
         }
@@ -421,7 +441,7 @@ class BaseContainer extends React.Component {
         console.log('handleChange', inputType, parameters, event, stateField);
         let stateFieldValue = undefined;
         if (stateField && stateField !== '') {
-            ({[stateField]: stateFieldValue} = this.state);
+            ({ [stateField]: stateFieldValue } = this.state);
             stateFieldValue = this.getValueInObjPath(stateField);
         }
         let varName;
@@ -439,7 +459,7 @@ class BaseContainer extends React.Component {
                     if (stateFieldValue) {
                         modifiedList = stateFieldValue[varName];
                     } else {
-                        ({[varName]: modifiedList} = this.state);
+                        ({ [varName]: modifiedList } = this.state);
                     }
                     if (parameters[0] === 'ADD') {
                         varValue = event;
@@ -448,7 +468,11 @@ class BaseContainer extends React.Component {
                         } else {
                             modifiedList = modifiedList.concat(varValue);
                         }
-                    } else if (modifiedList !== undefined && modifiedList.length >= parameters[2] - 1 && parameters[0] === 'REMOVE') {
+                    } else if (
+                        modifiedList !== undefined &&
+                        modifiedList.length >= parameters[2] - 1 &&
+                        parameters[0] === 'REMOVE'
+                    ) {
                         modifiedList.splice(parameters[2], 1);
                     }
                     this.handleChangeSetState(varName, modifiedList, onAfterStateChange, stateField);
@@ -467,7 +491,7 @@ class BaseContainer extends React.Component {
                     if (stateFieldValue) {
                         modifiedList = stateFieldValue[varName];
                     } else {
-                        ({[varName]: modifiedList} = this.state);
+                        ({ [varName]: modifiedList } = this.state);
                     }
                     if (parameters[0] === 'ADD') {
                         varValue = JSON.parse(event.xhr.response);
@@ -476,7 +500,11 @@ class BaseContainer extends React.Component {
                         } else {
                             modifiedList = modifiedList.concat(varValue);
                         }
-                    } else if (modifiedList !== undefined && modifiedList.length >= parameters[2] - 1 && parameters[0] === 'REMOVE') {
+                    } else if (
+                        modifiedList !== undefined &&
+                        modifiedList.length >= parameters[2] - 1 &&
+                        parameters[0] === 'REMOVE'
+                    ) {
                         modifiedList.splice(parameters[2], 1);
                     }
                     this.handleChangeSetState(varName, modifiedList, onAfterStateChange, stateField);
@@ -496,7 +524,7 @@ class BaseContainer extends React.Component {
                     if (stateFieldValue) {
                         modifiedList = stateFieldValue[varName];
                     } else {
-                        ({[varName]: modifiedList} = this.state);
+                        ({ [varName]: modifiedList } = this.state);
                     }
                     if (!modifiedList) {
                         modifiedList = [];
@@ -510,7 +538,7 @@ class BaseContainer extends React.Component {
                     if (stateFieldValue) {
                         modifiedList = stateFieldValue[varName];
                     } else {
-                        ({[varName]: modifiedList} = this.state);
+                        ({ [varName]: modifiedList } = this.state);
                     }
                     if (!modifiedList) {
                         modifiedList = [];
@@ -544,7 +572,7 @@ class BaseContainer extends React.Component {
                     if (stateFieldValue) {
                         modifiedList = stateFieldValue[varName];
                     } else {
-                        ({[varName]: modifiedList} = this.state);
+                        ({ [varName]: modifiedList } = this.state);
                     }
                     if (parameters[0] === 'ADD') {
                         if (!modifiedList) {
@@ -568,7 +596,9 @@ class BaseContainer extends React.Component {
                             eventObj.name = parameters[4][1];
                             eventObj.target.name = parameters[4][1];
                         } else if (parameters[3] === 'NUMBER') {
-                            let numberValue = isNaN(parseFloat(parameters[5].value)) ? 0 : parseFloat(parameters[5].value);
+                            let numberValue = isNaN(parseFloat(parameters[5].value))
+                                ? 0
+                                : parseFloat(parameters[5].value);
                             eventObj.name = parameters[5].name;
                             eventObj.value = numberValue;
                             eventObj.target.name = parameters[5].name;
@@ -600,7 +630,9 @@ class BaseContainer extends React.Component {
                                     () => {
                                         this.handleChange(
                                             parameters[3],
-                                            parameters[4] !== undefined && parameters[4].length > 0 ? parameters[4] : undefined,
+                                            parameters[4] !== undefined && parameters[4].length > 0
+                                                ? parameters[4]
+                                                : undefined,
                                             eventObj,
                                             onAfterStateChange,
                                             computedStateField
@@ -609,7 +641,13 @@ class BaseContainer extends React.Component {
                                     stateField
                                 );
                             } else {
-                                this.handleChange(parameters[3], parameters[4], parameters[5], onAfterStateChange, computedStateField);
+                                this.handleChange(
+                                    parameters[3],
+                                    parameters[4],
+                                    parameters[5],
+                                    onAfterStateChange,
+                                    computedStateField
+                                );
                             }
                         }
                     } else if (parameters[0] === 'EDIT_DB') {
@@ -624,7 +662,8 @@ class BaseContainer extends React.Component {
                         const eve = parameters[5];
                         const modifiedMap = stateFieldValue;
                         const object = rowData;
-                        object[eve.target.name] = eve.target.value || eve.target.value === '' ? eve.target.value : undefined;
+                        object[eve.target.name] =
+                            eve.target.value || eve.target.value === '' ? eve.target.value : undefined;
                         // object.deleted = deleted ? true : undefined;
                         if (parameters.length >= 7) {
                             object.page = parameters[6];
@@ -704,7 +743,13 @@ class BaseContainer extends React.Component {
                 case 'NUMBER':
                     varName = event.name;
                     varValue = isNaN(parseFloat(event.value)) ? 0 : parseFloat(event.value);
-                    this.handleChangeSetState(varName, varValue, onAfterStateChange, stateField, parameters ? parameters[0] : undefined);
+                    this.handleChangeSetState(
+                        varName,
+                        varValue,
+                        onAfterStateChange,
+                        stateField,
+                        parameters ? parameters[0] : undefined
+                    );
                     break;
                 case 'MULTI_SELECT_BUTTON':
                 case 'DROPDOWN':
@@ -718,7 +763,13 @@ class BaseContainer extends React.Component {
                 default:
                     varName = event.target.name;
                     varValue = event.target.value || event.target.value === '' ? event.target.value : undefined;
-                    this.handleChangeSetState(varName, varValue, onAfterStateChange, stateField, parameters ? parameters[0] : undefined);
+                    this.handleChangeSetState(
+                        varName,
+                        varValue,
+                        onAfterStateChange,
+                        stateField,
+                        parameters ? parameters[0] : undefined
+                    );
                     break;
             }
         } else {
@@ -726,8 +777,7 @@ class BaseContainer extends React.Component {
         }
     }
 
-    handleValidForm() {
-    }
+    handleValidForm() {}
 
     handleFormSubmit(event) {
         if (event !== undefined) {
@@ -805,14 +855,18 @@ class BaseContainer extends React.Component {
             <DivContainer colClass='p-card-header-minheight'>
                 {leftItems && leftItems.length > 0
                     ? leftItems.map((item, index) =>
-                        item.customRenderFunction instanceof Function ? item.customRenderFunction() : this.renderItem(item, index)
-                    )
+                          item.customRenderFunction instanceof Function
+                              ? item.customRenderFunction()
+                              : this.renderItem(item, index)
+                      )
                     : null}
                 <DivContainer colClass='float-right'>
                     {rightItems && rightItems.length > 0
                         ? rightItems.map((item, index) =>
-                            item.customRenderFunction instanceof Function ? item.customRenderFunction() : this.renderItem(item, index)
-                        )
+                              item.customRenderFunction instanceof Function
+                                  ? item.customRenderFunction()
+                                  : this.renderItem(item, index)
+                          )
                         : null}
                 </DivContainer>
             </DivContainer>
@@ -867,7 +921,8 @@ class BaseContainer extends React.Component {
                     type='submit'
                     rendered={item.rendered}
                     disabled={item.disabled}
-                    key={item.label + index}>
+                    key={item.label + index}
+                >
                     <span className='p-button-text p-c'>{item.label}</span>
                 </button>
             );
@@ -913,16 +968,20 @@ class BaseContainer extends React.Component {
                         <DivContainer colClass='col-12'>
                             {leftItems && leftItems.length > 0
                                 ? leftItems.map((item, index) =>
-                                    item.customRenderFunction instanceof Function ? item.customRenderFunction() : this.renderItem(item, index)
-                                )
+                                      item.customRenderFunction instanceof Function
+                                          ? item.customRenderFunction()
+                                          : this.renderItem(item, index)
+                                  )
                                 : null}
                         </DivContainer>
                         <DivContainer colClass='col-12'>
                             <DivContainer colClass='float-right'>
                                 {rightItems && rightItems.length > 0
                                     ? rightItems.map((item, index) =>
-                                        item.customRenderFunction instanceof Function ? item.customRenderFunction() : this.renderItem(item, index)
-                                    )
+                                          item.customRenderFunction instanceof Function
+                                              ? item.customRenderFunction()
+                                              : this.renderItem(item, index)
+                                      )
                                     : null}
                             </DivContainer>
                         </DivContainer>
@@ -936,44 +995,53 @@ class BaseContainer extends React.Component {
         return (
             <div className={`row ${pt}`}>
                 <div className='col'>
-                    <div className='ade-border-bottom ade-separator'/>
+                    <div className='ade-border-bottom ade-separator' />
                 </div>
             </div>
         );
     }
 
     setWaitPanelLabel(waitPanelLabel, callBack) {
-        this.setState({waitPanelLabel}, () => (callBack !== undefined && callBack instanceof Function ? callBack() : null));
+        this.setState({ waitPanelLabel }, () =>
+            callBack !== undefined && callBack instanceof Function ? callBack() : null
+        );
     }
 
     blockUi(callBack, waitPanelLabel) {
         if (waitPanelLabel !== undefined) {
-            this.setState({
-                blocking: true,
-                waitPanelLabel
-            }, () => (callBack !== undefined && callBack instanceof Function ? callBack() : null));
+            this.setState(
+                {
+                    blocking: true,
+                    waitPanelLabel,
+                },
+                () => (callBack !== undefined && callBack instanceof Function ? callBack() : null)
+            );
         } else {
-            this.setState({blocking: true}, () => (callBack !== undefined && callBack instanceof Function ? callBack() : null));
+            this.setState({ blocking: true }, () =>
+                callBack !== undefined && callBack instanceof Function ? callBack() : null
+            );
         }
     }
 
     unblockUi() {
-        this.setState({blocking: false});
+        this.setState({ blocking: false });
     }
 
     unblockUi(callBack) {
-        this.setState({blocking: false}, () => (callBack !== undefined && callBack instanceof Function ? callBack() : null));
+        this.setState({ blocking: false }, () =>
+            callBack !== undefined && callBack instanceof Function ? callBack() : null
+        );
     }
 
     loader() {
-        const {waitPanelLabel} = this.state;
+        const { waitPanelLabel } = this.state;
         let label = 'Operacja w toku, proszę czekać.';
         if (waitPanelLabel !== undefined && waitPanelLabel !== null) {
             label = waitPanelLabel;
         }
         return (
             <div id='cover-spin-container'>
-                <div id='cover-spin'/>
+                <div id='cover-spin' />
                 <div id='cover-spin-text'>
                     <p>{label}</p>
                 </div>
@@ -990,36 +1058,30 @@ class BaseContainer extends React.Component {
     }
 
     renderContent() {
-        return (
-            <React.Fragment>
-            </React.Fragment>
-        )
+        return <React.Fragment></React.Fragment>;
     }
 
     renderHeaderButtons() {
-        return (
-            <React.Fragment>
-            </React.Fragment>
-        )
+        return <React.Fragment></React.Fragment>;
     }
 
     render() {
         return (
             <React.Fragment>
                 <BreadcrumbsItem to='/setting-list'>{this.getBreadcrumbsName()}</BreadcrumbsItem>
-                <Toast id='toast-messages' position='top-center' ref={(el) => this.messages = el}/>
+                <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
                 <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
                     <DivContainer colClass='col-12'>
                         <DivContainer colClass='row'>
                             <DivContainer colClass='col-6'>
-                                <div className="font-medium mb-4">{this.getViewInfoName()}</div>
+                                <div className='font-medium mb-4'>{this.getViewInfoName()}</div>
                             </DivContainer>
                             <DivContainer colClass='col-6'>
-                                {this.state.loading === false ? (this.renderHeaderButtons()) : null}
+                                {this.state.loading === false ? this.renderHeaderButtons() : null}
                             </DivContainer>
                         </DivContainer>
                         <DivContainer colClass='row'>
-                            {this.state.loading === false ? (this.renderContent()) : null}
+                            {this.state.loading === false ? this.renderContent() : null}
                         </DivContainer>
                     </DivContainer>
                 </BlockUi>
@@ -1028,16 +1090,12 @@ class BaseContainer extends React.Component {
     }
 }
 
-BaseContainer.defaultProps =
-    {
-        viewMode: 'VIEW',
-    }
-;
+BaseContainer.defaultProps = {
+    viewMode: 'VIEW',
+};
 
-BaseContainer.propTypes =
-    {
-        viewMode: PropTypes.string,
-    }
-;
+BaseContainer.propTypes = {
+    viewMode: PropTypes.string,
+};
 
 export default BaseContainer;
