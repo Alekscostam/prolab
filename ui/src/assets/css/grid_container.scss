@@ -111,6 +111,10 @@ $table-selection: #DDE6FF;
   color: $button-text-color;
 }
 
-.dx-button-mode-outlined.dx-item-selected{
-  background-color: rgba(0,0,0,.17);
+.dx-button-mode-outlined.dx-item-selected {
+  background-color: rgba(0, 0, 0, .17);
+}
+
+.grid-container{
+  height: 69vh;
 }

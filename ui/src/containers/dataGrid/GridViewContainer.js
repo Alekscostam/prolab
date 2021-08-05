@@ -8,7 +8,7 @@ import DataGrid, {
     FilterRow,
     Grouping,
     GroupPanel,
-    HeaderFilter,
+    HeaderFilter, LoadPanel,
     Pager,
     Paging,
     RemoteOperations,
@@ -586,13 +586,12 @@ export class GridViewContainer extends BaseContainer {
 
                                     <Sorting mode='multiple' />
 
-                                    <Selection mode='multiple' selectAllMode='allPages' showCheckBoxesMode='onClick' />
+                                    <Selection mode='multiple' selectAllMode='allPages' showCheckBoxesMode='always'/>
 
-                                    {/* zobaczymy który typ paginacji wybiorą
-                            <Scrolling mode="infinite"/>
-                            <LoadPanel enabled={true}/>
-                            */}
+                                    <Scrolling mode="infinite"/>
+                                    <LoadPanel enabled={true} />
 
+                                    {/* domyślnie infinite scrolling
                                     <Paging defaultPageSize={10} />
                                     <Pager
                                         visible={true}
@@ -602,8 +601,9 @@ export class GridViewContainer extends BaseContainer {
                                         showInfo={this.state.showInfo}
                                         showNavigationButtons={this.state.showNavButtons}
                                     />
+                                    */}
 
-                                    <Editing mode='cell' />
+                                    <Editing mode='cell'/>
 
                                     {/* tak nie działa :(
                             {this.state.gridViewColumns.map((c) => {
