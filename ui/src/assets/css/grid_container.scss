@@ -110,3 +110,7 @@ $table-selection: #DDE6FF;
 .grid-button-panel.shortcut > .shortcut-text {
   color: $button-text-color;
 }
+
+.dx-button-mode-outlined.dx-item-selected{
+  background-color: rgba(0,0,0,.17);
+}
