@@ -996,6 +996,13 @@ class BaseContainer extends React.Component {
         )
     }
 
+    renderHeaderButtons() {
+        return (
+            <React.Fragment>
+            </React.Fragment>
+        )
+    }
+
     render() {
         return (
             <React.Fragment>
@@ -1004,7 +1011,12 @@ class BaseContainer extends React.Component {
                 <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
                     <DivContainer colClass='col-12'>
                         <DivContainer colClass='row'>
-                            <div className="font-medium mb-4">{this.getViewInfoName()}</div>
+                            <DivContainer colClass='col-6'>
+                                <div className="font-medium mb-4">{this.getViewInfoName()}</div>
+                            </DivContainer>
+                            <DivContainer colClass='col-6'>
+                                {this.state.loading === false ? (this.renderHeaderButtons()) : null}
+                            </DivContainer>
                         </DivContainer>
                         <DivContainer colClass='row'>
                             {this.state.loading === false ? (this.renderContent()) : null}
