@@ -1,17 +1,16 @@
-import queryString from 'query-string';
-import {Password} from 'primereact/password';
+import { InputText } from 'primereact/inputtext';
+import { Message } from 'primereact/message';
+import { Password } from 'primereact/password';
+import { Toast } from 'primereact/toast';
 import PropTypes from 'prop-types';
+import queryString from 'query-string';
 import React from 'react';
-import {Redirect} from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import BaseContainer from '../baseContainers/BaseContainer';
+import ActionButton from '../components/ActionButton';
 import SimpleReactValidator from '../components/validator';
+import Constants from '../utils/constants';
 import BlockUi from './../components/waitPanel/BlockUi';
-import {InputText} from "primereact/inputtext";
-import ActionButton from "../components/ActionButton";
-import {Toast} from "primereact/toast";
-import {readCookieGlobal} from "../utils/cookie";
-import Constants from "../utils/constants";
-import {Message} from "primereact/message";
 
 class LoginContainer extends BaseContainer {
     constructor(props) {
@@ -93,118 +92,149 @@ class LoginContainer extends BaseContainer {
     }
 
     renderAfterAuth() {
-        const {redirectToReferrer} = this.state;
+        const { redirectToReferrer } = this.state;
         if (redirectToReferrer === true) {
-            return <Redirect to={this.targetLocation ? this.targetLocation : '/start'}/>;
+            return <Redirect to={this.targetLocation ? this.targetLocation : '/start'} />;
         }
-        return <Redirect to={'/start'}/>;
+        return <Redirect to={'/start'} />;
     }
 
     showWarningMessage(detail, life = Constants.ERROR_MSG_LIFE, summary = '') {
         this.messages.show({
-            severity: 'warn', sticky: false, life: Constants.ERROR_MSG_LIFE, content: (
-                <div className="p-flex p-flex-column" style={{flex: '1'}}>
+            severity: 'warn',
+            sticky: false,
+            life: Constants.ERROR_MSG_LIFE,
+            content: (
+                <div className='p-flex p-flex-column' style={{ flex: '1' }}>
                     <Message severity={'warn'} content={detail}></Message>
                 </div>
-            )
+            ),
         });
     }
 
     showErrorMessage(errMsg, life = Constants.ERROR_MSG_LIFE, closable = true, summary = 'Błąd!') {
         this.messages.show({
-            severity: 'error', sticky: false, life: Constants.ERROR_MSG_LIFE, content: (
-                <div className="p-flex p-flex-column" style={{flex: '1'}}>
+            severity: 'error',
+            sticky: false,
+            life: Constants.ERROR_MSG_LIFE,
+            content: (
+                <div className='p-flex p-flex-column' style={{ flex: '1' }}>
                     <Message severity={'error'} content={errMsg}></Message>
                 </div>
-            )
+            ),
         });
     }
 
+    onKeyDown(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            this.handleFormSubmit();
+        }
+    }
+
     renderBeforeAuth() {
-        const REACT_APP_URL_PREFIX = readCookieGlobal("REACT_APP_URL_PREFIX");
         return (
             <React.Fragment>
                 <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
-                    <Toast id='toast-messages' position='top-center' ref={(el) => this.messages = el}/>
-                    <div className="container-fluid login">
-                        <div className="row no-gutter">
-                            <div className="col-md-7 d-none d-md-flex bg-color">
-                                <img className='login-icon'
-                                     src={`./images/login_logo.svg`} alt='Prolab'/>
-                                <img className='login-left-bg'
-                                     src={`./images/login_left_img.svg`}/>
-                            </div>
-                            <div className="col-md-5 bg-light">
-                                <div className="login d-flex align-items-center py-5">
-                                    <div className="container">
-                                        <div className="row">
-                                            <div className="col-lg-10 col-xl-9 mx-auto">
-                                                <div className="font-big  mb-4 ">Zaloguj się</div>
-                                                <form>
-                                                    <div className="form-group mb-4">
-                                                        <label htmlFor="username">Login</label>
-                                                        <InputText
-                                                            ariaLabel={'Nazwa użytkownika'}
-                                                            key={'username'}
-                                                            id={'username'}
-                                                            name={'username'}
-                                                            placeholder={''}
-                                                            style={{width: '100%'}}
-                                                            value={this.state.username}
-                                                            onChange={(e) => this.handleChange('TEXT', undefined, e, undefined, '')}
-                                                            required={true}
-                                                            validator={this.validator}
-                                                            validators='required|max:50'
+                    <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
+                    <form onSubmit={this.handleFormSubmit} onKeyDown={(e) => this.onKeyDown(e)}>
+                        <div className='container-fluid login'>
+                            <div className='row no-gutter'>
+                                <div className='col-md-7 d-none d-md-flex bg-color'>
+                                    <img className='login-icon' src={`./images/login_logo.svg`} alt='Prolab' />
+                                    <img className='login-left-bg' src={`./images/login_left_img.svg`} alt='Tło' />
+                                </div>
+                                <div className='col-md-5 bg-light'>
+                                    <div className='login d-flex align-items-center py-5'>
+                                        <div className='container'>
+                                            <div className='row'>
+                                                <div className='col-lg-10 col-xl-9 mx-auto'>
+                                                    <div className='font-big  mb-4 '>Zaloguj się</div>
+                                                    <form>
+                                                        <div className='form-group mb-4'>
+                                                            <label htmlFor='username'>Login</label>
+                                                            <InputText
+                                                                ariaLabel={'Nazwa użytkownika'}
+                                                                key={'username'}
+                                                                id={'username'}
+                                                                name={'username'}
+                                                                placeholder={''}
+                                                                style={{
+                                                                    width: '100%',
+                                                                }}
+                                                                value={this.state.username}
+                                                                onChange={(e) =>
+                                                                    this.handleChange(
+                                                                        'TEXT',
+                                                                        undefined,
+                                                                        e,
+                                                                        undefined,
+                                                                        ''
+                                                                    )
+                                                                }
+                                                                required={true}
+                                                                validator={this.validator}
+                                                                validators='required|max:50'
+                                                            />
+                                                        </div>
+                                                        <div className='form-group mb-3'>
+                                                            <label htmlFor='password'>Hasło</label>
+                                                            <Password
+                                                                ariaLabel={'Hasło'}
+                                                                key={'password'}
+                                                                id={'password'}
+                                                                name={'password'}
+                                                                placeholder={''}
+                                                                style={{
+                                                                    width: '100%',
+                                                                }}
+                                                                value={this.state.password}
+                                                                onChange={(e) =>
+                                                                    this.handleChange(
+                                                                        'TEXT',
+                                                                        undefined,
+                                                                        e,
+                                                                        undefined,
+                                                                        ''
+                                                                    )
+                                                                }
+                                                                promptLabel={'Hasło'}
+                                                                feedback={false}
+                                                                required={true}
+                                                                validator={this.authValidValidator}
+                                                                validators='not_required'
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <p className='text-right'>
+                                                                <a href='https://bootstrapious.com/snippets'>
+                                                                    Zapomniałeś hasła?
+                                                                </a>
+                                                            </p>
+                                                        </div>
+                                                        <ActionButton
+                                                            label='Zaloguj się'
+                                                            className='mt-4'
+                                                            variant='login-button'
+                                                            handleClick={this.handleFormSubmit}
                                                         />
-                                                    </div>
-                                                    <div className="form-group mb-3">
-                                                        <label htmlFor="password">Hasło</label>
-                                                        <Password
-                                                            ariaLabel={'Hasło'}
-                                                            key={'password'}
-                                                            id={'password'}
-                                                            name={'password'}
-                                                            placeholder={''}
-                                                            style={{width: '100%'}}
-                                                            value={this.state.password}
-                                                            onChange={(e) => this.handleChange('TEXT', undefined, e, undefined, '')}
-                                                            promptLabel={'Hasło'}
-                                                            feedback={false}
-                                                            required={true}
-                                                            validator={this.authValidValidator}
-                                                            validators='not_required'
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-right">
-                                                            <a
-                                                                href="https://bootstrapious.com/snippets">
-                                                                Zapomniałeś hasła?
-                                                            </a>
-                                                        </p>
-                                                    </div>
-                                                    <ActionButton
-                                                        label='Zaloguj się'
-                                                        className="mt-4"
-                                                        variant='login-button'
-                                                        handleClick={this.handleFormSubmit}/>
-                                                    <div className="mt-4">
-                                                        <p className="font-normal text-center">Nie masz swojego
-                                                            konta?&nbsp;
-                                                            <a
-                                                                href="https://bootstrapious.com/snippets">
-                                                                Stwórz profil
-                                                            </a>
-                                                        </p>
-                                                    </div>
-                                                </form>
+                                                        <div className='mt-4'>
+                                                            <p className='font-normal text-center'>
+                                                                Nie masz swojego konta?&nbsp;
+                                                                <a href='https://bootstrapious.com/snippets'>
+                                                                    Stwórz profil
+                                                                </a>
+                                                            </p>
+                                                        </div>
+                                                    </form>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </form>
                 </BlockUi>
             </React.Fragment>
         );

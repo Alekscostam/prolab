@@ -102,6 +102,7 @@ body {
       justify-content: center;
       text-overflow: ellipsis;
       overflow: hidden;
+      cursor: pointer;
 
       span {
         margin-left: 5px;
@@ -359,6 +360,11 @@ input:-webkit-autofill, input:autofill {
 
 .p-button.p-component.p-button-text-only {
   color: $button-text-color;
+}
+
+.grid-view-header .font-medium{
+  margin: auto;
+  margin-left: 0px;
 }
 
 //notifications & messages
