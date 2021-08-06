@@ -94,24 +94,39 @@ class Sidebar extends React.Component {
     }
 
     handleFilter(filterValue) {
+        console.log('handleFilter', filterValue);
         const menu = this.state.menu;
         if (menu !== undefined && filterValue !== null) {
             if (filterValue === undefined || filterValue === null || filterValue === '') {
-                this.setState({ filteredMenu: menu, filterValue });
+                console.log('handleFilter 1', filterValue);
+                this.setState({ filteredMenu: menu, filterValue }, () => {
+                    console.log('afterset 1', this.state.filterValue);
+                });
             } else {
                 let filteredMenu = [];
                 menu.forEach((item) => {
                     this.processItem(item, filteredMenu, filterValue);
                 });
-                this.setState({ filteredMenu, filterValue });
+                console.log('handleFilter 2', filterValue);
+                this.setState({ filteredMenu, filterValue }, () => {
+                    console.log('afterset 2', this.state.filterValue);
+                });
             }
         } else {
-            this.setState({ filteredMenu: [], filterValue });
+            console.log('handleFilter 3', filterValue);
+            this.setState({ filteredMenu: [], filterValue }, () => {
+                console.log('afterset 3', this.state.filterValue);
+            });
         }
     }
 
     processItem(item, filteredMenu, filterValue) {
-        if (item.name !== undefined && item.name !== null && item.name.includes(filterValue) && item.type === 'View') {
+        if (
+            item.name !== undefined &&
+            item.name !== null &&
+            item.name.toLowerCase().includes(filterValue.toLowerCase()) &&
+            item.type === 'View'
+        ) {
             filteredMenu.push({
                 icon: item.icon,
                 id: item.id,
@@ -131,11 +146,17 @@ class Sidebar extends React.Component {
     }
 
     render() {
+        const { collapsed, filterValue } = this.state;
         $(document).on('click', '.pro-inner-item', function (e) {
             $('.pro-inner-item').each(function (index) {
                 $(this).removeClass('active');
             });
+            $('.pro-menu-item').each(function (index) {
+                $(this).removeClass('active');
+            });
             $(this).addClass('active').siblings().removeClass('active');
+            $(this).parents('.pro-inner-item').addClass('active');
+            $(this).parents('.pro-menu-item').addClass('active');
         });
         /*------------------------  PROPS  ---------------------------*/
         let { authService } = this.props;
@@ -244,27 +265,28 @@ class Sidebar extends React.Component {
                                         />
                                     </div>
                                 </div>
-                                <div className='row'>
+                                <div className='row mb-2' style={collapsed ? { display: 'none' } : {}}>
                                     <div className='col-md-12'>
                                         <span id='menu-search-span' className='p-input-icon-left p-input-icon-right'>
                                             <i className='pi pi-search' />
                                             <InputText
                                                 ariaLabel={'Wyszukaj menu'}
                                                 className='p-inputtext-sm'
-                                                key={'menu-search'}
-                                                id={'menu-search'}
-                                                name='filteredValue'
+                                                key='filterValue'
+                                                id='filterValue'
+                                                name='filterValue'
                                                 style={{ width: '100%' }}
                                                 type='text'
                                                 placeholder={'Wyszukaj menu'}
-                                                value={this.state.filterValue}
+                                                value={filterValue}
                                                 onChange={(e) => this.handleFilter(e.target.value)}
                                             />
                                             <i
+                                                style={filterValue === '' ? { display: 'none' } : {}}
                                                 className='pi mdi mdi-close'
                                                 onClick={(e) => {
                                                     e.preventDefault();
-                                                    if (this.state.filterValue !== '') {
+                                                    if (filterValue !== '') {
                                                         this.handleFilter('');
                                                     }
                                                 }}
