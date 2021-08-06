@@ -240,8 +240,6 @@ export class GridViewContainer extends BaseContainer {
                 case 'T':
                     return 'datetime';
                 case 'O':
-                case 'I':
-                case 'IM':
                 case 'H':
                     return 'string';
             }
@@ -259,6 +257,33 @@ export class GridViewContainer extends BaseContainer {
                     return Constants.DATE_FORMAT.DATE_TIME_FORMAT;
                 case 'T':
                     return Constants.DATE_FORMAT.TIME_FORMAT;
+            }
+        }
+        return undefined;
+    }
+
+    specifyCellTemplate(template) {
+        if (template) {
+            switch (template) {
+                case 'I':
+                    return function (element, info) {
+                        let srcFromBase64 = 'data:image/png;base64' + info.text + '"';
+                        ReactDOM.render(
+                            <div>
+                                <img src={srcFromBase64} style="display: block;"/>
+                            </div>,
+                            element
+                        );
+                    };
+                case 'IM':
+                    return function (element, info) {
+                        ReactDOM.render(
+                            <div>
+                                {info.text}
+                            </div>,
+                            element
+                        );
+                    };
             }
         }
         return undefined;
@@ -325,6 +350,29 @@ export class GridViewContainer extends BaseContainer {
                         column.caption = columnTmp?.label;
                         column.dataType = this.specifyColumnType(columnTmp?.type);
                         column.format = this.specifyColumnFormat(columnTmp?.type);
+                        column.cellTemplate = columnTmp?.type === 'I' || columnTmp?.type === 'IM' ? function (element, info) {
+                            if (!!info.text) {
+                                if (Array.isArray(info.text) && info.text?.length > 0) {
+                                    let srcFromBase64 = 'data:image/png;base64,' + info.text + '';
+                                    ReactDOM.render(
+                                        <div>
+                                            {info.text?.map((i) => {
+                                                return <img src={srcFromBase64}></img>
+                                            })}
+                                        </div>,
+                                        element
+                                    );
+                                } else {
+                                    let srcFromBase64 = 'data:image/png;base64,' + info.text + '';
+                                    ReactDOM.render(
+                                        <div>
+                                            <img src={srcFromBase64}></img>
+                                        </div>,
+                                        element
+                                    );
+                                }
+                            }
+                        } : undefined;
                         column.fixed =
                             columnTmp.freeze !== undefined && columnTmp.freeze !== null
                                 ? columnTmp.freeze?.toLowerCase() === 'left' ||
