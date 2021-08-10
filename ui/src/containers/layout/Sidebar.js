@@ -65,7 +65,8 @@ class Sidebar extends React.Component {
             history.action !== 'PUSH' ||
             (history.action !== 'PUSH' && nextProps.location.pathname == '/start') ||
             this.state.collapsed !== nextState.collapsed ||
-            this.state.toggled !== nextState.toggled
+            this.state.toggled !== nextState.toggled ||
+            this.state.filterValue !== nextState.filterValue
         );
     }
 
@@ -94,29 +95,19 @@ class Sidebar extends React.Component {
     }
 
     handleFilter(filterValue) {
-        console.log('handleFilter', filterValue);
         const menu = this.state.menu;
         if (menu !== undefined && filterValue !== null) {
             if (filterValue === undefined || filterValue === null || filterValue === '') {
-                console.log('handleFilter 1', filterValue);
-                this.setState({ filteredMenu: menu, filterValue }, () => {
-                    console.log('afterset 1', this.state.filterValue);
-                });
+                this.setState({ filteredMenu: menu, filterValue });
             } else {
                 let filteredMenu = [];
                 menu.forEach((item) => {
                     this.processItem(item, filteredMenu, filterValue);
                 });
-                console.log('handleFilter 2', filterValue);
-                this.setState({ filteredMenu, filterValue }, () => {
-                    console.log('afterset 2', this.state.filterValue);
-                });
+                this.setState({ filteredMenu, filterValue });
             }
         } else {
-            console.log('handleFilter 3', filterValue);
-            this.setState({ filteredMenu: [], filterValue }, () => {
-                console.log('afterset 3', this.state.filterValue);
-            });
+            this.setState({ filteredMenu: [], filterValue });
         }
     }
 
@@ -279,7 +270,10 @@ class Sidebar extends React.Component {
                                                 type='text'
                                                 placeholder={'Wyszukaj menu'}
                                                 value={filterValue}
-                                                onChange={(e) => this.handleFilter(e.target.value)}
+                                                onChange={(e) => {
+                                                    e.preventDefault();
+                                                    this.handleFilter(e.target.value);
+                                                }}
                                             />
                                             <i
                                                 style={filterValue === '' ? { display: 'none' } : {}}
