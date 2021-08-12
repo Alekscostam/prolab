@@ -153,7 +153,7 @@ class Sidebar extends React.Component {
         let { authService } = this.props;
         /*------------------------  PROPS  ---------------------------*/
         //TODO pobrać się do danych o userze
-        const userName = authService.getProfile().sub;
+        const userName = JSON.parse(authService.getProfile()).name;
         const dynamicMenuJSON = !authService.loggedIn() ? [] : this.state.filteredMenu;
         //TODO pogadać o rolach
         //const role = authService.getProfile().role;
@@ -295,9 +295,11 @@ class Sidebar extends React.Component {
 
                         <SidebarFooter id={'menu-footer'} style={{ textAlign: 'center' }}>
                             <Menu iconShape='circle'>
-                                <MenuItem icon={<FaUser />}>
-                                    {userName}
-                                    <Link to='/manage-account' />
+                                <MenuItem icon={<FaUser/>}>
+                                    <div style={{textAlign: 'left'}}>
+                                        {userName}
+                                    </div>
+                                    <Link to='/manage-account'/>
                                 </MenuItem>
                             </Menu>
                             <div

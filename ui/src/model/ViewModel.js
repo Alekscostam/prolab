@@ -56,6 +56,16 @@ export const PluginsList = ObjectModel({
     label: String
 })
 
+export const BatchesList = ObjectModel({
+    id: Number,
+    label: String
+})
+
+export const FiltersList = ObjectModel({
+    id: Number,
+    label: String
+})
+
 export const ViewResponse = ObjectModel({
     viewInfo: ViewInfo,
     gridOptions: [GridOptions],

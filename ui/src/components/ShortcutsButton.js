@@ -31,9 +31,6 @@ export class ShortcutsButton extends React.Component {
     render() {
         return <div className="row">
             <div id="header-panel-buttons" className="col-xl-12 col-lg-12 col-md-12 col-sm-12 mt-2 mb-2">
-                <div id="left-panel-buttons" className="float-left  pt-2">
-                    {this.props.children}
-                </div>
                 {this.props.items?.length > this.props.maxShortcutButtons ?
                     <div id="right-panel-buttons" className="float-right ml-2 pt-2">
                         <ActionButtonWithMenu id="more_shortcut"

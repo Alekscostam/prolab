@@ -22,6 +22,17 @@
   height: 26px;
 }
 
+.button-with-menu-filter {
+  font-size: 22px;
+  padding: 0rem 0.3rem;
+  min-width: 0rem;
+  height: 28px;
+  border: 1px solid gray;
+}
+.button-with-menu-filter .shortcut-text {
+  color: gray;
+}
+
 .action-button-with-menu-popup {
   position: absolute;
   z-index: 999;

@@ -7,7 +7,8 @@ import {
     PluginsList,
     ShortcutButtons,
     ViewInfo,
-    ViewResponse
+    ViewResponse,
+    BatchesList, FiltersList
 } from "../../model/ViewModel";
 import {parseBoolean} from "./ValidationUtils";
 
@@ -58,7 +59,9 @@ export class ViewValidatorUtils {
                     label: s.label
                 })),
             documentsList: parsedViewObject.documentsList?.map((d) => new DocumentsList({id: d.id, label: d.label})),
-            pluginsList: parsedViewObject.pluginsList?.map((p) => new PluginsList({id: p.id, label: p.label}))
+            pluginsList: parsedViewObject.pluginsList?.map((p) => new PluginsList({id: p.id, label: p.label})),
+            batchesList: parsedViewObject.batchesList?.map((p) => new BatchesList({id: p.id, label: p.label})),
+            FiltersList: parsedViewObject.FiltersList?.map((p) => new FiltersList({id: p.id, label: p.label}))
         });
 
         return viewValidObject;

@@ -1061,7 +1061,11 @@ class BaseContainer extends React.Component {
         return <React.Fragment></React.Fragment>;
     }
 
-    renderHeaderButtons() {
+    renderHeaderButtonsRight() {
+        return <React.Fragment></React.Fragment>;
+    }
+
+    renderHeaderButtonsLeft(){
         return <React.Fragment></React.Fragment>;
     }
 
@@ -1075,9 +1079,10 @@ class BaseContainer extends React.Component {
                         <DivContainer colClass='row'>
                             <DivContainer colClass='col-6'>
                                 <div className='font-medium mb-4'>{this.getViewInfoName()}</div>
+                                {this.state.loading === false ? this.renderHeaderButtonsLeft() : null}
                             </DivContainer>
                             <DivContainer colClass='col-6'>
-                                {this.state.loading === false ? this.renderHeaderButtons() : null}
+                                {this.state.loading === false ? this.renderHeaderButtonsRight() : null}
                             </DivContainer>
                         </DivContainer>
                         <DivContainer colClass='row'>
