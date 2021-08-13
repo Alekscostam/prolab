@@ -54,6 +54,7 @@ export class GridViewContainer extends BaseContainer {
             gridViewColumns: [],
             selectedRowKeys: [],
             gridViewType: 'list',
+            subView: null,
         };
         this.onSelectionChanged = this.onSelectionChanged.bind(this);
         this.gridViewTypeChange = this.gridViewTypeChange.bind(this);
@@ -82,6 +83,7 @@ export class GridViewContainer extends BaseContainer {
         console.log('GridViewContainer -> componentDidUpdate prevProps id={%s} id={%s}', prevProps.id, this.props.id);
         if (prevProps.id !== this.props.id) {
             this.downloadData();
+            this.setState({subView: null});
         }
     }
 
@@ -105,6 +107,8 @@ export class GridViewContainer extends BaseContainer {
                             let gridViewColumnsTmp = [];
                             let pluginsListTmp = [];
                             let documentsListTmp = [];
+                            let batchesListTmp = [];
+                            let filtersListTmp = [];
                             let oppAddButtonTmp = GridViewUtils.containsOperationButton(
                                 responseView.operations,
                                 'OP_ADD'
@@ -137,6 +141,21 @@ export class GridViewContainer extends BaseContainer {
                             } */
                                 });
                             }
+                            for (let batch in responseView?.batchesList) {
+                                batchesListTmp.push({
+                                    id: responseView?.batchesList[batch].id,
+                                    label: responseView?.batchesList[batch].label,
+                                });
+                            }
+                            for (let filter in responseView?.filtersList) {
+                                filtersListTmp.push({
+                                    id: responseView?.filtersList[filter].id,
+                                    label: responseView?.filtersList[filter].label,
+                                    command: (e) => {
+                                        window.location.href = `/#/grid-view/${e.item?.id}`;
+                                    }
+                                });
+                            }
                             this.setState(
                                 {
                                     loading: false,
@@ -146,6 +165,8 @@ export class GridViewContainer extends BaseContainer {
                                     oppAddButton: oppAddButtonTmp,
                                     pluginsList: pluginsListTmp,
                                     documentsList: documentsListTmp,
+                                    batchesList: batchesListTmp,
+                                    filtersList: filtersListTmp,
                                     selectedRowKeys: [],
                                 },
                                 () => {
@@ -270,7 +291,7 @@ export class GridViewContainer extends BaseContainer {
                         let srcFromBase64 = 'data:image/png;base64' + info.text + '"';
                         ReactDOM.render(
                             <div>
-                                <img src={srcFromBase64} style="display: block;"/>
+                                <img src={srcFromBase64} style="display: block; width: 100%;"/>
                             </div>,
                             element
                         );
@@ -304,6 +325,8 @@ export class GridViewContainer extends BaseContainer {
 
     customizeColumns = (columns) => {
         let INDEX_COLUMN = 0;
+        let elementId = this.props.id;
+        let viewService = this.viewService;
         if (columns?.length > 0) {
             //when viewData respond a lot of data
             columns?.forEach((column) => {
@@ -357,7 +380,7 @@ export class GridViewContainer extends BaseContainer {
                                     ReactDOM.render(
                                         <div>
                                             {info.text?.map((i) => {
-                                                return <img src={srcFromBase64}></img>
+                                                return <img style={{width: '100%'}} src={srcFromBase64}></img>
                                             })}
                                         </div>,
                                         element
@@ -366,7 +389,7 @@ export class GridViewContainer extends BaseContainer {
                                     let srcFromBase64 = 'data:image/png;base64,' + info.text + '';
                                     ReactDOM.render(
                                         <div>
-                                            <img src={srcFromBase64}></img>
+                                            <img style={{width: '100%'}} src={srcFromBase64}></img>
                                         </div>,
                                         element
                                     );
@@ -387,9 +410,12 @@ export class GridViewContainer extends BaseContainer {
             });
             if (this.state.parsedGridView?.operations) {
                 let showEditButton = false;
+                let showSubviewButton = false;
                 let menuItems = [];
                 this.state.parsedGridView?.operations.forEach((operation) => {
                     showEditButton = showEditButton || operation.type === 'OP_EDIT';
+                    //OP_SUBVIEWS
+                    showSubviewButton = showSubviewButton || operation.type === 'OP_SUBVIEWS';
                     if (
                         operation.type === 'OP_PUBLIC' ||
                         operation.type === 'OP_HISTORY' ||
@@ -399,29 +425,59 @@ export class GridViewContainer extends BaseContainer {
                     }
                 });
                 let showMenu = menuItems.length > 0;
-                if (showEditButton || showMenu) {
+                let widthTmp = 0;
+                if (showMenu) {
+                    widthTmp += 55;
+                }
+                if (showEditButton) {
+                    widthTmp += 55;
+                }
+                if (showSubviewButton) {
+                    widthTmp += 55;
+                }
+
+                if (showEditButton || showMenu || showSubviewButton) {
                     columns?.push({
                         caption: 'Akcje',
-                        width: showMenu && showEditButton ? 105 : 50,
-                        cellTemplate: function (element, info) {
+                        width: widthTmp,
+                        fixed: true,
+                        fixedPosition: 'right',
+                        cellTemplate: (element, info) => {
                             let el = document.createElement('div');
                             el.id = `actions-${info.column.headerId}-${info.rowIndex}`;
                             element.append(el);
                             ReactDOM.render(
-                                <div>
+                                <div style={{textAlign: 'center'}}>
                                     <ShortcutButton
                                         id={`${info.column.headerId}_menu_button`}
-                                        className={`action-button-with-menu mr-2`}
+                                        className={`action-button-with-menu mr-1`}
                                         iconName={'mdi-pencil'}
                                         label={''}
-                                        title={''}
+                                        title={'Edycja'}
                                         rendered={showEditButton}
                                     />
                                     <ActionButtonWithMenu
                                         id='more_shortcut'
                                         iconName='mdi-dots-horizontal'
+                                        className={`mr-1`}
                                         items={menuItems}
                                         remdered={showMenu}
+                                        title={'Dodatkowe opcje'}
+                                    />
+                                    <ShortcutButton
+                                        id={`${info.column.headerId}_menu_button`}
+                                        className={`action-button-with-menu mr-1`}
+                                        iconName={'mdi-playlist-plus '}
+                                        label={''}
+                                        title={'Podwidoki'}
+                                        handleClick={(e) => {
+                                            viewService.getSubView(elementId).then(subViewResponse => {
+                                                this.setState({subView: subViewResponse});
+                                            }).catch((err) => {
+                                                this.handleGetDetailsError(err);
+                                            });
+                                        }}
+                                        rendered={showSubviewButton}
                                     />
                                 </div>,
                                 element
@@ -488,7 +544,7 @@ export class GridViewContainer extends BaseContainer {
                                 <div>
                                     <ShortcutButton
                                         id={`${info.column.headerId}_menu_button`}
-                                        className={`action-button-with-menu mr-2`}
+                                        className={`action-button-with-menu mr-1`}
                                         iconName={'mdi-pencil'}
                                         label={''}
                                         title={''}
@@ -517,24 +573,14 @@ export class GridViewContainer extends BaseContainer {
     }
 
     //override
-    renderHeaderButtons() {
+    renderHeaderButtonsLeft() {
         return (
             <React.Fragment>
-                {this.showHeaderButtons() ? (
-                    <HeaderButton>
-                        {this.state.oppAddButton === null ? null : (
-                            <ActionButton
-                                label={this.state.oppAddButton?.label}
-                                className='float-right'
-                            ></ActionButton>
-                        )}
-                    </HeaderButton>
-                ) : null}
-                <ShortcutsButton items={this.state.parsedGridView?.shortcutButtons}>
+                <div id="left-panel-buttons" className="float-left  pt-2">
                     {this.state.documentsList?.length > 0 ? (
                         <ActionButtonWithMenu
                             id='button_documents'
-                            className='mr-2'
+                            className='mr-1 mt-2 mb-2'
                             iconName='mdi-file-document'
                             items={this.state.documentsList}
                             title='Pluginy'
@@ -543,19 +589,72 @@ export class GridViewContainer extends BaseContainer {
                     {this.state.pluginsList?.length > 0 ? (
                         <ActionButtonWithMenu
                             id='button_plugins'
-                            className='mr-2'
+                            className='mr-1 mt-2 mb-2'
                             iconName='mdi-puzzle'
                             items={this.state.pluginsList}
                             title='Dokumenty'
                         />
                     ) : null}
-                </ShortcutsButton>
+                    {this.state.subView != null
+                    && this.state.subView.subViews != null
+                    && this.state.subView.subViews.length > 0
+                    && this.state.subView.subViews?.map((subView, index) => {
+                        return <div className="float-left">
+                            <ShortcutButton id={`subview_${index}`}
+                                            className="mt-2 mb-2 mr-1"
+                                            label={subView.label}
+                                            handleClick={() => {
+                                                let subViewId = subView.id;
+                                                window.location.href = `/#/grid-view/${subViewId}`;
+                                            }}/>
+                        </div>
+                    })}
+                </div>
             </React.Fragment>
         );
     }
 
-    //override
-    renderContent() {
+//override
+    renderHeaderButtonsRight() {
+        return (
+
+            <React.Fragment> {
+                this
+                    .showHeaderButtons()
+
+                    ? (
+                        <HeaderButton> {
+                            this
+                                .state
+                                .oppAddButton
+                            ===
+                            null
+                                ?
+                                null : (
+                                    <ActionButton
+                                        label={
+                                            this
+                                                .state
+                                                .oppAddButton
+                                                ?.label
+                                        }
+
+                                        className='float-right'
+                                    ></ActionButton>
+                                )
+                        }
+                        </HeaderButton>
+                    ) :
+                    null
+            }
+                <ShortcutsButton items={this.state.parsedGridView?.shortcutButtons}/>
+            </React.Fragment>
+        )
+            ;
+    }
+
+//override
+    renderContent = () => {
         const showGroupPanel = this.state.parsedGridView?.gridOptions?.showGroupPanel || false;
         const groupExpandAll = this.state.parsedGridView?.gridOptions?.groupExpandAll || false;
         const columnAutoWidth = this.state.parsedGridView?.gridOptions?.columnAutoWidth || true;
@@ -591,6 +690,17 @@ export class GridViewContainer extends BaseContainer {
                                     console.log('handleArchive');
                                 }}
                             />
+
+                            {this.state.filtersList?.length > 0 ? (
+                                <ActionButtonWithMenu
+                                    id='button_filters'
+                                    className='button-with-menu-filter mb-2 mt-2 mr-1'
+                                    iconName='mdi-filter-variant'
+                                    items={this.state.filtersList}
+                                    title='Filtry'
+
+                                />
+                            ) : null}
                             <ButtonGroup
                                 className='mb-2 mt-2'
                                 items={this.tableViewItems}
@@ -643,7 +753,7 @@ export class GridViewContainer extends BaseContainer {
 
                                     <Selection mode='multiple' selectAllMode='allPages' showCheckBoxesMode='always'/>
 
-                                    <Scrolling mode="infinite"/>
+                                    <Scrolling mode="virtual" rowRenderingMode="virtual"/>
                                     <LoadPanel enabled={true}/>
 
                                     {/* domyślnie infinite scrolling

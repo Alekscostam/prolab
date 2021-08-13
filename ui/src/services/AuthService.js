@@ -143,7 +143,7 @@ export default class AuthService {
                 password,
             }),
         }).then((res) => {
-            this.setToken(res.token, res.expiration); // Setting the token in localStorage
+            this.setToken(res.token, res.expiration, res.user); // Setting the token in localStorage
             return Promise.resolve(res);
         });
     }
@@ -153,7 +153,7 @@ export default class AuthService {
         return this.fetch(`${this.domain}/refresh`, {
             method: 'GET',
         }).then((res) => {
-            this.setToken(res.token, res.expiration); // Setting the token in localStorage
+            this.setToken(res.token, res.expiration, res.user); // Setting the token in localStorage
             return Promise.resolve(res);
         });
     }
@@ -183,7 +183,7 @@ export default class AuthService {
     isTokenExpiredDate() {
         try {
             const expirationTokenDateStr = sessionStorage.getItem('expiration_token');
-            if (expirationTokenDateStr && new Date(expirationTokenDateStr) < Date.now() / 1000) {
+            if (expirationTokenDateStr && new Date(  expirationTokenDateStr) < Date.now() / 1000) {
                 // Checking if token is expired. N
                 return true;
             } else return false;
@@ -192,10 +192,11 @@ export default class AuthService {
         }
     }
 
-    setToken(idToken, expirationToken) {
+    setToken(idToken, expirationToken, loggedUser) {
         // Saves user token to localStorage
         sessionStorage.setItem('id_token', idToken);
         sessionStorage.setItem('expiration_token', expirationToken);
+        sessionStorage.setItem('logged_user', JSON.stringify(loggedUser));
     }
 
     getToken() {
@@ -212,15 +213,13 @@ export default class AuthService {
         // Clear user token and profile data from localStorage
         sessionStorage.removeItem('id_token')
         sessionStorage.removeItem('expiration_token')
+        sessionStorage.removeItem('logged_user')
     }
 
     //TODO
     getProfile() {
-        // Using jwt-decode npm package to decode the token
         try {
-            //const decoded = decode(this.getToken());
-            const decoded = 'Janusz'
-            return decoded;
+            return sessionStorage.getItem('logged_user');
         } catch (err) {
             return {};
         }

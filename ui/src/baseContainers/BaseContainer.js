@@ -1061,7 +1061,11 @@ class BaseContainer extends React.Component {
         return <React.Fragment></React.Fragment>;
     }
 
-    renderHeaderButtons() {
+    renderHeaderButtonsRight() {
+        return <React.Fragment></React.Fragment>;
+    }
+
+    renderHeaderButtonsLeft(){
         return <React.Fragment></React.Fragment>;
     }
 
@@ -1071,13 +1075,14 @@ class BaseContainer extends React.Component {
                 <BreadcrumbsItem to='/setting-list'>{this.getBreadcrumbsName()}</BreadcrumbsItem>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
                 <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
-                    <DivContainer colClass='col-12'>
+                    <DivContainer colClass=''>
                         <DivContainer colClass='row'>
                             <DivContainer colClass='col-6'>
                                 <div className='font-medium mb-4'>{this.getViewInfoName()}</div>
+                                {this.state.loading === false ? this.renderHeaderButtonsLeft() : null}
                             </DivContainer>
                             <DivContainer colClass='col-6'>
-                                {this.state.loading === false ? this.renderHeaderButtons() : null}
+                                {this.state.loading === false ? this.renderHeaderButtonsRight() : null}
                             </DivContainer>
                         </DivContainer>
                         <DivContainer colClass='row'>

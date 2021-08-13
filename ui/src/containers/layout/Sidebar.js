@@ -15,6 +15,7 @@ import ViewService from '../../services/ViewService';
 import Image from '../../components/Image';
 import { MenuValidatorUtils } from '../../utils/parser/MenuValidatorUtils';
 import { InputText } from 'primereact/inputtext';
+import ActionButton from "../../components/ActionButton";
 
 class Sidebar extends React.Component {
     constructor(props) {
@@ -65,7 +66,8 @@ class Sidebar extends React.Component {
             history.action !== 'PUSH' ||
             (history.action !== 'PUSH' && nextProps.location.pathname == '/start') ||
             this.state.collapsed !== nextState.collapsed ||
-            this.state.toggled !== nextState.toggled
+            this.state.toggled !== nextState.toggled ||
+            this.state.filterValue !== nextState.filterValue
         );
     }
 
@@ -94,29 +96,19 @@ class Sidebar extends React.Component {
     }
 
     handleFilter(filterValue) {
-        console.log('handleFilter', filterValue);
         const menu = this.state.menu;
         if (menu !== undefined && filterValue !== null) {
             if (filterValue === undefined || filterValue === null || filterValue === '') {
-                console.log('handleFilter 1', filterValue);
-                this.setState({ filteredMenu: menu, filterValue }, () => {
-                    console.log('afterset 1', this.state.filterValue);
-                });
+                this.setState({ filteredMenu: menu, filterValue });
             } else {
                 let filteredMenu = [];
                 menu.forEach((item) => {
                     this.processItem(item, filteredMenu, filterValue);
                 });
-                console.log('handleFilter 2', filterValue);
-                this.setState({ filteredMenu, filterValue }, () => {
-                    console.log('afterset 2', this.state.filterValue);
-                });
+                this.setState({ filteredMenu, filterValue });
             }
         } else {
-            console.log('handleFilter 3', filterValue);
-            this.setState({ filteredMenu: [], filterValue }, () => {
-                console.log('afterset 3', this.state.filterValue);
-            });
+            this.setState({ filteredMenu: [], filterValue });
         }
     }
 
@@ -161,8 +153,7 @@ class Sidebar extends React.Component {
         /*------------------------  PROPS  ---------------------------*/
         let { authService } = this.props;
         /*------------------------  PROPS  ---------------------------*/
-        //TODO pobrać się do danych o userze
-        const userName = authService.getProfile().sub;
+        const userName = JSON.parse(authService.getProfile()).name;
         const dynamicMenuJSON = !authService.loggedIn() ? [] : this.state.filteredMenu;
         //TODO pogadać o rolach
         //const role = authService.getProfile().role;
@@ -247,7 +238,7 @@ class Sidebar extends React.Component {
                                                 }}
                                             >
                                                 <img
-                                                    height={'34px'}
+                                                    height={'25px'}
                                                     src={`./images/login_logo.svg`}
                                                     alt='Prolab'
                                                     className='prolab-logo'
@@ -279,7 +270,10 @@ class Sidebar extends React.Component {
                                                 type='text'
                                                 placeholder={'Wyszukaj menu'}
                                                 value={filterValue}
-                                                onChange={(e) => this.handleFilter(e.target.value)}
+                                                onChange={(e) => {
+                                                    e.preventDefault();
+                                                    this.handleFilter(e.target.value);
+                                                }}
                                             />
                                             <i
                                                 style={filterValue === '' ? { display: 'none' } : {}}
@@ -295,15 +289,30 @@ class Sidebar extends React.Component {
                                     </div>
                                 </div>
                             </div>
+                            {collapsed ?
+                                <div id="mini-search-panel">
+                                    <ActionButton id="mini-search-button"
+                                                  iconName='mdi-magnify'
+                                                  title="Wyszukaj menu"
+                                                  handleClick={() => {
+                                                      this.handleCollapseChange();
+                                                      $( document ).ready(function() {
+                                                          $( "#filterValue" ).focus();
+                                                      });
+                                                  }}
+                                    />
+                                </div> : null}
                         </SidebarHeader>
 
                         <DynamicMenu id='dynamic-menu' key='dynamic-menu-key' data={dynamicMenuJSON} />
 
                         <SidebarFooter id={'menu-footer'} style={{ textAlign: 'center' }}>
                             <Menu iconShape='circle'>
-                                <MenuItem icon={<FaUser />}>
-                                    {userName}
-                                    <Link to='/manage-account' />
+                                <MenuItem icon={<FaUser/>}>
+                                    <div style={{textAlign: 'left'}}>
+                                        {userName}
+                                    </div>
+                                    <Link to='/manage-account'/>
                                 </MenuItem>
                             </Menu>
                             <div

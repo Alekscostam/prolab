@@ -127,7 +127,7 @@ body {
   }
 
   main {
-    padding: 24px;
+    padding: 6px;
     flex-grow: 1;
     display: flex;
     flex-direction: column;
@@ -379,6 +379,22 @@ input:-webkit-autofill, input:autofill {
 @import 'grid_container';
 /*------------------*/
 
+#mini-search-panel{
+  padding: 0.4rem;
+  text-align: center;
+}
+#mini-search-button{
+  padding: 0.5rem 0.75rem;
+  min-width: 1rem;
+}
 
+.dx-theme-material-typography a{
+  color: $link-color;
+}
 
-
+.dx-datagrid-filter-panel
+.dx-datagrid-filter-panel-clear-filter,
+.dx-datagrid-filter-panel .dx-datagrid-filter-panel-text,
+.dx-datagrid-filter-panel .dx-icon-filter{
+  color: $link-color !important;
+}
