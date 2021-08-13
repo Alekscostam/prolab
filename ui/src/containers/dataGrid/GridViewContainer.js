@@ -54,6 +54,7 @@ export class GridViewContainer extends BaseContainer {
             gridViewColumns: [],
             selectedRowKeys: [],
             gridViewType: 'list',
+            subView: null,
         };
         this.onSelectionChanged = this.onSelectionChanged.bind(this);
         this.gridViewTypeChange = this.gridViewTypeChange.bind(this);
@@ -82,6 +83,7 @@ export class GridViewContainer extends BaseContainer {
         console.log('GridViewContainer -> componentDidUpdate prevProps id={%s} id={%s}', prevProps.id, this.props.id);
         if (prevProps.id !== this.props.id) {
             this.downloadData();
+            this.setState({subView: null});
         }
     }
 
@@ -91,7 +93,6 @@ export class GridViewContainer extends BaseContainer {
 
     downloadData() {
         const id = this.props.id;
-        const props = this.props;
         this.setState(
             {
                 loading: true,
@@ -324,6 +325,8 @@ export class GridViewContainer extends BaseContainer {
 
     customizeColumns = (columns) => {
         let INDEX_COLUMN = 0;
+        let elementId = this.props.id;
+        let viewService = this.viewService;
         if (columns?.length > 0) {
             //when viewData respond a lot of data
             columns?.forEach((column) => {
@@ -439,7 +442,7 @@ export class GridViewContainer extends BaseContainer {
                         width: widthTmp,
                         fixed: true,
                         fixedPosition: 'right',
-                        cellTemplate: function (element, info) {
+                        cellTemplate: (element, info) => {
                             let el = document.createElement('div');
                             el.id = `actions-${info.column.headerId}-${info.rowIndex}`;
                             element.append(el);
@@ -447,7 +450,7 @@ export class GridViewContainer extends BaseContainer {
                                 <div style={{textAlign: 'center'}}>
                                     <ShortcutButton
                                         id={`${info.column.headerId}_menu_button`}
-                                        className={`action-button-with-menu mr-2`}
+                                        className={`action-button-with-menu mr-1`}
                                         iconName={'mdi-pencil'}
                                         label={''}
                                         title={'Edycja'}
@@ -456,18 +459,24 @@ export class GridViewContainer extends BaseContainer {
                                     <ActionButtonWithMenu
                                         id='more_shortcut'
                                         iconName='mdi-dots-horizontal'
-                                        className={`mr-2`}
+                                        className={`mr-1`}
                                         items={menuItems}
                                         remdered={showMenu}
                                         title={'Dodatkowe opcje'}
                                     />
                                     <ShortcutButton
                                         id={`${info.column.headerId}_menu_button`}
-                                        className={`action-button-with-menu mr-2`}
+                                        className={`action-button-with-menu mr-1`}
                                         iconName={'mdi-playlist-plus '}
                                         label={''}
-                                        title={'Zakładki'}
-                                        handleClick={(e)=>alert('Zakładki')}
+                                        title={'Podwidoki'}
+                                        handleClick={(e) => {
+                                            viewService.getSubView(elementId).then(subViewResponse => {
+                                                this.setState({subView: subViewResponse});
+                                            }).catch((err) => {
+                                                this.handleGetDetailsError(err);
+                                            });
+                                        }}
                                         rendered={showSubviewButton}
                                     />
                                 </div>,
@@ -535,7 +544,7 @@ export class GridViewContainer extends BaseContainer {
                                 <div>
                                     <ShortcutButton
                                         id={`${info.column.headerId}_menu_button`}
-                                        className={`action-button-with-menu mr-2`}
+                                        className={`action-button-with-menu mr-1`}
                                         iconName={'mdi-pencil'}
                                         label={''}
                                         title={''}
@@ -571,7 +580,7 @@ export class GridViewContainer extends BaseContainer {
                     {this.state.documentsList?.length > 0 ? (
                         <ActionButtonWithMenu
                             id='button_documents'
-                            className='mr-2'
+                            className='mr-1 mt-2 mb-2'
                             iconName='mdi-file-document'
                             items={this.state.documentsList}
                             title='Pluginy'
@@ -580,40 +589,72 @@ export class GridViewContainer extends BaseContainer {
                     {this.state.pluginsList?.length > 0 ? (
                         <ActionButtonWithMenu
                             id='button_plugins'
-                            className='mr-2'
+                            className='mr-1 mt-2 mb-2'
                             iconName='mdi-puzzle'
                             items={this.state.pluginsList}
                             title='Dokumenty'
                         />
                     ) : null}
+                    {this.state.subView != null
+                    && this.state.subView.subViews != null
+                    && this.state.subView.subViews.length > 0
+                    && this.state.subView.subViews?.map((subView, index) => {
+                        return <div className="float-left">
+                            <ShortcutButton id={`subview_${index}`}
+                                            className="mt-2 mb-2 mr-1"
+                                            label={subView.label}
+                                            handleClick={() => {
+                                                let subViewId = subView.id;
+                                                window.location.href = `/#/grid-view/${subViewId}`;
+                                            }}/>
+                        </div>
+                    })}
                 </div>
             </React.Fragment>
         );
     }
 
-    //override
+//override
     renderHeaderButtonsRight() {
         return (
-            <React.Fragment>
-                {this.showHeaderButtons() ? (
-                    <HeaderButton>
-                        {this.state.oppAddButton === null ? null : (
-                            <ActionButton
-                                label={this.state.oppAddButton?.label}
-                                className='float-right'
-                            ></ActionButton>
-                        )}
-                    </HeaderButton>
-                ) : null}
-                <ShortcutsButton items={this.state.parsedGridView?.shortcutButtons}>
 
-                </ShortcutsButton>
+            <React.Fragment> {
+                this
+                    .showHeaderButtons()
+
+                    ? (
+                        <HeaderButton> {
+                            this
+                                .state
+                                .oppAddButton
+                            ===
+                            null
+                                ?
+                                null : (
+                                    <ActionButton
+                                        label={
+                                            this
+                                                .state
+                                                .oppAddButton
+                                                ?.label
+                                        }
+
+                                        className='float-right'
+                                    ></ActionButton>
+                                )
+                        }
+                        </HeaderButton>
+                    ) :
+                    null
+            }
+                <ShortcutsButton items={this.state.parsedGridView?.shortcutButtons}/>
             </React.Fragment>
-        );
+        )
+            ;
     }
 
-    //override
-    renderContent() {
+//override
+    renderContent = () => {
         const showGroupPanel = this.state.parsedGridView?.gridOptions?.showGroupPanel || false;
         const groupExpandAll = this.state.parsedGridView?.gridOptions?.groupExpandAll || false;
         const columnAutoWidth = this.state.parsedGridView?.gridOptions?.columnAutoWidth || true;
@@ -653,7 +694,7 @@ export class GridViewContainer extends BaseContainer {
                             {this.state.filtersList?.length > 0 ? (
                                 <ActionButtonWithMenu
                                     id='button_filters'
-                                    className='button-with-menu-filter mb-2 mt-2 mr-2'
+                                    className='button-with-menu-filter mb-2 mt-2 mr-1'
                                     iconName='mdi-filter-variant'
                                     items={this.state.filtersList}
                                     title='Filtry'

@@ -20,4 +20,12 @@ export default class ViewService extends BaseService {
         });
     }
 
+    getSubView(viewId) {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/subView`, {
+            method: 'GET',
+        }).catch((err) => {
+            throw err;
+        });
+    }
+
 }

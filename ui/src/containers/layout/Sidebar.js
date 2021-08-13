@@ -15,6 +15,7 @@ import ViewService from '../../services/ViewService';
 import Image from '../../components/Image';
 import { MenuValidatorUtils } from '../../utils/parser/MenuValidatorUtils';
 import { InputText } from 'primereact/inputtext';
+import ActionButton from "../../components/ActionButton";
 
 class Sidebar extends React.Component {
     constructor(props) {
@@ -152,7 +153,6 @@ class Sidebar extends React.Component {
         /*------------------------  PROPS  ---------------------------*/
         let { authService } = this.props;
         /*------------------------  PROPS  ---------------------------*/
-        //TODO pobrać się do danych o userze
         const userName = JSON.parse(authService.getProfile()).name;
         const dynamicMenuJSON = !authService.loggedIn() ? [] : this.state.filteredMenu;
         //TODO pogadać o rolach
@@ -289,6 +289,19 @@ class Sidebar extends React.Component {
                                     </div>
                                 </div>
                             </div>
+                            {collapsed ?
+                                <div id="mini-search-panel">
+                                    <ActionButton id="mini-search-button"
+                                                  iconName='mdi-magnify'
+                                                  title="Wyszukaj menu"
+                                                  handleClick={() => {
+                                                      this.handleCollapseChange();
+                                                      $( document ).ready(function() {
+                                                          $( "#filterValue" ).focus();
+                                                      });
+                                                  }}
+                                    />
+                                </div> : null}
                         </SidebarHeader>
 
                         <DynamicMenu id='dynamic-menu' key='dynamic-menu-key' data={dynamicMenuJSON} />
