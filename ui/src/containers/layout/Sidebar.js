@@ -238,7 +238,7 @@ class Sidebar extends React.Component {
                                                 }}
                                             >
                                                 <img
-                                                    height={'34px'}
+                                                    height={'25px'}
                                                     src={`./images/login_logo.svg`}
                                                     alt='Prolab'
                                                     className='prolab-logo'
