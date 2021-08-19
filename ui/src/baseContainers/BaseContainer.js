@@ -10,11 +10,11 @@ import SimpleReactValidator from '../components/validator';
 import AuthService from '../services/AuthService';
 import $ from 'jquery';
 import Constants from '../utils/constants';
-import { readCookieGlobal, removeCookieGlobal, saveCookieGlobal } from '../utils/cookie';
-import { BreadcrumbsItem } from 'react-breadcrumbs-dynamic';
+import {readCookieGlobal, removeCookieGlobal, saveCookieGlobal} from '../utils/cookie';
+import {BreadcrumbsItem} from 'react-breadcrumbs-dynamic';
 import BlockUi from '../components/waitPanel/BlockUi';
-import { Toast } from 'primereact/toast';
-import { Message } from 'primereact/message';
+import {Toast} from 'primereact/toast';
+import {Message} from 'primereact/message';
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -53,7 +53,8 @@ class BaseContainer extends React.Component {
     }
 
     componentDidMount() {
-        window.addEventListener('beforeunload', function () {});
+        window.addEventListener('beforeunload', function () {
+        });
         this._isMounted = true;
         if (!this.jwtRefreshBlocked && this.authService.loggedIn()) {
             this.jwtRefreshBlocked = true;
@@ -112,7 +113,7 @@ class BaseContainer extends React.Component {
             sticky: true,
             life: Constants.ERROR_MSG_LIFE,
             content: (
-                <div className='p-flex p-flex-column' style={{ flex: '1' }}>
+                <div className='p-flex p-flex-column' style={{flex: '1'}}>
                     <Message severity={'success'} content={detail}></Message>
                 </div>
             ),
@@ -125,7 +126,7 @@ class BaseContainer extends React.Component {
             sticky: false,
             life: Constants.ERROR_MSG_LIFE,
             content: (
-                <div className='p-flex p-flex-column' style={{ flex: '1' }}>
+                <div className='p-flex p-flex-column' style={{flex: '1'}}>
                     <Message severity={'info'} content={detail}></Message>
                 </div>
             ),
@@ -138,7 +139,7 @@ class BaseContainer extends React.Component {
             sticky: false,
             life: Constants.ERROR_MSG_LIFE,
             content: (
-                <div className='p-flex p-flex-column' style={{ flex: '1' }}>
+                <div className='p-flex p-flex-column' style={{flex: '1'}}>
                     <Message severity={'warn'} content={detail}></Message>
                 </div>
             ),
@@ -151,7 +152,7 @@ class BaseContainer extends React.Component {
             sticky: false,
             life: Constants.ERROR_MSG_LIFE,
             content: (
-                <div className='p-flex p-flex-column' style={{ flex: '1' }}>
+                <div className='p-flex p-flex-column' style={{flex: '1'}}>
                     <Message severity={'error'} content={errMsg}></Message>
                 </div>
             ),
@@ -247,7 +248,7 @@ class BaseContainer extends React.Component {
                     }`}
                 >
                     {rowData[field].iconName !== undefined ? (
-                        <i className={`icon mdi ${rowData[field].iconName}`} />
+                        <i className={`icon mdi ${rowData[field].iconName}`}/>
                     ) : null}
                     {rowData[field].label}
                 </span>
@@ -441,7 +442,7 @@ class BaseContainer extends React.Component {
         console.log('handleChange', inputType, parameters, event, stateField);
         let stateFieldValue = undefined;
         if (stateField && stateField !== '') {
-            ({ [stateField]: stateFieldValue } = this.state);
+            ({[stateField]: stateFieldValue} = this.state);
             stateFieldValue = this.getValueInObjPath(stateField);
         }
         let varName;
@@ -459,7 +460,7 @@ class BaseContainer extends React.Component {
                     if (stateFieldValue) {
                         modifiedList = stateFieldValue[varName];
                     } else {
-                        ({ [varName]: modifiedList } = this.state);
+                        ({[varName]: modifiedList} = this.state);
                     }
                     if (parameters[0] === 'ADD') {
                         varValue = event;
@@ -491,7 +492,7 @@ class BaseContainer extends React.Component {
                     if (stateFieldValue) {
                         modifiedList = stateFieldValue[varName];
                     } else {
-                        ({ [varName]: modifiedList } = this.state);
+                        ({[varName]: modifiedList} = this.state);
                     }
                     if (parameters[0] === 'ADD') {
                         varValue = JSON.parse(event.xhr.response);
@@ -524,7 +525,7 @@ class BaseContainer extends React.Component {
                     if (stateFieldValue) {
                         modifiedList = stateFieldValue[varName];
                     } else {
-                        ({ [varName]: modifiedList } = this.state);
+                        ({[varName]: modifiedList} = this.state);
                     }
                     if (!modifiedList) {
                         modifiedList = [];
@@ -538,7 +539,7 @@ class BaseContainer extends React.Component {
                     if (stateFieldValue) {
                         modifiedList = stateFieldValue[varName];
                     } else {
-                        ({ [varName]: modifiedList } = this.state);
+                        ({[varName]: modifiedList} = this.state);
                     }
                     if (!modifiedList) {
                         modifiedList = [];
@@ -572,7 +573,7 @@ class BaseContainer extends React.Component {
                     if (stateFieldValue) {
                         modifiedList = stateFieldValue[varName];
                     } else {
-                        ({ [varName]: modifiedList } = this.state);
+                        ({[varName]: modifiedList} = this.state);
                     }
                     if (parameters[0] === 'ADD') {
                         if (!modifiedList) {
@@ -777,7 +778,8 @@ class BaseContainer extends React.Component {
         }
     }
 
-    handleValidForm() {}
+    handleValidForm() {
+    }
 
     handleFormSubmit(event) {
         if (event !== undefined) {
@@ -855,18 +857,18 @@ class BaseContainer extends React.Component {
             <DivContainer colClass='p-card-header-minheight'>
                 {leftItems && leftItems.length > 0
                     ? leftItems.map((item, index) =>
-                          item.customRenderFunction instanceof Function
-                              ? item.customRenderFunction()
-                              : this.renderItem(item, index)
-                      )
+                        item.customRenderFunction instanceof Function
+                            ? item.customRenderFunction()
+                            : this.renderItem(item, index)
+                    )
                     : null}
                 <DivContainer colClass='float-right'>
                     {rightItems && rightItems.length > 0
                         ? rightItems.map((item, index) =>
-                              item.customRenderFunction instanceof Function
-                                  ? item.customRenderFunction()
-                                  : this.renderItem(item, index)
-                          )
+                            item.customRenderFunction instanceof Function
+                                ? item.customRenderFunction()
+                                : this.renderItem(item, index)
+                        )
                         : null}
                 </DivContainer>
             </DivContainer>
@@ -968,20 +970,20 @@ class BaseContainer extends React.Component {
                         <DivContainer colClass='col-12'>
                             {leftItems && leftItems.length > 0
                                 ? leftItems.map((item, index) =>
-                                      item.customRenderFunction instanceof Function
-                                          ? item.customRenderFunction()
-                                          : this.renderItem(item, index)
-                                  )
+                                    item.customRenderFunction instanceof Function
+                                        ? item.customRenderFunction()
+                                        : this.renderItem(item, index)
+                                )
                                 : null}
                         </DivContainer>
                         <DivContainer colClass='col-12'>
                             <DivContainer colClass='float-right'>
                                 {rightItems && rightItems.length > 0
                                     ? rightItems.map((item, index) =>
-                                          item.customRenderFunction instanceof Function
-                                              ? item.customRenderFunction()
-                                              : this.renderItem(item, index)
-                                      )
+                                        item.customRenderFunction instanceof Function
+                                            ? item.customRenderFunction()
+                                            : this.renderItem(item, index)
+                                    )
                                     : null}
                             </DivContainer>
                         </DivContainer>
@@ -995,14 +997,14 @@ class BaseContainer extends React.Component {
         return (
             <div className={`row ${pt}`}>
                 <div className='col'>
-                    <div className='ade-border-bottom ade-separator' />
+                    <div className='ade-border-bottom ade-separator'/>
                 </div>
             </div>
         );
     }
 
     setWaitPanelLabel(waitPanelLabel, callBack) {
-        this.setState({ waitPanelLabel }, () =>
+        this.setState({waitPanelLabel}, () =>
             callBack !== undefined && callBack instanceof Function ? callBack() : null
         );
     }
@@ -1017,31 +1019,31 @@ class BaseContainer extends React.Component {
                 () => (callBack !== undefined && callBack instanceof Function ? callBack() : null)
             );
         } else {
-            this.setState({ blocking: true }, () =>
+            this.setState({blocking: true}, () =>
                 callBack !== undefined && callBack instanceof Function ? callBack() : null
             );
         }
     }
 
     unblockUi() {
-        this.setState({ blocking: false });
+        this.setState({blocking: false});
     }
 
     unblockUi(callBack) {
-        this.setState({ blocking: false }, () =>
+        this.setState({blocking: false}, () =>
             callBack !== undefined && callBack instanceof Function ? callBack() : null
         );
     }
 
     loader() {
-        const { waitPanelLabel } = this.state;
+        const {waitPanelLabel} = this.state;
         let label = 'Operacja w toku, proszę czekać.';
         if (waitPanelLabel !== undefined && waitPanelLabel !== null) {
             label = waitPanelLabel;
         }
         return (
             <div id='cover-spin-container'>
-                <div id='cover-spin' />
+                <div id='cover-spin'/>
                 <div id='cover-spin-text'>
                     <p>{label}</p>
                 </div>
@@ -1065,7 +1067,11 @@ class BaseContainer extends React.Component {
         return <React.Fragment></React.Fragment>;
     }
 
-    renderHeaderButtonsLeft(){
+    renderHeaderButtonsLeft() {
+        return <React.Fragment></React.Fragment>;
+    }
+
+    renderHeaderPanel() {
         return <React.Fragment></React.Fragment>;
     }
 
@@ -1073,7 +1079,7 @@ class BaseContainer extends React.Component {
         return (
             <React.Fragment>
                 <BreadcrumbsItem to='/setting-list'>{this.getBreadcrumbsName()}</BreadcrumbsItem>
-                <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
+                <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)}/>
                 <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
                     <DivContainer colClass=''>
                         <DivContainer colClass='row'>
@@ -1081,12 +1087,19 @@ class BaseContainer extends React.Component {
                                 <div className='font-medium mb-4'>{this.getViewInfoName()}</div>
                                 {this.state.loading === false ? this.renderHeaderButtonsLeft() : null}
                             </DivContainer>
-                            <DivContainer colClass='col-6'>
+                            <DivContainer colClass='col-6 toRight' >
                                 {this.state.loading === false ? this.renderHeaderButtonsRight() : null}
                             </DivContainer>
                         </DivContainer>
                         <DivContainer colClass='row'>
-                            {this.state.loading === false ? this.renderContent() : null}
+                            <DivContainer colClass='col-12'>
+                                {this.state.loading === false ? this.renderHeaderPanel() : null}
+                            </DivContainer>
+                        </DivContainer>
+                        <DivContainer colClass='row'>
+                            <DivContainer colClass='col-12'>
+                                {this.state.loading === false ? this.renderContent() : null}
+                            </DivContainer>
                         </DivContainer>
                     </DivContainer>
                 </BlockUi>

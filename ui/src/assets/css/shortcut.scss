@@ -24,10 +24,11 @@
 
 .button-with-menu-filter {
   font-size: 22px;
-  padding: 0rem 0.3rem;
+  padding: 0rem 0.2rem;
   min-width: 0rem;
   height: 28px;
-  border: 1px solid gray;
+  width: 30px;
+  border: 1px solid #ddd;
 }
 .button-with-menu-filter .shortcut-text {
   color: gray;
@@ -45,4 +46,9 @@
   padding: 0.2rem 0.5rem;
   color: $button-color !important;
   font-size: 14px;
+}
+
+.dx-buttongroup-wrapper{
+  background: $button-text-color !important;
+  border-radius: 5px;
 }

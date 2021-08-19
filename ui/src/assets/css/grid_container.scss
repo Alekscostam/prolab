@@ -82,20 +82,28 @@ $table-selection: #dde6ff;
     display: grid;
 }
 
-.grid-selection-panel {
-    background-color: $button-color;
-    color: $button-text-color;
+.grid-selection-panel{
     font-size: 12px;
     line-height: 14px;
     letter-spacing: 0px;
     font-style: normal;
     font-variant: normal;
     font-weight: 500;
-    padding-left: 10px;
+    padding-left: 5px;
     padding-right: 10px;
     margin-top: 5px;
     margin-bottom: 5px;
     height: 36px;
+}
+
+.grid-selection-panel-non-selection {
+    background-color: $button-text-color;
+    color: $button-color;
+}
+
+.grid-selection-panel-selection {
+    background-color: $button-color;
+    color: $button-text-color;
 }
 
 .grid-count-fragment {
@@ -144,3 +152,21 @@ $table-selection: #dde6ff;
 .dx-datagrid.dx-gridbase-container{
     z-index: 0;
 }
+
+.dx-buttongroup-wrapper dx-widget dx-collection{
+    background: white;
+    border-radius: 5px;
+}
+
+.grid-panel-left {
+}
+
+.grid-panel-selection{
+    display: inline-flex;
+}
+
+.grid-panel-right{
+    margin-left: auto;
+    order: 3;
+}
+

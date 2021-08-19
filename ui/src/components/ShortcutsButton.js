@@ -29,23 +29,21 @@ export class ShortcutsButton extends React.Component {
     }
 
     render() {
-        return <div className="row">
-            <div id="header-panel-buttons" className="col-xl-12 col-lg-12 col-md-12 col-sm-12 mt-2 mb-2">
-                {this.props.items?.length > this.props.maxShortcutButtons ?
-                    <div id="right-panel-buttons" className="float-right ml-2 pt-2">
-                        <ActionButtonWithMenu id="more_shortcut"
-                                              iconName='mdi-dots-horizontal'
-                                              items={this.menuItems}/>
-                    </div> : null}
-                {this.props.items?.map((button, index) => {
-                    if (index < this.props.maxShortcutButtons)
-                        return <div className="float-right ml-2">
-                            <ShortcutButton className="mt-2 mb-2 ml-2" label={button.label}/>
-                        </div>
-                    return null;
-                })}
-            </div>
-        </div>
+        return <React.Fragment>
+            {this.props.items?.length > this.props.maxShortcutButtons ?
+                <div id="right-panel-buttons" className="float-right ml-2">
+                    <ActionButtonWithMenu id="more_shortcut"
+                                          iconName='mdi-dots-horizontal'
+                                          items={this.menuItems}/>
+                </div> : null}
+            {this.props.items?.map((button, index) => {
+                if (index < this.props.maxShortcutButtons)
+                    return <div className="float-right ">
+                        <ShortcutButton className="ml-2" label={button.label}/>
+                    </div>
+                return null;
+            })}
+        </React.Fragment>
     }
 }
 
