@@ -427,15 +427,14 @@ export class GridViewContainer extends BaseContainer {
                 let showMenu = menuItems.length > 0;
                 let widthTmp = 0;
                 if (showMenu) {
-                    widthTmp += 55;
+                    widthTmp += 45;
                 }
                 if (showEditButton) {
-                    widthTmp += 55;
+                    widthTmp += 45;
                 }
                 if (showSubviewButton) {
-                    widthTmp += 55;
+                    widthTmp += 45;
                 }
-
                 if (showEditButton || showMenu || showSubviewButton) {
                     columns?.push({
                         caption: 'Akcje',
