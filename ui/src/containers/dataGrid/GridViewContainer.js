@@ -53,7 +53,7 @@ export class GridViewContainer extends BaseContainer {
             parsedGridViewData: {},
             gridViewColumns: [],
             selectedRowKeys: [],
-            gridViewType: 'list',
+            gridViewType: 'listView',
             subView: null,
         };
         this.onSelectionChanged = this.onSelectionChanged.bind(this);
@@ -319,7 +319,6 @@ export class GridViewContainer extends BaseContainer {
     }
 
     gridViewTypeChange(e) {
-        console.log('gridViewTypeChange', e);
         this.setState({gridViewType: e.itemData.type});
     }
 
@@ -709,7 +708,7 @@ export class GridViewContainer extends BaseContainer {
                                 selectedItemKeys={this.state.gridViewType}
                                 onItemClick={this.gridViewTypeChange}
                             />
-                            {this.state.gridViewType === 'list' ? (
+                            {this.state.gridViewType === 'listView' ? (
                                 <DataGrid
                                     id='grid-container'
                                     className='grid-container'
@@ -794,7 +793,7 @@ export class GridViewContainer extends BaseContainer {
                             })}
                          */}
                                 </DataGrid>
-                            ) : this.state.gridViewType === 'tiles' ? (
+                            ) : this.state.gridViewType === 'cardView' ? (
                                     'TODO'
                                 ) : // <DataGrid
                                 // 	id='grid-container'
