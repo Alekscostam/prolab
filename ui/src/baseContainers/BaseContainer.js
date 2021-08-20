@@ -1063,15 +1063,19 @@ class BaseContainer extends React.Component {
         return <React.Fragment></React.Fragment>;
     }
 
-    renderHeaderButtonsRight() {
+    renderHeaderRight() {
         return <React.Fragment></React.Fragment>;
     }
 
-    renderHeaderButtonsLeft() {
+    renderHeaderLeft() {
         return <React.Fragment></React.Fragment>;
     }
 
-    renderHeaderPanel() {
+    renderHeaderContent() {
+        return <React.Fragment></React.Fragment>;
+    }
+
+    renderHeadPanel(){
         return <React.Fragment></React.Fragment>;
     }
 
@@ -1083,21 +1087,24 @@ class BaseContainer extends React.Component {
                 <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
                     <DivContainer colClass=''>
                         <DivContainer colClass='row'>
-                            <DivContainer colClass='col-11'>
+                            <DivContainer id='header-left' colClass='col-11'>
                                 <div className='font-medium mb-4'>{this.getViewInfoName()}</div>
-                                {this.state.loading === false ? this.renderHeaderButtonsLeft() : null}
+                                {this.state.loading === false ? this.renderHeaderLeft() : null}
                             </DivContainer>
-                            <DivContainer colClass='col-1 to-right' >
-                                {this.state.loading === false ? this.renderHeaderButtonsRight() : null}
+                            <DivContainer id='header-right' colClass='col-1 to-right'>
+                                {this.state.loading === false ? this.renderHeaderRight() : null}
                             </DivContainer>
-                        </DivContainer>
-                        <DivContainer colClass='row'>
-                            <DivContainer colClass='col-12'>
-                                {this.state.loading === false ? this.renderHeaderPanel() : null}
+                            <DivContainer id='header-content' colClass='col-12'>
+                                {this.state.loading === false ? this.renderHeaderContent() : null}
                             </DivContainer>
                         </DivContainer>
                         <DivContainer colClass='row'>
-                            <DivContainer colClass='col-12'>
+                            <DivContainer id='header-panel' colClass='col-12'>
+                                {this.state.loading === false ? this.renderHeadPanel() : null}
+                            </DivContainer>
+                        </DivContainer>
+                        <DivContainer colClass='row'>
+                            <DivContainer id='content' colClass='col-12'>
                                 {this.state.loading === false ? this.renderContent() : null}
                             </DivContainer>
                         </DivContainer>

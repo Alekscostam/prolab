@@ -51,6 +51,7 @@ export class GridViewContainer extends BaseContainer {
             elementId: props.id,
             elementSubViewId: null,
             elementRecordId: null,
+            elementFilterId: null,
             viewMode: props.viewMode,
             parsedGridView: {},
             parsedGridViewData: {},
@@ -58,12 +59,11 @@ export class GridViewContainer extends BaseContainer {
             selectedRowKeys: [],
             gridViewType: 'gridView',
             subView: null,
-            subViewData: null,
         };
         this.onSelectionChanged = this.onSelectionChanged.bind(this);
         this.gridViewTypeChange = this.gridViewTypeChange.bind(this);
         this.customizeTileColumns = this.customizeTileColumns.bind(this);
-        this.tableViewItems = [
+        this.viewInfoTypes = [
             {
                 icon: 'contentlayout',
                 type: 'gridView',
@@ -83,26 +83,34 @@ export class GridViewContainer extends BaseContainer {
         this._isMounted = true;
         let subViewId = GridViewUtils.getURLParameters('subview');
         let recordId = GridViewUtils.getURLParameters('recordId');
+        let filterId = GridViewUtils.getURLParameters('filterId');
         const id = this.props.id;
         console.log("Id = " + id);
         console.log("SubViewId = " + subViewId);
         console.log("RecordId = " + recordId);
-        this.setState({elementIdSubView: subViewId, elementRecordId: recordId});
-        this.downloadData(id, recordId, subViewId);
+        console.log("FilterId = " + filterId);
+        this.setState({elementIdSubView: subViewId, elementRecordId: recordId, elementFilterId: filterId}, () => {
+            this.downloadData(id, this.state.elementRecordId, this.state.elementIdSubView, this.state.elementFilterId);
+        });
+
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         console.log('GridViewContainer -> componentDidUpdate prevProps id={%s} id={%s}', prevProps.id, this.props.id);
         let subViewId = GridViewUtils.getURLParameters('subview');
         let recordId = GridViewUtils.getURLParameters('recordId');
+        let filterId = GridViewUtils.getURLParameters('filterId');
         const id = this.props.id;
         console.log("Id = " + id);
         console.log("SubViewId = " + subViewId);
         console.log("RecordId = " + recordId);
+        console.log("FilterId = " + filterId);
         if (prevProps.id !== this.props.id
-            || this.state.elementIdSubView !== subViewId) {
-            this.setState({elementIdSubView: subViewId, elementRecordId: recordId});
-            this.downloadData(id, recordId, subViewId);
+            || this.state.elementIdSubView !== subViewId
+            || this.state.elementFilterId !== filterId) {
+            this.setState({elementIdSubView: subViewId, elementRecordId: recordId, elementFilterId: filterId}, () => {
+                this.downloadData(id, this.state.elementRecordId, this.state.elementIdSubView, this.state.elementFilterId);
+            });
         }
     }
 
@@ -110,10 +118,12 @@ export class GridViewContainer extends BaseContainer {
         this._isMounted = false;
     }
 
-    downloadData(viewId, recordId, subviewId) {
+    downloadData(viewId, recordId, subviewId, filterId) {
         let subviewMode = !!recordId && !!subviewId;
         if (subviewMode) {
             viewId = subviewId;
+        } else {
+            this.setState({subView: null})
         }
         this.setState(
             {
@@ -174,7 +184,7 @@ export class GridViewContainer extends BaseContainer {
                                     id: responseView?.filtersList[filter].id,
                                     label: responseView?.filtersList[filter].label,
                                     command: (e) => {
-                                        window.location.href = `/#/grid-view/${e.item?.id}`;
+                                        window.location.href = `/#/grid-view/${this.state.elementId}/?filterId=${e.item?.id}`;
                                     }
                                 });
                             }
@@ -603,32 +613,15 @@ export class GridViewContainer extends BaseContainer {
     }
 
     //override
-    renderHeaderButtonsLeft() {
+    renderHeaderLeft() {
         return (
             <React.Fragment>
-                <div id="left-panel-buttons" className="float-left pt-2">
-                    {this.state.subView != null
-                    && this.state.subView.subViews != null
-                    && this.state.subView.subViews.length > 0
-                    && this.state.subView.subViews?.map((subView, index) => {
-                        return <div className="float-left">
-                            <ShortcutButton id={`subview_${index}`}
-                                            className="mt-2 mb-2 mr-1"
-                                            label={subView.label}
-                                            handleClick={() => {
-                                                let viewInfoId = this.state.subView.viewInfo?.id;
-                                                let subViewId = subView.id;
-                                                window.location.href = `/#/grid-view/${viewInfoId}?subview=${subViewId}`;
-                                            }}/>
-                        </div>
-                    })}
-                </div>
             </React.Fragment>
         );
     }
 
 //override
-    renderHeaderButtonsRight() {
+    renderHeaderRight() {
         return (<React.Fragment>
             {this.state.oppAddButton === null ? null : (
                 <ActionButton
@@ -654,15 +647,16 @@ export class GridViewContainer extends BaseContainer {
                     <ActionButtonWithMenu
                         id='button_filters'
                         className={`button-with-menu-filter ${centerElementStyle}`}
-                        iconName='mdi-filter-letiant'
+                        iconName='mdi-filter-variant'
                         iconColor='black'
                         items={this.state.filtersList}
                         title='Filtry'
                     />
                 ) : null}
+
                 <ButtonGroup
                     className={`${centerElementStyle}`}
-                    items={this.tableViewItems}
+                    items={this.viewInfoTypes}
                     keyExpr='type'
                     stylingMode='outlined'
                     selectedItemKeys={this.state.gridViewType}
@@ -675,7 +669,7 @@ export class GridViewContainer extends BaseContainer {
                         className={`${centerElementStyle}`}
                         iconName='mdi-file-document'
                         items={this.state.documentsList}
-                        title='Pluginy'
+                        title='Dokumenty'
                     />
                 ) : null}
 
@@ -685,9 +679,10 @@ export class GridViewContainer extends BaseContainer {
                         className={`${centerElementStyle}`}
                         iconName='mdi-puzzle'
                         items={this.state.pluginsList}
-                        title='Dokumenty'
+                        title='Pluginy'
                     />
                 ) : null}
+
                 {this.state.batchesList?.length > 0 ? (
                     <ActionButtonWithMenu
                         id='batches_plugins'
@@ -702,7 +697,7 @@ export class GridViewContainer extends BaseContainer {
     }
 
     //override
-    renderHeaderPanel = () => {
+    renderHeadPanel = () => {
         return (<React.Fragment>
             <HeadPanel
                 selectedRowKeys={this.state.selectedRowKeys}
@@ -730,6 +725,30 @@ export class GridViewContainer extends BaseContainer {
     }
 
     //override
+    renderHeaderContent() {
+        return <React.Fragment>
+            <div id="left-panel-buttons" className="float-left pt-2">
+                {this.state.subView != null
+                && this.state.subView.subViews != null
+                && this.state.subView.subViews.length > 0
+                && this.state.subView.subViews?.map((subView, index) => {
+                    return <div className="float-left">
+                        <ShortcutButton id={`subview_${index}`}
+                                        className="mt-2 mb-2 mr-1"
+                                        label={subView.label}
+                                        handleClick={() => {
+                                            let viewInfoId = this.state.subView.viewInfo?.id;
+                                            let subViewId = subView.id;
+                                            let recordId = this.state.elementRecordId;
+                                            window.location.href = `/#/grid-view/${viewInfoId}/?recordId=${recordId}&subview=${subViewId}`;
+                                        }}/>
+                    </div>
+                })}
+            </div>
+        </React.Fragment>;
+    }
+
+    //override
     renderContent = () => {
         const showGroupPanel = this.state.parsedGridView?.gridOptions?.showGroupPanel || false;
         const groupExpandAll = this.state.parsedGridView?.gridOptions?.groupExpandAll || false;
@@ -738,7 +757,7 @@ export class GridViewContainer extends BaseContainer {
         const allowedPageSizes = [5, 10, 50, 100, 'all'];
         //TODO headerAutoHeight
         const headerAutoHeight = this.state.parsedGridView?.gridOptions?.headerAutoHeight || false;
-        const dataGridStore = this.dataGridStore.getDataGridStore(this.props.id);
+        const dataGridStore = this.dataGridStore.getDataGridStore(this.props.id, this.state.gridViewType, this.state.elementRecordId, this.state.elementFilterId);
         const customizedColumns = this.customizeColumns;
         const customizedTileColumns = this.customizeTileColumns;
         return (
@@ -805,30 +824,6 @@ export class GridViewContainer extends BaseContainer {
                                     */}
 
                                 <Editing mode='cell'/>
-
-                                {/* tak nie działa :(
-                            {this.state.gridViewColumns.map((c) => {
-                                if (c.visible)
-                                    return <React.Fragment>
-                                        <Column id={`data_grid_id_${c.id}`}
-                                                key={`data_grid_key_${c.id}`}
-                                                name={c.label}
-                                                dataField={c.fieldName.toString().toLowerCase()}
-                                                visible={c.visible}
-                                                allowSorting={c.isSort}
-                                                allowGrouping={c.isSort}
-                                                allowFiltering={c.isFilter}
-                                                width={columnAutoWidth ? undefined : c.width}
-                                                sortIndex={c.sortIndex}
-                                                defaultSortOrder={this.getDefaultSortOrder(c.sortOrder)}
-
-                                        >
-                                            <HeaderFilter visible={c.isFilter} groupInterval={10000}/>
-                                        </Column>
-                                    </React.Fragment>
-                                return null;
-                            })}
-                         */}
                             </DataGrid>
                         ) : this.state.gridViewType === 'tiles' ? (
                                 'TODO'

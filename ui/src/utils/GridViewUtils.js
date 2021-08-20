@@ -22,7 +22,7 @@ export class GridViewUtils {
                 if (sParam[1] != "")
                     arrParamValues[i] = unescape(sParam[1]);
                 else
-                    arrParamValues[i] = "No Value";
+                    arrParamValues[i] = null;
             }
             for (i = 0; i < arrURLParams.length; i++) {
                 if (arrParamNames[i] == paramName) {
@@ -30,7 +30,7 @@ export class GridViewUtils {
                     return arrParamValues[i];
                 }
             }
-            return "No Parameters Found";
+            return null;
         }
     }
 }
