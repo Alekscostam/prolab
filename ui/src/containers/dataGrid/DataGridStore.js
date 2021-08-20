@@ -12,7 +12,7 @@ export default class DataGridStore extends BaseService {
         this.getDataGridStore = this.getDataGridStore.bind(this);
     }
 
-    getDataGridStore(viewId) {
+    getDataGridStore(viewId, viewType, filterId, recordId) {
         const dataGridStore = new CustomStore({
             key: 'id',
             keyExpr: 'id',
@@ -40,7 +40,10 @@ export default class DataGridStore extends BaseService {
                     }
                 });
                 params = params.slice(0, -1);
-                return this.fetch(`${this.domain}/${this.path}/${viewId}${params}`, {
+                let viewType = !!viewType ? `&viewType=${viewType}` : '';
+                let filterId = !!filterId ? `&filterId=${filterId}` : '';
+                let recordId = !!recordId ? `&recordId=${recordId}` : '';
+                return this.fetch(`${this.domain}/${this.path}/${viewId}${params}${viewType}${filterId}${recordId}`, {
                     method: 'GET',
                 })
                     .then(response => {

@@ -1083,11 +1083,11 @@ class BaseContainer extends React.Component {
                 <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
                     <DivContainer colClass=''>
                         <DivContainer colClass='row'>
-                            <DivContainer colClass='col-9'>
+                            <DivContainer colClass='col-11'>
                                 <div className='font-medium mb-4'>{this.getViewInfoName()}</div>
                                 {this.state.loading === false ? this.renderHeaderButtonsLeft() : null}
                             </DivContainer>
-                            <DivContainer colClass='col-3 to-right' >
+                            <DivContainer colClass='col-1 to-right' >
                                 {this.state.loading === false ? this.renderHeaderButtonsRight() : null}
                             </DivContainer>
                         </DivContainer>

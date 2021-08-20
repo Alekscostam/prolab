@@ -32,6 +32,7 @@ import {GridViewUtils} from '../../utils/GridViewUtils';
 import Constants from '../../utils/constants';
 import ReactDOM from 'react-dom';
 import ShortcutButton from '../../components/ShortcutButton';
+import queryString from "query-string";
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -48,13 +49,16 @@ export class GridViewContainer extends BaseContainer {
         this.state = {
             loading: true,
             elementId: props.id,
+            elementSubViewId: null,
+            elementRecordId: null,
             viewMode: props.viewMode,
             parsedGridView: {},
             parsedGridViewData: {},
             gridViewColumns: [],
             selectedRowKeys: [],
-            gridViewType: 'list',
+            gridViewType: 'gridView',
             subView: null,
+            subViewData: null,
         };
         this.onSelectionChanged = this.onSelectionChanged.bind(this);
         this.gridViewTypeChange = this.gridViewTypeChange.bind(this);
@@ -62,12 +66,12 @@ export class GridViewContainer extends BaseContainer {
         this.tableViewItems = [
             {
                 icon: 'contentlayout',
-                type: 'list',
+                type: 'gridView',
                 hint: 'Tabela',
             },
             {
                 icon: 'mediumiconslayout',
-                type: 'tiles',
+                type: 'cardView',
                 hint: 'Kafelki',
             },
         ];
@@ -75,15 +79,30 @@ export class GridViewContainer extends BaseContainer {
 
     componentDidMount() {
         console.log('GridViewContainer -> componentDidMount');
+        console.log(window.location.pathname);
         this._isMounted = true;
-        this.downloadData();
+        let subViewId = GridViewUtils.getURLParameters('subview');
+        let recordId = GridViewUtils.getURLParameters('recordId');
+        const id = this.props.id;
+        console.log("Id = " + id);
+        console.log("SubViewId = " + subViewId);
+        console.log("RecordId = " + recordId);
+        this.setState({elementIdSubView: subViewId, elementRecordId: recordId});
+        this.downloadData(id, recordId, subViewId);
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         console.log('GridViewContainer -> componentDidUpdate prevProps id={%s} id={%s}', prevProps.id, this.props.id);
-        if (prevProps.id !== this.props.id) {
-            this.downloadData();
-            this.setState({subView: null});
+        let subViewId = GridViewUtils.getURLParameters('subview');
+        let recordId = GridViewUtils.getURLParameters('recordId');
+        const id = this.props.id;
+        console.log("Id = " + id);
+        console.log("SubViewId = " + subViewId);
+        console.log("RecordId = " + recordId);
+        if (prevProps.id !== this.props.id
+            || this.state.elementIdSubView !== subViewId) {
+            this.setState({elementIdSubView: subViewId, elementRecordId: recordId});
+            this.downloadData(id, recordId, subViewId);
         }
     }
 
@@ -91,15 +110,18 @@ export class GridViewContainer extends BaseContainer {
         this._isMounted = false;
     }
 
-    downloadData() {
-        const id = this.props.id;
+    downloadData(viewId, recordId, subviewId) {
+        let subviewMode = !!recordId && !!subviewId;
+        if (subviewMode) {
+            viewId = subviewId;
+        }
         this.setState(
             {
                 loading: true,
             },
             () => {
                 this.viewService
-                    .getView(id)
+                    .getView(viewId)
                     .then((responseView) => {
                         if (this._isMounted) {
                             ViewValidatorUtils.validation(responseView);
@@ -182,7 +204,7 @@ export class GridViewContainer extends BaseContainer {
                                 loading: false,
                             },
                             () => {
-                                this.showErrorMessage('Nie udało się pobrać danych strony o id: ' + id);
+                                this.showErrorMessage('Nie udało się pobrać danych strony o id: ' + viewId);
                             }
                         );
                     });
@@ -470,10 +492,19 @@ export class GridViewContainer extends BaseContainer {
                                         label={''}
                                         title={'Podwidoki'}
                                         handleClick={(e) => {
-                                            viewService.getSubView(elementId).then(subViewResponse => {
-                                                this.setState({subView: subViewResponse});
+                                            this.blockUi();
+                                            viewService.getSubView(elementId, info.row?.data?.id).then(subViewResponse => {
+                                                this.setState({subView: subViewResponse},
+                                                    () => {
+                                                        let viewInfoId = this.state.subView.viewInfo?.id;
+                                                        let subViewId = this.state.subView.subViews[0]?.id;
+                                                        let recordId = info.row?.data?.id;
+                                                        window.location.href = `/#/grid-view/${viewInfoId}?recordId=${recordId}&subview=${subViewId}`;
+                                                        this.unblockUi();
+                                                    });
                                             }).catch((err) => {
                                                 this.handleGetDetailsError(err);
+                                                this.unblockUi();
                                             });
                                         }}
                                         rendered={showSubviewButton}
@@ -585,8 +616,9 @@ export class GridViewContainer extends BaseContainer {
                                             className="mt-2 mb-2 mr-1"
                                             label={subView.label}
                                             handleClick={() => {
+                                                let viewInfoId = this.state.subView.viewInfo?.id;
                                                 let subViewId = subView.id;
-                                                window.location.href = `/#/grid-view/${subViewId}`;
+                                                window.location.href = `/#/grid-view/${viewInfoId}?subview=${subViewId}`;
                                             }}/>
                         </div>
                     })}
@@ -622,7 +654,7 @@ export class GridViewContainer extends BaseContainer {
                     <ActionButtonWithMenu
                         id='button_filters'
                         className={`button-with-menu-filter ${centerElementStyle}`}
-                        iconName='mdi-filter-variant'
+                        iconName='mdi-filter-letiant'
                         iconColor='black'
                         items={this.state.filtersList}
                         title='Filtry'
@@ -713,7 +745,7 @@ export class GridViewContainer extends BaseContainer {
             <React.Fragment>
                 {this.state.loading ? null : (
                     <React.Fragment>
-                        {this.state.gridViewType === 'list' ? (
+                        {this.state.gridViewType === 'gridView' ? (
                             <DataGrid
                                 id='grid-container'
                                 className='grid-container'
