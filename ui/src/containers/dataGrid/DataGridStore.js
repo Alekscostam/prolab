@@ -71,7 +71,6 @@ export default class DataGridStore extends BaseService {
                         params += `${i}=${JSON.stringify(loadOptions[i])}&`;
                     }
                 });
-                // params += 'viewType=listView';
                 let viewTypeParam = viewTypeArg !== undefined && viewTypeArg != null ? `&viewType=${viewTypeArg}` : '';
                 let filterIdParam = filterIdArg !== undefined && filterIdArg != null ? `&filterId=${filterIdArg}` : '';
                 let recordIdParam = recordIdArg !== undefined && recordIdArg != null ? `&recordId=${recordIdArg}` : '';

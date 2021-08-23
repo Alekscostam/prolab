@@ -769,11 +769,24 @@ export class GridViewContainer extends BaseContainer {
             showMenu = menuItems.length > 0;
         }
         return (
-            <div className='dx-tile-image'>
+            <div
+                className={`dx-tile-image ${
+                    this.state.selectedRowKeys.includes(rowData.ID) ? 'card-grid-selected' : ''
+                }`}
+                style={{ backgroundColor: rowData._BGCOLOR, color: rowData._FONT_COLOR }}
+            >
                 <div className='row'>
                     <div className='card-grid-header'>
                         {cardHeader?.visible ? (
-                            <span className='card-grid-header-title'>{rowData[cardHeader.fieldName]}</span>
+                            <span
+                                style={{
+                                    backgroundColor: rowData[`_BGCOLOR_${cardHeader.fieldName.toUpperCase()}`],
+                                    color: rowData[`_FONT_COLOR_${cardHeader.fieldName.toUpperCase()}`],
+                                }}
+                                className='card-grid-header-title'
+                            >
+                                {rowData[cardHeader.fieldName]}
+                            </span>
                         ) : null}
                         {showEditButton || showMenu ? (
                             <div className='float-right'>
@@ -808,14 +821,30 @@ export class GridViewContainer extends BaseContainer {
                             ) : null}
                             {cardBody?.visible ? (
                                 <div className={cardImage?.visible ? 'col-9' : 'col-12'}>
-                                    <span className='card-grid-body-content'>{rowData[cardBody.fieldName]}</span>
+                                    <span
+                                        style={{
+                                            backgroundColor: rowData[`_BGCOLOR_${cardBody.fieldName.toUpperCase()}`],
+                                            color: rowData[`_FONT_COLOR_${cardBody.fieldName.toUpperCase()}`],
+                                        }}
+                                        className='card-grid-body-content'
+                                    >
+                                        {rowData[cardBody.fieldName]}
+                                    </span>
                                 </div>
                             ) : null}
                         </div>
                     </div>
                     <div className='card-grid-footer'>
                         {cardFooter?.visible ? (
-                            <span className='card-grid-footer-content'>{rowData[cardFooter.fieldName]}</span>
+                            <span
+                                style={{
+                                    backgroundColor: rowData[`_BGCOLOR_${cardFooter.fieldName.toUpperCase()}`],
+                                    color: rowData[`_FONT_COLOR_${cardFooter.fieldName.toUpperCase()}`],
+                                }}
+                                className='card-grid-footer-content'
+                            >
+                                {rowData[cardFooter.fieldName]}
+                            </span>
                         ) : null}
                     </div>
                 </div>
@@ -875,6 +904,7 @@ export class GridViewContainer extends BaseContainer {
                                 width='100%'
                                 rowAlternationEnabled={false}
                                 onSelectionChanged={(selectedRowKeys) => {
+                                    console.log('onSelectionChanged', selectedRowKeys);
                                     this.setState({
                                         selectedRowKeys: selectedRowKeys?.selectedRowKeys,
                                     });
@@ -918,7 +948,6 @@ export class GridViewContainer extends BaseContainer {
                             <TileView
                                 className='card-grid'
                                 ref={(ref) => (this.cardGrid = ref)}
-                                id='aaa'
                                 items={this.state.parsedCardViewData}
                                 itemRender={this.renderCard}
                                 height='100%'
@@ -926,6 +955,18 @@ export class GridViewContainer extends BaseContainer {
                                 baseItemWidth={cardWidth}
                                 itemMargin={10}
                                 direction='vertical'
+                                onItemClick={(item) => {
+                                    let selectedRowKeys = this.state.selectedRowKeys;
+                                    var index = selectedRowKeys.indexOf(item.itemData.ID);
+                                    if (index !== -1) {
+                                        selectedRowKeys.splice(index, 1);
+                                    } else {
+                                        selectedRowKeys.push(item.itemData.ID);
+                                    }
+                                    this.setState({
+                                        selectedRowKeys: selectedRowKeys,
+                                    });
+                                }}
                             />
                         ) : null}
                     </React.Fragment>
