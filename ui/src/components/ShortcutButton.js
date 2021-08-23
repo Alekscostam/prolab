@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 
 export const ShortcutButton = props => {
     const {
+        active,
         className,
         disabled,
         handleClick,
@@ -29,7 +30,7 @@ export const ShortcutButton = props => {
                 <a
                     title={`${title ? title : ''}${ariaLabel}`}
                     tabIndex="0"
-                    className={`shortcut p-button p-component ${className !== undefined ? className : ''} ${disabled ? 'p-disabled disabled' : ''}`}
+                    className={`shortcut p-button p-component ${className !== undefined ? className : ''} ${disabled ? 'p-disabled disabled' : ''} ${active ? 'active-shortcut-button' : ''}`}
                     href={disabled ? undefined : href ? href : 'javascript:;'}
                     onClick={e => (disabled || !handleClick ? false : handleClick(e, params))}
                     id={id}
@@ -64,6 +65,7 @@ ShortcutButton.defaultProps = {
     rendered: true,
     disabled: false,
     params: {},
+    active:false,
 };
 
 ShortcutButton.propTypes = {
@@ -82,7 +84,7 @@ ShortcutButton.propTypes = {
     params: PropTypes.object,
     rendered: PropTypes.bool,
     size: PropTypes.string,
-    label: PropTypes.string,
+    active: PropTypes.bool,
 };
 
 export default ShortcutButton;

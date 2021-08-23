@@ -1,8 +1,5 @@
-import React from 'react';
-import { ViewValidatorUtils } from '../../utils/parser/ViewValidatorUtils';
+import ButtonGroup from 'devextreme-react/button-group';
 import DataGrid, {
-    Button,
-    Column,
     Editing,
     FilterPanel,
     FilterRow,
@@ -10,31 +7,29 @@ import DataGrid, {
     GroupPanel,
     HeaderFilter,
     LoadPanel,
-    Pager,
-    Paging,
     RemoteOperations,
     Scrolling,
     Selection,
     Sorting,
 } from 'devextreme-react/data-grid';
 import TileView from 'devextreme-react/tile-view';
-import ButtonGroup from 'devextreme-react/button-group';
-import ViewService from '../../services/ViewService';
-import BaseContainer from '../../baseContainers/BaseContainer';
-import ViewDataService from '../../services/ViewDataService';
-import DataGridStore from './DataGridStore';
 import PropTypes from 'prop-types';
-import ShortcutsButton from '../../components/ShortcutsButton';
-import HeaderButton from '../../components/HeaderButton';
-import ActionButton from '../../components/ActionButton';
-import DivContainer from '../../components/DivContainer';
-import ActionButtonWithMenu from '../../components/ActionButtonWithMenu';
-import SelectionPanel from '../../components/SelectionPanel';
-import { GridViewUtils } from '../../utils/GridViewUtils';
-import Constants from '../../utils/constants';
+import React from 'react';
 import ReactDOM from 'react-dom';
-import ShortcutButton from '../../components/ShortcutButton';
+import BaseContainer from '../../baseContainers/BaseContainer';
+import ActionButton from '../../components/ActionButton';
+import ActionButtonWithMenu from '../../components/ActionButtonWithMenu';
+import HeadPanel from '../../components/HeadPanel';
 import Image from '../../components/Image';
+import ShortcutButton from '../../components/ShortcutButton';
+import ShortcutsButton from '../../components/ShortcutsButton';
+import SubViewSelectionRow from '../../components/SubViewSelectionRow';
+import ViewDataService from '../../services/ViewDataService';
+import ViewService from '../../services/ViewService';
+import Constants from '../../utils/constants';
+import { GridViewUtils } from '../../utils/GridViewUtils';
+import { ViewValidatorUtils } from '../../utils/parser/ViewValidatorUtils';
+import DataGridStore from './DataGridStore';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -52,22 +47,25 @@ export class GridViewContainer extends BaseContainer {
         this.state = {
             loading: true,
             elementId: props.id,
+            elementSubViewId: null,
+            elementRecordId: null,
+            elementFilterId: null,
             viewMode: props.viewMode,
             parsedGridView: {},
             parsedGridViewData: {},
             gridViewColumns: [],
             selectedRowKeys: [],
             parsedCardViewData: [],
-            gridViewType: ['listView'],
+            gridViewType: ['gridView'],
             subView: null,
         };
         this.onSelectionChanged = this.onSelectionChanged.bind(this);
         this.gridViewTypeChange = this.gridViewTypeChange.bind(this);
         this.renderCard = this.renderCard.bind(this);
-        this.tableViewItems = [
+        this.viewInfoTypes = [
             {
                 icon: 'contentlayout',
-                type: 'listView',
+                type: 'gridView',
                 hint: 'Tabela',
             },
             {
@@ -80,15 +78,46 @@ export class GridViewContainer extends BaseContainer {
 
     componentDidMount() {
         console.log('GridViewContainer -> componentDidMount');
+        console.log(window.location.pathname);
         this._isMounted = true;
-        this.downloadData();
+        let subViewId = GridViewUtils.getURLParameters('subview');
+        let recordId = GridViewUtils.getURLParameters('recordId');
+        let filterId = GridViewUtils.getURLParameters('filterId');
+        const id = this.props.id;
+        console.log('Id = ' + id);
+        console.log('SubViewId = ' + subViewId);
+        console.log('RecordId = ' + recordId);
+        console.log('FilterId = ' + filterId);
+        this.setState({ elementSubViewId: subViewId, elementRecordId: recordId, elementFilterId: filterId }, () => {
+            this.downloadData(id, this.state.elementRecordId, this.state.elementSubViewId, this.state.elementFilterId);
+        });
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         console.log('GridViewContainer -> componentDidUpdate prevProps id={%s} id={%s}', prevProps.id, this.props.id);
-        if (prevProps.id !== this.props.id || prevState.gridViewType !== this.state.gridViewType) {
-            this.downloadData(this.state.gridViewType[0]);
-            this.setState({ subView: null });
+        let subViewId = GridViewUtils.getURLParameters('subview');
+        let recordId = GridViewUtils.getURLParameters('recordId');
+        let filterId = GridViewUtils.getURLParameters('filterId');
+        const id = this.props.id;
+        console.log('Id = ' + id);
+        console.log('SubViewId = ' + subViewId);
+        console.log('RecordId = ' + recordId);
+        console.log('FilterId = ' + filterId);
+        if (
+            prevProps.id !== this.props.id ||
+            this.state.elementSubViewId !== subViewId ||
+            this.state.elementFilterId !== filterId ||
+            prevState.gridViewType !== this.state.gridViewType
+        ) {
+            this.setState({ elementSubViewId: subViewId, elementRecordId: recordId, elementFilterId: filterId }, () => {
+                this.downloadData(
+                    id,
+                    this.state.elementRecordId,
+                    this.state.elementSubViewId,
+                    this.state.elementFilterId,
+                    this.state.gridViewType[0]
+                );
+            });
         }
     }
 
@@ -96,15 +125,31 @@ export class GridViewContainer extends BaseContainer {
         this._isMounted = false;
     }
 
-    downloadData(viewType) {
-        const id = this.props.id;
+    downloadData(viewId, recordId, subviewId, filterId, viewType) {
+        let subviewMode = !!recordId && !!subviewId;
+        if (subviewMode) {
+            this.viewService
+                .getSubView(viewId, recordId)
+                .then((subViewResponse) => {
+                    this.setState({ subView: subViewResponse }, () => {
+                        this.unblockUi();
+                    });
+                })
+                .catch((err) => {
+                    this.handleGetDetailsError(err);
+                    this.unblockUi();
+                });
+            viewId = subviewId;
+        } else {
+            this.setState({ subView: null });
+        }
         this.setState(
             {
                 loading: true,
             },
             () => {
                 this.viewService
-                    .getView(id, viewType)
+                    .getView(viewId, viewType)
                     .then((responseView) => {
                         if (this._isMounted) {
                             ViewValidatorUtils.validation(responseView);
@@ -157,7 +202,7 @@ export class GridViewContainer extends BaseContainer {
                                     id: responseView?.filtersList[filter].id,
                                     label: responseView?.filtersList[filter].label,
                                     command: (e) => {
-                                        window.location.href = `/#/grid-view/${e.item?.id}`;
+                                        window.location.href = `/#/grid-view/${this.state.elementId}/?filterId=${e.item?.id}`;
                                     },
                                 });
                             }
@@ -210,7 +255,7 @@ export class GridViewContainer extends BaseContainer {
                                 loading: false,
                             },
                             () => {
-                                this.showErrorMessage('Nie udało się pobrać danych strony o id: ' + id);
+                                this.showErrorMessage('Nie udało się pobrać danych strony o id: ' + viewId);
                             }
                         );
                     });
@@ -454,15 +499,14 @@ export class GridViewContainer extends BaseContainer {
                 let showMenu = menuItems.length > 0;
                 let widthTmp = 0;
                 if (showMenu) {
-                    widthTmp += 55;
+                    widthTmp += 45;
                 }
                 if (showEditButton) {
-                    widthTmp += 55;
+                    widthTmp += 45;
                 }
                 if (showSubviewButton) {
-                    widthTmp += 55;
+                    widthTmp += 45;
                 }
-
                 if (showEditButton || showMenu || showSubviewButton) {
                     columns?.push({
                         caption: 'Akcje',
@@ -498,13 +542,21 @@ export class GridViewContainer extends BaseContainer {
                                         label={''}
                                         title={'Podwidoki'}
                                         handleClick={(e) => {
+                                            //TODO redundantion
                                             viewService
-                                                .getSubView(elementId)
+                                                .getSubView(elementId, info.row?.data?.id)
                                                 .then((subViewResponse) => {
-                                                    this.setState({ subView: subViewResponse });
+                                                    this.setState({ subView: subViewResponse }, () => {
+                                                        let viewInfoId = this.state.subView.viewInfo?.id;
+                                                        let subViewId = this.state.subView.subViews[0]?.id;
+                                                        let recordId = info.row?.data?.id;
+                                                        window.location.href = `/#/grid-view/${viewInfoId}?recordId=${recordId}&subview=${subViewId}`;
+                                                        this.unblockUi();
+                                                    });
                                                 })
                                                 .catch((err) => {
                                                     this.handleGetDetailsError(err);
+                                                    this.unblockUi();
                                                 });
                                         }}
                                         rendered={showSubviewButton}
@@ -539,28 +591,137 @@ export class GridViewContainer extends BaseContainer {
     }
 
     //override
-    renderHeaderButtonsLeft() {
+    renderHeaderLeft() {
         return (
             <React.Fragment>
-                <div id='left-panel-buttons' className='float-left  pt-2'>
-                    {this.state.documentsList?.length > 0 ? (
-                        <ActionButtonWithMenu
-                            id='button_documents'
-                            className='mr-1 mt-2 mb-2'
-                            iconName='mdi-file-document'
-                            items={this.state.documentsList}
-                            title='Pluginy'
-                        />
-                    ) : null}
-                    {this.state.pluginsList?.length > 0 ? (
-                        <ActionButtonWithMenu
-                            id='button_plugins'
-                            className='mr-1 mt-2 mb-2'
-                            iconName='mdi-puzzle'
-                            items={this.state.pluginsList}
-                            title='Dokumenty'
-                        />
-                    ) : null}
+                <div id='left-header-panel' className='float-left pt-2'></div>
+            </React.Fragment>
+        );
+    }
+
+    //override
+    renderHeaderRight() {
+        return (
+            <React.Fragment>
+                {this.state.oppAddButton === null ? null : <ActionButton label={this.state.oppAddButton?.label} />}
+            </React.Fragment>
+        );
+    }
+
+    rightHeadPanelContent = () => {
+        return (
+            <React.Fragment>
+                <ShortcutsButton items={this.state.parsedGridView?.shortcutButtons} />
+            </React.Fragment>
+        );
+    };
+
+    leftHeadPanelContent = () => {
+        let centerElementStyle = 'mb-1 mt-1 mr-1 ';
+        return (
+            <React.Fragment>
+                {this.state.filtersList?.length > 0 ? (
+                    <ActionButtonWithMenu
+                        id='button_filters'
+                        className={`button-with-menu-filter ${centerElementStyle}`}
+                        iconName='mdi-filter-variant'
+                        iconColor='black'
+                        items={this.state.filtersList}
+                        title='Filtry'
+                    />
+                ) : null}
+
+                <ButtonGroup
+                    className={`${centerElementStyle}`}
+                    items={this.viewInfoTypes}
+                    keyExpr='type'
+                    stylingMode='outlined'
+                    selectedItemKeys={this.state.gridViewType}
+                    onItemClick={this.gridViewTypeChange}
+                />
+
+                {this.state.documentsList?.length > 0 ? (
+                    <ActionButtonWithMenu
+                        id='button_documents'
+                        className={`${centerElementStyle}`}
+                        iconName='mdi-file-document'
+                        items={this.state.documentsList}
+                        title='Dokumenty'
+                    />
+                ) : null}
+
+                {this.state.pluginsList?.length > 0 ? (
+                    <ActionButtonWithMenu
+                        id='button_plugins'
+                        className={`${centerElementStyle}`}
+                        iconName='mdi-puzzle'
+                        items={this.state.pluginsList}
+                        title='Pluginy'
+                    />
+                ) : null}
+
+                {this.state.batchesList?.length > 0 ? (
+                    <ActionButtonWithMenu
+                        id='batches_plugins'
+                        className={`${centerElementStyle}`}
+                        iconName='mdi-cogs'
+                        items={this.state.batchesList}
+                        title='Batches'
+                    />
+                ) : null}
+            </React.Fragment>
+        );
+    };
+
+    //override
+    renderHeadPanel = () => {
+        return (
+            <React.Fragment>
+                <HeadPanel
+                    selectedRowKeys={this.state.selectedRowKeys}
+                    operations={this.state.parsedGridView?.operations}
+                    leftContent={this.leftHeadPanelContent()}
+                    rightContent={this.rightHeadPanelContent()}
+                    handleDelete={() => {
+                        //TODO
+                        console.log('handleDelete');
+                    }}
+                    handleRestore={() => {
+                        //TODO
+                        console.log('handleRestore');
+                    }}
+                    handleCopy={() => {
+                        //TODO
+                        console.log('handleCopy');
+                    }}
+                    handleArchive={() => {
+                        //TODO
+                        console.log('handleArchive');
+                    }}
+                />
+            </React.Fragment>
+        );
+    };
+
+    //override
+    renderHeaderContent() {
+        let subViewMode = !!this.state.subView;
+        let selectedRow = [];
+        let operations = [];
+        if (subViewMode) {
+            selectedRow = this.state.subView?.headerColumns?.filter((value) => value.visible === true);
+            operations = this.state.subView?.headerOperations;
+        }
+        let elementSubViewId = this.state.elementSubViewId;
+        return (
+            <React.Fragment>
+                {subViewMode ? (
+                    <div id='selection-row' className='float-left width-100'>
+                        <SubViewSelectionRow selectedRow={selectedRow} operations={operations} />
+                    </div>
+                ) : null}
+                {/*Zakładki podwidoków*/}
+                <div id='subviews-panel' className='float-left'>
                     {this.state.subView != null &&
                         this.state.subView.subViews != null &&
                         this.state.subView.subViews.length > 0 &&
@@ -571,9 +732,12 @@ export class GridViewContainer extends BaseContainer {
                                         id={`subview_${index}`}
                                         className='mt-2 mb-2 mr-1'
                                         label={subView.label}
+                                        active={subView.id == elementSubViewId}
                                         handleClick={() => {
+                                            let viewInfoId = this.state.subView.viewInfo?.id;
                                             let subViewId = subView.id;
-                                            window.location.href = `/#/grid-view/${subViewId}`;
+                                            let recordId = this.state.elementRecordId;
+                                            window.location.href = `/#/grid-view/${viewInfoId}/?recordId=${recordId}&subview=${subViewId}`;
                                         }}
                                     />
                                 </div>
@@ -585,23 +749,6 @@ export class GridViewContainer extends BaseContainer {
     }
 
     //override
-    renderHeaderButtonsRight() {
-        return (
-            <React.Fragment>
-                {' '}
-                {this.showHeaderButtons() ? (
-                    <HeaderButton>
-                        {' '}
-                        {this.state.oppAddButton === null ? null : (
-                            <ActionButton label={this.state.oppAddButton?.label} className='float-right'></ActionButton>
-                        )}
-                    </HeaderButton>
-                ) : null}
-                <ShortcutsButton items={this.state.parsedGridView?.shortcutButtons} />
-            </React.Fragment>
-        );
-    }
-
     renderCard(rowData) {
         const { cardBody, cardHeader, cardImage, cardFooter } = this.state.parsedGridView;
         let showEditButton = false;
@@ -684,7 +831,12 @@ export class GridViewContainer extends BaseContainer {
         const allowedPageSizes = [5, 10, 50, 100, 'all'];
         //TODO headerAutoHeight
         const headerAutoHeight = this.state.parsedGridView?.gridOptions?.headerAutoHeight || false;
-        const dataGridStore = this.dataGridStore.getDataGridStore(this.props.id);
+        const dataGridStore = this.dataGridStore.getDataGridStore(
+            this.props.id,
+            this.state.gridViewType,
+            this.state.elementRecordId,
+            this.state.elementFilterId
+        );
         const customizedColumns = this.customizeColumns;
         console.log('this.state.gridViewType[0]', this.state.gridViewType[0], this.cardGrid);
         let cardWidth = 250;
@@ -702,93 +854,53 @@ export class GridViewContainer extends BaseContainer {
             <React.Fragment>
                 {this.state.loading ? null : (
                     <React.Fragment>
-                        <DivContainer>
-                            <SelectionPanel
-                                selectedRowKeys={this.state.selectedRowKeys}
-                                operations={this.state.parsedGridView?.operations}
-                                handleDelete={() => {
-                                    //TODO
-                                    console.log('handleDelete');
+                        {this.state.gridViewType[0] === 'gridView' ? (
+                            <DataGrid
+                                id='grid-container'
+                                className='grid-container'
+                                keyExpr='id'
+                                ref={(ref) => (this.dataGrid = ref)}
+                                dataSource={dataGridStore}
+                                customizeColumns={customizedColumns}
+                                wordWrapEnabled={rowAutoHeight}
+                                columnAutoWidth={columnAutoWidth}
+                                remoteOperations={true}
+                                allowColumnReordering={true}
+                                allowColumnResizing={true}
+                                showColumnLines={true}
+                                showRowLines={true}
+                                showBorders={true}
+                                columnHidingEnabled={false}
+                                width='100%'
+                                rowAlternationEnabled={false}
+                                onSelectionChanged={(selectedRowKeys) => {
+                                    this.setState({
+                                        selectedRowKeys: selectedRowKeys?.selectedRowKeys,
+                                    });
                                 }}
-                                handleRestore={() => {
-                                    //TODO
-                                    console.log('handleRestore');
-                                }}
-                                handleCopy={() => {
-                                    //TODO
-                                    console.log('handleCopy');
-                                }}
-                                handleArchive={() => {
-                                    //TODO
-                                    console.log('handleArchive');
-                                }}
-                            />
-
-                            {this.state.filtersList?.length > 0 ? (
-                                <ActionButtonWithMenu
-                                    id='button_filters'
-                                    className='button-with-menu-filter mb-2 mt-2 mr-1'
-                                    iconName='mdi-filter-variant'
-                                    items={this.state.filtersList}
-                                    title='Filtry'
+                            >
+                                <RemoteOperations
+                                    groupPaging={true}
+                                    filtering={true}
+                                    summary={true}
+                                    sorting={true}
+                                    paging={true}
                                 />
-                            ) : null}
-                            <ButtonGroup
-                                className='mb-2 mt-2'
-                                items={this.tableViewItems}
-                                keyExpr='type'
-                                stylingMode='outlined'
-                                selectedItemKeys={this.state.gridViewType}
-                                onItemClick={this.gridViewTypeChange}
-                            />
-                            {this.state.gridViewType[0] === 'listView' ? (
-                                <DataGrid
-                                    id='grid-container'
-                                    className='grid-container'
-                                    keyExpr='id'
-                                    ref={(ref) => (this.dataGrid = ref)}
-                                    dataSource={dataGridStore}
-                                    customizeColumns={customizedColumns}
-                                    wordWrapEnabled={rowAutoHeight}
-                                    columnAutoWidth={columnAutoWidth}
-                                    remoteOperations={true}
-                                    allowColumnReordering={true}
-                                    allowColumnResizing={true}
-                                    showColumnLines={true}
-                                    showRowLines={true}
-                                    showBorders={true}
-                                    columnHidingEnabled={false}
-                                    width='100%'
-                                    rowAlternationEnabled={false}
-                                    onSelectionChanged={(selectedRowKeys) => {
-                                        this.setState({
-                                            selectedRowKeys: selectedRowKeys?.selectedRowKeys,
-                                        });
-                                    }}
-                                >
-                                    <RemoteOperations
-                                        groupPaging={true}
-                                        filtering={true}
-                                        summary={true}
-                                        sorting={true}
-                                        paging={true}
-                                    />
 
-                                    <FilterRow visible={true} />
-                                    <FilterPanel visible={true} />
-                                    <HeaderFilter visible={true} allowSearch={true} />
+                                <FilterRow visible={true} />
+                                <FilterPanel visible={true} />
+                                <HeaderFilter visible={true} allowSearch={true} />
 
-                                    <Grouping autoExpandAll={groupExpandAll} />
-                                    <GroupPanel visible={showGroupPanel} />
+                                <Grouping autoExpandAll={groupExpandAll} />
+                                <GroupPanel visible={showGroupPanel} />
 
-                                    <Sorting mode='multiple' />
+                                <Sorting mode='multiple' />
+                                <Selection mode='multiple' selectAllMode='allPages' showCheckBoxesMode='always' />
 
-                                    <Selection mode='multiple' selectAllMode='allPages' showCheckBoxesMode='always' />
+                                <Scrolling mode='virtual' rowRenderingMode='virtual' />
+                                <LoadPanel enabled={true} />
 
-                                    <Scrolling mode='virtual' rowRenderingMode='virtual' />
-                                    <LoadPanel enabled={true} />
-
-                                    {/* domyślnie infinite scrolling
+                                {/* domyślnie infinite scrolling
                                     <Paging defaultPageSize={10} />
                                     <Pager
                                         visible={true}
@@ -799,48 +911,22 @@ export class GridViewContainer extends BaseContainer {
                                         showNavigationButtons={this.state.showNavButtons}
                                     />
                                     */}
-
-                                    <Editing mode='cell' />
-
-                                    {/* tak nie działa :(
-                            {this.state.gridViewColumns.map((c) => {
-                                if (c.visible)
-                                    return <React.Fragment>
-                                        <Column id={`data_grid_id_${c.id}`}
-                                                key={`data_grid_key_${c.id}`}
-                                                name={c.label}
-                                                dataField={c.fieldName.toString().toLowerCase()}
-                                                visible={c.visible}
-                                                allowSorting={c.isSort}
-                                                allowGrouping={c.isSort}
-                                                allowFiltering={c.isFilter}
-                                                width={columnAutoWidth ? undefined : c.width}
-                                                sortIndex={c.sortIndex}
-                                                defaultSortOrder={this.getDefaultSortOrder(c.sortOrder)}
-
-                                        >
-                                            <HeaderFilter visible={c.isFilter} groupInterval={10000}/>
-                                        </Column>
-                                    </React.Fragment>
-                                return null;
-                            })}
-                         */}
-                                </DataGrid>
-                            ) : this.state.gridViewType[0] === 'cardView' ? (
-                                <TileView
-                                    className='card-grid'
-                                    ref={(ref) => (this.cardGrid = ref)}
-                                    id='aaa'
-                                    items={this.state.parsedCardViewData}
-                                    itemRender={this.renderCard}
-                                    height='100%'
-                                    baseItemHeight={cardHeight}
-                                    baseItemWidth={cardWidth}
-                                    itemMargin={10}
-                                    direction='vertical'
-                                />
-                            ) : null}
-                        </DivContainer>
+                                <Editing mode='cell' />
+                            </DataGrid>
+                        ) : this.state.gridViewType[0] === 'cardView' ? (
+                            <TileView
+                                className='card-grid'
+                                ref={(ref) => (this.cardGrid = ref)}
+                                id='aaa'
+                                items={this.state.parsedCardViewData}
+                                itemRender={this.renderCard}
+                                height='100%'
+                                baseItemHeight={cardHeight}
+                                baseItemWidth={cardWidth}
+                                itemMargin={10}
+                                direction='vertical'
+                            />
+                        ) : null}
                     </React.Fragment>
                 )}
             </React.Fragment>

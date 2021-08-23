@@ -44,7 +44,7 @@ export default class DataGridStore extends BaseService {
         });
     }
 
-    getDataGridStore(viewId) {
+    getDataGridStore(viewIdArg, viewTypeArg, filterIdArg, recordIdArg) {
         const dataGridStore = new CustomStore({
             key: 'id',
             keyExpr: 'id',
@@ -71,8 +71,11 @@ export default class DataGridStore extends BaseService {
                         params += `${i}=${JSON.stringify(loadOptions[i])}&`;
                     }
                 });
-                params += 'viewType=listView';
-                return this.fetch(`${this.domain}/${this.path}/${viewId}${params}`, {
+                // params += 'viewType=listView';
+                let viewTypeParam = viewTypeArg !== undefined && viewTypeArg != null ? `&viewType=${viewTypeArg}` : '';
+                let filterIdParam = filterIdArg !== undefined && filterIdArg != null ? `&filterId=${filterIdArg}` : '';
+                let recordIdParam = recordIdArg !== undefined && recordIdArg != null ? `&recordId=${recordIdArg}` : '';
+                return this.fetch(`${this.domain}/${this.path}/${viewIdArg}${params}${viewTypeParam}${filterIdParam}${recordIdParam}`, {
                     method: 'GET',
                 })
                     .then((response) => {
@@ -87,7 +90,7 @@ export default class DataGridStore extends BaseService {
                         };
                     })
                     .catch((err) => {
-                        console.log('Error fetch data grid store for view id={%s}. Error = ', viewId, err);
+                        console.log("Error fetch data grid store for view id={%s}. Error = ", viewIdArg, err)
                     });
             },
         });
