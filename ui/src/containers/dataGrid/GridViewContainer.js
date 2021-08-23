@@ -30,6 +30,7 @@ import Constants from '../../utils/constants';
 import { GridViewUtils } from '../../utils/GridViewUtils';
 import { ViewValidatorUtils } from '../../utils/parser/ViewValidatorUtils';
 import DataGridStore from './DataGridStore';
+import AppPrefixUtils from "../../utils/AppPrefixUtils";
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -202,7 +203,7 @@ export class GridViewContainer extends BaseContainer {
                                     id: responseView?.filtersList[filter].id,
                                     label: responseView?.filtersList[filter].label,
                                     command: (e) => {
-                                        window.location.href = `/#/grid-view/${this.state.elementId}/?filterId=${e.item?.id}`;
+                                        window.location.href =  AppPrefixUtils.locationHrefUrl(`/#/grid-view/${this.state.elementId}/?filterId=${e.item?.id}`);
                                     },
                                 });
                             }
@@ -550,7 +551,7 @@ export class GridViewContainer extends BaseContainer {
                                                         let viewInfoId = this.state.subView.viewInfo?.id;
                                                         let subViewId = this.state.subView.subViews[0]?.id;
                                                         let recordId = info.row?.data?.id;
-                                                        window.location.href = `/#/grid-view/${viewInfoId}?recordId=${recordId}&subview=${subViewId}`;
+                                                        window.location.href = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewInfoId}?recordId=${recordId}&subview=${subViewId}`);
                                                         this.unblockUi();
                                                     });
                                                 })
@@ -737,7 +738,7 @@ export class GridViewContainer extends BaseContainer {
                                             let viewInfoId = this.state.subView.viewInfo?.id;
                                             let subViewId = subView.id;
                                             let recordId = this.state.elementRecordId;
-                                            window.location.href = `/#/grid-view/${viewInfoId}/?recordId=${recordId}&subview=${subViewId}`;
+                                            window.location.href = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewInfoId}/?recordId=${recordId}&subview=${subViewId}`);
                                         }}
                                     />
                                 </div>
