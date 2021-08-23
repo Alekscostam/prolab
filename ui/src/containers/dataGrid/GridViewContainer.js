@@ -1,16 +1,13 @@
 import React from 'react';
 import {ViewValidatorUtils} from '../../utils/parser/ViewValidatorUtils';
 import DataGrid, {
-    Button,
-    Column,
     Editing,
     FilterPanel,
     FilterRow,
     Grouping,
     GroupPanel,
-    HeaderFilter, LoadPanel,
-    Pager,
-    Paging,
+    HeaderFilter,
+    LoadPanel,
     RemoteOperations,
     Scrolling,
     Selection,
@@ -23,16 +20,14 @@ import ViewDataService from '../../services/ViewDataService';
 import DataGridStore from './DataGridStore';
 import PropTypes from 'prop-types';
 import ShortcutsButton from '../../components/ShortcutsButton';
-import HeaderButton from '../../components/HeaderButton';
 import ActionButton from '../../components/ActionButton';
-import DivContainer from '../../components/DivContainer';
 import ActionButtonWithMenu from '../../components/ActionButtonWithMenu';
 import HeadPanel from '../../components/HeadPanel';
 import {GridViewUtils} from '../../utils/GridViewUtils';
 import Constants from '../../utils/constants';
 import ReactDOM from 'react-dom';
 import ShortcutButton from '../../components/ShortcutButton';
-import queryString from "query-string";
+import SubViewSelectionRow from "../../components/SubViewSelectionRow";
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -89,8 +84,8 @@ export class GridViewContainer extends BaseContainer {
         console.log("SubViewId = " + subViewId);
         console.log("RecordId = " + recordId);
         console.log("FilterId = " + filterId);
-        this.setState({elementIdSubView: subViewId, elementRecordId: recordId, elementFilterId: filterId}, () => {
-            this.downloadData(id, this.state.elementRecordId, this.state.elementIdSubView, this.state.elementFilterId);
+        this.setState({elementSubViewId: subViewId, elementRecordId: recordId, elementFilterId: filterId}, () => {
+            this.downloadData(id, this.state.elementRecordId, this.state.elementSubViewId, this.state.elementFilterId);
         });
 
     }
@@ -106,10 +101,10 @@ export class GridViewContainer extends BaseContainer {
         console.log("RecordId = " + recordId);
         console.log("FilterId = " + filterId);
         if (prevProps.id !== this.props.id
-            || this.state.elementIdSubView !== subViewId
+            || this.state.elementSubViewId !== subViewId
             || this.state.elementFilterId !== filterId) {
-            this.setState({elementIdSubView: subViewId, elementRecordId: recordId, elementFilterId: filterId}, () => {
-                this.downloadData(id, this.state.elementRecordId, this.state.elementIdSubView, this.state.elementFilterId);
+            this.setState({elementSubViewId: subViewId, elementRecordId: recordId, elementFilterId: filterId}, () => {
+                this.downloadData(id, this.state.elementRecordId, this.state.elementSubViewId, this.state.elementFilterId);
             });
         }
     }
@@ -121,6 +116,15 @@ export class GridViewContainer extends BaseContainer {
     downloadData(viewId, recordId, subviewId, filterId) {
         let subviewMode = !!recordId && !!subviewId;
         if (subviewMode) {
+            this.viewService.getSubView(viewId, recordId).then(subViewResponse => {
+                this.setState({subView: subViewResponse},
+                    () => {
+                        this.unblockUi();
+                    });
+            }).catch((err) => {
+                this.handleGetDetailsError(err);
+                this.unblockUi();
+            });
             viewId = subviewId;
         } else {
             this.setState({subView: null})
@@ -502,7 +506,7 @@ export class GridViewContainer extends BaseContainer {
                                         label={''}
                                         title={'Podwidoki'}
                                         handleClick={(e) => {
-                                            this.blockUi();
+                                            //TODO redundantion
                                             viewService.getSubView(elementId, info.row?.data?.id).then(subViewResponse => {
                                                 this.setState({subView: subViewResponse},
                                                     () => {
@@ -616,6 +620,7 @@ export class GridViewContainer extends BaseContainer {
     renderHeaderLeft() {
         return (
             <React.Fragment>
+                <div id="left-header-panel" className="float-left pt-2"></div>
             </React.Fragment>
         );
     }
@@ -726,8 +731,20 @@ export class GridViewContainer extends BaseContainer {
 
     //override
     renderHeaderContent() {
+        let subViewMode = !!this.state.subView;
+        let selectedRow = [];
+        let operations = [];
+        if (subViewMode) {
+            selectedRow = this.state.subView?.headerColumns?.filter((value) => value.visible === true);
+            operations = this.state.subView?.headerOperations;
+        }
+        let elementSubViewId = this.state.elementSubViewId;
         return <React.Fragment>
-            <div id="left-panel-buttons" className="float-left pt-2">
+            {subViewMode ? <div id="selection-row" className="float-left width-100">
+                <SubViewSelectionRow selectedRow={selectedRow} operations={operations}/>
+            </div> : null}
+            {/*Zakładki podwidoków*/}
+            <div id="subviews-panel" className="float-left">
                 {this.state.subView != null
                 && this.state.subView.subViews != null
                 && this.state.subView.subViews.length > 0
@@ -736,6 +753,7 @@ export class GridViewContainer extends BaseContainer {
                         <ShortcutButton id={`subview_${index}`}
                                         className="mt-2 mb-2 mr-1"
                                         label={subView.label}
+                                        active={subView.id == elementSubViewId}
                                         handleClick={() => {
                                             let viewInfoId = this.state.subView.viewInfo?.id;
                                             let subViewId = subView.id;

@@ -15,6 +15,7 @@ import {BreadcrumbsItem} from 'react-breadcrumbs-dynamic';
 import BlockUi from '../components/waitPanel/BlockUi';
 import {Toast} from 'primereact/toast';
 import {Message} from 'primereact/message';
+import AppPrefixUtils from "../utils/AppPrefixUtils";
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -44,6 +45,7 @@ class BaseContainer extends React.Component {
         this.showInfoMessage = this.showInfoMessage.bind(this);
         this.showWarningMessage = this.showWarningMessage.bind(this);
         this.showErrorMessage = this.showErrorMessage.bind(this);
+        this.handleGetDetailsError = this.handleGetDetailsError.bind(this);
         this.validator = new SimpleReactValidator();
         this._isMounted = false;
         this.jwtRefreshBlocked = false;
@@ -1112,6 +1114,15 @@ class BaseContainer extends React.Component {
                 </BlockUi>
             </React.Fragment>
         );
+    }
+
+    handleGetDetailsError(err) {
+        this.showErrorMessage('Błąd podczas pobrania');
+        if (this.props.backUrl) {
+            window.location.href = AppPrefixUtils.locationHrefUrl(this.props.backUrl);
+        } else {
+            this.setState({loading: false}, () => this.unblockUi());
+        }
     }
 }
 
