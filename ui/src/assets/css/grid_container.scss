@@ -187,15 +187,23 @@ $table-selection: #dde6ff;
 }
 .dx-item.dx-tile {
     border-radius: 10px;
-    padding: 15px;
+    padding: 0px;
 }
 .dx-item.dx-tile .dx-tile-image {
     height: 100%;
+    border-radius: 10px;
+}
+.dx-item.dx-tile .dx-tile-image.card-grid-selected {
+    border: 2px solid #0E49EB;
 }
 .dx-item.dx-tile .dx-tile-image > .row {
     height: 100%;
+    width: 100%;
+    border-radius: 10px;
+    margin: 0px;
     display: flex;
     flex-direction: column;
+    padding: 15px;
 }
 .card-grid-header,
 .card-grid-body,

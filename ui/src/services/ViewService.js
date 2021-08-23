@@ -14,7 +14,7 @@ export default class ViewService extends BaseService {
 
     getView(viewId, viewType) {
         if (!viewType) {
-            viewType = 'listView';
+            viewType = 'gridView';
         }
         return this.fetch(`${this.domain}/${this.path}/${viewId}?viewType=${viewType}`, {
             method: 'GET',
