@@ -771,7 +771,7 @@ export class GridViewContainer extends BaseContainer {
             <div className='dx-tile-image'>
                 <div className='row'>
                     <div className='card-grid-header'>
-                        {cardHeader.visible ? (
+                        {cardHeader?.visible ? (
                             <span className='card-grid-header-title'>{rowData[cardHeader.fieldName]}</span>
                         ) : null}
                         {showEditButton || showMenu ? (
@@ -796,7 +796,7 @@ export class GridViewContainer extends BaseContainer {
                     <div className='card-grid-body'>
                         <div className='row'>
                             {cardImage?.visible ? (
-                                <div className={cardBody.visible ? 'col-3' : 'col-12'}>
+                                <div className={cardBody?.visible ? 'col-3' : 'col-12'}>
                                     <Image
                                         alt={rowData[cardImage.title]}
                                         className='card-grid-body-image'
@@ -805,15 +805,15 @@ export class GridViewContainer extends BaseContainer {
                                     />
                                 </div>
                             ) : null}
-                            {cardBody.visible ? (
-                                <div className={cardImage.visible ? 'col-9' : 'col-12'}>
+                            {cardBody?.visible ? (
+                                <div className={cardImage?.visible ? 'col-9' : 'col-12'}>
                                     <span className='card-grid-body-content'>{rowData[cardBody.fieldName]}</span>
                                 </div>
                             ) : null}
                         </div>
                     </div>
                     <div className='card-grid-footer'>
-                        {cardFooter.visible ? (
+                        {cardFooter?.visible ? (
                             <span className='card-grid-footer-content'>{rowData[cardFooter.fieldName]}</span>
                         ) : null}
                     </div>
