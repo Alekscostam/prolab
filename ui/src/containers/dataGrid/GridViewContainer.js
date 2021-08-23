@@ -833,7 +833,7 @@ export class GridViewContainer extends BaseContainer {
         //TODO headerAutoHeight
         const headerAutoHeight = this.state.parsedGridView?.gridOptions?.headerAutoHeight || false;
         const dataGridStore = this.dataGridStore.getDataGridStore(
-            this.props.id,
+            this.state.subView == null ? this.state.elementId : this.state.elementSubViewId,
             this.state.gridViewType,
             this.state.elementRecordId,
             this.state.elementFilterId
