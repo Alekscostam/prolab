@@ -1,4 +1,4 @@
-import BaseService from "./BaseService";
+import BaseService from './BaseService';
 
 /*
 GET zwracający dane potrzebne do wyrenderowania widoku: informacje ogólne o widoku, opcje
@@ -12,20 +12,22 @@ export default class ViewService extends BaseService {
         this.getView = this.getView.bind(this);
     }
 
-    getView(viewId) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}`, {
+    getView(viewId, viewType) {
+        if (!viewType) {
+            viewType = 'listView';
+        }
+        return this.fetch(`${this.domain}/${this.path}/${viewId}?viewType=${viewType}`, {
             method: 'GET',
         }).catch((err) => {
             throw err;
         });
     }
 
-    getSubView(viewId) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/subView`, {
+    getSubView(viewId, recordId) {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/subView?recordID=${recordId}`, {
             method: 'GET',
         }).catch((err) => {
             throw err;
         });
     }
-
 }

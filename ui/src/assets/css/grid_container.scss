@@ -82,20 +82,29 @@ $table-selection: #dde6ff;
     display: grid;
 }
 
-.grid-selection-panel {
-    background-color: $button-color;
-    color: $button-text-color;
+.grid-selection-panel{
     font-size: 12px;
     line-height: 14px;
     letter-spacing: 0px;
     font-style: normal;
     font-variant: normal;
     font-weight: 500;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 5px;
+    padding-right: 5px;
     margin-top: 5px;
     margin-bottom: 5px;
     height: 36px;
+    vertical-align: middle;
+}
+
+.grid-selection-panel-non-selection {
+    background-color: $button-text-color;
+    color: $button-color;
+}
+
+.grid-selection-panel-selection {
+    background-color: $button-color;
+    color: $button-text-color;
 }
 
 .grid-count-fragment {
@@ -123,24 +132,85 @@ $table-selection: #dde6ff;
 }
 
 .dx-button-mode-outlined.dx-item-selected {
-  background-color: rgba(0, 0, 0, .17);
+    background-color: rgba(0, 0, 0, 0.17);
 }
 
-.grid-container{
-  height: 69vh;
+.grid-container {
+    height: 69vh;
 }
 
 .dx-button-has-icon .dx-button-content {
-  padding: 5px !important;
-}.dx-button-mode-outlined.dx-item-selected {
+    padding: 5px !important;
+}
+.dx-button-mode-outlined.dx-item-selected {
     background-color: rgba(0, 0, 0, 0.17);
 }
 .dx-editor-with-menu,
 .dx-checkbox-icon,
 .dx-datagrid-columns-separator.dx-datagrid-columns-separator-transparent {
-  z-index: 0;
+    z-index: 0;
 }
 
-.dx-datagrid.dx-gridbase-container{
+.dx-datagrid.dx-gridbase-container {
     z-index: 0;
+}
+
+.dx-buttongroup-wrapper dx-widget dx-collection{
+    background: white;
+    border-radius: 5px;
+}
+
+.grid-panel-left {
+}
+
+.grid-panel-selection{
+    display: inline-flex;
+}
+
+.grid-panel-right{
+    margin-left: auto;
+    order: 3;
+}
+
+.active-shortcut-button{
+    background: $link-color;
+    border-color: transparent;
+}
+
+.active-shortcut-button .shortcut-text{
+    color: white;
+}
+.card-grid {
+    margin-left: -10px;
+    margin-right: -10px;
+    width: calc(100% + 20px);
+}
+.dx-item.dx-tile {
+    border-radius: 10px;
+    padding: 15px;
+}
+.dx-item.dx-tile .dx-tile-image {
+    height: 100%;
+}
+.dx-item.dx-tile .dx-tile-image > .row {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.card-grid-header,
+.card-grid-body,
+.card-grid-footer {
+    width: 100%;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+.card-grid-header {
+    flex-basis: 0;
+}
+.card-grid-body {
+    flex-basis: 0;
+    flex-grow: 5;
+}
+.card-grid-footer {
+    flex-basis: 0;
 }

@@ -1,5 +1,6 @@
 import BaseService from "./BaseService";
 
+//Deprecated
 /*
 GET zwracający dane potrzebne do wyrenderowania widoku: informacje ogólne o widoku, opcje
 widoku, kolumny, przyciski, lista dokumentów oraz lista wtyczek.

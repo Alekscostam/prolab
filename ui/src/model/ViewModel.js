@@ -1,9 +1,9 @@
-import {ArrayModel, ObjectModel} from "objectmodel";
+import { ArrayModel, ObjectModel } from 'objectmodel';
 
 export const ViewInfo = ObjectModel({
     id: Number,
     name: String,
-    type: ["gridView", "cardView"]
+    type: ['gridView', 'gridCard'],
 });
 
 export const GridOptions = ObjectModel({
@@ -11,8 +11,8 @@ export const GridOptions = ObjectModel({
     groupExpandAll: [Boolean],
     columnAutoWidth: [Boolean],
     rowAutoHeight: [Boolean],
-    headerAutoHeight: [Boolean]
-})
+    headerAutoHeight: [Boolean],
+});
 
 export const Column = ObjectModel({
     id: Number,
@@ -26,45 +26,53 @@ export const Column = ObjectModel({
     isSort: [Boolean],
     isGroup: [Boolean],
     isFilter: [Boolean],
-    width: [Number]
-})
+    width: [Number],
+});
 
 export const GridColumns = ObjectModel({
     groupName: [String],
     freeze: [String],
-    columns: ArrayModel(Column)
-})
+    columns: ArrayModel(Column),
+});
+
+export const CardElement = ObjectModel({
+    id: Number,
+    visible: Boolean,
+    fieldName: String,
+    label: String,
+    type: String,
+});
 
 export const Operations = ObjectModel({
     type: String,
-    label: String
-})
+    label: String,
+});
 
 export const ShortcutButtons = ObjectModel({
     type: [String],
     id: Number,
-    label: String
-})
+    label: String,
+});
 
 export const DocumentsList = ObjectModel({
     id: Number,
-    label: String
-})
+    label: String,
+});
 
 export const PluginsList = ObjectModel({
     id: Number,
-    label: String
-})
+    label: String,
+});
 
 export const BatchesList = ObjectModel({
     id: Number,
-    label: String
-})
+    label: String,
+});
 
 export const FiltersList = ObjectModel({
     id: Number,
-    label: String
-})
+    label: String,
+});
 
 export const ViewResponse = ObjectModel({
     viewInfo: ViewInfo,
@@ -73,5 +81,5 @@ export const ViewResponse = ObjectModel({
     operations: [ArrayModel(Operations)],
     shortcutButtons: [ArrayModel(ShortcutButtons)],
     documentsList: [ArrayModel(DocumentsList)],
-    pluginsList: [ArrayModel(PluginsList)]
+    pluginsList: [ArrayModel(PluginsList)],
 });

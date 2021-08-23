@@ -29,6 +29,7 @@ class BaseDetailsContainer extends BaseContainer {
         this.onRemoveAction = this.onRemoveAction.bind(this);
         this.showRemoveConfirmation = this.showRemoveConfirmation.bind(this);
         this.hideRemoveConfirmation = this.hideRemoveConfirmation.bind(this);
+        this.handleGetDetailsError = this.handleGetDetailsError.bind(this);
         this.backLinkRendered = true;
         if (service !== undefined && service !== null) {
             this.service.setUiMethods(this.blockUi, this.unblockUi);

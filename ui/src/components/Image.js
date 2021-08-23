@@ -4,22 +4,23 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 export const Image = (props) => {
-	const { alt, base64, rendered } = props;
-	if (rendered) {
-		return <img alt={alt} src={`data:image/jpeg;base64,${base64}`} />;
-	} else {
-		return null;
-	}
+    const { alt, base64, rendered, style } = props;
+    if (rendered) {
+        return <img style={style} alt={alt} src={`data:image/jpeg;base64,${base64}`} />;
+    } else {
+        return null;
+    }
 };
 
 Image.defaultProps = {
-	rendered: true,
+    rendered: true,
 };
 
 Image.propTypes = {
-	alt: PropTypes.string.isRequired,
-	base64: PropTypes.string.isRequired,
-	rendered: PropTypes.bool,
+    alt: PropTypes.string.isRequired,
+    base64: PropTypes.string.isRequired,
+    rendered: PropTypes.bool,
+    style: PropTypes.object,
 };
 
 export default Image;
