@@ -88,9 +88,22 @@ export class GridViewContainer extends BaseContainer {
         console.log('SubViewId = ' + subViewId);
         console.log('RecordId = ' + recordId);
         console.log('FilterId = ' + filterId);
-        this.setState({ elementSubViewId: subViewId, elementRecordId: recordId, elementFilterId: filterId }, () => {
-            this.downloadData(id, this.state.elementRecordId, this.state.elementSubViewId, this.state.elementFilterId);
-        });
+        this.setState(
+            {
+                elementSubViewId: subViewId,
+                elementRecordId: recordId,
+                elementFilterId: filterId,
+                gridViewType: ['gridView'],
+            },
+            () => {
+                this.downloadData(
+                    id,
+                    this.state.elementRecordId,
+                    this.state.elementSubViewId,
+                    this.state.elementFilterId
+                );
+            }
+        );
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -98,26 +111,38 @@ export class GridViewContainer extends BaseContainer {
         let subViewId = GridViewUtils.getURLParameters('subview');
         let recordId = GridViewUtils.getURLParameters('recordId');
         let filterId = GridViewUtils.getURLParameters('filterId');
+        let gridViewType = this.state.gridViewType;
         const id = this.props.id;
         console.log('Id = ' + id);
         console.log('SubViewId = ' + subViewId);
         console.log('RecordId = ' + recordId);
         console.log('FilterId = ' + filterId);
+        if (prevProps.id !== this.props.id || this.state.elementSubViewId !== subViewId) {
+            gridViewType = ['gridView'];
+        }
         if (
             prevProps.id !== this.props.id ||
             this.state.elementSubViewId !== subViewId ||
             this.state.elementFilterId !== filterId ||
             prevState.gridViewType !== this.state.gridViewType
         ) {
-            this.setState({ elementSubViewId: subViewId, elementRecordId: recordId, elementFilterId: filterId }, () => {
-                this.downloadData(
-                    id,
-                    this.state.elementRecordId,
-                    this.state.elementSubViewId,
-                    this.state.elementFilterId,
-                    this.state.gridViewType[0]
-                );
-            });
+            this.setState(
+                {
+                    elementSubViewId: subViewId,
+                    elementRecordId: recordId,
+                    elementFilterId: filterId,
+                    gridViewType,
+                },
+                () => {
+                    this.downloadData(
+                        id,
+                        this.state.elementRecordId,
+                        this.state.elementSubViewId,
+                        this.state.elementFilterId,
+                        this.state.gridViewType[0]
+                    );
+                }
+            );
         }
     }
 
@@ -228,7 +253,6 @@ export class GridViewContainer extends BaseContainer {
                                                 requireTotalCount: true,
                                             })
                                             .then((res) => {
-                                                console.log('getDataForCard', res);
                                                 let parsedCardViewData = res.data.map(function (item) {
                                                     for (var key in item) {
                                                         var upper = key.toUpperCase();
@@ -780,7 +804,7 @@ export class GridViewContainer extends BaseContainer {
                             <span
                                 style={{
                                     backgroundColor: rowData[`_BGCOLOR_${cardHeader.fieldName.toUpperCase()}`],
-                                    color: rowData[`_FONT_COLOR_${cardHeader.fieldName.toUpperCase()}`],
+                                    color: rowData[`_FONTCOLOR_${cardHeader.fieldName.toUpperCase()}`],
                                 }}
                                 className='card-grid-header-title'
                             >
@@ -823,7 +847,7 @@ export class GridViewContainer extends BaseContainer {
                                     <span
                                         style={{
                                             backgroundColor: rowData[`_BGCOLOR_${cardBody.fieldName.toUpperCase()}`],
-                                            color: rowData[`_FONT_COLOR_${cardBody.fieldName.toUpperCase()}`],
+                                            color: rowData[`_FONTCOLOR_${cardBody.fieldName.toUpperCase()}`],
                                         }}
                                         className='card-grid-body-content'
                                     >
@@ -838,7 +862,7 @@ export class GridViewContainer extends BaseContainer {
                             <span
                                 style={{
                                     backgroundColor: rowData[`_BGCOLOR_${cardFooter.fieldName.toUpperCase()}`],
-                                    color: rowData[`_FONT_COLOR_${cardFooter.fieldName.toUpperCase()}`],
+                                    color: rowData[`_FONTCOLOR_${cardFooter.fieldName.toUpperCase()}`],
                                 }}
                                 className='card-grid-footer-content'
                             >
@@ -867,7 +891,6 @@ export class GridViewContainer extends BaseContainer {
             this.state.elementFilterId
         );
         const customizedColumns = this.customizeColumns;
-        console.log('this.state.gridViewType[0]', this.state.gridViewType[0], this.cardGrid);
         let cardWidth = 250;
         let cardHeight = 200;
         if (
@@ -875,7 +898,6 @@ export class GridViewContainer extends BaseContainer {
             this.cardGrid !== null &&
             this.cardGrid._element !== undefined
         ) {
-            console.log('this.cardGrid', this.cardGrid._element, this.cardGrid._element.clientHeight);
             cardWidth = (this.cardGrid._element.clientWidth - 70) / 4;
             // cardHeight = this.cardGrid._element.clientHeight / 3;
         }
@@ -949,7 +971,7 @@ export class GridViewContainer extends BaseContainer {
                                 ref={(ref) => (this.cardGrid = ref)}
                                 items={this.state.parsedCardViewData}
                                 itemRender={this.renderCard}
-                                height='100%'
+                                height='635px'
                                 baseItemHeight={cardHeight}
                                 baseItemWidth={cardWidth}
                                 itemMargin={10}
