@@ -2,20 +2,21 @@
  Documentations = https://github.com/azouaoui-med/pro-sidebar-template
  ************************************************************************/
 import $ from 'jquery';
-import { Button } from 'primereact/button';
+import {Button} from 'primereact/button';
 import * as PropTypes from 'prop-types';
 import React from 'react';
-import { FaAngleDoubleRight, FaAngleRight, FaBars, FaSignOutAlt, FaUser } from 'react-icons/fa';
-import { Menu, MenuItem, ProSidebar, SidebarContent, SidebarFooter, SidebarHeader, SubMenu } from 'react-pro-sidebar';
-import { Link, withRouter } from 'react-router-dom';
+import {FaAngleDoubleRight, FaAngleRight, FaBars, FaSignOutAlt, FaUser} from 'react-icons/fa';
+import {Menu, MenuItem, ProSidebar, SidebarContent, SidebarFooter, SidebarHeader, SubMenu} from 'react-pro-sidebar';
+import {Link, withRouter} from 'react-router-dom';
 import packageJson from '../../../package.json';
 import BlockUi from '../../components/waitPanel/BlockUi';
 import MenuService from '../../services/MenuService';
 import ViewService from '../../services/ViewService';
 import Image from '../../components/Image';
-import { MenuValidatorUtils } from '../../utils/parser/MenuValidatorUtils';
-import { InputText } from 'primereact/inputtext';
+import {MenuValidatorUtils} from '../../utils/parser/MenuValidatorUtils';
+import {InputText} from 'primereact/inputtext';
 import ActionButton from "../../components/ActionButton";
+import VersionService from "../../services/VersionService";
 
 class Sidebar extends React.Component {
     constructor(props) {
@@ -27,9 +28,11 @@ class Sidebar extends React.Component {
             filterValue: '',
             collapsed: false,
             toggled: false,
+            versionAPI: null,
         };
         this.menuService = new MenuService();
         this.viewService = new ViewService();
+        this.versionService = new VersionService();
         this.handleLogoutUser = this.handleLogoutUser.bind(this);
         this.handleFilter = this.handleFilter.bind(this);
         this.handleCollapseChange = this.handleCollapseChange.bind(this);
@@ -56,6 +59,20 @@ class Sidebar extends React.Component {
                 this.setState({
                     loading: false,
                 });
+            });
+
+        this.versionService
+            .getVersion()
+            .then((data) => {
+                this.setState(
+                    {
+                        versionAPI: data.versionAPI
+                    },
+                    () => {
+                    }
+                );
+            })
+            .catch((err) => {
             });
     }
 
@@ -84,7 +101,7 @@ class Sidebar extends React.Component {
 
     handleCollapseChange() {
         this.setState(
-            (prevState) => ({ collapsed: !prevState.collapsed }),
+            (prevState) => ({collapsed: !prevState.collapsed}),
             () => {
                 if (this.state.collapsed) {
                     $('.pro-sidebar-inner').css('position', 'relative');
@@ -99,16 +116,16 @@ class Sidebar extends React.Component {
         const menu = this.state.menu;
         if (menu !== undefined && filterValue !== null) {
             if (filterValue === undefined || filterValue === null || filterValue === '') {
-                this.setState({ filteredMenu: menu, filterValue });
+                this.setState({filteredMenu: menu, filterValue});
             } else {
                 let filteredMenu = [];
                 menu.forEach((item) => {
                     this.processItem(item, filteredMenu, filterValue);
                 });
-                this.setState({ filteredMenu, filterValue });
+                this.setState({filteredMenu, filterValue});
             }
         } else {
-            this.setState({ filteredMenu: [], filterValue });
+            this.setState({filteredMenu: [], filterValue});
         }
     }
 
@@ -134,11 +151,11 @@ class Sidebar extends React.Component {
     }
 
     handleToggleSidebar() {
-        this.setState((prevState) => ({ toggled: !prevState.toggled }));
+        this.setState((prevState) => ({toggled: !prevState.toggled}));
     }
 
     render() {
-        const { collapsed, filterValue } = this.state;
+        const {collapsed, filterValue} = this.state;
         $(document).on('click', '.pro-inner-item', function (e) {
             $('.pro-inner-item').each(function (index) {
                 $(this).removeClass('active');
@@ -151,7 +168,7 @@ class Sidebar extends React.Component {
             $(this).parents('.pro-menu-item').addClass('active');
         });
         /*------------------------  PROPS  ---------------------------*/
-        let { authService } = this.props;
+        let {authService} = this.props;
         /*------------------------  PROPS  ---------------------------*/
         const userName = JSON.parse(authService.getProfile()).name;
         const dynamicMenuJSON = !authService.loggedIn() ? [] : this.state.filteredMenu;
@@ -171,14 +188,14 @@ class Sidebar extends React.Component {
                                     key={`menu_item_key_${item.id}`}
                                     icon={
                                         item.icon === undefined || item.icon === '' ? (
-                                            <FaAngleRight />
+                                            <FaAngleRight/>
                                         ) : (
-                                            <Image alt={item.name} base64={item.icon} />
+                                            <Image alt={item.name} base64={item.icon}/>
                                         )
                                     }
                                     onClick={(e) => nav(e, item)}
                                 >
-                                    <div className='menu_arrow_active' />
+                                    <div className='menu_arrow_active'/>
                                     <div className='title'>{item?.name}</div>
                                 </MenuItem>
                                 {item?.sub && renderDynamicMenu(item?.sub)}
@@ -188,9 +205,9 @@ class Sidebar extends React.Component {
                                 key={`menu_sub_${item.id}`}
                                 icon={
                                     item.icon === undefined || item.icon === '' ? (
-                                        <FaAngleDoubleRight />
+                                        <FaAngleDoubleRight/>
                                     ) : (
-                                        <Image alt={item.name} base64={item.icon} />
+                                        <Image alt={item.name} base64={item.icon}/>
                                     )
                                 }
                                 title={item?.name}
@@ -214,7 +231,7 @@ class Sidebar extends React.Component {
             <React.Fragment>
                 <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
                     <div className='btn-toggle' onClick={() => this.handleToggleSidebar()}>
-                        <FaBars />
+                        <FaBars/>
                     </div>
                     <ProSidebar
                         collapsed={this.state.collapsed}
@@ -256,17 +273,17 @@ class Sidebar extends React.Component {
                                         />
                                     </div>
                                 </div>
-                                <div className='row mb-2' style={collapsed ? { display: 'none' } : {}}>
+                                <div className='row mb-2' style={collapsed ? {display: 'none'} : {}}>
                                     <div className='col-md-12'>
                                         <span id='menu-search-span' className='p-input-icon-left p-input-icon-right'>
-                                            <i className='pi pi-search' />
+                                            <i className='pi pi-search'/>
                                             <InputText
                                                 ariaLabel={'Wyszukaj menu'}
                                                 className='p-inputtext-sm'
                                                 key='filterValue'
                                                 id='filterValue'
                                                 name='filterValue'
-                                                style={{ width: '100%' }}
+                                                style={{width: '100%'}}
                                                 type='text'
                                                 placeholder={'Wyszukaj menu'}
                                                 value={filterValue}
@@ -276,7 +293,7 @@ class Sidebar extends React.Component {
                                                 }}
                                             />
                                             <i
-                                                style={filterValue === '' ? { display: 'none' } : {}}
+                                                style={filterValue === '' ? {display: 'none'} : {}}
                                                 className='pi mdi mdi-close'
                                                 onClick={(e) => {
                                                     e.preventDefault();
@@ -296,17 +313,17 @@ class Sidebar extends React.Component {
                                                   title="Wyszukaj menu"
                                                   handleClick={() => {
                                                       this.handleCollapseChange();
-                                                      $( document ).ready(function() {
-                                                          $( "#filterValue" ).focus();
+                                                      $(document).ready(function () {
+                                                          $("#filterValue").focus();
                                                       });
                                                   }}
                                     />
                                 </div> : null}
                         </SidebarHeader>
 
-                        <DynamicMenu id='dynamic-menu' key='dynamic-menu-key' data={dynamicMenuJSON} />
+                        <DynamicMenu id='dynamic-menu' key='dynamic-menu-key' data={dynamicMenuJSON}/>
 
-                        <SidebarFooter id={'menu-footer'} style={{ textAlign: 'center' }}>
+                        <SidebarFooter id={'menu-footer'} style={{textAlign: 'center'}}>
                             <Menu iconShape='circle'>
                                 <MenuItem icon={<FaUser/>}>
                                     <div style={{textAlign: 'left'}}>
@@ -318,21 +335,21 @@ class Sidebar extends React.Component {
                             <div
                                 className='sidebar-btn-wrapper'
                                 style={{
-                                    padding: '20px 24px',
+                                    padding: '5px 24px',
                                 }}
                             >
                                 <div
                                     onClick={this.handleLogoutUser}
                                     className='sidebar-btn'
                                     rel='noopener noreferrer'
-                                    style={{ marginRight: '15px' }}
+                                    style={{textAlign: 'center'}}
                                 >
-                                    <FaSignOutAlt />
+                                    <FaSignOutAlt/>
                                     <span>Wyloguj</span>
                                 </div>
-                                <div>ver:{packageJson.version}</div>
                             </div>
                         </SidebarFooter>
+                        <div id={'version'} className={'to-right'} style={{marginRight: '5px'}}>ver: {packageJson.version} api: {this.state.versionAPI}</div>
                     </ProSidebar>
                 </BlockUi>
             </React.Fragment>

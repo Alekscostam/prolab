@@ -44,10 +44,10 @@ export default class DataGridStore extends BaseService {
         });
     }
 
-    getDataGridStore(viewIdArg, viewTypeArg, filterIdArg, recordIdArg) {
+    getDataGridStore(viewIdArg, viewTypeArg, recordIdArg, filterIdArg) {
         const dataGridStore = new CustomStore({
-            key: 'id',
-            keyExpr: 'id',
+            key: 'ID',
+            keyExpr: 'ID',
             load: (loadOptions) => {
                 let params = '?';
                 [
