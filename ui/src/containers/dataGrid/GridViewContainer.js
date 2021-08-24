@@ -605,13 +605,26 @@ export class GridViewContainer extends BaseContainer {
     //override
     renderHeaderContent() {
         let subViewMode = !!this.state.subView;
-        let selectedRow = [];
-        let operations = [];
-        if (subViewMode) {
-            selectedRow = this.state.subView?.headerColumns?.filter((value) => value.visible === true);
-            operations = this.state.subView?.headerOperations;
-        }
         let elementSubViewId = this.state.elementSubViewId;
+        let showEditButton = false;
+        let menuItems = [];
+        this.state.subView?.headerOperations.forEach((operation) => {
+            showEditButton = showEditButton || operation.type === 'OP_EDIT';
+            if (operation.type === 'OP_PUBLIC' ||
+                operation.type === 'OP_HISTORY' ||
+                operation.type === 'OP_ATTACHMENTS'
+            ) {
+                menuItems.push(operation);
+            }
+        });
+        let showMenu = menuItems.length > 0;
+        let widthTmp = 0;
+        if (showMenu) {
+            widthTmp += 45;
+        }
+        if (showEditButton) {
+            widthTmp += 45;
+        }
         return (
             <React.Fragment>
                 {subViewMode ? (
@@ -642,6 +655,38 @@ export class GridViewContainer extends BaseContainer {
                                     dataField={c.fieldName}
                                 />
                             })}
+
+                            {showEditButton || showMenu ?
+                                <Column
+                                    allowFixing={true}
+                                    caption="Akcje"
+                                    width={widthTmp}
+                                    fixed={true}
+                                    fixedPosition='right'
+                                    cellTemplate={(element, info) => {
+                                        ReactDOM.render(
+                                            <div>
+                                                <ShortcutButton
+                                                    id={`${info.column.headerId}_menu_button`}
+                                                    className={`action-button-with-menu mr-1`}
+                                                    iconName={'mdi-pencil'}
+                                                    label={''}
+                                                    title={'Edycja'}
+                                                    rendered={true}
+                                                />
+                                                <ActionButtonWithMenu
+                                                    id='more_shortcut'
+                                                    iconName='mdi-dots-horizontal'
+                                                    className={`mr-1`}
+                                                    items={menuItems}
+                                                    remdered={true}
+                                                    title={'Dodatkowe opcje'}
+                                                />
+                                            </div>,
+                                            element
+                                        );
+                                    }}>
+                                </Column> : null}
                         </DataGrid>
                     </div>
                 ) : null}
@@ -697,7 +742,7 @@ export class GridViewContainer extends BaseContainer {
                 className={`dx-tile-image ${
                     this.state.selectedRowKeys.includes(rowData.ID) ? 'card-grid-selected' : ''
                 }`}
-                style={{ backgroundColor: rowData._BGCOLOR, color: rowData._FONT_COLOR }}
+                style={{backgroundColor: rowData._BGCOLOR, color: rowData._FONT_COLOR}}
             >
                 <div className='row'>
                     <div className='card-grid-header'>
