@@ -58,24 +58,14 @@ export class GridViewContainer extends BaseContainer {
             gridViewColumns: [],
             selectedRowKeys: [],
             parsedCardViewData: [],
+            batchesList:[],
             gridViewType: ['gridView'],
             subView: null,
+            viewInfoTypes: []
         };
         this.onSelectionChanged = this.onSelectionChanged.bind(this);
         this.gridViewTypeChange = this.gridViewTypeChange.bind(this);
         this.renderCard = this.renderCard.bind(this);
-        this.viewInfoTypes = [
-            {
-                icon: 'contentlayout',
-                type: 'gridView',
-                hint: 'Tabela',
-            },
-            {
-                icon: 'mediumiconslayout',
-                type: 'cardView',
-                hint: 'Kafelki',
-            },
-        ];
     }
 
     componentDidMount() {
@@ -161,10 +151,6 @@ export class GridViewContainer extends BaseContainer {
                             let documentsListTmp = [];
                             let batchesListTmp = [];
                             let filtersListTmp = [];
-                            let oppAddButtonTmp = GridViewUtils.containsOperationButton(
-                                responseView.operations,
-                                'OP_ADD'
-                            );
                             new Array(responseView.gridColumns).forEach((gridColumns) => {
                                 gridColumns?.forEach((group) => {
                                     group.columns?.forEach((column) => {
@@ -208,18 +194,35 @@ export class GridViewContainer extends BaseContainer {
                                     },
                                 });
                             }
+                            let viewInfoTypesTmp = [];
+                            let cardButton = GridViewUtils.containsOperationButton(responseView.operations, 'OP_SUBVIEWS');
+                            if (cardButton) {
+                                viewInfoTypesTmp.push({
+                                    icon: 'mediumiconslayout',
+                                    type: 'cardView',
+                                    hint: cardButton?.label
+                                });
+                            }
+                            let viewButton = GridViewUtils.containsOperationButton(responseView.operations, 'OP_GRIDVIEW');
+                            if (viewButton) {
+                                viewInfoTypesTmp.push({
+                                    icon: 'contentlayout',
+                                    type: 'gridView',
+                                    hint: viewButton?.label
+                                });
+                            }
                             this.setState(
                                 {
                                     loading: false,
                                     elementId: this.props.id,
                                     parsedGridView: responseView,
                                     gridViewColumns: gridViewColumnsTmp,
-                                    oppAddButton: oppAddButtonTmp,
                                     pluginsList: pluginsListTmp,
                                     documentsList: documentsListTmp,
                                     batchesList: batchesListTmp,
                                     filtersList: filtersListTmp,
                                     selectedRowKeys: [],
+                                    viewInfoTypes: viewInfoTypesTmp
                                 },
                                 () => {
                                     if (this.state.gridViewType[0] === 'cardView') {
@@ -416,15 +419,22 @@ export class GridViewContainer extends BaseContainer {
                             let el = document.createElement('div');
                             el.id = `actions-${info.column.headerId}-${info.rowIndex}`;
                             element.append(el);
+                            let oppEdit = GridViewUtils.containsOperationButton(
+                                this.state.parsedGridView?.operations,
+                                'OP_EDIT'
+                            );
+                            let oppSubview = GridViewUtils.containsOperationButton(
+                                this.state.parsedGridView?.operations,
+                                'OP_SUBVIEWS'
+                            );
                             ReactDOM.render(
                                 <div style={{textAlign: 'center'}}>
                                     <ShortcutButton
                                         id={`${info.column.headerId}_menu_button`}
                                         className={`action-button-with-menu mr-1`}
                                         iconName={'mdi-pencil'}
-                                        label={''}
-                                        title={'Edycja'}
-                                        rendered={showEditButton}
+                                        title={oppEdit?.label}
+                                        rendered={showEditButton && oppEdit}
                                     />
                                     <ActionButtonWithMenu
                                         id='more_shortcut'
@@ -438,8 +448,8 @@ export class GridViewContainer extends BaseContainer {
                                         id={`${info.column.headerId}_menu_button`}
                                         className={`action-button-with-menu mr-1`}
                                         iconName={'mdi-playlist-plus '}
-                                        label={''}
-                                        title={'Podwidoki'}
+                                        title={oppSubview?.label}
+                                        rendered={oppSubview}
                                         handleClick={(e) => {
                                             //TODO redundantion
                                             viewService
@@ -485,10 +495,6 @@ export class GridViewContainer extends BaseContainer {
         }
     };
 
-    showHeaderButtons() {
-        return this.state.oppAddButton !== null;
-    }
-
     //override
     renderHeaderLeft() {
         return (
@@ -500,9 +506,12 @@ export class GridViewContainer extends BaseContainer {
 
     //override
     renderHeaderRight() {
+        let opADD = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_ADD');
         return (
             <React.Fragment>
-                {this.state.oppAddButton === null ? null : <ActionButton label={this.state.oppAddButton?.label}/>}
+                <ActionButton
+                    rendered={opADD}
+                    label={opADD?.label}/>
             </React.Fragment>
         );
     }
@@ -517,57 +526,62 @@ export class GridViewContainer extends BaseContainer {
 
     leftHeadPanelContent = () => {
         let centerElementStyle = 'mb-1 mt-1 mr-1 ';
+        let opFilter = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_FILTER');
+        let opBatches = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_BATCH');
+        let opDocuments = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_DOCUMENTS');
+        let opPlugins = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_PLUGINS');
         return (
             <React.Fragment>
-                {this.state.filtersList?.length > 0 ? (
+                {opFilter && this.state.filtersList?.length > 0 ? (
                     <ActionButtonWithMenu
                         id='button_filters'
                         className={`button-with-menu-filter ${centerElementStyle}`}
                         iconName='mdi-filter-variant'
                         iconColor='black'
                         items={this.state.filtersList}
-                        title='Filtry'
+                        title={opFilter?.label}
                     />
                 ) : null}
 
                 <ButtonGroup
                     className={`${centerElementStyle}`}
-                    items={this.viewInfoTypes}
+                    items={this.state.viewInfoTypes}
                     keyExpr='type'
                     stylingMode='outlined'
                     selectedItemKeys={this.state.gridViewType}
                     onItemClick={this.gridViewTypeChange}
                 />
 
-                {this.state.documentsList?.length > 0 ? (
+                {opDocuments && this.state.documentsList?.length > 0 ? (
                     <ActionButtonWithMenu
                         id='button_documents'
                         className={`${centerElementStyle}`}
                         iconName='mdi-file-document'
                         items={this.state.documentsList}
-                        title='Dokumenty'
+                        title={opDocuments?.label}
                     />
                 ) : null}
 
-                {this.state.pluginsList?.length > 0 ? (
+                {opPlugins && this.state.pluginsList?.length > 0 ? (
                     <ActionButtonWithMenu
                         id='button_plugins'
                         className={`${centerElementStyle}`}
                         iconName='mdi-puzzle'
                         items={this.state.pluginsList}
-                        title='Pluginy'
+                        title={opPlugins?.label}
                     />
                 ) : null}
 
-                {this.state.batchesList?.length > 0 ? (
+                {opBatches && this.state.batchesList?.length > 0 ? (
                     <ActionButtonWithMenu
                         id='batches_plugins'
                         className={`${centerElementStyle}`}
                         iconName='mdi-cogs'
                         items={this.state.batchesList}
-                        title='Batches'
+                        title={opBatches?.label}
                     />
                 ) : null}
+
             </React.Fragment>
         );
     };
