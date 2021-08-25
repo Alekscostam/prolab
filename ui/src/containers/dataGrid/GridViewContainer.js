@@ -24,10 +24,8 @@ import HeadPanel from '../../components/HeadPanel';
 import Image from '../../components/Image';
 import ShortcutButton from '../../components/ShortcutButton';
 import ShortcutsButton from '../../components/ShortcutsButton';
-import SubViewSelectionRow from '../../components/SubViewSelectionRow';
 import ViewDataService from '../../services/ViewDataService';
 import ViewService from '../../services/ViewService';
-import Constants from '../../utils/constants';
 import {GridViewUtils} from '../../utils/GridViewUtils';
 import {ViewValidatorUtils} from '../../utils/parser/ViewValidatorUtils';
 import DataGridStore from './DataGridStore';
@@ -58,7 +56,7 @@ export class GridViewContainer extends BaseContainer {
             gridViewColumns: [],
             selectedRowKeys: [],
             parsedCardViewData: [],
-            batchesList:[],
+            batchesList: [],
             gridViewType: ['gridView'],
             subView: null,
             viewInfoTypes: []
@@ -76,10 +74,7 @@ export class GridViewContainer extends BaseContainer {
         let recordId = GridViewUtils.getURLParameters('recordId');
         let filterId = GridViewUtils.getURLParameters('filterId');
         const id = this.props.id;
-        console.log('Id = ' + id);
-        console.log('SubViewId = ' + subViewId);
-        console.log('RecordId = ' + recordId);
-        console.log('FilterId = ' + filterId);
+        console.log(`Read from param -> Id =  ${id} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`);
         this.setState({elementSubViewId: subViewId, elementRecordId: recordId, elementFilterId: filterId}, () => {
             this.downloadData(id, this.state.elementRecordId, this.state.elementSubViewId, this.state.elementFilterId);
         });
@@ -91,10 +86,7 @@ export class GridViewContainer extends BaseContainer {
         let recordId = GridViewUtils.getURLParameters('recordId');
         let filterId = GridViewUtils.getURLParameters('filterId');
         const id = this.props.id;
-        console.log('Id = ' + id);
-        console.log('SubViewId = ' + subViewId);
-        console.log('RecordId = ' + recordId);
-        console.log('FilterId = ' + filterId);
+        console.log(`Read from param -> Id =  ${id} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`);
         if (
             prevProps.id !== this.props.id ||
             this.state.elementSubViewId !== subViewId ||
@@ -190,7 +182,17 @@ export class GridViewContainer extends BaseContainer {
                                     id: responseView?.filtersList[filter].id,
                                     label: responseView?.filtersList[filter].label,
                                     command: (e) => {
-                                        window.location.href = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${this.state.elementId}/?filterId=${e.item?.id}`);
+                                        if (subviewMode) {
+                                            let subViewId = GridViewUtils.getURLParameters('subview');
+                                            let recordId = GridViewUtils.getURLParameters('recordId');
+                                            console.log(`Redirect -> Id =  ${this.state.elementId} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${e.item?.id}`);
+                                            window.location.href
+                                                = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${this.state.elementId}?recordId=${recordId}&subview=${subViewId}&filterId=${e.item?.id}`);
+                                        } else {
+                                            console.log(`Redirect -> Id =  ${this.state.elementId} RecordId = ${recordId} FilterId = ${e.item?.id}`);
+                                            window.location.href
+                                                = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${this.state.elementId}/?filterId=${e.item?.id}`);
+                                        }
                                     },
                                 });
                             }
@@ -459,6 +461,7 @@ export class GridViewContainer extends BaseContainer {
                                                         let viewInfoId = this.state.subView.viewInfo?.id;
                                                         let subViewId = this.state.subView.subViews[0]?.id;
                                                         let recordId = info.row?.data?.ID;
+                                                        console.log(`Redirect -> Id =  ${viewInfoId} SubViewId = ${subViewId} RecordId = ${recordId}`);
                                                         window.location.href = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewInfoId}?recordId=${recordId}&subview=${subViewId}`);
                                                         this.unblockUi();
                                                     });
