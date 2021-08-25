@@ -120,33 +120,72 @@ export class GridViewUtils {
     }
 
     static cellTemplate(column) {
-        return column?.type === 'I' || column?.type === 'IM'
-            ? function (element, info) {
-                if (!!info.text) {
-                    if (Array.isArray(info.text) && info.text?.length > 0) {
-                        let srcFromBase64 = 'data:image/png;base64,' + info.text + '';
-                        ReactDOM.render(
-                            <div>
-                                {info.text?.map((i) => {
-                                    return (
-                                        <img style={{width: '100%'}} src={srcFromBase64}></img>
-                                    );
-                                })}
-                            </div>,
-                            element
-                        );
+        switch (column?.type) {
+            case 'I':
+            case 'IM':
+                return (element, info) => {
+                    if (!!info.text) {
+                        if (Array.isArray(info.text) && info.text?.length > 0) {
+                            let srcFromBase64 = 'data:image/png;base64,' + info.text + '';
+                            ReactDOM.render(
+                                <div>
+                                    {info.text?.map((i) => {
+                                        return (
+                                            <img style={{width: '100%'}} src={srcFromBase64}></img>
+                                        );
+                                    })}
+                                </div>,
+                                element
+                            );
+                        } else {
+                            let srcFromBase64 = 'data:image/png;base64,' + info.text + '';
+                            ReactDOM.render(
+                                <div>
+                                    <img style={{width: '100%'}} src={srcFromBase64}></img>
+                                </div>,
+                                element
+                            );
+                        }
+                    }
+                }
+            default:
+                return (element, info) => {
+                    let bgColor = 'white';
+                    let specialBgColor = info.data['_BGCOLOR_' + info.column?.dataField]
+                    if (specialBgColor) {
+                        bgColor = specialBgColor;
                     } else {
-                        let srcFromBase64 = 'data:image/png;base64,' + info.text + '';
+                        let defaultBgColor = info.data['_BGCOLOR'];
+                        if (defaultBgColor) {
+                            bgColor = defaultBgColor;
+                        }
+                    }
+                    let fontColor = 'black';
+                    let specialFontColor = info.data['_FONTCOLOR_' + info.column?.dataField]
+                    if (specialFontColor) {
+                        fontColor = specialBgColor;
+                    } else {
+                        let defaultFontColor = info.data['_FONTCOLOR'];
+                        if (defaultFontColor) {
+                            fontColor = defaultFontColor;
+                        }
+                    }
+                    if (!!info.text) {
                         ReactDOM.render(
-                            <div>
-                                <img style={{width: '100%'}} src={srcFromBase64}></img>
+                            <div style={{
+                                display: 'inline',
+                                backgroundColor: bgColor,
+                                color: fontColor,
+                                borderRadius: '25px',
+                                padding: '2px 6px 2px 6px'
+                            }}>
+                                {info.text}
                             </div>,
                             element
                         );
                     }
                 }
-            }
-            : undefined;
+        }
     }
 
     static renderAction(_this, columns) {
