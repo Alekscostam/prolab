@@ -66,7 +66,7 @@ class Sidebar extends React.Component {
             .then((data) => {
                 this.setState(
                     {
-                        versionAPI: data.versionAPI
+                        versionAPI: data.VersionAPI
                     },
                     () => {
                     }
