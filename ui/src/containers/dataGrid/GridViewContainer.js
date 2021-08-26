@@ -31,7 +31,7 @@ import Constants from '../../utils/constants';
 import {GridViewUtils} from '../../utils/GridViewUtils';
 import {ViewValidatorUtils} from '../../utils/parser/ViewValidatorUtils';
 import DataGridStore from './DataGridStore';
-import AppPrefixUtils from "../../utils/AppPrefixUtils";
+import AppPrefixUtils from '../../utils/AppPrefixUtils';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -91,7 +91,6 @@ export class GridViewContainer extends BaseContainer {
         console.log('RecordId = ' + recordId);
         console.log('FilterId = ' + filterId);
         this.setState(
-
             {
                 elementSubViewId: subViewId,
                 elementRecordId: recordId,
@@ -230,7 +229,9 @@ export class GridViewContainer extends BaseContainer {
                                     id: responseView?.filtersList[filter].id,
                                     label: responseView?.filtersList[filter].label,
                                     command: (e) => {
-                                        window.location.href = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${this.state.elementId}/?filterId=${e.item?.id}`);
+                                        window.location.href = AppPrefixUtils.locationHrefUrl(
+                                            `/#/grid-view/${this.state.elementId}/?filterId=${e.item?.id}`
+                                        );
                                     },
                                 });
                             }
@@ -328,7 +329,6 @@ export class GridViewContainer extends BaseContainer {
         );
     }
 
-
     renderGridCell(data) {
         return (
             <a href={data.text} target='_blank' rel='noopener noreferrer'>
@@ -395,7 +395,7 @@ export class GridViewContainer extends BaseContainer {
                         column.fixed =
                             columnTmp.freeze !== undefined && columnTmp.freeze !== null
                                 ? columnTmp.freeze?.toLowerCase() === 'left' ||
-                                columnTmp.freeze?.toLowerCase() === 'right'
+                                  columnTmp.freeze?.toLowerCase() === 'right'
                                 : false;
                         column.fixedPosition = !!columnTmp.freeze ? columnTmp.freeze?.toLowerCase() : null;
                         INDEX_COLUMN++;
@@ -474,7 +474,9 @@ export class GridViewContainer extends BaseContainer {
                                                         let viewInfoId = this.state.subView.viewInfo?.id;
                                                         let subViewId = this.state.subView.subViews[0]?.id;
                                                         let recordId = info.row?.data?.ID;
-                                                        window.location.href = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewInfoId}?recordId=${recordId}&subview=${subViewId}`);
+                                                        window.location.href = AppPrefixUtils.locationHrefUrl(
+                                                            `/#/grid-view/${viewInfoId}?recordId=${recordId}&subview=${subViewId}`
+                                                        );
                                                         this.unblockUi();
                                                     });
                                                 })
@@ -527,7 +529,7 @@ export class GridViewContainer extends BaseContainer {
     renderHeaderRight() {
         return (
             <React.Fragment>
-                {this.state.oppAddButton === null ? null : <ActionButton label={this.state.oppAddButton?.label}/>}
+                {this.state.oppAddButton === null ? null : <ActionButton label={this.state.oppAddButton?.label} />}
             </React.Fragment>
         );
     }
@@ -535,7 +537,7 @@ export class GridViewContainer extends BaseContainer {
     rightHeadPanelContent = () => {
         return (
             <React.Fragment>
-                <ShortcutsButton items={this.state.parsedGridView?.shortcutButtons}/>
+                <ShortcutsButton items={this.state.parsedGridView?.shortcutButtons} />
             </React.Fragment>
         );
     };
@@ -635,7 +637,8 @@ export class GridViewContainer extends BaseContainer {
         let menuItems = [];
         this.state.subView?.headerOperations.forEach((operation) => {
             showEditButton = showEditButton || operation.type === 'OP_EDIT';
-            if (operation.type === 'OP_PUBLIC' ||
+            if (
+                operation.type === 'OP_PUBLIC' ||
                 operation.type === 'OP_HISTORY' ||
                 operation.type === 'OP_ATTACHMENTS'
             ) {
@@ -670,21 +673,25 @@ export class GridViewContainer extends BaseContainer {
                                 });
                             }}
                         >
-                            {this.state.subView?.headerColumns?.filter((c) => c.visible === true).map((c) => {
-                                return <Column
-                                    allowFixing={true}
-                                    caption={c.label}
-                                    dataType={GridViewUtils.specifyColumnType(c?.type)}
-                                    format={GridViewUtils.specifyColumnFormat(c?.type)}
-                                    cellTemplate={GridViewUtils.cellTemplate(c)}
-                                    dataField={c.fieldName}
-                                />
-                            })}
+                            {this.state.subView?.headerColumns
+                                ?.filter((c) => c.visible === true)
+                                .map((c) => {
+                                    return (
+                                        <Column
+                                            allowFixing={true}
+                                            caption={c.label}
+                                            dataType={GridViewUtils.specifyColumnType(c?.type)}
+                                            format={GridViewUtils.specifyColumnFormat(c?.type)}
+                                            cellTemplate={GridViewUtils.cellTemplate(c)}
+                                            dataField={c.fieldName}
+                                        />
+                                    );
+                                })}
 
-                            {showEditButton || showMenu ?
+                            {showEditButton || showMenu ? (
                                 <Column
                                     allowFixing={true}
-                                    caption="Akcje"
+                                    caption='Akcje'
                                     width={widthTmp}
                                     fixed={true}
                                     fixedPosition='right'
@@ -710,34 +717,37 @@ export class GridViewContainer extends BaseContainer {
                                             </div>,
                                             element
                                         );
-                                    }}>
-                                </Column> : null}
+                                    }}
+                                ></Column>
+                            ) : null}
                         </DataGrid>
                     </div>
                 ) : null}
                 {/*Zakładki podwidoków*/}
                 <div id='subviews-panel' className='float-left'>
                     {this.state.subView != null &&
-                    this.state.subView.subViews != null &&
-                    this.state.subView.subViews.length > 0 &&
-                    this.state.subView.subViews?.map((subView, index) => {
-                        return (
-                            <div className='float-left'>
-                                <ShortcutButton
-                                    id={`subview_${index}`}
-                                    className='mt-2 mb-2 mr-1'
-                                    label={subView.label}
-                                    active={subView.id == elementSubViewId}
-                                    handleClick={() => {
-                                        let viewInfoId = this.state.subView.viewInfo?.id;
-                                        let subViewId = subView.id;
-                                        let recordId = this.state.elementRecordId;
-                                        window.location.href = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewInfoId}/?recordId=${recordId}&subview=${subViewId}`);
-                                    }}
-                                />
-                            </div>
-                        );
-                    })}
+                        this.state.subView.subViews != null &&
+                        this.state.subView.subViews.length > 0 &&
+                        this.state.subView.subViews?.map((subView, index) => {
+                            return (
+                                <div className='float-left'>
+                                    <ShortcutButton
+                                        id={`subview_${index}`}
+                                        className='mt-2 mb-2 mr-1'
+                                        label={subView.label}
+                                        active={subView.id == elementSubViewId}
+                                        handleClick={() => {
+                                            let viewInfoId = this.state.subView.viewInfo?.id;
+                                            let subViewId = subView.id;
+                                            let recordId = this.state.elementRecordId;
+                                            window.location.href = AppPrefixUtils.locationHrefUrl(
+                                                `/#/grid-view/${viewInfoId}/?recordId=${recordId}&subview=${subViewId}`
+                                            );
+                                        }}
+                                    />
+                                </div>
+                            );
+                        })}
                 </div>
             </React.Fragment>
         );
@@ -862,14 +872,14 @@ export class GridViewContainer extends BaseContainer {
             this.state.elementFilterId
         );
         const customizedColumns = this.customizeColumns;
-        let cardWidth = 250;
+        let cardWidth = 300;
         let cardHeight = 200;
         if (
             this.state.gridViewType[0] === 'cardView' &&
             this.cardGrid !== null &&
             this.cardGrid._element !== undefined
         ) {
-            cardWidth = (this.cardGrid._element.clientWidth - 70) / 4;
+            // cardWidth = (this.cardGrid._element.clientWidth - 70) / 4;
             // cardHeight = this.cardGrid._element.clientHeight / 3;
         }
         return (
@@ -910,18 +920,18 @@ export class GridViewContainer extends BaseContainer {
                                     paging={true}
                                 />
 
-                                <FilterRow visible={true}/>
-                                <FilterPanel visible={true}/>
-                                <HeaderFilter visible={true} allowSearch={true}/>
+                                <FilterRow visible={true} />
+                                <FilterPanel visible={true} />
+                                <HeaderFilter visible={true} allowSearch={true} />
 
-                                <Grouping autoExpandAll={groupExpandAll}/>
-                                <GroupPanel visible={showGroupPanel}/>
+                                <Grouping autoExpandAll={groupExpandAll} />
+                                <GroupPanel visible={showGroupPanel} />
 
-                                <Sorting mode='multiple'/>
-                                <Selection mode='multiple' selectAllMode='allPages' showCheckBoxesMode='always'/>
+                                <Sorting mode='multiple' />
+                                <Selection mode='multiple' selectAllMode='allPages' showCheckBoxesMode='always' />
 
-                                <Scrolling mode='virtual' rowRenderingMode='virtual'/>
-                                <LoadPanel enabled={true}/>
+                                <Scrolling mode='virtual' rowRenderingMode='virtual' />
+                                <LoadPanel enabled={true} />
 
                                 {/* domyślnie infinite scrolling
                                     <Paging defaultPageSize={10} />
@@ -934,7 +944,7 @@ export class GridViewContainer extends BaseContainer {
                                         showNavigationButtons={this.state.showNavButtons}
                                     />
                                     */}
-                                <Editing mode='cell'/>
+                                <Editing mode='cell' />
                             </DataGrid>
                         ) : this.state.gridViewType[0] === 'cardView' ? (
                             <TileView
