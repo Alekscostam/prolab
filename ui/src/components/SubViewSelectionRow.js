@@ -22,6 +22,7 @@ export const SubViewSelectionRow = props => {
                 <table id="selection-sub-view-row-table" className="table">
                     <thead>
                     <tr>
+
                         {props.selectedRow.map((item, index) => {
                             return (<th>{item.label}</th>)
                         })}
