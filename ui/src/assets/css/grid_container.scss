@@ -225,3 +225,16 @@ $table-selection: #dde6ff;
 .card-grid-footer {
     flex-basis: 0;
 }
+
+.dx-datagrid .dx-row > td{
+    padding: 3px;
+}
+
+.dx-datagrid .dx-datagrid-content .dx-datagrid-table .dx-row > td
+.dx-row > td.dx-cell-modified:not(.dx-field-item-content):not(.dx-validation-pending),
+.dx-datagrid .dx-datagrid-content .dx-datagrid-table .dx-row > td.dx-datagrid-invalid:not(.dx-field-item-content):not(.dx-validation-pending):not(.dx-datagrid-select-all),
+.dx-datagrid .dx-datagrid-content .dx-datagrid-table .dx-row > td:not(.dx-validation-pending):not(.dx-datagrid-select-all) {
+    padding-right: 3px;
+    padding-left: 3px;
+}
+

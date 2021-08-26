@@ -32,41 +32,37 @@ export const HeadPanel = props => {
                              className="grid-count-fragment pt-2 pb-2 ml-2">Pozycje: {props.selectedRowKeys?.length || 0}</div>
                         <div id="grid-separator" className="p-1 grid-separator-fragment"></div>
                         <div id="grid-buttons-fragment" className="p-1 grid-buttons-fragment">
-                            {opDelete ?
-                                <ShortcutButton className={`grid-button-panel mr-2`}
-                                                handleClick={(e) => props.handleDelete(e)}
-                                                iconName="mdi-delete"
-                                                iconSide="left"
-                                                title={opDelete.label}
-                                /> : null
-                            }
+                            <ShortcutButton className={`grid-button-panel mr-2`}
+                                            handleClick={(e) => props.handleDelete(e)}
+                                            iconName="mdi-delete"
+                                            iconSide="left"
+                                            title={opDelete?.label}
+                                            rendered={opDelete}
+                            />
 
-                            {opRestore ?
-                                <ShortcutButton className={`grid-button-panel mr-2`}
-                                                handleClick={(e) => props.handleRestore(e)}
-                                                iconName="mdi-restore"
-                                                iconSide="left"
-                                                title={opRestore.label}
-                                /> : null
-                            }
+                            <ShortcutButton className={`grid-button-panel mr-2`}
+                                            handleClick={(e) => props.handleRestore(e)}
+                                            iconName="mdi-restore"
+                                            iconSide="left"
+                                            rendered={opRestore}
+                                            title={opRestore?.label}
+                            />
 
-                            {opCopy ?
-                                <ShortcutButton className={`grid-button-panel mr-2`}
-                                                handleClick={(e) => props.handleCopy(e)}
-                                                iconName="mdi-content-copy"
-                                                iconSide="left"
-                                                title={opCopy.label}
-                                /> : null
-                            }
+                            <ShortcutButton className={`grid-button-panel mr-2`}
+                                            handleClick={(e) => props.handleCopy(e)}
+                                            iconName="mdi-content-copy"
+                                            iconSide="left"
+                                            rendered={opCopy}
+                                            title={opCopy?.label}
+                            />
 
-                            {opArchive ?
-                                <ShortcutButton className={`grid-button-panel mr-2`}
-                                                handleClick={(e) => props.handleArchive(e)}
-                                                iconName="mdi-archive"
-                                                iconSide="left"
-                                                title={opArchive.label}
-                                /> : null
-                            }
+                            <ShortcutButton className={`grid-button-panel mr-2`}
+                                            handleClick={(e) => props.handleArchive(e)}
+                                            iconName="mdi-archive"
+                                            iconSide="left"
+                                            rendered={opArchive}
+                                            title={opArchive?.label}
+                            />
                         </div>
                     </div>
                 </React.Fragment> : null}
