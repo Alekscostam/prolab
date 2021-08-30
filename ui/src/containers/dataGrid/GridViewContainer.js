@@ -222,7 +222,7 @@ export class GridViewContainer extends BaseContainer {
                                 });
                             }
                             let viewInfoTypesTmp = [];
-                            let cardButton = GridViewUtils.containsOperationButton(responseView.operations, 'OP_SUBVIEWS');
+                            let cardButton = GridViewUtils.containsOperationButton(responseView.operations, 'OP_CARDVIEW');
                             if (cardButton) {
                                 viewInfoTypesTmp.push({
                                     icon: 'mediumiconslayout',
@@ -826,7 +826,7 @@ export class GridViewContainer extends BaseContainer {
                     </div>
                     <div className='card-grid-body'>
                         <div className='row'>
-                            {cardImage?.visible ? (
+                            {cardImage?.visible && cardImage?.fieldName && rowData[cardImage?.fieldName] ? (
                                 <div className={cardBody?.visible ? 'col-3' : 'col-12'}>
                                     <Image
                                         alt={rowData[cardImage.title]}
