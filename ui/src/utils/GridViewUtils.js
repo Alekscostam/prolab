@@ -150,39 +150,41 @@ export class GridViewUtils {
                 }
             default:
                 return (element, info) => {
-                    let bgColor = 'white';
-                    let specialBgColor = info.data['_BGCOLOR_' + info.column?.dataField]
-                    if (specialBgColor) {
-                        bgColor = specialBgColor;
+                    let bgColorFinal = undefined;
+                    const bgColor = info.data['_BGCOLOR'];
+                    const specialBgColor = info.data['_BGCOLOR_' + info.column?.dataField]                    
+                    if (bgColor) {
+                        element.style.backgroundColor = bgColor;
+                        bgColorFinal = undefined;
                     } else {
-                        let defaultBgColor = info.data['_BGCOLOR'];
-                        if (defaultBgColor) {
-                            bgColor = defaultBgColor;
+                        if (specialBgColor) {
+                            bgColorFinal = specialBgColor;
                         }
                     }
-                    let fontColor = 'black';
-                    let specialFontColor = info.data['_FONTCOLOR_' + info.column?.dataField]
-                    if (specialFontColor) {
-                        fontColor = specialBgColor;
-                    } else {
-                        let defaultFontColor = info.data['_FONTCOLOR'];
-                        if (defaultFontColor) {
-                            fontColor = defaultFontColor;
+                    
+                    let fontColorFinal = 'black';
+                    const fontColor = info.data['_FONTCOLOR'];
+                    const specialFontColor = info.data['_FONTCOLOR_' + info.column?.dataField]
+                    if (fontColor) {
+                        fontColorFinal = fontColor;
+                    } else {                        
+                        if (specialFontColor) {
+                            fontColorFinal = specialFontColor;
                         }
                     }
                     if (!!info.text) {
                         ReactDOM.render(
                             <div style={{
                                 display: 'inline',
-                                backgroundColor: bgColor,
-                                color: fontColor,
+                                backgroundColor: bgColorFinal,
+                                color: fontColorFinal,
                                 borderRadius: '25px',
                                 padding: '2px 6px 2px 6px'
                             }}>
                                 {info.text}
                             </div>,
                             element
-                        );
+                        );                        
                     }
                 }
         }
