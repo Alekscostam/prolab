@@ -918,10 +918,16 @@ export class GridViewContainer extends BaseContainer {
                                 columnHidingEnabled={false}
                                 width='100%'
                                 rowAlternationEnabled={false}
-                                onSelectionChanged={(selectedRowKeys) => {
-                                    console.log('onSelectionChanged', selectedRowKeys);
+                                onSelectionChanged={(e) => {
+                                    console.log('onSelectionChanged', e);  
+                                    if (e.selectedRowKeys && e.component) {
+                                        e.selectedRowKeys.forEach(id => e.component.repaintRows(e.component.getRowIndexByKey(id)));
+                                    }
+                                    if (e.currentDeselectedRowKeys && e.component) {
+                                        e.currentDeselectedRowKeys.forEach(id => e.component.repaintRows(e.component.getRowIndexByKey(id)));
+                                    }
                                     this.setState({
-                                        selectedRowKeys: selectedRowKeys?.selectedRowKeys,
+                                        selectedRowKeys: e?.selectedRowKeys,
                                     });
                                 }}
                             >

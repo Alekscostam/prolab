@@ -148,18 +148,22 @@ export class GridViewUtils {
                         }
                     }
                 }
-            default:
+            default:                
                 return (element, info) => {
+                    //console.log('+', Date.now());
                     let bgColorFinal = undefined;
                     const bgColor = info.data['_BGCOLOR'];
                     const specialBgColor = info.data['_BGCOLOR_' + info.column?.dataField]                    
                     if (bgColor) {
                         element.style.backgroundColor = bgColor;
                         bgColorFinal = undefined;
-                    } else {
-                        if (specialBgColor) {
-                            bgColorFinal = specialBgColor;
-                        }
+                    }                    
+                    if (specialBgColor) {
+                        bgColorFinal = specialBgColor;
+                    }
+                    const rowSelected = info?.row?.cells?.filter(c => c.column?.type === 'selection' && c.value === true).length > 0;
+                    if (rowSelected) {
+                        bgColorFinal = undefined;
                     }
                     
                     let fontColorFinal = 'black';
