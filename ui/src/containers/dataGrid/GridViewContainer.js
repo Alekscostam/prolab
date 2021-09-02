@@ -116,7 +116,7 @@ export class GridViewContainer extends BaseContainer {
             prevProps.id !== this.props.id ||
             this.state.elementSubViewId !== subViewId ||
             this.state.elementFilterId !== filterId ||
-            prevState.gridViewType !== this.state.gridViewType
+            prevState.gridViewType.toString() !== this.state.gridViewType.toString()
         ) {
             this.setState(
                 {
