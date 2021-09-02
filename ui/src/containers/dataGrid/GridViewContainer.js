@@ -73,7 +73,11 @@ export class GridViewContainer extends BaseContainer {
         let subViewId = GridViewUtils.getURLParameters('subview');
         let recordId = GridViewUtils.getURLParameters('recordId');
         let filterId = GridViewUtils.getURLParameters('filterId');
-        const id = this.props.id;
+        //const id = this.props.id;
+        let id = GridViewUtils.getViewIdFromURL();
+        if (id === undefined) {
+            id = this.props.id
+        }
         console.log(`Read from param -> Id =  ${id} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`);
         this.setState(
             {
@@ -99,7 +103,11 @@ export class GridViewContainer extends BaseContainer {
         let recordId = GridViewUtils.getURLParameters('recordId');
         let filterId = GridViewUtils.getURLParameters('filterId');
         let gridViewType = this.state.gridViewType;
-        const id = this.props.id;
+        //const id = this.props.id;
+        let id = GridViewUtils.getViewIdFromURL();
+        if (id === undefined) {
+            id = this.props.id;
+        }
         console.log(`Read from param -> Id =  ${id} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`);
         if (prevProps.id !== this.props.id || this.state.elementSubViewId !== subViewId) {
             gridViewType = ['gridView'];
@@ -348,7 +356,8 @@ export class GridViewContainer extends BaseContainer {
         let INDEX_COLUMN = 0;
         let elementId = this.props.id;
         let viewService = this.viewService;
-        if (columns?.length > 0) {
+        const { elementSubViewId } = this.state;
+         if (columns?.length > 0) {
             //when viewData respond a lot of data
             columns?.forEach((column) => {
                 if (column.name === '_ROWNUMBER') {
@@ -476,9 +485,10 @@ export class GridViewContainer extends BaseContainer {
                                         title={oppSubview?.label}
                                         rendered={oppSubview}
                                         handleClick={(e) => {
-                                            //TODO redundantion
+                                            //TODO redundantion                                            
+                                            const viewId = elementSubViewId ? elementSubViewId : elementId;
                                             viewService
-                                                .getSubView(elementId, info.row?.data?.ID)
+                                                .getSubView(viewId, info.row?.data?.ID)
                                                 .then((subViewResponse) => {
                                                     this.setState({subView: subViewResponse}, () => {
                                                         let viewInfoId = this.state.subView.viewInfo?.id;

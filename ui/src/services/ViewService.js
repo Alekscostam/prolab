@@ -24,7 +24,7 @@ export default class ViewService extends BaseService {
     }
 
     getSubView(viewId, recordId) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/subView?recordId=${recordId}`, {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/subView/${recordId}`, {
             method: 'GET',
         }).catch((err) => {
             throw err;

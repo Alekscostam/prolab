@@ -42,6 +42,15 @@ export class GridViewUtils {
         }
     }
 
+    static getViewIdFromURL() {
+        let url = window.document.URL.toString();
+        var regexp = new RegExp('^.+\\/grid-view\\/([0-9]+)([\\?|\\/]+.*)?$', 'g');
+        let match = regexp.exec(url);        
+        if (match) {            
+            return match[1];
+        }
+    }
+
     //TODO dopracować
     /*
     Typ kolumny:
@@ -258,7 +267,7 @@ export class GridViewUtils {
                                     title={'Podwidoki'}
                                     handleClick={(e) => {
                                         //TODO redundantion
-                                        console.log(_this.state)
+                                        console.log(_this.state);
                                         new ViewService()
                                             .getSubView(_this.state.elementId, info.row?.data?.ID)
                                             .then((subViewResponse) => {
