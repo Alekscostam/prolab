@@ -185,6 +185,9 @@ $table-selection: #dde6ff;
     margin-right: -10px;
     width: calc(100% + 20px);
 }
+.card-grid .dx-scrollable-container{
+    overflow-y: scroll;
+}
 .dx-item.dx-tile {
     border-radius: 10px;
     padding: 0px;

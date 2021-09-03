@@ -74,12 +74,14 @@ export default class DataGridStore extends BaseService {
                 let viewTypeParam = viewTypeArg !== undefined && viewTypeArg != null ? `&viewType=${viewTypeArg}` : '';
                 let filterIdParam = filterIdArg !== undefined && filterIdArg != null ? `&filterId=${filterIdArg}` : '';
                 let recordIdParam = recordIdArg !== undefined && recordIdArg != null ? `&parentId=${recordIdArg}` : '';
+                //let parentIdParam = recordIdArg !== undefined && recordIdArg != null ? `&parentId=${recordIdArg}` : '';
+
                 return this.fetch(`${this.domain}/${this.path}/${viewIdArg}${params}${viewTypeParam}${filterIdParam}${recordIdParam}`, {
                     method: 'GET',
                 })
                     .then((response) => {
                         let data = response.data;
-                        console.log('DataGridStore -> fetch ata: ', data);
+                        console.log('DataGridStore -> fetch data: ', data);
                         return {
                             data: data,
                             //TODO

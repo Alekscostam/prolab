@@ -42,6 +42,15 @@ export class GridViewUtils {
         }
     }
 
+    static getViewIdFromURL() {
+        let url = window.document.URL.toString();
+        var regexp = new RegExp('^.+\\/grid-view\\/([0-9]+)([\\?|\\/]+.*)?$', 'g');
+        let match = regexp.exec(url);        
+        if (match) {            
+            return match[1];
+        }
+    }
+
     //TODO dopracować
     /*
     Typ kolumny:
@@ -148,41 +157,47 @@ export class GridViewUtils {
                         }
                     }
                 }
-            default:
+            default:                
                 return (element, info) => {
-                    let bgColor = 'white';
-                    let specialBgColor = info.data['_BGCOLOR_' + info.column?.dataField]
+                    //console.log('+', Date.now());
+                    let bgColorFinal = undefined;
+                    const bgColor = info.data['_BGCOLOR'];
+                    const specialBgColor = info.data['_BGCOLOR_' + info.column?.dataField]                    
+                    if (bgColor) {
+                        element.style.backgroundColor = bgColor;
+                        bgColorFinal = undefined;
+                    }                    
                     if (specialBgColor) {
-                        bgColor = specialBgColor;
-                    } else {
-                        let defaultBgColor = info.data['_BGCOLOR'];
-                        if (defaultBgColor) {
-                            bgColor = defaultBgColor;
-                        }
+                        bgColorFinal = specialBgColor;
                     }
-                    let fontColor = 'black';
-                    let specialFontColor = info.data['_FONTCOLOR_' + info.column?.dataField]
-                    if (specialFontColor) {
-                        fontColor = specialBgColor;
-                    } else {
-                        let defaultFontColor = info.data['_FONTCOLOR'];
-                        if (defaultFontColor) {
-                            fontColor = defaultFontColor;
+                    const rowSelected = info?.row?.cells?.filter(c => c.column?.type === 'selection' && c.value === true).length > 0;
+                    if (rowSelected) {
+                        bgColorFinal = undefined;
+                    }
+                    
+                    let fontColorFinal = 'black';
+                    const fontColor = info.data['_FONTCOLOR'];
+                    const specialFontColor = info.data['_FONTCOLOR_' + info.column?.dataField]
+                    if (fontColor) {
+                        fontColorFinal = fontColor;
+                    } else {                        
+                        if (specialFontColor) {
+                            fontColorFinal = specialFontColor;
                         }
                     }
                     if (!!info.text) {
                         ReactDOM.render(
                             <div style={{
                                 display: 'inline',
-                                backgroundColor: bgColor,
-                                color: fontColor,
+                                backgroundColor: bgColorFinal,
+                                color: fontColorFinal,
                                 borderRadius: '25px',
                                 padding: '2px 6px 2px 6px'
                             }}>
                                 {info.text}
                             </div>,
                             element
-                        );
+                        );                        
                     }
                 }
         }
@@ -252,7 +267,7 @@ export class GridViewUtils {
                                     title={'Podwidoki'}
                                     handleClick={(e) => {
                                         //TODO redundantion
-                                        console.log(_this.state)
+                                        console.log(_this.state);
                                         new ViewService()
                                             .getSubView(_this.state.elementId, info.row?.data?.ID)
                                             .then((subViewResponse) => {
