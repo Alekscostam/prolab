@@ -17,6 +17,8 @@ import {MenuValidatorUtils} from '../../utils/parser/MenuValidatorUtils';
 import {InputText} from 'primereact/inputtext';
 import ActionButton from "../../components/ActionButton";
 import VersionService from "../../services/VersionService";
+import AppPrefixUtils from '../../utils/AppPrefixUtils';
+import { GridViewUtils } from '../../utils/GridViewUtils';
 
 class Sidebar extends React.Component {
     constructor(props) {
@@ -29,7 +31,9 @@ class Sidebar extends React.Component {
             collapsed: false,
             toggled: false,
             versionAPI: null,
+            menuState: [],
         };
+        this.doNotUpdate = false;
         this.menuService = new MenuService();
         this.viewService = new ViewService();
         this.versionService = new VersionService();
@@ -51,6 +55,22 @@ class Sidebar extends React.Component {
                     () => {
                         this.handleFilter('');
                         console.log('Initialized menu success');
+
+                        //rozwinięcie submenu jeśli potrzebne (TODO: pewnie można to jakoś lepiej zrobić)
+                        const viewId = GridViewUtils.getViewIdFromURL();
+                        if (!!viewId) {
+                            setTimeout(() => {
+                                const menuItem = $('#menu_item_id_' + viewId);
+                                if (menuItem) {
+                                    const subMenuItem = menuItem.closest('div').parent();
+                                    if (subMenuItem) {
+                                         subMenuItem.removeClass('closed');
+                                         subMenuItem.height('auto');                                         
+                                    }
+                                }
+                            }, 10);
+                            
+                        }
                     }
                 );
             })
@@ -77,15 +97,22 @@ class Sidebar extends React.Component {
     }
 
     //very important !!!
-    shouldComponentUpdate(nextProps, nextState, nextContext) {
+    shouldComponentUpdate(nextProps, nextState, nextContext) {        
         const history = this.props.history;
-        return (
+        if (this.doNotUpdate === true) {
+            this.doNotUpdate = false;
+            return false;
+        }
+
+        const result = (            
             history.action !== 'PUSH' ||
             (history.action !== 'PUSH' && nextProps.location.pathname == '/start') ||
             this.state.collapsed !== nextState.collapsed ||
             this.state.toggled !== nextState.toggled ||
             this.state.filterValue !== nextState.filterValue
         );
+        //alert('shouldComponentUpdate: ' + result);
+        return result;
     }
 
     handleLogoutUser() {
@@ -155,6 +182,12 @@ class Sidebar extends React.Component {
     }
 
     render() {
+        let {authService} = this.props;
+        if (!authService.loggedIn()) {
+            const logoutUrl = AppPrefixUtils.locationHrefUrl('/#/');
+            window.location.href = logoutUrl;
+            return null;
+        }
         const {collapsed, filterValue} = this.state;
         $(document).on('click', '.pro-inner-item', function (e) {
             $('.pro-inner-item').each(function (index) {
@@ -168,15 +201,12 @@ class Sidebar extends React.Component {
             $(this).parents('.pro-menu-item').addClass('active');
         });
         /*------------------------  PROPS  ---------------------------*/
-        let {authService} = this.props;
+        
         /*------------------------  PROPS  ---------------------------*/
         const userName = JSON.parse(authService.getProfile()).name;
         const dynamicMenuJSON = !authService.loggedIn() ? [] : this.state.filteredMenu;
         //TODO pogadać o rolach
         //const role = authService.getProfile().role;
-        const nav = (e, item) => {
-            this.props.history.push(`/grid-view/${item.id}`);
-        };
         const renderDynamicMenu = (items) => {
             return (
                 <Menu key='menu' iconShape='circle' popperArrow='false'>
@@ -193,10 +223,15 @@ class Sidebar extends React.Component {
                                             <Image alt={item.name} base64={item.icon}/>
                                         )
                                     }
-                                    onClick={(e) => nav(e, item)}
+
+                                    onClick={() => {
+                                        this.doNotUpdate = true;
+                                    }}
                                 >
                                     <div className='menu_arrow_active'/>
-                                    <div className='title'>{item?.name}</div>
+                                    <a href={AppPrefixUtils.locationHrefUrl(`/#/grid-view/${item.id}`)} className='title' style={{fontSize: '14px', fontWeight: 'normal'}}>                                        
+                                        <div className='title'>{item?.name}</div>
+                                    </a>
                                 </MenuItem>
                                 {item?.sub && renderDynamicMenu(item?.sub)}
                             </li>

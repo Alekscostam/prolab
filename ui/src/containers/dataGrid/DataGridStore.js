@@ -17,6 +17,7 @@ export default class DataGridStore extends BaseService {
         [
             'filter',
             'filterId',
+            'parentId',
             'group',
             'groupSummary',
             'parentIds',
@@ -47,7 +48,7 @@ export default class DataGridStore extends BaseService {
     getDataGridStore(viewIdArg, viewTypeArg, recordIdArg, filterIdArg) {
         const dataGridStore = new CustomStore({
             key: 'ID',
-            keyExpr: 'ID',
+            //keyExpr: 'ID',
             load: (loadOptions) => {
                 let params = '?';
                 [
@@ -73,13 +74,17 @@ export default class DataGridStore extends BaseService {
                 });
                 let viewTypeParam = viewTypeArg !== undefined && viewTypeArg != null ? `&viewType=${viewTypeArg}` : '';
                 let filterIdParam = filterIdArg !== undefined && filterIdArg != null ? `&filterId=${filterIdArg}` : '';
-                let recordIdParam = recordIdArg !== undefined && recordIdArg != null ? `&recordId=${recordIdArg}` : '';
+                let recordIdParam = recordIdArg !== undefined && recordIdArg != null ? `&parentId=${recordIdArg}` : '';
+                //let parentIdParam = recordIdArg !== undefined && recordIdArg != null ? `&parentId=${recordIdArg}` : '';
+                if (!viewIdArg) {                    
+                    return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0});
+                }
                 return this.fetch(`${this.domain}/${this.path}/${viewIdArg}${params}${viewTypeParam}${filterIdParam}${recordIdParam}`, {
                     method: 'GET',
                 })
                     .then((response) => {
                         let data = response.data;
-                        console.log('DataGridStore -> fetch ata: ', data);
+                        console.log('DataGridStore -> fetch data: ', data);
                         return {
                             data: data,
                             //TODO
