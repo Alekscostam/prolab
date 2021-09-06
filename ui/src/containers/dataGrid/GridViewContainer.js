@@ -787,6 +787,9 @@ export class GridViewContainer extends BaseContainer {
                         this.state.subView.subViews != null &&
                         this.state.subView.subViews.length > 0 &&
                         this.state.subView.subViews?.map((subView, index) => {
+                            const viewInfoId = this.state.subView.viewInfo?.id;
+                            const subViewId = subView.id;
+                            const recordId = this.state.elementRecordId;
                             return (
                                 <div className='float-left'>
                                     <ShortcutButton
@@ -795,14 +798,7 @@ export class GridViewContainer extends BaseContainer {
                                         label={subView.label}
                                         active={subView.id == elementSubViewId}
                                         linkViewMode={true}
-                                        handleClick={() => {
-                                            let viewInfoId = this.state.subView.viewInfo?.id;
-                                            let subViewId = subView.id;
-                                            let recordId = this.state.elementRecordId;
-                                            window.location.href = AppPrefixUtils.locationHrefUrl(
-                                                `/#/grid-view/${viewInfoId}/?recordId=${recordId}&subview=${subViewId}`
-                                            );
-                                        }}
+                                        href={AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewInfoId}/?recordId=${recordId}&subview=${subViewId}`)}                                        
                                     />
                                 </div>
                             );
