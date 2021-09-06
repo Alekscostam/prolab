@@ -581,13 +581,13 @@ export class GridViewContainer extends BaseContainer {
                 let showMenu = menuItems.length > 0;
                 let widthTmp = 0;
                 if (showMenu) {
-                    widthTmp += 45;
+                    widthTmp += 35;
                 }
                 if (showEditButton) {
-                    widthTmp += 45;
+                    widthTmp += 35;
                 }
                 if (showSubviewButton) {
-                    widthTmp += 45;
+                    widthTmp += 35;
                 }
                 if (showEditButton || showMenu || showSubviewButton) {
                     columns?.push({
@@ -613,7 +613,7 @@ export class GridViewContainer extends BaseContainer {
                                 <div style={{textAlign: 'center'}}>
                                     <ShortcutButton
                                         id={`${info.column.headerId}_menu_button`}
-                                        className={`action-button-with-menu mr-1`}
+                                        className={`action-button-with-menu`}
                                         iconName={'mdi-pencil'}
                                         title={oppEdit?.label}
                                         rendered={showEditButton && oppEdit}
@@ -621,14 +621,14 @@ export class GridViewContainer extends BaseContainer {
                                     <ActionButtonWithMenu
                                         id='more_shortcut'
                                         iconName='mdi-dots-horizontal'
-                                        className={`mr-1`}
+                                        className={``}
                                         items={menuItems}
                                         remdered={showMenu}
                                         title={'Dodatkowe opcje'}
                                     />
                                     <ShortcutButton
                                         id={`${info.column.headerId}_menu_button`}
-                                        className={`action-button-with-menu mr-1`}
+                                        className={`action-button-with-menu`}
                                         iconName={'mdi-playlist-plus '}
                                         title={oppSubview?.label}
                                         //rendered={oppSubview}
@@ -799,10 +799,10 @@ export class GridViewContainer extends BaseContainer {
         let showMenu = menuItems.length > 0;
         let widthTmp = 0;
         if (showMenu) {
-            widthTmp += 45;
+            widthTmp += 37;
         }
         if (showEditButton) {
-            widthTmp += 45;
+            widthTmp += 37;
         }
         return (
             <React.Fragment>
@@ -842,7 +842,7 @@ export class GridViewContainer extends BaseContainer {
                             {showEditButton || showMenu ? (
                                 <Column
                                     allowFixing={true}
-                                    caption='Akcje'
+                                    caption=''
                                     width={widthTmp}
                                     fixed={true}
                                     fixedPosition='right'
@@ -851,7 +851,7 @@ export class GridViewContainer extends BaseContainer {
                                             <div>
                                                 <ShortcutButton
                                                     id={`${info.column.headerId}_menu_button`}
-                                                    className={`action-button-with-menu mr-1`}
+                                                    className={`action-button-with-menu`}
                                                     iconName={'mdi-pencil'}
                                                     label={''}
                                                     title={'Edycja'}
@@ -860,7 +860,7 @@ export class GridViewContainer extends BaseContainer {
                                                 <ActionButtonWithMenu
                                                     id='more_shortcut'
                                                     iconName='mdi-dots-horizontal'
-                                                    className={`mr-1`}
+                                                    className={``}
                                                     items={menuItems}
                                                     remdered={true}
                                                     title={'Dodatkowe opcje'}
@@ -952,7 +952,7 @@ export class GridViewContainer extends BaseContainer {
                             <div className='float-right'>
                                 <ShortcutButton
                                     id={`${rowData.id}_menu_button`}
-                                    className={`action-button-with-menu mr-1`}
+                                    className={`action-button-with-menu`}
                                     iconName={'mdi-pencil'}
                                     label={''}
                                     title={''}
@@ -960,14 +960,14 @@ export class GridViewContainer extends BaseContainer {
                                 />
                                 <ActionButtonWithMenu
                                     id={`${rowData.id}_more_shortcut`}
-                                    className={`action-button-with-menu mr-1`}
+                                    className={`action-button-with-menu`}
                                     iconName='mdi-dots-horizontal'
                                     items={menuItems}
                                     remdered={showMenu}
                                 />
                                 <ShortcutButton
                                     id={`${rowData.id}_menu_button`}
-                                    className={`action-button-with-menu mr-1`}
+                                    className={`action-button-with-menu`}
                                     iconName={'mdi-playlist-plus '}
                                     title={oppSubview?.label}
                                     rendered={oppSubview}
