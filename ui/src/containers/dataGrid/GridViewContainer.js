@@ -620,7 +620,7 @@ export class GridViewContainer extends BaseContainer {
                                     />
                                     <ActionButtonWithMenu
                                         id='more_shortcut'
-                                        iconName='mdi-dots-horizontal'
+                                        iconName='mdi-dots-vertical'
                                         className={``}
                                         items={menuItems}
                                         remdered={showMenu}
@@ -859,7 +859,7 @@ export class GridViewContainer extends BaseContainer {
                                                 />
                                                 <ActionButtonWithMenu
                                                     id='more_shortcut'
-                                                    iconName='mdi-dots-horizontal'
+                                                    iconName='mdi-dots-vertical'
                                                     className={``}
                                                     items={menuItems}
                                                     remdered={true}
@@ -961,7 +961,7 @@ export class GridViewContainer extends BaseContainer {
                                 <ActionButtonWithMenu
                                     id={`${rowData.id}_more_shortcut`}
                                     className={`action-button-with-menu`}
-                                    iconName='mdi-dots-horizontal'
+                                    iconName='mdi-dots-vertical'
                                     items={menuItems}
                                     remdered={showMenu}
                                 />
