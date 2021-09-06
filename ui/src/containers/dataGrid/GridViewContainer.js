@@ -1021,8 +1021,8 @@ export class GridViewContainer extends BaseContainer {
             this.state.elementFilterId
         );
         const customizedColumns = this.customizeColumns;
-        let cardWidth = 300;
-        let cardHeight = 200;
+        let cardWidth = this.state.parsedGridView?.cardOptions?.width ?? 300;
+        let cardHeight = this.state.parsedGridView?.cardOptions?.heigh ?? 200;
         return (
             <React.Fragment>
                 {this.state.loading ? null : (

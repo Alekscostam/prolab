@@ -14,6 +14,11 @@ export const GridOptions = ObjectModel({
     headerAutoHeight: [Boolean],
 });
 
+export const CardOptions = ObjectModel({
+    width: Number,
+    height: Number,
+});
+
 export const Column = ObjectModel({
     id: Number,
     visible: Boolean,
@@ -77,6 +82,7 @@ export const FiltersList = ObjectModel({
 export const ViewResponse = ObjectModel({
     viewInfo: ViewInfo,
     gridOptions: [GridOptions],
+    cardOptions: [CardOptions],
     gridColumns: ArrayModel(GridColumns),
     operations: [ArrayModel(Operations)],
     shortcutButtons: [ArrayModel(ShortcutButtons)],
