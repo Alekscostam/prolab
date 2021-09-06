@@ -73,7 +73,11 @@ export class GridViewContainer extends BaseContainer {
         let subViewId = GridViewUtils.getURLParameters('subview');
         let recordId = GridViewUtils.getURLParameters('recordId');
         let filterId = GridViewUtils.getURLParameters('filterId');
-        const id = this.props.id;
+        //const id = this.props.id;
+        let id = GridViewUtils.getViewIdFromURL();
+        if (id === undefined) {
+            id = this.props.id
+        }
         console.log(`Read from param -> Id =  ${id} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`);
         this.setState(
             {
@@ -99,7 +103,11 @@ export class GridViewContainer extends BaseContainer {
         let recordId = GridViewUtils.getURLParameters('recordId');
         let filterId = GridViewUtils.getURLParameters('filterId');
         let gridViewType = this.state.gridViewType;
-        const id = this.props.id;
+        //const id = this.props.id;
+        let id = GridViewUtils.getViewIdFromURL();
+        if (id === undefined) {
+            id = this.props.id;
+        }
         console.log(`Read from param -> Id =  ${id} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`);
         if (prevProps.id !== this.props.id || this.state.elementSubViewId !== subViewId) {
             gridViewType = ['gridView'];
@@ -108,7 +116,7 @@ export class GridViewContainer extends BaseContainer {
             prevProps.id !== this.props.id ||
             this.state.elementSubViewId !== subViewId ||
             this.state.elementFilterId !== filterId ||
-            prevState.gridViewType !== this.state.gridViewType
+            prevState.gridViewType.toString() !== this.state.gridViewType.toString()
         ) {
             this.setState(
                 {
@@ -348,7 +356,8 @@ export class GridViewContainer extends BaseContainer {
         let INDEX_COLUMN = 0;
         let elementId = this.props.id;
         let viewService = this.viewService;
-        if (columns?.length > 0) {
+        const { elementSubViewId } = this.state;
+         if (columns?.length > 0) {
             //when viewData respond a lot of data
             columns?.forEach((column) => {
                 if (column.name === '_ROWNUMBER') {
@@ -436,7 +445,7 @@ export class GridViewContainer extends BaseContainer {
                 }
                 if (showEditButton || showMenu || showSubviewButton) {
                     columns?.push({
-                        caption: 'Akcje',
+                        caption: '',
                         width: widthTmp,
                         fixed: true,
                         fixedPosition: 'right',
@@ -476,9 +485,10 @@ export class GridViewContainer extends BaseContainer {
                                         title={oppSubview?.label}
                                         rendered={oppSubview}
                                         handleClick={(e) => {
-                                            //TODO redundantion
+                                            //TODO redundantion                                            
+                                            const viewId = elementSubViewId ? elementSubViewId : elementId;
                                             viewService
-                                                .getSubView(elementId, info.row?.data?.ID)
+                                                .getSubView(viewId, info.row?.data?.ID)
                                                 .then((subViewResponse) => {
                                                     this.setState({subView: subViewResponse}, () => {
                                                         let viewInfoId = this.state.subView.viewInfo?.id;
@@ -746,9 +756,10 @@ export class GridViewContainer extends BaseContainer {
                                 <div className='float-left'>
                                     <ShortcutButton
                                         id={`subview_${index}`}
-                                        className='mt-2 mb-2 mr-1'
+                                        className='mt-2 mb-2 mr-2'
                                         label={subView.label}
                                         active={subView.id == elementSubViewId}
+                                        linkViewMode={true}
                                         handleClick={() => {
                                             let viewInfoId = this.state.subView.viewInfo?.id;
                                             let subViewId = subView.id;
@@ -918,10 +929,16 @@ export class GridViewContainer extends BaseContainer {
                                 columnHidingEnabled={false}
                                 width='100%'
                                 rowAlternationEnabled={false}
-                                onSelectionChanged={(selectedRowKeys) => {
-                                    console.log('onSelectionChanged', selectedRowKeys);
+                                onSelectionChanged={(e) => {
+                                    console.log('onSelectionChanged', e);  
+                                    if (e.selectedRowKeys && e.component) {
+                                        e.selectedRowKeys.forEach(id => e.component.repaintRows(e.component.getRowIndexByKey(id)));
+                                    }
+                                    if (e.currentDeselectedRowKeys && e.component) {
+                                        e.currentDeselectedRowKeys.forEach(id => e.component.repaintRows(e.component.getRowIndexByKey(id)));
+                                    }
                                     this.setState({
-                                        selectedRowKeys: selectedRowKeys?.selectedRowKeys,
+                                        selectedRowKeys: e?.selectedRowKeys,
                                     });
                                 }}
                             >
@@ -933,8 +950,7 @@ export class GridViewContainer extends BaseContainer {
                                     paging={true}
                                 />
 
-                                <FilterRow visible={true} />
-                                <FilterPanel visible={true} />
+
                                 <HeaderFilter visible={true} allowSearch={true} />
 
                                 <Grouping autoExpandAll={groupExpandAll} />

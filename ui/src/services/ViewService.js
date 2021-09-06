@@ -1,4 +1,5 @@
 import BaseService from './BaseService';
+import moment from 'moment';
 
 /*
 GET zwracający dane potrzebne do wyrenderowania widoku: informacje ogólne o widoku, opcje
@@ -25,10 +26,44 @@ export default class ViewService extends BaseService {
     }
 
     getSubView(viewId, recordId) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/subView?recordId=${recordId}`, {
+        // czasem na jednym widoku, lub przy przejściu między widokami idzie kilka takich samych zapytań, jedno po drugim;
+        // dlatego wyniki zapytań są zapamiętywane lokalnie na 5 sekund
+        const cacheKey = JSON.stringify({viewId: parseInt(viewId), recordId: parseInt(recordId)});
+        console.log('getSubView: cacheKey=' + cacheKey);
+        try {
+            let cacheValue = JSON.parse(sessionStorage.getItem(cacheKey));
+            if (cacheValue) {
+                const expDate = cacheValue.expDate;
+                const now = moment();
+                if (now.isBefore(expDate)) {
+                    if (cacheValue.data) {
+                        console.log('getSubView: returning data from cache');
+                        return Promise.resolve(cacheValue.data);
+                    }                    
+                } else {
+                    console.log('getSubView: cache expired');
+                }
+            } else {
+                console.log('getSubView: cache value is empty');
+            }
+        } catch (err) {
+            console.log('getSubView: invalid format of cache value', err);
+            sessionStorage.removeItem(cacheKey);
+        }
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/subView/${recordId}`, {
             method: 'GET',
-        }).catch((err) => {
+        })
+        .then((result) => {
+            const cacheValue = {
+                expDate: moment().add(5, 'seconds'),
+                data: result,
+            }
+            console.log('getSubView: setting data to cache');
+            sessionStorage.setItem(cacheKey, JSON.stringify(cacheValue));
+            return Promise.resolve(result);
+        })
+        .catch((err) => {
             throw err;
-        });
+        });        
     }
 }
