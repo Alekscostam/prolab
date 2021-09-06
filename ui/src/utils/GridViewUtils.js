@@ -51,6 +51,63 @@ export class GridViewUtils {
         }
     }
 
+    static addParameterToURL(url, paramName, paramValue) {
+        let updateMode = false;
+        const id1 = url.indexOf(`?${paramName}=`);
+        const id2 = url.indexOf(`&${paramName}=`);
+        if ( id1 > 0  || id2 > 0) {
+            updateMode = true;
+        }
+        let newUrl;
+        if (updateMode) {
+            let start;
+            if (id1 > 0) {
+                start = id1;
+            } else {
+                start = id2;
+            }
+            let end = url.indexOf('&', start + 1);
+            newUrl = url.substr(0, start + 1) + paramName + '=' + paramValue;
+            if (end > 0) {
+                newUrl += url.substr(end);
+            }
+
+        } else {
+            newUrl = url;
+            if (url.indexOf('?') > 0) {
+                newUrl += '&';
+            } else {
+                newUrl += '?';
+            }
+            newUrl += `${paramName}=${paramValue}`;
+        }    
+        return newUrl;
+    }
+
+    static deleteParameterFromURL(url, paramName) {
+        let newUrl = url;
+        const id1 = url.indexOf(`?${paramName}=`);
+        const id2 = url.indexOf(`&${paramName}=`);
+        console.log(`id1=${id1}; id2=${id2}`);
+        if ( id1 > 0  || id2 > 0) {				
+            let start;
+            if (id1 > 0) {
+                start = id1;
+            } else {
+                start = id2;
+            }
+            // console.log('start=' + start);
+            let end = url.indexOf('&', start + 1);
+            // console.log('end=' + end);
+            newUrl = url.substr(0, start);
+            if (end > 0) {
+                newUrl += url.substr(end);
+            }
+
+        }
+        return newUrl;
+    }
+
     //TODO dopracować
     /*
     Typ kolumny:
