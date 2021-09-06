@@ -17,6 +17,7 @@ export default class DataGridStore extends BaseService {
         [
             'filter',
             'filterId',
+            'parentId',
             'group',
             'groupSummary',
             'parentIds',
