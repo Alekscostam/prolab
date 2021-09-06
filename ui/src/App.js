@@ -49,36 +49,27 @@ class App extends Component {
 
     componentDidMount() {
         let browseUrl = window.location.href;
+        const id = browseUrl.indexOf('/#');
+        if (id > 0) {
+            browseUrl = browseUrl.substring(0, id + 1);
+        }
         let configUrl;
         const urlPrefixCookie = readCookieGlobal("REACT_APP_URL_PREFIX");
-        if (urlPrefixCookie === undefined || urlPrefixCookie == null) {
+        if (urlPrefixCookie === undefined || urlPrefixCookie == null || urlPrefixCookie === '') {                        
             configUrl = browseUrl
-                .trim()
-                .replaceAll("/#/", "")
-                .replaceAll("/#", "")
-                .replaceAll("#/", "");
+                // .trim()
+                // .replaceAll("/#/", "/")
+                // .replaceAll("/#", "")
+                // .replaceAll("#/", "");
         } else {
             configUrl = browseUrl
                 .trim()
                 .match("^(?:https?:)?(?:\\/\\/)?([^\\/\\?]+)", "")[0] + '/' + urlPrefixCookie;
         }
-        this.readConfigAndSaveInCookie(configUrl).catch(err => {
-            configUrl = browseUrl
-                .trim()
-                .replaceAll("/#/", "")
-                .replaceAll("/#", "")
-                .replaceAll("#/", "");
-            this.readConfigAndSaveInCookie(configUrl).then(config => {
-                saveCookieGlobal("REACT_APP_BACKEND_URL", config.REACT_APP_BACKEND_URL);
-                saveCookieGlobal("REACT_APP_URL_PREFIX", config.REACT_APP_URL_PREFIX);
-                this.setState({
-                    loadedConfiguration: true,
-                    config: config,
-                    configUrl: configUrl,
-                });
-            }).catch(err => {
-                console.error("Error start application = ", err)
-            })
+        
+        this.readConfigAndSaveInCookie(configUrl)
+        .catch(err => {
+            console.error("Error start application = ", err)
         });
     }
 
