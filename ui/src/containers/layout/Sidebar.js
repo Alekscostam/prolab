@@ -65,8 +65,7 @@ class Sidebar extends React.Component {
                                     const subMenuItem = menuItem.closest('div').parent();
                                     if (subMenuItem) {
                                          subMenuItem.removeClass('closed');
-                                         subMenuItem.height('auto');
-                                         subMenuItem.parent().find('div').trigger('click');
+                                         subMenuItem.height('auto');                                         
                                     }
                                 }
                             }, 10);
