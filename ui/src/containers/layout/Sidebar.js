@@ -61,13 +61,10 @@ class Sidebar extends React.Component {
                         if (!!viewId) {
                             setTimeout(() => {
                                 const menuItem = $('#menu_item_id_' + viewId);
-                                if (menuItem) {
-                                    const subMenuItem = menuItem.closest('div').parent();
-                                    if (subMenuItem) {
-                                         subMenuItem.removeClass('closed');
-                                         subMenuItem.height('auto');                                         
-                                    }
-                                }
+                                const subMenuItem = menuItem.closest('div').parent();
+                                subMenuItem.removeClass('closed');
+                                subMenuItem.height('auto');  
+                                subMenuItem.parent().find('div').first().trigger('click');
                             }, 10);
                             
                         }
