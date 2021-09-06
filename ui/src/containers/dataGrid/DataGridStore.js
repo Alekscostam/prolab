@@ -75,7 +75,6 @@ export default class DataGridStore extends BaseService {
                 let filterIdParam = filterIdArg !== undefined && filterIdArg != null ? `&filterId=${filterIdArg}` : '';
                 let recordIdParam = recordIdArg !== undefined && recordIdArg != null ? `&parentId=${recordIdArg}` : '';
                 //let parentIdParam = recordIdArg !== undefined && recordIdArg != null ? `&parentId=${recordIdArg}` : '';
-                
                 if (!viewIdArg) {                    
                     return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0});
                 }
