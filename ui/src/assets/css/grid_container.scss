@@ -130,11 +130,6 @@ $table-selection: #dde6ff;
 .dx-button-mode-outlined.dx-item-selected {
     background-color: rgba(0, 0, 0, 0.17);
 }
-
-.grid-container {
-    height: 69vh;
-}
-
 .dx-button-has-icon .dx-button-content {
     padding: 5px !important;
 }
@@ -195,14 +190,16 @@ $table-selection: #dde6ff;
     margin: 0px;
     display: flex;
     flex-direction: column;
-    padding: 15px;
+    padding: 10px 0px;
 }
 .card-grid-header,
 .card-grid-body,
 .card-grid-footer {
     width: 100%;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding: 0px 10px;
+}
+.card-grid-body{
+    padding: 10px;
 }
 .card-grid-header {
     flex-basis: 0;
@@ -213,6 +210,9 @@ $table-selection: #dde6ff;
 }
 .card-grid-footer {
     flex-basis: 0;
+}
+.card-grid .dx-scrollable-container {    
+    overflow-y: auto;
 }
 
 .dx-datagrid .dx-row > td{

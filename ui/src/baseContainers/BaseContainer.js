@@ -1086,9 +1086,9 @@ class BaseContainer extends React.Component {
             <React.Fragment>
                 <BreadcrumbsItem to='/setting-list'>{this.getBreadcrumbsName()}</BreadcrumbsItem>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)}/>
-                <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
-                    <DivContainer colClass=''>
-                        <DivContainer colClass='row'>
+                <BlockUi tag='div' className='block-ui-div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
+                    <DivContainer colClass='base-container-div'>
+                        <DivContainer colClass='row base-container-header'>
                             <DivContainer id='header-left' colClass='col-11'>
                                 <div className='font-medium mb-4'>{this.getViewInfoName()}</div>
                                 {this.state.loading === false ? this.renderHeaderLeft() : null}
@@ -1100,12 +1100,12 @@ class BaseContainer extends React.Component {
                                 {this.state.loading === false ? this.renderHeaderContent() : null}
                             </DivContainer>
                         </DivContainer>
-                        <DivContainer colClass='row'>
+                        <DivContainer colClass='row base-container-head-panel'>
                             <DivContainer id='header-panel' colClass='col-12'>
                                 {this.state.loading === false ? this.renderHeadPanel() : null}
                             </DivContainer>
                         </DivContainer>
-                        <DivContainer colClass='row'>
+                        <DivContainer colClass='row base-container-content'>
                             <DivContainer id='content' colClass='col-12'>
                                 {this.state.loading === false ? this.renderContent() : null}
                             </DivContainer>

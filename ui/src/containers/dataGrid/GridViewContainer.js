@@ -2,8 +2,6 @@ import ButtonGroup from 'devextreme-react/button-group';
 import DataGrid, {
     Column,
     Editing,
-    FilterPanel,
-    FilterRow,
     Grouping,
     GroupPanel,
     HeaderFilter,
@@ -26,10 +24,10 @@ import ShortcutButton from '../../components/ShortcutButton';
 import ShortcutsButton from '../../components/ShortcutsButton';
 import ViewDataService from '../../services/ViewDataService';
 import ViewService from '../../services/ViewService';
+import AppPrefixUtils from '../../utils/AppPrefixUtils';
 import {GridViewUtils} from '../../utils/GridViewUtils';
 import {ViewValidatorUtils} from '../../utils/parser/ViewValidatorUtils';
 import DataGridStore from './DataGridStore';
-import AppPrefixUtils from '../../utils/AppPrefixUtils';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -59,7 +57,11 @@ export class GridViewContainer extends BaseContainer {
             batchesList: [],
             gridViewType: ['gridView'],
             subView: null,
-            viewInfoTypes: []
+            viewInfoTypes: [],
+            cardSkip: 0,
+            cardTake: 20,
+            cardTotalRows: 0,
+            cardScrollLoading: false,
         };
         this.onSelectionChanged = this.onSelectionChanged.bind(this);
         this.gridViewTypeChange = this.gridViewTypeChange.bind(this);
@@ -78,9 +80,11 @@ export class GridViewContainer extends BaseContainer {
         //const id = this.props.id;
         let id = GridViewUtils.getViewIdFromURL();
         if (id === undefined) {
-            id = this.props.id
+            id = this.props.id;
         }
-        console.log(`Read from param -> Id =  ${id} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`);
+        console.log(
+            `Read from param -> Id =  ${id} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`
+        );
         this.setState(
             {
                 elementSubViewId: subViewId,
@@ -100,7 +104,10 @@ export class GridViewContainer extends BaseContainer {
     }
 
     equalNumbers(n1, n2) {
-        if ((n1 === null || n1 === undefined || n1 === 'undefined') && (n2 === null || n2 === undefined || n2 === 'undefined') ) {
+        if (
+            (n1 === null || n1 === undefined || n1 === 'undefined') &&
+            (n2 === null || n2 === undefined || n2 === 'undefined')
+        ) {
             //console.log('equalNumbers: result=' + true + ' {' + n1 + ', ' + n2 + '}' );
             return true;
         }
@@ -118,11 +125,14 @@ export class GridViewContainer extends BaseContainer {
         const result = num1 === num2;
         //console.log('equalNumbers: result=' + result + ' [' + n1 + ', ' + n2 + '] [' + typeof n1 + ', ' + typeof n2 + ']' );
         return result;
-
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        console.log('**** GridViewContainer -> componentDidUpdate prevProps id={%s} id={%s}', prevProps.id, this.props.id);
+        console.log(
+            '**** GridViewContainer -> componentDidUpdate prevProps id={%s} id={%s}',
+            prevProps.id,
+            this.props.id
+        );
         let id = GridViewUtils.getViewIdFromURL();
         if (id === undefined) {
             id = this.props.id;
@@ -135,8 +145,12 @@ export class GridViewContainer extends BaseContainer {
         console.log('**** GridViewContainer -> componentDidUpdate: firstSubViewMode=' + firstSubViewMode);
         let gridViewType = this.state.gridViewType;
 
-        console.log(`componentDidUpdate: Read from param -> Id =  ${id} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`);
-        console.log(`componentDidUpdate: Read from state -> Id =  ${prevProps.id} ${this.state.elementId} SubViewId = ${this.state.elementSubViewId} RecordId = ${this.state.elementRecordId} FilterId = ${this.state.elementFilterId}`);
+        console.log(
+            `componentDidUpdate: Read from param -> Id =  ${id} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`
+        );
+        console.log(
+            `componentDidUpdate: Read from state -> Id =  ${prevProps.id} ${this.state.elementId} SubViewId = ${this.state.elementSubViewId} RecordId = ${this.state.elementRecordId} FilterId = ${this.state.elementFilterId}`
+        );
         if (prevProps.id !== this.props.id || this.state.elementSubViewId !== subViewId) {
             gridViewType = ['gridView'];
         }
@@ -145,14 +159,13 @@ export class GridViewContainer extends BaseContainer {
             (!firstSubViewMode && !this.equalNumbers(this.state.elementSubViewId, subViewId)) ||
             !this.equalNumbers(this.state.elementFilterId, filterId) ||
             !this.equalNumbers(this.state.elementRecordId, recordId) ||
-            prevState.gridViewType.toString() !== this.state.gridViewType.toString()            
-        ) { 
-
+            prevState.gridViewType.toString() !== this.state.gridViewType.toString()
+        ) {
             //alert('updating...');
-            console.log('@@@@@@@@@ GridViewContainer => updating....')
+            console.log('@@@@@@@@@ GridViewContainer => updating....');
             this.setState(
                 {
-                    elementId: id, 
+                    elementId: id,
                     elementSubViewId: subViewId,
                     elementRecordId: recordId,
                     elementFilterId: filterId,
@@ -169,15 +182,75 @@ export class GridViewContainer extends BaseContainer {
                 }
             );
         }
+        if (this.state.gridViewType[0] === 'cardView' && this.cardGrid !== null) {
+            this.cardGrid._scrollView.on('scroll', (e) => {
+                if (
+                    e.reachedBottom &&
+                    !this.state.cardScrollLoading &&
+                    this.state.gridViewType[0] === 'cardView' &&
+                    this.state.parsedCardViewData.length < this.state.cardTotalRows
+                ) {
+                    this.setState(
+                        {cardScrollLoading: true, cardSkip: this.state.cardSkip + this.state.cardTake},
+                        () => {
+                            console.log('datasource', this.cardGrid.getDataSource());
+                            this.cardGrid.beginUpdate();
+                            this.dataGridStore
+                                .getDataForCard(this.props.id, {
+                                    skip: this.state.cardSkip,
+                                    take: this.state.cardTake,
+                                    requireTotalCount: true,
+                                    filterId: filterId ? parseInt(filterId) : undefined,
+                                    parentId: recordId ? parseInt(recordId) : undefined,
+                                })
+                                .then((res) => {
+                                    let parsedCardViewData = this.state.parsedCardViewData;
+                                    res.data.forEach((item) => {
+                                        for (var key in item) {
+                                            var upper = key.toUpperCase();
+                                            // check if it already wasn't uppercase
+                                            if (upper !== key) {
+                                                item[upper] = item[key];
+                                                delete item[key];
+                                            }
+                                        }
+                                        parsedCardViewData.push(item);
+                                    });
+                                    this.setState(
+                                        {
+                                            parsedCardViewData,
+                                            cardScrollLoading: false,
+                                            cardTotalRows: res.totalCount,
+                                        },
+                                        () => {
+                                            this.cardGrid.endUpdate();
+                                            this.cardGrid.repaint();
+                                        }
+                                    );
+                                });
+                        }
+                    );
+                }
+            });
+        }
     }
 
     componentWillUnmount() {
         this._isMounted = false;
     }
-    
+
+    trackScrolling() {
+        console.log('asdasd', this.state);
+        const wrappedElement = document.getElementById('header');
+        if (this.isBottom(wrappedElement)) {
+            console.log('header bottom reached');
+            document.removeEventListener('scroll', this.trackScrolling);
+        }
+    }
+
     downloadData(viewId, recordId, subviewId, filterId, viewType) {
-        console.log(`GridViewContainer::downloadData: viewId=${viewId}, recordId=${recordId}, subViewId=${subviewId}`)
-        let subviewMode = (!!recordId && !!viewId);
+        console.log(`GridViewContainer::downloadData: viewId=${viewId}, recordId=${recordId}, subViewId=${subviewId}`);
+        let subviewMode = !!recordId && !!viewId;
         if (subviewMode) {
             this.viewService
                 .getSubView(viewId, recordId)
@@ -188,30 +261,32 @@ export class GridViewContainer extends BaseContainer {
                         this.unblockUi();
                         return;
                     }
-                    const elementSubViewId = subviewId ? subviewId : subViewResponse.subViews[0]?.id;                    
-                    this.setState({
-                        subView: subViewResponse,
-                        elementSubViewId: elementSubViewId,
-                    }, () => {
-                        this.unblockUi();                        
-                        this.getViewById(elementSubViewId, viewType, subviewMode);
-                        return;
-                    });                    
+                    const elementSubViewId = subviewId ? subviewId : subViewResponse.subViews[0]?.id;
+                    this.setState(
+                        {
+                            subView: subViewResponse,
+                            elementSubViewId: elementSubViewId,
+                        },
+                        () => {
+                            this.unblockUi();
+                            this.getViewById(elementSubViewId, viewType, subviewMode);
+                            return;
+                        }
+                    );
                 })
                 .catch((err) => {
                     this.handleGetDetailsError(err);
                     this.unblockUi();
                 });
-            
+
             return;
         } else {
             this.setState({subView: null});
         }
-        this.getViewById(viewId, viewType, subviewMode);
+        this.getViewById(viewId, recordId, filterId, viewType, subviewMode);
     }
 
-
-    getViewById(viewId, viewType, subviewMode) {
+    getViewById(viewId, recordId, filterId, viewType, subviewMode) {
         this.setState(
             {
                 loading: true,
@@ -269,33 +344,45 @@ export class GridViewContainer extends BaseContainer {
                                     command: (e) => {
                                         let subViewId = GridViewUtils.getURLParameters('subview');
                                         let recordId = GridViewUtils.getURLParameters('recordId');
-                                        if (subviewMode) {                                            
-                                            console.log(`Redirect -> Id =  ${this.state.elementId} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${e.item?.id}`);
-                                            window.location.href
-                                                = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${this.state.elementId}?recordId=${recordId}&subview=${subViewId}&filterId=${e.item?.id}`);
+                                        if (subviewMode) {
+                                            console.log(
+                                                `Redirect -> Id =  ${this.state.elementId} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${e.item?.id}`
+                                            );
+                                            window.location.href = AppPrefixUtils.locationHrefUrl(
+                                                `/#/grid-view/${this.state.elementId}?recordId=${recordId}&subview=${subViewId}&filterId=${e.item?.id}`
+                                            );
                                         } else {
-                                            console.log(`Redirect -> Id =  ${this.state.elementId} RecordId = ${recordId} FilterId = ${e.item?.id}`);
-                                            window.location.href
-                                                = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${this.state.elementId}/?filterId=${e.item?.id}`);
+                                            console.log(
+                                                `Redirect -> Id =  ${this.state.elementId} RecordId = ${recordId} FilterId = ${e.item?.id}`
+                                            );
+                                            window.location.href = AppPrefixUtils.locationHrefUrl(
+                                                `/#/grid-view/${this.state.elementId}/?filterId=${e.item?.id}`
+                                            );
                                         }
                                     },
                                 });
                             }
                             let viewInfoTypesTmp = [];
-                            let cardButton = GridViewUtils.containsOperationButton(responseView.operations, 'OP_CARDVIEW');
+                            let cardButton = GridViewUtils.containsOperationButton(
+                                responseView.operations,
+                                'OP_CARDVIEW'
+                            );
                             if (cardButton) {
                                 viewInfoTypesTmp.push({
                                     icon: 'mediumiconslayout',
                                     type: 'cardView',
-                                    hint: cardButton?.label
+                                    hint: cardButton?.label,
                                 });
                             }
-                            let viewButton = GridViewUtils.containsOperationButton(responseView.operations, 'OP_GRIDVIEW');
+                            let viewButton = GridViewUtils.containsOperationButton(
+                                responseView.operations,
+                                'OP_GRIDVIEW'
+                            );
                             if (viewButton) {
                                 viewInfoTypesTmp.push({
                                     icon: 'contentlayout',
                                     type: 'gridView',
-                                    hint: viewButton?.label
+                                    hint: viewButton?.label,
                                 });
                             }
                             this.setState(
@@ -309,32 +396,39 @@ export class GridViewContainer extends BaseContainer {
                                     batchesList: batchesListTmp,
                                     filtersList: filtersListTmp,
                                     selectedRowKeys: [],
-                                    viewInfoTypes: viewInfoTypesTmp
+                                    viewInfoTypes: viewInfoTypesTmp,
                                 },
                                 () => {
                                     if (this.state.gridViewType[0] === 'cardView') {
-                                        this.dataGridStore
-                                            .getDataForCard(this.props.id, {
-                                                skip: 0,
-                                                take: 20,
-                                                requireTotalCount: true,
-                                            })
-                                            .then((res) => {
-                                                let parsedCardViewData = res.data.map(function (item) {
-                                                    for (var key in item) {
-                                                        var upper = key.toUpperCase();
-                                                        // check if it already wasn't uppercase
-                                                        if (upper !== key) {
-                                                            item[upper] = item[key];
-                                                            delete item[key];
+                                        this.setState({loading: true, cardSkip: 0}, () =>
+                                            this.dataGridStore
+                                                .getDataForCard(viewId, {
+                                                    skip: this.state.cardSkip,
+                                                    take: this.state.cardTake,
+                                                    requireTotalCount: true,
+                                                    filterId: filterId ? parseInt(filterId) : undefined,
+                                                    parentId: recordId ? parseInt(recordId) : undefined,
+                                                })
+                                                .then((res) => {
+                                                    let parsedCardViewData = res.data.map(function (item) {
+                                                        for (var key in item) {
+                                                            var upper = key.toUpperCase();
+                                                            // check if it already wasn't uppercase
+                                                            if (upper !== key) {
+                                                                item[upper] = item[key];
+                                                                delete item[key];
+                                                            }
                                                         }
-                                                    }
-                                                    return item;
-                                                });
-                                                this.setState({parsedCardViewData});
-                                            });
+                                                        return item;
+                                                    });
+                                                    this.setState({
+                                                        parsedCardViewData,
+                                                        loading: false,
+                                                        cardTotalRows: res.totalCount,
+                                                    });
+                                                })
+                                        );
                                     }
-                                    this.setState({loading: false});
                                 }
                             );
                         }
@@ -408,8 +502,8 @@ export class GridViewContainer extends BaseContainer {
         let INDEX_COLUMN = 0;
         let elementId = this.state.elementId; //this.props.id;
         let viewService = this.viewService;
-        const { elementSubViewId } = this.state;
-         if (columns?.length > 0) {
+        const {elementSubViewId} = this.state;
+        if (columns?.length > 0) {
             //when viewData respond a lot of data
             columns?.forEach((column) => {
                 if (column.name === '_ROWNUMBER') {
@@ -538,7 +632,9 @@ export class GridViewContainer extends BaseContainer {
                                         iconName={'mdi-playlist-plus '}
                                         title={oppSubview?.label}
                                         //rendered={oppSubview}
-                                        href={AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewId}?recordId=${recordId}`)}                                        
+                                        href={AppPrefixUtils.locationHrefUrl(
+                                            `/#/grid-view/${viewId}?recordId=${recordId}`
+                                        )}
                                         rendered={showSubviewButton}
                                     />
                                 </div>,
@@ -580,9 +676,7 @@ export class GridViewContainer extends BaseContainer {
         let opADD = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_ADD');
         return (
             <React.Fragment>
-                <ActionButton
-                    rendered={opADD}
-                    label={opADD?.label}/>
+                <ActionButton rendered={opADD} label={opADD?.label} />
             </React.Fragment>
         );
     }
@@ -652,7 +746,6 @@ export class GridViewContainer extends BaseContainer {
                         title={opBatches?.label}
                     />
                 ) : null}
-
             </React.Fragment>
         );
     };
@@ -798,7 +891,9 @@ export class GridViewContainer extends BaseContainer {
                                         label={subView.label}
                                         active={subView.id == elementSubViewId}
                                         linkViewMode={true}
-                                        href={AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewInfoId}/?recordId=${recordId}&subview=${subViewId}`)}
+                                        href={AppPrefixUtils.locationHrefUrl(
+                                            `/#/grid-view/${viewInfoId}/?recordId=${recordId}&subview=${subViewId}`
+                                        )}
                                     />
                                 </div>
                             );
@@ -811,12 +906,16 @@ export class GridViewContainer extends BaseContainer {
     //override
     renderCard(rowData) {
         const {cardBody, cardHeader, cardImage, cardFooter} = this.state.parsedGridView;
+        const {elementSubViewId} = this.state;
+        let elementId = this.props.id;
         let showEditButton = false;
+        let showSubviewButton = false;
         let showMenu = false;
         let menuItems = [];
         if (this.state.parsedGridView?.operations) {
             this.state.parsedGridView?.operations.forEach((operation) => {
                 showEditButton = showEditButton || operation.type === 'OP_EDIT';
+                showSubviewButton = showSubviewButton || operation.type === 'OP_SUBVIEWS';
                 if (
                     operation.type === 'OP_PUBLIC' ||
                     operation.type === 'OP_HISTORY' ||
@@ -827,6 +926,8 @@ export class GridViewContainer extends BaseContainer {
             });
             showMenu = menuItems.length > 0;
         }
+        let oppEdit = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_EDIT');
+        let oppSubview = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_SUBVIEWS');
         return (
             <div
                 className={`dx-tile-image ${
@@ -847,7 +948,7 @@ export class GridViewContainer extends BaseContainer {
                                 {rowData[cardHeader.fieldName]}
                             </span>
                         ) : null}
-                        {showEditButton || showMenu ? (
+                        {showEditButton || showMenu || showSubviewButton ? (
                             <div className='float-right'>
                                 <ShortcutButton
                                     id={`${rowData.id}_menu_button`}
@@ -855,13 +956,46 @@ export class GridViewContainer extends BaseContainer {
                                     iconName={'mdi-pencil'}
                                     label={''}
                                     title={''}
-                                    rendered={showEditButton}
+                                    rendered={showEditButton && oppEdit}
                                 />
                                 <ActionButtonWithMenu
                                     id={`${rowData.id}_more_shortcut`}
+                                    className={`action-button-with-menu mr-1`}
                                     iconName='mdi-dots-horizontal'
                                     items={menuItems}
                                     remdered={showMenu}
+                                />
+                                <ShortcutButton
+                                    id={`${rowData.id}_menu_button`}
+                                    className={`action-button-with-menu mr-1`}
+                                    iconName={'mdi-playlist-plus '}
+                                    title={oppSubview?.label}
+                                    rendered={oppSubview}
+                                    handleClick={(e) => {
+                                        //TODO redundantion
+                                        const viewId = elementSubViewId ? elementSubViewId : elementId;
+                                        this.viewService
+                                            .getSubView(viewId, rowData.ID)
+                                            .then((subViewResponse) => {
+                                                this.setState({subView: subViewResponse}, () => {
+                                                    let viewInfoId = this.state.subView.viewInfo?.id;
+                                                    let subViewId = this.state.subView.subViews[0]?.id;
+                                                    let recordId = rowData.ID;
+                                                    console.log(
+                                                        `Redirect -> Id =  ${viewInfoId} SubViewId = ${subViewId} RecordId = ${recordId}`
+                                                    );
+                                                    window.location.href = AppPrefixUtils.locationHrefUrl(
+                                                        `/#/grid-view/${viewInfoId}?recordId=${recordId}&subview=${subViewId}`
+                                                    );
+                                                    this.unblockUi();
+                                                });
+                                            })
+                                            .catch((err) => {
+                                                this.handleGetDetailsError(err);
+                                                this.unblockUi();
+                                            });
+                                    }}
+                                    rendered={showSubviewButton}
                                 />
                             </div>
                         ) : null}
@@ -927,16 +1061,8 @@ export class GridViewContainer extends BaseContainer {
             this.state.elementFilterId
         );
         const customizedColumns = this.customizeColumns;
-        let cardWidth = 300;
-        let cardHeight = 200;
-        if (
-            this.state.gridViewType[0] === 'cardView' &&
-            this.cardGrid !== null &&
-            this.cardGrid._element !== undefined
-        ) {
-            // cardWidth = (this.cardGrid._element.clientWidth - 70) / 4;
-            // cardHeight = this.cardGrid._element.clientHeight / 3;
-        }
+        let cardWidth = this.state.parsedGridView?.cardOptions?.width ?? 300;
+        let cardHeight = this.state.parsedGridView?.cardOptions?.heigh ?? 200;
         return (
             <React.Fragment>
                 {this.state.loading ? null : (
@@ -959,14 +1085,19 @@ export class GridViewContainer extends BaseContainer {
                                 showBorders={true}
                                 columnHidingEnabled={false}
                                 width='100%'
+                                height='100%'
                                 rowAlternationEnabled={false}
                                 onSelectionChanged={(e) => {
-                                    console.log('onSelectionChanged', e);  
+                                    console.log('onSelectionChanged', e);
                                     if (e.selectedRowKeys && e.component) {
-                                        e.selectedRowKeys.forEach(id => e.component.repaintRows(e.component.getRowIndexByKey(id)));
+                                        e.selectedRowKeys.forEach((id) =>
+                                            e.component.repaintRows(e.component.getRowIndexByKey(id))
+                                        );
                                     }
                                     if (e.currentDeselectedRowKeys && e.component) {
-                                        e.currentDeselectedRowKeys.forEach(id => e.component.repaintRows(e.component.getRowIndexByKey(id)));
+                                        e.currentDeselectedRowKeys.forEach((id) =>
+                                            e.component.repaintRows(e.component.getRowIndexByKey(id))
+                                        );
                                     }
                                     this.setState({
                                         selectedRowKeys: e?.selectedRowKeys,
@@ -980,7 +1111,6 @@ export class GridViewContainer extends BaseContainer {
                                     sorting={true}
                                     paging={true}
                                 />
-
 
                                 <HeaderFilter visible={true} allowSearch={true} />
 
@@ -1008,14 +1138,15 @@ export class GridViewContainer extends BaseContainer {
                             </DataGrid>
                         ) : this.state.gridViewType[0] === 'cardView' ? (
                             <TileView
+                                onInitialized={(e) => (this.cardGrid = e.component)}
                                 className='card-grid'
-                                ref={(ref) => (this.cardGrid = ref)}
                                 items={this.state.parsedCardViewData}
                                 itemRender={this.renderCard}
-                                height='635px'
+                                height='100%'
                                 baseItemHeight={cardHeight}
                                 baseItemWidth={cardWidth}
                                 itemMargin={10}
+                                showScrollbar
                                 direction='vertical'
                                 onItemClick={(item) => {
                                     let selectedRowKeys = this.state.selectedRowKeys;
