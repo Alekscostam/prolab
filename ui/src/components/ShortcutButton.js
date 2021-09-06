@@ -21,6 +21,7 @@ export const ShortcutButton = props => {
         params,
         rendered,
         title,
+        linkViewMode
     } = props;
     let ariaLabel = '';
     if (rendered) {
@@ -30,14 +31,17 @@ export const ShortcutButton = props => {
                 <a
                     title={`${title ? title : ''}${ariaLabel}`}
                     tabIndex="0"
-                    className={`shortcut p-button p-component ${className !== undefined ? className : ''} ${disabled ? 'p-disabled disabled' : ''} ${active ? 'active-shortcut-button' : ''}`}
+                    className={
+                        linkViewMode
+                            ? (`shortcut-link ${className !== undefined ? className : ''} ${disabled ? 'p-disabled disabled' : ''} ${active ? 'active-shortcut-link' : ''}`)
+                            : (`shortcut p-button p-component ${className !== undefined ? className : ''} ${disabled ? 'p-disabled disabled' : ''} ${active ? 'active-shortcut-button' : ''}`)}
                     href={disabled ? undefined : href ? href : 'javascript:;'}
                     onClick={e => (disabled || !handleClick ? false : handleClick(e, params))}
                     id={id}
                     key={id === undefined ? `actionButton-${label}` : id}
                 >
 					<span
-                        className={`${iconName !== undefined ? 'icon_text' : ''} shortcut-text p-c ${
+                        className={`${iconName !== undefined ? 'icon_text ' : ''}shortcut-text p-c ${
                             iconName !== undefined ? iconColor : ''
                         }`}
                     >
@@ -65,7 +69,8 @@ ShortcutButton.defaultProps = {
     rendered: true,
     disabled: false,
     params: {},
-    active:false,
+    active: false,
+    linkViewMode: false
 };
 
 ShortcutButton.propTypes = {
@@ -85,6 +90,7 @@ ShortcutButton.propTypes = {
     rendered: PropTypes.bool,
     size: PropTypes.string,
     active: PropTypes.bool,
+    linkViewMode: PropTypes.bool,
 };
 
 export default ShortcutButton;

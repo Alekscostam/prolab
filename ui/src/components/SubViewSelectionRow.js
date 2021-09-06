@@ -26,7 +26,7 @@ export const SubViewSelectionRow = props => {
                         {props.selectedRow.map((item, index) => {
                             return (<th>{item.label}</th>)
                         })}
-                        {actionColumn ? <th>Akcje</th> : null}
+                        {actionColumn ? <th></th> : null}
                     </tr>
                     </thead>
                     <tbody>

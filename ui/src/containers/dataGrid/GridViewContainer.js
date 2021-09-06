@@ -445,7 +445,7 @@ export class GridViewContainer extends BaseContainer {
                 }
                 if (showEditButton || showMenu || showSubviewButton) {
                     columns?.push({
-                        caption: 'Akcje',
+                        caption: '',
                         width: widthTmp,
                         fixed: true,
                         fixedPosition: 'right',
@@ -756,9 +756,10 @@ export class GridViewContainer extends BaseContainer {
                                 <div className='float-left'>
                                     <ShortcutButton
                                         id={`subview_${index}`}
-                                        className='mt-2 mb-2 mr-1'
+                                        className='mt-2 mb-2 mr-2'
                                         label={subView.label}
                                         active={subView.id == elementSubViewId}
+                                        linkViewMode={true}
                                         handleClick={() => {
                                             let viewInfoId = this.state.subView.viewInfo?.id;
                                             let subViewId = subView.id;
@@ -949,8 +950,7 @@ export class GridViewContainer extends BaseContainer {
                                     paging={true}
                                 />
 
-                                <FilterRow visible={true} />
-                                <FilterPanel visible={true} />
+
                                 <HeaderFilter visible={true} allowSearch={true} />
 
                                 <Grouping autoExpandAll={groupExpandAll} />

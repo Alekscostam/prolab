@@ -233,7 +233,7 @@ export class GridViewUtils {
             }
             if (showEditButton || showMenu || showSubviewButton) {
                 columns?.push({
-                    caption: 'Akcje',
+                    caption: '',
                     width: widthTmp,
                     fixed: true,
                     fixedPosition: 'right',
