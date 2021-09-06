@@ -798,7 +798,7 @@ export class GridViewContainer extends BaseContainer {
                                         label={subView.label}
                                         active={subView.id == elementSubViewId}
                                         linkViewMode={true}
-                                        href={AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewInfoId}/?recordId=${recordId}&subview=${subViewId}`)}                                        
+                                        href={AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewInfoId}/?recordId=${recordId}&subview=${subViewId}`)}
                                     />
                                 </div>
                             );
