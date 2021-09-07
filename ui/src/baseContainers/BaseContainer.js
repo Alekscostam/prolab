@@ -11,11 +11,11 @@ import AuthService from '../services/AuthService';
 import $ from 'jquery';
 import Constants from '../utils/constants';
 import {readCookieGlobal, removeCookieGlobal, saveCookieGlobal} from '../utils/cookie';
-import {BreadcrumbsItem} from 'react-breadcrumbs-dynamic';
 import BlockUi from '../components/waitPanel/BlockUi';
 import {Toast} from 'primereact/toast';
 import {Message} from 'primereact/message';
 import AppPrefixUtils from "../utils/AppPrefixUtils";
+import { Breadcrumb } from '../utils/BreadcrumbUtils';
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -1027,10 +1027,6 @@ class BaseContainer extends React.Component {
         }
     }
 
-    unblockUi() {
-        this.setState({blocking: false});
-    }
-
     unblockUi(callBack) {
         this.setState({blocking: false}, () =>
             callBack !== undefined && callBack instanceof Function ? callBack() : null
@@ -1053,12 +1049,9 @@ class BaseContainer extends React.Component {
         );
     }
 
-    getBreadcrumbsName() {
-        return 'Unnamed';
-    }
 
     getViewInfoName() {
-        return 'Unnamed';
+        return '';
     }
 
     renderContent() {
@@ -1082,9 +1075,37 @@ class BaseContainer extends React.Component {
     }
 
     render() {
+        const breadcrumb = Breadcrumb.readFromUrl();        
         return (
             <React.Fragment>
-                <BreadcrumbsItem to='/setting-list'>{this.getBreadcrumbsName()}</BreadcrumbsItem>
+                {/* <BreadcrumbsItem to='/setting-list'>{this.getBreadcrumbsName()}</BreadcrumbsItem> */}
+                <div className="breadcrumb-panel breadcrumb-link">
+                    <a href="/#/start">Strona główna</a>{' > '}
+                    {breadcrumb.map(((item, id) => {
+                        if (item.type === 'menu') {
+                            return (
+                                <React.Fragment>
+                                    {item.name}{' > '}
+                                </React.Fragment>
+                                
+                            )
+                        } else if (item.type === 'view' || item.type === 'subview') {
+                            let path = Breadcrumb.addParameterToURL(item.path, 'bc', Breadcrumb.getURLParameter('bc'));
+                            const timestamp = Date.now();
+                            path = Breadcrumb.addParameterToURL(path, 'ts', timestamp);
+                            return (
+                                <React.Fragment>
+                                    <a href={path}>{item.name}{id + 1 === breadcrumb.length ? '' : ' > '}</a>
+                                </React.Fragment>
+                            )
+                        } else {
+                            return null;
+                        }
+                    }))}
+
+                
+                </div>
+
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)}/>
                 <BlockUi tag='div' className='block-ui-div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
                     <DivContainer colClass='base-container-div'>

@@ -56,7 +56,7 @@ class Sidebar extends React.Component {
                         this.handleFilter('');
                         console.log('Initialized menu success');
 
-                        //rozwinięcie submenu jeśli potrzebne (TODO: pewnie można to jakoś lepiej zrobić)
+                        //rozwinięcie submenu przy wejściu z linka
                         const viewId = GridViewUtils.getViewIdFromURL();
                         if (!!viewId) {
                             setTimeout(() => {

@@ -26,6 +26,7 @@ import ViewDataService from '../../services/ViewDataService';
 import ViewService from '../../services/ViewService';
 import AppPrefixUtils from '../../utils/AppPrefixUtils';
 import {GridViewUtils} from '../../utils/GridViewUtils';
+import {Breadcrumb} from '../../utils/BreadcrumbUtils';
 import {ViewValidatorUtils} from '../../utils/parser/ViewValidatorUtils';
 import DataGridStore from './DataGridStore';
 //
@@ -255,6 +256,7 @@ export class GridViewContainer extends BaseContainer {
             this.viewService
                 .getSubView(viewId, recordId)
                 .then((subViewResponse) => {
+                    Breadcrumb.updateSubView(subViewResponse, recordId);
                     if (!subViewResponse.subViews || subViewResponse.subViews.length === 0) {
                         this.handleGetDetailsError('Brak podwidoków - niepoprawna konfiguracja!');
                         window.history.back();
@@ -269,7 +271,7 @@ export class GridViewContainer extends BaseContainer {
                         },
                         () => {
                             this.unblockUi();
-                            this.getViewById(elementSubViewId, viewType, subviewMode);
+                            this.getViewById(elementSubViewId, recordId, filterId, viewType, subviewMode);
                             return;
                         }
                     );
@@ -297,7 +299,12 @@ export class GridViewContainer extends BaseContainer {
                     .then((responseView) => {
                         if (this._isMounted) {
                             ViewValidatorUtils.validation(responseView);
-                            //console.log('GridViewContainer -> fetch data: ', responseView);
+                            let id = GridViewUtils.getViewIdFromURL();
+                            if (id === undefined) {
+                                id = this.props.id;
+                            }
+                            Breadcrumb.updateView(responseView.viewInfo, id, recordId);
+
                             let gridViewColumnsTmp = [];
                             let pluginsListTmp = [];
                             let documentsListTmp = [];
@@ -337,6 +344,7 @@ export class GridViewContainer extends BaseContainer {
                                     label: responseView?.batchesList[batch].label,
                                 });
                             }
+                            const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
                             for (let filter in responseView?.filtersList) {
                                 filtersListTmp.push({
                                     id: responseView?.filtersList[filter].id,
@@ -347,16 +355,15 @@ export class GridViewContainer extends BaseContainer {
                                         if (subviewMode) {
                                             console.log(
                                                 `Redirect -> Id =  ${this.state.elementId} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${e.item?.id}`
-                                            );
+                                            );                                            
                                             window.location.href = AppPrefixUtils.locationHrefUrl(
-                                                `/#/grid-view/${this.state.elementId}?recordId=${recordId}&subview=${subViewId}&filterId=${e.item?.id}`
+                                                `/#/grid-view/${this.state.elementId}?recordId=${recordId}&subview=${subViewId}&filterId=${e.item?.id}${currentBreadcrumb}`
                                             );
                                         } else {
                                             console.log(
                                                 `Redirect -> Id =  ${this.state.elementId} RecordId = ${recordId} FilterId = ${e.item?.id}`
                                             );
-                                            window.location.href = AppPrefixUtils.locationHrefUrl(
-                                                `/#/grid-view/${this.state.elementId}/?filterId=${e.item?.id}`
+                                            window.location.href = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${this.state.elementId}/?filterId=${e.item?.id}${currentBreadcrumb}`
                                             );
                                         }
                                     },
@@ -462,10 +469,6 @@ export class GridViewContainer extends BaseContainer {
         return null;
     }
 
-    //override
-    getBreadcrumbsName() {
-        return this.getViewInfoName() || 'Unnamed';
-    }
 
     //override
     getViewInfoName() {
@@ -505,6 +508,7 @@ export class GridViewContainer extends BaseContainer {
         const {elementSubViewId} = this.state;
         if (columns?.length > 0) {
             //when viewData respond a lot of data
+            const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
             columns?.forEach((column) => {
                 if (column.name === '_ROWNUMBER') {
                     //rule -> hide row with autonumber
@@ -633,7 +637,7 @@ export class GridViewContainer extends BaseContainer {
                                         title={oppSubview?.label}
                                         //rendered={oppSubview}
                                         href={AppPrefixUtils.locationHrefUrl(
-                                            `/#/grid-view/${viewId}?recordId=${recordId}`
+                                            `/#/grid-view/${viewId}?recordId=${recordId}${currentBreadcrumb}`
                                         )}
                                         rendered={showSubviewButton}
                                     />
@@ -883,16 +887,17 @@ export class GridViewContainer extends BaseContainer {
                             const viewInfoId = this.state.subView.viewInfo?.id;
                             const subViewId = subView.id;
                             const recordId = this.state.elementRecordId;
+                            const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();                            
                             return (
                                 <div className='float-left'>
                                     <ShortcutButton
                                         id={`subview_${index}`}
                                         className='mt-2 mb-2 mr-2'
                                         label={subView.label}
-                                        active={subView.id == elementSubViewId}
+                                        active={parseInt(subView.id) === parseInt(elementSubViewId)}
                                         linkViewMode={true}
                                         href={AppPrefixUtils.locationHrefUrl(
-                                            `/#/grid-view/${viewInfoId}/?recordId=${recordId}&subview=${subViewId}`
+                                            `/#/grid-view/${viewInfoId}/?recordId=${recordId}&subview=${subViewId}${currentBreadcrumb}`
                                         )}
                                     />
                                 </div>
@@ -976,7 +981,7 @@ export class GridViewContainer extends BaseContainer {
                                         const viewId = elementSubViewId ? elementSubViewId : elementId;
                                         this.viewService
                                             .getSubView(viewId, rowData.ID)
-                                            .then((subViewResponse) => {
+                                            .then((subViewResponse) => {                                                
                                                 this.setState({subView: subViewResponse}, () => {
                                                     let viewInfoId = this.state.subView.viewInfo?.id;
                                                     let subViewId = this.state.subView.subViews[0]?.id;
