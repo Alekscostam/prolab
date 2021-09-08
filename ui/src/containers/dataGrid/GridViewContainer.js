@@ -153,7 +153,7 @@ export class GridViewContainer extends BaseContainer {
         console.log(
             `componentDidUpdate: Read from state -> Id =  ${prevProps.id} ${this.state.elementId} SubViewId = ${this.state.elementSubViewId} RecordId = ${this.state.elementRecordId} FilterId = ${this.state.elementFilterId}`
         );
-        if (prevProps.id !== this.props.id || this.state.elementSubViewId !== subViewId) {
+        if (!this.equalNumbers(prevProps.id, id) || !this.equalNumbers(this.state.elementSubViewId, subViewId)) {
             gridViewType = ['gridView'];
         }
         if (
@@ -251,7 +251,7 @@ export class GridViewContainer extends BaseContainer {
     }
 
     downloadData(viewId, recordId, subviewId, filterId, viewType) {
-        console.log(`GridViewContainer::downloadData: viewId=${viewId}, recordId=${recordId}, subViewId=${subviewId}`);
+        console.log(`GridViewContainer::downloadData: viewId=${viewId}, recordId=${recordId}, subViewId=${subviewId}, viewType=${viewType}`);
         let subviewMode = !!recordId && !!viewId;
         if (subviewMode) {
             this.viewService
