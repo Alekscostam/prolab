@@ -13,13 +13,13 @@ export class Breadcrumb {
     static updateView(viewInfo, viewId, recordId) {
         console.log(`*Breadcrumb::updateView, viewId=${viewId}, recordId=${recordId}, viewInfo`, viewInfo);
         let currentUrl = window.document.URL.toString()
-        currentUrl = currentUrl.substr(currentUrl.indexOf('/#'));
+        currentUrl = AppPrefixUtils.locationHrefUrl(currentUrl.substr(currentUrl.indexOf('/#')));
         let breadcrumb = this.readFromUrl();
         let removeMode = false;
         let tmp = [];
         breadcrumb.forEach(i => {
             let p1 = i.path ? UrlUtils.deleteParameterFromURL(i.path, BREADCRUMB_URL_PARAM_NAME) : null;
-            p1 = p1 ? UrlUtils.deleteParameterFromURL(p1, 'ts') : null;
+            p1 = p1 ? UrlUtils.deleteParameterFromURL(p1, TIMESTAMP_URL_PARAM_NAME) : null;
             let p2 = UrlUtils.deleteParameterFromURL(currentUrl, BREADCRUMB_URL_PARAM_NAME);
             p2 = UrlUtils.deleteParameterFromURL(p2, TIMESTAMP_URL_PARAM_NAME);
 
