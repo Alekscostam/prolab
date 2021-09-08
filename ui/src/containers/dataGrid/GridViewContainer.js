@@ -25,6 +25,7 @@ import ShortcutsButton from '../../components/ShortcutsButton';
 import ViewDataService from '../../services/ViewDataService';
 import ViewService from '../../services/ViewService';
 import AppPrefixUtils from '../../utils/AppPrefixUtils';
+import UrlUtils from '../../utils/UrlUtils';
 import {GridViewUtils} from '../../utils/GridViewUtils';
 import {Breadcrumb} from '../../utils/BreadcrumbUtils';
 import {ViewValidatorUtils} from '../../utils/parser/ViewValidatorUtils';
@@ -75,11 +76,11 @@ export class GridViewContainer extends BaseContainer {
         console.log('**** GridViewContainer -> componentDidMount');
         console.log(window.location.pathname);
         this._isMounted = true;
-        let subViewId = GridViewUtils.getURLParameters('subview');
-        let recordId = GridViewUtils.getURLParameters('recordId');
-        let filterId = GridViewUtils.getURLParameters('filterId');
+        let subViewId = UrlUtils.getURLParameter('subview');
+        let recordId = UrlUtils.getURLParameter('recordId');
+        let filterId = UrlUtils.getURLParameter('filterId');
         //const id = this.props.id;
-        let id = GridViewUtils.getViewIdFromURL();
+        let id = UrlUtils.getViewIdFromURL();
         if (id === undefined) {
             id = this.props.id;
         }
@@ -134,13 +135,13 @@ export class GridViewContainer extends BaseContainer {
             prevProps.id,
             this.props.id
         );
-        let id = GridViewUtils.getViewIdFromURL();
+        let id = UrlUtils.getViewIdFromURL();
         if (id === undefined) {
             id = this.props.id;
         }
-        const subViewId = GridViewUtils.getURLParameters('subview');
-        const recordId = GridViewUtils.getURLParameters('recordId');
-        const filterId = GridViewUtils.getURLParameters('filterId');
+        const subViewId = UrlUtils.getURLParameter('subview');
+        const recordId = UrlUtils.getURLParameter('recordId');
+        const filterId = UrlUtils.getURLParameter('filterId');
 
         const firstSubViewMode = !!recordId && !!id && !!!subViewId;
         console.log('**** GridViewContainer -> componentDidUpdate: firstSubViewMode=' + firstSubViewMode);
@@ -299,7 +300,7 @@ export class GridViewContainer extends BaseContainer {
                     .then((responseView) => {
                         if (this._isMounted) {
                             ViewValidatorUtils.validation(responseView);
-                            let id = GridViewUtils.getViewIdFromURL();
+                            let id = UrlUtils.getViewIdFromURL();
                             if (id === undefined) {
                                 id = this.props.id;
                             }
@@ -350,8 +351,8 @@ export class GridViewContainer extends BaseContainer {
                                     id: responseView?.filtersList[filter].id,
                                     label: responseView?.filtersList[filter].label,
                                     command: (e) => {
-                                        let subViewId = GridViewUtils.getURLParameters('subview');
-                                        let recordId = GridViewUtils.getURLParameters('recordId');
+                                        let subViewId = UrlUtils.getURLParameter('subview');
+                                        let recordId = UrlUtils.getURLParameter('recordId');
                                         if (subviewMode) {
                                             console.log(
                                                 `Redirect -> Id =  ${this.state.elementId} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${e.item?.id}`

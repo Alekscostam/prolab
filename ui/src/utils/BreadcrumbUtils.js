@@ -1,29 +1,37 @@
+import React from 'react';
 import AppPrefixUtils from './AppPrefixUtils';
+import UrlUtils from './UrlUtils';
+
 
 const BREADCRUMB_URL_PARAM_NAME  = 'bc'; 
+const TIMESTAMP_URL_PARAM_NAME = "ts";
 
 export class Breadcrumb {
 
     
 
     static updateView(viewInfo, viewId, recordId) {
-        console.log(`Breadcrumb::updateView, viewId=${viewId}, recordId=${recordId}, viewInfo`, viewInfo);
+        console.log(`*Breadcrumb::updateView, viewId=${viewId}, recordId=${recordId}, viewInfo`, viewInfo);
         let currentUrl = window.document.URL.toString()
         currentUrl = currentUrl.substr(currentUrl.indexOf('/#'));
         let breadcrumb = this.readFromUrl();
         let removeMode = false;
         let tmp = [];
         breadcrumb.forEach(i => {
-            let p1 = i.path ? this.deleteParameterFromURL(i.path, BREADCRUMB_URL_PARAM_NAME) : null;
-            p1 = p1 ? this.deleteParameterFromURL(p1, 'ts') : null;
-            let p2 = this.deleteParameterFromURL(currentUrl, BREADCRUMB_URL_PARAM_NAME);
-            p2 = this.deleteParameterFromURL(p2, 'ts');
+            let p1 = i.path ? UrlUtils.deleteParameterFromURL(i.path, BREADCRUMB_URL_PARAM_NAME) : null;
+            p1 = p1 ? UrlUtils.deleteParameterFromURL(p1, 'ts') : null;
+            let p2 = UrlUtils.deleteParameterFromURL(currentUrl, BREADCRUMB_URL_PARAM_NAME);
+            p2 = UrlUtils.deleteParameterFromURL(p2, TIMESTAMP_URL_PARAM_NAME);
 
             if (p1 === p2) {
                 tmp.push(i);
                 removeMode = true;
             }
+            if (removeMode) {
+                console.log('Breadcrumb::updateView: remove', i);
+            }
             if (!removeMode) {
+                console.log('Breadcrumb::updateView: assign from previous view', i);
                 tmp.push(i);    
             }
         });
@@ -41,19 +49,20 @@ export class Breadcrumb {
                 }
                 let path = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewId}`);
                 if (recordId) {
-                    path = this.addParameterToURL(path, 'recordId', recordId);
+                    path = UrlUtils.addParameterToURL(path, 'recordId', recordId);
                 }
                 if (parseInt(viewId) !== parseInt(viewInfo.id)) {
-                    path = this.addParameterToURL(path, 'subview', viewInfo.id);
+                    path = UrlUtils.addParameterToURL(path, 'subview', viewInfo.id);
                 }
                 breadcrumb.push({name: viewInfo.name, id: viewInfo.id, type: 'view', path});
             }
         }
         console.log('Breadcrumb::updateView, breadcrumb', breadcrumb);
-        const newUrl = this.addParameterToURL(window.document.URL.toString(), BREADCRUMB_URL_PARAM_NAME, this.utf8_to_b64(JSON.stringify(breadcrumb)));
+        const newUrl = UrlUtils.addParameterToURL(window.document.URL.toString(), BREADCRUMB_URL_PARAM_NAME, this.utf8_to_b64(JSON.stringify(breadcrumb)));
         console.log('Breadcrumb::updateView, newUrl', newUrl);
         window.history.replaceState('', '', newUrl);
     }
+
     static updateSubView(subViewResponse, subViewId) {
         console.log('Breadcrumb::updateSubView, subViewId=' + subViewId + ', subViewResponse', subViewResponse);        
         let breadcrumb = this.readFromUrl();
@@ -73,13 +82,13 @@ export class Breadcrumb {
             }            
         }
         console.log('Breadcrumb::updateSubView, breadcrumb', breadcrumb);
-        const newUrl = this.addParameterToURL(window.document.URL.toString(), BREADCRUMB_URL_PARAM_NAME, this.utf8_to_b64(JSON.stringify(breadcrumb)));        
+        const newUrl = UrlUtils.addParameterToURL(window.document.URL.toString(), BREADCRUMB_URL_PARAM_NAME, this.utf8_to_b64(JSON.stringify(breadcrumb)));        
         console.log('Breadcrumb::updateSubView, newUrl', newUrl);
         window.history.replaceState('', '', newUrl);
     }
 
     static readFromUrl() {
-        const encodedValue = this.getURLParameter(BREADCRUMB_URL_PARAM_NAME);
+        const encodedValue = UrlUtils.getURLParameter(BREADCRUMB_URL_PARAM_NAME);
         if (encodedValue) {
             try {
                 const breadcrumb = JSON.parse(this.b64_to_utf8(encodedValue));
@@ -93,9 +102,41 @@ export class Breadcrumb {
         return [];
     }
 
-    static currentBreadcrumbAsUrlParam() {
+    static render() {
+        const breadcrumb = this.readFromUrl();
+        return (
+            <React.Fragment>
+                <div className="breadcrumb-panel breadcrumb-link">
+                    <a href="/#/start">Strona główna</a>{' > '}
+                    {breadcrumb.map(((item, id) => {
+                        if (item.type === 'menu') {
+                            return (
+                                <React.Fragment>
+                                    <span>{item.name}{' > '}</span>
+                                </React.Fragment>
+                                
+                            )
+                        } else if (item.type === 'view' || item.type === 'subview') {
+                            let path = UrlUtils.addParameterToURL(item.path, BREADCRUMB_URL_PARAM_NAME, UrlUtils.getURLParameter(BREADCRUMB_URL_PARAM_NAME));
+                            const timestamp = Date.now();
+                            path = UrlUtils.addParameterToURL(path, TIMESTAMP_URL_PARAM_NAME, timestamp);
+                            return (
+                                <React.Fragment>
+                                    <a href={path}>{item.name}</a>
+                                    <span>{id + 1 === breadcrumb.length ? '' : ' > '}</span>
+                                </React.Fragment>
+                            )
+                        } else {
+                            return null;
+                        }
+                    }))}                
+               </div>
+            </React.Fragment>
+        );
+    }
 
-        const currentBredcrump = this.getURLParameter(BREADCRUMB_URL_PARAM_NAME);
+    static currentBreadcrumbAsUrlParam() {
+        const currentBredcrump = UrlUtils.getURLParameter(BREADCRUMB_URL_PARAM_NAME);
         if (currentBredcrump) {
             return `&${BREADCRUMB_URL_PARAM_NAME}=${currentBredcrump}`;
         }
@@ -110,90 +151,5 @@ export class Breadcrumb {
     static b64_to_utf8( str ) {
         return decodeURIComponent(escape(window.atob( str )));
     }
-
-
-    static getURLParameter(paramName) {
-        let sURL = window.document.URL.toString();
-        if (sURL.indexOf("?") > 0) {
-            let arrParams = sURL.split("?");
-            let arrURLParams = arrParams[1].split("&");
-            let arrParamNames = new Array(arrURLParams.length);
-            let arrParamValues = new Array(arrURLParams.length);
-            let i = 0;
-            for (i = 0; i < arrURLParams.length; i++) {
-                let sParam = arrURLParams[i].split("=");
-                arrParamNames[i] = sParam[0];
-                if (sParam[1] !== "")
-                    arrParamValues[i] = unescape(sParam[1]);
-                else
-                    arrParamValues[i] = null;
-            }
-            for (i = 0; i < arrURLParams.length; i++) {
-                if (arrParamNames[i] === paramName) {
-                    //alert("Parameter:" + arrParamValues[i]);
-                    return arrParamValues[i];
-                }
-            }
-            return null;
-        }
-    }
-
-    static deleteParameterFromURL(url, paramName) {
-        let newUrl = url;
-        const id1 = url.indexOf(`?${paramName}=`);
-        const id2 = url.indexOf(`&${paramName}=`);
-        console.log(`id1=${id1}; id2=${id2}`);
-        if ( id1 > 0  || id2 > 0) {				
-            let start;
-            if (id1 > 0) {
-                start = id1;
-            } else {
-                start = id2;
-            }
-            // console.log('start=' + start);
-            let end = url.indexOf('&', start + 1);
-            // console.log('end=' + end);
-            newUrl = url.substr(0, start);
-            if (end > 0) {
-                newUrl += url.substr(end);
-            }
-
-        }
-        return newUrl;
-    }
-
-    static addParameterToURL(url, paramName, paramValue) {
-        let updateMode = false;
-        const id1 = url.indexOf(`?${paramName}=`);
-        const id2 = url.indexOf(`&${paramName}=`);
-        if ( id1 > 0  || id2 > 0) {
-            updateMode = true;
-        }
-        let newUrl;
-        if (updateMode) {
-            let start;
-            if (id1 > 0) {
-                start = id1;
-            } else {
-                start = id2;
-            }
-            let end = url.indexOf('&', start + 1);
-            newUrl = url.substr(0, start + 1) + paramName + '=' + paramValue;
-            if (end > 0) {
-                newUrl += url.substr(end);
-            }
-
-        } else {
-            newUrl = url;
-            if (url.indexOf('?') > 0) {
-                newUrl += '&';
-            } else {
-                newUrl += '?';
-            }
-            newUrl += `${paramName}=${paramValue}`;
-        }    
-        return newUrl;
-    }
-    
 
 }

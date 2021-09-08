@@ -1075,37 +1075,9 @@ class BaseContainer extends React.Component {
     }
 
     render() {
-        const breadcrumb = Breadcrumb.readFromUrl();        
         return (
             <React.Fragment>
-                {/* <BreadcrumbsItem to='/setting-list'>{this.getBreadcrumbsName()}</BreadcrumbsItem> */}
-                <div className="breadcrumb-panel breadcrumb-link">
-                    <a href="/#/start">Strona główna</a>{' > '}
-                    {breadcrumb.map(((item, id) => {
-                        if (item.type === 'menu') {
-                            return (
-                                <React.Fragment>
-                                    {item.name}{' > '}
-                                </React.Fragment>
-                                
-                            )
-                        } else if (item.type === 'view' || item.type === 'subview') {
-                            let path = Breadcrumb.addParameterToURL(item.path, 'bc', Breadcrumb.getURLParameter('bc'));
-                            const timestamp = Date.now();
-                            path = Breadcrumb.addParameterToURL(path, 'ts', timestamp);
-                            return (
-                                <React.Fragment>
-                                    <a href={path}>{item.name}{id + 1 === breadcrumb.length ? '' : ' > '}</a>
-                                </React.Fragment>
-                            )
-                        } else {
-                            return null;
-                        }
-                    }))}
-
-                
-                </div>
-
+                {Breadcrumb.render()}
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)}/>
                 <BlockUi tag='div' className='block-ui-div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
                     <DivContainer colClass='base-container-div'>

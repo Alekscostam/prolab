@@ -18,7 +18,7 @@ import {InputText} from 'primereact/inputtext';
 import ActionButton from "../../components/ActionButton";
 import VersionService from "../../services/VersionService";
 import AppPrefixUtils from '../../utils/AppPrefixUtils';
-import { GridViewUtils } from '../../utils/GridViewUtils';
+import UrlUtils from '../../utils/UrlUtils';
 
 class Sidebar extends React.Component {
     constructor(props) {
@@ -57,7 +57,7 @@ class Sidebar extends React.Component {
                         console.log('Initialized menu success');
 
                         //rozwinięcie submenu przy wejściu z linka
-                        const viewId = GridViewUtils.getViewIdFromURL();
+                        const viewId = UrlUtils.getViewIdFromURL();
                         if (!!viewId) {
                             setTimeout(() => {
                                 const menuItem = $('#menu_item_id_' + viewId);
