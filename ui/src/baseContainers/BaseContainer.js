@@ -11,11 +11,11 @@ import AuthService from '../services/AuthService';
 import $ from 'jquery';
 import Constants from '../utils/constants';
 import {readCookieGlobal, removeCookieGlobal, saveCookieGlobal} from '../utils/cookie';
-import {BreadcrumbsItem} from 'react-breadcrumbs-dynamic';
 import BlockUi from '../components/waitPanel/BlockUi';
 import {Toast} from 'primereact/toast';
 import {Message} from 'primereact/message';
 import AppPrefixUtils from "../utils/AppPrefixUtils";
+import { Breadcrumb } from '../utils/BreadcrumbUtils';
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -1027,10 +1027,6 @@ class BaseContainer extends React.Component {
         }
     }
 
-    unblockUi() {
-        this.setState({blocking: false});
-    }
-
     unblockUi(callBack) {
         this.setState({blocking: false}, () =>
             callBack !== undefined && callBack instanceof Function ? callBack() : null
@@ -1053,12 +1049,9 @@ class BaseContainer extends React.Component {
         );
     }
 
-    getBreadcrumbsName() {
-        return 'Unnamed';
-    }
 
     getViewInfoName() {
-        return 'Unnamed';
+        return '';
     }
 
     renderContent() {
@@ -1084,11 +1077,11 @@ class BaseContainer extends React.Component {
     render() {
         return (
             <React.Fragment>
-                <BreadcrumbsItem to='/setting-list'>{this.getBreadcrumbsName()}</BreadcrumbsItem>
+                {Breadcrumb.render()}
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)}/>
-                <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
-                    <DivContainer colClass=''>
-                        <DivContainer colClass='row'>
+                <BlockUi tag='div' className='block-ui-div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
+                    <DivContainer colClass='base-container-div'>
+                        <DivContainer colClass='row base-container-header'>
                             <DivContainer id='header-left' colClass='col-11'>
                                 <div className='font-medium mb-4'>{this.getViewInfoName()}</div>
                                 {this.state.loading === false ? this.renderHeaderLeft() : null}
@@ -1100,12 +1093,12 @@ class BaseContainer extends React.Component {
                                 {this.state.loading === false ? this.renderHeaderContent() : null}
                             </DivContainer>
                         </DivContainer>
-                        <DivContainer colClass='row'>
+                        <DivContainer colClass='row base-container-head-panel'>
                             <DivContainer id='header-panel' colClass='col-12'>
                                 {this.state.loading === false ? this.renderHeadPanel() : null}
                             </DivContainer>
                         </DivContainer>
-                        <DivContainer colClass='row'>
+                        <DivContainer colClass='row base-container-content'>
                             <DivContainer id='content' colClass='col-12'>
                                 {this.state.loading === false ? this.renderContent() : null}
                             </DivContainer>

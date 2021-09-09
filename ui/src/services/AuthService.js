@@ -182,7 +182,7 @@ export default class AuthService {
 
     isTokenExpiredDate() {
         try {
-            const expirationTokenDateStr = sessionStorage.getItem('expiration_token');
+            const expirationTokenDateStr = localStorage.getItem('expiration_token');
             if (expirationTokenDateStr && new Date(  expirationTokenDateStr) < Date.now() / 1000) {
                 // Checking if token is expired. N
                 return true;
@@ -194,32 +194,32 @@ export default class AuthService {
 
     setToken(idToken, expirationToken, loggedUser) {
         // Saves user token to localStorage
-        sessionStorage.setItem('id_token', idToken);
-        sessionStorage.setItem('expiration_token', expirationToken);
-        sessionStorage.setItem('logged_user', JSON.stringify(loggedUser));
+        localStorage.setItem('id_token', idToken);
+        localStorage.setItem('expiration_token', expirationToken);
+        localStorage.setItem('logged_user', JSON.stringify(loggedUser));
     }
 
     getToken() {
         // Retrieves the user token from localStorage
-        return sessionStorage.getItem('id_token');
+        return localStorage.getItem('id_token');
     }
 
     getTokenExpirationDate() {
         // Retrieves the user token from localStorage
-        return sessionStorage.getItem('expiration_token');
+        return localStorage.getItem('expiration_token');
     }
 
     logout() {
         // Clear user token and profile data from localStorage
-        sessionStorage.removeItem('id_token')
-        sessionStorage.removeItem('expiration_token')
-        sessionStorage.removeItem('logged_user')
+        localStorage.removeItem('id_token')
+        localStorage.removeItem('expiration_token')
+        localStorage.removeItem('logged_user')
     }
 
     //TODO
     getProfile() {
         try {
-            return sessionStorage.getItem('logged_user');
+            return localStorage.getItem('logged_user');
         } catch (err) {
             return {};
         }

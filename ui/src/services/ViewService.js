@@ -14,10 +14,11 @@ export default class ViewService extends BaseService {
     }
 
     getView(viewId, viewType) {
-        if (!viewType) {
-            viewType = 'gridView';
+        let viewTypeParam='';
+        if (!!viewType) {
+            viewTypeParam = `?viewType=${viewType}`;
         }
-        return this.fetch(`${this.domain}/${this.path}/${viewId}?viewType=${viewType}`, {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}${viewTypeParam}`, {
             method: 'GET',
         }).catch((err) => {
             throw err;

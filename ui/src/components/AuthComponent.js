@@ -62,9 +62,8 @@ class AuthComponent extends React.Component {
         if (true) {
             return (
                 <React.Fragment>
-                    <BreadcrumbsItem icon='account-box' to='/start' className='p-link'> Strona
-                        główna </BreadcrumbsItem>
-                    <BreadcrumbsComponent/>
+                    {/* <BreadcrumbsItem to='/start' className='p-link'> Strona główna </BreadcrumbsItem>                     */}
+                    {/* <BreadcrumbsComponent/> */}
                     {this.props.children}
                 </React.Fragment>
             );

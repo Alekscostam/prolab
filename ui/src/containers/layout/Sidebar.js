@@ -5,9 +5,9 @@ import $ from 'jquery';
 import {Button} from 'primereact/button';
 import * as PropTypes from 'prop-types';
 import React from 'react';
-import {FaAngleDoubleRight, FaAngleRight, FaBars, FaSignOutAlt, FaUser} from 'react-icons/fa';
+import {FaAngleDoubleRight, FaAngleRight, FaBars, FaSignOutAlt} from 'react-icons/fa';
 import {Menu, MenuItem, ProSidebar, SidebarContent, SidebarFooter, SidebarHeader, SubMenu} from 'react-pro-sidebar';
-import {Link, withRouter} from 'react-router-dom';
+import {withRouter} from 'react-router-dom';
 import packageJson from '../../../package.json';
 import BlockUi from '../../components/waitPanel/BlockUi';
 import MenuService from '../../services/MenuService';
@@ -17,7 +17,8 @@ import {MenuValidatorUtils} from '../../utils/parser/MenuValidatorUtils';
 import {InputText} from 'primereact/inputtext';
 import ActionButton from "../../components/ActionButton";
 import VersionService from "../../services/VersionService";
-import DivContainer from "../../components/DivContainer";
+import AppPrefixUtils from '../../utils/AppPrefixUtils';
+import UrlUtils from '../../utils/UrlUtils';
 import Avatar from "../../components/Avatar";
 
 class Sidebar extends React.Component {
@@ -31,7 +32,9 @@ class Sidebar extends React.Component {
             collapsed: false,
             toggled: false,
             versionAPI: null,
+            menuState: [],
         };
+        this.doNotUpdate = false;
         this.menuService = new MenuService();
         this.viewService = new ViewService();
         this.versionService = new VersionService();
@@ -53,6 +56,19 @@ class Sidebar extends React.Component {
                     () => {
                         this.handleFilter('');
                         console.log('Initialized menu success');
+
+                        //rozwinięcie submenu przy wejściu z linka
+                        const viewId = UrlUtils.getViewIdFromURL();
+                        if (!!viewId) {
+                            setTimeout(() => {
+                                const menuItem = $('#menu_item_id_' + viewId);
+                                const subMenuItem = menuItem.closest('div').parent();
+                                subMenuItem.removeClass('closed');
+                                subMenuItem.height('auto');
+                                subMenuItem.parent().find('div').first().trigger('click');
+                            }, 10);
+
+                        }
                     }
                 );
             })
@@ -81,13 +97,20 @@ class Sidebar extends React.Component {
     //very important !!!
     shouldComponentUpdate(nextProps, nextState, nextContext) {
         const history = this.props.history;
-        return (
+        if (this.doNotUpdate === true) {
+            this.doNotUpdate = false;
+            return false;
+        }
+
+        const result = (
             history.action !== 'PUSH' ||
             (history.action !== 'PUSH' && nextProps.location.pathname == '/start') ||
             this.state.collapsed !== nextState.collapsed ||
             this.state.toggled !== nextState.toggled ||
             this.state.filterValue !== nextState.filterValue
         );
+        //alert('shouldComponentUpdate: ' + result);
+        return result;
     }
 
     handleLogoutUser() {
@@ -157,6 +180,12 @@ class Sidebar extends React.Component {
     }
 
     render() {
+        let {authService} = this.props;
+        if (!authService.loggedIn()) {
+            const logoutUrl = AppPrefixUtils.locationHrefUrl('/#/');
+            window.location.href = logoutUrl;
+            return null;
+        }
         const {collapsed, filterValue} = this.state;
         $(document).on('click', '.pro-inner-item', function (e) {
             $('.pro-inner-item').each(function (index) {
@@ -170,18 +199,14 @@ class Sidebar extends React.Component {
             $(this).parents('.pro-menu-item').addClass('active');
         });
         /*------------------------  PROPS  ---------------------------*/
-        let {authService} = this.props;
+
         /*------------------------  PROPS  ---------------------------*/
         const profile = authService.getProfile();
         const userName = JSON.parse(profile).name;
         const avatar = JSON.parse(profile).avatar;
-        const initials = userName.match(/(\b\S)?/g).join("").match(/(^\S|\S$)?/g).join("").toUpperCase();
         const dynamicMenuJSON = !authService.loggedIn() ? [] : this.state.filteredMenu;
         //TODO pogadać o rolach
         //const role = authService.getProfile().role;
-        const nav = (e, item) => {
-            this.props.history.push(`/grid-view/${item.id}`);
-        };
         const renderDynamicMenu = (items) => {
             return (
                 <Menu key='menu' iconShape='circle' popperArrow='false'>
@@ -198,10 +223,15 @@ class Sidebar extends React.Component {
                                             <Image alt={item.name} base64={item.icon}/>
                                         )
                                     }
-                                    onClick={(e) => nav(e, item)}
+
+                                    onClick={() => {
+                                        this.doNotUpdate = true;
+                                    }}
                                 >
                                     <div className='menu_arrow_active'/>
-                                    <div className='title'>{item?.name}</div>
+                                    <a href={AppPrefixUtils.locationHrefUrl(`/#/grid-view/${item.id}`)} className='title' style={{fontSize: '14px', fontWeight: 'normal'}}>
+                                        <div className='title'>{item?.name}</div>
+                                    </a>
                                 </MenuItem>
                                 {item?.sub && renderDynamicMenu(item?.sub)}
                             </li>
