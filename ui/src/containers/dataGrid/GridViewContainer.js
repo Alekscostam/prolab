@@ -1,7 +1,7 @@
 import ButtonGroup from 'devextreme-react/button-group';
 import DataGrid, {
     Column,
-    Editing,
+    Editing, FilterPanel, FilterRow,
     Grouping,
     GroupPanel,
     HeaderFilter,
@@ -1118,7 +1118,8 @@ export class GridViewContainer extends BaseContainer {
                                     paging={true}
                                 />
 
-                                <HeaderFilter visible={true} allowSearch={true} />
+                                <FilterRow visible={true}/>
+                                <HeaderFilter visible={true} allowSearch={true}/>
 
                                 <Grouping autoExpandAll={groupExpandAll} />
                                 <GroupPanel visible={showGroupPanel} />
