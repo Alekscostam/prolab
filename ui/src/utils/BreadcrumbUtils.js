@@ -17,7 +17,7 @@ export class Breadcrumb {
         let breadcrumb = this.readFromUrl();
         let removeMode = false;
         let tmp = [];
-        breadcrumb.forEach(i => {
+        breadcrumb.forEach((i, idx) => {
             let p1 = i.path ? UrlUtils.deleteParameterFromURL(i.path, BREADCRUMB_URL_PARAM_NAME) : null;
             p1 = p1 ? UrlUtils.deleteParameterFromURL(p1, TIMESTAMP_URL_PARAM_NAME) : null;
             let p2 = UrlUtils.deleteParameterFromURL(currentUrl, BREADCRUMB_URL_PARAM_NAME);
@@ -30,7 +30,7 @@ export class Breadcrumb {
             if (removeMode) {
                 console.log('Breadcrumb::updateView: remove', i);
             }
-            if (!removeMode) {
+            if (!removeMode && idx !== breadcrumb.length - 1) {
                 console.log('Breadcrumb::updateView: assign from previous view', i);
                 tmp.push(i);    
             }
@@ -47,13 +47,18 @@ export class Breadcrumb {
                 if (last && last.type === 'view') {
                     breadcrumb.pop();
                 }
-                let path = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewId}`);
-                if (recordId) {
-                    path = UrlUtils.addParameterToURL(path, 'recordId', recordId);
-                }
-                if (parseInt(viewId) !== parseInt(viewInfo.id)) {
-                    path = UrlUtils.addParameterToURL(path, 'subview', viewInfo.id);
-                }
+                let path = window.document.URL.toString();
+                const id = path.indexOf('/#');
+                path = AppPrefixUtils.locationHrefUrl(path.substring(id > 0 ? id : 0));    
+                path = UrlUtils.deleteParameterFromURL(path, TIMESTAMP_URL_PARAM_NAME);
+                path = UrlUtils.deleteParameterFromURL(path, BREADCRUMB_URL_PARAM_NAME);
+                // let path = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewId}`);
+                // if (recordId) {
+                //     path = UrlUtils.addParameterToURL(path, 'recordId', recordId);
+                // }
+                // if (parseInt(viewId) !== parseInt(viewInfo.id)) {
+                //     path = UrlUtils.addParameterToURL(path, 'subview', viewInfo.id);
+                // }
                 breadcrumb.push({name: viewInfo.name, id: viewInfo.id, type: 'view', path});
             }
         }
@@ -118,6 +123,7 @@ export class Breadcrumb {
                             )
                         } else if (item.type === 'view' || item.type === 'subview') {
                             let path = UrlUtils.addParameterToURL(item.path, BREADCRUMB_URL_PARAM_NAME, UrlUtils.getURLParameter(BREADCRUMB_URL_PARAM_NAME));
+                            //let path = item.path;
                             const timestamp = Date.now();
                             path = UrlUtils.addParameterToURL(path, TIMESTAMP_URL_PARAM_NAME, timestamp);
                             return (

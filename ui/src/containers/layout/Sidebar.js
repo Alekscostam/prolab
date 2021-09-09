@@ -179,7 +179,7 @@ class Sidebar extends React.Component {
     }
 
     render() {
-        let {authService} = this.props;
+        let {authService} = this.props;        
         if (!authService.loggedIn()) {
             const logoutUrl = AppPrefixUtils.locationHrefUrl('/#/');
             window.location.href = logoutUrl;
@@ -205,7 +205,8 @@ class Sidebar extends React.Component {
         //TODO pogadać o rolach
         //const role = authService.getProfile().role;
         const renderDynamicMenu = (items) => {
-            return (
+            const timestamp = Date.now();
+            return (                
                 <Menu key='menu' iconShape='circle' popperArrow='false'>
                     {items?.map((item) => {
                         return item.type === 'View' ? (
@@ -226,7 +227,11 @@ class Sidebar extends React.Component {
                                     }}
                                 >
                                     <div className='menu_arrow_active'/>
-                                    <a href={AppPrefixUtils.locationHrefUrl(`/#/grid-view/${item.id}`)} className='title' style={{fontSize: '14px', fontWeight: 'normal'}}>                                        
+                                    <a href={AppPrefixUtils.locationHrefUrl(`/#/grid-view/${item.id}?force=${timestamp}`)} className='title' style={{fontSize: '14px', fontWeight: 'normal'}}
+                                    onClick={(e) => {
+                                        let href = e.target.href;                                        
+                                        e.target.href = UrlUtils.addParameterToURL(href, 'force', Date.now());
+                                    }}>
                                         <div className='title'>{item?.name}</div>
                                     </a>
                                 </MenuItem>
