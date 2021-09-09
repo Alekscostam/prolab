@@ -17,6 +17,8 @@ import {MenuValidatorUtils} from '../../utils/parser/MenuValidatorUtils';
 import {InputText} from 'primereact/inputtext';
 import ActionButton from "../../components/ActionButton";
 import VersionService from "../../services/VersionService";
+import DivContainer from "../../components/DivContainer";
+import Avatar from "../../components/Avatar";
 
 class Sidebar extends React.Component {
     constructor(props) {
@@ -170,7 +172,10 @@ class Sidebar extends React.Component {
         /*------------------------  PROPS  ---------------------------*/
         let {authService} = this.props;
         /*------------------------  PROPS  ---------------------------*/
-        const userName = JSON.parse(authService.getProfile()).name;
+        const profile = authService.getProfile();
+        const userName = JSON.parse(profile).name;
+        const avatar = JSON.parse(profile).avatar;
+        const initials = userName.match(/(\b\S)?/g).join("").match(/(^\S|\S$)?/g).join("").toUpperCase();
         const dynamicMenuJSON = !authService.loggedIn() ? [] : this.state.filteredMenu;
         //TODO pogadać o rolach
         //const role = authService.getProfile().role;
@@ -227,6 +232,7 @@ class Sidebar extends React.Component {
                 </SidebarContent>
             );
         };
+
         return !authService.loggedIn() ? null : (
             <React.Fragment>
                 <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
@@ -324,32 +330,24 @@ class Sidebar extends React.Component {
                         <DynamicMenu id='dynamic-menu' key='dynamic-menu-key' data={dynamicMenuJSON}/>
 
                         <SidebarFooter id={'menu-footer'} style={{textAlign: 'center'}}>
-                            <Menu iconShape='circle'>
-                                <MenuItem icon={<FaUser/>}>
-                                    <div style={{textAlign: 'left'}}>
-                                        {userName}
-                                    </div>
-                                    <Link to='/manage-account'/>
-                                </MenuItem>
-                            </Menu>
-                            <div
-                                className='sidebar-btn-wrapper'
-                                style={{
-                                    padding: '5px 24px',
-                                }}
-                            >
-                                <div
-                                    onClick={this.handleLogoutUser}
-                                    className='sidebar-btn'
-                                    rel='noopener noreferrer'
-                                    style={{textAlign: 'center'}}
-                                >
+                            <div id={'user-credentials'} className={'col-12'}>
+                                <div className='row mt-3 mb-2'>
+                                    <Avatar base64={avatar} userName={userName} collapsed={collapsed}/>
+                                </div>
+                            </div>
+                            <div id={'logout_button'} className='sidebar-btn-wrapper' style={{padding: '5px 24px'}}>
+                                <div onClick={this.handleLogoutUser}
+                                     className='sidebar-btn'
+                                     rel='noopener noreferrer'
+                                     style={{textAlign: 'center'}}>
                                     <FaSignOutAlt/>
                                     <span>Wyloguj</span>
                                 </div>
                             </div>
+                            <div id={'version'} className={'to-right'}
+                                 style={{marginRight: '5px'}}>ver:{packageJson.version} api:{this.state.versionAPI}</div>
                         </SidebarFooter>
-                        <div id={'version'} className={'to-right'} style={{marginRight: '5px'}}>ver: {packageJson.version} api: {this.state.versionAPI}</div>
+
                     </ProSidebar>
                 </BlockUi>
             </React.Fragment>
