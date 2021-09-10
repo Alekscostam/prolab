@@ -32,6 +32,7 @@ import {ViewValidatorUtils} from '../../utils/parser/ViewValidatorUtils';
 import DataGridStore from './DataGridStore';
 import {Sidebar} from 'primereact/sidebar';
 import EditService from "../../services/EditService";
+import EditRowComponent from "../../components/EditRowComponent";
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -721,9 +722,7 @@ export class GridViewContainer extends BaseContainer {
                      position="right"
                      onHide={() => this.setState({visibleEditPanel: false})}>
                 <React.Fragment>
-                    <b>Funkcjonalność w przygotowaniu ...</b>
-                    <br/>
-                    {JSON.stringify(this.state.editData)}
+                    <EditRowComponent editData={this.state.editData}/>
                 </React.Fragment>
             </Sidebar>
         </React.Fragment>;
