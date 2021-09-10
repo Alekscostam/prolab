@@ -126,10 +126,12 @@ export class Breadcrumb {
         //const all = this.readFromUrl().length;
         const breadcrumb = this.cutBreadcrumpToURL(this.readFromUrl(), window.document.URL.toString());
         //alert('render: ' + all + " :: " + breadcrumb.length);
+
+        const mainPage = AppPrefixUtils.locationHrefUrl('/#/start');
         return (
             <React.Fragment>
                 <div className="breadcrumb-panel breadcrumb-link">
-                    <a href="/#/start">Strona główna</a>{' > '}
+                    <a href={mainPage}>Strona główna</a>{' > '}
                     {breadcrumb.map(((item, id) => {
                         if (item.type === 'menu') {
                             return (
