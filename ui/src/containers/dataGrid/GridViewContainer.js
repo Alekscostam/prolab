@@ -181,17 +181,22 @@ export class GridViewContainer extends BaseContainer {
             `componentDidUpdate: this.state.elementId=${this.state.elementId}, id=${id}; 
             firstSubViewMode=${firstSubViewMode}, this.state.elementSubViewId=${this.state.elementSubViewId}, subViewId=${subViewId}; 
             this.state.elementRecordId=${this.state.elementRecordId}, recordId=${recordId};
-            prevState.gridViewType=${this.state.gridViewType}, gridViewType=${gridViewType}`
+            prevState.gridViewType=${this.state.gridViewType}, gridViewType=${gridViewType}`, this.state.subView
         );
         // if (!this.equalNumbers(prevProps.id, id) || (!firstSubViewMode && !this.equalNumbers(this.state.elementSubViewId, subViewId))) {
         //     gridViewType = null;
         // }
+
+        const fromSubviewToFirstSubView = firstSubViewMode && this.state.elementSubViewId && this.state.subView 
+            && this.state.subView.subViews && this.state.subView.subViews.length > 0 
+            && this.state.elementSubViewId !== this.state.subView.subViews[0].id;
 
         console.log('@@@@@@@@@ GridViewContainer => ' + prevState.gridViewType + '::' + this.state.gridViewType);
         if (
             !!force ||
             !this.equalNumbers(this.state.elementId, id) ||
             (!firstSubViewMode && !this.equalNumbers(this.state.elementSubViewId, subViewId)) ||
+            fromSubviewToFirstSubView ||
             !this.equalNumbers(this.state.elementFilterId, filterId) ||
             !this.equalNumbers(this.state.elementRecordId, recordId)
         ) {

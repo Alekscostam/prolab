@@ -19,18 +19,16 @@ export class Breadcrumb {
         breadcrumb.forEach((i, idx) => {
             let p1 = i.path ? UrlUtils.deleteParameterFromURL(i.path, BREADCRUMB_URL_PARAM_NAME) : null;
             p1 = p1 ? UrlUtils.deleteParameterFromURL(p1, TIMESTAMP_URL_PARAM_NAME) : null;
-            
-
             if (p1 === url) {
+                console.log('Breadcrumb::cutBreadcrumpToURL: (1) assign from previous view', i);
                 tmp.push(i);
                 removeMode = true;
-            }
-            if (removeMode) {
-                console.log('Breadcrumb::updateView: remove', i);
-            }
-            if (!removeMode && (idx !== breadcrumb.length - 1 || i.type === 'subview')) {
-                console.log('Breadcrumb::updateView: assign from previous view', i);
+            }            
+            if (!removeMode /*&& idx !== breadcrumb.length - 1*/) {
+                console.log('Breadcrumb::cutBreadcrumpToURL: (2) assign from previous view', i);
                 tmp.push(i);    
+            } else {
+                console.log('Breadcrumb::cutBreadcrumpToURL: remove', i);
             }
         });
         return tmp;
@@ -125,7 +123,9 @@ export class Breadcrumb {
     }
 
     static render() {
+        //const all = this.readFromUrl().length;
         const breadcrumb = this.cutBreadcrumpToURL(this.readFromUrl(), window.document.URL.toString());
+        //alert('render: ' + all + " :: " + breadcrumb.length);
         return (
             <React.Fragment>
                 <div className="breadcrumb-panel breadcrumb-link">
