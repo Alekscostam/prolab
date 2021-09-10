@@ -580,6 +580,7 @@ export class GridViewContainer extends BaseContainer {
                         (value) => value.fieldName?.toUpperCase() === column.dataField?.toUpperCase()
                     );
                     const columnTmp = columnDefinition[0];
+                    console.log('aaa',column.fieldName, column,columnTmp);
                     if (columnTmp) {
                         column.visible = columnTmp?.visible;
                         //column.allowCollapsing = true;
@@ -609,7 +610,7 @@ export class GridViewContainer extends BaseContainer {
                         //calculateFilterExpression: ƒ ()
                         //createFilterExpression: ƒ (filterValue)
                         //TODO zmienić
-                        column.width = columnTmp?.width || 100;
+                        column.width = columnTmp?.Width || 100;
                         column.name = columnTmp?.fieldName;
                         column.caption = columnTmp?.label;
                         column.dataType = GridViewUtils.specifyColumnType(columnTmp?.type);
@@ -1215,7 +1216,7 @@ export class GridViewContainer extends BaseContainer {
                         {this.state.gridViewType === 'gridView' ? (
                             <DataGrid
                                 id='grid-container'
-                                className='grid-container'
+                                className={`grid-container${headerAutoHeight?' grid-header-auto-height':''}`}
                                 keyExpr='ID'
                                 ref={(ref) => (this.dataGrid = ref)}
                                 dataSource={dataGridStore}

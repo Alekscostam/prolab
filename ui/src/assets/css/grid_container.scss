@@ -285,3 +285,9 @@ body #subviews-panel .dx-tabs {
         border: none;
     }
 }
+body .grid-container .dx-datagrid-headers .dx-header-row>td>.dx-datagrid-text-content{
+    white-space: unset;
+}
+body .grid-container.grid-header-auto-height .dx-datagrid-headers .dx-header-row>td>.dx-datagrid-text-content{
+    white-space: nowrap;
+}
