@@ -11,6 +11,7 @@ export default class ViewService extends BaseService {
         super();
         this.path = 'view';
         this.getView = this.getView.bind(this);
+        this.getSubView = this.getSubView.bind(this);
     }
 
     getView(viewId, viewType) {

@@ -16,6 +16,7 @@ import {Toast} from 'primereact/toast';
 import {Message} from 'primereact/message';
 import AppPrefixUtils from "../utils/AppPrefixUtils";
 import { Breadcrumb } from '../utils/BreadcrumbUtils';
+import { Sidebar } from 'primereact/sidebar';
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -1143,12 +1144,17 @@ class BaseContainer extends React.Component {
         return <React.Fragment></React.Fragment>;
     }
 
+    renderGlobalTop(){
+        return <React.Fragment></React.Fragment>
+    }
+
     render() {
         return (
             <React.Fragment>
                 {Breadcrumb.render()}
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)}/>
                 <BlockUi tag='div' className='block-ui-div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
+                    {this.renderGlobalTop()}
                     <DivContainer colClass='base-container-div'>
                         <DivContainer colClass='row base-container-header'>
                             <DivContainer id='header-left' colClass='col-11'>
