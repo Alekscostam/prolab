@@ -254,3 +254,34 @@ $table-selection: #dde6ff;
 .shortcut.p-button {
     box-shadow: none;
 }
+body #subviews-panel .dx-tabs {
+    width: auto;
+    max-width: 100%;
+    border: none;
+    background: none;
+    .dx-tabs-scrollable .dx-tab::before{
+        height: 2px;
+    }
+    .dx-tabs-wrapper {
+        border: none;
+    }
+    .dx-tab {
+        background-color: transparent;
+        padding-bottom: 2px;
+        padding-left: 5px;
+        padding-right: 5px;
+        .subview-tab-item {
+            color: #182d67;
+            text-transform: none;
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 0px;
+        }
+    }
+    .dx-tab.dx-tab-selected::before {
+        background-color: #0e49eb;
+    }
+    .dx-tab.dx-tab-selected::after {
+        border: none;
+    }
+}
