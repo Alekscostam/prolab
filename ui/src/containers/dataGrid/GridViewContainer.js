@@ -33,8 +33,8 @@ import {Breadcrumb} from '../../utils/BreadcrumbUtils';
 import {ViewValidatorUtils} from '../../utils/parser/ViewValidatorUtils';
 import DataGridStore from './DataGridStore';
 import {Sidebar} from 'primereact/sidebar';
-import EditService from "../../services/EditService";
-import EditRowComponent from "../../components/EditRowComponent";
+import EditService from '../../services/EditService';
+import EditRowComponent from '../../components/EditRowComponent';
 import {Tabs} from 'devextreme-react';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -73,7 +73,7 @@ export class GridViewContainer extends BaseContainer {
             cardTotalRows: 0,
             cardScrollLoading: false,
             visibleEditPanel: false,
-            editData: {}
+            editData: {},
         };
         this.onSelectionChanged = this.onSelectionChanged.bind(this);
         this.gridViewTypeChange = this.gridViewTypeChange.bind(this);
@@ -172,7 +172,6 @@ export class GridViewContainer extends BaseContainer {
 
         const firstSubViewMode = !!recordId && !!id && !!!subViewId;
         console.log('**** GridViewContainer -> componentDidUpdate: firstSubViewMode=' + firstSubViewMode);
-
 
         console.log(
             `componentDidUpdate: Read from param -> Id =  ${id} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`
@@ -550,17 +549,15 @@ export class GridViewContainer extends BaseContainer {
     gridViewTypeChange(e) {
         let newUrl = UrlUtils.addParameterToURL(window.document.URL.toString(), 'viewType', e.itemData.type);
         window.history.replaceState('', '', newUrl);
-        this.setState({gridViewType: e.itemData.type},
-            () => {
-                this.downloadData(
-                    this.state.elementId,
-                    this.state.elementRecordId,
-                    this.state.elementSubViewId,
-                    this.state.elementFilterId,
-                    this.state.gridViewType
-                );
-            });
-
+        this.setState({gridViewType: e.itemData.type}, () => {
+            this.downloadData(
+                this.state.elementId,
+                this.state.elementRecordId,
+                this.state.elementSubViewId,
+                this.state.elementFilterId,
+                this.state.gridViewType
+            );
+        });
     }
 
     customizeColumns = (columns) => {
@@ -580,7 +577,6 @@ export class GridViewContainer extends BaseContainer {
                         (value) => value.fieldName?.toUpperCase() === column.dataField?.toUpperCase()
                     );
                     const columnTmp = columnDefinition[0];
-                    console.log('aaa',column.fieldName, column,columnTmp);
                     if (columnTmp) {
                         column.visible = columnTmp?.visible;
                         //column.allowCollapsing = true;
@@ -610,7 +606,7 @@ export class GridViewContainer extends BaseContainer {
                         //calculateFilterExpression: ƒ ()
                         //createFilterExpression: ƒ (filterValue)
                         //TODO zmienić
-                        column.width = columnTmp?.Width || 100;
+                        column.width = columnTmp?.width || 100;
                         column.name = columnTmp?.fieldName;
                         column.caption = columnTmp?.label;
                         column.dataType = GridViewUtils.specifyColumnType(columnTmp?.type);
@@ -619,7 +615,7 @@ export class GridViewContainer extends BaseContainer {
                         column.fixed =
                             columnTmp.freeze !== undefined && columnTmp.freeze !== null
                                 ? columnTmp.freeze?.toLowerCase() === 'left' ||
-                                columnTmp.freeze?.toLowerCase() === 'right'
+                                  columnTmp.freeze?.toLowerCase() === 'right'
                                 : false;
                         column.fixedPosition = !!columnTmp.freeze ? columnTmp.freeze?.toLowerCase() : null;
                         INDEX_COLUMN++;
@@ -691,12 +687,15 @@ export class GridViewContainer extends BaseContainer {
                                         title={oppEdit?.label}
                                         handleClick={() => {
                                             this.blockUi();
-                                            this.editService.getEdit(viewId, recordId, null).then(editDataResponse => {
-                                                this.unblockUi();
-                                                this.setState({visibleEditPanel: true, editData: editDataResponse});
-                                            }).catch(reason => {
-                                                this.unblockUi();
-                                            })
+                                            this.editService
+                                                .getEdit(viewId, recordId, null)
+                                                .then((editDataResponse) => {
+                                                    this.unblockUi();
+                                                    this.setState({visibleEditPanel: true, editData: editDataResponse});
+                                                })
+                                                .catch((reason) => {
+                                                    this.unblockUi();
+                                                });
                                         }}
                                         rendered={showEditButton && oppEdit}
                                     />
@@ -746,17 +745,21 @@ export class GridViewContainer extends BaseContainer {
 
     //override
     renderGlobalTop() {
-        return <React.Fragment>
-            <Sidebar visible={this.state.visibleEditPanel}
-                     modal={true}
-                     style={{width: '33%'}}
-                     position="right"
-                     onHide={() => this.setState({visibleEditPanel: false})}>
-                <React.Fragment>
-                    <EditRowComponent editData={this.state.editData}/>
-                </React.Fragment>
-            </Sidebar>
-        </React.Fragment>;
+        return (
+            <React.Fragment>
+                <Sidebar
+                    visible={this.state.visibleEditPanel}
+                    modal={true}
+                    style={{width: '33%'}}
+                    position='right'
+                    onHide={() => this.setState({visibleEditPanel: false})}
+                >
+                    <React.Fragment>
+                        <EditRowComponent editData={this.state.editData} />
+                    </React.Fragment>
+                </Sidebar>
+            </React.Fragment>
+        );
     }
 
     //override
@@ -773,7 +776,7 @@ export class GridViewContainer extends BaseContainer {
         let opADD = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_ADD');
         return (
             <React.Fragment>
-                <ActionButton rendered={opADD} label={opADD?.label}/>
+                <ActionButton rendered={opADD} label={opADD?.label} />
             </React.Fragment>
         );
     }
@@ -781,7 +784,7 @@ export class GridViewContainer extends BaseContainer {
     rightHeadPanelContent = () => {
         return (
             <React.Fragment>
-                <ShortcutsButton items={this.state.parsedGridView?.shortcutButtons}/>
+                <ShortcutsButton items={this.state.parsedGridView?.shortcutButtons} />
             </React.Fragment>
         );
     };
@@ -987,7 +990,7 @@ export class GridViewContainer extends BaseContainer {
                         />
                     ) : null}
                 </div>
-                {/* <div id='subviews-panel' className='float-left'>
+                <div id='subviews-panel' className='float-left'>
                     {this.state.subView != null &&
                         this.state.subView.subViews != null &&
                         this.state.subView.subViews.length > 0 &&
@@ -1011,20 +1014,18 @@ export class GridViewContainer extends BaseContainer {
                                 </div>
                             );
                         })}
-                </div> */}
+                </div>
             </React.Fragment>
         );
     }
 
     renderTabItem = (itemData) => {
-        return (
-            <span className='subview-tab-item'>{itemData.text}</span>
-        );
-    }
+        return <span className='subview-tab-item'>{itemData.text}</span>;
+    };
 
     onTabsSelectionChanged(args) {
         if (args.name === 'selectedItem') {
-            if (args.value?.id) {
+            if (args.value?.id && args.previousValue !== null && args.value?.id !== args.previousValue?.id) {
                 this.state.subView.subViewsTabs.forEach((subView, i) => {
                     if (subView.id === args.value.id) {
                         this.setState({subViewTabIndex: i});
@@ -1216,7 +1217,7 @@ export class GridViewContainer extends BaseContainer {
                         {this.state.gridViewType === 'gridView' ? (
                             <DataGrid
                                 id='grid-container'
-                                className={`grid-container${headerAutoHeight?' grid-header-auto-height':''}`}
+                                className={`grid-container${headerAutoHeight ? ' grid-header-auto-height' : ''}`}
                                 keyExpr='ID'
                                 ref={(ref) => (this.dataGrid = ref)}
                                 dataSource={dataGridStore}
@@ -1261,14 +1262,14 @@ export class GridViewContainer extends BaseContainer {
                                 <FilterRow visible={true} />
                                 <HeaderFilter visible={true} allowSearch={true} />
 
-                                <Grouping autoExpandAll={groupExpandAll}/>
-                                <GroupPanel visible={showGroupPanel}/>
+                                <Grouping autoExpandAll={groupExpandAll} />
+                                <GroupPanel visible={showGroupPanel} />
 
-                                <Sorting mode='multiple'/>
-                                <Selection mode='multiple' selectAllMode='allPages' showCheckBoxesMode='always'/>
+                                <Sorting mode='multiple' />
+                                <Selection mode='multiple' selectAllMode='allPages' showCheckBoxesMode='always' />
 
-                                <Scrolling mode='virtual' rowRenderingMode='virtual'/>
-                                <LoadPanel enabled={true}/>
+                                <Scrolling mode='virtual' rowRenderingMode='virtual' />
+                                <LoadPanel enabled={true} />
 
                                 {/* domyślnie infinite scrolling
                                     <Paging defaultPageSize={10} />
@@ -1281,7 +1282,7 @@ export class GridViewContainer extends BaseContainer {
                                         showNavigationButtons={this.state.showNavButtons}
                                     />
                                     */}
-                                <Editing mode='cell'/>
+                                <Editing mode='cell' />
                             </DataGrid>
                         ) : this.state.gridViewType === 'cardView' ? (
                             <TileView
