@@ -1020,7 +1020,20 @@ export class GridViewContainer extends BaseContainer {
     }
 
     renderTabItem = (itemData) => {
-        return <span className='subview-tab-item'>{itemData.text}</span>;
+        const viewInfoId = this.state.subView.viewInfo?.id;
+        const subViewId = itemData.id;
+        const recordId = this.state.elementRecordId;
+        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+        return (
+            <a
+                href={AppPrefixUtils.locationHrefUrl(
+                    `/#/grid-view/${viewInfoId}/?recordId=${recordId}&subview=${subViewId}${currentBreadcrumb}`
+                )}
+                className='subview-tab-item-href'
+            >
+                {itemData.text}
+            </a>
+        );
     };
 
     onTabsSelectionChanged(args) {
