@@ -689,9 +689,12 @@ export class GridViewContainer extends BaseContainer {
                                         iconName={'mdi-pencil'}
                                         title={oppEdit?.label}
                                         handleClick={() => {
+                                            this.blockUi();
                                             this.editService.getEdit(viewId, recordId, null).then(editDataResponse => {
+                                                this.unblockUi();
                                                 this.setState({visibleEditPanel: true, editData: editDataResponse});
                                             }).catch(reason => {
+                                                this.unblockUi();
                                             })
                                         }}
                                         rendered={showEditButton && oppEdit}
