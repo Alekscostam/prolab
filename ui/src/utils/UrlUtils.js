@@ -29,27 +29,21 @@ class UrlUtils {
     }
 
     static deleteParameterFromURL(url, paramName) {
-        let newUrl = url;
-        const id1 = url.indexOf(`?${paramName}=`);
-        const id2 = url.indexOf(`&${paramName}=`);
-        //console.log(`id1=${id1}; id2=${id2}`);
-        if ( id1 > 0  || id2 > 0) {				
-            let start;
-            if (id1 > 0) {
-                start = id1;
-            } else {
-                start = id2;
+        let rtn = url.split("?")[0],
+        param,
+        params_arr = [],
+        queryString = (url.indexOf("?") !== -1) ? url.split("?")[1] : "";
+        if (queryString !== "") {
+            params_arr = queryString.split("&");
+            for (var i = params_arr.length - 1; i >= 0; i -= 1) {
+                param = params_arr[i].split("=")[0];
+                if (param === paramName) {
+                    params_arr.splice(i, 1);
+                }
             }
-            // console.log('start=' + start);
-            let end = url.indexOf('&', start + 1);
-            // console.log('end=' + end);
-            newUrl = url.substr(0, start);
-            if (end > 0) {
-                newUrl += url.substr(end);
-            }
-
+            if (params_arr.length) rtn = rtn + "?" + params_arr.join("&");
         }
-        return newUrl;
+        return rtn;
     }
 
     static addParameterToURL(url, paramName, paramValue) {
