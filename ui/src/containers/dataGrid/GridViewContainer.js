@@ -990,7 +990,7 @@ export class GridViewContainer extends BaseContainer {
                         />
                     ) : null}
                 </div>
-                <div id='subviews-panel' className='float-left'>
+                {/* <div id='subviews-panel' className='float-left'>
                     {this.state.subView != null &&
                         this.state.subView.subViews != null &&
                         this.state.subView.subViews.length > 0 &&
@@ -1014,7 +1014,7 @@ export class GridViewContainer extends BaseContainer {
                                 </div>
                             );
                         })}
-                </div>
+                </div> */}
             </React.Fragment>
         );
     }
