@@ -65,7 +65,6 @@ export class Breadcrumb {
         console.log('Breadcrumb::updateView, breadcrumb', breadcrumb);
         const newUrl = UrlUtils.addParameterToURL(window.document.URL.toString(), BREADCRUMB_URL_PARAM_NAME, this.utf8_to_b64(JSON.stringify(breadcrumb)));
         console.log('Breadcrumb::updateView, newUrl', newUrl);
-        alert(window.document.URL.toString().substring(0, 50) + '\n' + newUrl.substring(0, 50));
         window.history.replaceState('', '', newUrl);
     }
 
