@@ -356,11 +356,13 @@ label {
 
 .breadcrumb-link a {
     font-size: 12px;
+    color: $text-color;
 }
 
 .breadcrumb-link span {
     font-size: 12px;
     font-weight: bold;
+    color: $text-color;
 }
 
 .breadcrumb-final.p-link {
