@@ -30,6 +30,7 @@ import {GridViewUtils} from '../../utils/GridViewUtils';
 import {Breadcrumb} from '../../utils/BreadcrumbUtils';
 import {ViewValidatorUtils} from '../../utils/parser/ViewValidatorUtils';
 import DataGridStore from './DataGridStore';
+import Constants from '../../utils/constants';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -269,7 +270,6 @@ export class GridViewContainer extends BaseContainer {
     }
 
     trackScrolling() {
-        console.log('asdasd', this.state);
         const wrappedElement = document.getElementById('header');
         if (this.isBottom(wrappedElement)) {
             console.log('header bottom reached');
@@ -286,7 +286,7 @@ export class GridViewContainer extends BaseContainer {
                 .then((subViewResponse) => {
                     Breadcrumb.updateSubView(subViewResponse, recordId);
                     if (!subViewResponse.subViews || subViewResponse.subViews.length === 0) {
-                        this.handleGetDetailsError('Brak podwidoków - niepoprawna konfiguracja!');
+                        this.showErrorMessage('Brak podwidoków - niepoprawna konfiguracja!');
                         window.history.back();
                         this.unblockUi();
                         return;
@@ -305,7 +305,8 @@ export class GridViewContainer extends BaseContainer {
                     );
                 })
                 .catch((err) => {
-                    this.handleGetDetailsError(err);
+                    this.showErrorMessage(err);
+                    window.history.back();
                     this.unblockUi();
                 });
 
@@ -471,7 +472,7 @@ export class GridViewContainer extends BaseContainer {
                                 loading: false,
                             },
                             () => {
-                                this.showErrorMessage('Nie udało się pobrać danych strony o id: ' + viewId);
+                                this.showErrorMessage(err); //'Nie udało się pobrać danych strony o id: ' + viewId);
                             }
                         );
                     });
@@ -1081,7 +1082,10 @@ export class GridViewContainer extends BaseContainer {
             this.state.subView == null ? this.state.elementId : this.state.elementSubViewId,
             this.state.gridViewType,
             this.state.subView == null ? null : this.state.elementRecordId,
-            this.state.elementFilterId
+            this.state.elementFilterId,
+            (err) => {
+                this.showErrorMessage(err)
+            }
         );
         const customizedColumns = this.customizeColumns;
         let cardWidth = this.state.parsedGridView?.cardOptions?.width ?? 300;

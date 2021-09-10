@@ -148,20 +148,89 @@ class BaseContainer extends React.Component {
         });
     }
 
-    showErrorMessage(errMsg, life = Constants.ERROR_MSG_LIFE, closable = true, summary = 'Błąd!') {
+    // showErrorMessage(errMsg, life = Constants.ERROR_MSG_LIFE, closable = true, summary = 'Błąd!') {
+    //     this.messages.show({
+    //         severity: 'error',
+    //         sticky: false,
+    //         life: life,
+    //         content: (
+    //             <div className='p-flex p-flex-column' style={{flex: '1'}}>
+    //                 <Message severity={'error'} content={errMsg}></Message>
+    //             </div>
+    //         ),
+    //     });
+    // }
+
+    showErrorMessage(err) {        
+        let message;
+        let title;
+        let messages = [];
+        if (typeof err === 'string') {
+            message = err;
+
+        } else if (err) {
+            message = err.Message;
+            title = err.title;
+            if (!message) {
+                if (err.errors) {                    
+                    const keys = Object.keys(err.errors);
+                    keys.forEach((key, idx) => {
+                        let item = key + ': ';
+                        
+                        const values = err.errors[key];
+                        if (values) {
+                            if (Array.isArray(values)) {
+                                values.forEach(v => {
+                                    item += '' + v;
+                                })
+                            } else if (typeof values === 'string') {
+                                item += values;
+                            }                            
+                        }
+                        item += (idx === keys.length - 1) ? '' : '; ';
+                        messages.push(item);
+                    })
+                }
+            }
+        }
+        if (!message && messages.length === 0) {
+            message = 'Wystąpił nieoczekiwany błąd';
+        }
+        if (messages.length === 0) {
+            messages.push(message);
+        }
+        if (title) {
+            title = `Błąd: ${title}`;
+        } else {
+            title = 'Błąd';
+        }
+
+        this.messages.clear();
         this.messages.show({
             severity: 'error',
-            sticky: false,
-            life: Constants.ERROR_MSG_LIFE,
+            summary : title,
             content: (
-                <div className='p-flex p-flex-column' style={{flex: '1'}}>
-                    <Message severity={'error'} content={errMsg}></Message>
-                </div>
+                    <React.Fragment>
+                        <div class="p-flex p-flex-column" style={{flex: '1 1 0%'}}>
+                            <span class="p-toast-message-icon pi"/>
+                            <div className="p-toast-message-text">
+                                <span className="p-toast-summary">{title}</span>
+                                {messages.map(msg => {
+                                    return (
+                                        <div className="p-toast-detail">{msg}</div>                                                
+                                    )
+                                })}                                    
+                            </div>                                    
+                        </div>
+                    </React.Fragment>
+
             ),
+            life: Constants.ERROR_MSG_LIFE,
+            closable: true,
         });
     }
 
-    showMessage(severity, summary, detail, life = 5000, closable = true, errMsg) {
+    showMessage(severity, summary, detail, life = Constants.ERROR_MSG_LIFE, closable = true, errMsg) {
         if (this.messages !== undefined && this.messages !== null) {
             this.messages.clear();
             this.messages.show({
@@ -1110,7 +1179,7 @@ class BaseContainer extends React.Component {
     }
 
     handleGetDetailsError(err) {
-        this.showErrorMessage('Błąd podczas pobrania');
+        this.showErrorMessage(err);
         if (this.props.backUrl) {
             window.location.href = AppPrefixUtils.locationHrefUrl(this.props.backUrl);
         } else {

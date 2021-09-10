@@ -45,7 +45,7 @@ export default class DataGridStore extends BaseService {
         });
     }
 
-    getDataGridStore(viewIdArg, viewTypeArg, recordIdArg, filterIdArg) {
+    getDataGridStore(viewIdArg, viewTypeArg, recordIdArg, filterIdArg, onError) {
         const dataGridStore = new CustomStore({
             key: 'ID',
             //keyExpr: 'ID',
@@ -95,6 +95,10 @@ export default class DataGridStore extends BaseService {
                     })
                     .catch((err) => {
                         console.log("Error fetch data grid store for view id={%s}. Error = ", viewIdArg, err)
+                        if (onError) {
+                            onError(err);
+                        }
+                        return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0});
                     });
             },
         });
