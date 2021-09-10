@@ -5,9 +5,9 @@ import $ from 'jquery';
 import {Button} from 'primereact/button';
 import * as PropTypes from 'prop-types';
 import React from 'react';
-import {FaAngleDoubleRight, FaAngleRight, FaBars, FaSignOutAlt, FaUser} from 'react-icons/fa';
+import {FaAngleDoubleRight, FaAngleRight, FaBars, FaSignOutAlt} from 'react-icons/fa';
 import {Menu, MenuItem, ProSidebar, SidebarContent, SidebarFooter, SidebarHeader, SubMenu} from 'react-pro-sidebar';
-import {Link, withRouter} from 'react-router-dom';
+import {withRouter} from 'react-router-dom';
 import packageJson from '../../../package.json';
 import BlockUi from '../../components/waitPanel/BlockUi';
 import MenuService from '../../services/MenuService';
@@ -18,7 +18,8 @@ import {InputText} from 'primereact/inputtext';
 import ActionButton from "../../components/ActionButton";
 import VersionService from "../../services/VersionService";
 import AppPrefixUtils from '../../utils/AppPrefixUtils';
-import { GridViewUtils } from '../../utils/GridViewUtils';
+import UrlUtils from '../../utils/UrlUtils';
+import Avatar from "../../components/Avatar";
 
 class Sidebar extends React.Component {
     constructor(props) {
@@ -56,20 +57,17 @@ class Sidebar extends React.Component {
                         this.handleFilter('');
                         console.log('Initialized menu success');
 
-                        //rozwinięcie submenu jeśli potrzebne (TODO: pewnie można to jakoś lepiej zrobić)
-                        const viewId = GridViewUtils.getViewIdFromURL();
+                        //rozwinięcie submenu przy wejściu z linka
+                        const viewId = UrlUtils.getViewIdFromURL();
                         if (!!viewId) {
                             setTimeout(() => {
                                 const menuItem = $('#menu_item_id_' + viewId);
-                                if (menuItem) {
-                                    const subMenuItem = menuItem.closest('div').parent();
-                                    if (subMenuItem) {
-                                         subMenuItem.removeClass('closed');
-                                         subMenuItem.height('auto');                                         
-                                    }
-                                }
+                                const subMenuItem = menuItem.closest('div').parent();
+                                subMenuItem.removeClass('closed');
+                                subMenuItem.height('auto');
+                                subMenuItem.parent().find('div').first().trigger('click');
                             }, 10);
-                            
+
                         }
                     }
                 );
@@ -97,14 +95,14 @@ class Sidebar extends React.Component {
     }
 
     //very important !!!
-    shouldComponentUpdate(nextProps, nextState, nextContext) {        
+    shouldComponentUpdate(nextProps, nextState, nextContext) {
         const history = this.props.history;
         if (this.doNotUpdate === true) {
             this.doNotUpdate = false;
             return false;
         }
 
-        const result = (            
+        const result = (
             history.action !== 'PUSH' ||
             (history.action !== 'PUSH' && nextProps.location.pathname == '/start') ||
             this.state.collapsed !== nextState.collapsed ||
@@ -182,7 +180,7 @@ class Sidebar extends React.Component {
     }
 
     render() {
-        let {authService} = this.props;
+        let {authService} = this.props;        
         if (!authService.loggedIn()) {
             const logoutUrl = AppPrefixUtils.locationHrefUrl('/#/');
             window.location.href = logoutUrl;
@@ -201,14 +199,17 @@ class Sidebar extends React.Component {
             $(this).parents('.pro-menu-item').addClass('active');
         });
         /*------------------------  PROPS  ---------------------------*/
-        
+
         /*------------------------  PROPS  ---------------------------*/
-        const userName = JSON.parse(authService.getProfile()).name;
+        const profile = authService.getProfile();
+        const userName = JSON.parse(profile).name;
+        const avatar = JSON.parse(profile).avatar;
         const dynamicMenuJSON = !authService.loggedIn() ? [] : this.state.filteredMenu;
         //TODO pogadać o rolach
         //const role = authService.getProfile().role;
         const renderDynamicMenu = (items) => {
-            return (
+            const timestamp = Date.now();
+            return (                
                 <Menu key='menu' iconShape='circle' popperArrow='false'>
                     {items?.map((item) => {
                         return item.type === 'View' ? (
@@ -228,8 +229,13 @@ class Sidebar extends React.Component {
                                         this.doNotUpdate = true;
                                     }}
                                 >
-                                    <div className='menu_arrow_active'/>
-                                    <a href={AppPrefixUtils.locationHrefUrl(`/#/grid-view/${item.id}`)} className='title' style={{fontSize: '14px', fontWeight: 'normal'}}>                                        
+                                    <div className='menu_arrow_active'/>                                    
+                                    <a href={AppPrefixUtils.locationHrefUrl(`/#/grid-view/${item.id}?force=${timestamp}`)} className='title' style={{fontSize: '14px', fontWeight: 'normal'}}
+                                        onClick={(e) => {
+                                            let href = e.target.href;                                        
+                                            e.target.href = UrlUtils.addParameterToURL(href, 'force', Date.now());
+                                        }}
+                                    >
                                         <div className='title'>{item?.name}</div>
                                     </a>
                                 </MenuItem>
@@ -262,6 +268,7 @@ class Sidebar extends React.Component {
                 </SidebarContent>
             );
         };
+
         return !authService.loggedIn() ? null : (
             <React.Fragment>
                 <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
@@ -359,32 +366,24 @@ class Sidebar extends React.Component {
                         <DynamicMenu id='dynamic-menu' key='dynamic-menu-key' data={dynamicMenuJSON}/>
 
                         <SidebarFooter id={'menu-footer'} style={{textAlign: 'center'}}>
-                            <Menu iconShape='circle'>
-                                <MenuItem icon={<FaUser/>}>
-                                    <div style={{textAlign: 'left'}}>
-                                        {userName}
-                                    </div>
-                                    <Link to='/manage-account'/>
-                                </MenuItem>
-                            </Menu>
-                            <div
-                                className='sidebar-btn-wrapper'
-                                style={{
-                                    padding: '5px 24px',
-                                }}
-                            >
-                                <div
-                                    onClick={this.handleLogoutUser}
-                                    className='sidebar-btn'
-                                    rel='noopener noreferrer'
-                                    style={{textAlign: 'center'}}
-                                >
+                            <div id={'user-credentials'} className={'col-12'}>
+                                <div className='row mt-3 mb-2'>
+                                    <Avatar base64={avatar} userName={userName} collapsed={collapsed}/>
+                                </div>
+                            </div>
+                            <div id={'logout_button'} className='sidebar-btn-wrapper' style={{padding: '5px 24px'}}>
+                                <div onClick={this.handleLogoutUser}
+                                     className='sidebar-btn'
+                                     rel='noopener noreferrer'
+                                     style={{textAlign: 'center'}}>
                                     <FaSignOutAlt/>
                                     <span>Wyloguj</span>
                                 </div>
                             </div>
+                            <div id={'version'} className={'to-right'}
+                                 style={{marginRight: '5px'}}>ver:{packageJson.version} api:{this.state.versionAPI}</div>
                         </SidebarFooter>
-                        <div id={'version'} className={'to-right'} style={{marginRight: '5px'}}>ver: {packageJson.version} api: {this.state.versionAPI}</div>
+
                     </ProSidebar>
                 </BlockUi>
             </React.Fragment>

@@ -5,6 +5,7 @@ import ShortcutButton from "../components/ShortcutButton";
 import ActionButtonWithMenu from "../components/ActionButtonWithMenu";
 import AppPrefixUtils from "./AppPrefixUtils";
 import ViewService from "../services/ViewService";
+import Image from "../components/Image";
 
 export class GridViewUtils {
     static containsOperationButton(operations, type) {
@@ -45,67 +46,10 @@ export class GridViewUtils {
     static getViewIdFromURL() {
         let url = window.document.URL.toString();
         var regexp = new RegExp('^.+\\/grid-view\\/([0-9]+)([\\?|\\/]+.*)?$', 'g');
-        let match = regexp.exec(url);        
-        if (match) {            
+        let match = regexp.exec(url);
+        if (match) {
             return match[1];
         }
-    }
-
-    static addParameterToURL(url, paramName, paramValue) {
-        let updateMode = false;
-        const id1 = url.indexOf(`?${paramName}=`);
-        const id2 = url.indexOf(`&${paramName}=`);
-        if ( id1 > 0  || id2 > 0) {
-            updateMode = true;
-        }
-        let newUrl;
-        if (updateMode) {
-            let start;
-            if (id1 > 0) {
-                start = id1;
-            } else {
-                start = id2;
-            }
-            let end = url.indexOf('&', start + 1);
-            newUrl = url.substr(0, start + 1) + paramName + '=' + paramValue;
-            if (end > 0) {
-                newUrl += url.substr(end);
-            }
-
-        } else {
-            newUrl = url;
-            if (url.indexOf('?') > 0) {
-                newUrl += '&';
-            } else {
-                newUrl += '?';
-            }
-            newUrl += `${paramName}=${paramValue}`;
-        }    
-        return newUrl;
-    }
-
-    static deleteParameterFromURL(url, paramName) {
-        let newUrl = url;
-        const id1 = url.indexOf(`?${paramName}=`);
-        const id2 = url.indexOf(`&${paramName}=`);
-        console.log(`id1=${id1}; id2=${id2}`);
-        if ( id1 > 0  || id2 > 0) {				
-            let start;
-            if (id1 > 0) {
-                start = id1;
-            } else {
-                start = id2;
-            }
-            // console.log('start=' + start);
-            let end = url.indexOf('&', start + 1);
-            // console.log('end=' + end);
-            newUrl = url.substr(0, start);
-            if (end > 0) {
-                newUrl += url.substr(end);
-            }
-
-        }
-        return newUrl;
     }
 
     //TODO dopracować
@@ -168,10 +112,9 @@ export class GridViewUtils {
             switch (template) {
                 case 'I':
                     return function (element, info) {
-                        let srcFromBase64 = 'data:image/png;base64' + info.text + '"';
                         ReactDOM.render(
                             <div>
-                                <img src={srcFromBase64} style='display: block; width: 100%;'/>
+                                <Image style='display: block; width: 100%;' base64={info.text}/>
                             </div>,
                             element
                         );
@@ -192,38 +135,36 @@ export class GridViewUtils {
                 return (element, info) => {
                     if (!!info.text) {
                         if (Array.isArray(info.text) && info.text?.length > 0) {
-                            let srcFromBase64 = 'data:image/png;base64,' + info.text + '';
                             ReactDOM.render(
                                 <div>
                                     {info.text?.map((i) => {
                                         return (
-                                            <img style={{width: '100%'}} src={srcFromBase64}></img>
+                                            <Image style={{width: '100%'}} base64={info.text}/>
                                         );
                                     })}
                                 </div>,
                                 element
                             );
                         } else {
-                            let srcFromBase64 = 'data:image/png;base64,' + info.text + '';
                             ReactDOM.render(
                                 <div>
-                                    <img style={{width: '100%'}} src={srcFromBase64}></img>
+                                    <Image style={{width: '100%'}} base64={info.text}/>
                                 </div>,
                                 element
                             );
                         }
                     }
                 }
-            default:                
+            default:
                 return (element, info) => {
                     //console.log('+', Date.now());
                     let bgColorFinal = undefined;
                     const bgColor = info.data['_BGCOLOR'];
-                    const specialBgColor = info.data['_BGCOLOR_' + info.column?.dataField]                    
+                    const specialBgColor = info.data['_BGCOLOR_' + info.column?.dataField]
                     if (bgColor) {
                         element.style.backgroundColor = bgColor;
                         bgColorFinal = undefined;
-                    }                    
+                    }
                     if (specialBgColor) {
                         bgColorFinal = specialBgColor;
                     }
@@ -231,13 +172,13 @@ export class GridViewUtils {
                     if (rowSelected) {
                         bgColorFinal = undefined;
                     }
-                    
+
                     let fontColorFinal = 'black';
                     const fontColor = info.data['_FONTCOLOR'];
                     const specialFontColor = info.data['_FONTCOLOR_' + info.column?.dataField]
                     if (fontColor) {
                         fontColorFinal = fontColor;
-                    } else {                        
+                    } else {
                         if (specialFontColor) {
                             fontColorFinal = specialFontColor;
                         }
@@ -254,12 +195,13 @@ export class GridViewUtils {
                                 {info.text}
                             </div>,
                             element
-                        );                        
+                        );
                     }
                 }
         }
     }
 
+    /*
     static renderAction(_this, columns) {
         if (_this.state.parsedGridView?.operations) {
             let showEditButton = false;
@@ -323,6 +265,7 @@ export class GridViewUtils {
                                     label={''}
                                     title={'Podwidoki'}
                                     handleClick={(e) => {
+                                        alert('X');
                                         //TODO redundantion
                                         console.log(_this.state);
                                         new ViewService()
@@ -350,6 +293,7 @@ export class GridViewUtils {
             }
         }
     }
+    */
 
 
 }

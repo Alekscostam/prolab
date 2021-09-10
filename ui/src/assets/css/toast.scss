@@ -39,7 +39,9 @@ div#toast-messages .p-toast-message-warn {
 div#toast-messages .p-toast-message-error {
   border: 0px;
   background: $danger-color 0% 0% no-repeat padding-box;
+  color: white;
 }
+
 
 .p-toast-message-content .p-inline-message-error {
   background: $danger-color 0% 0% no-repeat padding-box;
@@ -55,6 +57,12 @@ div#toast-messages .p-toast-message-error {
   border-radius: 0px;
   box-shadow: none;
 }
+
+// .pi-times:before {
+//   content: '';
+// }
+
+
 
 .p-toast .p-toast-message.p-toast-message-success .p-toast-icon-close,
 .p-toast .p-toast-message.p-toast-message-info .p-toast-icon-close,
