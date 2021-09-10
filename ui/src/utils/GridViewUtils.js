@@ -201,6 +201,7 @@ export class GridViewUtils {
         }
     }
 
+    /*
     static renderAction(_this, columns) {
         if (_this.state.parsedGridView?.operations) {
             let showEditButton = false;
@@ -264,6 +265,7 @@ export class GridViewUtils {
                                     label={''}
                                     title={'Podwidoki'}
                                     handleClick={(e) => {
+                                        alert('X');
                                         //TODO redundantion
                                         console.log(_this.state);
                                         new ViewService()
@@ -291,6 +293,7 @@ export class GridViewUtils {
             }
         }
     }
+    */
 
 
 }

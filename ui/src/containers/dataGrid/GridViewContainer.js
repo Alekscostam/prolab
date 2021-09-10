@@ -302,7 +302,7 @@ export class GridViewContainer extends BaseContainer {
             this.viewService
                 .getSubView(viewId, recordId)
                 .then((subViewResponse) => {
-                    Breadcrumb.updateSubView(subViewResponse, recordId);
+                    //Breadcrumb.updateSubView(subViewResponse, recordId);
                     const elementSubViewId = subviewId ? subviewId : subViewResponse.subViews[0]?.id;
                     if (!subViewResponse.subViews || subViewResponse.subViews.length === 0) {
                         this.showErrorMessage('Brak podwidoków - niepoprawna konfiguracja!');
@@ -359,7 +359,7 @@ export class GridViewContainer extends BaseContainer {
                             if (id === undefined) {
                                 id = this.props.id;
                             }
-                            Breadcrumb.updateView(responseView.viewInfo, id, recordId);
+                            //Breadcrumb.updateView(responseView.viewInfo, id, recordId);
                             let gridViewColumnsTmp = [];
                             let pluginsListTmp = [];
                             let documentsListTmp = [];
@@ -1022,8 +1022,9 @@ export class GridViewContainer extends BaseContainer {
         );
     }
 
-    onTabsSelectionChanged(args) {
-        if (args.name === 'selectedItem') {
+    onTabsSelectionChanged(args) {        
+        if (args.name === 'selectedItem') { 
+            alert('args.value?.id=' + args.value?.id)           
             if (args.value?.id) {
                 this.state.subView.subViewsTabs.forEach((subView, i) => {
                     if (subView.id === args.value.id) {
@@ -1034,8 +1035,10 @@ export class GridViewContainer extends BaseContainer {
                 const subViewId = args.value.id;
                 const recordId = this.state.elementRecordId;
                 const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+//                const currentUrl = window.document.URL.toString();
+                //this.state.vie
                 window.location.href = AppPrefixUtils.locationHrefUrl(
-                    `/#/grid-view/${viewInfoId}/?recordId=${recordId}&subview=${subViewId}${currentBreadcrumb}`
+                    `/#/grid-view/${viewInfoId}?recordId=${recordId}&subview=${subViewId}${currentBreadcrumb}`
                 );
             }
         }
@@ -1116,6 +1119,7 @@ export class GridViewContainer extends BaseContainer {
                                     handleClick={(e) => {
                                         //TODO redundantion
                                         const viewId = elementSubViewId ? elementSubViewId : elementId;
+                                        alert('XXXXXXXXXXXXXXXXX');
                                         this.viewService
                                             .getSubView(viewId, rowData.ID)
                                             .then((subViewResponse) => {

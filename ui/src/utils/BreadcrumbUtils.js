@@ -8,34 +8,41 @@ const TIMESTAMP_URL_PARAM_NAME = "ts";
 
 export class Breadcrumb {
 
-    
 
-    static updateView(viewInfo, viewId, recordId) {
-        console.log(`*Breadcrumb::updateView, viewId=${viewId}, recordId=${recordId}, viewInfo`, viewInfo);
-        let currentUrl = window.document.URL.toString()
-        currentUrl = AppPrefixUtils.locationHrefUrl(currentUrl.substr(currentUrl.indexOf('/#')));
-        let breadcrumb = this.readFromUrl();
+    static cutBreadcrumpToURL(breadcrumb, url) {
+        url = AppPrefixUtils.locationHrefUrl(url.substr(url.indexOf('/#')));
         let removeMode = false;
         let tmp = [];
+        url = UrlUtils.deleteParameterFromURL(url, BREADCRUMB_URL_PARAM_NAME);
+        url = UrlUtils.deleteParameterFromURL(url, TIMESTAMP_URL_PARAM_NAME);
+        console.log(`*Breadcrumb::cutBreadcrumpToURL, url=${url}`);
         breadcrumb.forEach((i, idx) => {
             let p1 = i.path ? UrlUtils.deleteParameterFromURL(i.path, BREADCRUMB_URL_PARAM_NAME) : null;
             p1 = p1 ? UrlUtils.deleteParameterFromURL(p1, TIMESTAMP_URL_PARAM_NAME) : null;
-            let p2 = UrlUtils.deleteParameterFromURL(currentUrl, BREADCRUMB_URL_PARAM_NAME);
-            p2 = UrlUtils.deleteParameterFromURL(p2, TIMESTAMP_URL_PARAM_NAME);
+            
 
-            if (p1 === p2) {
+            if (p1 === url) {
                 tmp.push(i);
                 removeMode = true;
             }
             if (removeMode) {
                 console.log('Breadcrumb::updateView: remove', i);
             }
-            if (!removeMode && idx !== breadcrumb.length - 1) {
+            if (!removeMode && (idx !== breadcrumb.length - 1 || i.type === 'subview')) {
                 console.log('Breadcrumb::updateView: assign from previous view', i);
                 tmp.push(i);    
             }
         });
-        breadcrumb = tmp;
+        return tmp;
+    }
+    
+
+    static updateView(viewInfo, viewId, recordId) {
+        console.log(`*Breadcrumb::updateView, viewId=${viewId}, recordId=${recordId}, viewInfo`, viewInfo);
+        let breadcrumb = this.readFromUrl();
+        let currentUrl = window.document.URL.toString()
+        breadcrumb = this.cutBreadcrumpToURL(breadcrumb, currentUrl);
+        
         if (viewInfo) {            
             if (viewInfo.menu) {
                 breadcrumb = [];
@@ -51,20 +58,14 @@ export class Breadcrumb {
                 const id = path.indexOf('/#');
                 path = AppPrefixUtils.locationHrefUrl(path.substring(id > 0 ? id : 0));    
                 path = UrlUtils.deleteParameterFromURL(path, TIMESTAMP_URL_PARAM_NAME);
-                path = UrlUtils.deleteParameterFromURL(path, BREADCRUMB_URL_PARAM_NAME);
-                // let path = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewId}`);
-                // if (recordId) {
-                //     path = UrlUtils.addParameterToURL(path, 'recordId', recordId);
-                // }
-                // if (parseInt(viewId) !== parseInt(viewInfo.id)) {
-                //     path = UrlUtils.addParameterToURL(path, 'subview', viewInfo.id);
-                // }
+                path = UrlUtils.deleteParameterFromURL(path, BREADCRUMB_URL_PARAM_NAME);                
                 breadcrumb.push({name: viewInfo.name, id: viewInfo.id, type: 'view', path});
             }
         }
         console.log('Breadcrumb::updateView, breadcrumb', breadcrumb);
         const newUrl = UrlUtils.addParameterToURL(window.document.URL.toString(), BREADCRUMB_URL_PARAM_NAME, this.utf8_to_b64(JSON.stringify(breadcrumb)));
         console.log('Breadcrumb::updateView, newUrl', newUrl);
+        alert(window.document.URL.toString().substring(0, 50) + '\n' + newUrl.substring(0, 50));
         window.history.replaceState('', '', newUrl);
     }
 
@@ -107,8 +108,25 @@ export class Breadcrumb {
         return [];
     }
 
+    static cutBreaadcrumbFor(breadcrumb, url) {
+        const result = [];
+        if (breadcrumb) {
+            let removeMode = false;
+            breadcrumb.forEach(i => {
+                if (i.path === url) {
+                    removeMode = true;
+                    result.push(i);
+                }
+                if (!removeMode) {
+                    result.push(i);
+                }
+            })
+        }
+        return this.utf8_to_b64(JSON.stringify(result));
+    }
+
     static render() {
-        const breadcrumb = this.readFromUrl();
+        const breadcrumb = this.cutBreadcrumpToURL(this.readFromUrl(), window.document.URL.toString());
         return (
             <React.Fragment>
                 <div className="breadcrumb-panel breadcrumb-link">
@@ -122,7 +140,7 @@ export class Breadcrumb {
                                 
                             )
                         } else if (item.type === 'view' || item.type === 'subview') {
-                            let path = UrlUtils.addParameterToURL(item.path, BREADCRUMB_URL_PARAM_NAME, UrlUtils.getURLParameter(BREADCRUMB_URL_PARAM_NAME));
+                            let path = UrlUtils.addParameterToURL(item.path, BREADCRUMB_URL_PARAM_NAME, this.cutBreaadcrumbFor(breadcrumb, item.path));
                             //let path = item.path;
                             const timestamp = Date.now();
                             path = UrlUtils.addParameterToURL(path, TIMESTAMP_URL_PARAM_NAME, timestamp);
