@@ -1,6 +1,4 @@
 import React from 'react';
-import {BreadcrumbsItem} from 'react-breadcrumbs-dynamic';
-import BreadcrumbsComponent from './layouts/BreadcrumbsComponent';
 import AuthService from "../services/AuthService";
 import * as PropTypes from "prop-types";
 import Address from "./Address";
@@ -62,8 +60,6 @@ class AuthComponent extends React.Component {
         if (true) {
             return (
                 <React.Fragment>
-                    {/* <BreadcrumbsItem to='/start' className='p-link'> Strona główna </BreadcrumbsItem>                     */}
-                    {/* <BreadcrumbsComponent/> */}
                     {this.props.children}
                 </React.Fragment>
             );

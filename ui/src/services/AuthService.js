@@ -273,4 +273,8 @@ export default class AuthService {
             this.logout()
         }
     }
+
+    getUserLang() {
+        return "PL";
+    }
 }
