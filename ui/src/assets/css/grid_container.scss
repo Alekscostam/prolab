@@ -359,6 +359,7 @@ body .grid-container {
         .dx-selectbox-container {
             .dx-texteditor-container {
                 .dx-texteditor-input-container {
+                    .dx-placeholder,
                     .dx-texteditor-input {
                         color: white;
                     }
@@ -367,7 +368,7 @@ body .grid-container {
         }
     }
     .filter-combo.dx-texteditor.dx-editor-underlined {
-        // top: 1px;
+        top: -1px;
         display: inline-block;
         height: 28px;
         border-bottom-width: 0px;
@@ -383,6 +384,7 @@ body .grid-container {
             color: #0e49eb;
             .dx-texteditor-container {
                 .dx-texteditor-input-container {
+                    .dx-placeholder,
                     .dx-texteditor-input {
                         border: none;
                         padding: 0px 10px;
