@@ -1,9 +1,8 @@
+import { SelectBox, Tabs } from 'devextreme-react';
 import ButtonGroup from 'devextreme-react/button-group';
 import DataGrid, {
     Column,
-    Editing,
-    FilterPanel,
-    FilterRow,
+    Editing, FilterRow,
     Grouping,
     GroupPanel,
     HeaderFilter,
@@ -11,32 +10,30 @@ import DataGrid, {
     RemoteOperations,
     Scrolling,
     Selection,
-    Sorting,
+    Sorting
 } from 'devextreme-react/data-grid';
 import TileView from 'devextreme-react/tile-view';
+import { Sidebar } from 'primereact/sidebar';
 import PropTypes from 'prop-types';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import BaseContainer from '../../baseContainers/BaseContainer';
 import ActionButton from '../../components/ActionButton';
 import ActionButtonWithMenu from '../../components/ActionButtonWithMenu';
+import EditRowComponent from '../../components/EditRowComponent';
 import HeadPanel from '../../components/HeadPanel';
 import Image from '../../components/Image';
 import ShortcutButton from '../../components/ShortcutButton';
 import ShortcutsButton from '../../components/ShortcutsButton';
+import EditService from '../../services/EditService';
 import ViewDataService from '../../services/ViewDataService';
 import ViewService from '../../services/ViewService';
 import AppPrefixUtils from '../../utils/AppPrefixUtils';
+import { Breadcrumb } from '../../utils/BreadcrumbUtils';
+import { GridViewUtils } from '../../utils/GridViewUtils';
+import { ViewValidatorUtils } from '../../utils/parser/ViewValidatorUtils';
 import UrlUtils from '../../utils/UrlUtils';
-import {GridViewUtils} from '../../utils/GridViewUtils';
-import {Breadcrumb} from '../../utils/BreadcrumbUtils';
-import {ViewValidatorUtils} from '../../utils/parser/ViewValidatorUtils';
 import DataGridStore from './DataGridStore';
-import Constants from '../../utils/constants';
-import {Sidebar} from 'primereact/sidebar';
-import EditService from '../../services/EditService';
-import EditRowComponent from '../../components/EditRowComponent';
-import {Tabs} from 'devextreme-react';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -82,6 +79,7 @@ export class GridViewContainer extends BaseContainer {
         this.getViewById = this.getViewById.bind(this);
         this.downloadData = this.downloadData.bind(this);
         this.onTabsSelectionChanged = this.onTabsSelectionChanged.bind(this);
+        this.onFilterChanged = this.onFilterChanged.bind(this);
     }
 
     componentDidMount() {
@@ -181,15 +179,20 @@ export class GridViewContainer extends BaseContainer {
             `componentDidUpdate: this.state.elementId=${this.state.elementId}, id=${id}; 
             firstSubViewMode=${firstSubViewMode}, this.state.elementSubViewId=${this.state.elementSubViewId}, subViewId=${subViewId}; 
             this.state.elementRecordId=${this.state.elementRecordId}, recordId=${recordId};
-            prevState.gridViewType=${this.state.gridViewType}, gridViewType=${gridViewType}`, this.state.subView
+            prevState.gridViewType=${this.state.gridViewType}, gridViewType=${gridViewType}`,
+            this.state.subView
         );
         // if (!this.equalNumbers(prevProps.id, id) || (!firstSubViewMode && !this.equalNumbers(this.state.elementSubViewId, subViewId))) {
         //     gridViewType = null;
         // }
 
-        const fromSubviewToFirstSubView = firstSubViewMode && this.state.elementSubViewId && this.state.subView 
-            && this.state.subView.subViews && this.state.subView.subViews.length > 0 
-            && this.state.elementSubViewId !== this.state.subView.subViews[0].id;
+        const fromSubviewToFirstSubView =
+            firstSubViewMode &&
+            this.state.elementSubViewId &&
+            this.state.subView &&
+            this.state.subView.subViews &&
+            this.state.subView.subViews.length > 0 &&
+            this.state.elementSubViewId !== this.state.subView.subViews[0].id;
 
         console.log('@@@@@@@@@ GridViewContainer => ' + prevState.gridViewType + '::' + this.state.gridViewType);
         if (
@@ -790,11 +793,20 @@ export class GridViewContainer extends BaseContainer {
     rightHeadPanelContent = () => {
         return (
             <React.Fragment>
-                <ShortcutsButton items={this.state.parsedGridView?.shortcutButtons} />
+                <ShortcutsButton items={this.state.parsedGridView?.shortcutButtons} maxShortcutButtons={5} />
             </React.Fragment>
         );
     };
-
+    onFilterChanged(e) {
+        console.log('onValueChanged', e);
+        // this.setState({
+        //     elementFilterId: e.value,
+        // });
+        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+        window.location.href = AppPrefixUtils.locationHrefUrl(
+            `/#/grid-view/${this.state.elementId}/?filterId=${e.value}${currentBreadcrumb}`
+        );
+    }
     leftHeadPanelContent = () => {
         let centerElementStyle = 'mb-1 mt-1 mr-1 ';
         let opFilter = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_FILTER');
@@ -804,6 +816,17 @@ export class GridViewContainer extends BaseContainer {
         return (
             <React.Fragment>
                 {opFilter && this.state.filtersList?.length > 0 ? (
+                    <SelectBox
+                        className='filter-combo mr-1 mt-1 mb-1'
+                        id='combo_filters'
+                        items={this.state.filtersList}
+                        displayExpr='label'
+                        valueExpr='id'
+                        value={parseInt(this.state.elementFilterId)}
+                        onValueChanged={this.onFilterChanged}
+                    />
+                ) : null}
+                {/* {opFilter && this.state.filtersList?.length > 0 ? (
                     <ActionButtonWithMenu
                         id='button_filters'
                         className={`button-with-menu-filter ${centerElementStyle}`}
@@ -812,8 +835,7 @@ export class GridViewContainer extends BaseContainer {
                         items={this.state.filtersList}
                         title={opFilter?.label}
                     />
-                ) : null}
-
+                ) : null} */}
                 <ButtonGroup
                     className={`${centerElementStyle}`}
                     items={this.state.viewInfoTypes}
@@ -1042,8 +1064,8 @@ export class GridViewContainer extends BaseContainer {
         );
     };
 
-    onTabsSelectionChanged(args) {        
-        if (args.name === 'selectedItem') {             
+    onTabsSelectionChanged(args) {
+        if (args.name === 'selectedItem') {
             if (args.value?.id && args.previousValue !== null && args.value?.id !== args.previousValue?.id) {
                 this.state.subView.subViewsTabs.forEach((subView, i) => {
                     if (subView.id === args.value.id) {
@@ -1200,7 +1222,7 @@ export class GridViewContainer extends BaseContainer {
             this.state.subView == null ? null : this.state.elementRecordId,
             this.state.elementFilterId,
             (err) => {
-                this.showErrorMessage(err)
+                this.showErrorMessage(err);
             }
         );
         const customizedColumns = this.customizeColumns;
@@ -1220,6 +1242,7 @@ export class GridViewContainer extends BaseContainer {
                                 customizeColumns={customizedColumns}
                                 wordWrapEnabled={rowAutoHeight}
                                 columnAutoWidth={columnAutoWidth}
+                                columnResizingMode='widget'
                                 remoteOperations={true}
                                 allowColumnReordering={true}
                                 allowColumnResizing={true}
@@ -1227,7 +1250,7 @@ export class GridViewContainer extends BaseContainer {
                                 showRowLines={true}
                                 showBorders={true}
                                 columnHidingEnabled={false}
-                                width='100%'
+                                width='min-content'
                                 height='100%'
                                 rowAlternationEnabled={false}
                                 onSelectionChanged={(e) => {
