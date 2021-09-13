@@ -199,6 +199,11 @@ $table-selection: #dde6ff;
 }
 .card-grid-body {
     padding: 10px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    .card-grid-body-content {
+        word-break: break-all;
+    }
 }
 .card-grid-header {
     flex-basis: 0;
