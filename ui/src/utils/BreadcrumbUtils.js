@@ -122,7 +122,8 @@ export class Breadcrumb {
         return this.utf8_to_b64(JSON.stringify(result));
     }
 
-    static render() {
+    static render(labels) {
+        console.log('#$#$#$#$', labels);
         //const all = this.readFromUrl().length;
         const breadcrumb = this.cutBreadcrumpToURL(this.readFromUrl(), window.document.URL.toString());
         //alert('render: ' + all + " :: " + breadcrumb.length);
@@ -131,7 +132,7 @@ export class Breadcrumb {
         return (
             <React.Fragment>
                 <div className="breadcrumb-panel breadcrumb-link">
-                    <a href={mainPage}>Strona główna</a>{' > '}
+                    <a href={mainPage}>{labels['View_StartPage']}</a>{' > '}
                     {breadcrumb.map(((item, id) => {
                         if (item.type === 'menu') {
                             return (

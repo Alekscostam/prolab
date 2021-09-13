@@ -15,4 +15,13 @@ export default class LocalizationService extends BaseService {
 			return Promise.resolve(res);
 		});
 	}
+
+	localization(lang) {
+		const langParam = lang ? ('?lang=' + lang) : '';
+		return this.fetch(`${this.domain}/${this.path}Localization${langParam}`, {
+			method: 'GET',
+		}).then((res) => {
+			return Promise.resolve(res);
+		});
+	}
 }

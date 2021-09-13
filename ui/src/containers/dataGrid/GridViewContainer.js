@@ -573,6 +573,7 @@ export class GridViewContainer extends BaseContainer {
         let INDEX_COLUMN = 0;
         let elementId = this.state.elementId; //this.props.id;
         const {elementSubViewId} = this.state;
+        const {labels} = this.props;
         if (columns?.length > 0) {
             //when viewData respond a lot of data
             const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
@@ -714,7 +715,7 @@ export class GridViewContainer extends BaseContainer {
                                         className={``}
                                         items={menuItems}
                                         remdered={showMenu}
-                                        title={'Dodatkowe opcje'}
+                                        title={labels['View_AdditionalOptions']}
                                     />
                                     <ShortcutButton
                                         id={`${info.column.headerId}_menu_button`}
@@ -911,7 +912,7 @@ export class GridViewContainer extends BaseContainer {
     //override
     renderHeaderContent() {
         let subViewMode = !!this.state.subView;
-        let elementSubViewId = this.state.elementSubViewId;
+        const { labels } = this.props;
         let showEditButton = false;
         let menuItems = [];
         this.state.subView?.headerOperations.forEach((operation) => {
@@ -931,7 +932,7 @@ export class GridViewContainer extends BaseContainer {
         }
         if (showEditButton) {
             widthTmp += 38;
-        }
+        }        
         return (
             <React.Fragment>
                 {subViewMode ? (
@@ -992,7 +993,7 @@ export class GridViewContainer extends BaseContainer {
                                                     className={``}
                                                     items={menuItems}
                                                     remdered={true}
-                                                    title={'Dodatkowe opcje'}
+                                                    title={labels['View_AdditionalOptions']}
                                                 />
                                             </div>,
                                             element
@@ -1017,32 +1018,7 @@ export class GridViewContainer extends BaseContainer {
                             showNavButtons={true}
                         />
                     ) : null}
-                </div>
-                {/* <div id='subviews-panel' className='float-left'>
-                    {this.state.subView != null &&
-                        this.state.subView.subViews != null &&
-                        this.state.subView.subViews.length > 0 &&
-                        this.state.subView.subViews?.map((subView, index) => {
-                            const viewInfoId = this.state.subView.viewInfo?.id;
-                            const subViewId = subView.id;
-                            const recordId = this.state.elementRecordId;
-                            const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
-                            return (
-                                <div className='float-left'>
-                                    <ShortcutButton
-                                        id={`subview_${index}`}
-                                        className='mt-2 mb-2 mr-2'
-                                        label={subView.label}
-                                        active={parseInt(subView.id) === parseInt(elementSubViewId)}
-                                        linkViewMode={true}
-                                        href={AppPrefixUtils.locationHrefUrl(
-                                            `/#/grid-view/${viewInfoId}/?recordId=${recordId}&subview=${subViewId}${currentBreadcrumb}`
-                                        )}
-                                    />
-                                </div>
-                            );
-                        })}
-                </div> */}
+                </div>                
             </React.Fragment>
         );
     }
@@ -1208,6 +1184,18 @@ export class GridViewContainer extends BaseContainer {
     }
 
     //override
+    render() {
+        const {labels} = this.props;
+        return (
+            <React.Fragment>
+                {Breadcrumb.render(labels)}
+                {super.render()}
+            </React.Fragment>
+        );
+
+    }
+
+    //override
     renderContent = () => {
         const showGroupPanel = this.state.parsedGridView?.gridOptions?.showGroupPanel || false;
         const groupExpandAll = this.state.parsedGridView?.gridOptions?.groupExpandAll || false;
@@ -1342,4 +1330,5 @@ GridViewContainer.defaultProps = {
 
 GridViewContainer.propTypes = {
     id: PropTypes.string.isRequired,
+    labels: PropTypes.object.isRequired,
 };

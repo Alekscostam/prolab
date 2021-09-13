@@ -169,10 +169,7 @@ class LoginContainer extends BaseContainer {
 						                        id='lang'
 						                        inputId='langInput'
 						                        name='lang'
-                                                onChange={(e) => {
-                                                    this.setState({lang: e.value}, () => this.getLocalizationLoginPage());
-                                                    
-                                                }}
+                                                onChange={(e) => this.setState({lang: e.value}, () => this.getLocalizationLoginPage())}
                                                 appendTo="self"
                                             />
                                         </div>
