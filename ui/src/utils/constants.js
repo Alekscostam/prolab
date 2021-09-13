@@ -4,8 +4,8 @@ export const Constants = {
     DATE_FORMAT: {
         DATE_GET_REQUEST_FORMAT: 'YYYY-MM-DD',
         DATE_FORMAT: 'yyyy-MM-dd',
-        DATE_TIME_FORMAT: 'yyyy-MM-dd HH:mm:ss',
-        TIME_FORMAT: 'HH:mm:ss',
+        DATE_TIME_FORMAT: 'yyyy-MM-dd HH:mm',
+        TIME_FORMAT: 'HH:mm',
         MONTH_FORMAT: 'yyyy-MM',
     },
     BOOLEAN: {

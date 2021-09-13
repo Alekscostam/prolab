@@ -259,7 +259,7 @@ body #subviews-panel .dx-tabs {
     max-width: 100%;
     border: none;
     background: none;
-    .dx-tabs-scrollable .dx-tab::before{
+    .dx-tabs-scrollable .dx-tab::before {
         height: 2px;
     }
     .dx-tabs-wrapper {
@@ -277,7 +277,7 @@ body #subviews-panel .dx-tabs {
             font-weight: bold;
             letter-spacing: 0px;
         }
-        .subview-tab-item-href{
+        .subview-tab-item-href {
             display: contents;
             position: relative;
             color: #182d67;
@@ -294,9 +294,24 @@ body #subviews-panel .dx-tabs {
         border: none;
     }
 }
-body .grid-container .dx-datagrid-headers .dx-header-row>td>.dx-datagrid-text-content{
+body .grid-container .dx-datagrid-headers .dx-header-row > td > .dx-datagrid-text-content {
     white-space: unset;
 }
-body .grid-container.grid-header-auto-height .dx-datagrid-headers .dx-header-row>td>.dx-datagrid-text-content{
+body .grid-container.grid-header-auto-height .dx-datagrid-headers .dx-header-row > td > .dx-datagrid-text-content {
     white-space: nowrap;
+}
+body .grid-container {
+    .dx-checkbox.dx-state-readonly.dx-state-hover {
+        .dx-checkbox-icon{
+            border-color: rgba(0, 0, 0, 0);
+        }
+    }
+    .dx-checkbox.dx-state-readonly {
+        .dx-checkbox-icon{
+            background-color: white;
+        }
+        border-width: 1px;
+        border-style: solid;
+        border-radius: 3px;
+    }
 }
