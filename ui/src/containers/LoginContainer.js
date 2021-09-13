@@ -1,4 +1,5 @@
 import { InputText } from 'primereact/inputtext';
+import { Dropdown } from 'primereact/dropdown';
 import { Message } from 'primereact/message';
 import { Password } from 'primereact/password';
 import { Toast } from 'primereact/toast';
@@ -9,21 +10,27 @@ import { Redirect } from 'react-router-dom';
 import BaseContainer from '../baseContainers/BaseContainer';
 import ActionButton from '../components/ActionButton';
 import SimpleReactValidator from '../components/validator';
+import LocalizationService from '../services/LocalizationService';
 import Constants from '../utils/constants';
 import BlockUi from './../components/waitPanel/BlockUi';
 
 class LoginContainer extends BaseContainer {
     constructor(props) {
         super(props);
+        this.localizationService = new LocalizationService();
         this.handleChange = this.handleChange.bind(this);
         this.handleFormSubmit = this.handleFormSubmit.bind(this);
         this.showWarningMessage = this.showWarningMessage.bind(this);
-        this.showErrorMessage = this.showErrorMessage.bind(this);
+        this.getLocalizationLoginPage = this.getLocalizationLoginPage.bind(this);
+
         this.state = {
             username: '',
             password: '',
             redirectToReferrer: true,
             authValid: true,
+            lang: null,
+            langs: [],
+            labels: {},
         };
         this.authValidValidator = new SimpleReactValidator({
             validators: {
@@ -43,9 +50,30 @@ class LoginContainer extends BaseContainer {
         super.componentDidMount();
         const values = queryString.parse(this.props.location.search);
         this.targetLocation = values.location;
+        this.getLocalizationLoginPage();
+    }
+
+    getLocalizationLoginPage() {
+        this.blockUi();
+        this.localizationService.localizationLoginPage(this.state.lang)
+            .then(resp => {                
+                const langs = resp.langList;
+                const labels = {};
+                const lang = resp.lang;
+                if (resp.labels) {
+                    resp.labels.forEach(label => labels[label.code] = label.caption)
+                }
+                this.setState({langs, labels, lang}, () => this.unblockUi());                
+            })
+            .catch(err => {
+                console.log(`LoginContainer:getLocalizationLoginPage error`, err);
+                this.showErrorMessage(err);
+                this.unblockUi();   
+            })
     }
 
     handleFormSubmit(e) {
+        const { labels } = this.state;
         if (e !== undefined) {
             e.preventDefault();
         }
@@ -59,21 +87,19 @@ class LoginContainer extends BaseContainer {
                     }
                 })
                 .catch((err) => {
-                    if (err.response != null) {
-                        if (err.response.status === 401 || err.response.status === 403) {
-                            this.setState((state) => ({
-                                authValid: false,
-                            }));
-                            this.validator.showMessages();
-                            this.forceUpdate();
-                        } else {
-                            this.showErrorMessage('Błąd logowania', 10000, true, 'Błąd ' + err.response.status);
-                            this.unblockUi();
-                        }
-                    } else {
-                        this.showErrorMessage('Nie można nawiązać połączenia z serwerem', 10000);
+                    console.log(`LoginContainer:handleFormSubmit error`, err);                    
+                    if (err.status === 401 || err.status === 403) {
+                        this.setState((state) => ({
+                            authValid: false,
+                        }));
+                        this.validator.showMessages();
+                        this.forceUpdate();                        
+                        this.showErrorMessage(labels['Login_SigninError'], 10000, true, 'Błąd ' + err.status);
                         this.unblockUi();
+                        return;
                     }
+                    this.showErrorMessage(labels['Login_ConnectionError'], 10000);
+                    this.unblockUi();
                 });
         } else {
             this.validator.showMessages();
@@ -112,19 +138,6 @@ class LoginContainer extends BaseContainer {
         });
     }
 
-    showErrorMessage(errMsg, life = Constants.ERROR_MSG_LIFE, closable = true, summary = 'Błąd!') {
-        this.messages.show({
-            severity: 'error',
-            sticky: false,
-            life: Constants.ERROR_MSG_LIFE,
-            content: (
-                <div className='p-flex p-flex-column' style={{ flex: '1' }}>
-                    <Message severity={'error'} content={errMsg}></Message>
-                </div>
-            ),
-        });
-    }
-
     onKeyDown(e) {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -133,6 +146,7 @@ class LoginContainer extends BaseContainer {
     }
 
     renderBeforeAuth() {
+        const { labels } = this.state;
         return (
             <React.Fragment>
                 <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
@@ -144,17 +158,37 @@ class LoginContainer extends BaseContainer {
                                     <img className='login-icon' src={`./images/login_logo.svg`} alt='Prolab' />
                                     <img className='login-left-bg' src={`./images/login_left_img.svg`} alt='Tło' />
                                 </div>
-                                <div className='col-md-5 bg-light'>
-                                    <div className='login d-flex align-items-center py-5'>
+                                <div className='col-md-5 bg-light'>                       
+                                    <div className="row">
+                                        <div className="col-12" style={{marginTop: '3px', textAlign: 'right', lineHeight: '5px', fontSize: '8px'}} id="dsadas">
+                                            <Dropdown 
+                                                options={this.state.langs}
+                                                placeholder={'Wybierz język'}
+                                                value={this.state.lang}
+                                                key='lang'
+						                        id='lang'
+						                        inputId='langInput'
+						                        name='lang'
+                                                onChange={(e) => {
+                                                    this.setState({lang: e.value}, () => this.getLocalizationLoginPage());
+                                                    
+                                                }}
+                                                appendTo="self"
+                                            />
+                                        </div>
+                                        <div className="col-12">
+
+
+                                    <div className='login d-flex align-items-center py-5'>                                        
                                         <div className='container'>
                                             <div className='row'>
                                                 <div className='col-lg-10 col-xl-9 mx-auto'>
-                                                    <div className='font-big  mb-4 '>Zaloguj się</div>
+                                                    <div className='font-big  mb-4 '>{labels['Login_Signin']}</div>
                                                     <form>
                                                         <div className='form-group mb-4'>
-                                                            <label htmlFor='username'>Login</label>
+                                                            <label htmlFor='username'>{labels['Login_UserName']}</label>
                                                             <InputText
-                                                                ariaLabel={'Nazwa użytkownika'}
+                                                                ariaLabel={this.state.labels['Login_UserName']}
                                                                 key={'username'}
                                                                 id={'username'}
                                                                 name={'username'}
@@ -178,9 +212,9 @@ class LoginContainer extends BaseContainer {
                                                             />
                                                         </div>
                                                         <div className='form-group mb-3'>
-                                                            <label htmlFor='password'>Hasło</label>
+                                                            <label htmlFor='password'>{labels['Login_Password']}</label>
                                                             <Password
-                                                                ariaLabel={'Hasło'}
+                                                                ariaLabel={labels['Login_Password']}
                                                                 key={'password'}
                                                                 id={'password'}
                                                                 name={'password'}
@@ -198,7 +232,7 @@ class LoginContainer extends BaseContainer {
                                                                         ''
                                                                     )
                                                                 }
-                                                                promptLabel={'Hasło'}
+                                                                promptLabel={labels['Login_Password']}
                                                                 feedback={false}
                                                                 required={true}
                                                                 validator={this.authValidValidator}
@@ -208,12 +242,12 @@ class LoginContainer extends BaseContainer {
                                                         <div>
                                                             <p className='text-right'>
                                                                 <a href='https://bootstrapious.com/snippets'>
-                                                                    Zapomniałeś hasła?
+                                                                    {labels['Login_ResetPassword']}
                                                                 </a>
                                                             </p>
                                                         </div>
                                                         <ActionButton
-                                                            label='Zaloguj się'
+                                                            label={labels['Login_Signin']}
                                                             className='mt-4'
                                                             variant='login-button'
                                                             handleClick={this.handleFormSubmit}
@@ -230,6 +264,8 @@ class LoginContainer extends BaseContainer {
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
+                                    </div>
                                     </div>
                                 </div>
                             </div>
