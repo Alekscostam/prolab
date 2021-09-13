@@ -817,7 +817,7 @@ export class GridViewContainer extends BaseContainer {
             <React.Fragment>
                 {opFilter && this.state.filtersList?.length > 0 ? (
                     <SelectBox
-                        className='filter-combo mr-1'
+                        className='filter-combo mr-1 mt-1 mb-1'
                         id='combo_filters'
                         items={this.state.filtersList}
                         displayExpr='label'
