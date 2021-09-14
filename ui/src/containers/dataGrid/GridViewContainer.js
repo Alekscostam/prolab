@@ -776,14 +776,14 @@ export class GridViewContainer extends BaseContainer {
                 position="right"
                 onHide={() => this.setState({visibleEditPanel: false})}>
                 <React.Fragment>
-                    <EditRowComponent editData={this.state.editData} onChange={this.handleChange}/>
+                    <EditRowComponent editData={this.state.editData} onChange={this.handleEditRowChange}/>
                 </React.Fragment>
             </Sidebar>
         </React.Fragment>;
     }
 
-    handleChange(inputType, event, groupName) {
-        console.log('handleChange', inputType, groupName);
+    handleEditRowChange(inputType, event, groupName) {
+        console.log('handleEditRowChange', inputType, groupName);
         let editData = this.state.editData;
         let groupData = editData.editFields.filter(obj => {
             return obj.groupName === groupName
@@ -796,7 +796,7 @@ export class GridViewContainer extends BaseContainer {
                 default:
                     varName = event.target.name;
                     varValue = event.target.value || event.target.value === '' ? event.target.value : undefined;
-                    console.log('handleChange', varName, varValue);
+                    console.log('handleEditRowChange', varName, varValue);
                     let field = groupData[0].fields.filter(obj => {
                         return obj.fieldName === varName
                     })
@@ -805,7 +805,7 @@ export class GridViewContainer extends BaseContainer {
                     break;
             }
         } else {
-            console.log('handleChange implementation error');
+            console.log('handleEditRowChange implementation error');
         }
     }
 
@@ -1223,6 +1223,17 @@ export class GridViewContainer extends BaseContainer {
     }
 
     //override
+    render() {
+        const {labels} = this.props;
+        return (
+            <React.Fragment>
+                {Breadcrumb.render(labels)}
+                {super.render()}
+            </React.Fragment>
+        );
+    }
+
+    //override
     renderContent = () => {
         const showGroupPanel = this.state.parsedGridView?.gridOptions?.showGroupPanel || false;
         const groupExpandAll = this.state.parsedGridView?.gridOptions?.groupExpandAll || false;
@@ -1240,13 +1251,14 @@ export class GridViewContainer extends BaseContainer {
                         {this.state.gridViewType === 'gridView' ? (
                             <DataGrid
                                 id='grid-container'
-                                className='grid-container'
+                                className={`grid-container${headerAutoHeight ? ' grid-header-auto-height' : ''}`}
                                 keyExpr='ID'
                                 ref={(ref) => (this.dataGrid = ref)}
                                 dataSource={this.state.parsedGridViewData}
                                 customizeColumns={this.customizedColumns}
                                 wordWrapEnabled={rowAutoHeight}
                                 columnAutoWidth={columnAutoWidth}
+                                columnResizingMode='widget'
                                 remoteOperations={true}
                                 allowColumnReordering={true}
                                 allowColumnResizing={true}
@@ -1254,7 +1266,7 @@ export class GridViewContainer extends BaseContainer {
                                 showRowLines={true}
                                 showBorders={true}
                                 columnHidingEnabled={false}
-                                width='100%'
+                                width='min-content'
                                 height='100%'
                                 rowAlternationEnabled={false}
                                 onSelectionChanged={(e) => {
