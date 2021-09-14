@@ -8,7 +8,6 @@ export default class DataGridStore extends BaseService {
     constructor() {
         super();
         this.path = 'viewdata';
-        this.getDataGridStore = this.getDataGridStore.bind(this);
     }
 
     getDataForCard(viewId, loadOptions) {

@@ -1,4 +1,4 @@
-import { SelectBox, Tabs } from 'devextreme-react';
+import {SelectBox, Tabs} from 'devextreme-react';
 import ButtonGroup from 'devextreme-react/button-group';
 import DataGrid, {
     Column,
@@ -13,7 +13,7 @@ import DataGrid, {
     Sorting
 } from 'devextreme-react/data-grid';
 import TileView from 'devextreme-react/tile-view';
-import { Sidebar } from 'primereact/sidebar';
+import {Sidebar} from 'primereact/sidebar';
 import PropTypes from 'prop-types';
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -29,9 +29,9 @@ import EditService from '../../services/EditService';
 import ViewDataService from '../../services/ViewDataService';
 import ViewService from '../../services/ViewService';
 import AppPrefixUtils from '../../utils/AppPrefixUtils';
-import { Breadcrumb } from '../../utils/BreadcrumbUtils';
-import { GridViewUtils } from '../../utils/GridViewUtils';
-import { ViewValidatorUtils } from '../../utils/parser/ViewValidatorUtils';
+import {Breadcrumb} from '../../utils/BreadcrumbUtils';
+import {GridViewUtils} from '../../utils/GridViewUtils';
+import {ViewValidatorUtils} from '../../utils/parser/ViewValidatorUtils';
 import UrlUtils from '../../utils/UrlUtils';
 import DataGridStore from './DataGridStore';
 //
@@ -81,13 +81,6 @@ export class GridViewContainer extends BaseContainer {
         this.onTabsSelectionChanged = this.onTabsSelectionChanged.bind(this);
         this.onFilterChanged = this.onFilterChanged.bind(this);
         this.customizedColumns = this.customizeColumns;
-        // this.dataGridStore = this.dataGridStore.getDataGridStore(
-        //     this.state.subView == null ? this.state.elementId : this.state.elementSubViewId,
-        //     this.state.gridViewType,
-        //     this.state.subView == null ? null : this.state.elementRecordId,
-        //     this.state.elementFilterId
-        // );
-        // this.customizedColumns = this.customizeColumns;
     }
 
     componentDidMount() {
@@ -216,11 +209,11 @@ export class GridViewContainer extends BaseContainer {
             console.log('@@@@@@@@@ GridViewContainer:componentDidUpdate => updating....');
             console.log(
                 '@@@@@@@@@ GridViewContainer:componentDidUpdate => ' +
-                    prevState.gridViewType +
-                    '::' +
-                    this.state.gridViewType +
-                    '::' +
-                    gridViewType
+                prevState.gridViewType +
+                '::' +
+                this.state.gridViewType +
+                '::' +
+                gridViewType
             );
             this.setState(
                 {
@@ -457,54 +450,65 @@ export class GridViewContainer extends BaseContainer {
                                     hint: viewButton?.label,
                                 });
                             }
-
-                            this.setState(
-                                {
-                                    loading: false,
-                                    //elementId: this.props.id,
-                                    gridViewType: responseView?.viewInfo?.type,
-                                    parsedGridView: responseView,
-                                    gridViewColumns: gridViewColumnsTmp,
-                                    pluginsList: pluginsListTmp,
-                                    documentsList: documentsListTmp,
-                                    batchesList: batchesListTmp,
-                                    filtersList: filtersListTmp,
-                                    selectedRowKeys: [],
-                                    viewInfoTypes: viewInfoTypesTmp,
-                                },
-                                () => {
-                                    if (this.state.gridViewType === 'cardView') {
-                                        this.setState({loading: true, cardSkip: 0}, () =>
-                                            this.dataGridStore
-                                                .getDataForCard(viewId, {
-                                                    skip: this.state.cardSkip,
-                                                    take: this.state.cardTake,
-                                                    requireTotalCount: true,
-                                                    filterId: filterId ? parseInt(filterId) : undefined,
-                                                    parentId: recordId ? parseInt(recordId) : undefined,
-                                                })
-                                                .then((res) => {
-                                                    let parsedCardViewData = res.data.map(function (item) {
-                                                        for (var key in item) {
-                                                            var upper = key.toUpperCase();
-                                                            // check if it already wasn't uppercase
-                                                            if (upper !== key) {
-                                                                item[upper] = item[key];
-                                                                delete item[key];
-                                                            }
+                            this.setState((prevState) => ({
+                                loading: false,
+                                //elementId: this.props.id,
+                                gridViewType: responseView?.viewInfo?.type,
+                                parsedGridView: responseView,
+                                gridViewColumns: gridViewColumnsTmp,
+                                pluginsList: pluginsListTmp,
+                                documentsList: documentsListTmp,
+                                batchesList: batchesListTmp,
+                                filtersList: filtersListTmp,
+                                selectedRowKeys: [],
+                                viewInfoTypes: viewInfoTypesTmp,
+                            }), () => {
+                                if (this.state.gridViewType === 'cardView') {
+                                    this.setState({loading: true, cardSkip: 0}, () =>
+                                        this.dataGridStore
+                                            .getDataForCard(viewId, {
+                                                skip: this.state.cardSkip,
+                                                take: this.state.cardTake,
+                                                requireTotalCount: true,
+                                                filterId: filterId ? parseInt(filterId) : undefined,
+                                                parentId: recordId ? parseInt(recordId) : undefined,
+                                            })
+                                            .then((res) => {
+                                                let parsedCardViewData = res.data.map(function (item) {
+                                                    for (var key in item) {
+                                                        var upper = key.toUpperCase();
+                                                        // check if it already wasn't uppercase
+                                                        if (upper !== key) {
+                                                            item[upper] = item[key];
+                                                            delete item[key];
                                                         }
-                                                        return item;
-                                                    });
-                                                    this.setState({
-                                                        parsedCardViewData,
-                                                        loading: false,
-                                                        cardTotalRows: res.totalCount,
-                                                    });
-                                                })
+                                                    }
+                                                    return item;
+                                                });
+                                                this.setState({
+                                                    parsedCardViewData,
+                                                    loading: false,
+                                                    cardTotalRows: res.totalCount,
+                                                });
+                                            })
+                                    );
+                                } else {
+                                    this.setState({loading: true}, () => {
+                                        let res = this.dataGridStore.getDataGridStore(
+                                            this.state.subView == null ? this.state.elementId : this.state.elementSubViewId,
+                                            //TODO blad u Romcia, powinno być this.state.gridViewType ale nie działa
+                                            null,
+                                            this.state.subView == null ? null : this.state.elementRecordId,
+                                            this.state.elementFilterId
                                         );
-                                    }
+                                        this.setState({
+                                            parsedGridViewData: res,
+                                            loading: false
+                                        })
+                                    });
                                 }
-                            );
+                            });
+
                         }
                     })
                     .catch((err) => {
@@ -633,7 +637,7 @@ export class GridViewContainer extends BaseContainer {
                         column.fixed =
                             columnTmp.freeze !== undefined && columnTmp.freeze !== null
                                 ? columnTmp.freeze?.toLowerCase() === 'left' ||
-                                  columnTmp.freeze?.toLowerCase() === 'right'
+                                columnTmp.freeze?.toLowerCase() === 'right'
                                 : false;
                         column.fixedPosition = !!columnTmp.freeze ? columnTmp.freeze?.toLowerCase() : null;
                         INDEX_COLUMN++;
@@ -819,7 +823,7 @@ export class GridViewContainer extends BaseContainer {
         let opADD = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_ADD');
         return (
             <React.Fragment>
-                <ActionButton rendered={opADD} label={opADD?.label} />
+                <ActionButton rendered={opADD} label={opADD?.label}/>
             </React.Fragment>
         );
     }
@@ -827,10 +831,11 @@ export class GridViewContainer extends BaseContainer {
     rightHeadPanelContent = () => {
         return (
             <React.Fragment>
-                <ShortcutsButton items={this.state.parsedGridView?.shortcutButtons} maxShortcutButtons={5} />
+                <ShortcutsButton items={this.state.parsedGridView?.shortcutButtons} maxShortcutButtons={5}/>
             </React.Fragment>
         );
     };
+
     onFilterChanged(e) {
         console.log('onValueChanged', e);
         // this.setState({
@@ -841,6 +846,7 @@ export class GridViewContainer extends BaseContainer {
             `/#/grid-view/${this.state.elementId}/?filterId=${e.value}${currentBreadcrumb}`
         );
     }
+
     leftHeadPanelContent = () => {
         let centerElementStyle = 'mb-1 mt-1 mr-1 ';
         let opFilter = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_FILTER');
@@ -945,7 +951,7 @@ export class GridViewContainer extends BaseContainer {
     //override
     renderHeaderContent() {
         let subViewMode = !!this.state.subView;
-        const { labels } = this.props;
+        const {labels} = this.props;
         let showEditButton = false;
         let menuItems = [];
         this.state.subView?.headerOperations.forEach((operation) => {
@@ -1225,12 +1231,6 @@ export class GridViewContainer extends BaseContainer {
         const allowedPageSizes = [5, 10, 50, 100, 'all'];
         //TODO headerAutoHeight
         const headerAutoHeight = this.state.parsedGridView?.gridOptions?.headerAutoHeight || false;
-        const dataGridStore = this.dataGridStore.getDataGridStore(
-            this.state.subView == null ? this.state.elementId : this.state.elementSubViewId,
-            this.state.gridViewType,
-            this.state.subView == null ? null : this.state.elementRecordId,
-            this.state.elementFilterId
-        );
         let cardWidth = this.state.parsedGridView?.cardOptions?.width ?? 300;
         let cardHeight = this.state.parsedGridView?.cardOptions?.heigh ?? 200;
         return (
@@ -1243,7 +1243,7 @@ export class GridViewContainer extends BaseContainer {
                                 className='grid-container'
                                 keyExpr='ID'
                                 ref={(ref) => (this.dataGrid = ref)}
-                                dataSource={dataGridStore}
+                                dataSource={this.state.parsedGridViewData}
                                 customizeColumns={this.customizedColumns}
                                 wordWrapEnabled={rowAutoHeight}
                                 columnAutoWidth={columnAutoWidth}
@@ -1282,8 +1282,8 @@ export class GridViewContainer extends BaseContainer {
                                     paging={true}
                                 />
 
-                                <FilterRow visible={true} />
-                                <HeaderFilter visible={true} allowSearch={true} />
+                                <FilterRow visible={true}/>
+                                <HeaderFilter visible={true} allowSearch={true}/>
 
                                 <Grouping autoExpandAll={groupExpandAll}/>
                                 <GroupPanel visible={showGroupPanel}/>
