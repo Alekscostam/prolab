@@ -7,6 +7,7 @@ import DivContainer from "./DivContainer";
 import {InputText} from "primereact/inputtext";
 import BaseContainer from "../baseContainers/BaseContainer";
 import {Panel} from "primereact/panel";
+import InputTextComponent from "./inputs/InputTextComponent";
 
 export class EditRowComponent extends BaseContainer {
 
@@ -17,7 +18,7 @@ export class EditRowComponent extends BaseContainer {
     render() {
         let editData = this.props.editData;
         return <React.Fragment>
-            <div id="row-edit">
+            <div id="row-edit" className="row-edit-container">
                 <b>Funkcjonalność w przygotowaniu ...</b>
                 <br/>
                 <div className="label">{editData.editInfo?.viewName}</div>
@@ -35,7 +36,7 @@ export class EditRowComponent extends BaseContainer {
             <Panel className={'mb-4'} header={group.groupName} toggleable>
                 <DivContainer>
                     {group.fields?.map((field, index) => {
-                            return this.renderField(field, index)
+                            return this.renderField(group.groupName, field, index)
                         }
                     )}
                 </DivContainer>
@@ -43,16 +44,24 @@ export class EditRowComponent extends BaseContainer {
         </React.Fragment>;
     }
 
-    renderField(field, fieldIndex) {
+    renderField(groupName, field, fieldIndex) {
+        const {
+            onChange
+        } = this.props;
         return <React.Fragment>
             {field.visible ?
                 <DivContainer colClass={'row mb-2'}>
                     <DivContainer>
                     <span className="p-float-label">
                         <InputText id={`field_${fieldIndex}`}
+                                   name={field.fieldName}
                                    style={{width: '100%'}}
                                    type="text"
-                                   value={field.value}/>
+                                   value={field.value}
+                                   onChange={e =>
+                                       onChange ? onChange('TEXT', e, groupName) : null
+                                   }
+                        />
                         <label htmlFor={`field_${fieldIndex}`}>{field.label}</label>
                     </span>
                     </DivContainer>
@@ -61,12 +70,15 @@ export class EditRowComponent extends BaseContainer {
 
         </React.Fragment>;
     }
+
 }
 
 EditRowComponent.defaultProps = {};
 
 EditRowComponent.propTypes = {
     editData: PropTypes.object.isRequired,
+    onAfterStateChange: PropTypes.func,
+    onChange: PropTypes.func,
 };
 
 export default EditRowComponent;

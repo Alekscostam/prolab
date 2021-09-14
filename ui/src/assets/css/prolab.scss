@@ -271,6 +271,40 @@ a {
     background-color: $text-bg !important;
 }
 
+
+.p-float-label > label{
+    font-weight: 500;
+    font-size: 16px;
+    letter-spacing: 0px;
+}
+
+.p-inputtext,
+ {
+    background-color: $text-bg !important;
+    color: $text-color;
+    font-weight: 500;
+    font-size: 16px;
+    letter-spacing: 0px;
+    text-align: left;
+    border: 1px solid #D5D5D5;
+    border-radius: 6px;
+    padding: 1rem 1rem;
+    box-shadow: none;
+}
+
+.p-inputtext:enabled:hover,
+.p-inputtext:hover{
+
+    border: 1px solid #707890;
+    color: #707890;
+}
+
+.p-inputtext:enabled:focus,
+.p-inputtext:focus{
+    border: 1px solid #1750E7;
+    color: #1750E7;
+}
+
 input:-webkit-autofill,
 input:autofill {
     -webkit-text-fill-color: $text-color !important;

@@ -80,6 +80,14 @@ export class GridViewContainer extends BaseContainer {
         this.downloadData = this.downloadData.bind(this);
         this.onTabsSelectionChanged = this.onTabsSelectionChanged.bind(this);
         this.onFilterChanged = this.onFilterChanged.bind(this);
+        this.customizedColumns = this.customizeColumns;
+        // this.dataGridStore = this.dataGridStore.getDataGridStore(
+        //     this.state.subView == null ? this.state.elementId : this.state.elementSubViewId,
+        //     this.state.gridViewType,
+        //     this.state.subView == null ? null : this.state.elementRecordId,
+        //     this.state.elementFilterId
+        // );
+        // this.customizedColumns = this.customizeColumns;
     }
 
     componentDidMount() {
@@ -755,21 +763,46 @@ export class GridViewContainer extends BaseContainer {
 
     //override
     renderGlobalTop() {
-        return (
-            <React.Fragment>
-                <Sidebar
-                    visible={this.state.visibleEditPanel}
-                    modal={true}
-                    style={{width: '33%'}}
-                    position='right'
-                    onHide={() => this.setState({visibleEditPanel: false})}
-                >
-                    <React.Fragment>
-                        <EditRowComponent editData={this.state.editData} />
-                    </React.Fragment>
-                </Sidebar>
-            </React.Fragment>
-        );
+        return <React.Fragment>
+            <Sidebar
+                id="right-sidebar"
+                visible={this.state.visibleEditPanel}
+                modal={true}
+                style={{width: '33%'}}
+                position="right"
+                onHide={() => this.setState({visibleEditPanel: false})}>
+                <React.Fragment>
+                    <EditRowComponent editData={this.state.editData} onChange={this.handleChange}/>
+                </React.Fragment>
+            </Sidebar>
+        </React.Fragment>;
+    }
+
+    handleChange(inputType, event, groupName) {
+        console.log('handleChange', inputType, groupName);
+        let editData = this.state.editData;
+        let groupData = editData.editFields.filter(obj => {
+            return obj.groupName === groupName
+        })
+        let varName;
+        let varValue;
+        if (event !== undefined) {
+            switch (inputType) {
+                case 'TEXT':
+                default:
+                    varName = event.target.name;
+                    varValue = event.target.value || event.target.value === '' ? event.target.value : undefined;
+                    console.log('handleChange', varName, varValue);
+                    let field = groupData[0].fields.filter(obj => {
+                        return obj.fieldName === varName
+                    })
+                    field[0].value = varValue;
+                    this.setState({editData: editData})
+                    break;
+            }
+        } else {
+            console.log('handleChange implementation error');
+        }
     }
 
     //override
@@ -932,7 +965,7 @@ export class GridViewContainer extends BaseContainer {
         }
         if (showEditButton) {
             widthTmp += 38;
-        }        
+        }
         return (
             <React.Fragment>
                 {subViewMode ? (
@@ -1018,7 +1051,7 @@ export class GridViewContainer extends BaseContainer {
                             showNavButtons={true}
                         />
                     ) : null}
-                </div>                
+                </div>
             </React.Fragment>
         );
     }
@@ -1184,18 +1217,6 @@ export class GridViewContainer extends BaseContainer {
     }
 
     //override
-    render() {
-        const {labels} = this.props;
-        return (
-            <React.Fragment>
-                {Breadcrumb.render(labels)}
-                {super.render()}
-            </React.Fragment>
-        );
-
-    }
-
-    //override
     renderContent = () => {
         const showGroupPanel = this.state.parsedGridView?.gridOptions?.showGroupPanel || false;
         const groupExpandAll = this.state.parsedGridView?.gridOptions?.groupExpandAll || false;
@@ -1208,12 +1229,8 @@ export class GridViewContainer extends BaseContainer {
             this.state.subView == null ? this.state.elementId : this.state.elementSubViewId,
             this.state.gridViewType,
             this.state.subView == null ? null : this.state.elementRecordId,
-            this.state.elementFilterId,
-            (err) => {
-                this.showErrorMessage(err);
-            }
+            this.state.elementFilterId
         );
-        const customizedColumns = this.customizeColumns;
         let cardWidth = this.state.parsedGridView?.cardOptions?.width ?? 300;
         let cardHeight = this.state.parsedGridView?.cardOptions?.heigh ?? 200;
         return (
@@ -1223,14 +1240,13 @@ export class GridViewContainer extends BaseContainer {
                         {this.state.gridViewType === 'gridView' ? (
                             <DataGrid
                                 id='grid-container'
-                                className={`grid-container${headerAutoHeight ? ' grid-header-auto-height' : ''}`}
+                                className='grid-container'
                                 keyExpr='ID'
                                 ref={(ref) => (this.dataGrid = ref)}
                                 dataSource={dataGridStore}
-                                customizeColumns={customizedColumns}
+                                customizeColumns={this.customizedColumns}
                                 wordWrapEnabled={rowAutoHeight}
                                 columnAutoWidth={columnAutoWidth}
-                                columnResizingMode='widget'
                                 remoteOperations={true}
                                 allowColumnReordering={true}
                                 allowColumnResizing={true}
@@ -1238,7 +1254,7 @@ export class GridViewContainer extends BaseContainer {
                                 showRowLines={true}
                                 showBorders={true}
                                 columnHidingEnabled={false}
-                                width='min-content'
+                                width='100%'
                                 height='100%'
                                 rowAlternationEnabled={false}
                                 onSelectionChanged={(e) => {
@@ -1269,14 +1285,14 @@ export class GridViewContainer extends BaseContainer {
                                 <FilterRow visible={true} />
                                 <HeaderFilter visible={true} allowSearch={true} />
 
-                                <Grouping autoExpandAll={groupExpandAll} />
-                                <GroupPanel visible={showGroupPanel} />
+                                <Grouping autoExpandAll={groupExpandAll}/>
+                                <GroupPanel visible={showGroupPanel}/>
 
-                                <Sorting mode='multiple' />
-                                <Selection mode='multiple' selectAllMode='allPages' showCheckBoxesMode='always' />
+                                <Sorting mode='multiple'/>
+                                <Selection mode='multiple' selectAllMode='allPages' showCheckBoxesMode='always'/>
 
-                                <Scrolling mode='virtual' rowRenderingMode='virtual' />
-                                <LoadPanel enabled={true} />
+                                <Scrolling mode='virtual' rowRenderingMode='virtual'/>
+                                <LoadPanel enabled={true}/>
 
                                 {/* domyślnie infinite scrolling
                                     <Paging defaultPageSize={10} />
@@ -1289,7 +1305,7 @@ export class GridViewContainer extends BaseContainer {
                                         showNavigationButtons={this.state.showNavButtons}
                                     />
                                     */}
-                                <Editing mode='cell' />
+                                <Editing mode='cell'/>
                             </DataGrid>
                         ) : this.state.gridViewType === 'cardView' ? (
                             <TileView
@@ -1330,5 +1346,4 @@ GridViewContainer.defaultProps = {
 
 GridViewContainer.propTypes = {
     id: PropTypes.string.isRequired,
-    labels: PropTypes.object.isRequired,
 };
