@@ -499,7 +499,10 @@ export class GridViewContainer extends BaseContainer {
                                             //TODO blad u Romcia, powinno być this.state.gridViewType ale nie działa
                                             null,
                                             this.state.subView == null ? null : this.state.elementRecordId,
-                                            this.state.elementFilterId
+                                            this.state.elementFilterId,
+                                            (err) => {
+                                                this.showErrorMessage(err);
+                                            }
                                         );
                                         this.setState({
                                             parsedGridViewData: res,
