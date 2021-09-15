@@ -2,7 +2,6 @@ import React from 'react';
 import BaseContainer from '../baseContainers/BaseContainer';
 import DivContainer from '../components/DivContainer';
 import BlockUi from '../components/waitPanel/BlockUi';
-import {BreadcrumbsItem} from "react-breadcrumbs-dynamic";
 import {Toast} from "primereact/toast";
 
 class StartContainer extends BaseContainer {
@@ -24,7 +23,6 @@ class StartContainer extends BaseContainer {
     render() {
         return (
             <React.Fragment>
-                {/* <BreadcrumbsItem to='/start'>{'Strona startowa'}</BreadcrumbsItem> */}
                 <Toast id='toast-messages' position='top-center' ref={(el) => this.messages = el}/>
                 <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
                     <DivContainer colClass='col-12 dashboard-link-container'>

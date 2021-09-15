@@ -20,6 +20,10 @@ export default class BaseService {
         this.counter = 0;
     }
 
+    reConfigureDomain() {
+        this.domain = readCookieGlobal("REACT_APP_BACKEND_URL");
+    }
+
     setUiMethods(blockUi, unblockUi) {
         this.blockUi = blockUi;
         this.unblockUi = unblockUi;

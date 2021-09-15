@@ -1151,7 +1151,6 @@ class BaseContainer extends React.Component {
     render() {
         return (
             <React.Fragment>
-                {Breadcrumb.render()}
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)}/>
                 <BlockUi tag='div' className='block-ui-div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
                     {this.renderGlobalTop()}

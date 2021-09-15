@@ -10,12 +10,15 @@ import PrimeReact from 'primereact/api';
 import "@fontsource/roboto"
 import {GridViewContainer} from "./containers/dataGrid/GridViewContainer";
 import {createBrowserHistory} from 'history';
-import {loadMessages} from "devextreme/localization";
-import {translationPL} from "./utils/translations";
+import {loadMessages, locale} from "devextreme/localization";
+import {translationPL} from "./utils/translations_pl";
+import {translationENG} from "./utils/translations_eng";
+import {translationDE} from "./utils/translations_de";
 import AppPrefixUtils from "./utils/AppPrefixUtils";
 import packageJson from '../package.json';
 import ReadConfigService from "./services/ReadConfigService";
 import {readCookieGlobal, saveCookieGlobal} from "./utils/cookie";
+import LocalizationService from './services/LocalizationService';
 
 class App extends Component {
     constructor() {
@@ -24,10 +27,13 @@ class App extends Component {
         this.authService = new AuthService();
         this.userService = new UserService();
         this.historyBrowser = this.history;
+        this.localizationService = new LocalizationService();
         this.state = {
             loadedConfiguration: false,
             configUrl: null,
             user: this.authService.getProfile(),
+            langs: [],
+            labels: [],
         };
         this.handleLogoutUser = this.handleLogoutUser.bind(this);
         //primereact config
@@ -40,9 +46,12 @@ class App extends Component {
         }
         PrimeReact.appendTo = 'self'; // Default value is null(document.body).
         //dexexpress localization
-        loadMessages({
-            'en': translationPL
-        });
+        
+        // loadMessages({
+        //     'pl': translationPL,
+        //     'en' : translationENG,
+        //     'de' : translationDE,
+        // });        
         console.log("App version = " + packageJson.version);
     }
 
@@ -81,6 +90,10 @@ class App extends Component {
                 loadedConfiguration: true,
                 config: configuration,
                 configUrl: configUrl,
+            }, () => {
+                if (this.authService.loggedIn()) {
+                    this.getLocalization();
+                }
             });
         })
     }
@@ -94,10 +107,67 @@ class App extends Component {
         }
     }
 
+    getLocalization() {
+        //this.blockUi();
+        this.localizationService.reConfigureDomain();
+        const lang = this.authService.getUserLang();
+        this.localizationService.localization(lang)
+            .then(resp => {                
+                const langs = resp.langList;
+                const labels = {};
+                if (resp.labels) {
+                    resp.labels.forEach(label => labels[label.code] = label.caption)
+                }
+                this.setState({langs, labels});
+
+                
+                let translation = [];
+                if (lang === 'PL') {
+                    translation = translationPL;
+                } else if (lang === 'ENG') {
+                    translation = translationENG;
+                } else if (lang === 'DE') {
+                    translation = translationDE;
+                }
+
+                resp.labels.forEach(label => {
+                     translation[label.code] = label.caption;
+                })
+                const devExpLang = lang.toLowerCase().substr(0, 2);
+
+                //translation['dxDataGrid-headerFilterEmptyValue'] = 'TEST !!!';
+                loadMessages({
+                    [devExpLang]: translation,                  
+                });
+                locale(devExpLang);
+                //window.location.href = window.location.href;
+            })
+            .catch(err => {
+                console.log(`App:getLocalization error`, err);
+                //this.showErrorMessage(err);
+                //this.unblockUi();   
+            })
+    }
+
+    renderLoginContainer(props) {
+        return (
+            <Login {...props}
+            onAfterLogin={() => {
+                this.setState({
+                    user: this.authService.getProfile().sub,
+                    collapsed: false
+                }, () => {
+                    this.getLocalization();
+                });
+            }}/>
+        )
+    }
+
     render() {
         const authService = this.authService;
+        const { labels } = this.state;
         return (
-            <React.Fragment>
+            <React.Fragment>                
                 {this.state.loadedConfiguration ?
                     <HashRouter history={this.historyBrowser}>
                         <div className={`${authService.loggedIn() ? 'app' : ''}`}>
@@ -106,21 +176,13 @@ class App extends Component {
                                     authService={this.authService}
                                     historyBrowser={this.historyBrowser}
                                     handleLogoutUser={this.handleLogoutUser}
+                                    labels={this.state.labels}
                                 /> : null}
                             <main>
                                 <div className={`${authService.loggedIn() ? 'container-fluid' : ''}`}>
                                     <Switch>
-                                        <Route exact path='/'
-                                               render={(props) => (<Login {...props}
-                                                                          onAfterLogin={() => {
-                                                                              this.setState({
-                                                                                  user: this.authService.getProfile().sub,
-                                                                                  collapsed: false
-                                                                              });
-                                                                          }}/>)}/>
-                                        <Route path='/login' render={(props) => (<Login {...props} onAfterLogin={() => {
-                                            this.setState({user: this.authService.getProfile().sub, collapsed: false});
-                                        }}/>)}/>
+                                        <Route exact path='/' render={(props) => this.renderLoginContainer(props)}/>
+                                        <Route path='/login'  render={(props) => this.renderLoginContainer(props)}/>
                                         <Route exact path='/start'
                                                render={(props) => {
                                                    return (
@@ -135,8 +197,10 @@ class App extends Component {
                                                render={(props) => {
                                                    return (
                                                        <AuthComponent viewMode={'VIEW'}
-                                                                      historyBrowser={this.historyBrowser}>
-                                                           <GridViewContainer id={props.match.params.id}
+                                                                      historyBrowser={this.historyBrowser}>                                                           
+                                                           <GridViewContainer 
+                                                                id={props.match.params.id}
+                                                                labels={labels}
                                                            />
                                                        </AuthComponent>
                                                    )

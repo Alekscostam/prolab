@@ -268,8 +268,12 @@ class Sidebar extends React.Component {
                 </SidebarContent>
             );
         };
+        if (!authService.loggedIn()) {
+            return null;
+        }
+        const { labels } = this.props;
 
-        return !authService.loggedIn() ? null : (
+        return  (
             <React.Fragment>
                 <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
                     <div className='btn-toggle' onClick={() => this.handleToggleSidebar()}>
@@ -320,14 +324,14 @@ class Sidebar extends React.Component {
                                         <span id='menu-search-span' className='p-input-icon-left p-input-icon-right'>
                                             <i className='pi pi-search'/>
                                             <InputText
-                                                ariaLabel={'Wyszukaj menu'}
+                                                ariaLabel={labels['Menu_Search']}
                                                 className='p-inputtext-sm'
                                                 key='filterValue'
                                                 id='filterValue'
                                                 name='filterValue'
                                                 style={{width: '100%'}}
                                                 type='text'
-                                                placeholder={'Wyszukaj menu'}
+                                                placeholder={labels['Menu_Search']}
                                                 value={filterValue}
                                                 onChange={(e) => {
                                                     e.preventDefault();
@@ -352,7 +356,7 @@ class Sidebar extends React.Component {
                                 <div id="mini-search-panel">
                                     <ActionButton id="mini-search-button"
                                                   iconName='mdi-magnify'
-                                                  title="Wyszukaj menu"
+                                                  title={labels['Menu_Search']}
                                                   handleClick={() => {
                                                       this.handleCollapseChange();
                                                       $(document).ready(function () {
@@ -377,7 +381,7 @@ class Sidebar extends React.Component {
                                      rel='noopener noreferrer'
                                      style={{textAlign: 'center'}}>
                                     <FaSignOutAlt/>
-                                    <span>Wyloguj</span>
+                                    <span>{labels['Menu_Logout']}</span>
                                 </div>
                             </div>
                             <div id={'version'} className={'to-right'}
@@ -392,6 +396,7 @@ class Sidebar extends React.Component {
 }
 
 Sidebar.propTypes = {
+    labels: PropTypes.object.isRequired,
     loggedUser: PropTypes.any,
     handleLogoutUser: PropTypes.any,
     authService: PropTypes.any,
