@@ -109,6 +109,7 @@ class App extends Component {
 
     getLocalization() {
         //this.blockUi();
+        this.localizationService.reConfigureDomain();
         const lang = this.authService.getUserLang();
         this.localizationService.localization(lang)
             .then(resp => {                
