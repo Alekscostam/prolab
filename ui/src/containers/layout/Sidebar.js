@@ -33,6 +33,12 @@ class Sidebar extends React.Component {
             toggled: false,
             versionAPI: null,
             menuState: [],
+            uiVersion: {
+                appVersion: process.env.REACT_APP_VERSION,
+                appName: process.env.REACT_APP_NAME,
+                buildNumber: process.env.REACT_APP_BUILD_NUMBER,
+                buildTime: process.env.REACT_APP_BUILD_TIME,
+            },
         };
         this.doNotUpdate = false;
         this.menuService = new MenuService();
@@ -386,6 +392,22 @@ class Sidebar extends React.Component {
                             </div>
                             <div id={'version'} className={'to-right'}
                                  style={{marginRight: '5px'}}>ver:{packageJson.version} api:{this.state.versionAPI}</div>
+                            <div className='col-md-12'>
+                                <span style={{fontWeight: 'bold'}}>UI app name: </span>
+                                <span>{this.state.uiVersion?.appName}</span>
+                            </div>
+                            <div className='col-md-12'>
+                                <span style={{fontWeight: 'bold'}}>UI app version: </span>
+                                <span>{this.state.uiVersion?.appVersion}</span>
+                            </div>
+                            <div className='col-md-12'>
+                                <span style={{fontWeight: 'bold'}}>UI build number: </span>
+                                <span>{this.state.uiVersion?.buildNumber}</span>
+                            </div>
+                            <div className='col-md-12'>
+                                <span style={{fontWeight: 'bold'}}>UI build time: </span>
+                                <span>{this.state.uiVersion?.buildTime}</span>
+                            </div>
                         </SidebarFooter>
 
                     </ProSidebar>
