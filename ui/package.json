@@ -1,6 +1,6 @@
 {
   "name": "prolab",
-  "version": "0.0.6",
+  "version": "0.5.1",
   "private": true,
   "homepage": "./",
   "main": "index.js",
@@ -45,7 +45,7 @@
     "init-dev-version": "npm version 0.0.0",
     "init-prd-version": "npm version 1.0.0",
     "start": "react-scripts start",
-    "build-test": "npm version patch && dotenv -e .env.test react-scripts build",
+    "build-test": "dotenv -e .env.test react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
