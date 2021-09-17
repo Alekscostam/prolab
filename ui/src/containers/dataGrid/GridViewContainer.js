@@ -71,7 +71,7 @@ export class GridViewContainer extends BaseContainer {
             cardTotalRows: 0,
             cardScrollLoading: false,
             visibleEditPanel: false,
-            editData: {},
+            editData: null,
         };
         this.onSelectionChanged = this.onSelectionChanged.bind(this);
         this.gridViewTypeChange = this.gridViewTypeChange.bind(this);
@@ -80,6 +80,7 @@ export class GridViewContainer extends BaseContainer {
         this.downloadData = this.downloadData.bind(this);
         this.onTabsSelectionChanged = this.onTabsSelectionChanged.bind(this);
         this.onFilterChanged = this.onFilterChanged.bind(this);
+        this.handleEditRowChange = this.handleEditRowChange.bind(this);
         this.customizedColumns = this.customizeColumns;
     }
 
@@ -703,6 +704,7 @@ export class GridViewContainer extends BaseContainer {
                             );
                             const viewId = elementSubViewId ? elementSubViewId : elementId;
                             const recordId = info.row?.data?.ID;
+                            const subviewId = elementSubViewId ? elementId : undefined;
                             ReactDOM.render(
                                 <div style={{textAlign: 'center'}}>
                                     <ShortcutButton
@@ -713,12 +715,13 @@ export class GridViewContainer extends BaseContainer {
                                         handleClick={() => {
                                             this.blockUi();
                                             this.editService
-                                                .getEdit(viewId, recordId, null)
+                                                .getEdit(viewId, recordId, subviewId)
                                                 .then((editDataResponse) => {
-                                                    this.unblockUi();
                                                     this.setState({visibleEditPanel: true, editData: editDataResponse});
+                                                    this.unblockUi();
                                                 })
-                                                .catch((reason) => {
+                                                .catch((err) => {
+                                                    this.showErrorMessage(err)
                                                     this.unblockUi();
                                                 });
                                         }}
@@ -775,11 +778,14 @@ export class GridViewContainer extends BaseContainer {
                 id="right-sidebar"
                 visible={this.state.visibleEditPanel}
                 modal={true}
-                style={{width: '33%'}}
+                style={{width: '45%'}}
                 position="right"
                 onHide={() => this.setState({visibleEditPanel: false})}>
                 <React.Fragment>
-                    <EditRowComponent editData={this.state.editData} onChange={this.handleEditRowChange}/>
+
+                        <EditRowComponent editData={this.state.editData} onChange={this.handleEditRowChange}
+                                          validator={this.validator}/>
+
                 </React.Fragment>
             </Sidebar>
         </React.Fragment>;
@@ -795,18 +801,23 @@ export class GridViewContainer extends BaseContainer {
         let varValue;
         if (event !== undefined) {
             switch (inputType) {
+                case 'NUMBER':
+                    varName = event.originalEvent.target.name;
+                    varValue = isNaN(parseFloat(event.value)) ? 0 : parseFloat(event.value);
+                    break;
                 case 'TEXT':
+                case 'AREA':
                 default:
                     varName = event.target.name;
                     varValue = event.target.value || event.target.value === '' ? event.target.value : undefined;
-                    console.log('handleEditRowChange', varName, varValue);
-                    let field = groupData[0].fields.filter(obj => {
-                        return obj.fieldName === varName
-                    })
-                    field[0].value = varValue;
-                    this.setState({editData: editData})
                     break;
             }
+            console.log('handleEditRowChange - ', inputType, varName, varValue);
+            let field = groupData[0].fields.filter(obj => {
+                return obj.fieldName === varName
+            })
+            field[0].value = varValue;
+            this.setState({editData: editData})
         } else {
             console.log('handleEditRowChange implementation error');
         }
@@ -1262,7 +1273,6 @@ export class GridViewContainer extends BaseContainer {
                                 wordWrapEnabled={rowAutoHeight}
                                 columnAutoWidth={columnAutoWidth}
                                 columnResizingMode='widget'
-                                remoteOperations={true}
                                 allowColumnReordering={true}
                                 allowColumnResizing={true}
                                 showColumnLines={true}

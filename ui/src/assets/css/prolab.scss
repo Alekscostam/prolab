@@ -278,7 +278,9 @@ a {
     letter-spacing: 0px;
 }
 
-.p-inputtext,
+
+
+.p-inputtext
  {
     background-color: $text-bg !important;
     color: $text-color;
@@ -291,6 +293,8 @@ a {
     padding: 1rem 1rem;
     box-shadow: none;
 }
+
+
 
 .p-inputtext:enabled:hover,
 .p-inputtext:hover{
@@ -330,6 +334,33 @@ label {
     background-color: $button-color;
     color: $button-text-color;
 }
+
+.p-dropdown,
+.p-dropdown .p-dropdown-label{
+    background-color: $text-bg;
+    color: $text-color;
+    font-weight: 500;
+    font-size: 16px;
+    letter-spacing: 0px;
+    text-align: left;
+    border: 1px solid #D5D5D5;
+    border-radius: 6px;
+    box-shadow: none;
+}
+.p-dropdown .p-dropdown-label,
+.p-dropdown-label .p-inputtext{
+    border: 0;
+}
+
+.p-dropdown:hover{
+    border: 1px solid #707890;
+    color: #707890;
+}
+.p-dropdown.p-component.p-inputwrapper.p-dropdown-clearable.p-inputwrapper-focus {
+    border: 2px solid #1750E7;
+    color: #1750E7;
+}
+
 
 /*------------------*/
 

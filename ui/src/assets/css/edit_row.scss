@@ -33,9 +33,63 @@
   margin-top: 0;
 }
 
+#row-edit .p-dropdown,
+#row-edit .p-dropdown .p-dropdown-label{
+  background-color: $text-bg;
+  color: $text-color;
+  font-weight: 500;
+  font-size: 16px;
+  letter-spacing: 0px;
+  text-align: left;
+  border: 1px solid #D5D5D5;
+  border-radius: 6px;
+  box-shadow: none;
+  width: 100%;
+}
+#row-edit .p-dropdown .p-dropdown-label{
+  border: 0;
+}
+
+#row-edit .p-dropdown:hover{
+  border: 1px solid #707890;
+  color: #707890;
+}
+
+#row-edit .p-dropdown.p-component.p-inputwrapper-focus {
+  border: 2px solid #1750E7;
+  color: #1750E7;
+}
+
+#row-edit .p-calendar.p-component {
+  width: 100%;
+}
+
 #row-edit .label {
   font-size: 25px;
   font-weight: bold;
   letter-spacing: 0px;
   color: $text-color;
+}
+
+#row-edit #buttons > .shortcut.p-button.p-component {
+  height: 48px;
+  width: 107px;
+  font-size: 14px;
+  font-weight: bold;
+  flex: auto;
+  box-shadow: 0px 3px 6px #00000029;
+}
+
+#row-edit #buttons{
+  text-align: right;
+}
+
+#row-edit #buttons a{
+  align-items: center;
+  justify-content: center;
+}
+
+#row-edit .p-disabled,
+#row-edit .p-component:disabled {
+  opacity: 1;
 }
