@@ -391,23 +391,25 @@ class Sidebar extends React.Component {
                                 </div>
                             </div>
                             <div id={'version'} className={'to-right'}
-                                 style={{marginRight: '5px'}}>ver:{packageJson.version} api:{this.state.versionAPI}</div>
-                            <div className='col-md-12'>
-                                <span style={{fontWeight: 'bold'}}>UI app name: </span>
-                                <span>{this.state.uiVersion?.appName}</span>
-                            </div>
-                            <div className='col-md-12'>
-                                <span style={{fontWeight: 'bold'}}>UI app version: </span>
-                                <span>{this.state.uiVersion?.appVersion}</span>
-                            </div>
-                            <div className='col-md-12'>
-                                <span style={{fontWeight: 'bold'}}>UI build number: </span>
-                                <span>{this.state.uiVersion?.buildNumber}</span>
-                            </div>
-                            <div className='col-md-12'>
-                                <span style={{fontWeight: 'bold'}}>UI build time: </span>
-                                <span>{this.state.uiVersion?.buildTime}</span>
-                            </div>
+                                 style={{marginRight: '5px'}}>ver:{packageJson.version}_{this.state.uiVersion?.buildNumber} api:{this.state.versionAPI}</div>
+                            {/*
+                                <div className='col-md-12'>
+                                    <span style={{fontWeight: 'bold'}}>UI app name: </span>
+                                    <span>{this.state.uiVersion?.appName}</span>
+                                </div>
+                                <div className='col-md-12'>
+                                    <span style={{fontWeight: 'bold'}}>UI app version: </span>
+                                    <span>{this.state.uiVersion?.appVersion}</span>
+                                </div>
+                                <div className='col-md-12'>
+                                    <span style={{fontWeight: 'bold'}}>UI build number: </span>
+                                    <span>{this.state.uiVersion?.buildNumber}</span>
+                                </div>
+                                <div className='col-md-12'>
+                                    <span style={{fontWeight: 'bold'}}>UI build time: </span>
+                                    <span>{this.state.uiVersion?.buildTime}</span>
+                                </div>
+                            */}
                         </SidebarFooter>
 
                     </ProSidebar>
