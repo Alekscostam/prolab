@@ -683,7 +683,7 @@ export class GridViewContainer extends BaseContainer {
                 } else {
                     widthTmp += 5;
                 }
-                console.log('sezerokosc akcje', widthTmp);
+                console.log('szerokosc akcje', widthTmp);
                 if (showEditButton || showMenu || showSubviewButton) {
                     columns?.push({
                         caption: '',
@@ -1200,19 +1200,19 @@ export class GridViewContainer extends BaseContainer {
                         ) : null}
                     </div>
                     <div className='card-grid-body'>
-                        <div className='row'>
+                        {/* <div className='row'> */}
                             {cardImage?.visible && cardImage?.fieldName && rowData[cardImage?.fieldName] ? (
-                                <div className={cardBody?.visible ? 'col-3' : 'col-12'}>
+                                // <div className={cardBody?.visible ? 'col-3' : 'col-12'}>
                                     <Image
                                         alt={rowData[cardImage.title]}
                                         className='card-grid-body-image'
                                         base64={rowData[cardImage.fieldName]}
-                                        style={{display: 'block', width: '100%'}}
+                                        style={{display: 'block', width: '33%'}}
                                     />
-                                </div>
+                                // </div>
                             ) : null}
                             {cardBody?.visible ? (
-                                <div className={cardImage?.visible ? 'col-9' : 'col-12'}>
+                                // <div className={cardImage?.visible ? 'col-9' : 'col-12'}>
                                     <span
                                         style={{
                                             backgroundColor: rowData[`_BGCOLOR_${cardBody.fieldName.toUpperCase()}`],
@@ -1222,9 +1222,9 @@ export class GridViewContainer extends BaseContainer {
                                     >
                                         {rowData[cardBody.fieldName]}
                                     </span>
-                                </div>
+                                // </div>
                             ) : null}
-                        </div>
+                        {/* </div> */}
                     </div>
                     <div className='card-grid-footer'>
                         {cardFooter?.visible ? (
