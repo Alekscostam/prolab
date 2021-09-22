@@ -108,19 +108,26 @@
   opacity: 1;
 }
 
-#row-edit .dx-htmleditor {
-  border-radius: 6px;
-}
-
-#row-edit .validation-msg-invalid > .dx-htmleditor {
-  border: 1px solid $danger-color !important;
+#row-edit .p-invalid{
+  border: 1px solid $danger-color;
   -webkit-box-shadow: none;
   box-shadow: none;
+  background-color: #FDEBEB;
 }
 
 #row-edit .dx-htmleditor {
   border-radius: 6px;
-  margin-bottom: 25px;
+}
+
+#row-edit .validation-msg.invalid > .dx-htmleditor {
+  border: 1px solid $danger-color;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  background-color: #FDEBEB;
+}
+
+#row-edit .dx-htmleditor {
+  border-radius: 6px;
 }
 
 #row-edit .validation-msg {
@@ -145,13 +152,7 @@
 }
 
 #row-edit .dx-overlay-content.dx-invalid-message-content.dx-resizable {
-  background-color: $text-bg;
-  text-align: left;
-  font-size: 12px;
-  font-weight: normal;
-  letter-spacing: 0px;
-  color: $danger-color;
-  padding: 0;
+  visibility: hidden;
 }
 
 #row-edit .dx-htmleditor.dx-state-focused {
@@ -163,6 +164,14 @@
   margin-bottom: 10px !important;
 }
 
+#row-edit .validation-msg.invalid .image-base{
+  border: 1px solid $danger-color;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  background-color: #FDEBEB;
+  border-radius: 4px;
+}
+
 #row-edit .file-chooser::-webkit-file-upload-button {
   box-shadow: 0px 3px 6px #00000029;
   background-color: #0e49eb;
@@ -171,11 +180,23 @@
   font-weight: bold;
   border-color: transparent;
   border-radius: 4px;
+  flex: auto;
   align-items: center;
   justify-content: center;
-  flex: auto;
   padding: 0.5rem;
   min-width: 0rem;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+#row-edit .validation-panel {
+  font-size: 14px;
+  font-weight: bold;
+  background: #FDEBEB 0% 0% no-repeat padding-box;
+  border-radius: 4px;
+  color: #CB0A2F;
+  margin-bottom: 0.5rem;
+  padding: 0.8rem;
 }
 
 #row-edit input[type='file'] {
