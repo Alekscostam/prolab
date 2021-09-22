@@ -136,11 +136,11 @@ $table-selection: #dde6ff;
 .dx-button-mode-outlined.dx-item-selected {
     background-color: rgba(0, 0, 0, 0.17);
 }
-.dx-editor-with-menu,
-.dx-checkbox-icon,
-.dx-datagrid-columns-separator.dx-datagrid-columns-separator-transparent {
-    z-index: 0;
-}
+// .dx-editor-with-menu,
+// .dx-checkbox-icon,
+// .dx-datagrid-columns-separator.dx-datagrid-columns-separator-transparent {
+//     z-index: 0;
+// }
 
 .dx-datagrid.dx-gridbase-container {
     z-index: 0;
@@ -194,26 +194,57 @@ $table-selection: #dde6ff;
 .card-grid-header,
 .card-grid-body,
 .card-grid-footer {
+    min-height: 30px;
     width: 100%;
     padding: 0px 10px;
 }
-.card-grid-body {
-    padding: 10px;
-    overflow-y: scroll;
+.card-grid-footer {
+    // padding: 10px;
+    overflow-y: auto;
     overflow-x: hidden;
-    .card-grid-body-content {
-        word-break: break-all;
+    display: inline-flex;
+    align-items: flex-end;
+    max-height: fit-content;
+    .card-grid-footer-content {
+        word-break: normal;
     }
+}
+.card-grid-body {
+    // padding: 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: inline-flex;
+    align-items: flex-start;
+    max-height: fit-content;
+    .card-grid-body-content {
+        word-break: normal;
+    }
+    .card-grid-body-image {
+        padding-right: 10px;
+    }
+}
+.card-grid-body ::-webkit-scrollbar,
+.card-grid-footer ::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+    background: rgba(0, 0, 0, 0);
+}
+.card-grid-body ::-webkit-scrollbar-thumb,
+.card-grid-footer ::-webkit-scrollbar-thumb {
+    background: red;
 }
 .card-grid-header {
     flex-basis: 0;
 }
 .card-grid-body {
-    flex-basis: 0;
-    flex-grow: 5;
+    flex-basis: 1;
+    flex-shrink: 0;
+    flex-grow: 1;
 }
 .card-grid-footer {
     flex-basis: 0;
+    flex-shrink: 0;
+    flex-grow: 1;
 }
 .card-grid .dx-scrollable-container {
     overflow-y: auto;
@@ -256,7 +287,8 @@ $table-selection: #dde6ff;
         border-top-right-radius: 4px;
     }
 }
-.shortcut.p-button {
+.grid-container .shortcut.p-button,
+.card-grid-header .shortcut.p-button {
     box-shadow: none;
 }
 body #subviews-panel .dx-tabs {
@@ -306,6 +338,7 @@ body .grid-container.grid-header-auto-height .dx-datagrid-headers .dx-header-row
     white-space: nowrap;
 }
 body .grid-container {
+    max-width: 100%;
     .dx-checkbox.dx-state-readonly.dx-state-hover {
         .dx-checkbox-icon {
             border-color: rgba(0, 0, 0, 0);
@@ -415,4 +448,3 @@ body .grid-container {
 .dx-searchbox.dx-editor-underlined .dx-texteditor-input {
     padding-left: 30px;
 }
-

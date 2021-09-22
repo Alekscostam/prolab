@@ -2,7 +2,8 @@ import {SelectBox, Tabs} from 'devextreme-react';
 import ButtonGroup from 'devextreme-react/button-group';
 import DataGrid, {
     Column,
-    Editing, FilterRow,
+    Editing,
+    FilterRow,
     Grouping,
     GroupPanel,
     HeaderFilter,
@@ -10,7 +11,7 @@ import DataGrid, {
     RemoteOperations,
     Scrolling,
     Selection,
-    Sorting
+    Sorting,
 } from 'devextreme-react/data-grid';
 import TileView from 'devextreme-react/tile-view';
 import {Sidebar} from 'primereact/sidebar';
@@ -31,6 +32,7 @@ import ViewService from '../../services/ViewService';
 import AppPrefixUtils from '../../utils/AppPrefixUtils';
 import {Breadcrumb} from '../../utils/BreadcrumbUtils';
 import {GridViewUtils} from '../../utils/GridViewUtils';
+import {CardViewUtils} from '../../utils/CardViewUtils';
 import {ViewValidatorUtils} from '../../utils/parser/ViewValidatorUtils';
 import UrlUtils from '../../utils/UrlUtils';
 import DataGridStore from './DataGridStore';
@@ -176,11 +178,11 @@ export class GridViewContainer extends BaseContainer {
             console.log('@@@@@@@@@ GridViewContainer:componentDidUpdate => updating....');
             console.log(
                 '@@@@@@@@@ GridViewContainer:componentDidUpdate => ' +
-                prevState.gridViewType +
-                '::' +
-                this.state.gridViewType +
-                '::' +
-                gridViewType
+                    prevState.gridViewType +
+                    '::' +
+                    this.state.gridViewType +
+                    '::' +
+                    gridViewType
             );
             this.setState(
                 {
@@ -419,69 +421,73 @@ export class GridViewContainer extends BaseContainer {
                                     hint: viewButton?.label,
                                 });
                             }
-                            this.setState((prevState) => ({
-                                loading: false,
-                                //elementId: this.props.id,
-                                gridViewType: responseView?.viewInfo?.type,
-                                parsedGridView: responseView,
-                                gridViewColumns: gridViewColumnsTmp,
-                                pluginsList: pluginsListTmp,
-                                documentsList: documentsListTmp,
-                                batchesList: batchesListTmp,
-                                filtersList: filtersListTmp,
-                                selectedRowKeys: [],
-                                viewInfoTypes: viewInfoTypesTmp,
-                            }), () => {
-                                if (this.state.gridViewType === 'cardView') {
-                                    this.setState({loading: true, cardSkip: 0}, () =>
-                                        this.dataGridStore
-                                            .getDataForCard(viewId, {
-                                                skip: this.state.cardSkip,
-                                                take: this.state.cardTake,
-                                                requireTotalCount: true,
-                                                filterId: filterId ? parseInt(filterId) : undefined,
-                                                parentId: recordId ? parseInt(recordId) : undefined,
-                                            })
-                                            .then((res) => {
-                                                let parsedCardViewData = res.data.map(function (item) {
-                                                    for (var key in item) {
-                                                        var upper = key.toUpperCase();
-                                                        // check if it already wasn't uppercase
-                                                        if (upper !== key) {
-                                                            item[upper] = item[key];
-                                                            delete item[key];
+                            this.setState(
+                                (prevState) => ({
+                                    loading: false,
+                                    //elementId: this.props.id,
+                                    gridViewType: responseView?.viewInfo?.type,
+                                    parsedGridView: responseView,
+                                    gridViewColumns: gridViewColumnsTmp,
+                                    pluginsList: pluginsListTmp,
+                                    documentsList: documentsListTmp,
+                                    batchesList: batchesListTmp,
+                                    filtersList: filtersListTmp,
+                                    selectedRowKeys: [],
+                                    viewInfoTypes: viewInfoTypesTmp,
+                                }),
+                                () => {
+                                    if (this.state.gridViewType === 'cardView') {
+                                        this.setState({loading: true, cardSkip: 0}, () =>
+                                            this.dataGridStore
+                                                .getDataForCard(viewId, {
+                                                    skip: this.state.cardSkip,
+                                                    take: this.state.cardTake,
+                                                    requireTotalCount: true,
+                                                    filterId: filterId ? parseInt(filterId) : undefined,
+                                                    parentId: recordId ? parseInt(recordId) : undefined,
+                                                })
+                                                .then((res) => {
+                                                    let parsedCardViewData = res.data.map(function (item) {
+                                                        for (var key in item) {
+                                                            var upper = key.toUpperCase();
+                                                            // check if it already wasn't uppercase
+                                                            if (upper !== key) {
+                                                                item[upper] = item[key];
+                                                                delete item[key];
+                                                            }
                                                         }
-                                                    }
-                                                    return item;
-                                                });
-                                                this.setState({
-                                                    parsedCardViewData,
-                                                    loading: false,
-                                                    cardTotalRows: res.totalCount,
-                                                });
-                                            })
-                                    );
-                                } else {
-                                    this.setState({loading: true}, () => {
-                                        let res = this.dataGridStore.getDataGridStore(
-                                            this.state.subView == null ? this.state.elementId : this.state.elementSubViewId,
-                                            //TODO blad u Romcia, powinno być this.state.gridViewType ale nie działa
-                                            null,
-                                            this.state.subView == null ? null : this.state.elementRecordId,
-                                            this.state.elementFilterId,
-                                            (err) => {
-                                                this.showErrorMessage(err);
-                                            }
+                                                        return item;
+                                                    });
+                                                    this.setState({
+                                                        parsedCardViewData,
+                                                        loading: false,
+                                                        cardTotalRows: res.totalCount,
+                                                    });
+                                                })
                                         );
+                                    } else {
+                                        this.setState({loading: true}, () => {
+                                            let res = this.dataGridStore.getDataGridStore(
+                                                this.state.subView == null
+                                                    ? this.state.elementId
+                                                    : this.state.elementSubViewId,
+                                                //TODO blad u Romcia, powinno być this.state.gridViewType ale nie działa
+                                                null,
+                                                this.state.subView == null ? null : this.state.elementRecordId,
+                                                this.state.elementFilterId,
+                                                (err) => {
+                                                    this.showErrorMessage(err);
+                                                }
+                                            );
 
-                                        this.setState({
-                                            parsedGridViewData: res,
-                                            loading: false
-                                        })
-                                    });
+                                            this.setState({
+                                                parsedGridViewData: res,
+                                                loading: false,
+                                            });
+                                        });
+                                    }
                                 }
-                            });
-
+                            );
                         }
                     })
                     .catch((err) => {
@@ -554,7 +560,7 @@ export class GridViewContainer extends BaseContainer {
         });
     }
 
-        customizeColumns = (columns) => {
+    customizeColumns = (columns) => {
         let INDEX_COLUMN = 0;
         let elementId = this.state.elementId; //this.props.id;
         const {elementSubViewId} = this.state;
@@ -592,9 +598,11 @@ export class GridViewContainer extends BaseContainer {
                         column.fixed =
                             columnDefinition.freeze !== undefined && columnDefinition.freeze !== null
                                 ? columnDefinition.freeze?.toLowerCase() === 'left' ||
-                                columnDefinition.freeze?.toLowerCase() === 'right'
+                                  columnDefinition.freeze?.toLowerCase() === 'right'
                                 : false;
-                        column.fixedPosition = !!columnDefinition.freeze ? columnDefinition.freeze?.toLowerCase() : null;
+                        column.fixedPosition = !!columnDefinition.freeze
+                            ? columnDefinition.freeze?.toLowerCase()
+                            : null;
                         INDEX_COLUMN++;
                     } else {
                         column.visible = false;
@@ -634,7 +642,7 @@ export class GridViewContainer extends BaseContainer {
                 } else {
                     widthTmp += 5;
                 }
-                console.log('sezerokosc akcje', widthTmp);
+                console.log('szerokosc akcje', widthTmp);
                 if (showEditButton || showMenu || showSubviewButton) {
                     columns?.push({
                         caption: '',
@@ -672,7 +680,7 @@ export class GridViewContainer extends BaseContainer {
                                                     this.unblockUi();
                                                 })
                                                 .catch((err) => {
-                                                    this.showErrorMessage(err)
+                                                    this.showErrorMessage(err);
                                                     this.unblockUi();
                                                 });
                                         }}
@@ -744,9 +752,9 @@ export class GridViewContainer extends BaseContainer {
     handleEditRowChange(inputType, event, groupName) {
         console.log('handleEditRowChange', inputType, groupName);
         let editData = this.state.editData;
-        let groupData = editData.editFields.filter(obj => {
-            return obj.groupName === groupName
-        })
+        let groupData = editData.editFields.filter((obj) => {
+            return obj.groupName === groupName;
+        });
         let varName;
         let varValue;
         if (event !== undefined) {
@@ -771,13 +779,13 @@ export class GridViewContainer extends BaseContainer {
                     break;
             }
             console.log('handleEditRowChange - ', inputType, varName, varValue);
-            let field = groupData[0]?.fields.filter(obj => {
-                return obj.fieldName === varName
-            })
+            let field = groupData[0]?.fields.filter((obj) => {
+                return obj.fieldName === varName;
+            });
             if (!!field && !!field[0]) {
-                field[0].value = varValue
+                field[0].value = varValue;
             }
-            this.setState({editData: editData})
+            this.setState({editData: editData});
         } else {
             console.log('handleEditRowChange implementation error');
         }
@@ -797,7 +805,7 @@ export class GridViewContainer extends BaseContainer {
         let opADD = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_ADD');
         return (
             <React.Fragment>
-                <ActionButton rendered={opADD} label={opADD?.label}/>
+                <ActionButton rendered={opADD} label={opADD?.label} />
             </React.Fragment>
         );
     }
@@ -805,7 +813,7 @@ export class GridViewContainer extends BaseContainer {
     rightHeadPanelContent = () => {
         return (
             <React.Fragment>
-                <ShortcutsButton items={this.state.parsedGridView?.shortcutButtons} maxShortcutButtons={5}/>
+                <ShortcutsButton items={this.state.parsedGridView?.shortcutButtons} maxShortcutButtons={5} />
             </React.Fragment>
         );
     };
@@ -1109,17 +1117,9 @@ export class GridViewContainer extends BaseContainer {
             >
                 <div className='row'>
                     <div className='card-grid-header'>
-                        {cardHeader?.visible ? (
-                            <span
-                                style={{
-                                    backgroundColor: rowData[`_BGCOLOR_${cardHeader.fieldName.toUpperCase()}`],
-                                    color: rowData[`_FONTCOLOR_${cardHeader.fieldName.toUpperCase()}`],
-                                }}
-                                className='card-grid-header-title'
-                            >
-                                {rowData[cardHeader.fieldName]}
-                            </span>
-                        ) : null}
+                        {cardHeader?.visible
+                            ? CardViewUtils.cellTemplate(cardHeader, rowData, 'card-grid-header-title', 'HEADER')
+                            : null}
                         {showEditButton || showMenu || showSubviewButton ? (
                             <div className='float-right'>
                                 <ShortcutButton
@@ -1152,44 +1152,30 @@ export class GridViewContainer extends BaseContainer {
                         ) : null}
                     </div>
                     <div className='card-grid-body'>
-                        <div className='row'>
-                            {cardImage?.visible && cardImage?.fieldName && rowData[cardImage?.fieldName] ? (
-                                <div className={cardBody?.visible ? 'col-3' : 'col-12'}>
-                                    <Image
-                                        alt={rowData[cardImage.title]}
-                                        className='card-grid-body-image'
-                                        base64={rowData[cardImage.fieldName]}
-                                        style={{display: 'block', width: '100%'}}
-                                    />
-                                </div>
-                            ) : null}
-                            {cardBody?.visible ? (
-                                <div className={cardImage?.visible ? 'col-9' : 'col-12'}>
-                                    <span
-                                        style={{
-                                            backgroundColor: rowData[`_BGCOLOR_${cardBody.fieldName.toUpperCase()}`],
-                                            color: rowData[`_FONTCOLOR_${cardBody.fieldName.toUpperCase()}`],
-                                        }}
-                                        className='card-grid-body-content'
-                                    >
-                                        {rowData[cardBody.fieldName]}
-                                    </span>
-                                </div>
-                            ) : null}
-                        </div>
+                        {/* <div className='row'> */}
+                        {cardImage?.visible && cardImage?.fieldName && rowData[cardImage?.fieldName]
+                            ? // <div className={cardBody?.visible ? 'col-3' : 'col-12'}>
+                              CardViewUtils.cellTemplate(cardImage, rowData, 'card-grid-body-image', 'IMG')
+                            : // </div>
+                              null}
+                        {cardBody?.visible
+                            ? // <div className={cardImage?.visible ? 'col-9' : 'col-12'}>
+                              CardViewUtils.cellTemplate(
+                                  cardBody,
+                                  rowData,
+                                  'card-grid-body-content',
+                                  cardImage?.visible && cardImage?.fieldName && rowData[cardImage?.fieldName]
+                                      ? 'BODY_WITH_IMG'
+                                      : 'BODY'
+                              )
+                            : // </div>
+                              null}
+                        {/* </div> */}
                     </div>
                     <div className='card-grid-footer'>
-                        {cardFooter?.visible ? (
-                            <span
-                                style={{
-                                    backgroundColor: rowData[`_BGCOLOR_${cardFooter.fieldName.toUpperCase()}`],
-                                    color: rowData[`_FONTCOLOR_${cardFooter.fieldName.toUpperCase()}`],
-                                }}
-                                className='card-grid-footer-content'
-                            >
-                                {rowData[cardFooter.fieldName]}
-                            </span>
-                        ) : null}
+                        {cardFooter?.visible
+                            ? CardViewUtils.cellTemplate(cardFooter, rowData, 'card-grid-footer-content', 'FOOTER')
+                            : null}
                     </div>
                 </div>
             </div>
@@ -1266,17 +1252,17 @@ export class GridViewContainer extends BaseContainer {
                                     paging={true}
                                 />
 
-                                <FilterRow visible={true}/>
-                                <HeaderFilter visible={true} allowSearch={true}/>
+                                <FilterRow visible={true} />
+                                <HeaderFilter visible={true} allowSearch={true} />
 
-                                <Grouping autoExpandAll={groupExpandAll}/>
-                                <GroupPanel visible={showGroupPanel}/>
+                                <Grouping autoExpandAll={groupExpandAll} />
+                                <GroupPanel visible={showGroupPanel} />
 
-                                <Sorting mode='multiple'/>
-                                <Selection mode='multiple' selectAllMode='allPages' showCheckBoxesMode='always'/>
+                                <Sorting mode='multiple' />
+                                <Selection mode='multiple' selectAllMode='allPages' showCheckBoxesMode='always' />
 
-                                <Scrolling mode='virtual' rowRenderingMode='virtual'/>
-                                <LoadPanel enabled={true}/>
+                                <Scrolling mode='virtual' rowRenderingMode='virtual' />
+                                <LoadPanel enabled={true} />
 
                                 {/* domyślnie infinite scrolling
                                     <Paging defaultPageSize={10} />
@@ -1289,7 +1275,7 @@ export class GridViewContainer extends BaseContainer {
                                         showNavigationButtons={this.state.showNavButtons}
                                     />
                                     */}
-                                <Editing mode='cell'/>
+                                <Editing mode='cell' />
                             </DataGrid>
                         ) : this.state.gridViewType === 'cardView' ? (
                             <TileView
