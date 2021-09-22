@@ -121,40 +121,6 @@ export class GridViewContainer extends BaseContainer {
         );
     }
 
-    equalString(s1, s2) {
-        if (
-            (s1 === null || s1 === undefined || s1 === 'undefined') &&
-            (s2 === null || s2 === undefined || s2 === 'undefined')
-        ) {
-            return true;
-        }
-        return s1 === s2;
-    }
-
-    equalNumbers(n1, n2) {
-        if (
-            (n1 === null || n1 === undefined || n1 === 'undefined') &&
-            (n2 === null || n2 === undefined || n2 === 'undefined')
-        ) {
-            //console.log('equalNumbers: result=' + true + ' {' + n1 + ', ' + n2 + '}' );
-            return true;
-        }
-        let num1, num2;
-        if (typeof n1 === 'number') {
-            num1 = n1;
-        } else {
-            num1 = parseInt(n1);
-        }
-        if (typeof n2 === 'number') {
-            num2 = n2;
-        } else {
-            num2 = parseInt(n2);
-        }
-        const result = num1 === num2;
-        //console.log('equalNumbers: result=' + result + ' [' + n1 + ', ' + n2 + '] [' + typeof n1 + ', ' + typeof n2 + ']' );
-        return result;
-    }
-
     componentDidUpdate(prevProps, prevState, snapshot) {
         console.log(
             '**** GridViewContainer -> componentDidUpdate prevProps id={%s} id={%s}',
@@ -199,11 +165,11 @@ export class GridViewContainer extends BaseContainer {
         console.log('@@@@@@@@@ GridViewContainer => ' + prevState.gridViewType + '::' + this.state.gridViewType);
         if (
             !!force ||
-            !this.equalNumbers(this.state.elementId, id) ||
-            (!firstSubViewMode && !this.equalNumbers(this.state.elementSubViewId, subViewId)) ||
+            !GridViewUtils.equalNumbers(this.state.elementId, id) ||
+            (!firstSubViewMode && !GridViewUtils.equalNumbers(this.state.elementSubViewId, subViewId)) ||
             fromSubviewToFirstSubView ||
-            !this.equalNumbers(this.state.elementFilterId, filterId) ||
-            !this.equalNumbers(this.state.elementRecordId, recordId)
+            !GridViewUtils.equalNumbers(this.state.elementFilterId, filterId) ||
+            !GridViewUtils.equalNumbers(this.state.elementRecordId, recordId)
         ) {
             const newUrl = UrlUtils.deleteParameterFromURL(window.document.URL.toString(), 'force');
             window.history.replaceState('', '', newUrl);
@@ -374,11 +340,13 @@ export class GridViewContainer extends BaseContainer {
                             let documentsListTmp = [];
                             let batchesListTmp = [];
                             let filtersListTmp = [];
+                            let columnOrderCounter = 0;
                             new Array(responseView.gridColumns).forEach((gridColumns) => {
                                 gridColumns?.forEach((group) => {
                                     group.columns?.forEach((column) => {
                                         column.groupName = group.groupName;
                                         column.freeze = group.freeze;
+                                        column.columnOrder = columnOrderCounter++;
                                         gridViewColumnsTmp.push(column);
                                     });
                                 });
@@ -505,6 +473,7 @@ export class GridViewContainer extends BaseContainer {
                                                 this.showErrorMessage(err);
                                             }
                                         );
+
                                         this.setState({
                                             parsedGridViewData: res,
                                             loading: false
@@ -585,7 +554,7 @@ export class GridViewContainer extends BaseContainer {
         });
     }
 
-    customizeColumns = (columns) => {
+        customizeColumns = (columns) => {
         let INDEX_COLUMN = 0;
         let elementId = this.state.elementId; //this.props.id;
         const {elementSubViewId} = this.state;
@@ -599,51 +568,33 @@ export class GridViewContainer extends BaseContainer {
                     column.visible = false;
                 } else {
                     //match column after field name from view and viewData service
-                    let columnDefinition = this.state.gridViewColumns?.filter(
+                    let columnDefinitionArray = this.state.gridViewColumns?.filter(
                         (value) => value.fieldName?.toUpperCase() === column.dataField?.toUpperCase()
                     );
-                    const columnTmp = columnDefinition[0];
-                    if (columnTmp) {
-                        column.visible = columnTmp?.visible;
-                        //column.allowCollapsing = true;
-                        //column.allowEditing = false;
-                        //column.allowExporting = false;
-                        column.allowFiltering = columnTmp?.isFilter;
+                    const columnDefinition = columnDefinitionArray[0];
+                    if (columnDefinition) {
+                        column.visible = columnDefinition?.visible;
+                        column.allowFiltering = columnDefinition?.isFilter;
                         column.allowFixing = true;
-                        column.allowGrouping = columnTmp?.isGroup;
-                        //column.allowHiding = true;
+                        column.allowGrouping = columnDefinition?.isGroup;
                         column.allowReordering = true;
                         column.allowResizing = true;
-                        column.allowSorting = columnTmp?.isSort;
-                        //column.autoExpandGroup = true;
-                        //showInColumnChooser: true
-                        //trueText: "prawda"
-                        //encodeHtml: true
-                        //falseText: "false"
-                        //filterOperations: undefined
-                        column.headerId = 'column_' + INDEX_COLUMN + '_' + columnTmp?.fieldName?.toLowerCase();
-                        //column.parseValue: ƒ parseValue(text)
-                        //defaultCalculateCellValue: ƒ calculateCellValue(data, skipDeserialization)
-                        //defaultCalculateFilterExpression: ƒ ()
-                        //defaultCreateFilterExpression: ƒ (filterValue)
-                        //defaultParseValue: ƒ parseValue(text)
-                        //defaultSetCellValue: ƒ defaultSetCellValue(data, value)
-                        //calculateCellValue: ƒ calculateCellValue(data, skipDeserialization)
-                        //calculateFilterExpression: ƒ ()
-                        //createFilterExpression: ƒ (filterValue)
+                        column.allowSorting = columnDefinition?.isSort;
+                        column.visibleIndex = columnDefinition.columnOrder;
+                        column.headerId = 'column_' + INDEX_COLUMN + '_' + columnDefinition?.fieldName?.toLowerCase();
                         //TODO zmienić
-                        column.width = columnTmp?.width || 100;
-                        column.name = columnTmp?.fieldName;
-                        column.caption = columnTmp?.label;
-                        column.dataType = GridViewUtils.specifyColumnType(columnTmp?.type);
-                        column.format = GridViewUtils.specifyColumnFormat(columnTmp?.type);
-                        column.cellTemplate = GridViewUtils.cellTemplate(columnTmp);
+                        column.width = columnDefinition?.width || 100;
+                        column.name = columnDefinition?.fieldName;
+                        column.caption = columnDefinition?.label;
+                        column.dataType = GridViewUtils.specifyColumnType(columnDefinition?.type);
+                        column.format = GridViewUtils.specifyColumnFormat(columnDefinition?.type);
+                        column.cellTemplate = GridViewUtils.cellTemplate(columnDefinition);
                         column.fixed =
-                            columnTmp.freeze !== undefined && columnTmp.freeze !== null
-                                ? columnTmp.freeze?.toLowerCase() === 'left' ||
-                                columnTmp.freeze?.toLowerCase() === 'right'
+                            columnDefinition.freeze !== undefined && columnDefinition.freeze !== null
+                                ? columnDefinition.freeze?.toLowerCase() === 'left' ||
+                                columnDefinition.freeze?.toLowerCase() === 'right'
                                 : false;
-                        column.fixedPosition = !!columnTmp.freeze ? columnTmp.freeze?.toLowerCase() : null;
+                        column.fixedPosition = !!columnDefinition.freeze ? columnDefinition.freeze?.toLowerCase() : null;
                         INDEX_COLUMN++;
                     } else {
                         column.visible = false;
