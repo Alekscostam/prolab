@@ -782,10 +782,8 @@ export class GridViewContainer extends BaseContainer {
                 position="right"
                 onHide={() => this.setState({visibleEditPanel: false})}>
                 <React.Fragment>
-
                         <EditRowComponent editData={this.state.editData} onChange={this.handleEditRowChange}
                                           validator={this.validator}/>
-
                 </React.Fragment>
             </Sidebar>
         </React.Fragment>;
@@ -805,6 +803,14 @@ export class GridViewContainer extends BaseContainer {
                     varName = event.originalEvent.target.name;
                     varValue = isNaN(parseFloat(event.value)) ? 0 : parseFloat(event.value);
                     break;
+                case 'EDITOR':
+                    varName = event.name;
+                    varValue = event.value || event.value === '' ? event.value : undefined;
+                    break;
+                case 'IMAGE64':
+                    varName = event == null ? null : event[0].fieldName;
+                    varValue = event == null ? null : event[0].base64;
+                    break;
                 case 'TEXT':
                 case 'AREA':
                 default:
@@ -813,10 +819,12 @@ export class GridViewContainer extends BaseContainer {
                     break;
             }
             console.log('handleEditRowChange - ', inputType, varName, varValue);
-            let field = groupData[0].fields.filter(obj => {
+            let field = groupData[0]?.fields.filter(obj => {
                 return obj.fieldName === varName
             })
-            field[0].value = varValue;
+            if (!!field && !!field[0]) {
+                field[0].value = varValue
+            }
             this.setState({editData: editData})
         } else {
             console.log('handleEditRowChange implementation error');

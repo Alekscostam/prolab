@@ -38,6 +38,7 @@ export const ShortcutButton = props => {
                     href={disabled ? undefined : href ? href : 'javascript:;'}
                     onClick={e => (disabled || !handleClick ? false : handleClick(e, params))}
                     id={id}
+                    type="submit"
                     key={id === undefined ? `actionButton-${label}` : id}
                 >
 					<span

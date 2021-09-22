@@ -1,6 +1,6 @@
 /*Edycja*/
 
-#right-sidebar{
+#right-sidebar {
   background: transparent linear-gradient(90deg, #F7F9FD 0%, #ECF2FB 100%) 0% 0% no-repeat padding-box !important;
 }
 
@@ -13,11 +13,20 @@
   border-radius: 4px;
 }
 
-#row-edit .p-panel .p-panel-content{
+#row-edit .p-panel .p-panel-content {
   padding: 0rem 0rem 1rem 0rem;
 }
-#row-edit .p-float-label{
-  margin-bottom: 1rem;
+
+#row-edit .p-float-label {
+  margin-bottom: 0.2rem;
+}
+
+#row-edit .field {
+  margin-bottom: 0.6rem;
+}
+
+#row-edit .editor {
+  margin-bottom: 0.6rem;
 }
 
 #row-edit .p-float-label input:focus ~ label,
@@ -34,23 +43,24 @@
 }
 
 #row-edit .p-dropdown,
-#row-edit .p-dropdown .p-dropdown-label{
+#row-edit .p-dropdown .p-dropdown-label {
   background-color: $text-bg;
   color: $text-color;
   font-weight: 500;
   font-size: 16px;
   letter-spacing: 0px;
   text-align: left;
-  border: 1px solid #D5D5D5;
+  border: 1px solid rgba(0, 0, 0, 0.38);
   border-radius: 6px;
   box-shadow: none;
   width: 100%;
 }
-#row-edit .p-dropdown .p-dropdown-label{
+
+#row-edit .p-dropdown .p-dropdown-label {
   border: 0;
 }
 
-#row-edit .p-dropdown:hover{
+#row-edit .p-dropdown:hover {
   border: 1px solid #707890;
   color: #707890;
 }
@@ -71,6 +81,10 @@
   color: $text-color;
 }
 
+#row-edit #buttons {
+  margin-top: 5px;
+}
+
 #row-edit #buttons > .shortcut.p-button.p-component {
   height: 48px;
   width: 107px;
@@ -80,11 +94,11 @@
   box-shadow: 0px 3px 6px #00000029;
 }
 
-#row-edit #buttons{
+#row-edit #buttons {
   text-align: right;
 }
 
-#row-edit #buttons a{
+#row-edit #buttons a {
   align-items: center;
   justify-content: center;
 }
@@ -92,4 +106,78 @@
 #row-edit .p-disabled,
 #row-edit .p-component:disabled {
   opacity: 1;
+}
+
+#row-edit .dx-htmleditor {
+  border-radius: 6px;
+}
+
+#row-edit .validation-msg-invalid > .dx-htmleditor {
+  border: 1px solid $danger-color !important;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+#row-edit .dx-htmleditor {
+  border-radius: 6px;
+  margin-bottom: 25px;
+}
+
+#row-edit .validation-msg {
+  text-align: left;
+  font-size: 12px;
+  font-weight: normal;
+  letter-spacing: 0px;
+}
+
+#row-edit .validation-msg.invalid {
+  color: $danger-color;
+}
+
+#row-edit .dx-htmleditor.dx-htmleditor-outlined.dx-invalid {
+  border: 1px solid $danger-color !important;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+#row-edit .p-calendar-w-btn .p-datepicker-trigger.p-button span {
+  color: $link-color;
+}
+
+#row-edit .dx-overlay-content.dx-invalid-message-content.dx-resizable {
+  background-color: $text-bg;
+  text-align: left;
+  font-size: 12px;
+  font-weight: normal;
+  letter-spacing: 0px;
+  color: $danger-color;
+  padding: 0;
+}
+
+#row-edit .dx-htmleditor.dx-state-focused {
+  -webkit-box-shadow: inset 0 0 0 1px #3f51b5;
+  box-shadow: inset 0 0 0 1px #3f51b5;
+}
+
+#row-edit .p-panel {
+  margin-bottom: 10px !important;
+}
+
+#row-edit .file-chooser::-webkit-file-upload-button {
+  box-shadow: 0px 3px 6px #00000029;
+  background-color: #0e49eb;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: bold;
+  border-color: transparent;
+  border-radius: 4px;
+  align-items: center;
+  justify-content: center;
+  flex: auto;
+  padding: 0.5rem;
+  min-width: 0rem;
+}
+
+#row-edit input[type='file'] {
+  color: transparent;
 }
