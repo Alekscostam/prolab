@@ -237,4 +237,38 @@ export class GridViewUtils {
             }
         };
     }
+
+    static equalString(s1, s2) {
+        if (
+            (s1 === null || s1 === undefined || s1 === 'undefined') &&
+            (s2 === null || s2 === undefined || s2 === 'undefined')
+        ) {
+            return true;
+        }
+        return s1 === s2;
+    }
+
+    static equalNumbers(n1, n2) {
+        if (
+            (n1 === null || n1 === undefined || n1 === 'undefined') &&
+            (n2 === null || n2 === undefined || n2 === 'undefined')
+        ) {
+            //console.log('equalNumbers: result=' + true + ' {' + n1 + ', ' + n2 + '}' );
+            return true;
+        }
+        let num1, num2;
+        if (typeof n1 === 'number') {
+            num1 = n1;
+        } else {
+            num1 = parseInt(n1);
+        }
+        if (typeof n2 === 'number') {
+            num2 = n2;
+        } else {
+            num2 = parseInt(n2);
+        }
+        const result = num1 === num2;
+        //console.log('equalNumbers: result=' + result + ' [' + n1 + ', ' + n2 + '] [' + typeof n1 + ', ' + typeof n2 + ']' );
+        return result;
+    }
 }

@@ -349,11 +349,17 @@ export class EditRowComponent extends BaseContainer {
                                 name="font"
                                 acceptedValues={fontValues}
                             />
+                            <Item
+                                name="header"
+                                acceptedValues={headerValues}
+                            />
                             <Item name="separator"/>
                             <Item name="bold"/>
                             <Item name="italic"/>
                             <Item name="strike"/>
                             <Item name="underline"/>
+                            <Item name="subscript"/>
+                            <Item name="superscript"/>
                             <Item name="separator"/>
                             <Item name="alignLeft"/>
                             <Item name="alignCenter"/>
@@ -362,11 +368,6 @@ export class EditRowComponent extends BaseContainer {
                             <Item name="separator"/>
                             <Item name="orderedList"/>
                             <Item name="bulletList"/>
-                            <Item name="separator"/>
-                            <Item
-                                name="header"
-                                acceptedValues={headerValues}
-                            />
                             <Item name="separator"/>
                             <Item name="color"/>
                             <Item name="background"/>
