@@ -202,6 +202,9 @@ $table-selection: #dde6ff;
     // padding: 10px;
     overflow-y: auto;
     overflow-x: hidden;
+    display: inline-flex;
+    align-items: flex-end;
+    max-height: fit-content;
     .card-grid-footer-content {
         word-break: normal;
     }
@@ -210,8 +213,14 @@ $table-selection: #dde6ff;
     // padding: 10px;
     overflow-y: auto;
     overflow-x: hidden;
+    display: inline-flex;
+    align-items: flex-start;
+    max-height: fit-content;
     .card-grid-body-content {
         word-break: normal;
+    }
+    .card-grid-body-image {
+        padding-right: 10px;
     }
 }
 .card-grid-body ::-webkit-scrollbar,
@@ -439,4 +448,3 @@ body .grid-container {
 .dx-searchbox.dx-editor-underlined .dx-texteditor-input {
     padding-left: 30px;
 }
-
