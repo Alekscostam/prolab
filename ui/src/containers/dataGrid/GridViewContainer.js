@@ -741,26 +741,21 @@ export class GridViewContainer extends BaseContainer {
 
     //override
     renderGlobalTop() {
-        return (
-            <React.Fragment>
-                <Sidebar
-                    id='right-sidebar'
-                    visible={this.state.visibleEditPanel}
-                    modal={true}
-                    style={{width: '45%'}}
-                    position='right'
-                    onHide={() => this.setState({visibleEditPanel: false})}
-                >
-                    <React.Fragment>
-                        <EditRowComponent
-                            editData={this.state.editData}
-                            onChange={this.handleEditRowChange}
-                            validator={this.validator}
-                        />
-                    </React.Fragment>
-                </Sidebar>
-            </React.Fragment>
-        );
+        return <React.Fragment>
+            <Sidebar
+                id="right-sidebar"
+                visible={this.state.visibleEditPanel}
+                modal={true}
+                style={{width: '45%'}}
+                position="right"
+                onHide={() => this.setState({visibleEditPanel: false})}>
+                <React.Fragment>
+                        <EditRowComponent editData={this.state.editData}
+                                          onChange={this.handleEditRowChange}
+                                          validator={this.validator}/>
+                </React.Fragment>
+            </Sidebar>
+        </React.Fragment>;
     }
 
     handleEditRowChange(inputType, event, groupName) {
@@ -1242,7 +1237,6 @@ export class GridViewContainer extends BaseContainer {
                                 height='100%'
                                 rowAlternationEnabled={false}
                                 onSelectionChanged={(e) => {
-                                    console.log('onSelectionChanged', e);
                                     if (e.selectedRowKeys && e.component) {
                                         e.selectedRowKeys.forEach((id) =>
                                             e.component.repaintRows(e.component.getRowIndexByKey(id))

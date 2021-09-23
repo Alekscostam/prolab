@@ -20,10 +20,6 @@ import {RequiredRule} from "devextreme-react/validator";
 import moment from 'moment';
 import UploadImageFileBase64 from "./UploadImageFileBase64";
 
-const sizeValues = ['8pt', '10pt', '12pt', '14pt', '18pt', '24pt', '36pt'];
-const fontValues = ['Arial', 'Courier New', 'Georgia', 'Impact', 'Lucida Console', 'Tahoma', 'Times New Roman', 'Verdana'];
-const headerValues = [false, 1, 2, 3, 4, 5];
-
 export class EditRowComponent extends BaseContainer {
 
     constructor(props) {
@@ -36,6 +32,10 @@ export class EditRowComponent extends BaseContainer {
             {name: 'Tak', code: 'T'},
             {name: 'Nie', code: 'N'},
         ];
+        this.sizeValues = ['8pt', '10pt', '12pt', '14pt', '18pt', '24pt', '36pt'];
+        this.fontValues = ['Arial', 'Courier New', 'Georgia', 'Impact', 'Lucida Console', 'Tahoma', 'Times New Roman', 'Verdana'];
+        this.headerValues = [false, 1, 2, 3, 4, 5];
+        this.preventSave = false;
     }
 
     render() {
@@ -49,6 +49,9 @@ export class EditRowComponent extends BaseContainer {
                 <div id="row-edit" className="row-edit-container">
                     <div className="label">{editData.editInfo?.viewName}</div>
                     <br/>
+                    {this.preventSave ? <div id="validation-panel" className="validation-panel">
+                        Wypełnij wszystkie wymagane pola
+                    </div> : null}
                     {editData.editFields?.map((group, index) => {
                             return this.renderGroup(group, index)
                         }
@@ -85,11 +88,13 @@ export class EditRowComponent extends BaseContainer {
             event.preventDefault();
         }
         if (this.validator.allValid()) {
+            this.preventSave = false;
             this.blockUi(this.handleValidForm);
         } else {
             this.validator.showMessages();
             // rerender to show messages for the first time
             this.scrollToError = true;
+            this.preventSave = true;
             this.forceUpdate();
         }
     }
@@ -160,7 +165,7 @@ export class EditRowComponent extends BaseContainer {
             case 'T'://T – Czas
                 return 'time_';
             case 'O'://O – Opisowe
-                return 'time_${fieldIndex}';
+                return 'editor_';
             case 'I'://I – Obrazek
             case 'IM'://IM – Obrazek multi
                 return 'image_';
@@ -326,10 +331,11 @@ export class EditRowComponent extends BaseContainer {
                                 name: field.fieldName,
                                 value: e
                             }
-                            onChange('EDITOR', e, groupName)
+                            onChange('EDITOR', event, groupName)
                         }}
                         validationMessageMode="always"
                         disabled={!field.edit}
+                        required={true}
                     >
                         {required ?
                             <Validator>
@@ -343,15 +349,15 @@ export class EditRowComponent extends BaseContainer {
                             <Item name="separator"/>
                             <Item
                                 name="size"
-                                acceptedValues={sizeValues}
+                                acceptedValues={this.sizeValues}
                             />
                             <Item
                                 name="font"
-                                acceptedValues={fontValues}
+                                acceptedValues={this.fontValues}
                             />
                             <Item
                                 name="header"
-                                acceptedValues={headerValues}
+                                acceptedValues={this.headerValues}
                             />
                             <Item name="separator"/>
                             <Item name="bold"/>
@@ -386,25 +392,27 @@ export class EditRowComponent extends BaseContainer {
             case 'I'://I – Obrazek
             case 'IM'://IM – Obrazek multi
                 return (<React.Fragment>
-                    <label id={`${this.getType(field.type)}${fieldIndex}`}
-                           htmlFor={`image_${fieldIndex}`}>{field.label}{required ? '*' : ''}</label>
-                    <br/>
-                    <Image id={`${this.getType(field.type)}`}
-                           style={{maxWidth: '100%'}}
-                           className={"img-responsive"}
-                           alt={field.label}
-                           base64={field.value}
-                           rendered={!!field.value}/>
-                    <UploadImageFileBase64
-                        id={`${this.getType(field.type)}`}
-                        name={field.fieldName}
-                        multiple={true}
-                        disabled={!field.edit}
-                        required={required}
-                        onDone={e => {
-                            onChange('IMAGE64', e, groupName)
-                        }}
-                    />
+                    <div className="image-base">
+                        <label id={`${this.getType(field.type)}${fieldIndex}`}
+                               htmlFor={`image_${fieldIndex}`}>{field.label}{required ? '*' : ''}</label>
+                        <br/>
+                        <Image id={`${this.getType(field.type)}`}
+                               style={{maxWidth: '100%'}}
+                               className={"img-responsive"}
+                               alt={field.label}
+                               base64={field.value}
+                               rendered={!!field.value}/>
+                        <UploadImageFileBase64
+                            id={`${this.getType(field.type)}`}
+                            name={field.fieldName}
+                            multiple={true}
+                            disabled={!field.edit}
+                            required={required}
+                            onDone={e => {
+                                onChange('IMAGE64', e, groupName)
+                            }}
+                        />
+                    </div>
                 </React.Fragment>);
             case 'H'://H - Hyperlink
                 return (<React.Fragment>
