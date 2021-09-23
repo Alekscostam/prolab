@@ -144,6 +144,13 @@ $table-selection: #dde6ff;
 
 .dx-datagrid.dx-gridbase-container {
     z-index: 0;
+    .dx-loadpanel {
+        position: fixed;
+        left: 50%;
+        .dx-loadpanel-wrapper {
+            // display: contents;
+        }
+    }
 }
 
 .dx-buttongroup-wrapper dx-widget dx-collection {
@@ -202,7 +209,7 @@ $table-selection: #dde6ff;
     // padding: 10px;
     overflow-y: auto;
     overflow-x: hidden;
-    display: inline-flex;
+    // display: inline-flex;
     align-items: flex-end;
     max-height: fit-content;
     .card-grid-footer-content {
@@ -339,6 +346,7 @@ body .grid-container.grid-header-auto-height .dx-datagrid-headers .dx-header-row
 }
 body .grid-container {
     max-width: 100%;
+    width: min-content;
     .dx-checkbox.dx-state-readonly.dx-state-hover {
         .dx-checkbox-icon {
             border-color: rgba(0, 0, 0, 0);

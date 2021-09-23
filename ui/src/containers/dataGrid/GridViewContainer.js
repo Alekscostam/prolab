@@ -477,12 +477,21 @@ export class GridViewContainer extends BaseContainer {
                                                 this.state.elementFilterId,
                                                 (err) => {
                                                     this.showErrorMessage(err);
+                                                },
+                                                ()=>{
+                                                    this.setState({
+                                                        blocking: false,
+                                                    });
+                                                },
+                                                ()=>{
+                                                    this.setState({
+                                                        blocking: true,
+                                                    });
                                                 }
                                             );
-
                                             this.setState({
-                                                parsedGridViewData: res,
                                                 loading: false,
+                                                parsedGridViewData: res,
                                             });
                                         });
                                     }
@@ -1230,7 +1239,6 @@ export class GridViewContainer extends BaseContainer {
                                 showRowLines={true}
                                 showBorders={true}
                                 columnHidingEnabled={false}
-                                width='min-content'
                                 height='100%'
                                 rowAlternationEnabled={false}
                                 onSelectionChanged={(e) => {
@@ -1268,7 +1276,7 @@ export class GridViewContainer extends BaseContainer {
                                 <Selection mode='multiple' selectAllMode='allPages' showCheckBoxesMode='always' />
 
                                 <Scrolling mode='virtual' rowRenderingMode='virtual' />
-                                <LoadPanel enabled={true} />
+                                <LoadPanel enabled={false} />
 
                                 {/* domyślnie infinite scrolling
                                     <Paging defaultPageSize={10} />

@@ -44,11 +44,14 @@ export default class DataGridStore extends BaseService {
         });
     }
 
-    getDataGridStore(viewIdArg, viewTypeArg, recordIdArg, filterIdArg, onError) {
+    getDataGridStore(viewIdArg, viewTypeArg, recordIdArg, filterIdArg, onError, onSuccess, onStart) {
         const dataGridStore = new CustomStore({
             key: 'ID',
             //keyExpr: 'ID',
             load: (loadOptions) => {
+                if (onStart) {
+                    onStart();
+                }
                 let params = '?';
                 [
                     'filter',
@@ -75,15 +78,21 @@ export default class DataGridStore extends BaseService {
                 let filterIdParam = filterIdArg !== undefined && filterIdArg != null ? `&filterId=${filterIdArg}` : '';
                 let recordIdParam = recordIdArg !== undefined && recordIdArg != null ? `&parentId=${recordIdArg}` : '';
                 //let parentIdParam = recordIdArg !== undefined && recordIdArg != null ? `&parentId=${recordIdArg}` : '';
-                if (!viewIdArg) {                    
+                if (!viewIdArg) {
                     return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0});
                 }
-                return this.fetch(`${this.domain}/${this.path}/${viewIdArg}${params}${viewTypeParam}${filterIdParam}${recordIdParam}`, {
-                    method: 'GET',
-                })
+                return this.fetch(
+                    `${this.domain}/${this.path}/${viewIdArg}${params}${viewTypeParam}${filterIdParam}${recordIdParam}`,
+                    {
+                        method: 'GET',
+                    }
+                )
                     .then((response) => {
                         let data = response.data;
                         console.log('DataGridStore -> fetch data: ', data);
+                        if (onSuccess) {
+                            onSuccess();
+                        }
                         return {
                             data: data,
                             //TODO
@@ -93,7 +102,7 @@ export default class DataGridStore extends BaseService {
                         };
                     })
                     .catch((err) => {
-                        console.log("Error fetch data grid store for view id={%s}. Error = ", viewIdArg, err)
+                        console.log('Error fetch data grid store for view id={%s}. Error = ', viewIdArg, err);
                         if (onError) {
                             onError(err);
                         }
