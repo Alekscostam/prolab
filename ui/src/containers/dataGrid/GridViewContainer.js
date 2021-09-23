@@ -478,12 +478,12 @@ export class GridViewContainer extends BaseContainer {
                                                 (err) => {
                                                     this.showErrorMessage(err);
                                                 },
-                                                ()=>{
+                                                () => {
                                                     this.setState({
                                                         blocking: false,
                                                     });
                                                 },
-                                                ()=>{
+                                                () => {
                                                     this.setState({
                                                         blocking: true,
                                                     });
@@ -741,21 +741,26 @@ export class GridViewContainer extends BaseContainer {
 
     //override
     renderGlobalTop() {
-        return <React.Fragment>
-            <Sidebar
-                id="right-sidebar"
-                visible={this.state.visibleEditPanel}
-                modal={true}
-                style={{width: '45%'}}
-                position="right"
-                onHide={() => this.setState({visibleEditPanel: false})}>
-                <React.Fragment>
-                        <EditRowComponent editData={this.state.editData}
-                                          onChange={this.handleEditRowChange}
-                                          validator={this.validator}/>
-                </React.Fragment>
-            </Sidebar>
-        </React.Fragment>;
+        return (
+            <React.Fragment>
+                <Sidebar
+                    id='right-sidebar'
+                    visible={this.state.visibleEditPanel}
+                    modal={true}
+                    style={{width: '45%'}}
+                    position='right'
+                    onHide={() => this.setState({visibleEditPanel: false})}
+                >
+                    <React.Fragment>
+                        <EditRowComponent
+                            editData={this.state.editData}
+                            onChange={this.handleEditRowChange}
+                            validator={this.validator}
+                        />
+                    </React.Fragment>
+                </Sidebar>
+            </React.Fragment>
+        );
     }
 
     handleEditRowChange(inputType, event, groupName) {
@@ -875,36 +880,34 @@ export class GridViewContainer extends BaseContainer {
                     selectedItemKeys={this.state.gridViewType}
                     onItemClick={this.gridViewTypeChange}
                 />
+                <div className={`${centerElementStyle} op-buttongroup`}>
+                    {opDocuments && this.state.documentsList?.length > 0 ? (
+                        <ActionButtonWithMenu
+                            id='button_documents'
+                            iconName='mdi-file-document'
+                            items={this.state.documentsList}
+                            title={opDocuments?.label}
+                        />
+                    ) : null}
 
-                {opDocuments && this.state.documentsList?.length > 0 ? (
-                    <ActionButtonWithMenu
-                        id='button_documents'
-                        className={`${centerElementStyle}`}
-                        iconName='mdi-file-document'
-                        items={this.state.documentsList}
-                        title={opDocuments?.label}
-                    />
-                ) : null}
+                    {opPlugins && this.state.pluginsList?.length > 0 ? (
+                        <ActionButtonWithMenu
+                            id='button_plugins'
+                            iconName='mdi-puzzle'
+                            items={this.state.pluginsList}
+                            title={opPlugins?.label}
+                        />
+                    ) : null}
 
-                {opPlugins && this.state.pluginsList?.length > 0 ? (
-                    <ActionButtonWithMenu
-                        id='button_plugins'
-                        className={`${centerElementStyle}`}
-                        iconName='mdi-puzzle'
-                        items={this.state.pluginsList}
-                        title={opPlugins?.label}
-                    />
-                ) : null}
-
-                {opBatches && this.state.batchesList?.length > 0 ? (
-                    <ActionButtonWithMenu
-                        id='batches_plugins'
-                        className={`${centerElementStyle}`}
-                        iconName='mdi-cogs'
-                        items={this.state.batchesList}
-                        title={opBatches?.label}
-                    />
-                ) : null}
+                    {opBatches && this.state.batchesList?.length > 0 ? (
+                        <ActionButtonWithMenu
+                            id='batches_plugins'
+                            iconName='mdi-cogs'
+                            items={this.state.batchesList}
+                            title={opBatches?.label}
+                        />
+                    ) : null}
+                </div>
             </React.Fragment>
         );
     };

@@ -362,6 +362,16 @@ body .grid-container {
     }
 }
 .grid-panel-left {
+    .op-buttongroup {
+        position: absolute;
+        display: inline-block;
+        a {
+            margin-right: 0.25rem;
+        }
+        a:last-child {
+            margin-right: 0;
+        }
+    }
     .dx-buttongroup {
         .dx-buttongroup-item.dx-button.dx-button-mode-outlined {
             background-color: white;
