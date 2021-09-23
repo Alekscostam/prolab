@@ -96,7 +96,7 @@ export default class DataGridStore extends BaseService {
                         return {
                             data: data,
                             //TODO
-                            totalCount: response.totalCount || 50,
+                            totalCount: response.totalCount,
                             summary: response.summary || [],
                             groupCount: response.groupCount || 0,
                         };
