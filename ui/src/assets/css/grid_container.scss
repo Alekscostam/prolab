@@ -394,16 +394,16 @@ body .grid-container {
         }
     }
 
-    .filter-combo.dx-texteditor.dx-editor-underlined.dx-dropdowneditor-active::before,
-    .filter-combo.dx-texteditor.dx-editor-underlined::before,
-    .filter-combo.dx-texteditor.dx-editor-underlined::after,
-    .filter-combo.dx-texteditor.dx-editor-underlined.dx-state-hover::after {
+    .filter-combo.dx-texteditor.dx-dropdowneditor-active::before,
+    .filter-combo.dx-texteditor::before,
+    .filter-combo.dx-texteditor::after,
+    .filter-combo.dx-texteditor.dx-state-hover::after {
         border-bottom-width: 0px;
         border-bottom-style: none;
     }
-    .filter-combo.dx-texteditor.dx-editor-underlined.dx-state-hover,
-    .filter-combo.dx-texteditor.dx-editor-underlined.dx-state-focused,
-    .filter-combo.dx-texteditor.dx-editor-underlined.dx-state-active {
+    .filter-combo.dx-texteditor.dx-state-hover,
+    .filter-combo.dx-texteditor.dx-state-focused,
+    .filter-combo.dx-texteditor.dx-state-active {
         .dx-dropdowneditor-icon {
             background-color: transparent;
             color: white;
@@ -423,7 +423,7 @@ body .grid-container {
             }
         }
     }
-    .filter-combo.dx-texteditor.dx-editor-underlined {
+    .filter-combo.dx-texteditor {
         top: -1px;
         display: inline-block;
         height: 28px;
