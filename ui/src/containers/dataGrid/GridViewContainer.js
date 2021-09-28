@@ -860,6 +860,7 @@ export class GridViewContainer extends BaseContainer {
                         valueExpr='id'
                         value={parseInt(this.state.elementFilterId)}
                         onValueChanged={this.onFilterChanged}
+                        stylingMode='underlined'
                     />
                 ) : null}
                 {/* {opFilter && this.state.filtersList?.length > 0 ? (

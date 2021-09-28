@@ -427,6 +427,8 @@ body .grid-container {
         top: -1px;
         display: inline-block;
         height: 28px;
+        // border-radius: 4px;
+        // border: 1px solid #ddd;
         border-bottom-width: 0px;
         border-bottom-style: none;
         .dx-dropdowneditor-icon {
@@ -450,6 +452,9 @@ body .grid-container {
                         font-family: 'Roboto';
                         font-size: 12px;
                         font-weight: bold;
+                    }
+                    .dx-placeholder::before {
+                        padding: 0px 10px;
                     }
                 }
             }

@@ -1,5 +1,5 @@
 import React from 'react';
-import 'devextreme/dist/css/dx.light.css';
+// import 'devextreme/dist/css/dx.light.css';
 import CustomStore from 'devextreme/data/custom_store';
 import 'whatwg-fetch';
 import BaseService from '../../services/BaseService';
