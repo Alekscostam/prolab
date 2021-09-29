@@ -1265,7 +1265,7 @@ export class GridViewContainer extends BaseContainer {
                                 />
 
                                 <FilterRow visible={true} />
-                                <HeaderFilter visible={true} allowSearch={true} />
+                                <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'} />
 
                                 <Grouping autoExpandAll={groupExpandAll} />
                                 <GroupPanel visible={showGroupPanel} />
