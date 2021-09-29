@@ -19,6 +19,7 @@ import packageJson from '../package.json';
 import ReadConfigService from "./services/ReadConfigService";
 import {readCookieGlobal, saveCookieGlobal} from "./utils/cookie";
 import LocalizationService from './services/LocalizationService';
+import config from "devextreme/core/config";
 
 class App extends Component {
     constructor() {
@@ -51,7 +52,10 @@ class App extends Component {
         //     'pl': translationPL,
         //     'en' : translationENG,
         //     'de' : translationDE,
-        // });        
+        // });     
+        config({
+            editorStylingMode: 'underlined'
+        });   
         console.log("App version = " + packageJson.version);
     }
 

@@ -15,16 +15,17 @@ import ViewService from '../../services/ViewService';
 import Image from '../../components/Image';
 import {MenuValidatorUtils} from '../../utils/parser/MenuValidatorUtils';
 import {InputText} from 'primereact/inputtext';
-import ActionButton from "../../components/ActionButton";
-import VersionService from "../../services/VersionService";
+import ActionButton from '../../components/ActionButton';
+import VersionService from '../../services/VersionService';
 import AppPrefixUtils from '../../utils/AppPrefixUtils';
 import UrlUtils from '../../utils/UrlUtils';
-import Avatar from "../../components/Avatar";
+import Avatar from '../../components/Avatar';
 
 class Sidebar extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            viewId: undefined,
             loading: true,
             menu: [],
             filteredMenu: [],
@@ -65,15 +66,15 @@ class Sidebar extends React.Component {
 
                         //rozwinięcie submenu przy wejściu z linka
                         const viewId = UrlUtils.getViewIdFromURL();
+                        console.log('sidebar => didMount viewId', viewId);
                         if (!!viewId) {
                             setTimeout(() => {
                                 const menuItem = $('#menu_item_id_' + viewId);
                                 const subMenuItem = menuItem.closest('div').parent();
-                                subMenuItem.removeClass('closed');
-                                subMenuItem.height('auto');
-                                subMenuItem.parent().find('div').first().trigger('click');
+                                // subMenuItem.removeClass('closed');
+                                // subMenuItem.height('auto');
+                                // subMenuItem.parent().find('div').first().trigger('click');
                             }, 10);
-
                         }
                     }
                 );
@@ -90,32 +91,58 @@ class Sidebar extends React.Component {
             .then((data) => {
                 this.setState(
                     {
-                        versionAPI: data.VersionAPI
+                        versionAPI: data.VersionAPI,
                     },
-                    () => {
-                    }
+                    () => {}
                 );
             })
-            .catch((err) => {
-            });
+            .catch((err) => {});
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        const viewId = UrlUtils.getViewIdFromURL();
+        console.log('sidebar => componentDidUpdate', viewId, prevState.viewId);
+        if (prevState.viewId !== viewId) {
+            this.setState({viewId});
+        }
+        // if()
+        // if (!!viewId) {
+        //     setTimeout(() => {
+        //         const menuItem = $('#menu_item_id_' + viewId);
+        //         console.log('sidebar => menuItem.hasClass(active)',menuItem.hasClass('active'), menuItem)
+        //         if (!menuItem.hasClass('active')) {
+        //             menuItem.addClass('active');
+        //         }
+        //         if (!menuItem.find('.pro-inner-item').hasClass('active')) {
+        //             menuItem.find('.pro-inner-item').addClass('active');
+        //         }
+        //         console.log('sidebar => menuItem', menuItem)
+        //         const subMenuItem = menuItem.closest('div').parent();
+        //         subMenuItem.removeClass('closed');
+        //         subMenuItem.height('fit-content');
+        //         // subMenuItem.parent().find('div').first().trigger('click');
+        //     }, 10);
+        // }
     }
 
     //very important !!!
     shouldComponentUpdate(nextProps, nextState, nextContext) {
         const history = this.props.history;
-        if (this.doNotUpdate === true) {
+        const viewId = UrlUtils.getViewIdFromURL();
+        console.log('sidebar => shouldComponentUpdate doNotUpdate', this.state.viewId, viewId);
+        if (this.doNotUpdate === true && this.state.viewId == viewId) {
             this.doNotUpdate = false;
             return false;
         }
 
-        const result = (
+        const result =
             history.action !== 'PUSH' ||
             (history.action !== 'PUSH' && nextProps.location.pathname == '/start') ||
             this.state.collapsed !== nextState.collapsed ||
             this.state.toggled !== nextState.toggled ||
-            this.state.filterValue !== nextState.filterValue
-        );
-        //alert('shouldComponentUpdate: ' + result);
+            this.state.viewId !== nextState.viewId ||
+            this.state.filterValue !== nextState.filterValue;
+        console.log('sidebar => shouldComponentUpdate', result, this.state.viewId, nextState.viewId);
         return result;
     }
 
@@ -186,24 +213,25 @@ class Sidebar extends React.Component {
     }
 
     render() {
-        let {authService} = this.props;        
+        console.log('sidebar => render', this.state.viewId);
+        let {authService} = this.props;
         if (!authService.loggedIn()) {
             const logoutUrl = AppPrefixUtils.locationHrefUrl('/#/');
             window.location.href = logoutUrl;
             return null;
         }
         const {collapsed, filterValue} = this.state;
-        $(document).on('click', '.pro-inner-item', function (e) {
-            $('.pro-inner-item').each(function (index) {
-                $(this).removeClass('active');
-            });
-            $('.pro-menu-item').each(function (index) {
-                $(this).removeClass('active');
-            });
-            $(this).addClass('active').siblings().removeClass('active');
-            $(this).parents('.pro-inner-item').addClass('active');
-            $(this).parents('.pro-menu-item').addClass('active');
-        });
+        // $(document).on('click', '.pro-inner-item', function (e) {
+        //     $('.pro-inner-item').each(function (index) {
+        //         $(this).removeClass('active');
+        //     });
+        //     $('.pro-menu-item').each(function (index) {
+        //         $(this).removeClass('active');
+        //     });
+        //     $(this).addClass('active').siblings().removeClass('active');
+        //     $(this).parents('.pro-inner-item').addClass('active');
+        //     $(this).parents('.pro-menu-item').addClass('active');
+        // });
         /*------------------------  PROPS  ---------------------------*/
 
         /*------------------------  PROPS  ---------------------------*/
@@ -215,30 +243,37 @@ class Sidebar extends React.Component {
         //const role = authService.getProfile().role;
         const renderDynamicMenu = (items) => {
             const timestamp = Date.now();
-            return (                
+            return (
                 <Menu key='menu' iconShape='circle' popperArrow='false'>
                     {items?.map((item) => {
+                        const activeItem = containsViewId(item, this.state.viewId, item.id);
                         return item.type === 'View' ? (
                             <li>
                                 <MenuItem
                                     id={`menu_item_id_${item.id}`}
                                     key={`menu_item_key_${item.id}`}
+                                    active={activeItem}
+                                    className={activeItem ? 'active' : ''}
                                     icon={
                                         item.icon === undefined || item.icon === '' ? (
-                                            <FaAngleRight/>
+                                            <FaAngleRight />
                                         ) : (
-                                            <Image alt={item.name} base64={item.icon}/>
+                                            <Image alt={item.name} base64={item.icon} />
                                         )
                                     }
-
                                     onClick={() => {
                                         this.doNotUpdate = true;
                                     }}
                                 >
-                                    <div className='menu_arrow_active'/>                                    
-                                    <a href={AppPrefixUtils.locationHrefUrl(`/#/grid-view/${item.id}?force=${timestamp}`)} className='title' style={{fontSize: '14px', fontWeight: 'normal'}}
+                                    <div className='menu_arrow_active' />
+                                    <a
+                                        href={AppPrefixUtils.locationHrefUrl(
+                                            `/#/grid-view/${item.id}?force=${timestamp}`
+                                        )}
+                                        className='title'
+                                        style={{fontSize: '14px', fontWeight: 'normal'}}
                                         onClick={(e) => {
-                                            let href = e.target.href;                                        
+                                            let href = e.target.href;
                                             e.target.href = UrlUtils.addParameterToURL(href, 'force', Date.now());
                                         }}
                                     >
@@ -252,11 +287,13 @@ class Sidebar extends React.Component {
                                 key={`menu_sub_${item.id}`}
                                 icon={
                                     item.icon === undefined || item.icon === '' ? (
-                                        <FaAngleDoubleRight/>
+                                        <FaAngleDoubleRight />
                                     ) : (
-                                        <Image alt={item.name} base64={item.icon}/>
+                                        <Image alt={item.name} base64={item.icon} />
                                     )
                                 }
+                                className={activeItem ? 'active' : ''}
+                                defaultOpen={activeItem}
                                 title={item?.name}
                             >
                                 {item?.sub && renderDynamicMenu(item?.sub)}
@@ -265,6 +302,26 @@ class Sidebar extends React.Component {
                     })}
                 </Menu>
             );
+        };
+
+        const containsViewId = (item, viewId, currId, type) => {
+            var result = false;
+            if (item?.sub && item?.sub?.length > 0) {
+                for (let i in item?.sub) {
+                    let subItem = item?.sub[i];
+                    result = result || parseInt(subItem.id) === parseInt(viewId);
+                    result = result || containsViewId(subItem, viewId, currId, type);
+                    if (result) {
+                        return true;
+                    }
+                }
+            } else {
+                result = result || parseInt(item.id) === parseInt(viewId);
+                if (result) {
+                    return true;
+                }
+            }
+            return result;
         };
 
         const DynamicMenu = (data) => {
@@ -277,13 +334,13 @@ class Sidebar extends React.Component {
         if (!authService.loggedIn()) {
             return null;
         }
-        const { labels } = this.props;
+        const {labels} = this.props;
 
-        return  (
+        return (
             <React.Fragment>
                 <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
                     <div className='btn-toggle' onClick={() => this.handleToggleSidebar()}>
-                        <FaBars/>
+                        <FaBars />
                     </div>
                     <ProSidebar
                         collapsed={this.state.collapsed}
@@ -328,7 +385,7 @@ class Sidebar extends React.Component {
                                 <div className='row mb-2' style={collapsed ? {display: 'none'} : {}}>
                                     <div className='col-md-12'>
                                         <span id='menu-search-span' className='p-input-icon-left p-input-icon-right'>
-                                            <i className='pi pi-search'/>
+                                            <i className='pi pi-search' />
                                             <InputText
                                                 ariaLabel={labels['Menu_Search']}
                                                 className='p-inputtext-sm'
@@ -358,40 +415,47 @@ class Sidebar extends React.Component {
                                     </div>
                                 </div>
                             </div>
-                            {collapsed ?
-                                <div id="mini-search-panel">
-                                    <ActionButton id="mini-search-button"
-                                                  iconName='mdi-magnify'
-                                                  title={labels['Menu_Search']}
-                                                  handleClick={() => {
-                                                      this.handleCollapseChange();
-                                                      $(document).ready(function () {
-                                                          $("#filterValue").focus();
-                                                      });
-                                                  }}
+                            {collapsed ? (
+                                <div id='mini-search-panel'>
+                                    <ActionButton
+                                        id='mini-search-button'
+                                        iconName='mdi-magnify'
+                                        title={labels['Menu_Search']}
+                                        handleClick={() => {
+                                            this.handleCollapseChange();
+                                            $(document).ready(function () {
+                                                $('#filterValue').focus();
+                                            });
+                                        }}
                                     />
-                                </div> : null}
+                                </div>
+                            ) : null}
                         </SidebarHeader>
 
-                        <DynamicMenu id='dynamic-menu' key='dynamic-menu-key' data={dynamicMenuJSON}/>
+                        <DynamicMenu id='dynamic-menu' key='dynamic-menu-key' data={dynamicMenuJSON} />
 
                         <SidebarFooter id={'menu-footer'} style={{textAlign: 'center'}}>
                             <div id={'user-credentials'} className={'col-12'}>
                                 <div className='row mt-3 mb-2'>
-                                    <Avatar base64={avatar} userName={userName} collapsed={collapsed}/>
+                                    <Avatar base64={avatar} userName={userName} collapsed={collapsed} />
                                 </div>
                             </div>
                             <div id={'logout_button'} className='sidebar-btn-wrapper' style={{padding: '5px 24px'}}>
-                                <div onClick={this.handleLogoutUser}
-                                     className='sidebar-btn'
-                                     rel='noopener noreferrer'
-                                     style={{textAlign: 'center'}}>
-                                    <FaSignOutAlt/>
+                                <div
+                                    onClick={this.handleLogoutUser}
+                                    className='sidebar-btn'
+                                    rel='noopener noreferrer'
+                                    style={{textAlign: 'center'}}
+                                >
+                                    <FaSignOutAlt />
                                     <span>{labels['Menu_Logout']}</span>
                                 </div>
                             </div>
-                            <div id={'version'} className={'to-right'}
-                                 style={{marginRight: '5px'}}>{`ver:${packageJson.version}_${this.state.uiVersion?.buildNumber} api:${this.state.versionAPI}`}</div>
+                            <div
+                                id={'version'}
+                                className={'to-right'}
+                                style={{marginRight: '5px'}}
+                            >{`ver:${packageJson.version}_${this.state.uiVersion?.buildNumber} api:${this.state.versionAPI}`}</div>
                             {/*
                                 <div className='col-md-12'>
                                     <span style={{fontWeight: 'bold'}}>UI app name: </span>
@@ -411,7 +475,6 @@ class Sidebar extends React.Component {
                                 </div>
                             */}
                         </SidebarFooter>
-
                     </ProSidebar>
                 </BlockUi>
             </React.Fragment>
