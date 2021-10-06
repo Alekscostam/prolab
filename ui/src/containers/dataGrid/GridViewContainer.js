@@ -394,6 +394,13 @@ export class GridViewContainer extends BaseContainer {
                                     },
                                 });
                             }
+                            //TODO inicjalizacja filtra, mozna by ulepszyć bo wywołuje 2 puknięcia po View
+                            const initFilterId = responseView?.viewInfo?.filterdId;
+                            const notUseFilterUI = !!this.state.elementFilterId;
+                            let currentUrl = window.document.URL.toString()
+                            if (currentUrl.indexOf('filterId') < 0 && initFilterId != 0) {
+                                window.history.replaceState('', '', currentUrl + '&filterId=' + initFilterId);
+                            }
                             let viewInfoTypesTmp = [];
                             let cardButton = GridViewUtils.containsOperationButton(
                                 responseView.operations,
@@ -429,7 +436,7 @@ export class GridViewContainer extends BaseContainer {
                                     batchesList: batchesListTmp,
                                     filtersList: filtersListTmp,
                                     selectedRowKeys: [],
-                                    viewInfoTypes: viewInfoTypesTmp,
+                                    viewInfoTypes: viewInfoTypesTmp
                                 }),
                                 () => {
                                     if (this.state.gridViewType === 'cardView') {
@@ -470,7 +477,7 @@ export class GridViewContainer extends BaseContainer {
                                                 //TODO blad u Romcia, powinno być this.state.gridViewType ale nie działa
                                                 null,
                                                 this.state.subView == null ? null : this.state.elementRecordId,
-                                                this.state.elementFilterId,
+                                                notUseFilterUI ? this.state.elementFilterId : initFilterId,
                                                 (err) => {
                                                     this.showErrorMessages(err);
                                                 },
