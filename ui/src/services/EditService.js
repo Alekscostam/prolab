@@ -20,9 +20,10 @@ export default class EditService extends BaseService {
         });
     }
 
-    getEditAutoFill(viewId, recordId, parentId) {
+    getEditAutoFill(viewId, recordId, parentId, element) {
         return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}/AutoFill${parentId ? `?parentId=${parentId}` : ''}`, {
             method: 'POST',
+            body: JSON.stringify(element),
         }).catch((err) => {
             throw err;
         });
@@ -37,8 +38,12 @@ export default class EditService extends BaseService {
         });
     }
 
-    save(viewId, recordId, parentId, elementToSave) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}/Save${parentId ? `?parentId=${parentId}` : ''}`, {
+    save(viewId, recordId, parentId, elementToSave, confirmSave) {
+        const queryString = this.objToQueryString({
+            parentId: parentId,
+            confirmSave: confirmSave
+        });
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}/Save${queryString}`, {
             method: 'POST',
             body: JSON.stringify(elementToSave),
         }).catch((err) => {
@@ -51,11 +56,30 @@ export default class EditService extends BaseService {
         let arrayTmp = [];
         editData.editFields?.forEach(groupFields => {
             groupFields?.fields.forEach(field => {
-                const elementTmp = {
-                    fieldName: field.fieldName,
-                    value: field.value
+                if (field.hidden != true) {
+                    const elementTmp = {
+                        fieldName: field.fieldName,
+                        value: field.value
+                    }
+                    arrayTmp.push(elementTmp);
                 }
-                arrayTmp.push(elementTmp);
+            })
+        })
+        return {data: arrayTmp};
+    }
+
+    createObjectToAutoFill(state) {
+        let editData = state.editData;
+        let arrayTmp = [];
+        editData.editFields?.forEach(groupFields => {
+            groupFields?.fields.forEach(field => {
+                if (field.autoFill == true) {
+                    const elementTmp = {
+                        fieldName: field.fieldName,
+                        value: field.value
+                    }
+                    arrayTmp.push(elementTmp);
+                }
             })
         })
         return {data: arrayTmp};

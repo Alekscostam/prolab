@@ -61,7 +61,7 @@ class BaseDetailsContainer extends BaseContainer {
                     window.location.href = AppPrefixUtils.locationHrefUrl(this.props.backUrl);
                 })
                 .catch((err) => {
-                    this.showErrorMessage(err.message);
+                    this.showErrorMessages(err.message);
                     this.hideRemoveConfirmation();
                 });
         } else {
@@ -88,7 +88,7 @@ class BaseDetailsContainer extends BaseContainer {
     }
 
     handleGetDetailsError(err) {
-        this.showErrorMessage('Błąd podczas pobrania szczegółów');
+        this.showErrorMessages('Błąd podczas pobrania szczegółów');
         if (this.props.backUrl) {
             window.location.href = AppPrefixUtils.locationHrefUrl(this.props.backUrl);
         } else {
@@ -178,7 +178,7 @@ class BaseDetailsContainer extends BaseContainer {
                         window.location.href = AppPrefixUtils.locationHrefUrl(backUrl);
                     })
                     .catch((err) => {
-                        this.showErrorMessage(err.message, 10000);
+                        this.showErrorMessages(err.message, 10000);
                     });
             } else {
                 this.service
@@ -190,7 +190,7 @@ class BaseDetailsContainer extends BaseContainer {
                         ;
                     })
                     .catch((err) => {
-                        this.showErrorMessage(err.message, 10000);
+                        this.showErrorMessages(err.message, 10000);
                     });
             }
         }

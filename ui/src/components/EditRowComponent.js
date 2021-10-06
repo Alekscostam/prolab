@@ -20,6 +20,7 @@ import {RequiredRule} from "devextreme-react/validator";
 import moment from 'moment';
 import UploadImageFileBase64 from "./UploadImageFileBase64";
 import EditService from "../services/EditService";
+import {Sidebar} from "primereact/sidebar";
 
 export class EditRowComponent extends BaseContainer {
 
@@ -43,45 +44,59 @@ export class EditRowComponent extends BaseContainer {
     }
 
     render() {
-        const operations = this.props.editData.operations;
+        const operations = this.props.editData?.operations;
         const opSave = GridViewUtils.containsOperationButton(operations, 'OP_SAVE');
         const opFill = GridViewUtils.containsOperationButton(operations, 'OP_FILL');
         const opCancel = GridViewUtils.containsOperationButton(operations, 'OP_CANCEL');
         let editData = this.props.editData;
+        let visibleEditPanel = this.props.visibleEditPanel;
         return <React.Fragment>
-            <form onSubmit={this.handleFormSubmit} noValidate>
-                <div id="row-edit" className="row-edit-container">
-                    <div className="label">{editData.editInfo?.viewName}</div>
-                    <br/>
-                    {this.preventSave ? <div id="validation-panel" className="validation-panel">
-                        Wypełnij wszystkie wymagane pola
-                    </div> : null}
-                    {editData.editFields?.map((group, index) => {
-                            return this.renderGroup(group, index)
-                        }
-                    )}
-                    <div id='buttons'>
-                        <ShortcutButton id={'opSave'}
-                                        className={`grid-button-panel mr-2`}
-                                        handleClick={this.handleFormSubmit}
-                                        title={opSave?.label}
-                                        label={opSave?.label}
-                                        rendered={opSave}/>
-                        <ShortcutButton id={'opFill'}
-                                        className={`grid-button-panel mr-2`}
-                                        handleClick={this.handleAutoFill}
-                                        title={opFill?.label}
-                                        label={opFill?.label}
-                                        rendered={opFill}/>
-                        <ShortcutButton id={'opCancel'}
-                                        className={`grid-button-panel mr-2`}
-                                        handleClick={this.handleCancel}
-                                        title={opCancel?.label}
-                                        label={opCancel?.label}
-                                        rendered={opCancel}/>
+            <Sidebar
+                id='right-sidebar'
+                visible={visibleEditPanel}
+                modal={true}
+                style={{width: '45%'}}
+                position='right'
+                onHide={() => this.props.onHide(!visibleEditPanel)}
+                icons={() => (
+                    <React.Fragment>
+                        <div id='label' className="label"
+                             style={{flex: 'auto'}}>{editData?.editInfo?.viewName}</div>
+                        <div id='buttons' style={{textAlign: 'right'}}>
+                            <ShortcutButton id={'opSave'}
+                                            className={`grid-button-panel mt-1 mb-1 mr-1`}
+                                            handleClick={this.handleFormSubmit}
+                                            title={opSave?.label}
+                                            label={opSave?.label}
+                                            rendered={opSave}/>
+                            <ShortcutButton id={'opFill'}
+                                            className={`grid-button-panel mt-1 mb-1 mr-1`}
+                                            handleClick={this.handleAutoFill}
+                                            title={opFill?.label}
+                                            label={opFill?.label}
+                                            rendered={opFill}/>
+                            <ShortcutButton id={'opCancel'}
+                                            className={`grid-button-panel mt-1 mb-1 mr-1`}
+                                            handleClick={this.handleCancel}
+                                            title={opCancel?.label}
+                                            label={opCancel?.label}
+                                            rendered={opCancel}/>
+                        </div>
+                    </React.Fragment>
+                )}
+            >
+                <form onSubmit={this.handleFormSubmit} noValidate>
+                    <div id="row-edit" className="row-edit-container">
+                        {this.preventSave ? <div id="validation-panel" className="validation-panel">
+                            Wypełnij wszystkie wymagane pola
+                        </div> : null}
+                        {editData?.editFields?.map((group, index) => {
+                                return this.renderGroup(group, index)
+                            }
+                        )}
                     </div>
-                </div>
-            </form>
+                </form>
+            </Sidebar>
         </React.Fragment>
     }
 
@@ -102,17 +117,17 @@ export class EditRowComponent extends BaseContainer {
     }
 
     handleValidForm() {
-        let editInfo = this.props.editData.editInfo;
+        let editInfo = this.props.editData?.editInfo;
         this.props.onSave(editInfo.viewId, editInfo.recordId, editInfo.parentId);
     }
 
     handleAutoFill() {
-        let editInfo = this.props.editData.editInfo;
+        let editInfo = this.props.editData?.editInfo;
         this.props.onAutoFill(editInfo.viewId, editInfo.recordId, editInfo.parentId);
     }
 
     handleCancel() {
-        let editInfo = this.props.editData.editInfo;
+        let editInfo = this.props.editData?.editInfo;
         this.props.onCancel(editInfo.viewId, editInfo.recordId, editInfo.parentId);
     }
 
@@ -189,74 +204,69 @@ export class EditRowComponent extends BaseContainer {
     }
 
     renderInputComponent(field, fieldIndex, onChange, groupName, required, validatorMsgs) {
+        const autoFill = field?.autoFill ? 'autofill-border' : '';
+        const validate = !!validatorMsgs ? 'p-invalid' : '';
+        const labelColor = !!field.labelColor ? field.labelColor : '';
         switch (field.type) {
             case 'C'://C – Znakowy
                 return (<React.Fragment>
-                    <span className={`p-float-label ${field.autoFill ? 'autofill-border' : ''}`}>
-                        <InputText id={`${this.getType(field.type)}${fieldIndex}`}
-                                   name={field.fieldName}
-                                   className={!!validatorMsgs ? 'p-invalid' : null}
-                                   style={{width: '100%', color: field.labelColor ? field.labelColor : null}}
-                                   type="text"
-                                   value={field.value}
-                                   onChange={e =>
-                                       onChange ? onChange('TEXT', e, groupName) : null
-                                   }
-                                   disabled={!field.edit}
-                                   required={required}
-                        />
-                        <label htmlFor={`field_${fieldIndex}`}>{field.label}{required ? '*' : ''}</label>
-                    </span>
+                    <label htmlFor={`field_${fieldIndex}`}
+                           style={{color: labelColor}}>{field.label}{required ? '*' : ''}</label>
+                    <InputText id={`${this.getType(field.type)}${fieldIndex}`}
+                               name={field.fieldName}
+                               className={`${autoFill} ${validate}`}
+                               style={{width: '100%'}}
+                               type="text"
+                               value={field.value}
+                               onChange={e => onChange ? onChange('TEXT', e, groupName) : null}
+                               disabled={!field.edit}
+                               required={required}
+                    />
                 </React.Fragment>);
             case "N"://N – Numeryczny/Liczbowy
                 return (<React.Fragment>
-                       <span className={`p-float-label ${field.autoFill ? 'autofill-border' : ''}`}>
-                        <InputNumber id={`${this.getType(field.type)}${fieldIndex}`}
-                                     name={field.fieldName}
-                                     className={!!validatorMsgs ? 'p-invalid' : null}
-                                     style={{width: '100%', color: field.labelColor ? field.labelColor : null}}
-                                     value={field.value}
-                                     onChange={e => onChange ? onChange('NUMBER', e, groupName) : null}
-                                     mode="decimal"
-                                     allowEmpty={true}
-                                     minFractionDigits={1}
-                                     maxFractionDigits={20}
-                                     disabled={!field.edit}
-                                     required={required}
-                                     padControl="false"
-                        />
-                        <label htmlFor={`field_${fieldIndex}`}>{field.label}{required ? '*' : ''}</label>
-                    </span>
+                    <label htmlFor={`field_${fieldIndex}`}>{field.label}{required ? '*' : ''}</label>
+                    <InputText id={`${this.getType(field.type)}${fieldIndex}`}
+                               name={field.fieldName}
+                               className={`${autoFill} ${validate}`}
+                               style={{width: '100%'}}
+                               value={field.value}
+                               type="number"
+                               onChange={e => onChange ? onChange('TEXT', e, groupName) : null}
+                               disabled={!field.edit}
+                               required={required}
+                               padControl="false"
+                    />
                 </React.Fragment>);
             case 'B'://B – Logiczny (0/1)
                 return (<React.Fragment>
-                          <span className={`p-float-label ${field.autoFill ? 'autofill-border' : ''}`}>
-                            <Dropdown optionLabel="name"
-                                      id={`${this.getType(field.type)}${fieldIndex}`}
-                                      name={field.fieldName}
-                                      className={!!validatorMsgs ? 'p-invalid' : null}
-                                      style={{width: '100%', color: field.labelColor ? field.labelColor : null}}
-                                      value={field.value}
-                                      options={this.booleanTypes}
-                                      onChange={e => onChange ? onChange('DROPDOWN', e, groupName) : null}
-                                      appendTo="self"
-                                      showClear
-                                      optionLabel="name"
-                                      optionValue="code"
-                                      dataKey="code"
-                                      disabled={!field.edit}
-                                      required={required}/>
-                                <label htmlFor={`bool_field_${fieldIndex}`}>{field.label}{required ? '*' : ''}</label>
-                         </span>
-                </React.Fragment>);
-            case 'L'://L – Logiczny (T/N)
-                return (<React.Fragment>
-                       <span className={`p-float-label ${field.autoFill ? 'autofill-border' : ''}`}>
+                    <label htmlFor={`bool_field_${fieldIndex}`}
+                           style={{color: labelColor}}>{field.label}{required ? '*' : ''}</label>
                     <Dropdown optionLabel="name"
                               id={`${this.getType(field.type)}${fieldIndex}`}
                               name={field.fieldName}
-                              className={!!validatorMsgs ? 'p-invalid' : null}
-                              style={{width: '100%', color: field.labelColor ? field.labelColor : null}}
+                              className={`${autoFill} ${validate}`}
+                              style={{width: '100%'}}
+                              value={field.value}
+                              options={this.booleanTypes}
+                              onChange={e => onChange ? onChange('DROPDOWN', e, groupName) : null}
+                              appendTo="self"
+                              showClear
+                              optionLabel="name"
+                              optionValue="code"
+                              dataKey="code"
+                              disabled={!field.edit}
+                              required={required}/>
+                </React.Fragment>);
+            case 'L'://L – Logiczny (T/N)
+                return (<React.Fragment>
+                    <label htmlFor={`yes_no_field_${fieldIndex}`}
+                           style={{color: labelColor}}>{field.label}{required ? '*' : ''}</label>
+                    <Dropdown optionLabel="name"
+                              id={`${this.getType(field.type)}${fieldIndex}`}
+                              name={field.fieldName}
+                              className={`${autoFill} ${validate}`}
+                              style={{width: '100%'}}
                               value={field.value}
                               options={this.yesNoTypes}
                               onChange={e => onChange ? onChange('DROPDOWN', e, groupName) : null}
@@ -267,77 +277,72 @@ export class EditRowComponent extends BaseContainer {
                               dataKey="code"
                               disabled={!field.edit}
                               required={required}/>
-                           <label htmlFor={`yes_no_field_${fieldIndex}`}>{field.label}{required ? '*' : ''}</label>
-                     </span>
                 </React.Fragment>);
             case 'D'://D – Data
                 return (<React.Fragment>
-                       <span className={`p-float-label ${field.autoFill ? 'autofill-border' : ''}`}>
-                       <Calendar id={`${this.getType(field.type)}${fieldIndex}`}
-                                 name={field.fieldName}
-                                 className={!!validatorMsgs ? 'p-invalid' : null}
-                                 style={{width: '100%', color: field.labelColor ? field.labelColor : null}}
-                                 value={field.value}
-                                 dateFormat="yy-mm-dd"
-                                 onChange={e => onChange ? onChange('DATE', e, groupName) : null}
-                                 appendTo="self"
-                                 disabled={!field.edit}
-                                 required={required}
-                                 showButtonBar
-                                 showIcon>
-                         </Calendar>
-                           <label htmlFor={`date_${fieldIndex}`}>{field.label}{required ? '*' : ''}</label>
-                     </span>
+                    <label htmlFor={`date_${fieldIndex}`}
+                           style={{color: labelColor}}>{field.label}{required ? '*' : ''}</label>
+                    <Calendar id={`${this.getType(field.type)}${fieldIndex}`}
+                              name={field.fieldName}
+                              className={`${autoFill} ${validate}`}
+                              style={{width: '100%'}}
+                              value={field.value}
+                              dateFormat="yy-mm-dd"
+                              onChange={e => onChange ? onChange('DATE', e, groupName) : null}
+                              appendTo="self"
+                              disabled={!field.edit}
+                              required={required}
+                              showButtonBar
+                              showIcon>
+                    </Calendar>
                 </React.Fragment>);
             case 'E'://E – Data + czas
                 return (<React.Fragment>
-                       <span className={`p-float-label ${field.autoFill ? 'autofill-border' : ''}`}>
-                         <Calendar id={`${this.getType(field.type)}${fieldIndex}`}
-                                   showTime
-                                   hourFormat="24"
-                                   name={field.fieldName}
-                                   className={!!validatorMsgs ? 'p-invalid' : null}
-                                   style={{width: '100%', color: field.labelColor ? field.labelColor : null}}
-                                   value={field.value}
-                                   dateFormat="yy-mm-dd"
-                                   appendTo="self"
-                                   onChange={e => onChange ? onChange('DATETIME', e, groupName) : null}
-                                   disabled={!field.edit}
-                                   required={required}
-                                   showButtonBar
-                                   showIcon>
-                         </Calendar>
-                           <label htmlFor={`date_time_${fieldIndex}`}>{field.label}{required ? '*' : ''}</label>
-                     </span>
+                    <label htmlFor={`date_time_${fieldIndex}`}
+                           style={{color: labelColor}}>{field.label}{required ? '*' : ''}</label>
+                    <Calendar id={`${this.getType(field.type)}${fieldIndex}`}
+                              showTime
+                              hourFormat="24"
+                              name={field.fieldName}
+                              className={`${autoFill} ${validate}`}
+                              style={{width: '100%'}}
+                              value={field.value}
+                              dateFormat="yy-mm-dd"
+                              appendTo="self"
+                              onChange={e => onChange ? onChange('DATETIME', e, groupName) : null}
+                              disabled={!field.edit}
+                              required={required}
+                              showButtonBar
+                              showIcon>
+                    </Calendar>
                 </React.Fragment>);
             case 'T'://T – Czas
                 return (<React.Fragment>
-                       <span className={`p-float-label ${field.autoFill ? 'autofill-border' : ''}`}>
-                          <Calendar id={`${this.getType(field.type)}${fieldIndex}`}
-                                    timeOnly
-                                    showTime
-                                    hourFormat="24"
-                                    name={field.fieldName}
-                                    className={!!validatorMsgs ? 'p-invalid' : null}
-                                    style={{width: '100%', color: field.labelColor ? field.labelColor : null}}
-                                    value={field.value}
-                                    appendTo="self"
-                                    onChange={e => onChange ? onChange('TIME', e, groupName) : null}
-                                    disabled={!field.edit}
-                                    required={required}
-                                    showButtonBar
-                                    showIcon>
-                          </Calendar>
-                           <label htmlFor={`time_${fieldIndex}`}>{field.label}{required ? '*' : ''}</label>
-                     </span>
+                    <label htmlFor={`time_${fieldIndex}`}
+                           style={{color: labelColor}}>{field.label}{required ? '*' : ''}</label>
+                    <Calendar id={`${this.getType(field.type)}${fieldIndex}`}
+                              timeOnly
+                              showTime
+                              hourFormat="24"
+                              name={field.fieldName}
+                              className={`${autoFill} ${validate}`}
+                              style={{width: '100%'}}
+                              value={field.value}
+                              appendTo="self"
+                              onChange={e => onChange ? onChange('TIME', e, groupName) : null}
+                              disabled={!field.edit}
+                              required={required}
+                              showButtonBar
+                              showIcon>
+                    </Calendar>
                 </React.Fragment>);
             case 'O'://O – Opisowe
                 return (<React.Fragment>
-                    <label id={`${this.getType(field.type)}${fieldIndex}`}
+                    <label style={{color: labelColor}}
                            htmlFor={`${this.getType(field.type)}${fieldIndex}`}>{field.label}{required ? '*' : ''}</label>
                     <HtmlEditor
                         id={`editor_${fieldIndex}`}
-                        className={`editor ${field.autoFill ? 'autofill-border' : ''}`}
+                        className={`editor ${autoFill} ${validate}`}
                         defaultValue={field.value}
                         onValueChange={e => {
                             let event = {
@@ -349,29 +354,17 @@ export class EditRowComponent extends BaseContainer {
                         validationMessageMode="always"
                         disabled={!field.edit}
                         required={true}
-                    >
-                        {required ?
-                            <Validator>
-                                <RequiredRule message={`Pole ${field.label} jest wymagane`}/>
-                            </Validator>
-                            : null}
+                    >  {required ? <Validator>
+                        <RequiredRule message={`Pole jest wymagane`}/>
+                    </Validator> : null}
                         <MediaResizing enabled={true}/>
                         <Toolbar>
                             <Item name="undo"/>
                             <Item name="redo"/>
                             <Item name="separator"/>
-                            <Item
-                                name="size"
-                                acceptedValues={this.sizeValues}
-                            />
-                            <Item
-                                name="font"
-                                acceptedValues={this.fontValues}
-                            />
-                            <Item
-                                name="header"
-                                acceptedValues={this.headerValues}
-                            />
+                            <Item name="size" acceptedValues={this.sizeValues}/>
+                            <Item name="font" acceptedValues={this.fontValues}/>
+                            <Item name="header" acceptedValues={this.headerValues}/>
                             <Item name="separator"/>
                             <Item name="bold"/>
                             <Item name="italic"/>
@@ -406,12 +399,12 @@ export class EditRowComponent extends BaseContainer {
             case 'IM'://IM – Obrazek multi
                 return (<React.Fragment>
                     <div className="image-base">
-                        <label id={`${this.getType(field.type)}${fieldIndex}`}
+                        <label style={{color: labelColor}}
                                htmlFor={`image_${fieldIndex}`}>{field.label}{required ? '*' : ''}</label>
                         <br/>
                         <Image id={`${this.getType(field.type)}`}
                                style={{maxWidth: '100%'}}
-                               className={`img-responsive ${field.autoFill ? 'autofill-border' : ''}`}
+                               className={`img-responsive ${autoFill} ${validate}`}
                                alt={field.label}
                                base64={field.value}
                                rendered={!!field.value}/>
@@ -429,22 +422,21 @@ export class EditRowComponent extends BaseContainer {
                 </React.Fragment>);
             case 'H'://H - Hyperlink
                 return (<React.Fragment>
-                       <span className={`p-float-label ${field.autoFill ? 'autofill-border' : 'autofill-border'}`}>
-                        <InputText id={`${this.getType(field.type)}${fieldIndex}`}
-                                   name={field.fieldName}
-                                   className={!!validatorMsgs ? 'p-invalid' : null}
-                                   style={{width: '100%', color: field.labelColor ? field.labelColor : null}}
-                                   type="text"
-                                   value={field.value}
-                                   onChange={e =>
-                                       onChange ? onChange('TEXT', e, groupName) : null
-                                   }
-                                   disabled={!field.edit}
-                                   required={required}
-                        />
-                        <label htmlFor={`field_${fieldIndex}`}>{field.label}{required ? '*' : ''}</label>
-                    </span>
-                    <a href={field.value} style={{float: 'right', color: field.labelColor ? field.labelColor : null}}
+                    <label style={{color: labelColor}}
+                           htmlFor={`field_${fieldIndex}`}>{field.label}{required ? '*' : ''}</label>
+                    <InputText id={`${this.getType(field.type)}${fieldIndex}`}
+                               name={field.fieldName}
+                               className={`${autoFill} ${validate}`}
+                               style={{width: '100%'}}
+                               type="text"
+                               value={field.value}
+                               onChange={e =>
+                                   onChange ? onChange('TEXT', e, groupName) : null
+                               }
+                               disabled={!field.edit}
+                               required={required}
+                    />
+                    <a href={field.value} style={{float: 'right'}}
                        target='_blank'>
                         {field.label}
                     </a>
@@ -461,12 +453,14 @@ export class EditRowComponent extends BaseContainer {
 EditRowComponent.defaultProps = {};
 
 EditRowComponent.propTypes = {
+    visibleEditPanel: PropTypes.bool.isRequired,
     editData: PropTypes.object.isRequired,
     onAfterStateChange: PropTypes.func,
     onChange: PropTypes.func.isRequired,
     onSave: PropTypes.func.isRequired,
     onAutoFill: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
+    onHide: PropTypes.func.isRequired,
     validator: PropTypes.instanceOf(SimpleReactValidator).isRequired,
 };
 

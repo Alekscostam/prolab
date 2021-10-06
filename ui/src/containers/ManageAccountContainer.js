@@ -72,7 +72,7 @@ class ManageUserContainer extends BaseDetailsContainer {
 					}));
 				})
 				.catch((err) => {
-					this.showErrorMessage(err.message, 10000);
+					this.showErrorMessages(err.message, 10000);
 				});
 		}
 	}

@@ -493,4 +493,16 @@ body main div.container-fluid {
     }
 }
 
+.p-toast-message-content .p-toast-message-icon{
+    visibility: hidden;
+}
+
+.p-toast-message-icon.pi.pi-times{
+    width: 20px;
+}
+
+.p-toast .p-toast-message .p-toast-message-content .p-toast-message-text{
+    margin: 0;
+}
+
 @import 'edit_row';
