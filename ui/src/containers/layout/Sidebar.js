@@ -241,6 +241,9 @@ class Sidebar extends React.Component {
         const dynamicMenuJSON = !authService.loggedIn() ? [] : this.state.filteredMenu;
         //TODO pogadać o rolach
         //const role = authService.getProfile().role;
+        const nav = (e, item) => {
+            this.props.history.push(`/grid-view/${item.id}`);
+        };
         const renderDynamicMenu = (items) => {
             const timestamp = Date.now();
             return (

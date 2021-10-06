@@ -67,7 +67,7 @@ class LoginContainer extends BaseContainer {
             })
             .catch(err => {
                 console.log(`LoginContainer:getLocalizationLoginPage error`, err);
-                this.showErrorMessage(err);
+                this.showErrorMessages(err);
                 this.unblockUi();   
             })
     }
@@ -94,11 +94,11 @@ class LoginContainer extends BaseContainer {
                         }));
                         this.validator.showMessages();
                         this.forceUpdate();                        
-                        this.showErrorMessage(labels['Login_SigninError'], 10000, true, 'Błąd ' + err.status);
+                        this.showErrorMessages(labels['Login_SigninError'], 10000, true, 'Błąd ' + err.status);
                         this.unblockUi();
                         return;
                     }
-                    this.showErrorMessage(labels['Login_ConnectionError'], 10000);
+                    this.showErrorMessages(labels['Login_ConnectionError'], 10000);
                     this.unblockUi();
                 });
         } else {

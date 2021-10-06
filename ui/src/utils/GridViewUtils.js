@@ -271,4 +271,18 @@ export class GridViewUtils {
         //console.log('equalNumbers: result=' + result + ' [' + n1 + ', ' + n2 + '] [' + typeof n1 + ', ' + typeof n2 + ']' );
         return result;
     }
+
+    static getDefaultSortOrder(value) {
+        if (value !== undefined && value !== null) {
+            switch (value.toUpperCase()) {
+                case true:
+                    return 'asc';
+                case false:
+                    return 'desc';
+                default:
+                    return null;
+            }
+        }
+        return null;
+    }
 }

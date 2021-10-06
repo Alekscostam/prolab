@@ -20,7 +20,7 @@ export const HeadPanel = props => {
                  : "d-flex flex-row grid-selection-panel grid-selection-panel-non-selection"}>
             {props.leftContent == undefined ? null :
                 <React.Fragment>
-                    <div id="grid-panel-left" className="grid-panel-left">
+                    <div id="grid-panel-left" className="grid-panel-left center-inside-div">
                         {props.leftContent}
                     </div>
                 </React.Fragment>}
@@ -29,7 +29,7 @@ export const HeadPanel = props => {
                 <React.Fragment>
                     <div id="grid-panel-selection" className="grid-panel-selection">
                         <div id="grid-count-panel"
-                             className="grid-count-fragment pt-2 pb-2 ml-2">Pozycje: {props.selectedRowKeys?.length || 0}</div>
+                             className="grid-count-fragment center-text-in-div">Pozycje: {props.selectedRowKeys?.length || 0}</div>
                         <div id="grid-separator" className="p-1 grid-separator-fragment"></div>
                         <div id="grid-buttons-fragment" className="p-1 grid-buttons-fragment">
                             <ShortcutButton className={`grid-button-panel mr-2`}

@@ -189,7 +189,7 @@ class SimpleReactValidator {
 				rule: (val) => this.helpers.validateZipcode(val),
 			},
 			required: {
-				message: 'Pole :attribute jest wymagane.',
+				message: 'Pole jest wymagane.',
 				rule: (val) => !this.helpers.isBlank(val),
 				required: true,
 			},

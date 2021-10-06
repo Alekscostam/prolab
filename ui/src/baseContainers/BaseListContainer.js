@@ -111,7 +111,7 @@ class BaseListContainer extends BaseContainer {
                             size: 0,
                         },
                         () => {
-                            this.showErrorMessage('Wystąpił błąd systemu. Nie udało się pobrać listy.', 10000);
+                            this.showErrorMessages('Wystąpił błąd systemu. Nie udało się pobrać listy.', 10000);
                         }
                     );
                 }
