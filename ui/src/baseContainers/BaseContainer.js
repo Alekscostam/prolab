@@ -114,20 +114,22 @@ class BaseContainer extends React.Component {
         this.messages.show({
             severity: 'success',
             sticky: true,
-            life: Constants.ERROR_MSG_LIFE,
+            life: Constants.SUCCESS_MSG_LIFE,
+            summary: detail.message,
             content: (
                 <div className='p-flex p-flex-column' style={{flex: '1'}}>
-                    <Message severity={'success'} content={detail}></Message>
+                    <Message severity={'success'} content={detail.title}></Message>
                 </div>
             ),
         });
+        this.unblockUi();
     }
 
     showInfoMessage(detail, life = Constants.SUCCESS_MSG_LIFE, summary = 'Informacja') {
         this.messages.show({
             severity: 'info',
             sticky: false,
-            life: Constants.ERROR_MSG_LIFE,
+            life: Constants.SUCCESS_MSG_LIFE,
             content: (
                 <div className='p-flex p-flex-column' style={{flex: '1'}}>
                     <Message severity={'info'} content={detail}></Message>
@@ -229,6 +231,7 @@ class BaseContainer extends React.Component {
             life: Constants.ERROR_MSG_LIFE,
             closable: true,
         });
+        this.unblockUi();
     }
 
     showMessage(severity, summary, detail, life = Constants.ERROR_MSG_LIFE, closable = true, errMsg) {

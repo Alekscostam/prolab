@@ -19,11 +19,13 @@ import {Validator} from "devextreme-react";
 import {RequiredRule} from "devextreme-react/validator";
 import moment from 'moment';
 import UploadImageFileBase64 from "./UploadImageFileBase64";
+import EditService from "../services/EditService";
 
 export class EditRowComponent extends BaseContainer {
 
     constructor(props) {
         super(props);
+        this.service = new EditService();
         this.booleanTypes = [
             {name: 'Tak', code: '1'},
             {name: 'Nie', code: '0'},
@@ -36,6 +38,8 @@ export class EditRowComponent extends BaseContainer {
         this.fontValues = ['Arial', 'Courier New', 'Georgia', 'Impact', 'Lucida Console', 'Tahoma', 'Times New Roman', 'Verdana'];
         this.headerValues = [false, 1, 2, 3, 4, 5];
         this.preventSave = false;
+        this.handleAutoFill = this.handleAutoFill.bind(this);
+        this.handleCancel = this.handleCancel.bind(this);
     }
 
     render() {
@@ -65,15 +69,13 @@ export class EditRowComponent extends BaseContainer {
                                         rendered={opSave}/>
                         <ShortcutButton id={'opFill'}
                                         className={`grid-button-panel mr-2`}
-                                        handleClick={(e) => {
-                                        }}
+                                        handleClick={this.handleAutoFill}
                                         title={opFill?.label}
                                         label={opFill?.label}
                                         rendered={opFill}/>
                         <ShortcutButton id={'opCancel'}
                                         className={`grid-button-panel mr-2`}
-                                        handleClick={(e) => {
-                                        }}
+                                        handleClick={this.handleCancel}
                                         title={opCancel?.label}
                                         label={opCancel?.label}
                                         rendered={opCancel}/>
@@ -100,7 +102,18 @@ export class EditRowComponent extends BaseContainer {
     }
 
     handleValidForm() {
-        alert('OK')
+        let editInfo = this.props.editData.editInfo;
+        this.props.onSave(editInfo.viewId, editInfo.recordId, editInfo.parentId);
+    }
+
+    handleAutoFill() {
+        let editInfo = this.props.editData.editInfo;
+        this.props.onAutoFill(editInfo.viewId, editInfo.recordId, editInfo.parentId);
+    }
+
+    handleCancel() {
+        let editInfo = this.props.editData.editInfo;
+        this.props.onCancel(editInfo.viewId, editInfo.recordId, editInfo.parentId);
     }
 
     renderGroup(group, groupIndex) {
@@ -179,7 +192,7 @@ export class EditRowComponent extends BaseContainer {
         switch (field.type) {
             case 'C'://C – Znakowy
                 return (<React.Fragment>
-                    <span className="p-float-label">
+                    <span className={`p-float-label ${field.autoFill ? 'autofill-border' : ''}`}>
                         <InputText id={`${this.getType(field.type)}${fieldIndex}`}
                                    name={field.fieldName}
                                    className={!!validatorMsgs ? 'p-invalid' : null}
@@ -197,7 +210,7 @@ export class EditRowComponent extends BaseContainer {
                 </React.Fragment>);
             case "N"://N – Numeryczny/Liczbowy
                 return (<React.Fragment>
-                     <span className="p-float-label">
+                       <span className={`p-float-label ${field.autoFill ? 'autofill-border' : ''}`}>
                         <InputNumber id={`${this.getType(field.type)}${fieldIndex}`}
                                      name={field.fieldName}
                                      className={!!validatorMsgs ? 'p-invalid' : null}
@@ -217,7 +230,7 @@ export class EditRowComponent extends BaseContainer {
                 </React.Fragment>);
             case 'B'://B – Logiczny (0/1)
                 return (<React.Fragment>
-                         <span className="p-float-label">
+                          <span className={`p-float-label ${field.autoFill ? 'autofill-border' : ''}`}>
                             <Dropdown optionLabel="name"
                                       id={`${this.getType(field.type)}${fieldIndex}`}
                                       name={field.fieldName}
@@ -238,7 +251,7 @@ export class EditRowComponent extends BaseContainer {
                 </React.Fragment>);
             case 'L'://L – Logiczny (T/N)
                 return (<React.Fragment>
-                     <span className="p-float-label">
+                       <span className={`p-float-label ${field.autoFill ? 'autofill-border' : ''}`}>
                     <Dropdown optionLabel="name"
                               id={`${this.getType(field.type)}${fieldIndex}`}
                               name={field.fieldName}
@@ -259,7 +272,7 @@ export class EditRowComponent extends BaseContainer {
                 </React.Fragment>);
             case 'D'://D – Data
                 return (<React.Fragment>
-                     <span className="p-float-label">
+                       <span className={`p-float-label ${field.autoFill ? 'autofill-border' : ''}`}>
                        <Calendar id={`${this.getType(field.type)}${fieldIndex}`}
                                  name={field.fieldName}
                                  className={!!validatorMsgs ? 'p-invalid' : null}
@@ -278,7 +291,7 @@ export class EditRowComponent extends BaseContainer {
                 </React.Fragment>);
             case 'E'://E – Data + czas
                 return (<React.Fragment>
-                     <span className="p-float-label">
+                       <span className={`p-float-label ${field.autoFill ? 'autofill-border' : ''}`}>
                          <Calendar id={`${this.getType(field.type)}${fieldIndex}`}
                                    showTime
                                    hourFormat="24"
@@ -299,7 +312,7 @@ export class EditRowComponent extends BaseContainer {
                 </React.Fragment>);
             case 'T'://T – Czas
                 return (<React.Fragment>
-                     <span className="p-float-label">
+                       <span className={`p-float-label ${field.autoFill ? 'autofill-border' : ''}`}>
                           <Calendar id={`${this.getType(field.type)}${fieldIndex}`}
                                     timeOnly
                                     showTime
@@ -324,7 +337,7 @@ export class EditRowComponent extends BaseContainer {
                            htmlFor={`${this.getType(field.type)}${fieldIndex}`}>{field.label}{required ? '*' : ''}</label>
                     <HtmlEditor
                         id={`editor_${fieldIndex}`}
-                        className="editor"
+                        className={`editor ${field.autoFill ? 'autofill-border' : ''}`}
                         defaultValue={field.value}
                         onValueChange={e => {
                             let event = {
@@ -398,7 +411,7 @@ export class EditRowComponent extends BaseContainer {
                         <br/>
                         <Image id={`${this.getType(field.type)}`}
                                style={{maxWidth: '100%'}}
-                               className={"img-responsive"}
+                               className={`img-responsive ${field.autoFill ? 'autofill-border' : ''}`}
                                alt={field.label}
                                base64={field.value}
                                rendered={!!field.value}/>
@@ -416,7 +429,7 @@ export class EditRowComponent extends BaseContainer {
                 </React.Fragment>);
             case 'H'://H - Hyperlink
                 return (<React.Fragment>
-                     <span className="p-float-label">
+                       <span className={`p-float-label ${field.autoFill ? 'autofill-border' : 'autofill-border'}`}>
                         <InputText id={`${this.getType(field.type)}${fieldIndex}`}
                                    name={field.fieldName}
                                    className={!!validatorMsgs ? 'p-invalid' : null}
@@ -450,7 +463,10 @@ EditRowComponent.defaultProps = {};
 EditRowComponent.propTypes = {
     editData: PropTypes.object.isRequired,
     onAfterStateChange: PropTypes.func,
-    onChange: PropTypes.func,
+    onChange: PropTypes.func.isRequired,
+    onSave: PropTypes.func.isRequired,
+    onAutoFill: PropTypes.func.isRequired,
+    onCancel: PropTypes.func.isRequired,
     validator: PropTypes.instanceOf(SimpleReactValidator).isRequired,
 };
 

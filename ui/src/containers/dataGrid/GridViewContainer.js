@@ -83,6 +83,9 @@ export class GridViewContainer extends BaseContainer {
         this.onTabsSelectionChanged = this.onTabsSelectionChanged.bind(this);
         this.onFilterChanged = this.onFilterChanged.bind(this);
         this.handleEditRowChange = this.handleEditRowChange.bind(this);
+        this.handleEditRowSave = this.handleEditRowSave.bind(this);
+        this.handleAutoFillRowChange = this.handleAutoFillRowChange.bind(this);
+        this.handleCancelRowChange = this.handleCancelRowChange.bind(this);
         this.customizedColumns = this.customizeColumns;
     }
 
@@ -595,7 +598,7 @@ export class GridViewContainer extends BaseContainer {
                         column.allowReordering = true;
                         column.allowResizing = true;
                         column.allowSorting = columnDefinition?.isSort;
-                        column.visibleIndex = columnDefinition.columnOrder;
+                        column.visibleIndex = columnDefinition?.columnOrder;
                         column.headerId = 'column_' + INDEX_COLUMN + '_' + columnDefinition?.fieldName?.toLowerCase();
                         //TODO zmienić
                         column.width = columnDefinition?.width || 100;
@@ -605,13 +608,20 @@ export class GridViewContainer extends BaseContainer {
                         column.format = GridViewUtils.specifyColumnFormat(columnDefinition?.type);
                         column.cellTemplate = GridViewUtils.cellTemplate(columnDefinition);
                         column.fixed =
-                            columnDefinition.freeze !== undefined && columnDefinition.freeze !== null
-                                ? columnDefinition.freeze?.toLowerCase() === 'left' ||
-                                  columnDefinition.freeze?.toLowerCase() === 'right'
+                            columnDefinition.freeze !== undefined && columnDefinition?.freeze !== null
+                                ? columnDefinition?.freeze?.toLowerCase() === 'left' ||
+                                  columnDefinition?.freeze?.toLowerCase() === 'right'
                                 : false;
                         column.fixedPosition = !!columnDefinition.freeze
                             ? columnDefinition.freeze?.toLowerCase()
                             : null;
+                        if (!!columnDefinition?.sortIndex && columnDefinition?.sortIndex > 0 && !!columnDefinition?.sortOrder) {
+                            column.sortIndex = columnDefinition?.sortIndex;
+                            column.sortOrder = columnDefinition?.sortOrder?.toLowerCase();
+                        }
+                        if (!!columnDefinition.groupIndex && columnDefinition.groupIndex > 0) {
+                            column.groupIndex = columnDefinition.groupIndex;
+                        }
                         INDEX_COLUMN++;
                     } else {
                         column.visible = false;
@@ -755,6 +765,9 @@ export class GridViewContainer extends BaseContainer {
                         <EditRowComponent
                             editData={this.state.editData}
                             onChange={this.handleEditRowChange}
+                            onSave={this.handleEditRowSave}
+                            onAutoFill={this.handleAutoFillRowChange}
+                            onCancel={this.handleCancelRowChange}
                             validator={this.validator}
                         />
                     </React.Fragment>
@@ -763,8 +776,79 @@ export class GridViewContainer extends BaseContainer {
         );
     }
 
+    handleEditRowSave(viewId, recordId, parentId) {
+        console.log(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
+        const saveElement = this.editService.createObjectToSave(this.state);
+        console.log(`handleEditRowSave: element to save = ${JSON.stringify(saveElement)}`)
+        /*
+        this.editService
+            .refreshFieldVisibility(viewId, recordId, parentId, saveElement)
+            .then((saveResponse) => {
+                console.log(`refreshResponse = ${JSON.stringify(saveResponse)}`)
+                this.showSuccessMessage(saveResponse);
+            })
+            .catch((err) => {
+                this.showErrorMessage(err);
+            });
+        */
+        this.blockUi();
+        this.editService
+            .save(viewId, recordId, parentId, saveElement)
+            .then((saveResponse) => {
+                console.log(`saveResponse = ${JSON.stringify(saveResponse)}`)
+                this.showSuccessMessage(saveResponse);
+            })
+            .catch((err) => {
+                this.showErrorMessage(err);
+            });
+    }
+
+    searchAndAutoFill(editData, searchFieldName, newFieldValue, autoFillOnlyEmpty) {
+        editData.editFields?.forEach(groupFields => {
+            groupFields?.fields?.forEach(field => {
+                if (field.fieldName == searchFieldName) {
+                    if (autoFillOnlyEmpty) {
+                        if (field.value == null || field.value == "" || field.value.trim() == "") {
+                            field.value = newFieldValue;
+                        }
+                    } else {
+                        field.value = newFieldValue;
+                    }
+                    return;
+                }
+            })
+        })
+    }
+
+    handleAutoFillRowChange(viewId, recordId, parentId) {
+        console.log(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
+        this.blockUi();
+        this.editService
+            .getEditAutoFill(viewId, recordId, parentId)
+            .then((editAutoFillResponse) => {
+                console.log(`editAutoFillResponse = ${JSON.stringify(editAutoFillResponse)}`)
+                let arrayTmp = editAutoFillResponse?.data;
+                let editData = this.state.editData;
+                arrayTmp.forEach((element) => {
+                    if (element.autoFill || element.autoFillOnlyEmpty) {
+                        this.searchAndAutoFill(editData, element.fieldName, element.value);
+                    }
+                })
+                this.setState({editData: editData});
+                this.unblockUi();
+            })
+            .catch((err) => {
+                this.showErrorMessage(err);
+            });
+    }
+
+    handleCancelRowChange(viewId, recordId, parentId) {
+        console.log(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
+        alert('handleCancelRowChange')
+    }
+
     handleEditRowChange(inputType, event, groupName) {
-        console.log('handleEditRowChange', inputType, groupName);
+        console.log(`handleEditRowChange inputType=${inputType} groupName=${groupName}`);
         let editData = this.state.editData;
         let groupData = editData.editFields.filter((obj) => {
             return obj.groupName === groupName;
@@ -788,8 +872,8 @@ export class GridViewContainer extends BaseContainer {
                 case 'TEXT':
                 case 'AREA':
                 default:
-                    varName = event.target.name;
-                    varValue = event.target.value || event.target.value === '' ? event.target.value : undefined;
+                    varName = event.target?.name;
+                    varValue = event.target?.value || event.target?.value === '' ? event.target.value : undefined;
                     break;
             }
             console.log('handleEditRowChange - ', inputType, varName, varValue);
@@ -844,7 +928,7 @@ export class GridViewContainer extends BaseContainer {
     }
 
     leftHeadPanelContent = () => {
-        let centerElementStyle = 'mb-1 mt-1 mr-1 ';
+        let centerElementStyle = 'mr-1 ';
         let opFilter = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_FILTER');
         let opBatches = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_BATCH');
         let opDocuments = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_DOCUMENTS');
@@ -1241,16 +1325,19 @@ export class GridViewContainer extends BaseContainer {
                                 height='100%'
                                 rowAlternationEnabled={false}
                                 onSelectionChanged={(e) => {
-                                    if (e.selectedRowKeys && e.component) {
-                                        e.selectedRowKeys.forEach((id) =>
-                                            e.component.repaintRows(e.component.getRowIndexByKey(id))
-                                        );
-                                    }
-                                    if (e.currentDeselectedRowKeys && e.component) {
-                                        e.currentDeselectedRowKeys.forEach((id) =>
-                                            e.component.repaintRows(e.component.getRowIndexByKey(id))
-                                        );
-                                    }
+                                    // nikt nic nie wie o tym, dlatego zakomentowałem bo ma negatywny
+                                    // wpływ na wydajność zaznaczania/odznaczania
+                                    //
+                                    // if (e.selectedRowKeys && e.component) {
+                                    //     e.selectedRowKeys.forEach((id) =>
+                                    //         e.component.repaintRows(e.component.getRowIndexByKey(id))
+                                    //     );
+                                    // }
+                                    // if (e.currentDeselectedRowKeys && e.component) {
+                                    //     e.currentDeselectedRowKeys.forEach((id) =>
+                                    //         e.component.repaintRows(e.component.getRowIndexByKey(id))
+                                    //     );
+                                    // }
                                     this.setState({
                                         selectedRowKeys: e?.selectedRowKeys,
                                     });
