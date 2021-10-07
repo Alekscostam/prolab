@@ -15,8 +15,8 @@ import BlockUi from '../components/waitPanel/BlockUi';
 import {Toast} from 'primereact/toast';
 import {Message} from 'primereact/message';
 import AppPrefixUtils from "../utils/AppPrefixUtils";
-import { Breadcrumb } from '../utils/BreadcrumbUtils';
-import { Sidebar } from 'primereact/sidebar';
+import {Breadcrumb} from '../utils/BreadcrumbUtils';
+import {Sidebar} from 'primereact/sidebar';
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -45,8 +45,9 @@ class BaseContainer extends React.Component {
         this.showSuccessMessage = this.showSuccessMessage.bind(this);
         this.showInfoMessage = this.showInfoMessage.bind(this);
         this.showWarningMessage = this.showWarningMessage.bind(this);
-        this.showErrorMessage = this.showErrorMessage.bind(this);
+        this.showErrorMessages = this.showErrorMessages.bind(this);
         this.handleGetDetailsError = this.handleGetDetailsError.bind(this);
+        this.renderGlobalTop = this.renderGlobalTop.bind(this);
         this.validator = new SimpleReactValidator();
         this._isMounted = false;
         this.jwtRefreshBlocked = false;
@@ -107,27 +108,28 @@ class BaseContainer extends React.Component {
     }
 
     onUploladError(errMsg) {
-        this.showErrorMessage(errMsg);
+        this.showErrorMessages(errMsg);
     }
 
     showSuccessMessage(detail, life = Constants.SUCCESS_MSG_LIFE, summary = '') {
         this.messages.show({
             severity: 'success',
-            sticky: true,
-            life: Constants.ERROR_MSG_LIFE,
+            life: life,
+            summary: summary,
             content: (
                 <div className='p-flex p-flex-column' style={{flex: '1'}}>
-                    <Message severity={'success'} content={detail}></Message>
+                    <Message severity={'success'} content={detail.title}></Message>
                 </div>
             ),
         });
+        this.unblockUi();
     }
 
     showInfoMessage(detail, life = Constants.SUCCESS_MSG_LIFE, summary = 'Informacja') {
         this.messages.show({
             severity: 'info',
-            sticky: false,
-            life: Constants.ERROR_MSG_LIFE,
+            life: Constants.SUCCESS_MSG_LIFE,
+            summary: summary,
             content: (
                 <div className='p-flex p-flex-column' style={{flex: '1'}}>
                     <Message severity={'info'} content={detail}></Message>
@@ -139,8 +141,8 @@ class BaseContainer extends React.Component {
     showWarningMessage(detail, life = Constants.ERROR_MSG_LIFE, summary = '') {
         this.messages.show({
             severity: 'warn',
-            sticky: false,
             life: Constants.ERROR_MSG_LIFE,
+            summary: summary,
             content: (
                 <div className='p-flex p-flex-column' style={{flex: '1'}}>
                     <Message severity={'warn'} content={detail}></Message>
@@ -149,20 +151,28 @@ class BaseContainer extends React.Component {
         });
     }
 
-    // showErrorMessage(errMsg, life = Constants.ERROR_MSG_LIFE, closable = true, summary = 'Błąd!') {
-    //     this.messages.show({
-    //         severity: 'error',
-    //         sticky: false,
-    //         life: life,
-    //         content: (
-    //             <div className='p-flex p-flex-column' style={{flex: '1'}}>
-    //                 <Message severity={'error'} content={errMsg}></Message>
-    //             </div>
-    //         ),
-    //     });
-    // }
+    showSuccessMessage(detail, life = Constants.SUCCESS_MSG_LIFE, summary = '') {
+        this.messages.show({
+            severity: 'success',
+            life: life,
+            summary: summary,
+            detail: detail,
+        });
+        this.unblockUi();
+    }
 
-    showErrorMessage(err) {        
+    showErrorMessage(errMsg, life = Constants.ERROR_MSG_LIFE, closable = true, summary = 'Błąd!') {
+        this.messages.show({
+            severity: 'error',
+            sticky: false,
+            life: life,
+            summary: summary,
+            detail: errMsg,
+        });
+        this.unblockUi();
+    }
+
+    showErrorMessages(err) {
         let message;
         let title;
         let messages = [];
@@ -173,11 +183,11 @@ class BaseContainer extends React.Component {
             message = err.Message;
             title = err.title;
             if (!message) {
-                if (err.errors) {                    
+                if (err.errors) {
                     const keys = Object.keys(err.errors);
                     keys.forEach((key, idx) => {
                         let item = key + ': ';
-                        
+
                         const values = err.errors[key];
                         if (values) {
                             if (Array.isArray(values)) {
@@ -186,7 +196,7 @@ class BaseContainer extends React.Component {
                                 })
                             } else if (typeof values === 'string') {
                                 item += values;
-                            }                            
+                            }
                         }
                         item += (idx === keys.length - 1) ? '' : '; ';
                         messages.push(item);
@@ -209,26 +219,27 @@ class BaseContainer extends React.Component {
         this.messages.clear();
         this.messages.show({
             severity: 'error',
-            summary : title,
+            summary: title,
             content: (
-                    <React.Fragment>
-                        <div class="p-flex p-flex-column" style={{flex: '1 1 0%'}}>
-                            <span class="p-toast-message-icon pi"/>
-                            <div className="p-toast-message-text">
-                                <span className="p-toast-summary">{title}</span>
-                                {messages.map(msg => {
-                                    return (
-                                        <div className="p-toast-detail">{msg}</div>                                                
-                                    )
-                                })}                                    
-                            </div>                                    
+                <React.Fragment>
+                    <div class="p-flex p-flex-column" style={{flex: '1 1 0%'}}>
+                        <span class="p-toast-message-icon pi"/>
+                        <div className="p-toast-message-text">
+                            <span className="p-toast-summary">{title}</span>
+                            {messages.map(msg => {
+                                return (
+                                    <div className="p-toast-detail">{msg}</div>
+                                )
+                            })}
                         </div>
-                    </React.Fragment>
+                    </div>
+                </React.Fragment>
 
             ),
             life: Constants.ERROR_MSG_LIFE,
             closable: true,
         });
+        this.unblockUi();
     }
 
     showMessage(severity, summary, detail, life = Constants.ERROR_MSG_LIFE, closable = true, errMsg) {
@@ -1140,11 +1151,11 @@ class BaseContainer extends React.Component {
         return <React.Fragment></React.Fragment>;
     }
 
-    renderHeadPanel(){
+    renderHeadPanel() {
         return <React.Fragment></React.Fragment>;
     }
 
-    renderGlobalTop(){
+    renderGlobalTop() {
         return <React.Fragment></React.Fragment>
     }
 
@@ -1152,7 +1163,8 @@ class BaseContainer extends React.Component {
         return (
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)}/>
-                <BlockUi tag='div' className='block-ui-div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
+                <BlockUi tag='div' className='block-ui-div' blocking={this.state.blocking || this.state.loading}
+                         loader={this.loader}>
                     {this.renderGlobalTop()}
                     <DivContainer colClass='base-container-div'>
                         <DivContainer colClass='row base-container-header'>
@@ -1184,7 +1196,7 @@ class BaseContainer extends React.Component {
     }
 
     handleGetDetailsError(err) {
-        this.showErrorMessage(err);
+        this.showErrorMessages(err);
         if (this.props.backUrl) {
             window.location.href = AppPrefixUtils.locationHrefUrl(this.props.backUrl);
         } else {

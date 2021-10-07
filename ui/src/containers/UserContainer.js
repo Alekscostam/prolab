@@ -63,7 +63,7 @@ class UserContainer extends BaseDetailsContainer {
 					statusOptions,
 				})
 			).catch(() => {
-				this.showErrorMessage('Nie udało się pobrać listy statusów');
+				this.showErrorMessages('Nie udało się pobrać listy statusów');
 			});
 		this.enumService
 			.getEnumList('RoleType')
@@ -72,7 +72,7 @@ class UserContainer extends BaseDetailsContainer {
 					roleTypeOptions,
 				})
 			).catch(() => {
-				this.showErrorMessage('Nie udało się pobrać listy ról');
+				this.showErrorMessages('Nie udało się pobrać listy ról');
 			});
 	}
 
@@ -103,7 +103,7 @@ class UserContainer extends BaseDetailsContainer {
 				this.unblockUi();
 			})
 			.catch((err) => {
-				this.showErrorMessage('Nie udało się zablokować konta użytkownika');
+				this.showErrorMessages('Nie udało się zablokować konta użytkownika');
 				this.hideBlockConfirmation();
 				this.unblockUi();
 			});
@@ -120,7 +120,7 @@ class UserContainer extends BaseDetailsContainer {
 				this.unblockUi();
 			})
 			.catch((err) => {
-				this.showErrorMessage('Nie udało się odblokować konta użytkownika');
+				this.showErrorMessages('Nie udało się odblokować konta użytkownika');
 				this.hideUnblockConfirmation();
 				this.unblockUi();
 			});

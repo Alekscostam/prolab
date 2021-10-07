@@ -58,7 +58,7 @@ class UserListContainer extends BaseListContainer {
 				})
 			)
 			.catch(() => {
-				this.showErrorMessage('Nie udało się pobrać listy statusów');
+				this.showErrorMessages('Nie udało się pobrać listy statusów');
 			});
 		this.enumService
 			.getEnumList('RoleType')
@@ -68,7 +68,7 @@ class UserListContainer extends BaseListContainer {
 				})
 			)
 			.catch(() => {
-				this.showErrorMessage('Nie udało się pobrać listy ról');
+				this.showErrorMessages('Nie udało się pobrać listy ról');
 			});
 	}
 

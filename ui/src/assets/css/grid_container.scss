@@ -93,7 +93,7 @@ $table-selection: #dde6ff;
     padding-right: 5px;
     margin-top: 5px;
     margin-bottom: 5px;
-    height: 36px;
+    min-height: 36px;
     vertical-align: middle;
 }
 
@@ -153,9 +153,6 @@ $table-selection: #dde6ff;
 .dx-buttongroup-wrapper dx-widget dx-collection {
     background: white;
     border-radius: 5px;
-}
-
-.grid-panel-left {
 }
 
 .grid-panel-selection {
@@ -366,8 +363,9 @@ body .grid-container {
     }
 }
 .grid-panel-left {
+
     .op-buttongroup {
-        position: absolute;
+        position: relative;
         display: inline-block;
         a {
             margin-right: 0.25rem;
@@ -389,6 +387,7 @@ body .grid-container {
         .dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-item-selected,
         .dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-item-selected.dx-state-hover {
             background-color: #0e49eb;
+
             .dx-icon {
                 color: white;
             }
@@ -477,4 +476,30 @@ body .grid-container {
 .dx-searchbox.dx-editor-underlined .dx-placeholder::before,
 .dx-searchbox.dx-editor-underlined .dx-texteditor-input {
     padding-left: 30px;
+}
+
+.center-outside-div {
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%); /* or try 50% */
+}
+
+.center-inside-div{
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+
+    -webkit-justify-content: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+
+.center-text-in-div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
