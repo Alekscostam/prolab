@@ -77,6 +77,7 @@ export class CardViewUtils {
                                 maxWidth: type === 'IMG' ? '33%' : type === 'BODY_WITH_IMG' ? '67%' : '100%',
                             }}
                             className={className}
+                            title={rowData[fieldDefinition.fieldName]}
                         >
                             {rowData[fieldDefinition.fieldName]}
                         </span>
@@ -91,6 +92,7 @@ export class CardViewUtils {
                         maxWidth: type === 'IMG' ? '33%' : type === 'BODY_WITH_IMG' ? '67%' : '100%',
                     }}
                     className={className}
+                    title={rowData[fieldDefinition.fieldName]}
                 >
                     {rowData[fieldDefinition.fieldName]}
                 </span>

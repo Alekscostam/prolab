@@ -4,7 +4,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export const ActionButton = props => {
+export const ActionButton = (props) => {
     const {
         className,
         colClass,
@@ -43,35 +43,42 @@ export const ActionButton = props => {
                 <div className={colClass}>
                     <div className={'row'}>
                         <div className={'col-md-12'}>
-                            <label className="p-label" style={{width: '100%', margin: '0px'}}>
+                            <label className='p-label' style={{width: '100%', margin: '0px'}}>
                                 {''}
                             </label>
                             <a
                                 title={`${title ? title : ''}${ariaLabel}`}
-                                tabIndex="0"
+                                tabIndex='0'
                                 className={`p-button p-component p-button-text-only ${
                                     className !== undefined ? className : ''
                                 } ${variant !== undefined ? variant : ''} ${size !== undefined ? size : ''} ${
                                     disabled ? 'p-disabled disabled' : ''
                                 }`}
                                 href={disabled ? undefined : href ? href : 'javascript:;'}
-                                onClick={e => (disabled || !handleClick ? false : handleClick(e, params))}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (disabled || !handleClick) {
+                                        return false;
+                                    } else {
+                                        handleClick(e, params);
+                                    }
+                                }}
                                 id={id}
                                 key={id === undefined ? `actionButton-${label}` : id}
                             >
-								<span
+                                <span
                                     className={`${iconName !== undefined ? 'icon_text' : ''} p-button-text p-c ${
                                         iconName !== undefined ? iconColor : ''
                                     }`}
                                 >
-									{iconSide === 'left' && iconName !== undefined ? (
-                                        <i alt="" className={`icon mdi ${iconName} ${iconSize}`}/>
+                                    {iconSide === 'left' && iconName !== undefined ? (
+                                        <i alt='' className={`icon mdi ${iconName} ${iconSize}`} />
                                     ) : null}
                                     {label}
                                     {iconSide === 'right' && iconName !== undefined ? (
-                                        <i alt="" className={`icon mdi ${iconName} ${iconSize}`}/>
+                                        <i alt='' className={`icon mdi ${iconName} ${iconSize}`} />
                                     ) : null}
-								</span>
+                                </span>
                             </a>
                         </div>
                     </div>
@@ -81,30 +88,35 @@ export const ActionButton = props => {
             return (
                 <a
                     title={`${title ? title : ''}${ariaLabel}`}
-                    tabIndex="0"
-                    className={`p-button p-component p-button-text-only ${
-                        className !== undefined ? className : ''
-                    } ${variant !== undefined ? variant : ''} ${size !== undefined ? size : ''} ${
-                        disabled ? 'p-disabled disabled' : ''
-                    }`}
+                    tabIndex='0'
+                    className={`p-button p-component p-button-text-only ${className !== undefined ? className : ''} ${
+                        variant !== undefined ? variant : ''
+                    } ${size !== undefined ? size : ''} ${disabled ? 'p-disabled disabled' : ''}`}
                     href={disabled ? undefined : href ? href : 'javascript:;'}
-                    onClick={e => (disabled || !handleClick ? false : handleClick(e, params))}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        if (disabled || !handleClick) {
+                            return false;
+                        } else {
+                            handleClick(e, params);
+                        }
+                    }}
                     id={id}
                     key={id === undefined ? `actionButton-${label}` : id}
                 >
-					<span
+                    <span
                         className={`${iconName !== undefined ? 'icon_text' : ''} p-button-text p-c ${
                             iconName !== undefined ? iconColor : ''
                         }`}
                     >
-						{iconSide === 'left' && iconName !== undefined ? (
-                            <i alt="" className={`icon mdi ${iconName} ${iconSize}`}/>
+                        {iconSide === 'left' && iconName !== undefined ? (
+                            <i alt='' className={`icon mdi ${iconName} ${iconSize}`} />
                         ) : null}
                         {label}
                         {iconSide === 'right' && iconName !== undefined ? (
-                            <i alt="" className={`icon mdi ${iconName} ${iconSize}`}/>
+                            <i alt='' className={`icon mdi ${iconName} ${iconSize}`} />
                         ) : null}
-					</span>
+                    </span>
                 </a>
             );
         }

@@ -30,10 +30,18 @@ export const ActionLink = (props) => {
 								tabIndex='0'
 								className={`${className !== undefined ? className : 'p-link'} ${iconName !== undefined ? 'link-icon' : ''} ${variant} ${size}`}
 								href={disabled ? undefined : href ? href : 'javascript:;'}
-								onClick={(e) => (disabled || !handleClick ? false : handleClick(e, params))}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (disabled || !handleClick) {
+                                        return false;
+                                    } else {
+                                        handleClick(e, params);
+                                    }
+                                }}
 								id={id}
 								title={`${title !== undefined ? title : alt !== undefined ? alt : ''}${ariaLabel}`}
 								key={id === undefined ? `actionLink-${label}` : id}
+								rel='noreferrer'
 								target={openInNewTab ? '_blank' : undefined}>
 								<span className={`${iconName !== undefined ? 'icon_text' : ''} p-button-text p-c ${iconName !== undefined ? iconColor : ''}`}>
 									{iconSide === 'left' && iconName !== undefined ? <i alt='' className={`icon mdi ${iconName} ${iconSize}`} /> : null}
@@ -51,10 +59,18 @@ export const ActionLink = (props) => {
 					tabIndex='0'
 					className={`${className !== undefined ? className : 'p-link'} ${iconName !== undefined ? 'link-icon' : ''} ${variant} ${size} ${disabled ? 'p-disabled disabled' : ''}`}
 					href={href ? href : 'javascript:;'}
-					onClick={(e) => (handleClick ? handleClick(e, params) : false)}
+					onClick={(e) => {
+						e.stopPropagation();
+						if (disabled || !handleClick) {
+							return false;
+						} else {
+							handleClick(e, params);
+						}
+					}}
 					id={id}
 					title={`${title !== undefined ? title : alt !== undefined ? alt : ''}${ariaLabel}`}
 					key={id === undefined ? `actionLink-${label}` : id}
+					rel='noreferrer'
 					target={openInNewTab ? '_blank' : undefined}>
 					<span className={`${iconName !== undefined ? 'icon_text' : ''} p-button-text p-c ${iconName !== undefined ? iconColor : ''}`}>
 						{iconSide === 'left' && iconName !== undefined ? <i alt='' className={`icon mdi ${iconName} ${iconSize}`} /> : null}
