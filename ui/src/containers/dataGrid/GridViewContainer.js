@@ -29,13 +29,14 @@ import ViewDataService from '../../services/ViewDataService';
 import ViewService from '../../services/ViewService';
 import AppPrefixUtils from '../../utils/AppPrefixUtils';
 import {Breadcrumb} from '../../utils/BreadcrumbUtils';
-import {GridViewUtils} from '../../utils/GridViewUtils';
 import {CardViewUtils} from '../../utils/CardViewUtils';
+import {GridViewUtils} from '../../utils/GridViewUtils';
 import {ViewValidatorUtils} from '../../utils/parser/ViewValidatorUtils';
 import UrlUtils from '../../utils/UrlUtils';
 import DataGridStore from './DataGridStore';
 import {confirmDialog} from "primereact/confirmdialog";
 import Constants from "../../utils/constants";
+import $ from 'jquery';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -1216,8 +1217,18 @@ export class GridViewContainer extends BaseContainer {
         const viewId = elementSubViewId ? elementSubViewId : elementId;
         const recordId = rowData.ID;
         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+        setTimeout(() => {
+            const cardHeight = this.state.parsedGridView?.cardOptions?.heigh ?? 200;
+            var p = $(`#${rowData.ID} .card-grid-body-content`);
+            while ($(p).outerHeight() > cardHeight - 52) {
+                $(p).text(function (index, text) {
+                    return text.replace(/\W*\s(\S)*$/, '...');
+                });
+            }
+        }, 10);
         return (
             <div
+                id={rowData.ID}
                 className={`dx-tile-image ${
                     this.state.selectedRowKeys.includes(rowData.ID) ? 'card-grid-selected' : ''
                 }`}
@@ -1229,7 +1240,7 @@ export class GridViewContainer extends BaseContainer {
                             ? CardViewUtils.cellTemplate(cardHeader, rowData, 'card-grid-header-title', 'HEADER')
                             : null}
                         {showEditButton || showMenu || showSubviewButton ? (
-                            <div className='float-right'>
+                            <div className='card-grid-header-buttons'>
                                 <ShortcutButton
                                     id={`${rowData.id}_menu_button`}
                                     className={`action-button-with-menu`}
