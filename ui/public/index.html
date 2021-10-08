@@ -23,6 +23,21 @@
     <title>PROLAB</title>
 </head>
 
+<script type="text/javascript">
+    function changeCssToProdModeForce() {
+        if (document.body.classList.contains('dx-theme-generic') == true) {
+            document.body.classList.remove('dx-theme-generic');
+            document.body.classList.toggle('dx-theme-material');
+        }
+        if (document.body.classList.contains('dx-theme-generic-typography') == true) {
+            document.body.classList.remove('dx-theme-generic-typography');
+            document.body.classList.toggle('dx-theme-material-typography');
+        }
+    }
+
+    window.onload = changeCssToProdModeForce;
+</script>
+
 <body class="dx-viewport dx-theme-material dx-theme-material-typography">
 <!-- <body class="dx-viewport"> -->
 <div id="root">
