@@ -458,7 +458,7 @@ class Sidebar extends React.Component {
                                 id={'version'}
                                 className={'to-right'}
                                 style={{marginRight: '5px'}}
-                            >{`ver:${packageJson.version}_${this.state.uiVersion?.buildNumber} api:${this.state.versionAPI}`}</div>
+                            >{`ver: ${packageJson.version}_${this.state.uiVersion?.buildNumber} api: ${this.state.versionAPI}`}</div>
                             {/*
                                 <div className='col-md-12'>
                                     <span style={{fontWeight: 'bold'}}>UI app name: </span>
