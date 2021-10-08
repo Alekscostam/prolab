@@ -207,6 +207,7 @@ export class EditRowComponent extends BaseContainer {
         const autoFill = field?.autoFill ? 'autofill-border' : '';
         const validate = !!validatorMsgs ? 'p-invalid' : '';
         const labelColor = !!field.labelColor ? field.labelColor : '';
+        let editInfo = this.props.editData?.editInfo;
         switch (field.type) {
             case 'C'://C – Znakowy
                 return (<React.Fragment>
@@ -218,7 +219,7 @@ export class EditRowComponent extends BaseContainer {
                                style={{width: '100%'}}
                                type="text"
                                value={field.value}
-                               onChange={e => onChange ? onChange('TEXT', e, groupName) : null}
+                               onChange={e => onChange ? onChange('TEXT', e, groupName, editInfo) : null}
                                disabled={!field.edit}
                                required={required}
                     />
@@ -232,7 +233,7 @@ export class EditRowComponent extends BaseContainer {
                                style={{width: '100%'}}
                                value={field.value}
                                type="number"
-                               onChange={e => onChange ? onChange('TEXT', e, groupName) : null}
+                               onChange={e => onChange ? onChange('TEXT', e, groupName, editInfo) : null}
                                disabled={!field.edit}
                                required={required}
                                padControl="false"
@@ -249,7 +250,7 @@ export class EditRowComponent extends BaseContainer {
                               style={{width: '100%'}}
                               value={field.value}
                               options={this.booleanTypes}
-                              onChange={e => onChange ? onChange('DROPDOWN', e, groupName) : null}
+                              onChange={e => onChange ? onChange('DROPDOWN', e, groupName, editInfo) : null}
                               appendTo="self"
                               showClear
                               optionLabel="name"
@@ -269,7 +270,7 @@ export class EditRowComponent extends BaseContainer {
                               style={{width: '100%'}}
                               value={field.value}
                               options={this.yesNoTypes}
-                              onChange={e => onChange ? onChange('DROPDOWN', e, groupName) : null}
+                              onChange={e => onChange ? onChange('DROPDOWN', e, groupName, editInfo) : null}
                               appendTo="self"
                               showClear
                               optionLabel="name"
@@ -288,7 +289,7 @@ export class EditRowComponent extends BaseContainer {
                               style={{width: '100%'}}
                               value={field.value}
                               dateFormat="yy-mm-dd"
-                              onChange={e => onChange ? onChange('DATE', e, groupName) : null}
+                              onChange={e => onChange ? onChange('DATE', e, groupName, editInfo) : null}
                               appendTo="self"
                               disabled={!field.edit}
                               required={required}
@@ -309,7 +310,7 @@ export class EditRowComponent extends BaseContainer {
                               value={field.value}
                               dateFormat="yy-mm-dd"
                               appendTo="self"
-                              onChange={e => onChange ? onChange('DATETIME', e, groupName) : null}
+                              onChange={e => onChange ? onChange('DATETIME', e, groupName, editInfo) : null}
                               disabled={!field.edit}
                               required={required}
                               showButtonBar
@@ -329,7 +330,7 @@ export class EditRowComponent extends BaseContainer {
                               style={{width: '100%'}}
                               value={field.value}
                               appendTo="self"
-                              onChange={e => onChange ? onChange('TIME', e, groupName) : null}
+                              onChange={e => onChange ? onChange('TIME', e, groupName, editInfo) : null}
                               disabled={!field.edit}
                               required={required}
                               showButtonBar
@@ -349,7 +350,7 @@ export class EditRowComponent extends BaseContainer {
                                 name: field.fieldName,
                                 value: e
                             }
-                            onChange('EDITOR', event, groupName)
+                            onChange('EDITOR', event, groupName, editInfo)
                         }}
                         validationMessageMode="always"
                         disabled={!field.edit}
@@ -415,7 +416,7 @@ export class EditRowComponent extends BaseContainer {
                             disabled={!field.edit}
                             required={required}
                             onDone={e => {
-                                onChange('IMAGE64', e, groupName)
+                                onChange('IMAGE64', e, groupName, editInfo)
                             }}
                         />
                     </div>
@@ -431,7 +432,7 @@ export class EditRowComponent extends BaseContainer {
                                type="text"
                                value={field.value}
                                onChange={e =>
-                                   onChange ? onChange('TEXT', e, groupName) : null
+                                   onChange ? onChange('TEXT', e, groupName, editInfo) : null
                                }
                                disabled={!field.edit}
                                required={required}

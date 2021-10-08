@@ -51,6 +51,44 @@ export default class EditService extends BaseService {
         });
     }
 
+    delete(viewId, selectedIds) {
+        let queryString = []
+        for (const id in selectedIds) {
+            queryString.push(`recordID=${selectedIds[id]}`);
+        }
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Delete/?${queryString.join('&')}`, {
+            method: 'DELETE',
+        }).catch((err) => {
+            throw err;
+        });
+    }
+
+    archive(viewId, recordId, parentId, elementToSave, confirmSave) {
+        const queryString = this.objToQueryString({
+            parentId: parentId,
+            confirmSave: confirmSave
+        });
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Archive/${queryString}`, {
+            method: 'POST',
+            body: JSON.stringify(elementToSave),
+        }).catch((err) => {
+            throw err;
+        });
+    }
+
+    copy(viewId, recordId, parentId, elementToSave, confirmSave) {
+        const queryString = this.objToQueryString({
+            parentId: parentId,
+            confirmSave: confirmSave
+        });
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Archive/${queryString}`, {
+            method: 'POST',
+            body: JSON.stringify(elementToSave),
+        }).catch((err) => {
+            throw err;
+        });
+    }
+
     createObjectToSave(state) {
         let editData = state.editData;
         let arrayTmp = [];

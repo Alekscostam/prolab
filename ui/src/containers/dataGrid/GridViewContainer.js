@@ -667,7 +667,7 @@ export class GridViewContainer extends BaseContainer {
                                 this.state.parsedGridView?.operations,
                                 'OP_SUBVIEWS'
                             );
-                            const viewId = elementSubViewId ? elementSubViewId : elementId;
+                            const viewId = this.getRealViewId();
                             const recordId = info.row?.data?.ID;
                             const subviewId = elementSubViewId ? elementId : undefined;
                             ReactDOM.render(
@@ -801,20 +801,33 @@ export class GridViewContainer extends BaseContainer {
         });
     }
 
-    searchAndAutoFill(editData, searchFieldName, newFieldValue, autoFillOnlyEmpty) {
+    searchField(editData, searchFieldName, callback) {
         editData.editFields?.forEach(groupFields => {
             groupFields?.fields?.forEach(field => {
                 if (field.fieldName == searchFieldName) {
-                    if (autoFillOnlyEmpty) {
-                        if (field.value == null || field.value == "" || field.value.trim() == "") {
-                            field.value = newFieldValue;
-                        }
-                    } else {
-                        field.value = newFieldValue;
-                    }
+                    callback(field)
                     return;
                 }
             })
+        })
+    }
+
+    searchAndAutoFill(editData, searchFieldName, newFieldValue, autoFillOnlyEmpty) {
+        this.searchField(editData, searchFieldName, (field) => {
+            if (autoFillOnlyEmpty) {
+                if (field.value == null || field.value == "" || field.value.trim() == "") {
+                    field.value = newFieldValue;
+                }
+            } else {
+                field.value = newFieldValue;
+            }
+        })
+    }
+
+    searchAndRefreshVisibility(editData, searchFieldName, newFieldValue, autoFillOnlyEmpty) {
+        this.searchField(editData, searchFieldName, (field) => {
+            field.visible = true;
+            field.hidden = false;
         })
     }
 
@@ -844,18 +857,7 @@ export class GridViewContainer extends BaseContainer {
         alert('handleCancelRowChange')
     }
 
-    handleEditRowChange(inputType, event, groupName) {
-        /*
-        this.editService
-            .refreshFieldVisibility(viewId, recordId, parentId, saveElement)
-            .then((saveResponse) => {
-                console.log(`refreshResponse = ${JSON.stringify(saveResponse)}`)
-                this.showSuccessMessage(saveResponse);
-            })
-            .catch((err) => {
-                this.showErrorMessage(err);
-            });
-        */
+    handleEditRowChange(inputType, event, groupName, viewInfo) {
         console.log(`handleEditRowChange inputType=${inputType} groupName=${groupName}`);
         let editData = this.state.editData;
         let groupData = editData.editFields.filter((obj) => {
@@ -890,6 +892,17 @@ export class GridViewContainer extends BaseContainer {
             });
             if (!!field && !!field[0]) {
                 field[0].value = varValue;
+            }
+            const refreshField = {fieldName: field.fieldName, value: field.value}
+            if (field[0].selectionList && field[0].selectionListDone === undefined) {
+                this.editService
+                    .refreshFieldVisibility(viewInfo.viewId, viewInfo.recordId, viewInfo.parentId, refreshField)
+                    .then((refresResponse) => {
+                        field[0].selectionListDone = true;
+                        field[0].hidden = true;
+                    })
+                    .catch((err) => { //zjadam
+                    });
             }
             this.setState({editData: editData});
         } else {
@@ -1009,6 +1022,7 @@ export class GridViewContainer extends BaseContainer {
 
     //override
     renderHeadPanel = () => {
+        const viewId = this.getRealViewId();
         return (
             <React.Fragment>
                 <HeadPanel
@@ -1017,8 +1031,12 @@ export class GridViewContainer extends BaseContainer {
                     leftContent={this.leftHeadPanelContent()}
                     rightContent={this.rightHeadPanelContent()}
                     handleDelete={() => {
-                        //TODO
                         console.log('handleDelete');
+                        this.editService.delete(viewId, this.state.selectedRowKeys)
+                            .then((deleteResponse) => {
+                            }).catch((err) => {
+                            this.showErrorMessages(err);
+                        });
                     }}
                     handleRestore={() => {
                         //TODO
@@ -1189,11 +1207,16 @@ export class GridViewContainer extends BaseContainer {
         }
     }
 
+    getRealViewId(){
+        const {elementSubViewId} = this.state;
+        const elementId = this.props.id;
+        const viewId = elementSubViewId ? elementSubViewId : elementId;
+        return viewId
+    }
+
     //override
     renderCard(rowData) {
         const {cardBody, cardHeader, cardImage, cardFooter} = this.state.parsedGridView;
-        const {elementSubViewId} = this.state;
-        let elementId = this.props.id;
         let showEditButton = false;
         let showSubviewButton = false;
         let showMenu = false;
@@ -1214,7 +1237,7 @@ export class GridViewContainer extends BaseContainer {
         }
         let oppEdit = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_EDIT');
         let oppSubview = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_SUBVIEWS');
-        const viewId = elementSubViewId ? elementSubViewId : elementId;
+        const viewId = this.getRealViewId();
         const recordId = rowData.ID;
         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
         setTimeout(() => {
@@ -1332,6 +1355,7 @@ export class GridViewContainer extends BaseContainer {
                                 id='grid-container'
                                 className={`grid-container${headerAutoHeight ? ' grid-header-auto-height' : ''}`}
                                 keyExpr='ID'
+                                key='ID'
                                 ref={(ref) => (this.dataGrid = ref)}
                                 dataSource={this.state.parsedGridViewData}
                                 customizeColumns={this.customizedColumns}
