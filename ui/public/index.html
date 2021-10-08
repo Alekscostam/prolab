@@ -27,12 +27,17 @@
     function changeCssToProdModeForce() {
         if (document.body.classList.contains('dx-theme-generic') == true) {
             document.body.classList.remove('dx-theme-generic');
-            document.body.classList.toggle('dx-theme-material');
+            if (!document.body.classList.contains('dx-theme-material') == true) {
+                document.body.classList.add('dx-theme-material');
+            }
         }
         if (document.body.classList.contains('dx-theme-generic-typography') == true) {
             document.body.classList.remove('dx-theme-generic-typography');
-            document.body.classList.toggle('dx-theme-material-typography');
+            if (!document.body.classList.contains('dx-theme-material-typography') == true) {
+                document.body.classList.add('dx-theme-material-typography');
+            }
         }
+        document.body.classList.add('test');
     }
 
     window.onload = changeCssToProdModeForce;
