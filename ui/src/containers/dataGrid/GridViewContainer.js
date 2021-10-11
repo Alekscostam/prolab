@@ -767,37 +767,39 @@ export class GridViewContainer extends BaseContainer {
         console.log(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
         const saveElement = this.editService.createObjectToSave(this.state);
         console.log(`handleEditRowSave: element to save = ${JSON.stringify(saveElement)}`)
-        this.rowSave(viewId, recordId, parentId, saveElement);
+        this.rowSave(viewId, recordId, parentId, saveElement, false);
     }
 
-    rowSave(viewId, recordId, parentId, saveElement) {
+    rowSave = (viewId, recordId, parentId, saveElement, confirmSave) => {
         this.blockUi();
         this.editService
-            .save(viewId, recordId, parentId, saveElement, true)
+            .save(viewId, recordId, parentId, saveElement, confirmSave)
             .then((saveResponse) => {
-                if (saveResponse.status?.toUpperCase() === 'OK') {
-                    console.log(`saveResponse = ${JSON.stringify(saveResponse)}`)
-                    if (!!saveResponse.question) {
-                        confirmDialog({
-                            message: saveResponse.question,
-                            header: 'Pytanie',
-                            icon: 'pi pi-question-circle',
-                            acceptLabel: 'Tak',
-                            rejectLabel: 'Nie',
-                            accept: () => this.rowSave(viewId, recordId, parentId, saveElement, true),
-                            reject: () => undefined,
-                        })
-                        this.unblockUi();
-                    } else if (!!saveResponse.message) {
-                        this.showErrorMessage(saveResponse.message?.text, Constants.ERROR_MSG_LIFE, saveResponse.message?.title);
-                    } else {
-                        this.unblockUi();
-                    }
+                console.log(`saveResponse = ${JSON.stringify(saveResponse)}`)
+                if (!!saveResponse.question) {
+                    confirmDialog({
+                        message: saveResponse?.question?.text,
+                        header: saveResponse?.question?.title,
+                        icon: 'pi pi-question-circle',
+                        acceptLabel: 'Tak',
+                        rejectLabel: 'Nie',
+                        accept: () => this.rowSave(viewId, recordId, parentId, saveElement, true),
+                        reject: () => undefined,
+                    })
+                    this.unblockUi();
+                } else if (!!saveResponse.message) {
+                    this.showErrorMessage(saveResponse.message?.text, Constants.ERROR_MSG_LIFE, saveResponse.message?.title);
+                } else if (!!saveResponse.error) {
+                    this.showResponseErrorMessage(saveResponse);
                 } else {
-                    this.showErrorMessage(saveResponse.message?.text, Constants.ERROR_MSG_LIFE, true, saveResponse.message?.title);
+                    this.showSuccessMessage("Zapisano")
                 }
             }).catch((err) => {
-            this.showErrorMessages(err);
+            if (!!err.error) {
+                this.showResponseErrorMessage(err);
+            } else {
+                this.showErrorMessages(err);
+            }
         });
     }
 
@@ -824,10 +826,9 @@ export class GridViewContainer extends BaseContainer {
         })
     }
 
-    searchAndRefreshVisibility(editData, searchFieldName, newFieldValue, autoFillOnlyEmpty) {
+    searchAndRefreshVisibility(editData, searchFieldName, hidden) {
         this.searchField(editData, searchFieldName, (field) => {
-            field.visible = true;
-            field.hidden = false;
+            field.hidden = hidden;
         })
     }
 
@@ -893,13 +894,19 @@ export class GridViewContainer extends BaseContainer {
             if (!!field && !!field[0]) {
                 field[0].value = varValue;
             }
-            const refreshField = {fieldName: field.fieldName, value: field.value}
-            if (field[0].selectionList && field[0].selectionListDone === undefined) {
+            if (!!field[0].selectionList && field[0].selectionListDone === undefined) {
+                const refreshObject = this.editService.createObjectToRefresh(this.state)
                 this.editService
-                    .refreshFieldVisibility(viewInfo.viewId, viewInfo.recordId, viewInfo.parentId, refreshField)
-                    .then((refresResponse) => {
+                    .refreshFieldVisibility(viewInfo.viewId, viewInfo.recordId, viewInfo.parentId, refreshObject)
+                    .then((editRefreshResponse) => {
+                        let arrayTmp = editRefreshResponse?.data;
+                        let editData = this.state.editData;
+                        arrayTmp.forEach((element) => {
+                            this.searchAndRefreshVisibility(editData, element.fieldName, element.hidden);
+                        })
+                        this.setState({editData: editData});
+                        this.unblockUi();
                         field[0].selectionListDone = true;
-                        field[0].hidden = true;
                     })
                     .catch((err) => { //zjadam
                     });
@@ -1018,7 +1025,7 @@ export class GridViewContainer extends BaseContainer {
             </React.Fragment>
         );
     }
-    ;
+
 
     //override
     renderHeadPanel = () => {
@@ -1032,23 +1039,133 @@ export class GridViewContainer extends BaseContainer {
                     rightContent={this.rightHeadPanelContent()}
                     handleDelete={() => {
                         console.log('handleDelete');
-                        this.editService.delete(viewId, this.state.selectedRowKeys)
-                            .then((deleteResponse) => {
-                            }).catch((err) => {
-                            this.showErrorMessages(err);
-                        });
+                        confirmDialog({
+                            message: 'Czy na pewno chcesz usunąć zaznaczone rekordy?',
+                            header: 'Potwierdzenie',
+                            icon: 'pi pi-exclamation-triangle',
+                            acceptLabel: 'Tak',
+                            rejectLabel: 'Nie',
+                            accept: () => {
+                                this.blockUi();
+                                this.editService.delete(viewId, this.state.selectedRowKeys)
+                                    .then((deleteResponse) => {
+                                        this.unselectedDataGrid();
+                                        this.refreshDataGrid();
+                                        const msg = deleteResponse.message;
+                                        if (!!msg) {
+                                            this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
+                                        } else if (!!deleteResponse.error) {
+                                            this.showResponseErrorMessage(deleteResponse);
+                                        }
+                                        this.unblockUi();
+                                    }).catch((err) => {
+                                    if (!!err.error) {
+                                        this.showResponseErrorMessage(err);
+                                    } else {
+                                        this.showErrorMessages(err);
+                                    }
+                                })
+                            },
+                            reject: () => undefined,
+                        })
                     }}
                     handleRestore={() => {
-                        //TODO
                         console.log('handleRestore');
+                        confirmDialog({
+                            message: 'Czy na pewno chcesz przywrócić zaznaczone rekordy?',
+                            header: 'Potwierdzenie',
+                            icon: 'pi pi-exclamation-triangle',
+                            acceptLabel: 'Tak',
+                            rejectLabel: 'Nie',
+                            accept: () => {
+                                this.blockUi();
+                                this.editService.restore(viewId, this.state.selectedRowKeys)
+                                    .then((restoreResponse) => {
+                                        this.unselectedDataGrid();
+                                        this.refreshDataGrid();
+                                        const msg = restoreResponse.message;
+                                        if (!!msg) {
+                                            this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
+                                        } else if (!!restoreResponse.error) {
+                                            this.showResponseErrorMessage(restoreResponse);
+                                        }
+                                        this.unblockUi();
+                                    }).catch((err) => {
+                                    if (!!err.error) {
+                                        this.showResponseErrorMessage(err);
+                                    } else {
+                                        this.showErrorMessages(err);
+                                    }
+                                })
+                            },
+                            reject: () => undefined,
+                        })
                     }}
                     handleCopy={() => {
-                        //TODO
                         console.log('handleCopy');
+                        confirmDialog({
+                            message: 'Czy na pewno chcesz przywrócić zaznaczone rekordy?',
+                            header: 'Potwierdzenie',
+                            icon: 'pi pi-exclamation-triangle',
+                            acceptLabel: 'Tak',
+                            rejectLabel: 'Nie',
+                            accept: () => {
+                                this.blockUi();
+                                const parentId = this.state.parsedGridView?.viewInfo.parentId;
+                                this.editService.copy(viewId, parentId, this.state.selectedRowKeys)
+                                    .then((copyResponse) => {
+                                        this.unselectedDataGrid();
+                                        this.refreshDataGrid();
+                                        const msg = copyResponse.message;
+                                        if (!!msg) {
+                                            this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
+                                        } else if (!!copyResponse.error) {
+                                            this.showResponseErrorMessage(copyResponse);
+                                        }
+                                        this.unblockUi();
+                                    }).catch((err) => {
+                                    if (!!err.error) {
+                                        this.showResponseErrorMessage(err);
+                                    } else {
+                                        this.showErrorMessages(err);
+                                    }
+                                })
+                            },
+                            reject: () => undefined,
+                        })
                     }}
                     handleArchive={() => {
-                        //TODO
                         console.log('handleArchive');
+                        confirmDialog({
+                            message: 'Czy na pewno chcesz przenieść do archiwum zaznaczone rekordy?',
+                            header: 'Potwierdzenie',
+                            icon: 'pi pi-exclamation-triangle',
+                            acceptLabel: 'Tak',
+                            rejectLabel: 'Nie',
+                            accept: () => {
+                                this.blockUi();
+                                const parentId = this.state.parsedGridView?.viewInfo.parentId;
+                                this.editService.archive(viewId, parentId, this.state.selectedRowKeys)
+                                    .then((archiveResponse) => {
+                                        this.unselectedDataGrid();
+                                        this.refreshDataGrid();
+                                        const msg = archiveResponse.message;
+                                        if (!!msg) {
+                                            this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
+                                        } else if (!!archiveResponse.error) {
+                                            this.showResponseErrorMessage(archiveResponse);
+                                        }
+                                        this.unblockUi();
+                                    }).catch((err) => {
+                                    if (!!err.error) {
+                                        this.showResponseErrorMessage(err);
+                                    } else {
+                                        this.showErrorMessages(err);
+                                    }
+                                })
+                            },
+                            reject: () => undefined,
+                        })
                     }}
                 />
             </React.Fragment>
@@ -1207,7 +1324,7 @@ export class GridViewContainer extends BaseContainer {
         }
     }
 
-    getRealViewId(){
+    getRealViewId() {
         const {elementSubViewId} = this.state;
         const elementId = this.props.id;
         const viewId = elementSubViewId ? elementSubViewId : elementId;
@@ -1333,6 +1450,17 @@ export class GridViewContainer extends BaseContainer {
                 {super.render()}
             </React.Fragment>
         );
+    }
+
+    refreshDataGrid() {
+        this.dataGrid.instance.getDataSource().reload();
+    }
+
+    unselectedDataGrid() {
+        this.dataGrid.instance.deselectAll();
+        this.setState({
+            selectedRowKeys: {}
+        });
     }
 
     //override
