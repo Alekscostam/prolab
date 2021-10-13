@@ -15,8 +15,6 @@ import BlockUi from '../components/waitPanel/BlockUi';
 import {Toast} from 'primereact/toast';
 import {Message} from 'primereact/message';
 import AppPrefixUtils from "../utils/AppPrefixUtils";
-import {Breadcrumb} from '../utils/BreadcrumbUtils';
-import {Sidebar} from 'primereact/sidebar';
 
 class BaseContainer extends React.Component {
     constructor(props, service) {

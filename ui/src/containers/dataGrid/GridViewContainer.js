@@ -25,7 +25,6 @@ import HeadPanel from '../../components/HeadPanel';
 import ShortcutButton from '../../components/ShortcutButton';
 import ShortcutsButton from '../../components/ShortcutsButton';
 import EditService from '../../services/EditService';
-import ViewDataService from '../../services/ViewDataService';
 import ViewService from '../../services/ViewService';
 import AppPrefixUtils from '../../utils/AppPrefixUtils';
 import {Breadcrumb} from '../../utils/BreadcrumbUtils';
@@ -47,7 +46,6 @@ export class GridViewContainer extends BaseContainer {
         console.log('GridViewContainer -> constructor');
         super(props);
         this.viewService = new ViewService();
-        this.viewDataService = new ViewDataService();
         this.editService = new EditService();
         this.dataGridStore = new DataGridStore();
         this.dataGrid = null;
@@ -145,21 +143,13 @@ export class GridViewContainer extends BaseContainer {
 
         const firstSubViewMode = !!recordId && !!id && !!!subViewId;
         console.log('**** GridViewContainer -> componentDidUpdate: firstSubViewMode=' + firstSubViewMode);
-
-        console.log(
-            `componentDidUpdate: Read from param -> Id =  ${id} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`
-        );
-        console.log(
-            `componentDidUpdate: this.state.elementId=${this.state.elementId}, id=${id}; 
+        console.log(`componentDidUpdate: Read from param -> Id =  ${id} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`);
+        console.log(`componentDidUpdate: this.state.elementId=${this.state.elementId}, id=${id}; 
             firstSubViewMode=${firstSubViewMode}, this.state.elementSubViewId=${this.state.elementSubViewId}, subViewId=${subViewId}; 
             this.state.elementRecordId=${this.state.elementRecordId}, recordId=${recordId};
             prevState.gridViewType=${this.state.gridViewType}, gridViewType=${gridViewType}`,
             this.state.subView
         );
-        // if (!this.equalNumbers(prevProps.id, id) || (!firstSubViewMode && !this.equalNumbers(this.state.elementSubViewId, subViewId))) {
-        //     gridViewType = null;
-        // }
-
         const fromSubviewToFirstSubView =
             firstSubViewMode &&
             this.state.elementSubViewId &&
@@ -529,22 +519,6 @@ export class GridViewContainer extends BaseContainer {
         });
     }
 
-    renderMyCommand() {
-        return (
-            <a href='#' onClick={this.logMyCommandClick}>
-                My command
-            </a>
-        );
-    }
-
-    renderGridCell(data) {
-        return (
-            <a href={data.text} target='_blank' rel='noopener noreferrer'>
-                Website
-            </a>
-        );
-    }
-
     gridViewTypeChange(e) {
         let newUrl = UrlUtils.addParameterToURL(window.document.URL.toString(), 'viewType', e.itemData.type);
         window.history.replaceState('', '', newUrl);
@@ -758,6 +732,7 @@ export class GridViewContainer extends BaseContainer {
                             accept: () => this.setState({visibleEditPanel: e}),
                             reject: () => undefined,
                         })}
+                        onError={(e) => this.showErrorMessage(e)}
                     />
                 </React.Fragment>
             </React.Fragment>);
@@ -860,6 +835,7 @@ export class GridViewContainer extends BaseContainer {
 
     handleEditRowChange(inputType, event, groupName, viewInfo) {
         console.log(`handleEditRowChange inputType=${inputType} groupName=${groupName}`);
+        console.log(event)
         let editData = this.state.editData;
         let groupData = editData.editFields.filter((obj) => {
             return obj.groupName === groupName;
@@ -877,8 +853,12 @@ export class GridViewContainer extends BaseContainer {
                     varValue = event.value || event.value === '' ? event.value : undefined;
                     break;
                 case 'IMAGE64':
-                    varName = event == null ? null : event[0].fieldName;
-                    varValue = event == null ? null : event[0].base64;
+                    varName = event == null ? null : event.fieldName;
+                    varValue = event == null ? '' : event.base64[0];
+                    break;
+                case 'MULTI_IMAGE64':
+                    varName = event == null ? null : event.fieldName;
+                    varValue = event == null ? '' : event.base64;
                     break;
                 case 'TEXT':
                 case 'AREA':
@@ -894,7 +874,7 @@ export class GridViewContainer extends BaseContainer {
             if (!!field && !!field[0]) {
                 field[0].value = varValue;
             }
-            if (!!field[0].selectionList && field[0].selectionListDone === undefined) {
+            if (!!field[0] && !!field[0]?.selectionList && field[0]?.selectionListDone === undefined) {
                 const refreshObject = this.editService.createObjectToRefresh(this.state)
                 this.editService
                     .refreshFieldVisibility(viewInfo.viewId, viewInfo.recordId, viewInfo.parentId, refreshObject)
@@ -1197,6 +1177,8 @@ export class GridViewContainer extends BaseContainer {
         if (showEditButton) {
             widthTmp += 38;
         }
+        const viewId = this.state.subView?.viewInfo?.id;
+        const recordId = this.state.subView?.headerData[0]?.ID;
         return (
             <React.Fragment>
                 {subViewMode ? (
@@ -1246,7 +1228,22 @@ export class GridViewContainer extends BaseContainer {
                                                     id={`${info.column.headerId}_menu_button`}
                                                     className={`action-button-with-menu`}
                                                     iconName={'mdi-pencil'}
-                                                    handleClick={() => this.setState({visibleEditPanel: true})}
+                                                    handleClick={() => {
+                                                        this.blockUi();
+                                                        this.editService
+                                                            .getEdit(viewId, recordId)
+                                                            .then((editDataResponse) => {
+                                                                this.setState({
+                                                                    visibleEditPanel: true,
+                                                                    editData: editDataResponse
+                                                                });
+                                                                this.unblockUi();
+                                                            })
+                                                            .catch((err) => {
+                                                                this.showErrorMessages(err);
+                                                                this.unblockUi();
+                                                            });
+                                                    }}
                                                     label={''}
                                                     title={'Edycja'}
                                                     rendered={true}
