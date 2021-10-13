@@ -23,6 +23,26 @@
     <title>PROLAB</title>
 </head>
 
+<script type="text/javascript">
+    function changeCssToProdModeForce() {
+        if (document.body.classList.contains('dx-theme-generic') == true) {
+            document.body.classList.remove('dx-theme-generic');
+            if (!document.body.classList.contains('dx-theme-material') == true) {
+                document.body.classList.add('dx-theme-material');
+            }
+        }
+        if (document.body.classList.contains('dx-theme-generic-typography') == true) {
+            document.body.classList.remove('dx-theme-generic-typography');
+            if (!document.body.classList.contains('dx-theme-material-typography') == true) {
+                document.body.classList.add('dx-theme-material-typography');
+            }
+        }
+        document.body.classList.add('test');
+    }
+
+    window.onload = changeCssToProdModeForce;
+</script>
+
 <body class="dx-viewport dx-theme-material dx-theme-material-typography">
 <!-- <body class="dx-viewport"> -->
 <div id="root">

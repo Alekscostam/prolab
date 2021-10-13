@@ -9,18 +9,16 @@ import BaseContainer from "../baseContainers/BaseContainer";
 import {Panel} from "primereact/panel";
 import ShortcutButton from "./ShortcutButton";
 import {GridViewUtils} from "../utils/GridViewUtils";
-import {InputNumber} from "primereact/inputnumber";
 import {Dropdown} from "primereact/dropdown";
 import {Calendar} from "primereact/calendar";
-import Image from "./Image";
 import SimpleReactValidator from "./validator";
 import HtmlEditor, {Item, MediaResizing, Toolbar} from 'devextreme-react/html-editor';
 import {Validator} from "devextreme-react";
 import {RequiredRule} from "devextreme-react/validator";
 import moment from 'moment';
-import UploadImageFileBase64 from "./UploadImageFileBase64";
 import EditService from "../services/EditService";
 import {Sidebar} from "primereact/sidebar";
+import UploadMultiImageFileBase64 from "./UploadMultiImageFileBase64";
 
 export class EditRowComponent extends BaseContainer {
 
@@ -207,6 +205,7 @@ export class EditRowComponent extends BaseContainer {
         const autoFill = field?.autoFill ? 'autofill-border' : '';
         const validate = !!validatorMsgs ? 'p-invalid' : '';
         const labelColor = !!field.labelColor ? field.labelColor : '';
+        let editInfo = this.props.editData?.editInfo;
         switch (field.type) {
             case 'C'://C – Znakowy
                 return (<React.Fragment>
@@ -218,7 +217,7 @@ export class EditRowComponent extends BaseContainer {
                                style={{width: '100%'}}
                                type="text"
                                value={field.value}
-                               onChange={e => onChange ? onChange('TEXT', e, groupName) : null}
+                               onChange={e => onChange ? onChange('TEXT', e, groupName, editInfo) : null}
                                disabled={!field.edit}
                                required={required}
                     />
@@ -232,7 +231,7 @@ export class EditRowComponent extends BaseContainer {
                                style={{width: '100%'}}
                                value={field.value}
                                type="number"
-                               onChange={e => onChange ? onChange('TEXT', e, groupName) : null}
+                               onChange={e => onChange ? onChange('TEXT', e, groupName, editInfo) : null}
                                disabled={!field.edit}
                                required={required}
                                padControl="false"
@@ -249,7 +248,7 @@ export class EditRowComponent extends BaseContainer {
                               style={{width: '100%'}}
                               value={field.value}
                               options={this.booleanTypes}
-                              onChange={e => onChange ? onChange('DROPDOWN', e, groupName) : null}
+                              onChange={e => onChange ? onChange('DROPDOWN', e, groupName, editInfo) : null}
                               appendTo="self"
                               showClear
                               optionLabel="name"
@@ -269,7 +268,7 @@ export class EditRowComponent extends BaseContainer {
                               style={{width: '100%'}}
                               value={field.value}
                               options={this.yesNoTypes}
-                              onChange={e => onChange ? onChange('DROPDOWN', e, groupName) : null}
+                              onChange={e => onChange ? onChange('DROPDOWN', e, groupName, editInfo) : null}
                               appendTo="self"
                               showClear
                               optionLabel="name"
@@ -288,7 +287,7 @@ export class EditRowComponent extends BaseContainer {
                               style={{width: '100%'}}
                               value={field.value}
                               dateFormat="yy-mm-dd"
-                              onChange={e => onChange ? onChange('DATE', e, groupName) : null}
+                              onChange={e => onChange ? onChange('DATE', e, groupName, editInfo) : null}
                               appendTo="self"
                               disabled={!field.edit}
                               required={required}
@@ -309,7 +308,7 @@ export class EditRowComponent extends BaseContainer {
                               value={field.value}
                               dateFormat="yy-mm-dd"
                               appendTo="self"
-                              onChange={e => onChange ? onChange('DATETIME', e, groupName) : null}
+                              onChange={e => onChange ? onChange('DATETIME', e, groupName, editInfo) : null}
                               disabled={!field.edit}
                               required={required}
                               showButtonBar
@@ -329,7 +328,7 @@ export class EditRowComponent extends BaseContainer {
                               style={{width: '100%'}}
                               value={field.value}
                               appendTo="self"
-                              onChange={e => onChange ? onChange('TIME', e, groupName) : null}
+                              onChange={e => onChange ? onChange('TIME', e, groupName, editInfo) : null}
                               disabled={!field.edit}
                               required={required}
                               showButtonBar
@@ -349,7 +348,7 @@ export class EditRowComponent extends BaseContainer {
                                 name: field.fieldName,
                                 value: e
                             }
-                            onChange('EDITOR', event, groupName)
+                            onChange('EDITOR', event, groupName, editInfo)
                         }}
                         validationMessageMode="always"
                         disabled={!field.edit}
@@ -396,28 +395,41 @@ export class EditRowComponent extends BaseContainer {
                     </HtmlEditor>
                 </React.Fragment>);
             case 'I'://I – Obrazek
-            case 'IM'://IM – Obrazek multi
                 return (<React.Fragment>
-                    <div className="image-base">
+                    <div className={`image-base ${autoFill} ${validate}`}>
                         <label style={{color: labelColor}}
                                htmlFor={`image_${fieldIndex}`}>{field.label}{required ? '*' : ''}</label>
                         <br/>
-                        <Image id={`${this.getType(field.type)}`}
-                               style={{maxWidth: '100%'}}
-                               className={`img-responsive ${autoFill} ${validate}`}
-                               alt={field.label}
-                               base64={field.value}
-                               rendered={!!field.value}/>
-                        <UploadImageFileBase64
-                            id={`${this.getType(field.type)}`}
-                            name={field.fieldName}
-                            multiple={true}
-                            disabled={!field.edit}
-                            required={required}
-                            onDone={e => {
-                                onChange('IMAGE64', e, groupName)
-                            }}
-                        />
+                        <UploadMultiImageFileBase64 multiple={false}
+                                                    displayText={""}
+                                                    alt={field.label}
+                                                    initBase64={field.value}
+                                                    onSuccessB64={(e) => onChange('IMAGE64', {
+                                                            fieldName: field.fieldName,
+                                                            base64: e
+                                                        },
+                                                        groupName,
+                                                        editInfo)}
+                                                    onError={(e) => this.props.onError(e)}/>
+                    </div>
+                </React.Fragment>);
+            case 'IM'://IM – Obrazek multi
+                return (<React.Fragment>
+                    <div className={`image-base ${autoFill} ${validate}`}>
+                        <label style={{color: labelColor}}
+                               htmlFor={`image_${fieldIndex}`}>{field.label}{required ? '*' : ''}</label>
+                        <br/>
+                        <UploadMultiImageFileBase64 multiple={true}
+                                                    displayText={""}
+                                                    alt={field.label}
+                                                    initBase64={field.value}
+                                                    onSuccessB64={(e) => onChange('MULTI_IMAGE64', {
+                                                            fieldName: field.fieldName,
+                                                            base64: e
+                                                        },
+                                                        groupName,
+                                                        editInfo)}
+                                                    onError={(e) => this.props.onError(e)}/>
                     </div>
                 </React.Fragment>);
             case 'H'://H - Hyperlink
@@ -431,7 +443,7 @@ export class EditRowComponent extends BaseContainer {
                                type="text"
                                value={field.value}
                                onChange={e =>
-                                   onChange ? onChange('TEXT', e, groupName) : null
+                                   onChange ? onChange('TEXT', e, groupName, editInfo) : null
                                }
                                disabled={!field.edit}
                                required={required}
@@ -462,6 +474,7 @@ EditRowComponent.propTypes = {
     onCancel: PropTypes.func.isRequired,
     onHide: PropTypes.func.isRequired,
     validator: PropTypes.instanceOf(SimpleReactValidator).isRequired,
+    onError: PropTypes.func,
 };
 
 export default EditRowComponent;

@@ -51,18 +51,79 @@ export default class EditService extends BaseService {
         });
     }
 
+    delete(viewId, selectedIds) {
+        let queryString = []
+        for (const id in selectedIds) {
+            queryString.push(`recordID=${selectedIds[id]}`);
+        }
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Delete/?${queryString.join('&')}`, {
+            method: 'DELETE',
+        }).catch((err) => {
+            throw err;
+        });
+    }
+
+    archive(viewId, parentId, selectedIds) {
+        let queryString = []
+        if (parentId != undefined && parentId != null && parentId != "") {
+            queryString.push(`parentId=${parentId}`);
+        }
+        for (const id in selectedIds) {
+            queryString.push(`recordID=${selectedIds[id]}`);
+        }
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Archive/?${queryString.join('&')}`, {
+            method: 'POST',
+        }).catch((err) => {
+            throw err;
+        });
+    }
+
+    copy(viewId, parentId, selectedIds, numberOfCopies, headerCopy, specCopy, specWithValuesCopy) {
+        let queryStringTmp = []
+        if (parentId != undefined && parentId != null && parentId != "") {
+            queryStringTmp.push(`parentId=${parentId}`);
+        }
+        for (const id in selectedIds) {
+            queryStringTmp.push(`recordID=${selectedIds[id]}`);
+        }
+        let queryStringParams = this.objToQueryString({
+            numberOfCopies: numberOfCopies,
+            headerCopy: headerCopy,
+            specCopy: specCopy,
+            specWithValuesCopy: specWithValuesCopy
+        }) || [];
+        queryStringTmp = queryStringTmp.concat(queryStringParams);
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Copy/?${queryStringTmp.join('&')}`, {
+            method: 'POST',
+        }).catch((err) => {
+            throw err;
+        });
+    }
+
+    restore(viewId, selectedIds) {
+        let queryString = []
+        for (const id in selectedIds) {
+            queryString.push(`recordID=${selectedIds[id]}`);
+        }
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Restore/${queryString}`, {
+            method: 'POST',
+        }).catch((err) => {
+            throw err;
+        });
+    }
+
     createObjectToSave(state) {
         let editData = state.editData;
         let arrayTmp = [];
         editData.editFields?.forEach(groupFields => {
             groupFields?.fields.forEach(field => {
-                if (field.hidden != true) {
-                    const elementTmp = {
-                        fieldName: field.fieldName,
-                        value: field.value
-                    }
-                    arrayTmp.push(elementTmp);
+                // if (field.hidden != true) {
+                const elementTmp = {
+                    fieldName: field.fieldName,
+                    value: field.value
                 }
+                arrayTmp.push(elementTmp);
+                // }
             })
         })
         return {data: arrayTmp};
@@ -73,13 +134,28 @@ export default class EditService extends BaseService {
         let arrayTmp = [];
         editData.editFields?.forEach(groupFields => {
             groupFields?.fields.forEach(field => {
-                if (field.autoFill == true) {
-                    const elementTmp = {
-                        fieldName: field.fieldName,
-                        value: field.value
-                    }
-                    arrayTmp.push(elementTmp);
+                // if (field.autoFill == true) {
+                const elementTmp = {
+                    fieldName: field.fieldName,
+                    value: field.value
                 }
+                arrayTmp.push(elementTmp);
+                // }
+            })
+        })
+        return {data: arrayTmp};
+    }
+
+    createObjectToRefresh(state) {
+        let editData = state.editData;
+        let arrayTmp = [];
+        editData.editFields?.forEach(groupFields => {
+            groupFields?.fields.forEach(field => {
+                const elementTmp = {
+                    fieldName: field.fieldName,
+                    value: field.value
+                }
+                arrayTmp.push(elementTmp);
             })
         })
         return {data: arrayTmp};

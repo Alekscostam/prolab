@@ -15,8 +15,6 @@ import BlockUi from '../components/waitPanel/BlockUi';
 import {Toast} from 'primereact/toast';
 import {Message} from 'primereact/message';
 import AppPrefixUtils from "../utils/AppPrefixUtils";
-import {Breadcrumb} from '../utils/BreadcrumbUtils';
-import {Sidebar} from 'primereact/sidebar';
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -161,6 +159,25 @@ class BaseContainer extends React.Component {
         this.unblockUi();
     }
 
+    showResponseErrorMessage(errorResponse) {
+        let title = "Błąd";
+        let message = "";
+        if (!!errorResponse.error) {
+            message = errorResponse.error?.message;
+        } else {
+            message = 'Wystąpił nieoczekiwany błąd';
+        }
+        this.messages.show({
+            severity: 'error',
+            sticky: false,
+            closable: true,
+            life: Constants.ERROR_MSG_LIFE,
+            summary: title,
+            detail: message,
+        });
+        this.unblockUi();
+    }
+
     showErrorMessage(errMsg, life = Constants.ERROR_MSG_LIFE, closable = true, summary = 'Błąd!') {
         this.messages.show({
             severity: 'error',
@@ -215,7 +232,6 @@ class BaseContainer extends React.Component {
         } else {
             title = 'Błąd';
         }
-
         this.messages.clear();
         this.messages.show({
             severity: 'error',

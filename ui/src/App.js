@@ -5,15 +5,11 @@ import Login from './containers/LoginContainer';
 import StartContainer from './containers/StartContainer';
 import AuthService from './services/AuthService';
 import AuthComponent from './components/AuthComponent';
-import UserService from "./services/UserService";
-import PrimeReact from 'primereact/api';
+import PrimeReact, {addLocale, locale as primeReactLocale} from 'primereact/api';
 import "@fontsource/roboto"
 import {GridViewContainer} from "./containers/dataGrid/GridViewContainer";
 import {createBrowserHistory} from 'history';
-import {loadMessages, locale} from "devextreme/localization";
-import {translationPL} from "./utils/translations_pl";
-import {translationENG} from "./utils/translations_eng";
-import {translationDE} from "./utils/translations_de";
+import {loadMessages, locale as devExpressLocale} from "devextreme/localization";
 import AppPrefixUtils from "./utils/AppPrefixUtils";
 import packageJson from '../package.json';
 import ReadConfigService from "./services/ReadConfigService";
@@ -26,7 +22,6 @@ class App extends Component {
         super();
         this.history = createBrowserHistory();
         this.authService = new AuthService();
-        this.userService = new UserService();
         this.historyBrowser = this.history;
         this.localizationService = new LocalizationService();
         this.state = {
@@ -47,7 +42,7 @@ class App extends Component {
         }
         PrimeReact.appendTo = 'self'; // Default value is null(document.body).
         //dexexpress localization
-        
+
         // loadMessages({
         //     'pl': translationPL,
         //     'en' : translationENG,
@@ -55,7 +50,7 @@ class App extends Component {
         // });     
         config({
             editorStylingMode: 'underlined'
-        });   
+        });
         console.log("App version = " + packageJson.version);
     }
 
@@ -68,22 +63,22 @@ class App extends Component {
         }
         let configUrl;
         const urlPrefixCookie = readCookieGlobal("REACT_APP_URL_PREFIX");
-        if (urlPrefixCookie === undefined || urlPrefixCookie == null || urlPrefixCookie === '') {                        
+        if (urlPrefixCookie === undefined || urlPrefixCookie == null || urlPrefixCookie === '') {
             configUrl = browseUrl
-                // .trim()
-                // .replaceAll("/#/", "/")
-                // .replaceAll("/#", "")
-                // .replaceAll("#/", "");
+            // .trim()
+            // .replaceAll("/#/", "/")
+            // .replaceAll("/#", "")
+            // .replaceAll("#/", "");
         } else {
             configUrl = browseUrl
                 .trim()
                 .match("^(?:https?:)?(?:\\/\\/)?([^\\/\\?]+)", "")[0] + '/' + urlPrefixCookie;
         }
-        
+
         this.readConfigAndSaveInCookie(configUrl)
-        .catch(err => {
-            console.error("Error start application = ", err)
-        });
+            .catch(err => {
+                console.error("Error start application = ", err)
+            });
     }
 
     readConfigAndSaveInCookie(configUrl) {
@@ -96,7 +91,7 @@ class App extends Component {
                 configUrl: configUrl,
             }, () => {
                 if (this.authService.loggedIn()) {
-                    this.getLocalization();
+                    this.getLocalization(configUrl);
                 }
             });
         })
@@ -111,67 +106,73 @@ class App extends Component {
         }
     }
 
-    getLocalization() {
-        //this.blockUi();
+    getLocalization(configUrl) {
         this.localizationService.reConfigureDomain();
         const lang = this.authService.getUserLang();
         this.localizationService.localization(lang)
-            .then(resp => {                
+            .then(resp => {
                 const langs = resp.langList;
                 const labels = {};
                 if (resp.labels) {
                     resp.labels.forEach(label => labels[label.code] = label.caption)
                 }
                 this.setState({langs, labels});
-
-                
-                let translation = [];
-                if (lang === 'PL') {
-                    translation = translationPL;
-                } else if (lang === 'ENG') {
-                    translation = translationENG;
-                } else if (lang === 'DE') {
-                    translation = translationDE;
-                }
-
-                resp.labels.forEach(label => {
-                     translation[label.code] = label.caption;
-                })
-                const devExpLang = lang.toLowerCase().substr(0, 2);
-
-                //translation['dxDataGrid-headerFilterEmptyValue'] = 'TEST !!!';
-                loadMessages({
-                    [devExpLang]: translation,                  
-                });
-                locale(devExpLang);
-                //window.location.href = window.location.href;
+                const localizationService = new LocalizationService(configUrl);
+                /* init dev express translations */
+                const shortLang = lang.toLowerCase().substr(0, 2);
+                localizationService.getTranslationsFromFile('dev', lang)
+                    .then(devExpressTranslation => {
+                        resp.labels.forEach(label => {
+                            devExpressTranslation[label.code] = label.caption;
+                        })
+                        loadMessages({
+                            [shortLang]: devExpressTranslation,
+                        });
+                        devExpressLocale(shortLang);
+                    });
+                /* init react express translations */
+                localizationService.getTranslationsFromFile('primi', lang)
+                    .then(primeReactTranslation => {
+                        addLocale(shortLang, primeReactTranslation[shortLang]);
+                        primeReactLocale(shortLang);
+                    });
             })
             .catch(err => {
                 console.log(`App:getLocalization error`, err);
-                //this.showErrorMessage(err);
-                //this.unblockUi();   
             })
+    }
+
+    readTextFile(file, callback) {
+        var rawFile = new XMLHttpRequest();
+        rawFile.overrideMimeType("application/json");
+        rawFile.open("GET", file, true);
+        rawFile.onreadystatechange = function () {
+            if (rawFile.readyState === 4 && rawFile.status == "200") {
+                callback(rawFile.responseText);
+            }
+        }
+        rawFile.send(null);
     }
 
     renderLoginContainer(props) {
         return (
             <Login {...props}
-            onAfterLogin={() => {
-                this.setState({
-                    user: this.authService.getProfile().sub,
-                    collapsed: false
-                }, () => {
-                    this.getLocalization();
-                });
-            }}/>
+                   onAfterLogin={() => {
+                       this.setState({
+                           user: this.authService.getProfile().sub,
+                           collapsed: false
+                       }, () => {
+                           this.getLocalization(this.state.configUrl);
+                       });
+                   }}/>
         )
     }
 
     render() {
         const authService = this.authService;
-        const { labels } = this.state;
+        const {labels} = this.state;
         return (
-            <React.Fragment>                
+            <React.Fragment>
                 {this.state.loadedConfiguration ?
                     <HashRouter history={this.historyBrowser}>
                         <div className={`${authService.loggedIn() ? 'app' : ''}`}>
@@ -186,7 +187,7 @@ class App extends Component {
                                 <div className={`${authService.loggedIn() ? 'container-fluid' : ''}`}>
                                     <Switch>
                                         <Route exact path='/' render={(props) => this.renderLoginContainer(props)}/>
-                                        <Route path='/login'  render={(props) => this.renderLoginContainer(props)}/>
+                                        <Route path='/login' render={(props) => this.renderLoginContainer(props)}/>
                                         <Route exact path='/start'
                                                render={(props) => {
                                                    return (
@@ -201,10 +202,10 @@ class App extends Component {
                                                render={(props) => {
                                                    return (
                                                        <AuthComponent viewMode={'VIEW'}
-                                                                      historyBrowser={this.historyBrowser}>                                                           
-                                                           <GridViewContainer 
-                                                                id={props.match.params.id}
-                                                                labels={labels}
+                                                                      historyBrowser={this.historyBrowser}>
+                                                           <GridViewContainer
+                                                               id={props.match.params.id}
+                                                               labels={labels}
                                                            />
                                                        </AuthComponent>
                                                    )

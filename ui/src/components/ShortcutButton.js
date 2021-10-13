@@ -4,8 +4,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-
-export const ShortcutButton = props => {
+export const ShortcutButton = (props) => {
     const {
         active,
         className,
@@ -21,7 +20,7 @@ export const ShortcutButton = props => {
         params,
         rendered,
         title,
-        linkViewMode
+        linkViewMode,
     } = props;
     let ariaLabel = '';
     if (rendered) {
@@ -30,31 +29,42 @@ export const ShortcutButton = props => {
                 {props.children}
                 <a
                     title={`${title ? title : ''}${ariaLabel}`}
-                    tabIndex="0"
+                    tabIndex='0'
                     className={
                         linkViewMode
-                            ? (`shortcut-link ${className !== undefined ? className : ''} ${disabled ? 'p-disabled disabled' : ''} ${active ? 'active-shortcut-link' : ''}`)
-                            : (`shortcut p-button p-component ${className !== undefined ? className : ''} ${disabled ? 'p-disabled disabled' : ''} ${active ? 'active-shortcut-button' : ''}`)}
+                            ? `shortcut-link ${className !== undefined ? className : ''} ${
+                                  disabled ? 'p-disabled disabled' : ''
+                              } ${active ? 'active-shortcut-link' : ''}`
+                            : `shortcut p-button p-component ${className !== undefined ? className : ''} ${
+                                  disabled ? 'p-disabled disabled' : ''
+                              } ${active ? 'active-shortcut-button' : ''}`
+                    }
                     href={disabled ? undefined : href ? href : 'javascript:;'}
-                    onClick={e => (disabled || !handleClick ? false : handleClick(e, params))}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        if (disabled || !handleClick) {
+                            return false;
+                        } else {
+                            handleClick(e, params);
+                        }
+                    }}
                     id={id}
-                    type="submit"
+                    type='submit'
                     key={id === undefined ? `actionButton-${label}` : id}
                 >
-					<span
+                    <span
                         className={`${iconName !== undefined ? 'icon_text ' : ''}shortcut-text p-c ${
                             iconName !== undefined ? iconColor : ''
                         }`}
                     >
-						{iconSide === 'left' && iconName !== undefined ? (
+                        {iconSide === 'left' && iconName !== undefined ? (
                             <i className={`icon mdi ${iconName} ${iconSize}`}></i>
                         ) : null}
                         {label}
                         {iconSide === 'right' && iconName !== undefined ? (
-
                             <i className={`icon mdi ${iconName} ${iconSize}`}></i>
                         ) : null}
-					</span>
+                    </span>
                 </a>
             </React.Fragment>
         );
@@ -71,7 +81,7 @@ ShortcutButton.defaultProps = {
     disabled: false,
     params: {},
     active: false,
-    linkViewMode: false
+    linkViewMode: false,
 };
 
 ShortcutButton.propTypes = {

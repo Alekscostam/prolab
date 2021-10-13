@@ -25,17 +25,17 @@ import HeadPanel from '../../components/HeadPanel';
 import ShortcutButton from '../../components/ShortcutButton';
 import ShortcutsButton from '../../components/ShortcutsButton';
 import EditService from '../../services/EditService';
-import ViewDataService from '../../services/ViewDataService';
 import ViewService from '../../services/ViewService';
 import AppPrefixUtils from '../../utils/AppPrefixUtils';
 import {Breadcrumb} from '../../utils/BreadcrumbUtils';
-import {GridViewUtils} from '../../utils/GridViewUtils';
 import {CardViewUtils} from '../../utils/CardViewUtils';
+import {GridViewUtils} from '../../utils/GridViewUtils';
 import {ViewValidatorUtils} from '../../utils/parser/ViewValidatorUtils';
 import UrlUtils from '../../utils/UrlUtils';
 import DataGridStore from './DataGridStore';
 import {confirmDialog} from "primereact/confirmdialog";
 import Constants from "../../utils/constants";
+import $ from 'jquery';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -46,7 +46,6 @@ export class GridViewContainer extends BaseContainer {
         console.log('GridViewContainer -> constructor');
         super(props);
         this.viewService = new ViewService();
-        this.viewDataService = new ViewDataService();
         this.editService = new EditService();
         this.dataGridStore = new DataGridStore();
         this.dataGrid = null;
@@ -144,21 +143,13 @@ export class GridViewContainer extends BaseContainer {
 
         const firstSubViewMode = !!recordId && !!id && !!!subViewId;
         console.log('**** GridViewContainer -> componentDidUpdate: firstSubViewMode=' + firstSubViewMode);
-
-        console.log(
-            `componentDidUpdate: Read from param -> Id =  ${id} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`
-        );
-        console.log(
-            `componentDidUpdate: this.state.elementId=${this.state.elementId}, id=${id}; 
+        console.log(`componentDidUpdate: Read from param -> Id =  ${id} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`);
+        console.log(`componentDidUpdate: this.state.elementId=${this.state.elementId}, id=${id}; 
             firstSubViewMode=${firstSubViewMode}, this.state.elementSubViewId=${this.state.elementSubViewId}, subViewId=${subViewId}; 
             this.state.elementRecordId=${this.state.elementRecordId}, recordId=${recordId};
             prevState.gridViewType=${this.state.gridViewType}, gridViewType=${gridViewType}`,
             this.state.subView
         );
-        // if (!this.equalNumbers(prevProps.id, id) || (!firstSubViewMode && !this.equalNumbers(this.state.elementSubViewId, subViewId))) {
-        //     gridViewType = null;
-        // }
-
         const fromSubviewToFirstSubView =
             firstSubViewMode &&
             this.state.elementSubViewId &&
@@ -528,22 +519,6 @@ export class GridViewContainer extends BaseContainer {
         });
     }
 
-    renderMyCommand() {
-        return (
-            <a href='#' onClick={this.logMyCommandClick}>
-                My command
-            </a>
-        );
-    }
-
-    renderGridCell(data) {
-        return (
-            <a href={data.text} target='_blank' rel='noopener noreferrer'>
-                Website
-            </a>
-        );
-    }
-
     gridViewTypeChange(e) {
         let newUrl = UrlUtils.addParameterToURL(window.document.URL.toString(), 'viewType', e.itemData.type);
         window.history.replaceState('', '', newUrl);
@@ -666,7 +641,7 @@ export class GridViewContainer extends BaseContainer {
                                 this.state.parsedGridView?.operations,
                                 'OP_SUBVIEWS'
                             );
-                            const viewId = elementSubViewId ? elementSubViewId : elementId;
+                            const viewId = this.getRealViewId();
                             const recordId = info.row?.data?.ID;
                             const subviewId = elementSubViewId ? elementId : undefined;
                             ReactDOM.render(
@@ -757,6 +732,7 @@ export class GridViewContainer extends BaseContainer {
                             accept: () => this.setState({visibleEditPanel: e}),
                             reject: () => undefined,
                         })}
+                        onError={(e) => this.showErrorMessage(e)}
                     />
                 </React.Fragment>
             </React.Fragment>);
@@ -766,54 +742,68 @@ export class GridViewContainer extends BaseContainer {
         console.log(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
         const saveElement = this.editService.createObjectToSave(this.state);
         console.log(`handleEditRowSave: element to save = ${JSON.stringify(saveElement)}`)
-        this.rowSave(viewId, recordId, parentId, saveElement);
+        this.rowSave(viewId, recordId, parentId, saveElement, false);
     }
 
-    rowSave(viewId, recordId, parentId, saveElement) {
+    rowSave = (viewId, recordId, parentId, saveElement, confirmSave) => {
         this.blockUi();
         this.editService
-            .save(viewId, recordId, parentId, saveElement, true)
+            .save(viewId, recordId, parentId, saveElement, confirmSave)
             .then((saveResponse) => {
-                if (saveResponse.status?.toUpperCase() === 'OK') {
-                    console.log(`saveResponse = ${JSON.stringify(saveResponse)}`)
-                    if (!!saveResponse.question) {
-                        confirmDialog({
-                            message: saveResponse.question,
-                            header: 'Pytanie',
-                            icon: 'pi pi-question-circle',
-                            acceptLabel: 'Tak',
-                            rejectLabel: 'Nie',
-                            accept: () => this.rowSave(viewId, recordId, parentId, saveElement, true),
-                            reject: () => undefined,
-                        })
-                        this.unblockUi();
-                    } else if (!!saveResponse.message) {
-                        this.showErrorMessage(saveResponse.message?.text, Constants.ERROR_MSG_LIFE, saveResponse.message?.title);
-                    } else {
-                        this.unblockUi();
-                    }
+                console.log(`saveResponse = ${JSON.stringify(saveResponse)}`)
+                if (!!saveResponse.question) {
+                    confirmDialog({
+                        message: saveResponse?.question?.text,
+                        header: saveResponse?.question?.title,
+                        icon: 'pi pi-question-circle',
+                        acceptLabel: 'Tak',
+                        rejectLabel: 'Nie',
+                        accept: () => this.rowSave(viewId, recordId, parentId, saveElement, true),
+                        reject: () => undefined,
+                    })
+                    this.unblockUi();
+                } else if (!!saveResponse.message) {
+                    this.showErrorMessage(saveResponse.message?.text, Constants.ERROR_MSG_LIFE, saveResponse.message?.title);
+                } else if (!!saveResponse.error) {
+                    this.showResponseErrorMessage(saveResponse);
                 } else {
-                    this.showErrorMessage(saveResponse.message?.text, Constants.ERROR_MSG_LIFE, true, saveResponse.message?.title);
+                    this.showSuccessMessage("Zapisano")
                 }
             }).catch((err) => {
-            this.showErrorMessages(err);
+            if (!!err.error) {
+                this.showResponseErrorMessage(err);
+            } else {
+                this.showErrorMessages(err);
+            }
         });
     }
 
-    searchAndAutoFill(editData, searchFieldName, newFieldValue, autoFillOnlyEmpty) {
+    searchField(editData, searchFieldName, callback) {
         editData.editFields?.forEach(groupFields => {
             groupFields?.fields?.forEach(field => {
                 if (field.fieldName == searchFieldName) {
-                    if (autoFillOnlyEmpty) {
-                        if (field.value == null || field.value == "" || field.value.trim() == "") {
-                            field.value = newFieldValue;
-                        }
-                    } else {
-                        field.value = newFieldValue;
-                    }
+                    callback(field)
                     return;
                 }
             })
+        })
+    }
+
+    searchAndAutoFill(editData, searchFieldName, newFieldValue, autoFillOnlyEmpty) {
+        this.searchField(editData, searchFieldName, (field) => {
+            if (autoFillOnlyEmpty) {
+                if (field.value == null || field.value == "" || field.value.trim() == "") {
+                    field.value = newFieldValue;
+                }
+            } else {
+                field.value = newFieldValue;
+            }
+        })
+    }
+
+    searchAndRefreshVisibility(editData, searchFieldName, hidden) {
+        this.searchField(editData, searchFieldName, (field) => {
+            field.hidden = hidden;
         })
     }
 
@@ -843,19 +833,9 @@ export class GridViewContainer extends BaseContainer {
         alert('handleCancelRowChange')
     }
 
-    handleEditRowChange(inputType, event, groupName) {
-        /*
-        this.editService
-            .refreshFieldVisibility(viewId, recordId, parentId, saveElement)
-            .then((saveResponse) => {
-                console.log(`refreshResponse = ${JSON.stringify(saveResponse)}`)
-                this.showSuccessMessage(saveResponse);
-            })
-            .catch((err) => {
-                this.showErrorMessage(err);
-            });
-        */
+    handleEditRowChange(inputType, event, groupName, viewInfo) {
         console.log(`handleEditRowChange inputType=${inputType} groupName=${groupName}`);
+        console.log(event)
         let editData = this.state.editData;
         let groupData = editData.editFields.filter((obj) => {
             return obj.groupName === groupName;
@@ -873,8 +853,12 @@ export class GridViewContainer extends BaseContainer {
                     varValue = event.value || event.value === '' ? event.value : undefined;
                     break;
                 case 'IMAGE64':
-                    varName = event == null ? null : event[0].fieldName;
-                    varValue = event == null ? null : event[0].base64;
+                    varName = event == null ? null : event.fieldName;
+                    varValue = event == null ? '' : event.base64[0];
+                    break;
+                case 'MULTI_IMAGE64':
+                    varName = event == null ? null : event.fieldName;
+                    varValue = event == null ? '' : event.base64;
                     break;
                 case 'TEXT':
                 case 'AREA':
@@ -889,6 +873,23 @@ export class GridViewContainer extends BaseContainer {
             });
             if (!!field && !!field[0]) {
                 field[0].value = varValue;
+            }
+            if (!!field[0] && !!field[0]?.selectionList && field[0]?.selectionListDone === undefined) {
+                const refreshObject = this.editService.createObjectToRefresh(this.state)
+                this.editService
+                    .refreshFieldVisibility(viewInfo.viewId, viewInfo.recordId, viewInfo.parentId, refreshObject)
+                    .then((editRefreshResponse) => {
+                        let arrayTmp = editRefreshResponse?.data;
+                        let editData = this.state.editData;
+                        arrayTmp.forEach((element) => {
+                            this.searchAndRefreshVisibility(editData, element.fieldName, element.hidden);
+                        })
+                        this.setState({editData: editData});
+                        this.unblockUi();
+                        field[0].selectionListDone = true;
+                    })
+                    .catch((err) => { //zjadam
+                    });
             }
             this.setState({editData: editData});
         } else {
@@ -1004,10 +1005,11 @@ export class GridViewContainer extends BaseContainer {
             </React.Fragment>
         );
     }
-    ;
+
 
     //override
     renderHeadPanel = () => {
+        const viewId = this.getRealViewId();
         return (
             <React.Fragment>
                 <HeadPanel
@@ -1016,20 +1018,134 @@ export class GridViewContainer extends BaseContainer {
                     leftContent={this.leftHeadPanelContent()}
                     rightContent={this.rightHeadPanelContent()}
                     handleDelete={() => {
-                        //TODO
                         console.log('handleDelete');
+                        confirmDialog({
+                            message: 'Czy na pewno chcesz usunąć zaznaczone rekordy?',
+                            header: 'Potwierdzenie',
+                            icon: 'pi pi-exclamation-triangle',
+                            acceptLabel: 'Tak',
+                            rejectLabel: 'Nie',
+                            accept: () => {
+                                this.blockUi();
+                                this.editService.delete(viewId, this.state.selectedRowKeys)
+                                    .then((deleteResponse) => {
+                                        this.unselectedDataGrid();
+                                        this.refreshDataGrid();
+                                        const msg = deleteResponse.message;
+                                        if (!!msg) {
+                                            this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
+                                        } else if (!!deleteResponse.error) {
+                                            this.showResponseErrorMessage(deleteResponse);
+                                        }
+                                        this.unblockUi();
+                                    }).catch((err) => {
+                                    if (!!err.error) {
+                                        this.showResponseErrorMessage(err);
+                                    } else {
+                                        this.showErrorMessages(err);
+                                    }
+                                })
+                            },
+                            reject: () => undefined,
+                        })
                     }}
                     handleRestore={() => {
-                        //TODO
                         console.log('handleRestore');
+                        confirmDialog({
+                            message: 'Czy na pewno chcesz przywrócić zaznaczone rekordy?',
+                            header: 'Potwierdzenie',
+                            icon: 'pi pi-exclamation-triangle',
+                            acceptLabel: 'Tak',
+                            rejectLabel: 'Nie',
+                            accept: () => {
+                                this.blockUi();
+                                this.editService.restore(viewId, this.state.selectedRowKeys)
+                                    .then((restoreResponse) => {
+                                        this.unselectedDataGrid();
+                                        this.refreshDataGrid();
+                                        const msg = restoreResponse.message;
+                                        if (!!msg) {
+                                            this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
+                                        } else if (!!restoreResponse.error) {
+                                            this.showResponseErrorMessage(restoreResponse);
+                                        }
+                                        this.unblockUi();
+                                    }).catch((err) => {
+                                    if (!!err.error) {
+                                        this.showResponseErrorMessage(err);
+                                    } else {
+                                        this.showErrorMessages(err);
+                                    }
+                                })
+                            },
+                            reject: () => undefined,
+                        })
                     }}
                     handleCopy={() => {
-                        //TODO
                         console.log('handleCopy');
+                        confirmDialog({
+                            message: 'Czy na pewno chcesz przywrócić zaznaczone rekordy?',
+                            header: 'Potwierdzenie',
+                            icon: 'pi pi-exclamation-triangle',
+                            acceptLabel: 'Tak',
+                            rejectLabel: 'Nie',
+                            accept: () => {
+                                this.blockUi();
+                                const parentId = this.state.parsedGridView?.viewInfo.parentId;
+                                this.editService.copy(viewId, parentId, this.state.selectedRowKeys)
+                                    .then((copyResponse) => {
+                                        this.unselectedDataGrid();
+                                        this.refreshDataGrid();
+                                        const msg = copyResponse.message;
+                                        if (!!msg) {
+                                            this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
+                                        } else if (!!copyResponse.error) {
+                                            this.showResponseErrorMessage(copyResponse);
+                                        }
+                                        this.unblockUi();
+                                    }).catch((err) => {
+                                    if (!!err.error) {
+                                        this.showResponseErrorMessage(err);
+                                    } else {
+                                        this.showErrorMessages(err);
+                                    }
+                                })
+                            },
+                            reject: () => undefined,
+                        })
                     }}
                     handleArchive={() => {
-                        //TODO
                         console.log('handleArchive');
+                        confirmDialog({
+                            message: 'Czy na pewno chcesz przenieść do archiwum zaznaczone rekordy?',
+                            header: 'Potwierdzenie',
+                            icon: 'pi pi-exclamation-triangle',
+                            acceptLabel: 'Tak',
+                            rejectLabel: 'Nie',
+                            accept: () => {
+                                this.blockUi();
+                                const parentId = this.state.parsedGridView?.viewInfo.parentId;
+                                this.editService.archive(viewId, parentId, this.state.selectedRowKeys)
+                                    .then((archiveResponse) => {
+                                        this.unselectedDataGrid();
+                                        this.refreshDataGrid();
+                                        const msg = archiveResponse.message;
+                                        if (!!msg) {
+                                            this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
+                                        } else if (!!archiveResponse.error) {
+                                            this.showResponseErrorMessage(archiveResponse);
+                                        }
+                                        this.unblockUi();
+                                    }).catch((err) => {
+                                    if (!!err.error) {
+                                        this.showResponseErrorMessage(err);
+                                    } else {
+                                        this.showErrorMessages(err);
+                                    }
+                                })
+                            },
+                            reject: () => undefined,
+                        })
                     }}
                 />
             </React.Fragment>
@@ -1061,6 +1177,8 @@ export class GridViewContainer extends BaseContainer {
         if (showEditButton) {
             widthTmp += 38;
         }
+        const viewId = this.state.subView?.viewInfo?.id;
+        const recordId = this.state.subView?.headerData[0]?.ID;
         return (
             <React.Fragment>
                 {subViewMode ? (
@@ -1110,7 +1228,22 @@ export class GridViewContainer extends BaseContainer {
                                                     id={`${info.column.headerId}_menu_button`}
                                                     className={`action-button-with-menu`}
                                                     iconName={'mdi-pencil'}
-                                                    handleClick={() => this.setState({visibleEditPanel: true})}
+                                                    handleClick={() => {
+                                                        this.blockUi();
+                                                        this.editService
+                                                            .getEdit(viewId, recordId)
+                                                            .then((editDataResponse) => {
+                                                                this.setState({
+                                                                    visibleEditPanel: true,
+                                                                    editData: editDataResponse
+                                                                });
+                                                                this.unblockUi();
+                                                            })
+                                                            .catch((err) => {
+                                                                this.showErrorMessages(err);
+                                                                this.unblockUi();
+                                                            });
+                                                    }}
                                                     label={''}
                                                     title={'Edycja'}
                                                     rendered={true}
@@ -1188,11 +1321,16 @@ export class GridViewContainer extends BaseContainer {
         }
     }
 
+    getRealViewId() {
+        const {elementSubViewId} = this.state;
+        const elementId = this.props.id;
+        const viewId = elementSubViewId ? elementSubViewId : elementId;
+        return viewId
+    }
+
     //override
     renderCard(rowData) {
         const {cardBody, cardHeader, cardImage, cardFooter} = this.state.parsedGridView;
-        const {elementSubViewId} = this.state;
-        let elementId = this.props.id;
         let showEditButton = false;
         let showSubviewButton = false;
         let showMenu = false;
@@ -1213,11 +1351,21 @@ export class GridViewContainer extends BaseContainer {
         }
         let oppEdit = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_EDIT');
         let oppSubview = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_SUBVIEWS');
-        const viewId = elementSubViewId ? elementSubViewId : elementId;
+        const viewId = this.getRealViewId();
         const recordId = rowData.ID;
         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+        setTimeout(() => {
+            const cardHeight = this.state.parsedGridView?.cardOptions?.heigh ?? 200;
+            var p = $(`#${rowData.ID} .card-grid-body-content`);
+            while ($(p).outerHeight() > cardHeight - 52) {
+                $(p).text(function (index, text) {
+                    return text.replace(/\W*\s(\S)*$/, '...');
+                });
+            }
+        }, 10);
         return (
             <div
+                id={rowData.ID}
                 className={`dx-tile-image ${
                     this.state.selectedRowKeys.includes(rowData.ID) ? 'card-grid-selected' : ''
                 }`}
@@ -1229,7 +1377,7 @@ export class GridViewContainer extends BaseContainer {
                             ? CardViewUtils.cellTemplate(cardHeader, rowData, 'card-grid-header-title', 'HEADER')
                             : null}
                         {showEditButton || showMenu || showSubviewButton ? (
-                            <div className='float-right'>
+                            <div className='card-grid-header-buttons'>
                                 <ShortcutButton
                                     id={`${rowData.id}_menu_button`}
                                     className={`action-button-with-menu`}
@@ -1301,6 +1449,17 @@ export class GridViewContainer extends BaseContainer {
         );
     }
 
+    refreshDataGrid() {
+        this.dataGrid.instance.getDataSource().reload();
+    }
+
+    unselectedDataGrid() {
+        this.dataGrid.instance.deselectAll();
+        this.setState({
+            selectedRowKeys: {}
+        });
+    }
+
     //override
     renderContent = () => {
         const showGroupPanel = this.state.parsedGridView?.gridOptions?.showGroupPanel || false;
@@ -1321,6 +1480,7 @@ export class GridViewContainer extends BaseContainer {
                                 id='grid-container'
                                 className={`grid-container${headerAutoHeight ? ' grid-header-auto-height' : ''}`}
                                 keyExpr='ID'
+                                key='ID'
                                 ref={(ref) => (this.dataGrid = ref)}
                                 dataSource={this.state.parsedGridViewData}
                                 customizeColumns={this.customizedColumns}
