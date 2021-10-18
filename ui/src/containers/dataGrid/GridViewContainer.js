@@ -72,6 +72,7 @@ export class GridViewContainer extends BaseContainer {
             cardTotalRows: 0,
             cardScrollLoading: false,
             visibleEditPanel: false,
+            modifyEditData: false,
             editData: null,
         };
         this.onSelectionChanged = this.onSelectionChanged.bind(this);
@@ -657,7 +658,11 @@ export class GridViewContainer extends BaseContainer {
                                             this.editService
                                                 .getEdit(viewId, recordId, subviewId)
                                                 .then((editDataResponse) => {
-                                                    this.setState({visibleEditPanel: true, editData: editDataResponse});
+                                                    this.setState({
+                                                        visibleEditPanel: true,
+                                                        modifyEditData: false,
+                                                        editData: editDataResponse
+                                                    });
                                                     this.unblockUi();
                                                 })
                                                 .catch((err) => {
@@ -725,7 +730,7 @@ export class GridViewContainer extends BaseContainer {
                         onAutoFill={this.handleAutoFillRowChange}
                         onCancel={this.handleCancelRowChange}
                         validator={this.validator}
-                        onHide={(e) => confirmDialog({
+                        onHide={(e) => !!this.state.modifyEditData ? confirmDialog({
                             message: 'Czy na pewno chcesz zamknąć edycję?',
                             header: 'Potwierdzenie',
                             icon: 'pi pi-exclamation-triangle',
@@ -733,7 +738,7 @@ export class GridViewContainer extends BaseContainer {
                             rejectLabel: 'Nie',
                             accept: () => this.setState({visibleEditPanel: e}),
                             reject: () => undefined,
-                        })}
+                        }) : this.setState({visibleEditPanel: e})}
                         onError={(e) => this.showErrorMessage(e)}
                     />
                 </React.Fragment>
@@ -883,7 +888,7 @@ export class GridViewContainer extends BaseContainer {
                 && (startRefreshFieldVisibility || forceRefreshFieldVisibility)) {
                 this.refreshFieldVisibility(viewInfo);
             }
-            this.setState({editData: editData});
+            this.setState({editData: editData, modifyEditData: true});
         } else {
             console.log('handleEditRowChange implementation error');
         }
@@ -1482,10 +1487,9 @@ export class GridViewContainer extends BaseContainer {
     //override
     renderContent = () => {
         const showGroupPanel = this.state.parsedGridView?.gridOptions?.showGroupPanel || false;
-        const groupExpandAll = false; //this.state.parsedGridView?.gridOptions?.groupExpandAll
+        const groupExpandAll = this.state.parsedGridView?.gridOptions?.groupExpandAll || false;
         const columnAutoWidth = this.state.parsedGridView?.gridOptions?.columnAutoWidth || true;
         const rowAutoHeight = this.state.parsedGridView?.gridOptions?.rowAutoHeight || false;
-        const allowedPageSizes = [5, 10, 50, 100, 'all'];
         //TODO headerAutoHeight
         const headerAutoHeight = this.state.parsedGridView?.gridOptions?.headerAutoHeight || false;
         let cardWidth = this.state.parsedGridView?.cardOptions?.width ?? 300;
@@ -1551,18 +1555,8 @@ export class GridViewContainer extends BaseContainer {
 
                                 <Scrolling mode="virtual" rowRenderingMode="virtual" />
                                 <Paging defaultPageSize={50} />
+
                                 <LoadPanel enabled={false}/>
-                                {/* domyślnie infinite scrolling
-                                    <Paging defaultPageSize={10} />
-                                    <Pager
-                                        visible={true}
-                                        allowedPageSizes={allowedPageSizes}
-                                        displayMode={this.state.displayMode}
-                                        showPageSizeSelector={this.state.showPageSizeSelector}
-                                        showInfo={this.state.showInfo}
-                                        showNavigationButtons={this.state.showNavButtons}
-                                    />
-                                    */}
                                 <Editing mode='cell'/>
                             </DataGrid>
                         ) : this.state.gridViewType === 'cardView' ? (
