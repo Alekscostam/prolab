@@ -7,7 +7,7 @@ import DataGrid, {
     Grouping,
     GroupPanel,
     HeaderFilter,
-    LoadPanel,
+    LoadPanel, Paging,
     RemoteOperations,
     Scrolling,
     Selection,
@@ -1482,7 +1482,7 @@ export class GridViewContainer extends BaseContainer {
     //override
     renderContent = () => {
         const showGroupPanel = this.state.parsedGridView?.gridOptions?.showGroupPanel || false;
-        const groupExpandAll = this.state.parsedGridView?.gridOptions?.groupExpandAll || false;
+        const groupExpandAll = false; //this.state.parsedGridView?.gridOptions?.groupExpandAll
         const columnAutoWidth = this.state.parsedGridView?.gridOptions?.columnAutoWidth || true;
         const rowAutoHeight = this.state.parsedGridView?.gridOptions?.rowAutoHeight || false;
         const allowedPageSizes = [5, 10, 50, 100, 'all'];
@@ -1534,7 +1534,6 @@ export class GridViewContainer extends BaseContainer {
                                 }}
                             >
                                 <RemoteOperations
-                                    groupPaging={true}
                                     filtering={true}
                                     summary={true}
                                     sorting={true}
@@ -1550,9 +1549,9 @@ export class GridViewContainer extends BaseContainer {
                                 <Sorting mode='multiple'/>
                                 <Selection mode='multiple' selectAllMode='allPages' showCheckBoxesMode='always'/>
 
-                                <Scrolling mode='virtual' rowRenderingMode='virtual'/>
+                                <Scrolling mode="virtual" rowRenderingMode="virtual" />
+                                <Paging defaultPageSize={50} />
                                 <LoadPanel enabled={false}/>
-
                                 {/* domyślnie infinite scrolling
                                     <Paging defaultPageSize={10} />
                                     <Pager
