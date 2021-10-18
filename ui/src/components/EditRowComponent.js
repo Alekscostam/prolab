@@ -19,6 +19,7 @@ import moment from 'moment';
 import EditService from "../services/EditService";
 import {Sidebar} from "primereact/sidebar";
 import UploadMultiImageFileBase64 from "./UploadMultiImageFileBase64";
+import {Checkbox} from "primereact/checkbox";
 
 export class EditRowComponent extends BaseContainer {
 
@@ -205,6 +206,8 @@ export class EditRowComponent extends BaseContainer {
     renderInputComponent(field, fieldIndex, onChange, onBlur, groupName, required, validatorMsgs) {
         const autoFill = field?.autoFill ? 'autofill-border' : '';
         const validate = !!validatorMsgs ? 'p-invalid' : '';
+        const autoFillCheckbox = field?.autoFill ? 'autofill-border-checkbox' : '';
+        const validateCheckbox = !!validatorMsgs ? 'p-invalid-checkbox' : '';
         const labelColor = !!field.labelColor ? field.labelColor : '';
         let editInfo = this.props.editData?.editInfo;
         switch (field.type) {
@@ -244,21 +247,15 @@ export class EditRowComponent extends BaseContainer {
                 return (<React.Fragment>
                     <label htmlFor={`bool_field_${fieldIndex}`}
                            style={{color: labelColor}}>{field.label}{required ? '*' : ''}</label>
-                    <Dropdown optionLabel="name"
-                              id={`${this.getType(field.type)}${fieldIndex}`}
+                    <br/>
+                    <Checkbox id={`${this.getType(field.type)}${fieldIndex}`}
                               name={field.fieldName}
-                              className={`${autoFill} ${validate}`}
-                              style={{width: '100%'}}
-                              value={field.value}
-                              options={this.booleanTypes}
-                              onChange={e => onChange ? onChange('DROPDOWN', e, groupName, editInfo) : null}
-                              appendTo="self"
-                              showClear
-                              optionLabel="name"
-                              optionValue="code"
-                              dataKey="code"
+                              className={`${autoFillCheckbox} ${validateCheckbox}`}
+                              onChange={e => onChange ? onChange('CHECKBOX', e, groupName, editInfo) : null}
+                              checked={field.value}
                               disabled={!field.edit}
-                              required={required}/>
+                              required={required}>
+                    </Checkbox>
                 </React.Fragment>);
             case 'L'://L – Logiczny (T/N)
                 return (<React.Fragment>

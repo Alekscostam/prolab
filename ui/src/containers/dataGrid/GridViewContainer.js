@@ -850,6 +850,8 @@ export class GridViewContainer extends BaseContainer {
         let varName;
         let varValue;
         let startRefreshFieldVisibility = true;
+        console.clear();
+        console.log(event)
         if (event !== undefined) {
             switch (inputType) {
                 case 'IMAGE64':
@@ -859,6 +861,10 @@ export class GridViewContainer extends BaseContainer {
                 case 'MULTI_IMAGE64':
                     varName = event == null ? null : event.fieldName;
                     varValue = event == null ? '' : event.base64;
+                    break;
+                case 'CHECKBOX':
+                    varName = event.target.name;
+                    varValue = event.checked ? event.checked : false;
                     break;
                 case 'EDITOR':
                     varName = event.name;
