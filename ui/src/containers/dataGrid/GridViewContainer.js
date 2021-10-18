@@ -83,6 +83,7 @@ export class GridViewContainer extends BaseContainer {
         this.onFilterChanged = this.onFilterChanged.bind(this);
         this.handleEditRowChange = this.handleEditRowChange.bind(this);
         this.handleEditRowSave = this.handleEditRowSave.bind(this);
+        this.handleEditRowBlur = this.handleEditRowBlur.bind(this);
         this.handleAutoFillRowChange = this.handleAutoFillRowChange.bind(this);
         this.handleCancelRowChange = this.handleCancelRowChange.bind(this);
         this.customizedColumns = this.customizeColumns;
@@ -719,6 +720,7 @@ export class GridViewContainer extends BaseContainer {
                         visibleEditPanel={this.state.visibleEditPanel}
                         editData={this.state.editData}
                         onChange={this.handleEditRowChange}
+                        onBlur={this.handleEditRowBlur}
                         onSave={this.handleEditRowSave}
                         onAutoFill={this.handleAutoFillRowChange}
                         onCancel={this.handleCancelRowChange}
@@ -833,7 +835,7 @@ export class GridViewContainer extends BaseContainer {
         alert('handleCancelRowChange')
     }
 
-    handleEditRowChange(inputType, event, groupName, viewInfo) {
+    handleEditRowChange(inputType, event, groupName, viewInfo, forceRefreshFieldVisibility = false) {
         console.log(`handleEditRowChange inputType=${inputType} groupName=${groupName}`);
         console.log(event)
         let editData = this.state.editData;
@@ -842,16 +844,9 @@ export class GridViewContainer extends BaseContainer {
         });
         let varName;
         let varValue;
+        let startRefreshFieldVisibility = true;
         if (event !== undefined) {
             switch (inputType) {
-                case 'NUMBER':
-                    varName = event.originalEvent.target.name;
-                    varValue = isNaN(parseFloat(event.value)) ? 0 : parseFloat(event.value);
-                    break;
-                case 'EDITOR':
-                    varName = event.name;
-                    varValue = event.value || event.value === '' ? event.value : undefined;
-                    break;
                 case 'IMAGE64':
                     varName = event == null ? null : event.fieldName;
                     varValue = event == null ? '' : event.base64[0];
@@ -860,8 +855,17 @@ export class GridViewContainer extends BaseContainer {
                     varName = event == null ? null : event.fieldName;
                     varValue = event == null ? '' : event.base64;
                     break;
+                case 'EDITOR':
+                    varName = event.name;
+                    varValue = event.value || event.value === '' ? event.value : undefined;
+                    startRefreshFieldVisibility = false;
+                    break;
                 case 'TEXT':
                 case 'AREA':
+                    varName = event.target?.name;
+                    varValue = event.target?.value || event.target?.value === '' ? event.target.value : undefined;
+                    startRefreshFieldVisibility = false;
+                    break;
                 default:
                     varName = event.target?.name;
                     varValue = event.target?.value || event.target?.value === '' ? event.target.value : undefined;
@@ -874,27 +878,42 @@ export class GridViewContainer extends BaseContainer {
             if (!!field && !!field[0]) {
                 field[0].value = varValue;
             }
-            if (!!field[0] && !!field[0]?.selectionList && field[0]?.selectionListDone === undefined) {
-                const refreshObject = this.editService.createObjectToRefresh(this.state)
-                this.editService
-                    .refreshFieldVisibility(viewInfo.viewId, viewInfo.recordId, viewInfo.parentId, refreshObject)
-                    .then((editRefreshResponse) => {
-                        let arrayTmp = editRefreshResponse?.data;
-                        let editData = this.state.editData;
-                        arrayTmp.forEach((element) => {
-                            this.searchAndRefreshVisibility(editData, element.fieldName, element.hidden);
-                        })
-                        this.setState({editData: editData});
-                        this.unblockUi();
-                        field[0].selectionListDone = true;
-                    })
-                    .catch((err) => { //zjadam
-                    });
+            if (!!field[0]
+                && !!field[0]?.selectionList
+                && (startRefreshFieldVisibility || forceRefreshFieldVisibility)) {
+                this.refreshFieldVisibility(viewInfo);
             }
             this.setState({editData: editData});
         } else {
             console.log('handleEditRowChange implementation error');
         }
+    }
+
+    handleEditRowBlur(inputType, event, groupName, viewInfo) {
+        console.log(`handleEditRowBlur inputType=${inputType} groupName=${groupName}`);
+        if (inputType == 'EDITOR') {
+            this.refreshFieldVisibility(viewInfo);
+        } else {
+            this.handleEditRowChange(inputType, event, groupName, viewInfo, true);
+        }
+    }
+
+    refreshFieldVisibility(viewInfo) {
+        const refreshObject = this.editService.createObjectToRefresh(this.state)
+        this.editService
+            .refreshFieldVisibility(viewInfo.viewId, viewInfo.recordId, viewInfo.parentId, refreshObject)
+            .then((editRefreshResponse) => {
+                let arrayTmp = editRefreshResponse?.data;
+                let editData = this.state.editData;
+                arrayTmp.forEach((element) => {
+                    this.searchAndRefreshVisibility(editData, element.fieldName, element.hidden);
+                })
+                this.setState({editData: editData});
+                this.unblockUi();
+                //field[0].selectionListDone = true;
+            })
+            .catch((err) => { //zjadam
+            });
     }
 
     //override

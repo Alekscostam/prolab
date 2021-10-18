@@ -144,6 +144,7 @@ export class EditRowComponent extends BaseContainer {
 
     renderField(groupName, field, fieldIndex) {
         const {onChange} = this.props;
+        const {onBlur} = this.props;
         const required = field.requiredValue;
         let validationMsg = this.validator ? this.validator.message(`${this.getType(field.type)}${fieldIndex}`, field.label, field.value, required ? 'required' : 'not_required') : null;
         switch (field.type) {
@@ -164,7 +165,7 @@ export class EditRowComponent extends BaseContainer {
                         <div id={`field_${fieldIndex}`} className='field'>
                             <div className={validationMsg ? 'validation-msg invalid' : 'validation-msg'}
                                  aria-live="assertive">
-                                {this.renderInputComponent(field, fieldIndex, onChange, groupName, required, validationMsg)}
+                                {this.renderInputComponent(field, fieldIndex, onChange, onBlur, groupName, required, validationMsg)}
                                 {validationMsg}
                             </div>
                         </div>
@@ -201,7 +202,7 @@ export class EditRowComponent extends BaseContainer {
         return 'field';
     }
 
-    renderInputComponent(field, fieldIndex, onChange, groupName, required, validatorMsgs) {
+    renderInputComponent(field, fieldIndex, onChange, onBlur, groupName, required, validatorMsgs) {
         const autoFill = field?.autoFill ? 'autofill-border' : '';
         const validate = !!validatorMsgs ? 'p-invalid' : '';
         const labelColor = !!field.labelColor ? field.labelColor : '';
@@ -218,6 +219,7 @@ export class EditRowComponent extends BaseContainer {
                                type="text"
                                value={field.value}
                                onChange={e => onChange ? onChange('TEXT', e, groupName, editInfo) : null}
+                               onBlur={e => onBlur ? onBlur('TEXT', e, groupName, editInfo) : null}
                                disabled={!field.edit}
                                required={required}
                     />
@@ -232,6 +234,7 @@ export class EditRowComponent extends BaseContainer {
                                value={field.value}
                                type="number"
                                onChange={e => onChange ? onChange('TEXT', e, groupName, editInfo) : null}
+                               onBlur={e => onBlur ? onBlur('TEXT', e, groupName, editInfo) : null}
                                disabled={!field.edit}
                                required={required}
                                padControl="false"
@@ -350,6 +353,7 @@ export class EditRowComponent extends BaseContainer {
                             }
                             onChange('EDITOR', event, groupName, editInfo)
                         }}
+                        onFocusOut={e => onBlur ? onBlur('EDITOR', e, groupName, editInfo) : null}
                         validationMessageMode="always"
                         disabled={!field.edit}
                         required={true}
@@ -445,6 +449,7 @@ export class EditRowComponent extends BaseContainer {
                                onChange={e =>
                                    onChange ? onChange('TEXT', e, groupName, editInfo) : null
                                }
+                               onBlur={e => onBlur ? onBlur('TEXT', e, groupName, editInfo) : null}
                                disabled={!field.edit}
                                required={required}
                     />
@@ -469,6 +474,7 @@ EditRowComponent.propTypes = {
     editData: PropTypes.object.isRequired,
     onAfterStateChange: PropTypes.func,
     onChange: PropTypes.func.isRequired,
+    onBlur: PropTypes.func,
     onSave: PropTypes.func.isRequired,
     onAutoFill: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
