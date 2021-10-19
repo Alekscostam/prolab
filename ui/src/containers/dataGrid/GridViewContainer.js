@@ -34,7 +34,7 @@ import {ViewValidatorUtils} from '../../utils/parser/ViewValidatorUtils';
 import UrlUtils from '../../utils/UrlUtils';
 import DataGridStore from './DataGridStore';
 import {confirmDialog} from "primereact/confirmdialog";
-import Constants from "../../utils/constants";
+import Constants from "../../utils/Constants";
 import $ from 'jquery';
 import {localeOptions} from "primereact/api";
 //
@@ -147,9 +147,9 @@ export class GridViewContainer extends BaseContainer {
         const firstSubViewMode = !!recordId && !!id && !!!subViewId;
         console.log('**** GridViewContainer -> componentDidUpdate: firstSubViewMode=' + firstSubViewMode);
         console.log(`componentDidUpdate: Read from param -> Id =  ${id} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`);
-        console.log(`componentDidUpdate: this.state.elementId=${this.state.elementId}, id=${id}; 
-            firstSubViewMode=${firstSubViewMode}, this.state.elementSubViewId=${this.state.elementSubViewId}, subViewId=${subViewId}; 
-            this.state.elementRecordId=${this.state.elementRecordId}, recordId=${recordId};
+        console.log(`componentDidUpdate: elementId=${this.state.elementId}, id=${id}; 
+            firstSubViewMode=${firstSubViewMode}, elementSubViewId=${this.state.elementSubViewId}, subViewId=${subViewId}; 
+            elementRecordId=${this.state.elementRecordId}, recordId=${recordId};
             prevState.gridViewType=${this.state.gridViewType}, gridViewType=${gridViewType}`,
             this.state.subView
         );
@@ -206,7 +206,7 @@ export class GridViewContainer extends BaseContainer {
                     this.setState(
                         {cardScrollLoading: true, cardSkip: this.state.cardSkip + this.state.cardTake},
                         () => {
-                            console.log('datasource', this.cardGrid.getDataSource());
+                            console.log('Datasource', this.cardGrid.getDataSource());
                             this.cardGrid.beginUpdate();
                             this.dataGridStore
                                 .getDataForCard(this.props.id, {
@@ -255,7 +255,7 @@ export class GridViewContainer extends BaseContainer {
     trackScrolling() {
         const wrappedElement = document.getElementById('header');
         if (this.isBottom(wrappedElement)) {
-            console.log('header bottom reached');
+            //console.log('Header bottom reached');
             document.removeEventListener('scroll', this.trackScrolling);
         }
     }
@@ -343,7 +343,7 @@ export class GridViewContainer extends BaseContainer {
                                     });
                                 });
                             });
-                            console.log('GridViewContainer -> fetch columns: ', gridViewColumnsTmp);
+                            //console.log('GridViewContainer -> fetch columns: ', gridViewColumnsTmp);
                             for (let plugin in responseView?.pluginsList) {
                                 pluginsListTmp.push({
                                     id: responseView?.pluginsList[plugin].id,
@@ -625,7 +625,6 @@ export class GridViewContainer extends BaseContainer {
                 } else {
                     widthTmp += 5;
                 }
-                console.log('szerokosc akcje', widthTmp);
                 if (showEditButton || showMenu || showSubviewButton) {
                     columns?.push({
                         caption: '',
@@ -760,12 +759,11 @@ export class GridViewContainer extends BaseContainer {
         this.editService
             .save(viewId, recordId, parentId, saveElement, confirmSave)
             .then((saveResponse) => {
-                console.log(`saveResponse = ${JSON.stringify(saveResponse)}`)
                 switch (saveResponse.status) {
                     case 'OK':
                         if (!!saveResponse.message) {
                             confirmDialog({
-                                message: GridViewUtils.convertRspMsgText(saveResponse?.message?.text),
+                                message: saveResponse?.message?.text,
                                 header: saveResponse?.message?.title,
                                 icon: 'pi pi-info-circle',
                                 rejectClassName: 'hidden',
@@ -782,7 +780,7 @@ export class GridViewContainer extends BaseContainer {
                     case 'NOK':
                         if (!!saveResponse.question) {
                             confirmDialog({
-                                message: GridViewUtils.convertRspMsgText(saveResponse?.question?.text),
+                                message:saveResponse?.question?.text,
                                 header: saveResponse?.question?.title,
                                 icon: 'pi pi-question-circle',
                                 acceptLabel: localeOptions('accept'),
@@ -792,7 +790,7 @@ export class GridViewContainer extends BaseContainer {
                             })
                         } else if (!!saveResponse.message) {
                             confirmDialog({
-                                message: GridViewUtils.convertRspMsgText(saveResponse?.message?.text),
+                                message: saveResponse?.message?.text,
                                 header: saveResponse?.message?.title,
                                 icon: 'pi pi-info-circle',
                                 rejectClassName: 'hidden',
@@ -858,7 +856,6 @@ export class GridViewContainer extends BaseContainer {
         this.editService
             .getEditAutoFill(viewId, recordId, parentId, autofillBodyRequest)
             .then((editAutoFillResponse) => {
-                console.log(`editAutoFillResponse = ${JSON.stringify(editAutoFillResponse)}`)
                 let arrayTmp = editAutoFillResponse?.data;
                 let editData = this.state.editData;
                 arrayTmp.forEach((element) => {
@@ -874,7 +871,6 @@ export class GridViewContainer extends BaseContainer {
 
     handleCancelRowChange(viewId, recordId, parentId) {
         console.log(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
-        alert('handleCancelRowChange')
     }
 
     handleEditRowChange(inputType, event, groupName, viewInfo, forceRefreshFieldVisibility = false) {

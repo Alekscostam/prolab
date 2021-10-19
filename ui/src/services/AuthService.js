@@ -1,6 +1,6 @@
 import decode from 'jwt-decode';
 import moment from 'moment';
-import {readCookieGlobal} from "../utils/cookie";
+import {readCookieGlobal} from "../utils/Cookie";
 
 /*
 Żądanie POST służy do uwierzytelnienia użytkownika i uzyskania tokena, który służy do weryfikacji innego interfejsu API

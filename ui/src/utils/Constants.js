@@ -1,5 +1,3 @@
-export const Cookie = {}
-
 export const Constants = {
     DATE_FORMAT: {
         DATE_GET_REQUEST_FORMAT: 'YYYY-MM-DD',

@@ -11,7 +11,7 @@ import BaseContainer from '../baseContainers/BaseContainer';
 import ActionButton from '../components/ActionButton';
 import SimpleReactValidator from '../components/validator';
 import LocalizationService from '../services/LocalizationService';
-import Constants from '../utils/constants';
+import Constants from '../utils/Constants';
 import BlockUi from './../components/waitPanel/BlockUi';
 
 class LoginContainer extends BaseContainer {

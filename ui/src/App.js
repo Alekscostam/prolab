@@ -13,7 +13,7 @@ import {loadMessages, locale as devExpressLocale} from "devextreme/localization"
 import AppPrefixUtils from "./utils/AppPrefixUtils";
 import packageJson from '../package.json';
 import ReadConfigService from "./services/ReadConfigService";
-import {readCookieGlobal, saveCookieGlobal} from "./utils/cookie";
+import {readCookieGlobal, saveCookieGlobal} from "./utils/Cookie";
 import LocalizationService from './services/LocalizationService';
 import config from "devextreme/core/config";
 
