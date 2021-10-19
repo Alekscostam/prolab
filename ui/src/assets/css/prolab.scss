@@ -505,4 +505,12 @@ body main div.container-fluid {
     margin: 0;
 }
 
+.p-dialog-title{
+    white-space: pre-line;
+}
+
+.p-confirm-dialog-message{
+    white-space: pre-line;
+}
+
 @import 'edit_row';

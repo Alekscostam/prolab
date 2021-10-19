@@ -130,7 +130,7 @@ class App extends Component {
                         });
                         devExpressLocale(shortLang);
                     });
-                /* init react express translations */
+                /* init primereact translations */
                 localizationService.getTranslationsFromFile('primi', lang)
                     .then(primeReactTranslation => {
                         addLocale(shortLang, primeReactTranslation[shortLang]);

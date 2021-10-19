@@ -285,4 +285,9 @@ export class GridViewUtils {
         }
         return null;
     }
+
+    static convertRspMsgText(text){
+        return text;
+    }
+
 }

@@ -36,6 +36,7 @@ import DataGridStore from './DataGridStore';
 import {confirmDialog} from "primereact/confirmdialog";
 import Constants from "../../utils/constants";
 import $ from 'jquery';
+import {localeOptions} from "primereact/api";
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -718,6 +719,7 @@ export class GridViewContainer extends BaseContainer {
 
     //override
     renderGlobalTop() {
+        const {labels} = this.props;
         return (
             <React.Fragment>
                 <React.Fragment>
@@ -734,8 +736,8 @@ export class GridViewContainer extends BaseContainer {
                             message: 'Czy na pewno chcesz zamknąć edycję?',
                             header: 'Potwierdzenie',
                             icon: 'pi pi-exclamation-triangle',
-                            acceptLabel: 'Tak',
-                            rejectLabel: 'Nie',
+                            acceptLabel: localeOptions('accept') ,
+                            rejectLabel: localeOptions('reject'),
                             accept: () => this.setState({visibleEditPanel: e}),
                             reject: () => undefined,
                         }) : this.setState({visibleEditPanel: e})}
@@ -753,29 +755,64 @@ export class GridViewContainer extends BaseContainer {
     }
 
     rowSave = (viewId, recordId, parentId, saveElement, confirmSave) => {
+        const {labels} = this.props;
         this.blockUi();
         this.editService
             .save(viewId, recordId, parentId, saveElement, confirmSave)
             .then((saveResponse) => {
                 console.log(`saveResponse = ${JSON.stringify(saveResponse)}`)
-                if (!!saveResponse.question) {
-                    confirmDialog({
-                        message: saveResponse?.question?.text,
-                        header: saveResponse?.question?.title,
-                        icon: 'pi pi-question-circle',
-                        acceptLabel: 'Tak',
-                        rejectLabel: 'Nie',
-                        accept: () => this.rowSave(viewId, recordId, parentId, saveElement, true),
-                        reject: () => undefined,
-                    })
-                    this.unblockUi();
-                } else if (!!saveResponse.message) {
-                    this.showErrorMessage(saveResponse.message?.text, Constants.ERROR_MSG_LIFE, saveResponse.message?.title);
-                } else if (!!saveResponse.error) {
-                    this.showResponseErrorMessage(saveResponse);
-                } else {
-                    this.showSuccessMessage("Zapisano")
+                switch (saveResponse.status) {
+                    case 'OK':
+                        if (!!saveResponse.message) {
+                            confirmDialog({
+                                message: GridViewUtils.convertRspMsgText(saveResponse?.message?.text),
+                                header: saveResponse?.message?.title,
+                                icon: 'pi pi-info-circle',
+                                rejectClassName: 'hidden',
+                                acceptLabel: 'OK',
+                                rejectLabel: undefined,
+                                accept: () => this.setState({visibleEditPanel: false})
+                            })
+                        } else if (!!saveResponse.error) {
+                            this.showResponseErrorMessage(saveResponse);
+                        }else{
+                            this.setState({visibleEditPanel: false});
+                        }
+                        break;
+                    case 'NOK':
+                        if (!!saveResponse.question) {
+                            confirmDialog({
+                                message: GridViewUtils.convertRspMsgText(saveResponse?.question?.text),
+                                header: saveResponse?.question?.title,
+                                icon: 'pi pi-question-circle',
+                                acceptLabel: localeOptions('accept'),
+                                rejectLabel: localeOptions('reject'),
+                                accept: () => this.rowSave(viewId, recordId, parentId, saveElement, true),
+                                reject: () => undefined,
+                            })
+                        } else if (!!saveResponse.message) {
+                            confirmDialog({
+                                message: GridViewUtils.convertRspMsgText(saveResponse?.message?.text),
+                                header: saveResponse?.message?.title,
+                                icon: 'pi pi-info-circle',
+                                rejectClassName: 'hidden',
+                                acceptLabel: 'OK',
+                                rejectLabel: undefined,
+                                accept: () => undefined
+                            })
+                        } else if (!!saveResponse.error) {
+                            this.showResponseErrorMessage(saveResponse);
+                        }
+                        break;
+                    default:
+                        if (!!saveResponse.error) {
+                            this.showResponseErrorMessage(saveResponse);
+                        } else {
+                            this.showErrorMessages(saveResponse);
+                        }
+                        break;
                 }
+                this.unblockUi();
             }).catch((err) => {
             if (!!err.error) {
                 this.showResponseErrorMessage(err);
@@ -1039,6 +1076,7 @@ export class GridViewContainer extends BaseContainer {
 
     //override
     renderHeadPanel = () => {
+        const {labels} = this.props;
         const viewId = this.getRealViewId();
         return (
             <React.Fragment>
@@ -1053,8 +1091,8 @@ export class GridViewContainer extends BaseContainer {
                             message: 'Czy na pewno chcesz usunąć zaznaczone rekordy?',
                             header: 'Potwierdzenie',
                             icon: 'pi pi-exclamation-triangle',
-                            acceptLabel: 'Tak',
-                            rejectLabel: 'Nie',
+                            acceptLabel: localeOptions('accept'),
+                            rejectLabel: localeOptions('reject'),
                             accept: () => {
                                 this.blockUi();
                                 this.editService.delete(viewId, this.state.selectedRowKeys)
@@ -1085,8 +1123,8 @@ export class GridViewContainer extends BaseContainer {
                             message: 'Czy na pewno chcesz przywrócić zaznaczone rekordy?',
                             header: 'Potwierdzenie',
                             icon: 'pi pi-exclamation-triangle',
-                            acceptLabel: 'Tak',
-                            rejectLabel: 'Nie',
+                            acceptLabel: localeOptions('accept'),
+                            rejectLabel: localeOptions('reject'),
                             accept: () => {
                                 this.blockUi();
                                 this.editService.restore(viewId, this.state.selectedRowKeys)
@@ -1117,8 +1155,8 @@ export class GridViewContainer extends BaseContainer {
                             message: 'Czy na pewno chcesz przywrócić zaznaczone rekordy?',
                             header: 'Potwierdzenie',
                             icon: 'pi pi-exclamation-triangle',
-                            acceptLabel: 'Tak',
-                            rejectLabel: 'Nie',
+                            acceptLabel: localeOptions('accept'),
+                            rejectLabel: localeOptions('reject'),
                             accept: () => {
                                 this.blockUi();
                                 const parentId = this.state.parsedGridView?.viewInfo.parentId;
@@ -1150,8 +1188,8 @@ export class GridViewContainer extends BaseContainer {
                             message: 'Czy na pewno chcesz przenieść do archiwum zaznaczone rekordy?',
                             header: 'Potwierdzenie',
                             icon: 'pi pi-exclamation-triangle',
-                            acceptLabel: 'Tak',
-                            rejectLabel: 'Nie',
+                            acceptLabel: localeOptions('accept'),
+                            rejectLabel: localeOptions('reject'),
                             accept: () => {
                                 this.blockUi();
                                 const parentId = this.state.parsedGridView?.viewInfo.parentId;
