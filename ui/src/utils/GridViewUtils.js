@@ -286,5 +286,9 @@ export class GridViewUtils {
         return null;
     }
 
+    static getRealViewId(elementSubViewId, elementId) {
+        const viewId = elementSubViewId ? elementSubViewId : elementId;
+        return viewId
+    }
 
 }

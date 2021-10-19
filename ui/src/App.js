@@ -7,7 +7,7 @@ import AuthService from './services/AuthService';
 import AuthComponent from './components/AuthComponent';
 import PrimeReact, {addLocale, locale as primeReactLocale} from 'primereact/api';
 import "@fontsource/roboto"
-import {GridViewContainer} from "./containers/dataGrid/GridViewContainer";
+import {GridViewContainer} from "./containers/GridViewContainer";
 import {createBrowserHistory} from 'history';
 import {loadMessages, locale as devExpressLocale} from "devextreme/localization";
 import AppPrefixUtils from "./utils/AppPrefixUtils";
