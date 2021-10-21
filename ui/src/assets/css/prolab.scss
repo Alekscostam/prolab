@@ -1,4 +1,4 @@
-/*
+    /*
 font-weight: 400; //normal
 font-weight: 500; //medium
 font-weight: 700; //bold
@@ -503,6 +503,14 @@ body main div.container-fluid {
 
 .p-toast .p-toast-message .p-toast-message-content .p-toast-message-text{
     margin: 0;
+}
+
+.p-dialog-title{
+    white-space: pre-line;
+}
+
+.p-confirm-dialog-message{
+    white-space: pre-line;
 }
 
 @import 'edit_row';

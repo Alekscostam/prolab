@@ -2,7 +2,7 @@ import {CheckBox} from 'devextreme-react';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Image from '../components/Image';
-import Constants from './constants';
+import Constants from './Constants';
 
 export class GridViewUtils {
     static containsOperationButton(operations, type) {
@@ -109,7 +109,7 @@ export class GridViewUtils {
                     return function (element, info) {
                         ReactDOM.render(
                             <div>
-                                <Image style='display: block; width: 100%;' base64={info.text} />
+                                <Image style='display: block; width: 100%;' base64={info.text}/>
                             </div>,
                             element
                         );
@@ -167,7 +167,7 @@ export class GridViewUtils {
                                     }}
                                 >
                                     {info.text?.map((i) => {
-                                        return <Image style={{maxWidth: '100%'}} base64={info.text} />;
+                                        return <Image style={{maxWidth: '100%'}} base64={info.text}/>;
                                     })}
                                 </div>,
                                 element
@@ -183,7 +183,7 @@ export class GridViewUtils {
                                         padding: '2px 0px 2px 0px',
                                     }}
                                 >
-                                    <Image style={{maxWidth: '100%'}} base64={info.text} />
+                                    <Image style={{maxWidth: '100%'}} base64={info.text}/>
                                 </div>,
                                 element
                             );
@@ -200,7 +200,7 @@ export class GridViewUtils {
                                 }}
                                 title={info.text}
                             >
-                                <CheckBox readOnly={true} value={parseInt(info.text) === 1} />
+                                <CheckBox readOnly={true} value={parseInt(info.text) === 1}/>
                             </div>,
                             element
                         );
@@ -285,4 +285,10 @@ export class GridViewUtils {
         }
         return null;
     }
+
+    static getRealViewId(elementSubViewId, elementId) {
+        const viewId = elementSubViewId ? elementSubViewId : elementId;
+        return viewId
+    }
+
 }

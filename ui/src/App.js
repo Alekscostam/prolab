@@ -7,13 +7,13 @@ import AuthService from './services/AuthService';
 import AuthComponent from './components/AuthComponent';
 import PrimeReact, {addLocale, locale as primeReactLocale} from 'primereact/api';
 import "@fontsource/roboto"
-import {GridViewContainer} from "./containers/dataGrid/GridViewContainer";
+import {GridViewContainer} from "./containers/GridViewContainer";
 import {createBrowserHistory} from 'history';
 import {loadMessages, locale as devExpressLocale} from "devextreme/localization";
 import AppPrefixUtils from "./utils/AppPrefixUtils";
 import packageJson from '../package.json';
 import ReadConfigService from "./services/ReadConfigService";
-import {readCookieGlobal, saveCookieGlobal} from "./utils/cookie";
+import {readCookieGlobal, saveCookieGlobal} from "./utils/Cookie";
 import LocalizationService from './services/LocalizationService';
 import config from "devextreme/core/config";
 
@@ -130,7 +130,7 @@ class App extends Component {
                         });
                         devExpressLocale(shortLang);
                     });
-                /* init react express translations */
+                /* init primereact translations */
                 localizationService.getTranslationsFromFile('primi', lang)
                     .then(primeReactTranslation => {
                         addLocale(shortLang, primeReactTranslation[shortLang]);

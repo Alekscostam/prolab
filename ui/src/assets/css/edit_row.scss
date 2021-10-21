@@ -221,3 +221,19 @@
 .p-confirm-dialog-accept:focus {
   background-color: $button-color !important;
 }
+
+.p-checkbox-icon {
+  position: relative;
+  bottom: 5px;
+  right: 5px;
+}
+
+.autofill-border-checkbox{
+  outline: 3px solid yellow;
+  border-radius: 2px;
+}
+
+.p-invalid-checkbox{
+  outline: 3px solid $danger-color;
+  border-radius: 2px;
+}

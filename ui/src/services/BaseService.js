@@ -1,6 +1,6 @@
 import moment from 'moment';
 import AuthService from './AuthService';
-import {readCookieGlobal} from "../utils/cookie";
+import {readCookieGlobal} from "../utils/Cookie";
 
 export default class BaseService {
     // Initializing important variables
