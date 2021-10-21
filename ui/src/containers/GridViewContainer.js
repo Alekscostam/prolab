@@ -46,7 +46,6 @@ export class GridViewContainer extends BaseContainer {
             elementId: props.id,
             elementSubViewId: null,
             elementRecordId: null,
-            elementFilterId: null,
             viewMode: props.viewMode,
             parsedGridView: {},
             parsedGridViewData: {},
@@ -79,6 +78,7 @@ export class GridViewContainer extends BaseContainer {
         this.handleCancelRowChange = this.handleCancelRowChange.bind(this);
     }
 
+
     componentDidMount() {
         console.log('**** GridViewContainer -> componentDidMount');
         console.log(window.location.pathname);
@@ -87,7 +87,6 @@ export class GridViewContainer extends BaseContainer {
         const recordId = UrlUtils.getURLParameter('recordId');
         const filterId = UrlUtils.getURLParameter('filterId');
         const viewType = UrlUtils.getURLParameter('viewType');
-        //const id = this.props.id;
         let id = UrlUtils.getViewIdFromURL();
         if (id === undefined) {
             id = this.props.id;
@@ -369,19 +368,15 @@ export class GridViewContainer extends BaseContainer {
                                             console.log(
                                                 `Redirect -> Id =  ${this.state.elementId} RecordId = ${recordId} FilterId = ${e.item?.id}`
                                             );
-                                            window.location.href = AppPrefixUtils.locationHrefUrl(
-                                                `/#/grid-view/${this.state.elementId}/?filterId=${e.item?.id}${currentBreadcrumb}`
-                                            );
+                                            if(!!e.item?.id) {
+                                                const filterId = parseInt(e.item?.id)
+                                                window.location.href = AppPrefixUtils.locationHrefUrl(
+                                                    `/#/grid-view/${this.state.elementId}/?filterId=${filterId}${currentBreadcrumb}`
+                                                );
+                                            }
                                         }
                                     },
                                 });
-                            }
-                            //TODO inicjalizacja filtra, mozna by ulepszyć bo wywołuje 2 puknięcia po View
-                            const initFilterId = responseView?.viewInfo?.filterdId;
-                            const notUseFilterUI = !!this.state.elementFilterId;
-                            let currentUrl = window.document.URL.toString()
-                            if (currentUrl.indexOf('filterId') < 0 && initFilterId != 0) {
-                                window.history.replaceState('', '', currentUrl + '&filterId=' + initFilterId);
                             }
                             let viewInfoTypesTmp = [];
                             let cardButton = GridViewUtils.containsOperationButton(
@@ -421,6 +416,7 @@ export class GridViewContainer extends BaseContainer {
                                     viewInfoTypes: viewInfoTypesTmp
                                 }),
                                 () => {
+                                    const initFilterId = responseView?.viewInfo?.filterdId;
                                     if (this.state.gridViewType === 'cardView') {
                                         this.setState({loading: true, cardSkip: 0}, () =>
                                             this.dataGridStore
@@ -459,7 +455,7 @@ export class GridViewContainer extends BaseContainer {
                                                 //TODO blad u Romcia, powinno być this.state.gridViewType ale nie działa
                                                 null,
                                                 this.state.subView == null ? null : this.state.elementRecordId,
-                                                notUseFilterUI ? this.state.elementFilterId : initFilterId,
+                                                !!this.state.elementFilterId ? this.state.elementFilterId: initFilterId,
                                                 (err) => {
                                                     this.showErrorMessages(err);
                                                 },
@@ -476,7 +472,7 @@ export class GridViewContainer extends BaseContainer {
                                             );
                                             this.setState({
                                                 loading: false,
-                                                parsedGridViewData: res,
+                                                parsedGridViewData: res
                                             });
                                         });
                                     }
@@ -556,7 +552,6 @@ export class GridViewContainer extends BaseContainer {
     }
 
     rowSave = (viewId, recordId, parentId, saveElement, confirmSave) => {
-        const {labels} = this.props;
         this.blockUi();
         this.editService
             .save(viewId, recordId, parentId, saveElement, confirmSave)
@@ -727,7 +722,6 @@ export class GridViewContainer extends BaseContainer {
                 })
                 this.setState({editData: editData});
                 this.unblockUi();
-                //field[0].selectionListDone = true;
             })
             .catch((err) => { //zjadam
             });
@@ -763,9 +757,12 @@ export class GridViewContainer extends BaseContainer {
     onFilterChanged(e) {
         console.log('onValueChanged', e);
         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
-        window.location.href = AppPrefixUtils.locationHrefUrl(
-            `/#/grid-view/${this.state.elementId}/?filterId=${e.value}${currentBreadcrumb}`
-        );
+        if (!!e.value && e.value !== e.previousValue) {
+            const filterId = parseInt(e.value)
+            window.location.href = AppPrefixUtils.locationHrefUrl(
+                `/#/grid-view/${this.state.elementId}/?filterId=${filterId}${currentBreadcrumb}`
+            );
+        }
     }
 
     leftHeadPanelContent = () => {
@@ -783,7 +780,7 @@ export class GridViewContainer extends BaseContainer {
                         items={this.state.filtersList}
                         displayExpr='label'
                         valueExpr='id'
-                        value={parseInt(this.state.elementFilterId)}
+                        value={parseInt(this.state.elementFilterId || this.state.parsedGridView?.viewInfo?.filterdId)}
                         onValueChanged={this.onFilterChanged}
                         stylingMode='underlined'
                     />
@@ -1321,7 +1318,6 @@ export class GridViewContainer extends BaseContainer {
             </React.Fragment>
         );
     }
-    ;
 }
 
 GridViewContainer.defaultProps =
