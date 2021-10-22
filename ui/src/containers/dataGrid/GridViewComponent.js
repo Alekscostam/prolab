@@ -20,6 +20,8 @@ import ShortcutButton from "../../components/ShortcutButton";
 import ActionButtonWithMenu from "../../components/ActionButtonWithMenu";
 import AppPrefixUtils from "../../utils/AppPrefixUtils";
 import EditService from "../../services/EditService";
+import moment from "moment";
+import Constants from "../../utils/Constants";
 
 class GridViewComponent extends React.Component {
 
@@ -29,6 +31,54 @@ class GridViewComponent extends React.Component {
         this.dataGrid = null;
         this.editService = new EditService();
         console.log('GridViewComponent -> constructor');
+    }
+
+    calculateCustomFilterExpression(value, operations, target, column, columnDefinition) {
+        console.log('calculateFilterExpression:: value: %s operations: %s target: %s columnDefinition: %s',
+            value, operations, target, JSON.stringify(columnDefinition))
+        if (!!columnDefinition) {
+            if (operations == "between") {
+                let dateFormatted1 = this.formatDateFilterExpression(columnDefinition.type, value[0], column);
+                let dateFormatted2 = this.formatDateFilterExpression(columnDefinition.type, value[1], column);
+                return this.customFilterExpression(operations, columnDefinition.fieldName, [dateFormatted1, dateFormatted2]);
+            } else {
+                const dateFormatted = this.formatDateFilterExpression(columnDefinition.type, value, column);
+                return this.customFilterExpression(operations, columnDefinition.fieldName, dateFormatted);
+            }
+        }
+    }
+
+    formatDateFilterExpression(type, value, column) {
+        if (type == "D") {
+            const dateMoment = moment(value);
+            const dateFormatted = dateMoment.format(Constants.DATE_FORMAT.DATE_FORMAT_MOMENT)
+            return dateFormatted;
+        } else if (type == "E") {
+            const dateMoment = moment(value);
+            const dateFormatted = dateMoment.format(Constants.DATE_FORMAT.DATE_TIME_FORMAT_MOMENT)
+            return dateFormatted;
+        } else {
+            return column.defaultCalculateFilterExpression.apply(this, arguments);
+        }
+    }
+
+    customFilterExpression(operations, fieldName, dateFormatted) {
+        switch (operations) {
+            case '=':
+                return [[fieldName, '=', dateFormatted]];
+            case '<>':
+                return [[fieldName, '<>', dateFormatted]];
+            case '<':
+                return [[fieldName, '<', dateFormatted]];
+            case '>':
+                return [[fieldName, '>', dateFormatted]];
+            case '<=':
+                return [[fieldName, '<=', dateFormatted]];
+            case '>=':
+                return [[fieldName, '>=', dateFormatted]];
+            case 'between':
+                return [[fieldName, '>=', dateFormatted[0]], 'and', [fieldName, '<=', dateFormatted[1]]];
+        }
     }
 
     customizeColumns = (columns) => {
@@ -78,6 +128,7 @@ class GridViewComponent extends React.Component {
                         if (!!columnDefinition.groupIndex && columnDefinition.groupIndex > 0) {
                             column.groupIndex = columnDefinition.groupIndex;
                         }
+                        column.calculateFilterExpression = (value, selectedFilterOperations, target) => this.calculateCustomFilterExpression(value, selectedFilterOperations, target, column, columnDefinition)
                         INDEX_COLUMN++;
                     } else {
                         column.visible = false;
