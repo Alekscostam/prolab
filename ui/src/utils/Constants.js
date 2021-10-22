@@ -1,6 +1,7 @@
 export const Constants = {
     DATE_FORMAT: {
-        DATE_GET_REQUEST_FORMAT: 'YYYY-MM-DD',
+        DATE_FORMAT_MOMENT: 'YYYY-MM-DD',
+        DATE_TIME_FORMAT_MOMENT: 'YYYY-MM-DD HH:mm',
         DATE_FORMAT: 'yyyy-MM-dd',
         DATE_TIME_FORMAT: 'yyyy-MM-dd HH:mm',
         TIME_FORMAT: 'HH:mm',

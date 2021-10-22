@@ -20,6 +20,8 @@ import ShortcutButton from "../../components/ShortcutButton";
 import ActionButtonWithMenu from "../../components/ActionButtonWithMenu";
 import AppPrefixUtils from "../../utils/AppPrefixUtils";
 import EditService from "../../services/EditService";
+import moment from "moment";
+import Constants from "../../utils/Constants";
 
 class GridViewComponent extends React.Component {
 
@@ -29,6 +31,55 @@ class GridViewComponent extends React.Component {
         this.dataGrid = null;
         this.editService = new EditService();
         console.log('GridViewComponent -> constructor');
+    }
+
+    calculateCustomFilterExpression(value, operations, target, columnDefinition) {
+        console.log('calculateFilterExpression:: value: %s operations: %s target: %s columnDefinition: %s',
+            value, operations, target, JSON.stringify(columnDefinition))
+        try {
+            if (!!columnDefinition) {
+                if (operations == "between") {
+                    let dateFormatted1 = this.formatDateFilterExpression(columnDefinition.type, value[0]);
+                    let dateFormatted2 = this.formatDateFilterExpression(columnDefinition.type, value[1]);
+                    return this.customFilterExpression(operations, columnDefinition.fieldName, [dateFormatted1, dateFormatted2]);
+                } else {
+                    const dateFormatted = this.formatDateFilterExpression(columnDefinition.type, value);
+                    return this.customFilterExpression(operations, columnDefinition.fieldName, dateFormatted);
+                }
+            }
+        } catch (err) {
+            return undefined;
+        }
+    }
+
+    formatDateFilterExpression(type, value) {
+        const dateMoment = moment(value);
+        if (type == "D") {
+            return dateMoment.format(Constants.DATE_FORMAT.DATE_FORMAT_MOMENT)
+        } else if (type == "E") {
+            return dateMoment.format(Constants.DATE_FORMAT.DATE_TIME_FORMAT_MOMENT)
+        } else {
+            throw new Error('BAD_TYPE');
+        }
+    }
+
+    customFilterExpression(operations, fieldName, dateFormatted) {
+        switch (operations) {
+            case '=':
+                return [[fieldName, '=', dateFormatted]];
+            case '<>':
+                return [[fieldName, '<>', dateFormatted]];
+            case '<':
+                return [[fieldName, '<', dateFormatted]];
+            case '>':
+                return [[fieldName, '>', dateFormatted]];
+            case '<=':
+                return [[fieldName, '<=', dateFormatted]];
+            case '>=':
+                return [[fieldName, '>=', dateFormatted]];
+            case 'between':
+                return [[fieldName, '>=', dateFormatted[0]], 'and', [fieldName, '<=', dateFormatted[1]]];
+        }
     }
 
     customizeColumns = (columns) => {
@@ -77,6 +128,10 @@ class GridViewComponent extends React.Component {
                         }
                         if (!!columnDefinition.groupIndex && columnDefinition.groupIndex > 0) {
                             column.groupIndex = columnDefinition.groupIndex;
+                        }
+                        if (columnDefinition?.type === 'D' || columnDefinition?.type === 'E') {
+                            column.calculateFilterExpression
+                                = (value, selectedFilterOperations, target) => this.calculateCustomFilterExpression(value, selectedFilterOperations, target, columnDefinition)
                         }
                         INDEX_COLUMN++;
                     } else {
@@ -238,19 +293,21 @@ class GridViewComponent extends React.Component {
                     summary={true}
                     sorting={true}
                     paging={true}
+                    grouping={true}
+                    groupPaging={true}
                 />
 
                 <FilterRow visible={true}/>
                 <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'}/>
 
-                <Grouping autoExpandAll={groupExpandAll}/>
+                <Grouping autoExpandAll={groupExpandAll} allowCollapsing={true}/>
                 <GroupPanel visible={showGroupPanel}/>
 
                 <Sorting mode='multiple'/>
                 <Selection mode='multiple' selectAllMode='allPages' showCheckBoxesMode='always'/>
 
                 <Scrolling mode="virtual" rowRenderingMode="virtual"/>
-                <Paging defaultPageSize={50}/>
+                <Paging defaultPageSize={20}/>
 
                 <LoadPanel enabled={false}/>
                 <Editing mode='cell'/>
