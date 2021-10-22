@@ -74,7 +74,7 @@ export class GridViewUtils {
                 case 'L':
                     return 'boolean';
                 case 'D':
-                    return 'datetime';
+                    return 'date';
                 case 'E':
                     return 'datetime';
                 case 'T':
