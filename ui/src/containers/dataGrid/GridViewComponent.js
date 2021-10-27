@@ -133,6 +133,7 @@ class GridViewComponent extends React.Component {
                             column.calculateFilterExpression
                                 = (value, selectedFilterOperations, target) => this.calculateCustomFilterExpression(value, selectedFilterOperations, target, columnDefinition)
                         }
+                        column.headerFilter = {groupInterval : null}
                         INDEX_COLUMN++;
                     } else {
                         column.visible = false;
@@ -266,6 +267,7 @@ class GridViewComponent extends React.Component {
         const columnAutoWidth = this.props.parsedGridView?.gridOptions?.columnAutoWidth || true;
         const rowAutoHeight = this.props.parsedGridView?.gridOptions?.rowAutoHeight || false;
         const headerAutoHeight = this.props.parsedGridView?.gridOptions?.headerAutoHeight || false;
+        const packageCount = this.props.packageRows;
         return (
             <DataGrid
                 id='grid-container'
@@ -307,7 +309,7 @@ class GridViewComponent extends React.Component {
                 <Selection mode='multiple' selectAllMode='allPages' showCheckBoxesMode='always'/>
 
                 <Scrolling mode="virtual" rowRenderingMode="virtual"/>
-                <Paging defaultPageSize={20}/>
+                <Paging defaultPageSize={packageCount}/>
 
                 <LoadPanel enabled={false}/>
                 <Editing mode='cell'/>
@@ -319,6 +321,7 @@ class GridViewComponent extends React.Component {
 GridViewComponent.defaultProps = {
     parsedGridView: [],
     selectedRowKeys: [],
+    packageRows: 30
 };
 
 GridViewComponent.propTypes = {
@@ -328,6 +331,7 @@ GridViewComponent.propTypes = {
     parsedGridViewData: PropTypes.object.isRequired,
     gridViewColumns: PropTypes.object.isRequired,
     selectedRowKeys: PropTypes.object.isRequired,
+    packageRows: PropTypes.number,
     handleOnInitialized: PropTypes.func.isRequired,
     handleShowEditPanel: PropTypes.func.isRequired,
     handleSelectedRowKeys: PropTypes.func.isRequired,

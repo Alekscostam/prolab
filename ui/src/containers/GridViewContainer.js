@@ -413,7 +413,8 @@ export class GridViewContainer extends BaseContainer {
                                     batchesList: batchesListTmp,
                                     filtersList: filtersListTmp,
                                     selectedRowKeys: [],
-                                    viewInfoTypes: viewInfoTypesTmp
+                                    viewInfoTypes: viewInfoTypesTmp,
+                                    packageRows: responseView?.viewInfo?.dataPackageSize,
                                 }),
                                 () => {
                                     const initFilterId = responseView?.viewInfo?.filterdId;
@@ -1293,6 +1294,7 @@ export class GridViewContainer extends BaseContainer {
                                 selectedRowKeys={this.state.selectedRowKeys}
                                 handleBlockUi={() => this.blockUi}
                                 showErrorMessages={(err) => this.showErrorMessages(err)}
+                                packageRows={this.state.packageRows}
                                 handleShowEditPanel={(editDataResponse) => {
                                     this.setState({
                                         visibleEditPanel: true,
