@@ -20,6 +20,7 @@ import VersionService from '../../services/VersionService';
 import AppPrefixUtils from '../../utils/AppPrefixUtils';
 import UrlUtils from '../../utils/UrlUtils';
 import Avatar from '../../components/Avatar';
+import ConsoleHelper from "../../utils/ConsoleHelper";
 
 class Sidebar extends React.Component {
     constructor(props) {
@@ -62,18 +63,12 @@ class Sidebar extends React.Component {
                     },
                     () => {
                         this.handleFilter('');
-                        console.log('Initialized menu success');
-
                         //rozwinięcie submenu przy wejściu z linka
                         const viewId = UrlUtils.getViewIdFromURL();
-                        console.log('sidebar => didMount viewId', viewId);
                         if (!!viewId) {
                             setTimeout(() => {
                                 const menuItem = $('#menu_item_id_' + viewId);
                                 const subMenuItem = menuItem.closest('div').parent();
-                                // subMenuItem.removeClass('closed');
-                                // subMenuItem.height('auto');
-                                // subMenuItem.parent().find('div').first().trigger('click');
                             }, 10);
                         }
                     }
@@ -93,48 +88,50 @@ class Sidebar extends React.Component {
                     {
                         versionAPI: data.VersionAPI,
                     },
-                    () => {}
+                    () => {
+                    }
                 );
             })
-            .catch((err) => {});
+            .catch((err) => {
+            });
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         const viewId = UrlUtils.getViewIdFromURL();
-        console.log('sidebar => componentDidUpdate', viewId, prevState.viewId);
+        ConsoleHelper('sidebar => componentDidUpdate', viewId, prevState.viewId);
         if (prevState.viewId !== viewId) {
             this.setState({viewId});
         }
-        // if()
-        // if (!!viewId) {
-        //     setTimeout(() => {
-        //         const menuItem = $('#menu_item_id_' + viewId);
-        //         console.log('sidebar => menuItem.hasClass(active)',menuItem.hasClass('active'), menuItem)
-        //         if (!menuItem.hasClass('active')) {
-        //             menuItem.addClass('active');
-        //         }
-        //         if (!menuItem.find('.pro-inner-item').hasClass('active')) {
-        //             menuItem.find('.pro-inner-item').addClass('active');
-        //         }
-        //         console.log('sidebar => menuItem', menuItem)
-        //         const subMenuItem = menuItem.closest('div').parent();
-        //         subMenuItem.removeClass('closed');
-        //         subMenuItem.height('fit-content');
-        //         // subMenuItem.parent().find('div').first().trigger('click');
-        //     }, 10);
-        // }
+        if (!!viewId) {
+            setTimeout(() => {
+                const menuItem = $('#menu_item_id_' + viewId);
+                ConsoleHelper('sidebar => menuItem.hasClass(active)', menuItem.hasClass('active'), menuItem)
+                if (!menuItem.hasClass('active')) {
+                    menuItem.addClass('active');
+                }
+                if (!menuItem.find('.pro-inner-item').hasClass('active')) {
+                    menuItem.find('.pro-inner-item').addClass('active');
+                }
+                ConsoleHelper('sidebar => menuItem', menuItem)
+                const subMenuItem = menuItem.closest('div').parent();
+                subMenuItem.removeClass('closed');
+                subMenuItem.height('fit-content');
+            }, 10);
+        }
     }
 
     //very important !!!
     shouldComponentUpdate(nextProps, nextState, nextContext) {
         const history = this.props.history;
         const viewId = UrlUtils.getViewIdFromURL();
-        console.log('sidebar => shouldComponentUpdate doNotUpdate', this.state.viewId, viewId);
-        if (this.doNotUpdate === true && this.state.viewId == viewId) {
+        const currentUrl = new String(window.location.href);
+        if ((this.doNotUpdate === true
+                && this.state.viewId == viewId)
+            || currentUrl.includes('force=')) {
             this.doNotUpdate = false;
+            console.log('sidebar => shouldComponentUpdate=%s prev_view_id=%s next_view_id=%s url=%s', false, this.state.viewId, nextState.viewId, window.location.href);
             return false;
         }
-
         const result =
             history.action !== 'PUSH' ||
             (history.action !== 'PUSH' && nextProps.location.pathname == '/start') ||
@@ -142,7 +139,7 @@ class Sidebar extends React.Component {
             this.state.toggled !== nextState.toggled ||
             this.state.viewId !== nextState.viewId ||
             this.state.filterValue !== nextState.filterValue;
-        console.log('sidebar => shouldComponentUpdate', result, this.state.viewId, nextState.viewId);
+        console.log('sidebar => shouldComponentUpdate=%s prev_view_id=%s next_view_id=%s url=%s', result, this.state.viewId, nextState.viewId, window.location.href);
         return result;
     }
 
@@ -218,32 +215,25 @@ class Sidebar extends React.Component {
         if (!authService.loggedIn()) {
             const logoutUrl = AppPrefixUtils.locationHrefUrl('/#/');
             window.location.href = logoutUrl;
-            return null;
+            return;
         }
         const {collapsed, filterValue} = this.state;
-        // $(document).on('click', '.pro-inner-item', function (e) {
-        //     $('.pro-inner-item').each(function (index) {
-        //         $(this).removeClass('active');
-        //     });
-        //     $('.pro-menu-item').each(function (index) {
-        //         $(this).removeClass('active');
-        //     });
-        //     $(this).addClass('active').siblings().removeClass('active');
-        //     $(this).parents('.pro-inner-item').addClass('active');
-        //     $(this).parents('.pro-menu-item').addClass('active');
-        // });
-        /*------------------------  PROPS  ---------------------------*/
-
+        $(document).on('click', '.pro-inner-item', function (e) {
+            $('.pro-inner-item').each(function (index) {
+                $(this).removeClass('active');
+            });
+            $('.pro-menu-item').each(function (index) {
+                $(this).removeClass('active');
+            });
+            $(this).addClass('active').siblings().removeClass('active');
+            $(this).parents('.pro-inner-item').addClass('active');
+            $(this).parents('.pro-menu-item').addClass('active');
+        });
         /*------------------------  PROPS  ---------------------------*/
         const profile = authService.getProfile();
         const userName = JSON.parse(profile).name;
         const avatar = JSON.parse(profile).avatar;
         const dynamicMenuJSON = !authService.loggedIn() ? [] : this.state.filteredMenu;
-        //TODO pogadać o rolach
-        //const role = authService.getProfile().role;
-        const nav = (e, item) => {
-            this.props.history.push(`/grid-view/${item.id}`);
-        };
         const renderDynamicMenu = (items) => {
             const timestamp = Date.now();
             return (
@@ -255,20 +245,19 @@ class Sidebar extends React.Component {
                                 <MenuItem
                                     id={`menu_item_id_${item.id}`}
                                     key={`menu_item_key_${item.id}`}
-                                    active={activeItem}
                                     className={activeItem ? 'active' : ''}
                                     icon={
                                         item.icon === undefined || item.icon === '' ? (
-                                            <FaAngleRight />
+                                            <FaAngleRight/>
                                         ) : (
-                                            <Image alt={item.name} base64={item.icon} />
+                                            <Image alt={item.name} base64={item.icon}/>
                                         )
                                     }
                                     onClick={() => {
                                         this.doNotUpdate = true;
                                     }}
                                 >
-                                    <div className='menu_arrow_active' />
+                                    <div className='menu_arrow_active'/>
                                     <a
                                         href={AppPrefixUtils.locationHrefUrl(
                                             `/#/grid-view/${item.id}?force=${timestamp}`
@@ -290,9 +279,9 @@ class Sidebar extends React.Component {
                                 key={`menu_sub_${item.id}`}
                                 icon={
                                     item.icon === undefined || item.icon === '' ? (
-                                        <FaAngleDoubleRight />
+                                        <FaAngleDoubleRight/>
                                     ) : (
-                                        <Image alt={item.name} base64={item.icon} />
+                                        <Image alt={item.name} base64={item.icon}/>
                                     )
                                 }
                                 className={activeItem ? 'active' : ''}
@@ -343,7 +332,7 @@ class Sidebar extends React.Component {
             <React.Fragment>
                 <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
                     <div className='btn-toggle' onClick={() => this.handleToggleSidebar()}>
-                        <FaBars />
+                        <FaBars/>
                     </div>
                     <ProSidebar
                         collapsed={this.state.collapsed}
@@ -388,7 +377,7 @@ class Sidebar extends React.Component {
                                 <div className='row mb-2' style={collapsed ? {display: 'none'} : {}}>
                                     <div className='col-md-12'>
                                         <span id='menu-search-span' className='p-input-icon-left p-input-icon-right'>
-                                            <i className='pi pi-search' />
+                                            <i className='pi pi-search'/>
                                             <InputText
                                                 ariaLabel={labels['Menu_Search']}
                                                 className='p-inputtext-sm'
@@ -435,12 +424,12 @@ class Sidebar extends React.Component {
                             ) : null}
                         </SidebarHeader>
 
-                        <DynamicMenu id='dynamic-menu' key='dynamic-menu-key' data={dynamicMenuJSON} />
+                        <DynamicMenu id='dynamic-menu' key='dynamic-menu-key' data={dynamicMenuJSON}/>
 
                         <SidebarFooter id={'menu-footer'} style={{textAlign: 'center'}}>
                             <div id={'user-credentials'} className={'col-12'}>
                                 <div className='row mt-3 mb-2'>
-                                    <Avatar base64={avatar} userName={userName} collapsed={collapsed} />
+                                    <Avatar base64={avatar} userName={userName} collapsed={collapsed}/>
                                 </div>
                             </div>
                             <div id={'logout_button'} className='sidebar-btn-wrapper' style={{padding: '5px 24px'}}>
@@ -450,7 +439,7 @@ class Sidebar extends React.Component {
                                     rel='noopener noreferrer'
                                     style={{textAlign: 'center'}}
                                 >
-                                    <FaSignOutAlt />
+                                    <FaSignOutAlt/>
                                     <span>{labels['Menu_Logout']}</span>
                                 </div>
                             </div>
@@ -459,24 +448,6 @@ class Sidebar extends React.Component {
                                 className={'to-right'}
                                 style={{marginRight: '5px'}}
                             >{`ver: ${packageJson.version}_${this.state.uiVersion?.buildNumber} api: ${this.state.versionAPI}`}</div>
-                            {/*
-                                <div className='col-md-12'>
-                                    <span style={{fontWeight: 'bold'}}>UI app name: </span>
-                                    <span>{this.state.uiVersion?.appName}</span>
-                                </div>
-                                <div className='col-md-12'>
-                                    <span style={{fontWeight: 'bold'}}>UI app version: </span>
-                                    <span>{this.state.uiVersion?.appVersion}</span>
-                                </div>
-                                <div className='col-md-12'>
-                                    <span style={{fontWeight: 'bold'}}>UI build number: </span>
-                                    <span>{this.state.uiVersion?.buildNumber}</span>
-                                </div>
-                                <div className='col-md-12'>
-                                    <span style={{fontWeight: 'bold'}}>UI build time: </span>
-                                    <span>{this.state.uiVersion?.buildTime}</span>
-                                </div>
-                            */}
                         </SidebarFooter>
                     </ProSidebar>
                 </BlockUi>

@@ -166,8 +166,8 @@ export class GridViewUtils {
                                         padding: '2px 0px 2px 0px',
                                     }}
                                 >
-                                    {info.text?.map((i) => {
-                                        return <Image style={{maxWidth: '100%'}} base64={info.text}/>;
+                                    {info.text?.map((i, index) => {
+                                        return <Image style={{maxWidth: '100%'}} key={index}  base64={info.text}/>;
                                     })}
                                 </div>,
                                 element
