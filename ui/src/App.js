@@ -171,12 +171,13 @@ class App extends Component {
     render() {
         const authService = this.authService;
         const {labels} = this.state;
+        const loggedIn = authService.loggedIn();
         return (
             <React.Fragment>
                 {this.state.loadedConfiguration ?
                     <HashRouter history={this.historyBrowser}>
-                        <div className={`${authService.loggedIn() ? 'app' : ''}`}>
-                            {authService.loggedIn() ?
+                        <div className={`${loggedIn ? 'app' : ''}`}>
+                            {loggedIn ?
                                 <Sidebar
                                     authService={this.authService}
                                     historyBrowser={this.historyBrowser}
@@ -184,7 +185,7 @@ class App extends Component {
                                     labels={this.state.labels}
                                 /> : null}
                             <main>
-                                <div className={`${authService.loggedIn() ? 'container-fluid' : ''}`}>
+                                <div className={`${loggedIn ? 'container-fluid' : ''}`}>
                                     <Switch>
                                         <Route exact path='/' render={(props) => this.renderLoginContainer(props)}/>
                                         <Route path='/login' render={(props) => this.renderLoginContainer(props)}/>
@@ -193,6 +194,7 @@ class App extends Component {
                                                    return (
                                                        <AuthComponent viewMode={'VIEW'}
                                                                       historyBrowser={this.historyBrowser}
+                                                                      handleLogout={() => this.handleLogoutUser()}
                                                        >
                                                            <StartContainer/>
                                                        </AuthComponent>
@@ -202,7 +204,8 @@ class App extends Component {
                                                render={(props) => {
                                                    return (
                                                        <AuthComponent viewMode={'VIEW'}
-                                                                      historyBrowser={this.historyBrowser}>
+                                                                      historyBrowser={this.historyBrowser}
+                                                                      handleLogout={() => this.handleLogoutUser()}>
                                                            <GridViewContainer
                                                                id={props.match.params.id}
                                                                labels={labels}

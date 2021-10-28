@@ -212,12 +212,8 @@ class Sidebar extends React.Component {
     render() {
         console.log('sidebar => render', this.state.viewId);
         let {authService} = this.props;
-        if (!authService.loggedIn()) {
-            const logoutUrl = AppPrefixUtils.locationHrefUrl('/#/');
-            window.location.href = logoutUrl;
-            return;
-        }
         const {collapsed, filterValue} = this.state;
+        const loggedIn = authService.loggedIn();
         $(document).on('click', '.pro-inner-item', function (e) {
             $('.pro-inner-item').each(function (index) {
                 $(this).removeClass('active');
@@ -230,70 +226,71 @@ class Sidebar extends React.Component {
             $(this).parents('.pro-menu-item').addClass('active');
         });
         /*------------------------  PROPS  ---------------------------*/
-        const profile = authService.getProfile();
-        const userName = JSON.parse(profile).name;
-        const avatar = JSON.parse(profile).avatar;
-        const dynamicMenuJSON = !authService.loggedIn() ? [] : this.state.filteredMenu;
+        const profile = !loggedIn ? null : authService.getProfile();
+        const userName = !loggedIn ? null : JSON.parse(profile).name;
+        const avatar = !loggedIn ? null : JSON.parse(profile).avatar;
+        const dynamicMenuJSON = !loggedIn ? [] : this.state.filteredMenu;
         const renderDynamicMenu = (items) => {
             const timestamp = Date.now();
             return (
-                <Menu key='menu' iconShape='circle' popperArrow='false'>
-                    {items?.map((item) => {
-                        const activeItem = containsViewId(item, this.state.viewId, item.id);
-                        return item.type === 'View' ? (
-                            <li>
-                                <MenuItem
-                                    id={`menu_item_id_${item.id}`}
-                                    key={`menu_item_key_${item.id}`}
-                                    className={activeItem ? 'active' : ''}
+                loggedIn ? (
+                    <Menu key='menu' iconShape='circle' popperArrow='false'>
+                        {items?.map((item) => {
+                            const activeItem = containsViewId(item, this.state.viewId, item.id);
+                            return item.type === 'View' ? (
+                                <li>
+                                    <MenuItem
+                                        id={`menu_item_id_${item.id}`}
+                                        key={`menu_item_key_${item.id}`}
+                                        className={activeItem ? 'active' : ''}
+                                        icon={
+                                            item.icon === undefined || item.icon === '' ? (
+                                                <FaAngleRight/>
+                                            ) : (
+                                                <Image alt={item.name} base64={item.icon}/>
+                                            )
+                                        }
+                                        onClick={() => {
+                                            this.doNotUpdate = true;
+                                        }}
+                                    >
+                                        <div className='menu_arrow_active'/>
+                                        <a
+                                            href={AppPrefixUtils.locationHrefUrl(
+                                                `/#/grid-view/${item.id}?force=${timestamp}`
+                                            )}
+                                            className='title'
+                                            style={{fontSize: '14px', fontWeight: 'normal'}}
+                                            onClick={(e) => {
+                                                let href = e.target.href;
+                                                e.target.href = UrlUtils.addParameterToURL(href, 'force', Date.now());
+                                            }}
+                                        >
+                                            <div className='title'>{item?.name}</div>
+                                        </a>
+                                    </MenuItem>
+                                    {item?.sub && renderDynamicMenu(item?.sub)}
+                                </li>
+                            ) : (
+                                <SubMenu
+                                    key={`menu_sub_${item.id}`}
                                     icon={
                                         item.icon === undefined || item.icon === '' ? (
-                                            <FaAngleRight/>
+                                            <FaAngleDoubleRight/>
                                         ) : (
                                             <Image alt={item.name} base64={item.icon}/>
                                         )
                                     }
-                                    onClick={() => {
-                                        this.doNotUpdate = true;
-                                    }}
+                                    className={activeItem ? 'active' : ''}
+                                    defaultOpen={activeItem}
+                                    title={item?.name}
                                 >
-                                    <div className='menu_arrow_active'/>
-                                    <a
-                                        href={AppPrefixUtils.locationHrefUrl(
-                                            `/#/grid-view/${item.id}?force=${timestamp}`
-                                        )}
-                                        className='title'
-                                        style={{fontSize: '14px', fontWeight: 'normal'}}
-                                        onClick={(e) => {
-                                            let href = e.target.href;
-                                            e.target.href = UrlUtils.addParameterToURL(href, 'force', Date.now());
-                                        }}
-                                    >
-                                        <div className='title'>{item?.name}</div>
-                                    </a>
-                                </MenuItem>
-                                {item?.sub && renderDynamicMenu(item?.sub)}
-                            </li>
-                        ) : (
-                            <SubMenu
-                                key={`menu_sub_${item.id}`}
-                                icon={
-                                    item.icon === undefined || item.icon === '' ? (
-                                        <FaAngleDoubleRight/>
-                                    ) : (
-                                        <Image alt={item.name} base64={item.icon}/>
-                                    )
-                                }
-                                className={activeItem ? 'active' : ''}
-                                defaultOpen={activeItem}
-                                title={item?.name}
-                            >
-                                {item?.sub && renderDynamicMenu(item?.sub)}
-                            </SubMenu>
-                        );
-                    })}
-                </Menu>
-            );
+                                    {item?.sub && renderDynamicMenu(item?.sub)}
+                                </SubMenu>
+                            );
+                        })}
+                    </Menu>
+                ) : null);
         };
 
         const containsViewId = (item, viewId, currId, type) => {
