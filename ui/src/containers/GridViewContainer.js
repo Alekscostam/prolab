@@ -80,8 +80,7 @@ export class GridViewContainer extends BaseContainer {
 
 
     componentDidMount() {
-        console.log('**** GridViewContainer -> componentDidMount');
-        console.log(window.location.pathname);
+        console.log('GridViewContainer::componentDidMount -> path ', window.location.pathname);
         this._isMounted = true;
         const subViewId = UrlUtils.getURLParameter('subview');
         const recordId = UrlUtils.getURLParameter('recordId');
@@ -91,13 +90,10 @@ export class GridViewContainer extends BaseContainer {
         if (id === undefined) {
             id = this.props.id;
         }
-        console.log(
-            `GridViewContainer::componentDidMount -> id=${id}, subViewId = ${subViewId}, recordId = ${recordId}, filterId = ${filterId}, viewType=${viewType}`
-        );
+        console.log(`GridViewContainer::componentDidMount -> id=${id}, subViewId = ${subViewId}, recordId = ${recordId}, filterId = ${filterId}, viewType=${viewType}`);
         const newUrl = UrlUtils.deleteParameterFromURL(window.document.URL.toString(), 'force');
         window.history.replaceState('', '', newUrl);
-        this.setState(
-            {
+        this.setState({
                 elementSubViewId: subViewId,
                 elementRecordId: recordId,
                 elementFilterId: filterId,
@@ -116,11 +112,7 @@ export class GridViewContainer extends BaseContainer {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        console.log(
-            '**** GridViewContainer -> componentDidUpdate prevProps id={%s} id={%s}',
-            prevProps.id,
-            this.props.id
-        );
+        console.log('GridViewContainer::componentDidUpdate prevProps id={%s} id={%s}', prevProps.id, this.props.id);
         let id = UrlUtils.getViewIdFromURL();
         if (id === undefined) {
             id = this.props.id;
@@ -130,13 +122,12 @@ export class GridViewContainer extends BaseContainer {
         const filterId = UrlUtils.getURLParameter('filterId');
         const gridViewType = UrlUtils.getURLParameter('viewType');
         const force = UrlUtils.getURLParameter('force');
-
         const firstSubViewMode = !!recordId && !!id && !!!subViewId;
-        console.log('**** GridViewContainer -> componentDidUpdate: firstSubViewMode=' + firstSubViewMode);
-        console.log(`componentDidUpdate: Read from param -> Id =  ${id} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`);
-        console.log(`componentDidUpdate: elementId=${this.state.elementId}, id=${id}; 
-            firstSubViewMode=${firstSubViewMode}, elementSubViewId=${this.state.elementSubViewId}, subViewId=${subViewId}; 
-            elementRecordId=${this.state.elementRecordId}, recordId=${recordId};
+        console.log('GridViewContainer::componentDidUpdate: firstSubViewMode -> ' + firstSubViewMode);
+        console.log(`GridViewContainer::componentDidUpdate: store params -> Id =  ${id} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`);
+        console.log(`GridViewContainer::componentDidUpdate: elementId=${this.state.elementId}, id=${id}, 
+            firstSubViewMode=${firstSubViewMode}, elementSubViewId=${this.state.elementSubViewId}, subViewId=${subViewId}, 
+            elementRecordId=${this.state.elementRecordId}, recordId=${recordId},
             prevState.gridViewType=${this.state.gridViewType}, gridViewType=${gridViewType}`,
             this.state.subView
         );
@@ -148,7 +139,7 @@ export class GridViewContainer extends BaseContainer {
             this.state.subView.subViews.length > 0 &&
             this.state.elementSubViewId !== this.state.subView.subViews[0].id;
 
-        console.log('@@@@@@@@@ GridViewContainer => ' + prevState.gridViewType + '::' + this.state.gridViewType);
+        console.log('GridViewContainer::componentDidUpdate -> ' + prevState.gridViewType + '::' + this.state.gridViewType);
         if (
             !!force ||
             !GridViewUtils.equalNumbers(this.state.elementId, id) ||
@@ -159,8 +150,8 @@ export class GridViewContainer extends BaseContainer {
         ) {
             const newUrl = UrlUtils.deleteParameterFromURL(window.document.URL.toString(), 'force');
             window.history.replaceState('', '', newUrl);
-            console.log('@@@@@@@@@ GridViewContainer:componentDidUpdate => updating....');
-            console.log('@@@@@@@@@ GridViewContainer:componentDidUpdate => ' + prevState.gridViewType + '::' + this.state.gridViewType + '::' + gridViewType);
+            console.log('GridViewContainer::componentDidUpdate -> updating....');
+            console.log('GridViewContainer::componentDidUpdate -> ' + prevState.gridViewType + '::' + this.state.gridViewType + '::' + gridViewType);
             this.setState(
                 {
                     elementId: id,
@@ -180,7 +171,7 @@ export class GridViewContainer extends BaseContainer {
                 }
             );
         } else {
-            console.log('@@@@@@@@@ GridViewContainer:componentDidUpdate => do not download view data!');
+            console.log('GridViewContainer::componentDidUpdate -> do not download view data!');
         }
         if (this.state.gridViewType === 'cardView' && this.cardGrid !== null) {
             this.cardGrid._scrollView.on('scroll', (e) => {
@@ -413,7 +404,8 @@ export class GridViewContainer extends BaseContainer {
                                     batchesList: batchesListTmp,
                                     filtersList: filtersListTmp,
                                     selectedRowKeys: [],
-                                    viewInfoTypes: viewInfoTypesTmp
+                                    viewInfoTypes: viewInfoTypesTmp,
+                                    packageRows: responseView?.viewInfo?.dataPackageSize,
                                 }),
                                 () => {
                                     const initFilterId = responseView?.viewInfo?.filterdId;
@@ -1293,6 +1285,7 @@ export class GridViewContainer extends BaseContainer {
                                 selectedRowKeys={this.state.selectedRowKeys}
                                 handleBlockUi={() => this.blockUi}
                                 showErrorMessages={(err) => this.showErrorMessages(err)}
+                                packageRows={this.state.packageRows}
                                 handleShowEditPanel={(editDataResponse) => {
                                     this.setState({
                                         visibleEditPanel: true,

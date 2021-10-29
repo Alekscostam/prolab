@@ -22,10 +22,7 @@ class AuthComponent extends React.Component {
             historyBrowser
         } = this.props;
         if (!this.authService.loggedIn()) {
-            console.log('You not login in !!!')
-            //Old
-            //historyBrowser.push('/');
-            window.location.href = AppPrefixUtils.locationHrefUrl('/#/');
+            this.props.handleLogout();
         } else {
             const userRoles = this.authService.getRoles();
             let authorized = false;
@@ -56,6 +53,12 @@ class AuthComponent extends React.Component {
         }
     }
 
+    componentDidUpdate() {
+        if (!this.authService.loggedIn()) {
+            this.props.handleLogout();
+        }
+    }
+
     render() {
         if (true) {
             return (
@@ -74,6 +77,7 @@ Address.defaultProps = {};
 AuthComponent.propTypes = {
     historyBrowser: PropTypes.any.isRequired,
     roles: PropTypes.any,
+    handleLogout: PropTypes.func
 }
 
 export default AuthComponent;

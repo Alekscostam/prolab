@@ -130,10 +130,10 @@
 
 .pro-inner-item.active span .menu_arrow_active {
   position: absolute;
-  left: -20px;
-  top: 2px;
+  top: 3px;
   width: 8px;
-  height: 31px;
+  bottom:8px;
+  left:-20px;
   background: transparent linear-gradient(188deg, #0e49eb 0%, #30dbce 100%) 0% 0% no-repeat padding-box;
   border-radius: 0px 4px 4px 0px;
 }
