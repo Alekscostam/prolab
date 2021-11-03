@@ -1,12 +1,12 @@
-import { InputText } from 'primereact/inputtext';
-import { Dropdown } from 'primereact/dropdown';
-import { Message } from 'primereact/message';
-import { Password } from 'primereact/password';
-import { Toast } from 'primereact/toast';
+import {InputText} from 'primereact/inputtext';
+import {Dropdown} from 'primereact/dropdown';
+import {Message} from 'primereact/message';
+import {Password} from 'primereact/password';
+import {Toast} from 'primereact/toast';
 import PropTypes from 'prop-types';
 import queryString from 'query-string';
 import React from 'react';
-import { Redirect } from 'react-router-dom';
+import {Redirect} from 'react-router-dom';
 import BaseContainer from '../baseContainers/BaseContainer';
 import ActionButton from '../components/ActionButton';
 import SimpleReactValidator from '../components/validator';

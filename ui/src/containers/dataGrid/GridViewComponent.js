@@ -38,7 +38,7 @@ class GridViewComponent extends React.Component {
             value, operations, target, JSON.stringify(columnDefinition))
         try {
             if (!!columnDefinition) {
-                if (operations == "between") {
+                if (operations === "between") {
                     let dateFormatted1 = this.formatDateFilterExpression(columnDefinition.type, value[0]);
                     let dateFormatted2 = this.formatDateFilterExpression(columnDefinition.type, value[1]);
                     return this.customFilterExpression(operations, columnDefinition.fieldName, [dateFormatted1, dateFormatted2]);
@@ -54,9 +54,9 @@ class GridViewComponent extends React.Component {
 
     formatDateFilterExpression(type, value) {
         const dateMoment = moment(value);
-        if (type == "D") {
+        if (type === "D") {
             return dateMoment.format(Constants.DATE_FORMAT.DATE_FORMAT_MOMENT)
-        } else if (type == "E") {
+        } else if (type === "E") {
             return dateMoment.format(Constants.DATE_FORMAT.DATE_TIME_FORMAT_MOMENT)
         } else {
             throw new Error('BAD_TYPE');
@@ -79,6 +79,8 @@ class GridViewComponent extends React.Component {
                 return [[fieldName, '>=', dateFormatted]];
             case 'between':
                 return [[fieldName, '>=', dateFormatted[0]], 'and', [fieldName, '<=', dateFormatted[1]]];
+            default:
+                return undefined;
         }
     }
 
@@ -323,7 +325,11 @@ class GridViewComponent extends React.Component {
                     <Scrolling mode="virtual" rowRenderingMode="virtual"/>
                     <Paging defaultPageSize={packageCount}/>
 
-                    <LoadPanel enabled={false}/>
+                    <LoadPanel enabled={false}
+                               showIndicator={true}
+                               shadingColor="rgba(0,0,0,0.4)"
+                               showPane={false}
+                               position="absolute"/>
                     <Editing mode='cell'/>
                 </DataGrid>
             </React.Fragment>
@@ -355,6 +361,7 @@ GridViewComponent.propTypes = {
     handleShowEditPanel: PropTypes.func.isRequired,
     handleSelectedRowKeys: PropTypes.func.isRequired,
     handleBlockUi: PropTypes.func.isRequired,
+    handleUnblockUi: PropTypes.func.isRequired,
     showErrorMessages: PropTypes.func.isRequired,
     showColumnHeaders: PropTypes.bool,
     showColumnLines: PropTypes.bool,

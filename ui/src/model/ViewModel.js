@@ -1,4 +1,4 @@
-import { ArrayModel, ObjectModel } from 'objectmodel';
+import {ArrayModel, ObjectModel} from 'objectmodel';
 
 export const ViewInfo = ObjectModel({
     id: Number,

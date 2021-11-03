@@ -80,7 +80,7 @@ class DashboardContainer extends BaseContainer {
                         parsedGridView={cardView}
                         parsedCardViewData={this.state.dashboard.headerData}
                         handleShowEditPanel={() => this.setState({visibleEditPanel: true})}/>
-                    {this.state.dashboard.views.filter(item => item.position == 'left').map((item) => {
+                    {this.state.dashboard.views.filter(item => item.position === 'left').map((item) => {
                         return (
                             <React.Fragment>
                                 <div className='panel-dashboard'>
@@ -105,7 +105,7 @@ class DashboardContainer extends BaseContainer {
                     })}
                 </div>
                 <div className="column right">
-                    {this.state.dashboard.views.filter(item => item.position == 'right').map((item) => {
+                    {this.state.dashboard.views.filter(item => item.position === 'right').map((item) => {
                         return (
                             <React.Fragment>
                                 <div className='panel-dashboard'>

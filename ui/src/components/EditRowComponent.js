@@ -158,6 +158,9 @@ export class EditRowComponent extends BaseContainer {
             case 'T'://T – Czas
                 field.value = !!field.value ? moment(field.value, "HH:mm:ss").toDate() : null;
                 break;
+            default:
+                field.value = !!field.value ? moment(field.value, "YYYY-MM-DD").toDate() : null;
+                break;
         }
         return <React.Fragment>
             {field.visible && !field.hidden ?
@@ -199,8 +202,9 @@ export class EditRowComponent extends BaseContainer {
                 return 'image_';
             case 'H'://H - Hyperlink
                 return 'link_';
+            default:
+                return 'text_field_';
         }
-        return 'field';
     }
 
     renderInputComponent(field, fieldIndex, onChange, onBlur, groupName, required, validatorMsgs) {
@@ -212,6 +216,7 @@ export class EditRowComponent extends BaseContainer {
         let editInfo = this.props.editData?.editInfo;
         switch (field.type) {
             case 'C'://C – Znakowy
+            default:
                 return (<React.Fragment>
                     <label htmlFor={`field_${fieldIndex}`}
                            style={{color: labelColor}}>{field.label}{required ? '*' : ''}</label>
@@ -261,8 +266,7 @@ export class EditRowComponent extends BaseContainer {
                 return (<React.Fragment>
                     <label htmlFor={`yes_no_field_${fieldIndex}`}
                            style={{color: labelColor}}>{field.label}{required ? '*' : ''}</label>
-                    <Dropdown optionLabel="name"
-                              id={`${this.getType(field.type)}${fieldIndex}`}
+                    <Dropdown id={`${this.getType(field.type)}${fieldIndex}`}
                               name={field.fieldName}
                               className={`${autoFill} ${validate}`}
                               style={{width: '100%'}}
@@ -450,7 +454,7 @@ export class EditRowComponent extends BaseContainer {
                                disabled={!field.edit}
                                required={required}
                     />
-                    <a href={field.value} style={{float: 'right'}}
+                    <a href={field.value} style={{float: 'right'}} rel="noreferrer"
                        target='_blank'>
                         {field.label}
                     </a>

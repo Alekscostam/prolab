@@ -301,7 +301,7 @@ class SimpleReactValidator {
 				if (validation === Object(validation) && !!Object.keys(validation).length) {
 					return Object.keys(validation)[0];
 				} else {
-					if (validation.indexOf('~') != -1) {
+					if (validation.indexOf('~') !== -1) {
 						return validation.split('~')[0];
 					} else {
 						return validation.split(':')[0];
@@ -315,7 +315,7 @@ class SimpleReactValidator {
 					return Array.isArray(params) ? params : [params];
 				} else {
 					let params;
-					if (validation.indexOf('~') != -1) {
+					if (validation.indexOf('~') !== -1) {
 						params = validation.replace(/\~(?=([^~]*~[^~]*~)*[^~]*)/g, '`').split('`');
 					} else {
 						params = validation.replace(/:(?=([^~]*~[^~]*~)*[^~]*$)/g, '`').split('`'); // validation.split(':');

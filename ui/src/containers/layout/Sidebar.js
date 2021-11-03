@@ -65,13 +65,12 @@ class Sidebar extends React.Component {
                     () => {
                         this.handleFilter('');
                         //rozwinięcie submenu przy wejściu z linka
-                        const viewId = UrlUtils.getViewIdFromURL();
-                        if (!!viewId) {
-                            setTimeout(() => {
-                                const menuItem = $('#menu_item_id_' + viewId);
-                                const subMenuItem = menuItem.closest('div').parent();
-                            }, 10);
-                        }
+                        // const viewId = UrlUtils.getViewIdFromURL();
+                        // if (!!viewId) {
+                        //     setTimeout(() => {
+                        //         const menuItem = $('#menu_item_id_' + viewId);
+                        //     }, 10);
+                        // }
                     }
                 );
             })
@@ -124,13 +123,12 @@ class Sidebar extends React.Component {
     //very important !!!
     shouldComponentUpdate(nextProps, nextState, nextContext) {
         if (!!window.performance) {
-            if (performance.navigation.type == 1) {
+            if (performance.navigation.type === 1) {
               return true;
             }
         }
         const history = this.props.history;
-        const viewId = UrlUtils.getViewIdFromURL();
-        const currentUrl = new String(window.location.href)
+        const currentUrl = window.location.href
         if (this.doNotUpdate === true
             || (!!this.state.viewId && nextState.viewId === this.state.viewId)
             || currentUrl.includes('force=')) {
@@ -140,7 +138,7 @@ class Sidebar extends React.Component {
         }
         const result =
             history.action !== 'PUSH' ||
-            (history.action !== 'PUSH' && nextProps.location.pathname == '/start') ||
+            (history.action !== 'PUSH' && nextProps.location.pathname === '/start') ||
             this.state.collapsed !== nextState.collapsed ||
             this.state.toggled !== nextState.toggled ||
             this.state.viewId !== nextState.viewId ||

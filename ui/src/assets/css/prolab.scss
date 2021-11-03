@@ -513,12 +513,21 @@ body main div.container-fluid {
     white-space: pre-line;
 }
 
-.p-confirm-dialog-message{
+.p-confirm-dialog-message {
     white-space: pre-line;
+}
+
+.dx-checkbox{
+    height: 18px;
+}
+
+.dx-select-checkbox.dx-checkbox-checked .dx-checkbox-icon {
+    color: $text-bg !important;
 }
 
 .dx-checkbox-checked .dx-checkbox-icon {
     color: $link-color !important;
 }
+
 
 @import 'edit_row';

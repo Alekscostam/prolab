@@ -508,7 +508,6 @@ export class ViewContainer extends BaseContainer {
 
     //override
     renderGlobalTop() {
-        const {labels} = this.props;
         return (
             <React.Fragment>
                 <React.Fragment>
@@ -695,7 +694,7 @@ export class ViewContainer extends BaseContainer {
 
     handleEditRowBlur(inputType, event, groupName, viewInfo) {
         console.log(`handleEditRowBlur inputType=${inputType} groupName=${groupName}`);
-        if (inputType == 'EDITOR') {
+        if (inputType === 'EDITOR') {
             this.refreshFieldVisibility(viewInfo);
         } else {
             this.handleEditRowChange(inputType, event, groupName, viewInfo, true);
@@ -1286,6 +1285,7 @@ export class ViewContainer extends BaseContainer {
                                 gridViewColumns={this.state.gridViewColumns}
                                 selectedRowKeys={this.state.selectedRowKeys}
                                 handleBlockUi={() => this.blockUi}
+                                handleUnblockUi={() => this.unblockUi}
                                 showErrorMessages={(err) => this.showErrorMessages(err)}
                                 packageRows={this.state.packageRows}
                                 handleShowEditPanel={(editDataResponse) => {

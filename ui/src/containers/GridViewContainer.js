@@ -320,7 +320,6 @@ export class GridViewContainer extends BaseContainer {
 
     //override
     renderGlobalTop() {
-        const {labels} = this.props;
         return (
             <React.Fragment>
                 <React.Fragment>
@@ -507,7 +506,7 @@ export class GridViewContainer extends BaseContainer {
 
     handleEditRowBlur(inputType, event, groupName, viewInfo) {
         console.log(`handleEditRowBlur inputType=${inputType} groupName=${groupName}`);
-        if (inputType == 'EDITOR') {
+        if (inputType === 'EDITOR') {
             this.refreshFieldVisibility(viewInfo);
         } else {
             this.handleEditRowChange(inputType, event, groupName, viewInfo, true);
@@ -958,7 +957,6 @@ export class GridViewContainer extends BaseContainer {
 
     //override
     render() {
-        const {labels} = this.props;
         return (
             <React.Fragment>
                 {this.renderContent()}
@@ -981,6 +979,7 @@ export class GridViewContainer extends BaseContainer {
                             gridViewColumns={this.state.gridViewColumns}
                             selectedRowKeys={this.state.selectedRowKeys}
                             handleBlockUi={() => this.blockUi}
+                            handleUnblockUi={() => this.unblockUi}
                             showErrorMessages={(err) => this.showErrorMessages(err)}
                             packageRows={this.state.packageRows}
                             handleShowEditPanel={(editDataResponse) => {
@@ -997,7 +996,8 @@ export class GridViewContainer extends BaseContainer {
                             showBorders={this.props.showBorders}
                             showColumnHeaders={this.props.showColumnHeaders}
                             showFilterRow={this.props.showFilterRow}
-                            showSelection={this.props.showSelection}/>
+                            showSelection={this.props.showSelection}
+                        />
                     </React.Fragment>
                 )}
             </React.Fragment>

@@ -22,7 +22,7 @@ class CardViewComponent extends React.Component {
     }
 
     isDashboard(){
-        return this.props.mode == 'dashboard'
+        return this.props.mode === 'dashboard'
     }
 
     styleTile(rowData, cardBgColor1, cardBgColor2, fontColor) {

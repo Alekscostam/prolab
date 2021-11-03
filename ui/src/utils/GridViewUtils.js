@@ -25,11 +25,11 @@ export class GridViewUtils {
             for (i = 0; i < arrURLParams.length; i++) {
                 let sParam = arrURLParams[i].split('=');
                 arrParamNames[i] = sParam[0];
-                if (sParam[1] != '') arrParamValues[i] = unescape(sParam[1]);
+                if (sParam[1] !== '') arrParamValues[i] = unescape(sParam[1]);
                 else arrParamValues[i] = null;
             }
             for (i = 0; i < arrURLParams.length; i++) {
-                if (arrParamNames[i] == paramName) {
+                if (arrParamNames[i] === paramName) {
                     //alert("Parameter:" + arrParamValues[i]);
                     return arrParamValues[i];
                 }
@@ -82,6 +82,8 @@ export class GridViewUtils {
                 case 'O':
                 case 'H':
                     return 'string';
+                default:
+                    return 'string';
             }
         }
         return undefined;
@@ -97,6 +99,8 @@ export class GridViewUtils {
                     return Constants.DATE_FORMAT.DATE_TIME_FORMAT;
                 case 'T':
                     return Constants.DATE_FORMAT.TIME_FORMAT;
+                default:
+                    return Constants.DATE_FORMAT.DATE_TIME_FORMAT;;
             }
         }
         return undefined;
