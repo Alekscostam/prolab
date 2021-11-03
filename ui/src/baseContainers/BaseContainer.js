@@ -109,20 +109,6 @@ class BaseContainer extends React.Component {
         this.showErrorMessages(errMsg);
     }
 
-    showSuccessMessage(detail, life = Constants.SUCCESS_MSG_LIFE, summary = '') {
-        this.messages.show({
-            severity: 'success',
-            life: life,
-            summary: summary,
-            content: (
-                <div className='p-flex p-flex-column' style={{flex: '1'}}>
-                    <Message severity={'success'} content={detail.title}></Message>
-                </div>
-            ),
-        });
-        this.unblockUi();
-    }
-
     showInfoMessage(detail, life = Constants.SUCCESS_MSG_LIFE, summary = 'Informacja') {
         this.messages.show({
             severity: 'info',
@@ -158,6 +144,20 @@ class BaseContainer extends React.Component {
         });
         this.unblockUi();
     }
+
+    // showSuccessMessage(detail, life = Constants.SUCCESS_MSG_LIFE, summary = '') {
+    //     this.messages.show({
+    //         severity: 'success',
+    //         life: life,
+    //         summary: summary,
+    //         content: (
+    //             <div className='p-flex p-flex-column' style={{flex: '1'}}>
+    //                 <Message severity={'success'} content={detail.title}></Message>
+    //             </div>
+    //         ),
+    //     });
+    //     this.unblockUi();
+    // }
 
     showResponseErrorMessage(errorResponse) {
         let title = "Błąd";

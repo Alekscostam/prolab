@@ -113,7 +113,7 @@ class GridViewComponent extends React.Component {
                         column.caption = columnDefinition?.label;
                         column.dataType = GridViewUtils.specifyColumnType(columnDefinition?.type);
                         column.format = GridViewUtils.specifyColumnFormat(columnDefinition?.type);
-                        column.cellTemplate = GridViewUtils.cellTemplate(columnDefinition);
+                        column.onCellPrepared = GridViewUtils.onCellPrepared(columnDefinition);
                         column.fixed =
                             columnDefinition.freeze !== undefined && columnDefinition?.freeze !== null
                                 ? columnDefinition?.freeze?.toLowerCase() === 'left' ||
@@ -133,7 +133,8 @@ class GridViewComponent extends React.Component {
                             column.calculateFilterExpression
                                 = (value, selectedFilterOperations, target) => this.calculateCustomFilterExpression(value, selectedFilterOperations, target, columnDefinition)
                         }
-                        column.headerFilter = {groupInterval : null}
+                        column.headerFilter = {groupInterval: null}
+                        column.renderAsync = true;
                         INDEX_COLUMN++;
                     } else {
                         column.visible = false;
@@ -268,52 +269,64 @@ class GridViewComponent extends React.Component {
         const rowAutoHeight = this.props.parsedGridView?.gridOptions?.rowAutoHeight || false;
         const headerAutoHeight = this.props.parsedGridView?.gridOptions?.headerAutoHeight || false;
         const packageCount = this.props.packageRows;
+        const showSelection = this.props.showSelection;
+        const showColumnHeaders = this.props.showColumnHeaders;
+        const showColumnLines = this.props.showColumnLines;
+        const showRowLines = this.props.showRowLines;
+        const showBorders = this.props.showBorders;
+        const showFilterRow = this.props.showFilterRow;
         return (
-            <DataGrid
-                id='grid-container'
-                className={`grid-container${headerAutoHeight ? ' grid-header-auto-height' : ''}`}
-                keyExpr='ID'
-                key='ID'
-                ref={(ref) => this.props.handleOnInitialized(ref)}
-                dataSource={this.props.parsedGridViewData}
-                customizeColumns={this.customizeColumns}
-                wordWrapEnabled={rowAutoHeight}
-                columnAutoWidth={columnAutoWidth}
-                columnResizingMode='widget'
-                allowColumnReordering={true}
-                allowColumnResizing={true}
-                showColumnLines={true}
-                showRowLines={true}
-                showBorders={true}
-                columnHidingEnabled={false}
-                height='100%'
-                rowAlternationEnabled={false}
-                onSelectionChanged={(e) => this.props.handleSelectedRowKeys(e)}
-            >
-                <RemoteOperations
-                    filtering={true}
-                    summary={true}
-                    sorting={true}
-                    paging={true}
-                    grouping={true}
-                    groupPaging={true}
-                />
+            <React.Fragment>
+                <DataGrid
+                    id='grid-container'
+                    className={`grid-container${headerAutoHeight ? ' grid-header-auto-height' : ''}`}
+                    keyExpr='ID'
+                    key='ID'
+                    ref={(ref) => this.props.handleOnInitialized(ref)}
+                    dataSource={this.props.parsedGridViewData}
+                    customizeColumns={this.customizeColumns}
+                    wordWrapEnabled={rowAutoHeight}
+                    columnAutoWidth={columnAutoWidth}
+                    columnResizingMode='widget'
+                    allowColumnReordering={true}
+                    allowColumnResizing={true}
+                    showColumnLines={showColumnLines}
+                    showRowLines={showRowLines}
+                    showBorders={showBorders}
+                    showColumnHeaders={showColumnHeaders}
+                    columnHidingEnabled={false}
+                    height='100%'
+                    rowAlternationEnabled={false}
+                    onSelectionChanged={(e) => this.props.handleSelectedRowKeys(e)}
+                    renderAsync={true}
+                >
+                    <RemoteOperations
+                        filtering={true}
+                        summary={true}
+                        sorting={true}
+                        paging={true}
+                        grouping={true}
+                        groupPaging={true}
+                    />
 
-                <FilterRow visible={true}/>
-                <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'}/>
+                    <FilterRow visible={showFilterRow}/>
+                    <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'}/>
 
-                <Grouping autoExpandAll={groupExpandAll} allowCollapsing={true}/>
-                <GroupPanel visible={showGroupPanel}/>
+                    <Grouping autoExpandAll={groupExpandAll} allowCollapsing={true}/>
+                    <GroupPanel visible={showGroupPanel}/>
 
-                <Sorting mode='multiple'/>
-                <Selection mode='multiple' selectAllMode='allPages' showCheckBoxesMode='always'/>
+                    <Sorting mode='multiple'/>
 
-                <Scrolling mode="virtual" rowRenderingMode="virtual"/>
-                <Paging defaultPageSize={packageCount}/>
+                    <Selection mode={showSelection ? 'multiple' : 'none'} selectAllMode='allPages'
+                               showCheckBoxesMode='always'/>
 
-                <LoadPanel enabled={false}/>
-                <Editing mode='cell'/>
-            </DataGrid>
+                    <Scrolling mode="virtual" rowRenderingMode="virtual"/>
+                    <Paging defaultPageSize={packageCount}/>
+
+                    <LoadPanel enabled={false}/>
+                    <Editing mode='cell'/>
+                </DataGrid>
+            </React.Fragment>
         );
     }
 }
@@ -321,7 +334,13 @@ class GridViewComponent extends React.Component {
 GridViewComponent.defaultProps = {
     parsedGridView: [],
     selectedRowKeys: [],
-    packageRows: 30
+    packageRows: 30,
+    showColumnLines: true,
+    showRowLines: true,
+    showBorders: true,
+    showColumnHeaders: true,
+    showFilterRow: true,
+    showSelection: true
 };
 
 GridViewComponent.propTypes = {
@@ -337,6 +356,13 @@ GridViewComponent.propTypes = {
     handleSelectedRowKeys: PropTypes.func.isRequired,
     handleBlockUi: PropTypes.func.isRequired,
     showErrorMessages: PropTypes.func.isRequired,
+    showColumnHeaders: PropTypes.bool,
+    showColumnLines: PropTypes.bool,
+    showRowLines: PropTypes.bool,
+    showBorders: PropTypes.bool,
+    showFilterRow: PropTypes.bool,
+    showSelection: PropTypes.bool,
 };
+
 
 export default GridViewComponent;

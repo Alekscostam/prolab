@@ -102,28 +102,7 @@ export class GridViewUtils {
         return undefined;
     }
 
-    static specifyCellTemplate(template) {
-        if (template) {
-            switch (template) {
-                case 'I':
-                    return function (element, info) {
-                        ReactDOM.render(
-                            <div>
-                                <Image style='display: block; width: 100%;' base64={info.text}/>
-                            </div>,
-                            element
-                        );
-                    };
-                case 'IM':
-                    return function (element, info) {
-                        ReactDOM.render(<div>{info.text}</div>, element);
-                    };
-            }
-        }
-        return undefined;
-    }
-
-    static cellTemplate(column) {
+    static onCellPrepared(column) {
         return function (element, info) {
             let bgColorFinal = undefined;
             const bgColor = info.data['_BGCOLOR'];
@@ -167,7 +146,7 @@ export class GridViewUtils {
                                     }}
                                 >
                                     {info.text?.map((i, index) => {
-                                        return <Image style={{maxWidth: '100%'}} key={index}  base64={info.text}/>;
+                                        return <Image style={{maxWidth: '100%'}} key={index} base64={info.text}/>;
                                     })}
                                 </div>,
                                 element

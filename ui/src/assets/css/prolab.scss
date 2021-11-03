@@ -426,6 +426,10 @@ label {
 @import 'grid_container';
 /*------------------*/
 
+//dashboard
+@import 'dashboard';
+/*------------------*/
+
 #mini-search-panel {
     padding: 0.4rem;
     text-align: center;
@@ -511,6 +515,10 @@ body main div.container-fluid {
 
 .p-confirm-dialog-message{
     white-space: pre-line;
+}
+
+.dx-checkbox-checked .dx-checkbox-icon {
+    color: $link-color !important;
 }
 
 @import 'edit_row';

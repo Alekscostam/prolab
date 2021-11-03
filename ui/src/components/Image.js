@@ -7,7 +7,7 @@ export const Image = (props) => {
     const {alt, base64, rendered, style, className} = props;
     let base64Tmp;
     let indexOfComa = base64?.indexOf("data:image");
-    if (indexOfComa == 0) {
+    if (indexOfComa === 0) {
         base64Tmp = `${base64}`;
     } else {
         base64Tmp = `data:image/jpeg;base64,${base64}`;

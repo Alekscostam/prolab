@@ -52,6 +52,7 @@ class Sidebar extends React.Component {
     }
 
     componentDidMount() {
+        ConsoleHelper('sidebar => componentDidMount');
         this.menuService
             .getMenu()
             .then((data) => {
@@ -122,11 +123,16 @@ class Sidebar extends React.Component {
 
     //very important !!!
     shouldComponentUpdate(nextProps, nextState, nextContext) {
+        if (!!window.performance) {
+            if (performance.navigation.type == 1) {
+              return true;
+            }
+        }
         const history = this.props.history;
         const viewId = UrlUtils.getViewIdFromURL();
-        const currentUrl = new String(window.location.href);
-        if ((this.doNotUpdate === true
-                && this.state.viewId == viewId)
+        const currentUrl = new String(window.location.href)
+        if (this.doNotUpdate === true
+            || (!!this.state.viewId && nextState.viewId === this.state.viewId)
             || currentUrl.includes('force=')) {
             this.doNotUpdate = false;
             console.log('sidebar => shouldComponentUpdate=%s prev_view_id=%s next_view_id=%s url=%s', false, this.state.viewId, nextState.viewId, window.location.href);

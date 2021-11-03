@@ -2,12 +2,12 @@ import React, {Component} from 'react';
 import {HashRouter, Route, Switch} from 'react-router-dom';
 import Sidebar from './containers/layout/Sidebar';
 import Login from './containers/LoginContainer';
-import StartContainer from './containers/StartContainer';
+import DashboardContainer from './containers/DashboardContainer';
 import AuthService from './services/AuthService';
 import AuthComponent from './components/AuthComponent';
 import PrimeReact, {addLocale, locale as primeReactLocale} from 'primereact/api';
 import "@fontsource/roboto"
-import {GridViewContainer} from "./containers/GridViewContainer";
+import {ViewContainer} from "./containers/ViewContainer";
 import {createBrowserHistory} from 'history';
 import {loadMessages, locale as devExpressLocale} from "devextreme/localization";
 import AppPrefixUtils from "./utils/AppPrefixUtils";
@@ -175,7 +175,11 @@ class App extends Component {
         return (
             <React.Fragment>
                 {this.state.loadedConfiguration ?
-                    <HashRouter history={this.historyBrowser}>
+                    <HashRouter history={this.historyBrowser} getUserConfirmation={(message, callback) => {
+                        // this is the default behavior
+                        const allowTransition = window.confirm(message);
+                        callback(allowTransition);
+                    }}>
                         <div className={`${loggedIn ? 'app' : ''}`}>
                             {loggedIn ?
                                 <Sidebar
@@ -196,7 +200,7 @@ class App extends Component {
                                                                       historyBrowser={this.historyBrowser}
                                                                       handleLogout={() => this.handleLogoutUser()}
                                                        >
-                                                           <StartContainer/>
+                                                           <DashboardContainer labels={labels}/>
                                                        </AuthComponent>
                                                    )
                                                }}/>
@@ -206,7 +210,7 @@ class App extends Component {
                                                        <AuthComponent viewMode={'VIEW'}
                                                                       historyBrowser={this.historyBrowser}
                                                                       handleLogout={() => this.handleLogoutUser()}>
-                                                           <GridViewContainer
+                                                           <ViewContainer
                                                                id={props.match.params.id}
                                                                labels={labels}
                                                            />
