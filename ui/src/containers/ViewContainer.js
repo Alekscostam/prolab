@@ -65,7 +65,7 @@ export class ViewContainer extends BaseContainer {
             modifyEditData: false,
             editData: null,
             selectAll: false,
-            totalSelectCount: 0
+            totalSelectCount: null
         };
         this.gridViewTypeChange = this.gridViewTypeChange.bind(this);
         this.renderCard = this.renderCard.bind(this);
@@ -457,6 +457,7 @@ export class ViewContainer extends BaseContainer {
                                                 (response) => {
                                                     this.setState({
                                                         blocking: false,
+                                                        //performance :)
                                                         totalSelectCount: response.totalSelectCount
                                                     });
                                                 },
@@ -830,7 +831,7 @@ export class ViewContainer extends BaseContainer {
             <React.Fragment>
                 <HeadPanel
                     selectedRowKeys={this.state.selectedRowKeys}
-                    totalSelectCount={this.state.totalSelectCount}
+                    totalSelectCount={!!this.state.selectAll ? this.state.totalSelectCount : null}
                     operations={this.state.parsedGridView?.operations}
                     leftContent={this.leftHeadPanelContent()}
                     rightContent={this.rightHeadPanelContent()}
@@ -1307,9 +1308,9 @@ export class ViewContainer extends BaseContainer {
                                     handleSelectedRowKeys={(e) => {
                                         this.setState({selectedRowKeys: e?.selectedRowKeys})
                                     }}
-                                    handleSelectAll={() => {
+                                    handleSelectAll={(e) => {
                                         this.setState(prevState => ({
-                                            selectAll: !prevState.selectAll
+                                            selectAll: !!e ? !prevState.selectAll : false
                                         }));
                                     }}
                                 />

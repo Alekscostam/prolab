@@ -308,7 +308,9 @@ class GridViewComponent extends React.Component {
                     selectAsync={true}
                     onCellClick={(e) => {
                         if (this.ifSelectAllEvent(e)) {
-                            this.props.handleSelectAll()
+                            this.props.handleSelectAll(true);
+                        } else {
+                            this.props.handleSelectAll(false);
                         }
                     }}
                 >
