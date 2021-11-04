@@ -1,8 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import equal from 'react-fast-compare';
-import moment from 'moment';
 import ActionLink from '../components/ActionLink';
 import ActionButton from '../components/ActionButton';
 import DivContainer from '../components/DivContainer';
@@ -10,26 +8,23 @@ import SimpleReactValidator from '../components/validator';
 import AuthService from '../services/AuthService';
 import $ from 'jquery';
 import Constants from '../utils/Constants';
-import {readCookieGlobal, removeCookieGlobal, saveCookieGlobal} from '../utils/Cookie';
 import BlockUi from '../components/waitPanel/BlockUi';
 import {Toast} from 'primereact/toast';
 import {Message} from 'primereact/message';
 import AppPrefixUtils from "../utils/AppPrefixUtils";
+import {confirmDialog} from "primereact/confirmdialog";
+import {localeOptions} from "primereact/api";
+import EditRowUtils from "../utils/EditRowUtils";
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
         super(props);
         this.service = service;
         this.authService = new AuthService(this.props.backendUrl);
-        this.readCookie = this.readCookie.bind(this);
-        this.removeCookie = this.removeCookie.bind(this);
-        this.saveCookie = this.saveCookie.bind(this);
-        this.scrollToTop = this.scrollToTop.bind(this);
         this.scrollToFirstError = this.scrollToFirstError.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleFormSubmit = this.handleFormSubmit.bind(this);
         this.handleValidForm = this.handleValidForm.bind(this);
-        this.handleChangeSc = this.handleChangeSc.bind(this);
         this.prepareFooter = this.prepareFooter.bind(this);
         this.prepareHeader = this.prepareHeader.bind(this);
         this.prepareHeaderItems = this.prepareHeaderItems.bind(this);
@@ -38,7 +33,6 @@ class BaseContainer extends React.Component {
         this.blockUi = this.blockUi.bind(this);
         this.unblockUi = this.unblockUi.bind(this);
         this.loader = this.loader.bind(this);
-        this.onUploladError = this.onUploladError.bind(this);
         this.showMessage = this.showMessage.bind(this);
         this.showSuccessMessage = this.showSuccessMessage.bind(this);
         this.showInfoMessage = this.showInfoMessage.bind(this);
@@ -46,11 +40,15 @@ class BaseContainer extends React.Component {
         this.showErrorMessages = this.showErrorMessages.bind(this);
         this.handleGetDetailsError = this.handleGetDetailsError.bind(this);
         this.renderGlobalTop = this.renderGlobalTop.bind(this);
+        this.handleEditRowChange = this.handleEditRowChange.bind(this);
+        this.handleEditRowSave = this.handleEditRowSave.bind(this);
+        this.handleEditRowBlur = this.handleEditRowBlur.bind(this);
+        this.handleAutoFillRowChange = this.handleAutoFillRowChange.bind(this);
+        this.handleCancelRowChange = this.handleCancelRowChange.bind(this);
         this.validator = new SimpleReactValidator();
         this._isMounted = false;
         this.jwtRefreshBlocked = false;
         this.scrollToError = false;
-        this.scrollToTopOnMount = true;
         this.messages = null;
     }
 
@@ -70,9 +68,6 @@ class BaseContainer extends React.Component {
                 });
         }
         this.scrollToError = false;
-        if (this.scrollToTopOnMount) {
-            this.scrollToTop();
-        }
         // eslint-disable-next-line no-undef
         $(window).off('beforeunload');
         // eslint-disable-next-line no-undef
@@ -103,10 +98,6 @@ class BaseContainer extends React.Component {
 
     componentWillUnmount() {
         this._isMounted = false;
-    }
-
-    onUploladError(errMsg) {
-        this.showErrorMessages(errMsg);
     }
 
     showInfoMessage(detail, life = Constants.SUCCESS_MSG_LIFE, summary = 'Informacja') {
@@ -144,20 +135,6 @@ class BaseContainer extends React.Component {
         });
         this.unblockUi();
     }
-
-    // showSuccessMessage(detail, life = Constants.SUCCESS_MSG_LIFE, summary = '') {
-    //     this.messages.show({
-    //         severity: 'success',
-    //         life: life,
-    //         summary: summary,
-    //         content: (
-    //             <div className='p-flex p-flex-column' style={{flex: '1'}}>
-    //                 <Message severity={'success'} content={detail.title}></Message>
-    //             </div>
-    //         ),
-    //     });
-    //     this.unblockUi();
-    // }
 
     showResponseErrorMessage(errorResponse) {
         let title = "Błąd";
@@ -277,14 +254,6 @@ class BaseContainer extends React.Component {
         }
     }
 
-    scrollToTop() {
-        // if (this !== undefined && ReactDOM.findDOMNode(this) !== undefined && ReactDOM.findDOMNode(this) !== null) {
-        // 	ReactDOM.findDOMNode(this).scrollIntoView();
-        // } else {
-        // 	console.log('scrollToTop ', this, ReactDOM.findDOMNode(this));
-        // }
-    }
-
     scrollToFirstError() {
         if (this !== undefined && ReactDOM.findDOMNode(this) !== undefined && ReactDOM.findDOMNode(this) !== null) {
             const errors = ReactDOM.findDOMNode(this).getElementsByClassName('srv-validation-message');
@@ -293,184 +262,6 @@ class BaseContainer extends React.Component {
             }
         } else {
             console.log('scrollToFirstError ', this, ReactDOM.findDOMNode(this));
-        }
-    }
-
-    isUserInRole(role) {
-        return this.authService.isUserInRole(role);
-    }
-
-    isUserInAnyRole(...rolesToFind) {
-        return this.authService.isUserInAnyRole(rolesToFind);
-    }
-
-    saveCookie(cookieName, cookieValue) {
-        saveCookieGlobal(cookieName, cookieValue);
-    }
-
-    readCookie(cookieName) {
-        return readCookieGlobal(cookieName);
-    }
-
-    removeCookie(cookieName) {
-        return removeCookieGlobal(cookieName);
-    }
-
-    isEqual(objA, objB) {
-        return equal(objA, objB);
-    }
-
-    enumTemplate(field, rowData) {
-        if (rowData[field] && rowData[field].label) {
-            return rowData[field].label;
-        } else if (rowData[field]) {
-            return rowData[field];
-        }
-        return '';
-    }
-
-    enumWithStyleTemplate(field, rowData) {
-        if (rowData[field] && rowData[field].label) {
-            return <span className={rowData[field].styleClass}>{rowData[field].label}</span>;
-        } else if (rowData[field]) {
-            return <span>{rowData[field]}</span>;
-        }
-        return '';
-    }
-
-    enumWithIconTemplate(field, rowData) {
-        if (rowData[field] && rowData[field].label) {
-            return (
-                <span
-                    className={`icon_text p-button-text p-c ${
-                        rowData[field].iconName !== undefined ? rowData[field].iconColor : ''
-                    }`}
-                >
-                    {rowData[field].iconName !== undefined ? (
-                        <i className={`icon mdi ${rowData[field].iconName}`}/>
-                    ) : null}
-                    {rowData[field].label}
-                </span>
-            );
-        } else if (rowData[field]) {
-            return <span>{rowData[field]}</span>;
-        }
-        return '';
-    }
-
-    dateTemplate(field, format, rowData) {
-        if (rowData[field] && moment(rowData[field]).isValid()) {
-            return moment(rowData[field]).format(format);
-        } else {
-            return '';
-        }
-    }
-
-    timeTemplate(field, format, rowData) {
-        const today = new Date();
-        if (
-            rowData[field] &&
-            moment(new Date(`${moment(today).format('YYYY-MM-DD').toString()}T${rowData[field]}`)).isValid()
-        ) {
-            return moment(new Date(`${moment(today).format('YYYY-MM-DD').toString()}T${rowData[field]}`)).format(
-                format
-            );
-        } else {
-            return '';
-        }
-    }
-
-    dateRangeTemplate(fieldFrom, fieldTo, format, rowData) {
-        let dateFrom = undefined;
-        let dateTo = undefined;
-        if (rowData[fieldFrom] && moment(rowData[fieldFrom]).isValid()) {
-            dateFrom = moment(rowData[fieldFrom]).format(format);
-        }
-        if (rowData[fieldTo] && moment(rowData[fieldTo]).isValid()) {
-            dateTo = moment(rowData[fieldTo]).format(format);
-        }
-        if (dateFrom || dateTo) {
-            return `${dateFrom ? dateFrom : ''} - ${dateTo ? dateTo : ''}`;
-        } else {
-            return '';
-        }
-    }
-
-    objectTemplate(field, objField, rowData) {
-        if (rowData[field]) {
-            return rowData[field][objField];
-        } else {
-            return '';
-        }
-    }
-
-    objectJoinTemplate(fieldArray, separator, rowData) {
-        if (separator === undefined) {
-            separator = ', ';
-        }
-        const arrayOfFields = [];
-        fieldArray.forEach((field) => {
-            if (field.includes('.')) {
-                const fieldSplitted = field.split('.');
-                let valueObj = rowData[fieldSplitted[0]];
-                for (let i = 1; i < fieldSplitted.length; i++) {
-                    valueObj = valueObj[fieldSplitted[i]];
-                }
-                arrayOfFields.push(valueObj);
-            } else {
-                if (rowData[field]) {
-                    arrayOfFields.push(rowData[field]);
-                }
-            }
-        });
-        const result = arrayOfFields.join(separator);
-        return result;
-    }
-
-    objectArrayTemplate(field, objField, rowData) {
-        if (rowData[field] && rowData[field].map) {
-            return rowData[field] && rowData[field].length > 0 ? rowData[field].map((v) => v[objField]).join(', ') : '';
-        } else {
-            return '';
-        }
-    }
-
-    getValueInObjPath(stateField) {
-        const path = stateField.split('.');
-        let i;
-        let obj = this.state;
-        if (!!stateField && stateField !== '') {
-            for (i = 0; i < path.length; i++) {
-                if (path[i].includes('[') && path[i].includes(']')) {
-                    const pathWithIndex = path[i].replace(']', '').split('[');
-                    obj = obj[pathWithIndex[0]][pathWithIndex[1]];
-                } else {
-                    obj = obj[path[i]];
-                }
-            }
-        }
-        return obj;
-    }
-
-    setValueInObjPath(obj, value, varName, path) {
-        let i;
-        for (i = 1; i < path.length - 1; i++) {
-            if (path[i].includes('[') && path[i].includes(']')) {
-                const pathWithIndex = path[i].replace(']', '').split('[');
-                obj = obj[pathWithIndex[0]][pathWithIndex[1]];
-            } else {
-                obj = obj[path[i]];
-            }
-        }
-        if (path.length === 1) {
-            obj[varName] = value;
-        } else {
-            if (path[i].includes('[') && path[i].includes(']')) {
-                const pathWithIndex = path[i].replace(']', '').split('[');
-                obj[pathWithIndex[0]][pathWithIndex[1]][varName] = value;
-            } else {
-                obj[path[i]][varName] = value;
-            }
         }
     }
 
@@ -894,38 +685,6 @@ class BaseContainer extends React.Component {
         }
     }
 
-    handleChangeSc(event, optionValue) {
-        const varName = event.target.name;
-        let varValue = event.checked !== undefined ? event.checked : event.target.value;
-        if (varValue === '' || varValue === null) {
-            varValue = undefined;
-        }
-        if (optionValue !== null && optionValue !== undefined) {
-            let varValueEnum = undefined;
-            if (varValue) {
-                varValueEnum = varValue[optionValue];
-            }
-            if (this._isMounted) {
-                this.setState((prevState) => ({
-                    criteria: {
-                        ...prevState.criteria,
-                        [`${varName}Obj`]: varValue,
-                        [varName]: varValueEnum,
-                    },
-                }));
-            }
-        } else {
-            if (this._isMounted) {
-                this.setState((prevState) => ({
-                    criteria: {
-                        ...prevState.criteria,
-                        [varName]: varValue,
-                    },
-                }));
-            }
-        }
-    }
-
     renderFooter() {
         const footerItems = this.prepareFooterItems();
         if (footerItems !== undefined && footerItems.length > 0) {
@@ -1146,7 +905,6 @@ class BaseContainer extends React.Component {
         );
     }
 
-
     getViewInfoName() {
         return '';
     }
@@ -1218,6 +976,189 @@ class BaseContainer extends React.Component {
         } else {
             this.setState({loading: false}, () => this.unblockUi());
         }
+    }
+
+    handleEditRowSave(viewId, recordId, parentId) {
+        console.log(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
+        const saveElement = this.editService.createObjectToSave(this.state);
+        console.log(`handleEditRowSave: element to save = ${JSON.stringify(saveElement)}`)
+        this.rowSave(viewId, recordId, parentId, saveElement, false);
+    }
+
+    rowSave = (viewId, recordId, parentId, saveElement, confirmSave) => {
+        this.blockUi();
+        this.editService
+            .save(viewId, recordId, parentId, saveElement, confirmSave)
+            .then((saveResponse) => {
+                switch (saveResponse.status) {
+                    case 'OK':
+                        if (!!saveResponse.message) {
+                            confirmDialog({
+                                message: saveResponse?.message?.text,
+                                header: saveResponse?.message?.title,
+                                icon: 'pi pi-info-circle',
+                                rejectClassName: 'hidden',
+                                acceptLabel: 'OK',
+                                rejectLabel: undefined,
+                                accept: () => this.setState({visibleEditPanel: false})
+                            })
+                        } else if (!!saveResponse.error) {
+                            this.showResponseErrorMessage(saveResponse);
+                        } else {
+                            this.setState({visibleEditPanel: false});
+                        }
+                        break;
+                    case 'NOK':
+                        if (!!saveResponse.question) {
+                            confirmDialog({
+                                message: saveResponse?.question?.text,
+                                header: saveResponse?.question?.title,
+                                icon: 'pi pi-question-circle',
+                                acceptLabel: localeOptions('accept'),
+                                rejectLabel: localeOptions('reject'),
+                                accept: () => this.rowSave(viewId, recordId, parentId, saveElement, true),
+                                reject: () => undefined,
+                            })
+                        } else if (!!saveResponse.message) {
+                            confirmDialog({
+                                message: saveResponse?.message?.text,
+                                header: saveResponse?.message?.title,
+                                icon: 'pi pi-info-circle',
+                                rejectClassName: 'hidden',
+                                acceptLabel: 'OK',
+                                rejectLabel: undefined,
+                                accept: () => undefined
+                            })
+                        } else if (!!saveResponse.error) {
+                            this.showResponseErrorMessage(saveResponse);
+                        }
+                        break;
+                    default:
+                        if (!!saveResponse.error) {
+                            this.showResponseErrorMessage(saveResponse);
+                        } else {
+                            this.showErrorMessages(saveResponse);
+                        }
+                        break;
+                }
+                this.unblockUi();
+            }).catch((err) => {
+            if (!!err.error) {
+                this.showResponseErrorMessage(err);
+            } else {
+                this.showErrorMessages(err);
+            }
+        });
+    }
+
+    handleAutoFillRowChange(viewId, recordId, parentId) {
+        console.log(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
+        this.blockUi();
+        const autofillBodyRequest = this.editService.createObjectToAutoFill(this.state);
+        this.editService
+            .getEditAutoFill(viewId, recordId, parentId, autofillBodyRequest)
+            .then((editAutoFillResponse) => {
+                let arrayTmp = editAutoFillResponse?.data;
+                let editData = this.state.editData;
+                arrayTmp.forEach((element) => {
+                    EditRowUtils.searchAndAutoFill(editData, element.fieldName, element.value);
+                })
+                this.setState({editData: editData});
+                this.unblockUi();
+            })
+            .catch((err) => {
+                this.showErrorMessages(err);
+            });
+    }
+
+    handleCancelRowChange(viewId, recordId, parentId) {
+        console.log(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
+    }
+
+    handleEditRowChange(inputType, event, groupName, viewInfo, forceRefreshFieldVisibility = false) {
+        console.log(`handleEditRowChange inputType=${inputType} groupName=${groupName}`);
+        console.log(event)
+        let editData = this.state.editData;
+        let groupData = editData.editFields.filter((obj) => {
+            return obj.groupName === groupName;
+        });
+        let varName;
+        let varValue;
+        let startRefreshFieldVisibility = true;
+        console.clear();
+        console.log(event)
+        if (event !== undefined) {
+            switch (inputType) {
+                case 'IMAGE64':
+                    varName = event == null ? null : event.fieldName;
+                    varValue = event == null ? '' : event.base64[0];
+                    break;
+                case 'MULTI_IMAGE64':
+                    varName = event == null ? null : event.fieldName;
+                    varValue = event == null ? '' : event.base64;
+                    break;
+                case 'CHECKBOX':
+                    varName = event.target.name;
+                    varValue = event.checked ? event.checked : false;
+                    break;
+                case 'EDITOR':
+                    varName = event.name;
+                    varValue = event.value || event.value === '' ? event.value : undefined;
+                    startRefreshFieldVisibility = false;
+                    break;
+                case 'TEXT':
+                case 'AREA':
+                    varName = event.target?.name;
+                    varValue = event.target?.value || event.target?.value === '' ? event.target.value : undefined;
+                    startRefreshFieldVisibility = false;
+                    break;
+                default:
+                    varName = event.target?.name;
+                    varValue = event.target?.value || event.target?.value === '' ? event.target.value : undefined;
+                    break;
+            }
+            console.log('handleEditRowChange - ', inputType, varName, varValue);
+            let field = groupData[0]?.fields.filter((obj) => {
+                return obj.fieldName === varName;
+            });
+            if (!!field && !!field[0]) {
+                field[0].value = varValue;
+            }
+            if (!!field[0]
+                && !!field[0]?.selectionList
+                && (startRefreshFieldVisibility || forceRefreshFieldVisibility)) {
+                this.refreshFieldVisibility(viewInfo);
+            }
+            this.setState({editData: editData, modifyEditData: true});
+        } else {
+            console.log('handleEditRowChange implementation error');
+        }
+    }
+
+    handleEditRowBlur(inputType, event, groupName, viewInfo) {
+        console.log(`handleEditRowBlur inputType=${inputType} groupName=${groupName}`);
+        if (inputType === 'EDITOR') {
+            this.refreshFieldVisibility(viewInfo);
+        } else {
+            this.handleEditRowChange(inputType, event, groupName, viewInfo, true);
+        }
+    }
+
+    refreshFieldVisibility(viewInfo) {
+        const refreshObject = this.editService.createObjectToRefresh(this.state)
+        this.editService
+            .refreshFieldVisibility(viewInfo.viewId, viewInfo.recordId, viewInfo.parentId, refreshObject)
+            .then((editRefreshResponse) => {
+                let arrayTmp = editRefreshResponse?.data;
+                let editData = this.state.editData;
+                arrayTmp.forEach((element) => {
+                    EditRowUtils.searchAndRefreshVisibility(editData, element.fieldName, element.hidden);
+                })
+                this.setState({editData: editData});
+                this.unblockUi();
+            })
+            .catch((err) => { //zjadam
+            });
     }
 }
 
