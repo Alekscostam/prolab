@@ -48,8 +48,10 @@ export default class DataGridStore extends BaseService {
             key: 'ID',
             //keyExpr: 'ID',
             load: (loadOptions) => {
+                let selectAll = false;
                 if (onStart) {
-                    onStart();
+                    let result = onStart();
+                    selectAll = result?.selectAll
                 }
                 let params = '?';
                 [
@@ -76,12 +78,12 @@ export default class DataGridStore extends BaseService {
                 let viewTypeParam = viewTypeArg !== undefined && viewTypeArg != null ? `&viewType=${viewTypeArg}` : '';
                 let filterIdParam = filterIdArg !== undefined && filterIdArg != null ? `&filterId=${filterIdArg}` : '';
                 let recordIdParam = recordIdArg !== undefined && recordIdArg != null ? `&parentId=${recordIdArg}` : '';
-                //let parentIdParam = recordIdArg !== undefined && recordIdArg != null ? `&parentId=${recordIdArg}` : '';
+                let selectAllParam = !!selectAll ? `&selection=true` : '';
                 if (!viewIdArg) {
                     return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0});
                 }
                 return this.fetch(
-                    `${this.domain}/${this.path}/${viewIdArg}${params}${viewTypeParam}${filterIdParam}${recordIdParam}`,
+                    `${this.domain}/${this.path}/${viewIdArg}${params}${viewTypeParam}${filterIdParam}${recordIdParam}${selectAllParam}`,
                     {
                         method: 'GET',
                     }
@@ -90,11 +92,10 @@ export default class DataGridStore extends BaseService {
                         let data = response.data;
                         console.log('DataGridStore -> fetch data: ', data);
                         if (onSuccess) {
-                            onSuccess();
+                            onSuccess({totalSelectCount: response.totalCount});
                         }
                         return {
                             data: data,
-                            //TODO
                             totalCount: response.totalCount,
                             summary: response.summary || [],
                             groupCount: response.groupCount || 0,

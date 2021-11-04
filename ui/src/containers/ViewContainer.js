@@ -64,6 +64,8 @@ export class ViewContainer extends BaseContainer {
             visibleEditPanel: false,
             modifyEditData: false,
             editData: null,
+            selectAll: false,
+            totalSelectCount: 0
         };
         this.gridViewTypeChange = this.gridViewTypeChange.bind(this);
         this.renderCard = this.renderCard.bind(this);
@@ -359,7 +361,7 @@ export class ViewContainer extends BaseContainer {
                                             console.log(
                                                 `Redirect -> Id =  ${this.state.elementId} RecordId = ${recordId} FilterId = ${e.item?.id}`
                                             );
-                                            if(!!e.item?.id) {
+                                            if (!!e.item?.id) {
                                                 const filterId = parseInt(e.item?.id)
                                                 window.location.href = AppPrefixUtils.locationHrefUrl(
                                                     `/#/grid-view/${this.state.elementId}/?filterId=${filterId}${currentBreadcrumb}`
@@ -444,22 +446,26 @@ export class ViewContainer extends BaseContainer {
                                                 this.state.subView == null
                                                     ? this.state.elementId
                                                     : this.state.elementSubViewId,
-                                                //TODO blad u Romcia, powinno być this.state.gridViewType ale nie działa
-                                                null,
+                                                'gridView',
                                                 this.state.subView == null ? null : this.state.elementRecordId,
-                                                !!this.state.elementFilterId ? this.state.elementFilterId: initFilterId,
+                                                !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId,
+                                                //onError
                                                 (err) => {
                                                     this.showErrorMessages(err);
                                                 },
-                                                () => {
+                                                //onSuccess
+                                                (response) => {
                                                     this.setState({
                                                         blocking: false,
+                                                        totalSelectCount: response.totalSelectCount
                                                     });
                                                 },
+                                                //onStart
                                                 () => {
                                                     this.setState({
                                                         blocking: true,
                                                     });
+                                                    return {selectAll: this.state.selectAll};
                                                 }
                                             );
                                             this.setState({
@@ -824,6 +830,7 @@ export class ViewContainer extends BaseContainer {
             <React.Fragment>
                 <HeadPanel
                     selectedRowKeys={this.state.selectedRowKeys}
+                    totalSelectCount={this.state.totalSelectCount}
                     operations={this.state.parsedGridView?.operations}
                     leftContent={this.leftHeadPanelContent()}
                     rightContent={this.rightHeadPanelContent()}
@@ -1000,7 +1007,7 @@ export class ViewContainer extends BaseContainer {
         const viewId = this.state.subView?.viewInfo?.id;
         const recordId = this.state.subView?.headerData[0]?.ID;
         const rowAutoHeight = false;
-        const columnAutoWidth =  true;
+        const columnAutoWidth = true;
         return (
             <React.Fragment>
                 {subViewMode ? (
@@ -1276,37 +1283,49 @@ export class ViewContainer extends BaseContainer {
                 {this.state.loading ? null : (
                     <React.Fragment>
                         {this.state.gridViewType === 'gridView' ? (
-                            <GridViewComponent
-                                id={this.props.id}
-                                elementSubViewId={this.state.elementSubViewId}
-                                handleOnInitialized={(ref) => this.dataGrid = ref}
-                                parsedGridView={this.state.parsedGridView}
-                                parsedGridViewData={this.state.parsedGridViewData}
-                                gridViewColumns={this.state.gridViewColumns}
-                                selectedRowKeys={this.state.selectedRowKeys}
-                                handleBlockUi={() => this.blockUi}
-                                handleUnblockUi={() => this.unblockUi}
-                                showErrorMessages={(err) => this.showErrorMessages(err)}
-                                packageRows={this.state.packageRows}
-                                handleShowEditPanel={(editDataResponse) => {
-                                    this.setState({
-                                        visibleEditPanel: true,
-                                        modifyEditData: false,
-                                        editData: editDataResponse
-                                    });
-                                    this.unblockUi();
-                                }}
-                                handleSelectedRowKeys={(e) => this.setState({selectedRowKeys: e?.selectedRowKeys})}/>
+                            <React.Fragment>
+                                <GridViewComponent
+                                    id={this.props.id}
+                                    elementSubViewId={this.state.elementSubViewId}
+                                    handleOnInitialized={(ref) => this.dataGrid = ref}
+                                    parsedGridView={this.state.parsedGridView}
+                                    parsedGridViewData={this.state.parsedGridViewData}
+                                    gridViewColumns={this.state.gridViewColumns}
+                                    selectedRowKeys={this.state.selectedRowKeys}
+                                    handleBlockUi={() => this.blockUi}
+                                    handleUnblockUi={() => this.unblockUi}
+                                    showErrorMessages={(err) => this.showErrorMessages(err)}
+                                    packageRows={this.state.packageRows}
+                                    handleShowEditPanel={(editDataResponse) => {
+                                        this.setState({
+                                            visibleEditPanel: true,
+                                            modifyEditData: false,
+                                            editData: editDataResponse
+                                        });
+                                        this.unblockUi();
+                                    }}
+                                    handleSelectedRowKeys={(e) => {
+                                        this.setState({selectedRowKeys: e?.selectedRowKeys})
+                                    }}
+                                    handleSelectAll={() => {
+                                        this.setState(prevState => ({
+                                            selectAll: !prevState.selectAll
+                                        }));
+                                    }}
+                                />
+                            </React.Fragment>
                         ) : this.state.gridViewType === 'cardView' ? (
-                            <CardViewComponent
-                                id={this.props.id}
-                                elementSubViewId={this.state.elementSubViewId}
-                                handleOnInitialized={(ref) => this.cardGrid = ref}
-                                parsedGridView={this.state.parsedGridView}
-                                parsedCardViewData={this.state.parsedCardViewData}
-                                selectedRowKeys={this.state.selectedRowKeys}
-                                handleShowEditPanel={() => this.setState({visibleEditPanel: true})}
-                                handleSelectedRowKeys={(e) => this.setState({selectedRowKeys: e})}/>
+                            <React.Fragment>
+                                <CardViewComponent
+                                    id={this.props.id}
+                                    elementSubViewId={this.state.elementSubViewId}
+                                    handleOnInitialized={(ref) => this.cardGrid = ref}
+                                    parsedGridView={this.state.parsedGridView}
+                                    parsedCardViewData={this.state.parsedCardViewData}
+                                    selectedRowKeys={this.state.selectedRowKeys}
+                                    handleShowEditPanel={() => this.setState({visibleEditPanel: true})}
+                                    handleSelectedRowKeys={(e) => this.setState({selectedRowKeys: e})}/>
+                            </React.Fragment>
                         ) : null}
                     </React.Fragment>
                 )}

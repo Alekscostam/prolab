@@ -261,7 +261,6 @@ export class GridViewContainer extends BaseContainer {
                                             this.state.subView == null
                                                 ? this.state.elementId
                                                 : this.state.elementSubViewId,
-                                            //TODO blad u Romcia, powinno być this.state.viewType ale nie działa
                                             this.state.viewType,
                                             this.state.subView == null ? null : this.state.elementRecordId,
                                             !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId,

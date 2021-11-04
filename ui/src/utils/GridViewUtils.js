@@ -83,13 +83,12 @@ export class GridViewUtils {
                 case 'H':
                     return 'string';
                 default:
-                    return 'string';
+                    return undefined;
             }
         }
         return undefined;
     }
 
-    //TODO dopracować
     static specifyColumnFormat(format) {
         if (format) {
             switch (format) {
@@ -100,7 +99,7 @@ export class GridViewUtils {
                 case 'T':
                     return Constants.DATE_FORMAT.TIME_FORMAT;
                 default:
-                    return Constants.DATE_FORMAT.DATE_TIME_FORMAT;;
+                    return undefined;
             }
         }
         return undefined;

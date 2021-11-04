@@ -159,7 +159,6 @@ export class EditRowComponent extends BaseContainer {
                 field.value = !!field.value ? moment(field.value, "HH:mm:ss").toDate() : null;
                 break;
             default:
-                field.value = !!field.value ? moment(field.value, "YYYY-MM-DD").toDate() : null;
                 break;
         }
         return <React.Fragment>

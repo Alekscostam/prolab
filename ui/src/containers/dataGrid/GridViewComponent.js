@@ -264,6 +264,10 @@ class GridViewComponent extends React.Component {
         }
     };
 
+    ifSelectAllEvent(e) {
+        return e.column.command === 'select' && e.column.visible === true && e.columnIndex === 0 && e.rowType === 'header';
+    }
+
     render() {
         const showGroupPanel = this.props.parsedGridView?.gridOptions?.showGroupPanel || false;
         const groupExpandAll = this.props.parsedGridView?.gridOptions?.groupExpandAll || false;
@@ -301,6 +305,12 @@ class GridViewComponent extends React.Component {
                     rowAlternationEnabled={false}
                     onSelectionChanged={(e) => this.props.handleSelectedRowKeys(e)}
                     renderAsync={true}
+                    selectAsync={true}
+                    onCellClick={(e) => {
+                        if (this.ifSelectAllEvent(e)) {
+                            this.props.handleSelectAll()
+                        }
+                    }}
                 >
                     <RemoteOperations
                         filtering={true}
@@ -320,7 +330,7 @@ class GridViewComponent extends React.Component {
                     <Sorting mode='multiple'/>
 
                     <Selection mode={showSelection ? 'multiple' : 'none'} selectAllMode='allPages'
-                               showCheckBoxesMode='always'/>
+                               showCheckBoxesMode='always' allowSelectAll={true}/>
 
                     <Scrolling mode="virtual" rowRenderingMode="virtual"/>
                     <Paging defaultPageSize={packageCount}/>
@@ -360,6 +370,7 @@ GridViewComponent.propTypes = {
     handleOnInitialized: PropTypes.func.isRequired,
     handleShowEditPanel: PropTypes.func.isRequired,
     handleSelectedRowKeys: PropTypes.func.isRequired,
+    handleSelectAll: PropTypes.func,
     handleBlockUi: PropTypes.func.isRequired,
     handleUnblockUi: PropTypes.func.isRequired,
     showErrorMessages: PropTypes.func.isRequired,

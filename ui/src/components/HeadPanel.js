@@ -29,7 +29,7 @@ export const HeadPanel = props => {
                 <React.Fragment>
                     <div id="grid-panel-selection" className="grid-panel-selection">
                         <div id="grid-count-panel"
-                             className="grid-count-fragment center-text-in-div">Pozycje: {props.selectedRowKeys?.length || 0}</div>
+                             className="grid-count-fragment center-text-in-div">Pozycje: {props.totalSelectCount || 0}</div>
                         <div id="grid-separator" className="p-1 grid-separator-fragment"></div>
                         <div id="grid-buttons-fragment" className="p-1 grid-buttons-fragment">
                             <ShortcutButton className={`grid-button-panel mr-2`}
@@ -80,6 +80,7 @@ HeadPanel.defaultProps = {};
 
 HeadPanel.propTypes = {
     selectedRowKeys: PropTypes.array.isRequired,
+    totalSelectCount: PropTypes.number.isRequired,
     operations: PropTypes.array.isRequired,
     handleDelete: PropTypes.func.isRequired,
     handleRestore: PropTypes.func.isRequired,
