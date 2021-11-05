@@ -149,10 +149,7 @@ export class GridViewContainer extends BaseContainer {
     }
 
     getViewById(viewId, recordId, filterId, viewType, subviewMode) {
-        this.setState(
-            {
-                loading: true,
-            },
+        this.setState({loading: true,},
             () => {
                 this.viewService
                     .getView(viewId, viewType)
@@ -340,8 +337,6 @@ export class GridViewContainer extends BaseContainer {
                 </React.Fragment>
             </React.Fragment>);
     }
-
-
 
     //override
     renderHeaderLeft() {
@@ -657,7 +652,6 @@ export class GridViewContainer extends BaseContainer {
                                         />
                                     );
                                 })}
-
                             {showEditButton || showMenu ? (
                                 <Column
                                     allowFixing={true}
@@ -665,7 +659,7 @@ export class GridViewContainer extends BaseContainer {
                                     width={widthTmp}
                                     fixed={true}
                                     fixedPosition='right'
-                                    onCellPrepared={(element, info) => {
+                                    cellTemplate={(element, info) => {
                                         ReactDOM.render(
                                             <div>
                                                 <ShortcutButton
@@ -772,9 +766,40 @@ export class GridViewContainer extends BaseContainer {
     render() {
         return (
             <React.Fragment>
+                {this.renderGlobalTop()}
                 {this.renderContent()}
             </React.Fragment>
         );
+    }
+
+    blockUi() {
+        if (!!this.props.handleBlockUi()) {
+            let result = this.props.handleBlockUi();
+            return result;
+        } else {
+            super.blockUi();
+            return true;
+        }
+    }
+
+    unblockUi() {
+        if (!!this.props.handleUnBlockUi()) {
+            let result = this.props.handleUnBlockUi();
+            return result;
+        } else {
+            super.unblockUi();
+            return true;
+        }
+    }
+
+    showErrorMessages(err) {
+        if (!!this.props.handleShowErrorMessages(err)) {
+            let result = this.props.handleShowErrorMessages(err);
+            return result;
+        } else {
+            this.showErrorMessages(err)
+            return true;
+        }
     }
 
     //override
@@ -791,9 +816,15 @@ export class GridViewContainer extends BaseContainer {
                             parsedGridViewData={this.state.parsedGridViewData}
                             gridViewColumns={this.state.gridViewColumns}
                             selectedRowKeys={this.state.selectedRowKeys}
-                            handleBlockUi={() => this.blockUi}
-                            handleUnblockUi={() => this.unblockUi}
-                            showErrorMessages={(err) => this.showErrorMessages(err)}
+                            handleBlockUi={() => {
+                                return this.blockUi();
+                            }}
+                            handleUnblockUi={() => {
+                                return this.unblockUi();
+                            }}
+                            showErrorMessages={(err) => {
+                                return this.showErrorMessages(err)
+                            }}
                             packageRows={this.state.packageRows}
                             handleShowEditPanel={(editDataResponse) => {
                                 this.setState({
@@ -841,6 +872,9 @@ export class GridViewContainer extends BaseContainer {
             showColumnHeaders: PropTypes.bool,
             showFilterRow: PropTypes.bool,
             showSelection: PropTypes.bool,
+            handleBlockUi: PropTypes.func,
+            handleUnBlockUi: PropTypes.func,
+            handleShowErrorMessages: PropTypes.func,
         }
 }
 

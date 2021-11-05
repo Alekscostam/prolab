@@ -26,7 +26,6 @@ import $ from 'jquery';
 import {localeOptions} from "primereact/api";
 import CardViewComponent from "./cardView/CardViewComponent";
 import GridViewComponent from "./dataGrid/GridViewComponent";
-import EditRowUtils from "../utils/EditRowUtils";
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -73,13 +72,7 @@ export class ViewContainer extends BaseContainer {
         this.downloadData = this.downloadData.bind(this);
         this.onTabsSelectionChanged = this.onTabsSelectionChanged.bind(this);
         this.onFilterChanged = this.onFilterChanged.bind(this);
-        this.handleEditRowChange = this.handleEditRowChange.bind(this);
-        this.handleEditRowSave = this.handleEditRowSave.bind(this);
-        this.handleEditRowBlur = this.handleEditRowBlur.bind(this);
-        this.handleAutoFillRowChange = this.handleAutoFillRowChange.bind(this);
-        this.handleCancelRowChange = this.handleCancelRowChange.bind(this);
     }
-
 
     componentDidMount() {
         console.log('ViewContainer::componentDidMount -> path ', window.location.pathname);
@@ -542,189 +535,6 @@ export class ViewContainer extends BaseContainer {
             </React.Fragment>);
     }
 
-    handleEditRowSave(viewId, recordId, parentId) {
-        console.log(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
-        const saveElement = this.editService.createObjectToSave(this.state);
-        console.log(`handleEditRowSave: element to save = ${JSON.stringify(saveElement)}`)
-        this.rowSave(viewId, recordId, parentId, saveElement, false);
-    }
-
-    rowSave = (viewId, recordId, parentId, saveElement, confirmSave) => {
-        this.blockUi();
-        this.editService
-            .save(viewId, recordId, parentId, saveElement, confirmSave)
-            .then((saveResponse) => {
-                switch (saveResponse.status) {
-                    case 'OK':
-                        if (!!saveResponse.message) {
-                            confirmDialog({
-                                message: saveResponse?.message?.text,
-                                header: saveResponse?.message?.title,
-                                icon: 'pi pi-info-circle',
-                                rejectClassName: 'hidden',
-                                acceptLabel: 'OK',
-                                rejectLabel: undefined,
-                                accept: () => this.setState({visibleEditPanel: false})
-                            })
-                        } else if (!!saveResponse.error) {
-                            this.showResponseErrorMessage(saveResponse);
-                        } else {
-                            this.setState({visibleEditPanel: false});
-                        }
-                        break;
-                    case 'NOK':
-                        if (!!saveResponse.question) {
-                            confirmDialog({
-                                message: saveResponse?.question?.text,
-                                header: saveResponse?.question?.title,
-                                icon: 'pi pi-question-circle',
-                                acceptLabel: localeOptions('accept'),
-                                rejectLabel: localeOptions('reject'),
-                                accept: () => this.rowSave(viewId, recordId, parentId, saveElement, true),
-                                reject: () => undefined,
-                            })
-                        } else if (!!saveResponse.message) {
-                            confirmDialog({
-                                message: saveResponse?.message?.text,
-                                header: saveResponse?.message?.title,
-                                icon: 'pi pi-info-circle',
-                                rejectClassName: 'hidden',
-                                acceptLabel: 'OK',
-                                rejectLabel: undefined,
-                                accept: () => undefined
-                            })
-                        } else if (!!saveResponse.error) {
-                            this.showResponseErrorMessage(saveResponse);
-                        }
-                        break;
-                    default:
-                        if (!!saveResponse.error) {
-                            this.showResponseErrorMessage(saveResponse);
-                        } else {
-                            this.showErrorMessages(saveResponse);
-                        }
-                        break;
-                }
-                this.unblockUi();
-            }).catch((err) => {
-            if (!!err.error) {
-                this.showResponseErrorMessage(err);
-            } else {
-                this.showErrorMessages(err);
-            }
-        });
-    }
-
-    handleAutoFillRowChange(viewId, recordId, parentId) {
-        console.log(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
-        this.blockUi();
-        const autofillBodyRequest = this.editService.createObjectToAutoFill(this.state);
-        this.editService
-            .getEditAutoFill(viewId, recordId, parentId, autofillBodyRequest)
-            .then((editAutoFillResponse) => {
-                let arrayTmp = editAutoFillResponse?.data;
-                let editData = this.state.editData;
-                arrayTmp.forEach((element) => {
-                    EditRowUtils.searchAndAutoFill(editData, element.fieldName, element.value);
-                })
-                this.setState({editData: editData});
-                this.unblockUi();
-            })
-            .catch((err) => {
-                this.showErrorMessages(err);
-            });
-    }
-
-    handleCancelRowChange(viewId, recordId, parentId) {
-        console.log(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
-    }
-
-    handleEditRowChange(inputType, event, groupName, viewInfo, forceRefreshFieldVisibility = false) {
-        console.log(`handleEditRowChange inputType=${inputType} groupName=${groupName}`);
-        console.log(event)
-        let editData = this.state.editData;
-        let groupData = editData.editFields.filter((obj) => {
-            return obj.groupName === groupName;
-        });
-        let varName;
-        let varValue;
-        let startRefreshFieldVisibility = true;
-        console.clear();
-        console.log(event)
-        if (event !== undefined) {
-            switch (inputType) {
-                case 'IMAGE64':
-                    varName = event == null ? null : event.fieldName;
-                    varValue = event == null ? '' : event.base64[0];
-                    break;
-                case 'MULTI_IMAGE64':
-                    varName = event == null ? null : event.fieldName;
-                    varValue = event == null ? '' : event.base64;
-                    break;
-                case 'CHECKBOX':
-                    varName = event.target.name;
-                    varValue = event.checked ? event.checked : false;
-                    break;
-                case 'EDITOR':
-                    varName = event.name;
-                    varValue = event.value || event.value === '' ? event.value : undefined;
-                    startRefreshFieldVisibility = false;
-                    break;
-                case 'TEXT':
-                case 'AREA':
-                    varName = event.target?.name;
-                    varValue = event.target?.value || event.target?.value === '' ? event.target.value : undefined;
-                    startRefreshFieldVisibility = false;
-                    break;
-                default:
-                    varName = event.target?.name;
-                    varValue = event.target?.value || event.target?.value === '' ? event.target.value : undefined;
-                    break;
-            }
-            console.log('handleEditRowChange - ', inputType, varName, varValue);
-            let field = groupData[0]?.fields.filter((obj) => {
-                return obj.fieldName === varName;
-            });
-            if (!!field && !!field[0]) {
-                field[0].value = varValue;
-            }
-            if (!!field[0]
-                && !!field[0]?.selectionList
-                && (startRefreshFieldVisibility || forceRefreshFieldVisibility)) {
-                this.refreshFieldVisibility(viewInfo);
-            }
-            this.setState({editData: editData, modifyEditData: true});
-        } else {
-            console.log('handleEditRowChange implementation error');
-        }
-    }
-
-    handleEditRowBlur(inputType, event, groupName, viewInfo) {
-        console.log(`handleEditRowBlur inputType=${inputType} groupName=${groupName}`);
-        if (inputType === 'EDITOR') {
-            this.refreshFieldVisibility(viewInfo);
-        } else {
-            this.handleEditRowChange(inputType, event, groupName, viewInfo, true);
-        }
-    }
-
-    refreshFieldVisibility(viewInfo) {
-        const refreshObject = this.editService.createObjectToRefresh(this.state)
-        this.editService
-            .refreshFieldVisibility(viewInfo.viewId, viewInfo.recordId, viewInfo.parentId, refreshObject)
-            .then((editRefreshResponse) => {
-                let arrayTmp = editRefreshResponse?.data;
-                let editData = this.state.editData;
-                arrayTmp.forEach((element) => {
-                    EditRowUtils.searchAndRefreshVisibility(editData, element.fieldName, element.hidden);
-                })
-                this.setState({editData: editData});
-                this.unblockUi();
-            })
-            .catch((err) => { //zjadam
-            });
-    }
-
     //override
     renderHeaderLeft() {
         return (
@@ -1051,7 +861,7 @@ export class ViewContainer extends BaseContainer {
                                     width={widthTmp}
                                     fixed={true}
                                     fixedPosition='right'
-                                    onCellPrepared={(element, info) => {
+                                    cellTemplate={(element, info) => {
                                         ReactDOM.render(
                                             <div>
                                                 <ShortcutButton
@@ -1293,17 +1103,15 @@ export class ViewContainer extends BaseContainer {
                                     parsedGridViewData={this.state.parsedGridViewData}
                                     gridViewColumns={this.state.gridViewColumns}
                                     selectedRowKeys={this.state.selectedRowKeys}
-                                    handleBlockUi={() => this.blockUi}
+                                    handleBlockUi={() => {
+                                        this.blockUi();
+                                        return true;
+                                    }}
                                     handleUnblockUi={() => this.unblockUi}
                                     showErrorMessages={(err) => this.showErrorMessages(err)}
                                     packageRows={this.state.packageRows}
                                     handleShowEditPanel={(editDataResponse) => {
-                                        this.setState({
-                                            visibleEditPanel: true,
-                                            modifyEditData: false,
-                                            editData: editDataResponse
-                                        });
-                                        this.unblockUi();
+                                        this.handleShowEditPanel(editDataResponse)
                                     }}
                                     handleSelectedRowKeys={(e) => {
                                         this.setState({selectedRowKeys: e?.selectedRowKeys})
@@ -1323,8 +1131,15 @@ export class ViewContainer extends BaseContainer {
                                     handleOnInitialized={(ref) => this.cardGrid = ref}
                                     parsedGridView={this.state.parsedGridView}
                                     parsedCardViewData={this.state.parsedCardViewData}
+                                    handleShowEditPanel={(editDataResponse) => {
+                                        this.handleShowEditPanel(editDataResponse)
+                                    }}
+                                    showErrorMessages={(err) => this.showErrorMessages(err)}
+                                    handleBlockUi={() => {
+                                        this.blockUi();
+                                        return true;
+                                    }}
                                     selectedRowKeys={this.state.selectedRowKeys}
-                                    handleShowEditPanel={() => this.setState({visibleEditPanel: true})}
                                     handleSelectedRowKeys={(e) => this.setState({selectedRowKeys: e})}/>
                             </React.Fragment>
                         ) : null}

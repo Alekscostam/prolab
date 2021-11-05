@@ -8,11 +8,13 @@ import ShortcutButton from "../../components/ShortcutButton";
 import ActionButtonWithMenu from "../../components/ActionButtonWithMenu";
 import AppPrefixUtils from "../../utils/AppPrefixUtils";
 import PropTypes from "prop-types";
+import EditService from "../../services/EditService";
 
 class CardViewComponent extends React.Component {
 
     constructor(props) {
         super(props);
+        this.editService = new EditService();
         this.labels = this.props;
         console.log('CardViewComponent -> constructor');
     }
@@ -21,7 +23,7 @@ class CardViewComponent extends React.Component {
         return !!this.props.handleSelectedRowKeys && !!this.props.selectedRowKeys;
     }
 
-    isDashboard(){
+    isDashboard() {
         return this.props.mode === 'dashboard'
     }
 
@@ -77,6 +79,7 @@ class CardViewComponent extends React.Component {
                     const viewId = GridViewUtils.getRealViewId(elementSubViewId, elementId);
                     const recordId = rowData.ID;
                     const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+                    const subviewId = elementSubViewId ? elementId : undefined;
                     setTimeout(() => {
                         const cardHeight = this.props.parsedGridView?.cardOptions?.heigh ?? 200;
                         var p = $(`#${recordId} .card-grid-body-content`);
@@ -106,8 +109,20 @@ class CardViewComponent extends React.Component {
                                                 className={`action-button-with-menu`}
                                                 iconName={'mdi-pencil'}
                                                 label={''}
-                                                title={''}
-                                                handleClick={() => this.props.handleShowEditPanel()}
+                                                title={oppEdit?.label}
+                                                handleClick={() => {
+                                                    let result = this.props.handleBlockUi();
+                                                    if(result) {
+                                                        this.editService
+                                                            .getEdit(viewId, recordId, subviewId)
+                                                            .then((editDataResponse) => {
+                                                                this.props.handleShowEditPanel(editDataResponse);
+                                                            })
+                                                            .catch((err) => {
+                                                                this.props.showErrorMessages(err);
+                                                            });
+                                                    }
+                                                }}
                                                 rendered={showEditButton && oppEdit}
                                             />
                                             <ActionButtonWithMenu
@@ -195,10 +210,12 @@ CardViewComponent.propTypes = {
     mode: PropTypes.string.isRequired,
     parsedGridView: PropTypes.object.isRequired,
     parsedCardViewData: PropTypes.object.isRequired,
-    selectedRowKeys: PropTypes.object.isRequired,
     elementSubViewId: PropTypes.object.isRequired,
     handleOnInitialized: PropTypes.func.isRequired,
     handleShowEditPanel: PropTypes.func.isRequired,
+    handleBlockUi: PropTypes.func.isRequired,
+    showErrorMessages: PropTypes.func.isRequired,
+    selectedRowKeys: PropTypes.object,
     handleSelectedRowKeys: PropTypes.func,
 };
 

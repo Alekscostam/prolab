@@ -1160,6 +1160,15 @@ class BaseContainer extends React.Component {
             .catch((err) => { //zjadam
             });
     }
+
+    handleShowEditPanel(editDataResponse) {
+        this.setState({
+            visibleEditPanel: true,
+            modifyEditData: false,
+            editData: editDataResponse
+        });
+        this.unblockUi();
+    }
 }
 
 BaseContainer.defaultProps = {

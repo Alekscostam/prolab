@@ -130,7 +130,7 @@ class Sidebar extends React.Component {
         const history = this.props.history;
         const currentUrl = window.location.href
         if (this.doNotUpdate === true
-            || (!!this.state.viewId && nextState.viewId === this.state.viewId)
+            || (!(this.state.filterValue !== nextState.filterValue) && !!this.state.viewId && nextState.viewId === this.state.viewId)
             || currentUrl.includes('force=')) {
             this.doNotUpdate = false;
             console.log('sidebar => shouldComponentUpdate=%s prev_view_id=%s next_view_id=%s url=%s', false, this.state.viewId, nextState.viewId, window.location.href);

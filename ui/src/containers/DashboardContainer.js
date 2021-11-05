@@ -9,6 +9,9 @@ import DataGridStore from "./dao/DataGridStore";
 import {GridViewContainer} from "./GridViewContainer";
 import CardViewComponent from "./cardView/CardViewComponent";
 import {Breadcrumb} from "../utils/BreadcrumbUtils";
+import EditRowComponent from "../components/EditRowComponent";
+import {confirmDialog} from "primereact/confirmdialog";
+import {localeOptions} from "primereact/api";
 
 class DashboardContainer extends BaseContainer {
 
@@ -50,12 +53,45 @@ class DashboardContainer extends BaseContainer {
                     <DivContainer colClass='col-12 dashboard-link-container'>
                         {Breadcrumb.render(labels)}
                         <DivContainer colClass='dashboard'>
-                            {this.state.loading === false ? (this.renderContent()) : null}
+                            {this.state.loading === false ? (
+                                    <React.Fragment>
+                                        {this.renderGlobalTop()}
+                                        {this.renderContent()}
+                                    </React.Fragment>)
+                                : null}
                         </DivContainer>
                     </DivContainer>
                 </BlockUi>
             </React.Fragment>
         );
+    }
+
+    renderGlobalTop() {
+        return (
+            <React.Fragment>
+                <React.Fragment>
+                    <EditRowComponent
+                        visibleEditPanel={this.state.visibleEditPanel}
+                        editData={this.state.editData}
+                        onChange={this.handleEditRowChange}
+                        onBlur={this.handleEditRowBlur}
+                        onSave={this.handleEditRowSave}
+                        onAutoFill={this.handleAutoFillRowChange}
+                        onCancel={this.handleCancelRowChange}
+                        validator={this.validator}
+                        onHide={(e) => !!this.state.modifyEditData ? confirmDialog({
+                            message: 'Czy na pewno chcesz zamknąć edycję?',
+                            header: 'Potwierdzenie',
+                            icon: 'pi pi-exclamation-triangle',
+                            acceptLabel: localeOptions('accept'),
+                            rejectLabel: localeOptions('reject'),
+                            accept: () => this.setState({visibleEditPanel: e}),
+                            reject: () => undefined,
+                        }) : this.setState({visibleEditPanel: e})}
+                        onError={(e) => this.showErrorMessage(e)}
+                    />
+                </React.Fragment>
+            </React.Fragment>);
     }
 
     renderContent() {
@@ -75,11 +111,20 @@ class DashboardContainer extends BaseContainer {
             <div className="rows">
                 <div className="column left" style={{width: cardWidth, height: cardHeight}}>
                     <CardViewComponent
+                        id={cardView.viewInfo.id}
                         mode='dashboard'
                         handleOnInitialized={(ref) => this.cardGrid = ref}
                         parsedGridView={cardView}
                         parsedCardViewData={this.state.dashboard.headerData}
-                        handleShowEditPanel={() => this.setState({visibleEditPanel: true})}/>
+                        handleShowEditPanel={(editDataResponse) => {
+                            this.handleShowEditPanel(editDataResponse)
+                        }}
+                        handleBlockUi={() => {
+                            this.blockUi();
+                            return true;
+                        }}
+                        showErrorMessages={(err) => this.showErrorMessages(err)}
+                    />
                     {this.state.dashboard.views.filter(item => item.position === 'left').map((item) => {
                         return (
                             <React.Fragment>
@@ -97,6 +142,18 @@ class DashboardContainer extends BaseContainer {
                                                        showColumnHeaders={false}
                                                        showFilterRow={false}
                                                        showSelection={false}
+                                                       handleBlockUi={() => {
+                                                           this.blockUi();
+                                                           return true;
+                                                       }}
+                                                       handleUnBlockUi={() => {
+                                                           this.unblockUi();
+                                                           return true;
+                                                       }}
+                                                       handleShowErrorMessages={(err) => {
+                                                           this.showErrorMessages(err);
+                                                           return true;
+                                                       }}
                                     >
                                     </GridViewContainer>
                                 </div>
@@ -121,9 +178,22 @@ class DashboardContainer extends BaseContainer {
                                                        showBorders={false}
                                                        showColumnHeaders={false}
                                                        showFilterRow={false}
-                                                       showSelection={false}>
+                                                       showSelection={false}
+                                                       handleBlockUi={() => {
+                                                           this.blockUi();
+                                                           return true;
+                                                       }}
+                                                       handleUnBlockUi={() => {
+                                                           this.unblockUi();
+                                                           return true;
+                                                       }}
+                                                       handleShowErrorMessages={(err) => {
+                                                           this.showErrorMessages(err);
+                                                           return true;
+                                                       }}
+                                    >
                                     </GridViewContainer>
-                                    </div>
+                                </div>
                             </React.Fragment>
                         )
                     })}

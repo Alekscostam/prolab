@@ -84,6 +84,15 @@ class GridViewComponent extends React.Component {
         }
     }
 
+    menuWidth(showButton, widthTmp) {
+        if (showButton) {
+            widthTmp += 35;
+        } else {
+            widthTmp += 5;
+        }
+        return widthTmp;
+    }
+
     customizeColumns = (columns) => {
         let INDEX_COLUMN = 0;
         if (columns?.length > 0) {
@@ -151,31 +160,17 @@ class GridViewComponent extends React.Component {
                     showEditButton = showEditButton || operation.type === 'OP_EDIT';
                     //OP_SUBVIEWS
                     showSubviewButton = showSubviewButton || operation.type === 'OP_SUBVIEWS';
-                    if (
-                        operation.type === 'OP_PUBLIC' ||
+                    if (operation.type === 'OP_PUBLIC' ||
                         operation.type === 'OP_HISTORY' ||
-                        operation.type === 'OP_ATTACHMENTS'
-                    ) {
+                        operation.type === 'OP_ATTACHMENTS') {
                         menuItems.push(operation);
                     }
                 });
                 let showMenu = menuItems.length > 0;
                 let widthTmp = 0;
-                if (showMenu) {
-                    widthTmp += 35;
-                } else {
-                    widthTmp += 5;
-                }
-                if (showEditButton) {
-                    widthTmp += 35;
-                } else {
-                    widthTmp += 5;
-                }
-                if (showSubviewButton) {
-                    widthTmp += 35;
-                } else {
-                    widthTmp += 5;
-                }
+                widthTmp = this.menuWidth(showMenu, widthTmp);
+                widthTmp = this.menuWidth(showEditButton, widthTmp);
+                widthTmp = this.menuWidth(showSubviewButton, widthTmp);
                 if (showEditButton || showMenu || showSubviewButton) {
                     columns?.push({
                         caption: '',
@@ -186,15 +181,6 @@ class GridViewComponent extends React.Component {
                             let el = document.createElement('div');
                             el.id = `actions-${info.column.headerId}-${info.rowIndex}`;
                             element.append(el);
-                            let oppEdit = GridViewUtils.containsOperationButton(
-                                this.props.parsedGridView?.operations,
-                                'OP_EDIT'
-                            );
-                            let oppSubview = GridViewUtils.containsOperationButton(
-                                this.props.parsedGridView?.operations,
-                                'OP_SUBVIEWS'
-                            );
-                            //TODO utils
                             const elementSubViewId = this.props.elementSubViewId;
                             const elementId = this.props.id;
                             const viewId = GridViewUtils.getRealViewId(elementSubViewId, elementId);
@@ -206,34 +192,35 @@ class GridViewComponent extends React.Component {
                                         id={`${info.column.headerId}_menu_button`}
                                         className={`action-button-with-menu`}
                                         iconName={'mdi-pencil'}
-                                        title={oppEdit?.label}
+                                        title={GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_EDIT')?.label}
                                         handleClick={() => {
-                                            this.props.handleBlockUi();
-                                            this.editService
-                                                .getEdit(viewId, recordId, subviewId)
-                                                .then((editDataResponse) => {
-                                                    this.props.handleShowEditPanel(editDataResponse);
-                                                })
-                                                .catch((err) => {
-                                                    this.props.showErrorMessages(err);
-                                                });
+                                            let result = this.props.handleBlockUi();
+                                            if (result) {
+                                                this.editService
+                                                    .getEdit(viewId, recordId, subviewId)
+                                                    .then((editDataResponse) => {
+                                                        this.props.handleShowEditPanel(editDataResponse);
+                                                    })
+                                                    .catch((err) => {
+                                                        this.props.showErrorMessages(err);
+                                                    });
+                                            }
                                         }}
-                                        rendered={showEditButton && oppEdit}
+                                        rendered={showEditButton}
                                     />
                                     <ActionButtonWithMenu
                                         id='more_shortcut'
                                         iconName='mdi-dots-vertical'
                                         className={``}
                                         items={menuItems}
-                                        remdered={showMenu}
                                         title={this.labels['View_AdditionalOptions']}
+                                        rendered={showMenu}
                                     />
                                     <ShortcutButton
                                         id={`${info.column.headerId}_menu_button`}
                                         className={`action-button-with-menu`}
                                         iconName={'mdi-playlist-plus '}
-                                        title={oppSubview?.label}
-                                        //rendered={oppSubview}
+                                        title={GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_SUBVIEWS')?.label}
                                         href={AppPrefixUtils.locationHrefUrl(
                                             `/#/grid-view/${viewId}?recordId=${recordId}${currentBreadcrumb}`
                                         )}
@@ -307,10 +294,12 @@ class GridViewComponent extends React.Component {
                     renderAsync={true}
                     selectAsync={true}
                     onCellClick={(e) => {
-                        if (this.ifSelectAllEvent(e)) {
-                            this.props.handleSelectAll(true);
-                        } else {
-                            this.props.handleSelectAll(false);
+                        if (!!this.props.handleSelectAll) {
+                            if (this.ifSelectAllEvent(e)) {
+                                this.props.handleSelectAll(true);
+                            } else {
+                                this.props.handleSelectAll(false);
+                            }
                         }
                     }}
                 >
