@@ -47,7 +47,6 @@ export class GridViewUtils {
         }
     }
 
-    //TODO dopracować
     /*
     Typ kolumny:
         C – Znakowy

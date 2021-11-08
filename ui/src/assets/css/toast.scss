@@ -35,6 +35,10 @@ div#toast-messages .p-toast-message-warn {
   color: $text-bg;
 }
 
+div#toast-messages {
+  z-index: 9999 !important;
+}
+
 //error
 div#toast-messages .p-toast-message-error {
   border: 0px;

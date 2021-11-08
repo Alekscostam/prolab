@@ -12,6 +12,7 @@ import {Breadcrumb} from "../utils/BreadcrumbUtils";
 import EditRowComponent from "../components/EditRowComponent";
 import {confirmDialog} from "primereact/confirmdialog";
 import {localeOptions} from "primereact/api";
+import PropTypes from "prop-types";
 
 class DashboardContainer extends BaseContainer {
 
@@ -27,21 +28,29 @@ class DashboardContainer extends BaseContainer {
 
     componentDidMount() {
         super.componentDidMount();
-        this.dashboardService
-            .getDashboard()
-            .then((dashboardResponse) => {
-                this.setState({
-                    dashboard: dashboardResponse,
-                    loading: false
-                });
-                this.unblockUi();
-            }).catch((err) => {
-            if (!!err.error) {
-                this.showResponseErrorMessage(err);
-            } else {
-                this.showErrorMessages(err);
-            }
-        });
+        if (!!this.props.dashboard) {
+            this.setState({
+                dashboard: this.props.dashboard,
+                loading: false
+            });
+            this.unblockUi();
+        } else {
+            this.dashboardService
+                .getDashboard()
+                .then((dashboardResponse) => {
+                    this.setState({
+                        dashboard: dashboardResponse,
+                        loading: false
+                    });
+                    this.unblockUi();
+                }).catch((err) => {
+                if (!!err.error) {
+                    this.showResponseErrorMessage(err);
+                } else {
+                    this.showErrorMessages(err);
+                }
+            });
+        }
     }
 
     render() {
@@ -51,7 +60,7 @@ class DashboardContainer extends BaseContainer {
                 <Toast id='toast-messages' position='top-center' ref={(el) => this.messages = el}/>
                 <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
                     <DivContainer colClass='col-12 dashboard-link-container'>
-                        {Breadcrumb.render(labels)}
+                        {!!this.props.dashboard ? null : Breadcrumb.render(labels)}
                         <DivContainer colClass='dashboard'>
                             {this.state.loading === false ? (
                                     <React.Fragment>
@@ -209,5 +218,8 @@ class DashboardContainer extends BaseContainer {
         );
     }
 }
+
+DashboardContainer.defaultProps = {}
+DashboardContainer.propTypes = {dashboard: PropTypes.object}
 
 export default DashboardContainer;

@@ -326,7 +326,7 @@ class GridViewComponent extends React.Component {
                     <Scrolling mode="virtual" rowRenderingMode="virtual"/>
                     <Paging defaultPageSize={packageCount}/>
 
-                    <LoadPanel enabled={false}
+                    <LoadPanel enabled={true}
                                showIndicator={true}
                                shadingColor="rgba(0,0,0,0.4)"
                                showPane={false}

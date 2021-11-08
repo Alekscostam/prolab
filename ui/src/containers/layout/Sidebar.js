@@ -124,27 +124,26 @@ class Sidebar extends React.Component {
     shouldComponentUpdate(nextProps, nextState, nextContext) {
         if (!!window.performance) {
             if (performance.navigation.type === 1) {
-              return true;
+                return true;
             }
         }
         const history = this.props.history;
         const currentUrl = window.location.href
         if (this.doNotUpdate === true
-            || (!(this.state.filterValue !== nextState.filterValue) && !!this.state.viewId && nextState.viewId === this.state.viewId)
+            || (!(this.state.filterValue !== nextState.filterValue)
+                && !(this.state.collapsed !== nextState.collapsed)
+                && !(this.state.toggled !== nextState.toggled)
+                && !(this.state.viewId !== nextState.viewId)
+                && !!this.state.viewId && nextState.viewId === this.state.viewId)
             || currentUrl.includes('force=')) {
             this.doNotUpdate = false;
             console.log('sidebar => shouldComponentUpdate=%s prev_view_id=%s next_view_id=%s url=%s', false, this.state.viewId, nextState.viewId, window.location.href);
             return false;
+        }else {
+            const result = history.action !== 'PUSH' || (history.action !== 'PUSH' && nextProps.location.pathname === '/start');
+            console.log('sidebar => shouldComponentUpdate=%s prev_view_id=%s next_view_id=%s url=%s', result, this.state.viewId, nextState.viewId, window.location.href);
+            return result;
         }
-        const result =
-            history.action !== 'PUSH' ||
-            (history.action !== 'PUSH' && nextProps.location.pathname === '/start') ||
-            this.state.collapsed !== nextState.collapsed ||
-            this.state.toggled !== nextState.toggled ||
-            this.state.viewId !== nextState.viewId ||
-            this.state.filterValue !== nextState.filterValue;
-        console.log('sidebar => shouldComponentUpdate=%s prev_view_id=%s next_view_id=%s url=%s', result, this.state.viewId, nextState.viewId, window.location.href);
-        return result;
     }
 
     handleLogoutUser() {
@@ -458,7 +457,7 @@ class Sidebar extends React.Component {
 }
 
 Sidebar.propTypes = {
-    labels: PropTypes.object.isRequired,
+    labels: PropTypes.array.isRequired,
     loggedUser: PropTypes.any,
     handleLogoutUser: PropTypes.any,
     authService: PropTypes.any,

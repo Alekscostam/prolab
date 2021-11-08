@@ -26,6 +26,7 @@ import $ from 'jquery';
 import {localeOptions} from "primereact/api";
 import CardViewComponent from "./cardView/CardViewComponent";
 import GridViewComponent from "./dataGrid/GridViewComponent";
+import DashboardContainer from "./DashboardContainer";
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -85,7 +86,7 @@ export class ViewContainer extends BaseContainer {
         if (id === undefined) {
             id = this.props.id;
         }
-        console.log(`GridViewContainer::componentDidMount -> id=${id}, subViewId = ${subViewId}, recordId = ${recordId}, filterId = ${filterId}, viewType=${viewType}`);
+        console.log(`ViewContainer::componentDidMount -> id=${id}, subViewId = ${subViewId}, recordId = ${recordId}, filterId = ${filterId}, viewType=${viewType}`);
         const newUrl = UrlUtils.deleteParameterFromURL(window.document.URL.toString(), 'force');
         window.history.replaceState('', '', newUrl);
         this.setState({
@@ -119,8 +120,8 @@ export class ViewContainer extends BaseContainer {
         const force = UrlUtils.getURLParameter('force');
         const firstSubViewMode = !!recordId && !!id && !!!subViewId;
         console.log('ViewContainer::componentDidUpdate: firstSubViewMode -> ' + firstSubViewMode);
-        console.log(`GridViewContainer::componentDidUpdate: store params -> Id =  ${id} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`);
-        console.log(`GridViewContainer::componentDidUpdate: elementId=${this.state.elementId}, id=${id}, 
+        console.log(`ViewContainer::componentDidUpdate: store params -> Id =  ${id} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`);
+        console.log(`ViewContainer::componentDidUpdate: elementId=${this.state.elementId}, id=${id}, 
             firstSubViewMode=${firstSubViewMode}, elementSubViewId=${this.state.elementSubViewId}, subViewId=${subViewId}, 
             elementRecordId=${this.state.elementRecordId}, recordId=${recordId},
             prevState.gridViewType=${this.state.gridViewType}, gridViewType=${gridViewType}`,
@@ -235,53 +236,66 @@ export class ViewContainer extends BaseContainer {
 
     downloadData(viewId, recordId, subviewId, filterId, viewType) {
         console.log(
-            `GridViewContainer::downloadData: viewId=${viewId}, recordId=${recordId}, subViewId=${subviewId}, viewType=${viewType}`
+            `ViewContainer::downloadData: viewId=${viewId}, recordId=${recordId}, subViewId=${subviewId}, viewType=${viewType}`
         );
         let subviewMode = !!recordId && !!viewId;
         if (subviewMode) {
             this.viewService
                 .getSubView(viewId, recordId)
-                .then((subViewResponse) => {
-                    Breadcrumb.updateSubView(subViewResponse, recordId);
-                    const elementSubViewId = subviewId ? subviewId : subViewResponse.subViews[0]?.id;
-                    if (!subViewResponse.subViews || subViewResponse.subViews.length === 0) {
-                        this.showErrorMessages('Brak podwidoków - niepoprawna konfiguracja!');
-                        window.history.back();
-                        this.unblockUi();
-                        return;
-                    } else {
-                        let subViewsTabs = [];
-                        subViewResponse.subViews.forEach((subView, i) => {
-                            subViewsTabs.push({id: subView.id, text: subView.label, icon: subView.icon});
-                            if (subView.id === parseInt(elementSubViewId)) {
-                                this.setState({subViewTabIndex: i});
+                .then((dashBoardResponse) => {
+                    Breadcrumb.updateSubView(dashBoardResponse, recordId);
+                    if (dashBoardResponse.viewInfo?.type === 'dashboard') {
+                        this.setState({
+                                subView: dashBoardResponse,
+                                gridViewType: 'dashboard',
+                                loading: false
+                            },
+                            () => {
+                                this.unblockUi();
+                                return;
                             }
-                        });
-                        subViewResponse.subViewsTabs = subViewsTabs;
-                    }
-                    this.setState(
-                        {
-                            subView: subViewResponse,
-                            elementSubViewId: elementSubViewId,
-                        },
-                        () => {
+                        );
+                    } else {
+                        const elementSubViewId = subviewId ? subviewId : dashBoardResponse.subViews[0]?.id;
+                        if (!dashBoardResponse.subViews || dashBoardResponse.subViews.length === 0) {
+                            this.showErrorMessages('Brak podwidoków - niepoprawna konfiguracja!');
+                            window.history.back();
                             this.unblockUi();
-                            this.getViewById(elementSubViewId, recordId, filterId, viewType, subviewMode);
                             return;
+                        } else {
+                            let subViewsTabs = [];
+                            dashBoardResponse.subViews.forEach((subView, i) => {
+                                subViewsTabs.push({id: subView.id, text: subView.label, icon: subView.icon});
+                                if (subView.id === parseInt(elementSubViewId)) {
+                                    this.setState({subViewTabIndex: i});
+                                }
+                            });
+                            dashBoardResponse.subViewsTabs = subViewsTabs;
                         }
-                    );
+                        this.setState(
+                            {
+                                subView: dashBoardResponse,
+                                elementSubViewId: elementSubViewId,
+                            },
+                            () => {
+                                this.unblockUi();
+                                this.getViewById(elementSubViewId, recordId, filterId, viewType, subviewMode);
+                                return;
+                            }
+                        );
+                    }
                 })
                 .catch((err) => {
                     this.showErrorMessages(err);
                     window.history.back();
                     this.unblockUi();
                 });
-
             return;
         } else {
-            this.setState({subView: null});
+            this.setState({subView: null}, () => {
+                this.getViewById(viewId, recordId, filterId, viewType, subviewMode);
+            });
         }
-        this.getViewById(viewId, recordId, filterId, viewType, subviewMode);
     }
 
     getViewById(viewId, recordId, filterId, viewType, subviewMode) {
@@ -449,16 +463,12 @@ export class ViewContainer extends BaseContainer {
                                                 //onSuccess
                                                 (response) => {
                                                     this.setState({
-                                                        blocking: false,
                                                         //performance :)
                                                         totalSelectCount: response.totalSelectCount
                                                     });
                                                 },
                                                 //onStart
                                                 () => {
-                                                    this.setState({
-                                                        blocking: true,
-                                                    });
                                                     return {selectAll: this.state.selectAll};
                                                 }
                                             );
@@ -537,6 +547,9 @@ export class ViewContainer extends BaseContainer {
 
     //override
     renderHeaderLeft() {
+        if (this.state.gridViewType === 'dashboard') {
+            return <React.Fragment/>
+        }
         return (
             <React.Fragment>
                 <div id='left-header-panel' className='float-left pt-2'></div>
@@ -546,6 +559,9 @@ export class ViewContainer extends BaseContainer {
 
     //override
     renderHeaderRight() {
+        if (this.state.gridViewType === 'dashboard') {
+            return <React.Fragment/>
+        }
         let opADD = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_ADD');
         return (
             <React.Fragment>
@@ -555,6 +571,9 @@ export class ViewContainer extends BaseContainer {
     }
 
     rightHeadPanelContent = () => {
+        if (this.state.gridViewType === 'dashboard') {
+            return <React.Fragment/>
+        }
         return (
             <React.Fragment>
                 <ShortcutsButton items={this.state.parsedGridView?.shortcutButtons} maxShortcutButtons={5}/>
@@ -574,6 +593,9 @@ export class ViewContainer extends BaseContainer {
     }
 
     leftHeadPanelContent = () => {
+        if (this.state.gridViewType === 'dashboard') {
+            return <React.Fragment/>
+        }
         let centerElementStyle = 'mr-1 ';
         let opFilter = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_FILTER');
         let opBatches = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_BATCH');
@@ -636,6 +658,9 @@ export class ViewContainer extends BaseContainer {
 
     //override
     renderHeadPanel = () => {
+        if (this.state.gridViewType === 'dashboard') {
+            return <React.Fragment/>
+        }
         const viewId = this.getRealViewId();
         return (
             <React.Fragment>
@@ -793,6 +818,9 @@ export class ViewContainer extends BaseContainer {
 
     //override
     renderHeaderContent() {
+        if (this.state.gridViewType === 'dashboard') {
+            return <React.Fragment/>
+        }
         let subViewMode = !!this.state.subView;
         const {labels} = this.props;
         let showEditButton = false;
@@ -1089,6 +1117,7 @@ export class ViewContainer extends BaseContainer {
 
     //override
     renderContent = () => {
+        const {labels} = this.props;
         return (
             <React.Fragment>
                 {this.state.loading ? null : (
@@ -1142,7 +1171,11 @@ export class ViewContainer extends BaseContainer {
                                     selectedRowKeys={this.state.selectedRowKeys}
                                     handleSelectedRowKeys={(e) => this.setState({selectedRowKeys: e})}/>
                             </React.Fragment>
-                        ) : null}
+                        ) : this.state.gridViewType === 'dashboard' ? (<React.Fragment>
+                            <DashboardContainer dashboard={this.state.subView}
+                                                labels={labels}
+                            />
+                        </React.Fragment>) : null}
                     </React.Fragment>
                 )}
             </React.Fragment>
@@ -1157,6 +1190,5 @@ ViewContainer.defaultProps =
 
 ViewContainer.propTypes =
     {
-        id: PropTypes.string.isRequired,
-        handleDoNotUpdateSidebar: PropTypes.func.isRequired,
+        id: PropTypes.string.isRequired
     }

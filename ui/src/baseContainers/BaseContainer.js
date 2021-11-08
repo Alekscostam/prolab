@@ -215,8 +215,8 @@ class BaseContainer extends React.Component {
             summary: title,
             content: (
                 <React.Fragment>
-                    <div class="p-flex p-flex-column" style={{flex: '1 1 0%'}}>
-                        <span class="p-toast-message-icon pi"/>
+                    <div className="p-flex p-flex-column" style={{flex: '1 1 0%'}}>
+                        <span className="p-toast-message-icon pi"/>
                         <div className="p-toast-message-text">
                             <span className="p-toast-summary">{title}</span>
                             {messages.map(msg => {
