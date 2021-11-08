@@ -27,6 +27,7 @@ import {localeOptions} from "primereact/api";
 import CardViewComponent from "./cardView/CardViewComponent";
 import GridViewComponent from "./dataGrid/GridViewComponent";
 import DashboardContainer from "./DashboardContainer";
+import SelectedGridViewComponent from "./dataGrid/SelectedGridViewComponent";
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -41,6 +42,7 @@ export class ViewContainer extends BaseContainer {
         this.dataGridStore = new DataGridStore();
         this.dataGrid = null;
         this.cardGrid = null;
+        this.selectedDataGrid = null;
         this.state = {
             loading: true,
             elementId: props.id,
@@ -821,118 +823,34 @@ export class ViewContainer extends BaseContainer {
         if (this.state.gridViewType === 'dashboard') {
             return <React.Fragment/>
         }
-        let subViewMode = !!this.state.subView;
         const {labels} = this.props;
-        let showEditButton = false;
-        let menuItems = [];
-        this.state.subView?.headerOperations.forEach((operation) => {
-            showEditButton = showEditButton || operation.type === 'OP_EDIT';
-            if (
-                operation.type === 'OP_PUBLIC' ||
-                operation.type === 'OP_HISTORY' ||
-                operation.type === 'OP_ATTACHMENTS'
-            ) {
-                menuItems.push(operation);
-            }
-        });
-        let showMenu = menuItems.length > 0;
-        let widthTmp = 0;
-        if (showMenu) {
-            widthTmp += 38;
-        }
-        if (showEditButton) {
-            widthTmp += 38;
-        }
-        const viewId = this.state.subView?.viewInfo?.id;
-        const recordId = this.state.subView?.headerData[0]?.ID;
-        const rowAutoHeight = false;
-        const columnAutoWidth = true;
         return (
             <React.Fragment>
-                {subViewMode ? (
-                    <div id='selection-row' className='float-left width-100'>
-                        <DataGrid
-                            id='selection-data-grid'
-                            keyExpr='ID'
-                            ref={(ref) => (this.selectionDataGrid = ref)}
-                            dataSource={this.state.subView?.headerData}
-                            wordWrapEnabled={rowAutoHeight}
-                            columnAutoWidth={columnAutoWidth}
-                            allowColumnReordering={true}
-                            allowColumnResizing={true}
-                            columnHidingEnabled={false}
-                            onSelectionChanged={(selectedRowKeys) => {
+                <SelectedGridViewComponent
+                    handleOnInitialized={(ref) => this.selectedDataGrid = ref}
+                    subView={this.state.subView}
+                    labels={labels}
+                    handleOnSelectionChanged={(e) => {
+                        this.setState({
+                            selectedRowKeys: e,
+                        });
+                    }}
+                    handleOnEditClick={(e) => {
+                        this.blockUi();
+                        this.editService
+                            .getEdit(e.viewId, e.recordId)
+                            .then((editDataResponse) => {
                                 this.setState({
-                                    selectedRowKeys: selectedRowKeys?.selectedRowKeys,
+                                    visibleEditPanel: true,
+                                    editData: editDataResponse
                                 });
-                            }}
-                        >
-                            {this.state.subView?.headerColumns
-                                ?.filter((c) => c.visible === true)
-                                .map((c) => {
-                                    return (
-                                        <Column
-                                            allowFixing={true}
-                                            caption={c.label}
-                                            dataType={GridViewUtils.specifyColumnType(c?.type)}
-                                            format={GridViewUtils.specifyColumnFormat(c?.type)}
-                                            onCellPrepared={GridViewUtils.onCellPrepared(c)}
-                                            dataField={c.fieldName}
-                                        />
-                                    );
-                                })}
-
-                            {showEditButton || showMenu ? (
-                                <Column
-                                    allowFixing={true}
-                                    caption=''
-                                    width={widthTmp}
-                                    fixed={true}
-                                    fixedPosition='right'
-                                    cellTemplate={(element, info) => {
-                                        ReactDOM.render(
-                                            <div>
-                                                <ShortcutButton
-                                                    id={`${info.column.headerId}_menu_button`}
-                                                    className={`action-button-with-menu`}
-                                                    iconName={'mdi-pencil'}
-                                                    handleClick={() => {
-                                                        this.blockUi();
-                                                        this.editService
-                                                            .getEdit(viewId, recordId)
-                                                            .then((editDataResponse) => {
-                                                                this.setState({
-                                                                    visibleEditPanel: true,
-                                                                    editData: editDataResponse
-                                                                });
-                                                                this.unblockUi();
-                                                            })
-                                                            .catch((err) => {
-                                                                this.showErrorMessages(err);
-                                                                this.unblockUi();
-                                                            });
-                                                    }}
-                                                    label={''}
-                                                    title={'Edycja'}
-                                                    rendered={true}
-                                                />
-                                                <ActionButtonWithMenu
-                                                    id='more_shortcut'
-                                                    iconName='mdi-dots-vertical'
-                                                    className={``}
-                                                    items={menuItems}
-                                                    remdered={true}
-                                                    title={labels['View_AdditionalOptions']}
-                                                />
-                                            </div>,
-                                            element
-                                        );
-                                    }}
-                                ></Column>
-                            ) : null}
-                        </DataGrid>
-                    </div>
-                ) : null}
+                                this.unblockUi();
+                            })
+                            .catch((err) => {
+                                this.showErrorMessages(err);
+                                this.unblockUi();
+                            });
+                    }}/>
                 {/*Zakładki podwidoków*/}
                 <div id='subviews-panel'>
                     {this.state.subView != null &&
