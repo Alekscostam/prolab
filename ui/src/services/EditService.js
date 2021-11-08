@@ -65,7 +65,7 @@ export default class EditService extends BaseService {
 
     archive(viewId, parentId, selectedIds) {
         let queryString = []
-        if (parentId != undefined && parentId != null && parentId != "") {
+        if (parentId !== undefined && parentId !== null && parentId !== "") {
             queryString.push(`parentId=${parentId}`);
         }
         for (const id in selectedIds) {
@@ -80,7 +80,7 @@ export default class EditService extends BaseService {
 
     copy(viewId, parentId, selectedIds, numberOfCopies, headerCopy, specCopy, specWithValuesCopy) {
         let queryStringTmp = []
-        if (parentId != undefined && parentId != null && parentId != "") {
+        if (parentId !== undefined && parentId !== null && parentId !== "") {
             queryStringTmp.push(`parentId=${parentId}`);
         }
         for (const id in selectedIds) {

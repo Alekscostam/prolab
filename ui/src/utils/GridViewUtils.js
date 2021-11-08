@@ -25,11 +25,11 @@ export class GridViewUtils {
             for (i = 0; i < arrURLParams.length; i++) {
                 let sParam = arrURLParams[i].split('=');
                 arrParamNames[i] = sParam[0];
-                if (sParam[1] != '') arrParamValues[i] = unescape(sParam[1]);
+                if (sParam[1] !== '') arrParamValues[i] = unescape(sParam[1]);
                 else arrParamValues[i] = null;
             }
             for (i = 0; i < arrURLParams.length; i++) {
-                if (arrParamNames[i] == paramName) {
+                if (arrParamNames[i] === paramName) {
                     //alert("Parameter:" + arrParamValues[i]);
                     return arrParamValues[i];
                 }
@@ -47,7 +47,6 @@ export class GridViewUtils {
         }
     }
 
-    //TODO dopracować
     /*
     Typ kolumny:
         C – Znakowy
@@ -82,12 +81,13 @@ export class GridViewUtils {
                 case 'O':
                 case 'H':
                     return 'string';
+                default:
+                    return undefined;
             }
         }
         return undefined;
     }
 
-    //TODO dopracować
     static specifyColumnFormat(format) {
         if (format) {
             switch (format) {
@@ -97,33 +97,14 @@ export class GridViewUtils {
                     return Constants.DATE_FORMAT.DATE_TIME_FORMAT;
                 case 'T':
                     return Constants.DATE_FORMAT.TIME_FORMAT;
+                default:
+                    return undefined;
             }
         }
         return undefined;
     }
 
-    static specifyCellTemplate(template) {
-        if (template) {
-            switch (template) {
-                case 'I':
-                    return function (element, info) {
-                        ReactDOM.render(
-                            <div>
-                                <Image style='display: block; width: 100%;' base64={info.text}/>
-                            </div>,
-                            element
-                        );
-                    };
-                case 'IM':
-                    return function (element, info) {
-                        ReactDOM.render(<div>{info.text}</div>, element);
-                    };
-            }
-        }
-        return undefined;
-    }
-
-    static cellTemplate(column) {
+    static onCellPrepared(column) {
         return function (element, info) {
             let bgColorFinal = undefined;
             const bgColor = info.data['_BGCOLOR'];
@@ -167,7 +148,7 @@ export class GridViewUtils {
                                     }}
                                 >
                                     {info.text?.map((i, index) => {
-                                        return <Image style={{maxWidth: '100%'}} key={index}  base64={info.text}/>;
+                                        return <Image style={{maxWidth: '100%'}} key={index} base64={info.text}/>;
                                     })}
                                 </div>,
                                 element

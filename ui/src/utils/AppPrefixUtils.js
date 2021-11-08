@@ -1,4 +1,4 @@
-import { readCookieGlobal } from './Cookie';
+import {readCookieGlobal} from './Cookie';
 
 class AppPrefixUtils {
     static locationHrefUrl(url) {

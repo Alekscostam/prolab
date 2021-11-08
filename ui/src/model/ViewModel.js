@@ -1,9 +1,9 @@
-import { ArrayModel, ObjectModel } from 'objectmodel';
+import {ArrayModel, ObjectModel} from 'objectmodel';
 
 export const ViewInfo = ObjectModel({
     id: Number,
     name: String,
-    type: ['gridView', 'cardView'],
+    type: ['gridView', 'cardView','dashboard'],
 });
 
 export const GridOptions = ObjectModel({

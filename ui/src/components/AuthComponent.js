@@ -2,7 +2,6 @@ import React from 'react';
 import AuthService from "../services/AuthService";
 import * as PropTypes from "prop-types";
 import Address from "./Address";
-import AppPrefixUtils from "../utils/AppPrefixUtils";
 
 
 class AuthComponent extends React.Component {

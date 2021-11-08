@@ -8,22 +8,49 @@ import ShortcutButton from "../../components/ShortcutButton";
 import ActionButtonWithMenu from "../../components/ActionButtonWithMenu";
 import AppPrefixUtils from "../../utils/AppPrefixUtils";
 import PropTypes from "prop-types";
+import EditService from "../../services/EditService";
 
 class CardViewComponent extends React.Component {
 
     constructor(props) {
         super(props);
+        this.editService = new EditService();
         this.labels = this.props;
         console.log('CardViewComponent -> constructor');
     }
 
+    isSelectionEnabled() {
+        return !!this.props.handleSelectedRowKeys && !!this.props.selectedRowKeys;
+    }
+
+    isDashboard() {
+        return this.props.mode === 'dashboard'
+    }
+
+    styleTile(rowData, cardBgColor1, cardBgColor2, fontColor) {
+        let styleTile;
+        if (this.isDashboard()) {
+            styleTile = {
+                backgroundImage: `linear-gradient(to bottom right, ${cardBgColor1}, ${cardBgColor2})`,
+                color: fontColor
+            };
+        } else {
+            styleTile = {backgroundColor: rowData._BGCOLOR, color: rowData._FONT_COLOR};
+        }
+        return styleTile;
+    }
+
     render() {
-        let cardWidth = this.props.parsedGridView?.cardOptions?.width ?? 300;
-        let cardHeight = this.props.parsedGridView?.cardOptions?.height ?? 200;
+        let cardWidth = this.isDashboard() ? this.props.parsedGridView?.cardOptions?.width - 10 : this.props.parsedGridView?.cardOptions?.width ?? 300;
+        let cardHeight = this.isDashboard() ? this.props.parsedGridView?.cardOptions?.height - 10 : this.props.parsedGridView?.cardOptions?.height ?? 200;
+        let cardBgColor1 = this.props.parsedGridView?.cardOptions?.bgColor1;
+        let cardBgColor2 = this.props.parsedGridView?.cardOptions?.bgColor2;
+        let fontColor = this.props.parsedGridView?.cardOptions?.fontColor;
         return (
             <TileView
                 onInitialized={(e) => (this.props.handleOnInitialized(e.component))}
                 className='card-grid'
+                style={this.isDashboard() ? {width: cardWidth + 10, height: cardHeight + 10} : null}
                 items={this.props.parsedCardViewData}
                 itemRender={(rowData) => {
                     const {cardBody, cardHeader, cardImage, cardFooter} = this.props.parsedGridView;
@@ -52,9 +79,10 @@ class CardViewComponent extends React.Component {
                     const viewId = GridViewUtils.getRealViewId(elementSubViewId, elementId);
                     const recordId = rowData.ID;
                     const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+                    const subviewId = elementSubViewId ? elementId : undefined;
                     setTimeout(() => {
                         const cardHeight = this.props.parsedGridView?.cardOptions?.heigh ?? 200;
-                        var p = $(`#${rowData.ID} .card-grid-body-content`);
+                        var p = $(`#${recordId} .card-grid-body-content`);
                         while ($(p).outerHeight() > cardHeight - 52) {
                             $(p).text(function (index, text) {
                                 return text.replace(/\W*\s(\S)*$/, '...');
@@ -63,11 +91,11 @@ class CardViewComponent extends React.Component {
                     }, 10);
                     return (
                         <div
-                            id={rowData.ID}
-                            className={`dx-tile-image ${
-                                this.props.selectedRowKeys.includes(rowData.ID) ? 'card-grid-selected' : ''
+                            id={recordId}
+                            className={`dx-tile-image ${this.isSelectionEnabled() ? (
+                                this.props.selectedRowKeys.includes(recordId) ? 'card-grid-selected' : '') : ''
                             }`}
-                            style={{backgroundColor: rowData._BGCOLOR, color: rowData._FONT_COLOR}}
+                            style={this.styleTile(rowData, cardBgColor1, cardBgColor2, fontColor)}
                         >
                             <div className='row'>
                                 <div className='card-grid-header'>
@@ -77,29 +105,41 @@ class CardViewComponent extends React.Component {
                                     {showEditButton || showMenu || showSubviewButton ? (
                                         <div className='card-grid-header-buttons'>
                                             <ShortcutButton
-                                                id={`${rowData.id}_menu_button`}
+                                                id={`${recordId}_menu_button`}
                                                 className={`action-button-with-menu`}
                                                 iconName={'mdi-pencil'}
                                                 label={''}
-                                                title={''}
-                                                handleClick={() => this.props.handleShowEditPanel()}
+                                                title={oppEdit?.label}
+                                                handleClick={() => {
+                                                    let result = this.props.handleBlockUi();
+                                                    if(result) {
+                                                        this.editService
+                                                            .getEdit(viewId, recordId, subviewId)
+                                                            .then((editDataResponse) => {
+                                                                this.props.handleShowEditPanel(editDataResponse);
+                                                            })
+                                                            .catch((err) => {
+                                                                this.props.showErrorMessages(err);
+                                                            });
+                                                    }
+                                                }}
                                                 rendered={showEditButton && oppEdit}
                                             />
                                             <ActionButtonWithMenu
-                                                id={`${rowData.id}_more_shortcut`}
+                                                id={`${recordId}_more_shortcut`}
                                                 className={`action-button-with-menu`}
                                                 iconName='mdi-dots-vertical'
                                                 items={menuItems}
-                                                remdered={showMenu}
+                                                rendered={showMenu}
                                             />
                                             <ShortcutButton
-                                                id={`${rowData.id}_menu_button`}
+                                                id={`${recordId}_menu_button`}
                                                 className={`action-button-with-menu`}
                                                 iconName={'mdi-playlist-plus '}
                                                 title={oppSubview?.label}
                                                 rendered={oppSubview}
                                                 href={AppPrefixUtils.locationHrefUrl(
-                                                    `/#/grid-view/${viewId}?recordId=${recordId}${currentBreadcrumb}`
+                                                    `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${!!currentBreadcrumb ? currentBreadcrumb : ``}`
                                                 )}
                                             />
                                         </div>
@@ -142,14 +182,16 @@ class CardViewComponent extends React.Component {
                 showScrollbar
                 direction='vertical'
                 onItemClick={(item) => {
-                    let selectedRowKeys = this.props.selectedRowKeys;
-                    var index = selectedRowKeys.indexOf(item.itemData.ID);
-                    if (index !== -1) {
-                        selectedRowKeys.splice(index, 1);
-                    } else {
-                        selectedRowKeys.push(item.itemData.ID);
+                    if (this.isSelectionEnabled()) {
+                        let selectedRowKeys = this.props.selectedRowKeys;
+                        var index = selectedRowKeys.indexOf(item.itemData.ID);
+                        if (index !== -1) {
+                            selectedRowKeys.splice(index, 1);
+                        } else {
+                            selectedRowKeys.push(item.itemData.ID);
+                        }
+                        this.props.handleSelectedRowKeys(selectedRowKeys)
                     }
-                    this.props.handleSelectedRowKeys(selectedRowKeys)
                 }}
             />
         );
@@ -160,17 +202,21 @@ CardViewComponent.defaultProps = {
     parsedGridView: true,
     parsedCardViewData: false,
     selectedRowKeys: [],
-    cardGrid: null
+    cardGrid: null,
+    mode: 'view'
 };
 
 CardViewComponent.propTypes = {
+    mode: PropTypes.string.isRequired,
     parsedGridView: PropTypes.object.isRequired,
     parsedCardViewData: PropTypes.object.isRequired,
-    selectedRowKeys: PropTypes.object.isRequired,
     elementSubViewId: PropTypes.object.isRequired,
     handleOnInitialized: PropTypes.func.isRequired,
     handleShowEditPanel: PropTypes.func.isRequired,
-    handleSelectedRowKeys: PropTypes.func.isRequired,
+    handleBlockUi: PropTypes.func.isRequired,
+    showErrorMessages: PropTypes.func.isRequired,
+    selectedRowKeys: PropTypes.object,
+    handleSelectedRowKeys: PropTypes.func,
 };
 
 export default CardViewComponent;

@@ -38,7 +38,7 @@ class GridViewComponent extends React.Component {
             value, operations, target, JSON.stringify(columnDefinition))
         try {
             if (!!columnDefinition) {
-                if (operations == "between") {
+                if (operations === "between") {
                     let dateFormatted1 = this.formatDateFilterExpression(columnDefinition.type, value[0]);
                     let dateFormatted2 = this.formatDateFilterExpression(columnDefinition.type, value[1]);
                     return this.customFilterExpression(operations, columnDefinition.fieldName, [dateFormatted1, dateFormatted2]);
@@ -54,9 +54,9 @@ class GridViewComponent extends React.Component {
 
     formatDateFilterExpression(type, value) {
         const dateMoment = moment(value);
-        if (type == "D") {
+        if (type === "D") {
             return dateMoment.format(Constants.DATE_FORMAT.DATE_FORMAT_MOMENT)
-        } else if (type == "E") {
+        } else if (type === "E") {
             return dateMoment.format(Constants.DATE_FORMAT.DATE_TIME_FORMAT_MOMENT)
         } else {
             throw new Error('BAD_TYPE');
@@ -79,7 +79,18 @@ class GridViewComponent extends React.Component {
                 return [[fieldName, '>=', dateFormatted]];
             case 'between':
                 return [[fieldName, '>=', dateFormatted[0]], 'and', [fieldName, '<=', dateFormatted[1]]];
+            default:
+                return undefined;
         }
+    }
+
+    menuWidth(showButton, widthTmp) {
+        if (showButton) {
+            widthTmp += 35;
+        } else {
+            widthTmp += 5;
+        }
+        return widthTmp;
     }
 
     customizeColumns = (columns) => {
@@ -113,7 +124,7 @@ class GridViewComponent extends React.Component {
                         column.caption = columnDefinition?.label;
                         column.dataType = GridViewUtils.specifyColumnType(columnDefinition?.type);
                         column.format = GridViewUtils.specifyColumnFormat(columnDefinition?.type);
-                        column.cellTemplate = GridViewUtils.cellTemplate(columnDefinition);
+                        column.onCellPrepared = GridViewUtils.onCellPrepared(columnDefinition);
                         column.fixed =
                             columnDefinition.freeze !== undefined && columnDefinition?.freeze !== null
                                 ? columnDefinition?.freeze?.toLowerCase() === 'left' ||
@@ -133,7 +144,8 @@ class GridViewComponent extends React.Component {
                             column.calculateFilterExpression
                                 = (value, selectedFilterOperations, target) => this.calculateCustomFilterExpression(value, selectedFilterOperations, target, columnDefinition)
                         }
-                        column.headerFilter = {groupInterval : null}
+                        column.headerFilter = {groupInterval: null}
+                        column.renderAsync = true;
                         INDEX_COLUMN++;
                     } else {
                         column.visible = false;
@@ -148,31 +160,17 @@ class GridViewComponent extends React.Component {
                     showEditButton = showEditButton || operation.type === 'OP_EDIT';
                     //OP_SUBVIEWS
                     showSubviewButton = showSubviewButton || operation.type === 'OP_SUBVIEWS';
-                    if (
-                        operation.type === 'OP_PUBLIC' ||
+                    if (operation.type === 'OP_PUBLIC' ||
                         operation.type === 'OP_HISTORY' ||
-                        operation.type === 'OP_ATTACHMENTS'
-                    ) {
+                        operation.type === 'OP_ATTACHMENTS') {
                         menuItems.push(operation);
                     }
                 });
                 let showMenu = menuItems.length > 0;
                 let widthTmp = 0;
-                if (showMenu) {
-                    widthTmp += 35;
-                } else {
-                    widthTmp += 5;
-                }
-                if (showEditButton) {
-                    widthTmp += 35;
-                } else {
-                    widthTmp += 5;
-                }
-                if (showSubviewButton) {
-                    widthTmp += 35;
-                } else {
-                    widthTmp += 5;
-                }
+                widthTmp = this.menuWidth(showMenu, widthTmp);
+                widthTmp = this.menuWidth(showEditButton, widthTmp);
+                widthTmp = this.menuWidth(showSubviewButton, widthTmp);
                 if (showEditButton || showMenu || showSubviewButton) {
                     columns?.push({
                         caption: '',
@@ -183,15 +181,6 @@ class GridViewComponent extends React.Component {
                             let el = document.createElement('div');
                             el.id = `actions-${info.column.headerId}-${info.rowIndex}`;
                             element.append(el);
-                            let oppEdit = GridViewUtils.containsOperationButton(
-                                this.props.parsedGridView?.operations,
-                                'OP_EDIT'
-                            );
-                            let oppSubview = GridViewUtils.containsOperationButton(
-                                this.props.parsedGridView?.operations,
-                                'OP_SUBVIEWS'
-                            );
-                            //TODO utils
                             const elementSubViewId = this.props.elementSubViewId;
                             const elementId = this.props.id;
                             const viewId = GridViewUtils.getRealViewId(elementSubViewId, elementId);
@@ -203,34 +192,35 @@ class GridViewComponent extends React.Component {
                                         id={`${info.column.headerId}_menu_button`}
                                         className={`action-button-with-menu`}
                                         iconName={'mdi-pencil'}
-                                        title={oppEdit?.label}
+                                        title={GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_EDIT')?.label}
                                         handleClick={() => {
-                                            this.props.handleBlockUi();
-                                            this.editService
-                                                .getEdit(viewId, recordId, subviewId)
-                                                .then((editDataResponse) => {
-                                                    this.props.handleShowEditPanel(editDataResponse);
-                                                })
-                                                .catch((err) => {
-                                                    this.props.showErrorMessages(err);
-                                                });
+                                            let result = this.props.handleBlockUi();
+                                            if (result) {
+                                                this.editService
+                                                    .getEdit(viewId, recordId, subviewId)
+                                                    .then((editDataResponse) => {
+                                                        this.props.handleShowEditPanel(editDataResponse);
+                                                    })
+                                                    .catch((err) => {
+                                                        this.props.showErrorMessages(err);
+                                                    });
+                                            }
                                         }}
-                                        rendered={showEditButton && oppEdit}
+                                        rendered={showEditButton}
                                     />
                                     <ActionButtonWithMenu
                                         id='more_shortcut'
                                         iconName='mdi-dots-vertical'
                                         className={``}
                                         items={menuItems}
-                                        remdered={showMenu}
                                         title={this.labels['View_AdditionalOptions']}
+                                        rendered={showMenu}
                                     />
                                     <ShortcutButton
                                         id={`${info.column.headerId}_menu_button`}
                                         className={`action-button-with-menu`}
                                         iconName={'mdi-playlist-plus '}
-                                        title={oppSubview?.label}
-                                        //rendered={oppSubview}
+                                        title={GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_SUBVIEWS')?.label}
                                         href={AppPrefixUtils.locationHrefUrl(
                                             `/#/grid-view/${viewId}?recordId=${recordId}${currentBreadcrumb}`
                                         )}
@@ -261,6 +251,10 @@ class GridViewComponent extends React.Component {
         }
     };
 
+    ifSelectAllEvent(e) {
+        return e.column.command === 'select' && e.column.visible === true && e.columnIndex === 0 && e.rowType === 'header';
+    }
+
     render() {
         const showGroupPanel = this.props.parsedGridView?.gridOptions?.showGroupPanel || false;
         const groupExpandAll = this.props.parsedGridView?.gridOptions?.groupExpandAll || false;
@@ -268,52 +262,78 @@ class GridViewComponent extends React.Component {
         const rowAutoHeight = this.props.parsedGridView?.gridOptions?.rowAutoHeight || false;
         const headerAutoHeight = this.props.parsedGridView?.gridOptions?.headerAutoHeight || false;
         const packageCount = this.props.packageRows;
+        const showSelection = this.props.showSelection;
+        const showColumnHeaders = this.props.showColumnHeaders;
+        const showColumnLines = this.props.showColumnLines;
+        const showRowLines = this.props.showRowLines;
+        const showBorders = this.props.showBorders;
+        const showFilterRow = this.props.showFilterRow;
         return (
-            <DataGrid
-                id='grid-container'
-                className={`grid-container${headerAutoHeight ? ' grid-header-auto-height' : ''}`}
-                keyExpr='ID'
-                key='ID'
-                ref={(ref) => this.props.handleOnInitialized(ref)}
-                dataSource={this.props.parsedGridViewData}
-                customizeColumns={this.customizeColumns}
-                wordWrapEnabled={rowAutoHeight}
-                columnAutoWidth={columnAutoWidth}
-                columnResizingMode='widget'
-                allowColumnReordering={true}
-                allowColumnResizing={true}
-                showColumnLines={true}
-                showRowLines={true}
-                showBorders={true}
-                columnHidingEnabled={false}
-                height='100%'
-                rowAlternationEnabled={false}
-                onSelectionChanged={(e) => this.props.handleSelectedRowKeys(e)}
-            >
-                <RemoteOperations
-                    filtering={true}
-                    summary={true}
-                    sorting={true}
-                    paging={true}
-                    grouping={true}
-                    groupPaging={true}
-                />
+            <React.Fragment>
+                <DataGrid
+                    id='grid-container'
+                    className={`grid-container${headerAutoHeight ? ' grid-header-auto-height' : ''}`}
+                    keyExpr='ID'
+                    key='ID'
+                    ref={(ref) => this.props.handleOnInitialized(ref)}
+                    dataSource={this.props.parsedGridViewData}
+                    customizeColumns={this.customizeColumns}
+                    wordWrapEnabled={rowAutoHeight}
+                    columnAutoWidth={columnAutoWidth}
+                    columnResizingMode='widget'
+                    allowColumnReordering={true}
+                    allowColumnResizing={true}
+                    showColumnLines={showColumnLines}
+                    showRowLines={showRowLines}
+                    showBorders={showBorders}
+                    showColumnHeaders={showColumnHeaders}
+                    columnHidingEnabled={false}
+                    height='100%'
+                    rowAlternationEnabled={false}
+                    onSelectionChanged={(e) => this.props.handleSelectedRowKeys(e)}
+                    renderAsync={true}
+                    selectAsync={true}
+                    onCellClick={(e) => {
+                        if (!!this.props.handleSelectAll) {
+                            if (this.ifSelectAllEvent(e)) {
+                                this.props.handleSelectAll(true);
+                            } else {
+                                this.props.handleSelectAll(false);
+                            }
+                        }
+                    }}
+                >
+                    <RemoteOperations
+                        filtering={true}
+                        summary={true}
+                        sorting={true}
+                        paging={true}
+                        grouping={true}
+                        groupPaging={true}
+                    />
 
-                <FilterRow visible={true}/>
-                <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'}/>
+                    <FilterRow visible={showFilterRow}/>
+                    <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'}/>
 
-                <Grouping autoExpandAll={groupExpandAll} allowCollapsing={true}/>
-                <GroupPanel visible={showGroupPanel}/>
+                    <Grouping autoExpandAll={groupExpandAll} allowCollapsing={true}/>
+                    <GroupPanel visible={showGroupPanel}/>
 
-                <Sorting mode='multiple'/>
-                <Selection mode='multiple' selectAllMode='allPages' showCheckBoxesMode='always'/>
+                    <Sorting mode='multiple'/>
 
-                <Scrolling mode="virtual" rowRenderingMode="virtual"/>
-                <Paging defaultPageSize={packageCount}/>
+                    <Selection mode={showSelection ? 'multiple' : 'none'} selectAllMode='allPages'
+                               showCheckBoxesMode='always' allowSelectAll={true}/>
 
-                <LoadPanel enabled={false}/>
-                <Editing mode='cell'/>
-            </DataGrid>
+                    <Scrolling mode="virtual" rowRenderingMode="virtual"/>
+                    <Paging defaultPageSize={packageCount}/>
+
+                    <LoadPanel enabled={true}
+                               showIndicator={true}
+                               shadingColor="rgba(0,0,0,0.4)"
+                               showPane={false}
+                               position="absolute"/>
+                    <Editing mode='cell'/>
+                </DataGrid>
+            </React.Fragment>
         );
     }
 }
@@ -321,7 +341,13 @@ class GridViewComponent extends React.Component {
 GridViewComponent.defaultProps = {
     parsedGridView: [],
     selectedRowKeys: [],
-    packageRows: 30
+    packageRows: 30,
+    showColumnLines: true,
+    showRowLines: true,
+    showBorders: true,
+    showColumnHeaders: true,
+    showFilterRow: true,
+    showSelection: true
 };
 
 GridViewComponent.propTypes = {
@@ -335,8 +361,17 @@ GridViewComponent.propTypes = {
     handleOnInitialized: PropTypes.func.isRequired,
     handleShowEditPanel: PropTypes.func.isRequired,
     handleSelectedRowKeys: PropTypes.func.isRequired,
+    handleSelectAll: PropTypes.func,
     handleBlockUi: PropTypes.func.isRequired,
+    handleUnblockUi: PropTypes.func.isRequired,
     showErrorMessages: PropTypes.func.isRequired,
+    showColumnHeaders: PropTypes.bool,
+    showColumnLines: PropTypes.bool,
+    showRowLines: PropTypes.bool,
+    showBorders: PropTypes.bool,
+    showFilterRow: PropTypes.bool,
+    showSelection: PropTypes.bool,
 };
+
 
 export default GridViewComponent;

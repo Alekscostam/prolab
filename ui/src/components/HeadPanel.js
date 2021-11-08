@@ -18,7 +18,7 @@ export const HeadPanel = props => {
         <div id="grid-selection-panel"
              className={props.selectedRowKeys?.length > 0 ? "d-flex flex-row grid-selection-panel grid-selection-panel-selection"
                  : "d-flex flex-row grid-selection-panel grid-selection-panel-non-selection"}>
-            {props.leftContent == undefined ? null :
+            {props.leftContent === undefined ? null :
                 <React.Fragment>
                     <div id="grid-panel-left" className="grid-panel-left center-inside-div">
                         {props.leftContent}
@@ -29,7 +29,7 @@ export const HeadPanel = props => {
                 <React.Fragment>
                     <div id="grid-panel-selection" className="grid-panel-selection">
                         <div id="grid-count-panel"
-                             className="grid-count-fragment center-text-in-div">Pozycje: {props.selectedRowKeys?.length || 0}</div>
+                             className="grid-count-fragment center-text-in-div">Pozycje: {props.totalSelectCount == null ? props.selectedRowKeys.length : props.totalSelectCount || 0}</div>
                         <div id="grid-separator" className="p-1 grid-separator-fragment"></div>
                         <div id="grid-buttons-fragment" className="p-1 grid-buttons-fragment">
                             <ShortcutButton className={`grid-button-panel mr-2`}
@@ -66,7 +66,7 @@ export const HeadPanel = props => {
                         </div>
                     </div>
                 </React.Fragment> : null}
-            {props.rightContent == undefined ? null :
+            {props.rightContent === undefined ? null :
                 <React.Fragment>
                     <div id="grid-panel-right" className="grid-panel-right pt-1 pb-1">
                         {props.rightContent}
@@ -80,6 +80,7 @@ HeadPanel.defaultProps = {};
 
 HeadPanel.propTypes = {
     selectedRowKeys: PropTypes.array.isRequired,
+    totalSelectCount: PropTypes.number.isRequired,
     operations: PropTypes.array.isRequired,
     handleDelete: PropTypes.func.isRequired,
     handleRestore: PropTypes.func.isRequired,

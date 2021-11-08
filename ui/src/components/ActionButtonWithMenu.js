@@ -7,9 +7,6 @@ import ShortcutButton from './ShortcutButton';
 import {Menu} from 'primereact/menu';
 
 export class ActionButtonWithMenu extends React.Component {
-    constructor(props) {
-        super(props);
-    }
 
     handleClick = (event) => {
         event.stopPropagation();
