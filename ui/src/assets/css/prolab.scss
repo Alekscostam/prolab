@@ -452,7 +452,7 @@ body main div.container-fluid {
   width: 100%;
   display: flex;
   flex-direction: column;
-  overflow-y: hidden;
+  overflow-y: auto;
 
   .breadcrumb-panel {
     // height: 20px;
