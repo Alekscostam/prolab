@@ -27,15 +27,17 @@ class CardViewComponent extends React.Component {
         return this.props.mode === 'dashboard'
     }
 
-    styleTile(rowData, cardBgColor1, cardBgColor2, fontColor) {
+    styleTile(rowData, cardBgColor1, cardBgColor2, fontColor, width, height) {
         let styleTile;
         if (this.isDashboard()) {
             styleTile = {
                 backgroundImage: `linear-gradient(to bottom right, ${cardBgColor1}, ${cardBgColor2})`,
-                color: fontColor
+                color: fontColor,
+                width: width,
+                height: height
             };
         } else {
-            styleTile = {backgroundColor: rowData._BGCOLOR, color: rowData._FONT_COLOR};
+            styleTile = {backgroundColor: rowData._BGCOLOR, color: rowData._FONT_COLOR, width: width, height: height};
         }
         return styleTile;
     }
@@ -50,7 +52,7 @@ class CardViewComponent extends React.Component {
             <TileView
                 onInitialized={(e) => (this.props.handleOnInitialized(e.component))}
                 className='card-grid'
-                style={this.isDashboard() ? {width: cardWidth + 10, height: cardHeight + 10} : null}
+                style={this.isDashboard() ? {width: cardWidth , height: cardHeight + 10} : null}
                 items={this.props.parsedCardViewData}
                 itemRender={(rowData) => {
                     const {cardBody, cardHeader, cardImage, cardFooter} = this.props.parsedGridView;
@@ -95,7 +97,7 @@ class CardViewComponent extends React.Component {
                             className={`dx-tile-image ${this.isSelectionEnabled() ? (
                                 this.props.selectedRowKeys.includes(recordId) ? 'card-grid-selected' : '') : ''
                             }`}
-                            style={this.styleTile(rowData, cardBgColor1, cardBgColor2, fontColor)}
+                            style={this.styleTile(rowData, cardBgColor1, cardBgColor2, fontColor, cardWidth - 10, cardHeight - 10)}
                         >
                             <div className='row'>
                                 <div className='card-grid-header'>
@@ -112,7 +114,7 @@ class CardViewComponent extends React.Component {
                                                 title={oppEdit?.label}
                                                 handleClick={() => {
                                                     let result = this.props.handleBlockUi();
-                                                    if(result) {
+                                                    if (result) {
                                                         this.editService
                                                             .getEdit(viewId, recordId, subviewId)
                                                             .then((editDataResponse) => {

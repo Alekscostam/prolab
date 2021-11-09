@@ -106,9 +106,14 @@ class DashboardContainer extends BaseContainer {
     }
 
     renderContent() {
+        let cardOptions = this.state.dashboard.headerOptions;
+        let _cardWidth = cardOptions.width;
+        let _cardHeight = cardOptions.height;
+        cardOptions.width = _cardWidth + 10;
+        cardOptions.height = _cardHeight + 10;
         let cardView = {
             viewInfo: this.state.dashboard.viewInfo,
-            cardOptions: this.state.dashboard.headerOptions,
+            cardOptions: cardOptions,
             cardHeader: this.state.dashboard.headerFields.cardHeader,
             cardImage: this.state.dashboard.headerFields.cardImage,
             cardBody: this.state.dashboard.headerFields.cardBody,
@@ -116,12 +121,11 @@ class DashboardContainer extends BaseContainer {
             operations: this.state.dashboard.headerOperations,
             shortcutButtons: [], documentsList: [], pluginsList: [], batchesList: [], filtersList: []
         }
-        let cardWidth = cardView.cardOptions?.width - 10;
-        let cardHeight = cardView.cardOptions?.height + 30;
+
         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
         return <React.Fragment>
             <div className="rows">
-                <div className="column left" style={{width: cardWidth, height: cardHeight}}>
+                <div className="column left" style={{width: _cardWidth + 10}}>
                     <CardViewComponent
                         id={cardView.viewInfo.id}
                         mode='dashboard'
@@ -140,10 +144,10 @@ class DashboardContainer extends BaseContainer {
                     {this.state.dashboard.views.filter(item => item.position === 'left').map((item) => {
                         return (
                             <React.Fragment>
-                                <div className='panel-dashboard row'>
-                                    <div className='col-11'><span
-                                        className='title-dashboard'> {item.label}</span></div>
-                                    <div className='col-1'>
+                                <div className='panel-dashboard'>
+                                   <span
+                                       className='title-dashboard'>{item.label}</span>
+                                    <div style={{float: 'right'}}>
                                         <ShortcutButton
                                             id={`_menu_button`}
                                             className={`action-button-with-menu`}
@@ -156,34 +160,33 @@ class DashboardContainer extends BaseContainer {
                                             rendered={true}
                                         />
                                     </div>
-                                    <div className='col-12'>
-                                        <GridViewContainer id={item.id}
-                                                           key={item.id}
-                                                           subViewId={undefined}
-                                                           recordId={undefined}
-                                                           filterId={undefined}
-                                                           viewType={'dashboard'}
-                                                           showColumnLines={false}
-                                                           showRowLines={true}
-                                                           showBorders={false}
-                                                           showColumnHeaders={false}
-                                                           showFilterRow={false}
-                                                           showSelection={false}
-                                                           handleBlockUi={() => {
-                                                               this.blockUi();
-                                                               return true;
-                                                           }}
-                                                           handleUnBlockUi={() => {
-                                                               this.unblockUi();
-                                                               return true;
-                                                           }}
-                                                           handleShowErrorMessages={(err) => {
-                                                               this.showErrorMessages(err);
-                                                               return true;
-                                                           }}
-                                        >
-                                        </GridViewContainer>
-                                    </div>
+                                    <GridViewContainer id={item.id}
+                                                       key={item.id}
+                                                       subViewId={undefined}
+                                                       recordId={undefined}
+                                                       filterId={undefined}
+                                                       viewType={'dashboard'}
+                                                       showColumnLines={false}
+                                                       showRowLines={true}
+                                                       showBorders={false}
+                                                       showColumnHeaders={false}
+                                                       showFilterRow={false}
+                                                       showSelection={false}
+                                                       handleBlockUi={() => {
+                                                           this.blockUi();
+                                                           return true;
+                                                       }}
+                                                       handleUnBlockUi={() => {
+                                                           this.unblockUi();
+                                                           return true;
+                                                       }}
+                                                       handleShowErrorMessages={(err) => {
+                                                           this.showErrorMessages(err);
+                                                           return true;
+                                                       }}
+                                                       dataGridHeight={_cardHeight - 60}
+                                    >
+                                    </GridViewContainer>
                                 </div>
                             </React.Fragment>
                         )
@@ -193,10 +196,10 @@ class DashboardContainer extends BaseContainer {
                     {this.state.dashboard.views.filter(item => item.position === 'right').map((item) => {
                         return (
                             <React.Fragment>
-                                <div className='panel-dashboard row'>
-                                    <div className='col-11'><span
-                                        className='title-dashboard'> {item.label}</span></div>
-                                    <div className='col-1'>
+                                <div className='panel-dashboard'>
+                                   <span
+                                       className='title-dashboard'>{item.label}</span>
+                                    <div style={{float: 'right'}}>
                                         <ShortcutButton
                                             id={`_menu_button`}
                                             className={`action-button-with-menu`}
@@ -209,34 +212,33 @@ class DashboardContainer extends BaseContainer {
                                             rendered={true}
                                         />
                                     </div>
-                                    <div className='col-12'>
-                                        <GridViewContainer id={item.id}
-                                                           key={item.id}
-                                                           subViewId={undefined}
-                                                           recordId={undefined}
-                                                           filterId={undefined}
-                                                           viewType={'dashboard'}
-                                                           showColumnLines={false}
-                                                           showRowLines={true}
-                                                           showBorders={false}
-                                                           showColumnHeaders={false}
-                                                           showFilterRow={false}
-                                                           showSelection={false}
-                                                           handleBlockUi={() => {
-                                                               this.blockUi();
-                                                               return true;
-                                                           }}
-                                                           handleUnBlockUi={() => {
-                                                               this.unblockUi();
-                                                               return true;
-                                                           }}
-                                                           handleShowErrorMessages={(err) => {
-                                                               this.showErrorMessages(err);
-                                                               return true;
-                                                           }}
-                                        >
-                                        </GridViewContainer>
-                                    </div>
+                                    <GridViewContainer id={item.id}
+                                                       key={item.id}
+                                                       subViewId={undefined}
+                                                       recordId={undefined}
+                                                       filterId={undefined}
+                                                       viewType={'dashboard'}
+                                                       showColumnLines={false}
+                                                       showRowLines={true}
+                                                       showBorders={false}
+                                                       showColumnHeaders={false}
+                                                       showFilterRow={false}
+                                                       showSelection={false}
+                                                       handleBlockUi={() => {
+                                                           this.blockUi();
+                                                           return true;
+                                                       }}
+                                                       handleUnBlockUi={() => {
+                                                           this.unblockUi();
+                                                           return true;
+                                                       }}
+                                                       handleShowErrorMessages={(err) => {
+                                                           this.showErrorMessages(err);
+                                                           return true;
+                                                       }}
+                                                       dataGridHeight={_cardHeight - 60}
+                                    >
+                                    </GridViewContainer>
                                 </div>
                             </React.Fragment>
                         )

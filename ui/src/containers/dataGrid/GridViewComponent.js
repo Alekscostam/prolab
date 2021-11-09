@@ -124,7 +124,7 @@ class GridViewComponent extends React.Component {
                         column.caption = columnDefinition?.label;
                         column.dataType = GridViewUtils.specifyColumnType(columnDefinition?.type);
                         column.format = GridViewUtils.specifyColumnFormat(columnDefinition?.type);
-                        column.onCellPrepared = GridViewUtils.onCellPrepared(columnDefinition);
+                        column.cellTemplate = GridViewUtils.cellTemplate(columnDefinition);
                         column.fixed =
                             columnDefinition.freeze !== undefined && columnDefinition?.freeze !== null
                                 ? columnDefinition?.freeze?.toLowerCase() === 'left' ||
@@ -268,6 +268,7 @@ class GridViewComponent extends React.Component {
         const showRowLines = this.props.showRowLines;
         const showBorders = this.props.showBorders;
         const showFilterRow = this.props.showFilterRow;
+        const dataGridHeight = this.props.dataGridHeight|| false;
         return (
             <React.Fragment>
                 <DataGrid
@@ -288,7 +289,7 @@ class GridViewComponent extends React.Component {
                     showBorders={showBorders}
                     showColumnHeaders={showColumnHeaders}
                     columnHidingEnabled={false}
-                    height='100%'
+                    height={dataGridHeight ? (dataGridHeight + 'px') : '100%'}
                     rowAlternationEnabled={false}
                     onSelectionChanged={(e) => this.props.handleSelectedRowKeys(e)}
                     renderAsync={true}
@@ -347,7 +348,7 @@ GridViewComponent.defaultProps = {
     showBorders: true,
     showColumnHeaders: true,
     showFilterRow: true,
-    showSelection: true
+    showSelection: true,
 };
 
 GridViewComponent.propTypes = {
@@ -371,6 +372,7 @@ GridViewComponent.propTypes = {
     showBorders: PropTypes.bool,
     showFilterRow: PropTypes.bool,
     showSelection: PropTypes.bool,
+    dataGridHeight: PropTypes.number,
 };
 
 

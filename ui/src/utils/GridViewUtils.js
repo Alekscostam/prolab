@@ -1,8 +1,9 @@
-import {CheckBox} from 'devextreme-react';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Image from '../components/Image';
 import Constants from './Constants';
+
+let rowIndex = null;
 
 export class GridViewUtils {
     static containsOperationButton(operations, type) {
@@ -104,72 +105,75 @@ export class GridViewUtils {
         return undefined;
     }
 
-    static onCellPrepared(column) {
+    static cellTemplate(column) {
         return function (element, info) {
             let bgColorFinal = undefined;
-            const bgColor = info.data['_BGCOLOR'];
-            const specialBgColor = info.data['_BGCOLOR_' + info.column?.dataField];
-            if (bgColor) {
-                element.style.backgroundColor = bgColor;
+            let rowSelected = null;
+            if (rowIndex !== info.row.dataIndex) {
+                rowSelected = info?.row?.cells?.filter((c) => c.column?.type === 'selection' && c.value === true).length > 0;
+                rowIndex = info.row.dataIndex;
+            }
+            if (!!rowSelected) {
                 bgColorFinal = undefined;
+            } else {
+                const specialBgColor = info.data['_BGCOLOR_' + info.column?.dataField];
+                if (!!specialBgColor) {
+                    bgColorFinal = specialBgColor;
+                }else {
+                    const bgColor = info.data['_BGCOLOR'];
+                    if (bgColor) {
+                        element.style.backgroundColor = bgColor;
+                        bgColorFinal = undefined;
+                    }
+                }
             }
-            if (specialBgColor) {
-                bgColorFinal = specialBgColor;
-            }
-            const rowSelected =
-                info?.row?.cells?.filter((c) => c.column?.type === 'selection' && c.value === true).length > 0;
-            if (rowSelected) {
-                bgColorFinal = undefined;
-            }
-
             let fontColorFinal = 'black';
             const fontColor = info.data['_FONTCOLOR'];
-            const specialFontColor = info.data['_FONTCOLOR_' + info.column?.dataField];
-            if (fontColor) {
+            if (!!fontColor) {
                 fontColorFinal = fontColor;
             } else {
-                if (specialFontColor) {
+                const specialFontColor = info.data['_FONTCOLOR_' + info.column?.dataField];
+                if (!!specialFontColor) {
                     fontColorFinal = specialFontColor;
                 }
             }
-            if (!!info.text) {
-                switch (column?.type) {
-                    case 'I':
-                    case 'IM':
-                        if (Array.isArray(info.text) && info.text?.length > 0) {
-                            return ReactDOM.render(
-                                <div
-                                    style={{
-                                        display: 'inline',
-                                        backgroundColor: bgColorFinal,
-                                        color: fontColorFinal,
-                                        borderRadius: '25px',
-                                        padding: '2px 0px 2px 0px',
-                                    }}
-                                >
-                                    {info.text?.map((i, index) => {
-                                        return <Image style={{maxWidth: '100%'}} key={index} base64={info.text}/>;
-                                    })}
-                                </div>,
-                                element
-                            );
-                        } else {
-                            return ReactDOM.render(
-                                <div
-                                    style={{
-                                        display: 'inline',
-                                        backgroundColor: bgColorFinal,
-                                        color: fontColorFinal,
-                                        borderRadius: '25px',
-                                        padding: '2px 0px 2px 0px',
-                                    }}
-                                >
-                                    <Image style={{maxWidth: '100%'}} base64={info.text}/>
-                                </div>,
-                                element
-                            );
-                        }
-                    case 'B':
+
+            switch (column?.type) {
+                case 'C':
+                    return ReactDOM.render(
+                        <div
+                            style={{
+                                display: 'inline',
+                                backgroundColor: bgColorFinal,
+                                color: fontColorFinal,
+                                borderRadius: '25px',
+                                padding: '2px 6px 2px 6px',
+                            }}
+                            title={info.text}
+                        >
+                            {info.text}
+                        </div>,
+                        element
+                    );
+                case 'B':
+                    return ReactDOM.render(
+                        <div
+                            style={{
+                                display: 'inline',
+                                backgroundColor: bgColorFinal,
+                                color: fontColorFinal,
+                                borderRadius: '25px',
+                                padding: '2px 6px 2px 6px',
+                            }}
+                            title={info.text}
+                        >
+                            <input type="checkbox" readOnly={true} checked={info.text === 1}/>
+                        </div>,
+                        element
+                    );
+                case 'I':
+                case 'IM':
+                    if (Array.isArray(info.text) && info.text?.length > 0) {
                         return ReactDOM.render(
                             <div
                                 style={{
@@ -177,15 +181,16 @@ export class GridViewUtils {
                                     backgroundColor: bgColorFinal,
                                     color: fontColorFinal,
                                     borderRadius: '25px',
-                                    padding: '2px 6px 2px 6px',
+                                    padding: '2px 0px 2px 0px',
                                 }}
-                                title={info.text}
                             >
-                                <CheckBox readOnly={true} value={parseInt(info.text) === 1}/>
+                                {info.text?.map((i, index) => {
+                                    return <Image style={{maxWidth: '100%'}} key={index} base64={info.text}/>;
+                                })}
                             </div>,
                             element
                         );
-                    default:
+                    } else {
                         return ReactDOM.render(
                             <div
                                 style={{
@@ -193,28 +198,30 @@ export class GridViewUtils {
                                     backgroundColor: bgColorFinal,
                                     color: fontColorFinal,
                                     borderRadius: '25px',
-                                    padding: '2px 6px 2px 6px',
+                                    padding: '2px 0px 2px 0px',
                                 }}
-                                title={info.text}
                             >
-                                {info.text}
+                                <Image style={{maxWidth: '100%'}} base64={info.text}/>
                             </div>,
                             element
                         );
-                }
-            } else {
-                return ReactDOM.render(
-                    <div
-                        style={{
-                            display: 'inline',
-                            backgroundColor: bgColorFinal,
-                            color: fontColorFinal,
-                            borderRadius: '25px',
-                            padding: '2px 6px 2px 6px',
-                        }}
-                    ></div>,
-                    element
-                );
+                    }
+                default:
+                    return ReactDOM.render(
+                        <div
+                            style={{
+                                display: 'inline',
+                                backgroundColor: bgColorFinal,
+                                color: fontColorFinal,
+                                borderRadius: '25px',
+                                padding: '2px 6px 2px 6px',
+                            }}
+                            title={info.text}
+                        >
+                            {info.text}
+                        </div>,
+                        element
+                    );
             }
         };
     }

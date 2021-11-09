@@ -92,7 +92,7 @@ class SelectedGridViewComponent extends React.Component {
                                         caption={c.label}
                                         dataType={GridViewUtils.specifyColumnType(c?.type)}
                                         format={GridViewUtils.specifyColumnFormat(c?.type)}
-                                        onCellPrepared={GridViewUtils.onCellPrepared(c)}
+                                        cellTemplate={GridViewUtils.cellTemplate(c)}
                                         dataField={c.fieldName}
                                     />
                                 );
