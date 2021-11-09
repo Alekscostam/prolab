@@ -1,5 +1,6 @@
 import BaseService from './BaseService';
 import moment from 'moment';
+import ConsoleHelper from "../utils/ConsoleHelper";
 
 /*
 GET zwracający dane potrzebne do wyrenderowania widoku: informacje ogólne o widoku, opcje
@@ -15,7 +16,7 @@ export default class ViewService extends BaseService {
     }
 
     getView(viewId, viewType) {
-        let viewTypeParam='';
+        let viewTypeParam = '';
         if (!!viewType) {
             viewTypeParam = `?viewType=${viewType}`;
         }
@@ -30,7 +31,7 @@ export default class ViewService extends BaseService {
         // czasem na jednym widoku, lub przy przejściu między widokami idzie kilka takich samych zapytań, jedno po drugim;
         // dlatego wyniki zapytań są zapamiętywane lokalnie na 5 sekund
         const cacheKey = JSON.stringify({viewId: parseInt(viewId), recordId: parseInt(recordId)});
-         ConsoleHelper('getSubView: cacheKey=' + cacheKey);
+        ConsoleHelper('getSubView: cacheKey=' + cacheKey);
         try {
             let cacheValue = JSON.parse(sessionStorage.getItem(cacheKey));
             if (cacheValue) {
@@ -38,33 +39,33 @@ export default class ViewService extends BaseService {
                 const now = moment();
                 if (now.isBefore(expDate)) {
                     if (cacheValue.data) {
-                         ConsoleHelper('getSubView: returning data from cache');
+                        ConsoleHelper('getSubView: returning data from cache');
                         return Promise.resolve(cacheValue.data);
-                    }                    
+                    }
                 } else {
-                     ConsoleHelper('getSubView: cache expired');
+                    ConsoleHelper('getSubView: cache expired');
                 }
             } else {
-                 ConsoleHelper('getSubView: cache value is empty');
+                ConsoleHelper('getSubView: cache value is empty');
             }
         } catch (err) {
-             ConsoleHelper('getSubView: invalid format of cache value', err);
+            ConsoleHelper('getSubView: invalid format of cache value', err);
             sessionStorage.removeItem(cacheKey);
         }
         return this.fetch(`${this.domain}/${this.path}/${viewId}/subView/${recordId}`, {
             method: 'GET',
         })
-        .then((result) => {
-            const cacheValue = {
-                expDate: moment().add(5, 'seconds'),
-                data: result,
-            }
-             ConsoleHelper('getSubView: setting data to cache');
-            sessionStorage.setItem(cacheKey, JSON.stringify(cacheValue));
-            return Promise.resolve(result);
-        })
-        .catch((err) => {
-            throw err;
-        });        
+            .then((result) => {
+                const cacheValue = {
+                    expDate: moment().add(5, 'seconds'),
+                    data: result,
+                }
+                ConsoleHelper('getSubView: setting data to cache');
+                sessionStorage.setItem(cacheKey, JSON.stringify(cacheValue));
+                return Promise.resolve(result);
+            })
+            .catch((err) => {
+                throw err;
+            });
     }
 }

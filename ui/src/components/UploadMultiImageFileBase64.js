@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from "prop-types";
 
 import "../assets/css/multi_image_upload_base64.scss";
+import ConsoleHelper from "../utils/ConsoleHelper";
 
 class UploadMultiImageFileBase64 extends React.Component {
 
@@ -98,7 +99,7 @@ class UploadMultiImageFileBase64 extends React.Component {
     }
 
     clearPreview() {
-         ConsoleHelper('clearPreview')
+        ConsoleHelper('clearPreview')
         var imagePreviewRegion = document.getElementById("image-preview");
         imagePreviewRegion.innerHTML = "";
     }
@@ -132,8 +133,8 @@ class UploadMultiImageFileBase64 extends React.Component {
                     base64Images.push(e.target.result);
                 }
             }
-             ConsoleHelper('imageFile')
-             ConsoleHelper(imageFile)
+            ConsoleHelper('imageFile')
+            ConsoleHelper(imageFile)
             if (!!imageFile) {
                 reader.readAsDataURL(imageFile)
             } else {
@@ -146,7 +147,7 @@ class UploadMultiImageFileBase64 extends React.Component {
     }
 
     handleFiles(files) {
-         ConsoleHelper('previewAndUploadImage')
+        ConsoleHelper('previewAndUploadImage')
         if (this.props.clearOnInput === true) {
             this.clearPreview();
         }
@@ -236,7 +237,7 @@ UploadMultiImageFileBase64.propTypes = {
 };
 
 UploadMultiImageFileBase64.defaultProps = {
-    className:'',
+    className: '',
     onSuccessBlob: undefined,
     onSuccessB64: undefined,
     onError: undefined,

@@ -71,7 +71,7 @@ class SelectedGridViewComponent extends React.Component {
                     <div id='selection-row' className='float-left width-100'>
                         <DataGrid
                             id='selection-data-grid'
-                            keyExpr='ID'
+                            // keyExpr='ID'
                             ref={(ref) => this.props.handleOnInitialized(ref)}
                             dataSource={this.props.subView?.headerData}
                             wordWrapEnabled={rowAutoHeight}
