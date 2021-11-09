@@ -137,11 +137,11 @@ class Sidebar extends React.Component {
                 && !!this.state.viewId && nextState.viewId === this.state.viewId)
             || currentUrl.includes('force=')) {
             this.doNotUpdate = false;
-            console.log('sidebar => shouldComponentUpdate=%s prev_view_id=%s next_view_id=%s url=%s', false, this.state.viewId, nextState.viewId, window.location.href);
+             ConsoleHelper('sidebar => shouldComponentUpdate=%s prev_view_id=%s next_view_id=%s url=%s', false, this.state.viewId, nextState.viewId, window.location.href);
             return false;
         }else {
             const result = history.action !== 'PUSH' || (history.action !== 'PUSH' && nextProps.location.pathname === '/start');
-            console.log('sidebar => shouldComponentUpdate=%s prev_view_id=%s next_view_id=%s url=%s', result, this.state.viewId, nextState.viewId, window.location.href);
+             ConsoleHelper('sidebar => shouldComponentUpdate=%s prev_view_id=%s next_view_id=%s url=%s', result, this.state.viewId, nextState.viewId, window.location.href);
             return result;
         }
     }
@@ -213,7 +213,7 @@ class Sidebar extends React.Component {
     }
 
     render() {
-        console.log('sidebar => render', this.state.viewId);
+         ConsoleHelper('sidebar => render', this.state.viewId);
         let {authService} = this.props;
         const {collapsed, filterValue} = this.state;
         const loggedIn = authService.loggedIn();

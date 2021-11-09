@@ -56,7 +56,7 @@ class InputFileUploadComponent extends Component {
 					});
 				})
 				.catch((err) => {
-					console.log(`can not read system param ${uploadExtParamName}: ${err.message}`);
+					 ConsoleHelper(`can not read system param ${uploadExtParamName}: ${err.message}`);
 					if (handleError) {
 						handleError(err.message);
 					}
@@ -71,7 +71,7 @@ class InputFileUploadComponent extends Component {
 					});
 				})
 				.catch((err) => {
-					console.log(`can not read system param ${uploadMaxSizeParamName}: ${err.message}`);
+					 ConsoleHelper(`can not read system param ${uploadMaxSizeParamName}: ${err.message}`);
 					if (handleError) {
 						handleError(err.message);
 					}
@@ -254,7 +254,7 @@ class InputFileUploadComponent extends Component {
 		if (handleError) {
 			handleError(errMsg);
 		}
-		console.log(`can not upload file(s), err: ${errMsg}`);
+		 ConsoleHelper(`can not upload file(s), err: ${errMsg}`);
 	}
 
 	fileUploader(event) {
@@ -392,7 +392,7 @@ class InputFileUploadComponent extends Component {
 						onSelect={(e) => {
 							maxFileCountExceeded = false;
 							if (fileList.length + e.files.length > maxFileCount) {
-								console.log('file count exceeded...');
+								 ConsoleHelper('file count exceeded...');
 								maxFileCountExceeded = true;
 								if (onFileCountExceeded) {
 									onFileCountExceeded(maxFileCount);
@@ -544,7 +544,7 @@ class InputFileUploadComponent extends Component {
 							onSelect={(e) => {
 								maxFileCountExceeded = false;
 								if (fileList.length + e.files.length > maxFileCount) {
-									console.log('file count exceeded...');
+									 ConsoleHelper('file count exceeded...');
 									maxFileCountExceeded = true;
 									if (onFileCountExceeded) {
 										onFileCountExceeded(maxFileCount);

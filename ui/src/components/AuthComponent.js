@@ -2,6 +2,7 @@ import React from 'react';
 import AuthService from "../services/AuthService";
 import * as PropTypes from "prop-types";
 import Address from "./Address";
+import ConsoleHelper from "../utils/ConsoleHelper";
 
 
 class AuthComponent extends React.Component {
@@ -42,7 +43,7 @@ class AuthComponent extends React.Component {
                         viewMode: viewMode
                     });
                 } catch (err) {
-                    console.log('Error authorized. Exception=', err)
+                    ConsoleHelper('Error authorized. Exception=', err)
                     this.authService.logout();
                     historyBrowser.replace('/');
                 }

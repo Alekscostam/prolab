@@ -30,7 +30,7 @@ export default class ViewService extends BaseService {
         // czasem na jednym widoku, lub przy przejściu między widokami idzie kilka takich samych zapytań, jedno po drugim;
         // dlatego wyniki zapytań są zapamiętywane lokalnie na 5 sekund
         const cacheKey = JSON.stringify({viewId: parseInt(viewId), recordId: parseInt(recordId)});
-        console.log('getSubView: cacheKey=' + cacheKey);
+         ConsoleHelper('getSubView: cacheKey=' + cacheKey);
         try {
             let cacheValue = JSON.parse(sessionStorage.getItem(cacheKey));
             if (cacheValue) {
@@ -38,17 +38,17 @@ export default class ViewService extends BaseService {
                 const now = moment();
                 if (now.isBefore(expDate)) {
                     if (cacheValue.data) {
-                        console.log('getSubView: returning data from cache');
+                         ConsoleHelper('getSubView: returning data from cache');
                         return Promise.resolve(cacheValue.data);
                     }                    
                 } else {
-                    console.log('getSubView: cache expired');
+                     ConsoleHelper('getSubView: cache expired');
                 }
             } else {
-                console.log('getSubView: cache value is empty');
+                 ConsoleHelper('getSubView: cache value is empty');
             }
         } catch (err) {
-            console.log('getSubView: invalid format of cache value', err);
+             ConsoleHelper('getSubView: invalid format of cache value', err);
             sessionStorage.removeItem(cacheKey);
         }
         return this.fetch(`${this.domain}/${this.path}/${viewId}/subView/${recordId}`, {
@@ -59,7 +59,7 @@ export default class ViewService extends BaseService {
                 expDate: moment().add(5, 'seconds'),
                 data: result,
             }
-            console.log('getSubView: setting data to cache');
+             ConsoleHelper('getSubView: setting data to cache');
             sessionStorage.setItem(cacheKey, JSON.stringify(cacheValue));
             return Promise.resolve(result);
         })

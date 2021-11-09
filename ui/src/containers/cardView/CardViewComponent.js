@@ -9,6 +9,7 @@ import ActionButtonWithMenu from "../../components/ActionButtonWithMenu";
 import AppPrefixUtils from "../../utils/AppPrefixUtils";
 import PropTypes from "prop-types";
 import EditService from "../../services/EditService";
+import ConsoleHelper from "../../utils/ConsoleHelper";
 
 class CardViewComponent extends React.Component {
 
@@ -16,7 +17,7 @@ class CardViewComponent extends React.Component {
         super(props);
         this.editService = new EditService();
         this.labels = this.props;
-        console.log('CardViewComponent -> constructor');
+        ConsoleHelper('CardViewComponent -> constructor');
     }
 
     isSelectionEnabled() {
@@ -52,7 +53,7 @@ class CardViewComponent extends React.Component {
             <TileView
                 onInitialized={(e) => (this.props.handleOnInitialized(e.component))}
                 className='card-grid'
-                style={this.isDashboard() ? {width: cardWidth , height: cardHeight + 10} : null}
+                style={this.isDashboard() ? {width: cardWidth, height: cardHeight + 10} : null}
                 items={this.props.parsedCardViewData}
                 itemRender={(rowData) => {
                     const {cardBody, cardHeader, cardImage, cardFooter} = this.props.parsedGridView;

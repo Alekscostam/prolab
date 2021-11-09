@@ -248,7 +248,7 @@ export class GridViewUtils {
             (n1 === null || n1 === undefined || n1 === 'undefined') &&
             (n2 === null || n2 === undefined || n2 === 'undefined')
         ) {
-            //console.log('equalNumbers: result=' + true + ' {' + n1 + ', ' + n2 + '}' );
+            // ConsoleHelper('equalNumbers: result=' + true + ' {' + n1 + ', ' + n2 + '}' );
             return true;
         }
         let num1, num2;
@@ -263,7 +263,7 @@ export class GridViewUtils {
             num2 = parseInt(n2);
         }
         const result = num1 === num2;
-        //console.log('equalNumbers: result=' + result + ' [' + n1 + ', ' + n2 + '] [' + typeof n1 + ', ' + typeof n2 + ']' );
+        // ConsoleHelper('equalNumbers: result=' + result + ' [' + n1 + ', ' + n2 + '] [' + typeof n1 + ', ' + typeof n2 + ']' );
         return result;
     }
 

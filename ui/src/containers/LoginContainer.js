@@ -66,7 +66,7 @@ class LoginContainer extends BaseContainer {
                 this.setState({langs, labels, lang}, () => this.unblockUi());                
             })
             .catch(err => {
-                console.log(`LoginContainer:getLocalizationLoginPage error`, err);
+                 ConsoleHelper(`LoginContainer:getLocalizationLoginPage error`, err);
                 this.showErrorMessages(err);
                 this.unblockUi();   
             })
@@ -87,7 +87,7 @@ class LoginContainer extends BaseContainer {
                     }
                 })
                 .catch((err) => {
-                    console.log(`LoginContainer:handleFormSubmit error`, err);                    
+                     ConsoleHelper(`LoginContainer:handleFormSubmit error`, err);                    
                     if (err.status === 401 || err.status === 403) {
                         this.setState((state) => ({
                             authValid: false,

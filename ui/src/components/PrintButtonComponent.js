@@ -63,7 +63,7 @@ export class PrintButtonComponent extends Component {
     }
 
     handlePrint(format, event) {
-        console.log('handlePrint, format:', format);
+         ConsoleHelper('handlePrint, format:', format);
         if (event) {
             event.originalEvent.preventDefault();
         }

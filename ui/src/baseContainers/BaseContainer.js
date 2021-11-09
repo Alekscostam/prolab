@@ -15,6 +15,7 @@ import AppPrefixUtils from "../utils/AppPrefixUtils";
 import {confirmDialog} from "primereact/confirmdialog";
 import {localeOptions} from "primereact/api";
 import EditRowUtils from "../utils/EditRowUtils";
+import ConsoleHelper from "../utils/ConsoleHelper";
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -247,9 +248,9 @@ class BaseContainer extends React.Component {
             });
         } else {
             if (errMsg !== undefined) {
-                console.log('this.messages === undefined', errMsg);
+                ConsoleHelper('this.messages === undefined', errMsg);
             } else {
-                console.log('this.messages === undefined');
+                ConsoleHelper('this.messages === undefined');
             }
         }
     }
@@ -261,7 +262,7 @@ class BaseContainer extends React.Component {
                 errors[0].parentNode.scrollIntoView();
             }
         } else {
-            console.log('scrollToFirstError ', this, ReactDOM.findDOMNode(this));
+            ConsoleHelper('scrollToFirstError ', this, ReactDOM.findDOMNode(this));
         }
     }
 
@@ -296,7 +297,7 @@ class BaseContainer extends React.Component {
                     );
                 }
             } else {
-                console.log("component isn't mounted");
+                ConsoleHelper("component isn't mounted");
             }
         } else {
             if (this._isMounted) {
@@ -323,13 +324,13 @@ class BaseContainer extends React.Component {
                     );
                 }
             } else {
-                console.log("component isn't mounted");
+                ConsoleHelper("component isn't mounted");
             }
         }
     }
 
     handleChange(inputType, parameters, event, onAfterStateChange, stateField) {
-        console.log('handleChange', inputType, parameters, event, stateField);
+        ConsoleHelper('handleChange', inputType, parameters, event, stateField);
         let stateFieldValue = undefined;
         if (stateField && stateField !== '') {
             ({[stateField]: stateFieldValue} = this.state);
@@ -664,7 +665,7 @@ class BaseContainer extends React.Component {
                     break;
             }
         } else {
-            console.log('handleChange implementation error');
+            ConsoleHelper('handleChange implementation error');
         }
     }
 
@@ -979,9 +980,9 @@ class BaseContainer extends React.Component {
     }
 
     handleEditRowSave(viewId, recordId, parentId) {
-        console.log(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
+        ConsoleHelper(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
         const saveElement = this.editService.createObjectToSave(this.state);
-        console.log(`handleEditRowSave: element to save = ${JSON.stringify(saveElement)}`)
+        ConsoleHelper(`handleEditRowSave: element to save = ${JSON.stringify(saveElement)}`)
         this.rowSave(viewId, recordId, parentId, saveElement, false);
     }
 
@@ -1052,7 +1053,7 @@ class BaseContainer extends React.Component {
     }
 
     handleAutoFillRowChange(viewId, recordId, parentId) {
-        console.log(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
+        ConsoleHelper(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
         this.blockUi();
         const autofillBodyRequest = this.editService.createObjectToAutoFill(this.state);
         this.editService
@@ -1072,12 +1073,12 @@ class BaseContainer extends React.Component {
     }
 
     handleCancelRowChange(viewId, recordId, parentId) {
-        console.log(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
+        ConsoleHelper(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
     }
 
     handleEditRowChange(inputType, event, groupName, viewInfo, forceRefreshFieldVisibility = false) {
-        console.log(`handleEditRowChange inputType=${inputType} groupName=${groupName}`);
-        console.log(event)
+        ConsoleHelper(`handleEditRowChange inputType=${inputType} groupName=${groupName}`);
+        ConsoleHelper(event)
         let editData = this.state.editData;
         let groupData = editData.editFields.filter((obj) => {
             return obj.groupName === groupName;
@@ -1086,7 +1087,7 @@ class BaseContainer extends React.Component {
         let varValue;
         let startRefreshFieldVisibility = true;
         console.clear();
-        console.log(event)
+        ConsoleHelper(event)
         if (event !== undefined) {
             switch (inputType) {
                 case 'IMAGE64':
@@ -1117,7 +1118,7 @@ class BaseContainer extends React.Component {
                     varValue = event.target?.value || event.target?.value === '' ? event.target.value : undefined;
                     break;
             }
-            console.log('handleEditRowChange - ', inputType, varName, varValue);
+            ConsoleHelper('handleEditRowChange - ', inputType, varName, varValue);
             let field = groupData[0]?.fields.filter((obj) => {
                 return obj.fieldName === varName;
             });
@@ -1131,12 +1132,12 @@ class BaseContainer extends React.Component {
             }
             this.setState({editData: editData, modifyEditData: true});
         } else {
-            console.log('handleEditRowChange implementation error');
+            ConsoleHelper('handleEditRowChange implementation error');
         }
     }
 
     handleEditRowBlur(inputType, event, groupName, viewInfo) {
-        console.log(`handleEditRowBlur inputType=${inputType} groupName=${groupName}`);
+        ConsoleHelper(`handleEditRowBlur inputType=${inputType} groupName=${groupName}`);
         if (inputType === 'EDITOR') {
             this.refreshFieldVisibility(viewInfo);
         } else {

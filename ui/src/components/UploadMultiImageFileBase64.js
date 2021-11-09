@@ -98,7 +98,7 @@ class UploadMultiImageFileBase64 extends React.Component {
     }
 
     clearPreview() {
-        console.log('clearPreview')
+         ConsoleHelper('clearPreview')
         var imagePreviewRegion = document.getElementById("image-preview");
         imagePreviewRegion.innerHTML = "";
     }
@@ -132,8 +132,8 @@ class UploadMultiImageFileBase64 extends React.Component {
                     base64Images.push(e.target.result);
                 }
             }
-            console.log('imageFile')
-            console.log(imageFile)
+             ConsoleHelper('imageFile')
+             ConsoleHelper(imageFile)
             if (!!imageFile) {
                 reader.readAsDataURL(imageFile)
             } else {
@@ -146,7 +146,7 @@ class UploadMultiImageFileBase64 extends React.Component {
     }
 
     handleFiles(files) {
-        console.log('previewAndUploadImage')
+         ConsoleHelper('previewAndUploadImage')
         if (this.props.clearOnInput === true) {
             this.clearPreview();
         }

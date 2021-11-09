@@ -20,6 +20,7 @@ import Constants from "../utils/Constants";
 import {localeOptions} from "primereact/api";
 import GridViewComponent from "./dataGrid/GridViewComponent";
 import SelectedGridViewComponent from "./dataGrid/SelectedGridViewComponent";
+import ConsoleHelper from "../utils/ConsoleHelper";
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -27,7 +28,7 @@ export class GridViewContainer extends BaseContainer {
     _isMounted = false;
 
     constructor(props) {
-        console.log('GridViewContainer -> constructor');
+        ConsoleHelper('GridViewContainer -> constructor');
         super(props);
         this.viewService = new ViewService();
         this.editService = new EditService();
@@ -61,14 +62,14 @@ export class GridViewContainer extends BaseContainer {
 
 
     componentDidMount() {
-        console.log('GridViewContainer::componentDidMount -> path ', window.location.pathname);
+        ConsoleHelper('GridViewContainer::componentDidMount -> path ', window.location.pathname);
         this._isMounted = true;
         const id = this.props.id;
         const subViewId = this.props.subViewId;
         const recordId = this.props.recordId;
         const filterId = this.props.filterId;
         const viewType = this.props.viewType;
-        console.log(`GridGridViewContainer::componentDidMount -> id=${id}, subViewId = ${subViewId}, recordId = ${recordId}, filterId = ${filterId}, viewType=${viewType}`);
+        ConsoleHelper(`GridGridViewContainer::componentDidMount -> id=${id}, subViewId = ${subViewId}, recordId = ${recordId}, filterId = ${filterId}, viewType=${viewType}`);
         this.setState({
                 elementSubViewId: subViewId,
                 elementRecordId: recordId,
@@ -96,7 +97,7 @@ export class GridViewContainer extends BaseContainer {
     }
 
     downloadData(viewId, recordId, subviewId, filterId, viewType) {
-        console.log(
+        ConsoleHelper(
             `GridGridViewContainer::downloadData: viewId=${viewId}, recordId=${recordId}, subViewId=${subviewId}, viewType=${viewType}`
         );
         let subviewMode = !!recordId && !!viewId;
@@ -169,7 +170,7 @@ export class GridViewContainer extends BaseContainer {
                                     });
                                 });
                             });
-                            //console.log('GridViewContainer -> fetch columns: ', gridViewColumnsTmp);
+                            // ConsoleHelper('GridViewContainer -> fetch columns: ', gridViewColumnsTmp);
                             for (let plugin in responseView?.pluginsList) {
                                 pluginsListTmp.push({
                                     id: responseView?.pluginsList[plugin].id,
@@ -196,14 +197,14 @@ export class GridViewContainer extends BaseContainer {
                                         let subViewId = UrlUtils.getURLParameter('subview');
                                         let recordId = UrlUtils.getURLParameter('recordId');
                                         if (subviewMode) {
-                                            console.log(
+                                            ConsoleHelper(
                                                 `Redirect -> Id =  ${this.state.elementId} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${e.item?.id}`
                                             );
                                             window.location.href = AppPrefixUtils.locationHrefUrl(
                                                 `/#/grid-view/${this.state.elementId}?recordId=${recordId}&subview=${subViewId}&filterId=${e.item?.id}`
                                             );
                                         } else {
-                                            console.log(
+                                            ConsoleHelper(
                                                 `Redirect -> Id =  ${this.state.elementId} RecordId = ${recordId} FilterId = ${e.item?.id}`
                                             );
                                             if (!!e.item?.id) {
@@ -363,7 +364,7 @@ export class GridViewContainer extends BaseContainer {
     }
 
     onFilterChanged(e) {
-        console.log('onValueChanged', e);
+        ConsoleHelper('onValueChanged', e);
         if (!!e.value && e.value !== e.previousValue) {
             const filterId = parseInt(e.value)
             window.location.href = AppPrefixUtils.locationHrefUrl(
@@ -444,7 +445,7 @@ export class GridViewContainer extends BaseContainer {
                     leftContent={this.leftHeadPanelContent()}
                     rightContent={this.rightHeadPanelContent()}
                     handleDelete={() => {
-                        console.log('handleDelete');
+                        ConsoleHelper('handleDelete');
                         confirmDialog({
                             message: 'Czy na pewno chcesz usunąć zaznaczone rekordy?',
                             header: 'Potwierdzenie',
@@ -476,7 +477,7 @@ export class GridViewContainer extends BaseContainer {
                         })
                     }}
                     handleRestore={() => {
-                        console.log('handleRestore');
+                        ConsoleHelper('handleRestore');
                         confirmDialog({
                             message: 'Czy na pewno chcesz przywrócić zaznaczone rekordy?',
                             header: 'Potwierdzenie',
@@ -508,7 +509,7 @@ export class GridViewContainer extends BaseContainer {
                         })
                     }}
                     handleCopy={() => {
-                        console.log('handleCopy');
+                        ConsoleHelper('handleCopy');
                         confirmDialog({
                             message: 'Czy na pewno chcesz przywrócić zaznaczone rekordy?',
                             header: 'Potwierdzenie',
@@ -541,7 +542,7 @@ export class GridViewContainer extends BaseContainer {
                         })
                     }}
                     handleArchive={() => {
-                        console.log('handleArchive');
+                        ConsoleHelper('handleArchive');
                         confirmDialog({
                             message: 'Czy na pewno chcesz przenieść do archiwum zaznaczone rekordy?',
                             header: 'Potwierdzenie',

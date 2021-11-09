@@ -20,6 +20,7 @@ import EditService from "../services/EditService";
 import {Sidebar} from "primereact/sidebar";
 import UploadMultiImageFileBase64 from "./UploadMultiImageFileBase64";
 import {Checkbox} from "primereact/checkbox";
+import ConsoleHelper from "../utils/ConsoleHelper";
 
 export class EditRowComponent extends BaseContainer {
 
@@ -462,7 +463,7 @@ export class EditRowComponent extends BaseContainer {
     }
 
     getFiles(files) {
-        console.log(files[0].base64)
+        ConsoleHelper(files[0].base64)
     }
 
 }

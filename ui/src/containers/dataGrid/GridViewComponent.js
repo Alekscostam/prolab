@@ -22,6 +22,7 @@ import AppPrefixUtils from "../../utils/AppPrefixUtils";
 import EditService from "../../services/EditService";
 import moment from "moment";
 import Constants from "../../utils/Constants";
+import ConsoleHelper from "../../utils/ConsoleHelper";
 
 class GridViewComponent extends React.Component {
 
@@ -30,11 +31,11 @@ class GridViewComponent extends React.Component {
         this.labels = this.props;
         this.dataGrid = null;
         this.editService = new EditService();
-        console.log('GridViewComponent -> constructor');
+         ConsoleHelper('GridViewComponent -> constructor');
     }
 
     calculateCustomFilterExpression(value, operations, target, columnDefinition) {
-        console.log('calculateFilterExpression:: value: %s operations: %s target: %s columnDefinition: %s',
+         ConsoleHelper('calculateFilterExpression:: value: %s operations: %s target: %s columnDefinition: %s',
             value, operations, target, JSON.stringify(columnDefinition))
         try {
             if (!!columnDefinition) {
@@ -98,7 +99,7 @@ class GridViewComponent extends React.Component {
         if (columns?.length > 0) {
             //when viewData respond a lot of data
             const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
-            columns?.forEach((column) => {
+            columns.filter((column) => column.visible === true)?.forEach((column) => {
                 if (column.name === '_ROWNUMBER') {
                     //rule -> hide row with autonumber
                     column.visible = false;

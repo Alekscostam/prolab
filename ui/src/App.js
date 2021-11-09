@@ -16,6 +16,7 @@ import ReadConfigService from "./services/ReadConfigService";
 import {readCookieGlobal, saveCookieGlobal} from "./utils/Cookie";
 import LocalizationService from './services/LocalizationService';
 import config from "devextreme/core/config";
+import ConsoleHelper from "./utils/ConsoleHelper";
 
 class App extends Component {
     constructor() {
@@ -51,7 +52,7 @@ class App extends Component {
         config({
             editorStylingMode: 'underlined'
         });
-        console.log("App version = " + packageJson.version);
+        ConsoleHelper("App version = " + packageJson.version);
     }
 
 
@@ -138,7 +139,7 @@ class App extends Component {
                     });
             })
             .catch(err => {
-                console.log(`App:getLocalization error`, err);
+                ConsoleHelper(`App:getLocalization error`, err);
             })
     }
 

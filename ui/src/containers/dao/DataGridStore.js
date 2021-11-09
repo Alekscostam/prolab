@@ -2,6 +2,7 @@ import CustomStore from 'devextreme/data/custom_store';
 import 'devextreme/dist/css/dx.light.css';
 import 'whatwg-fetch';
 import BaseService from '../../services/BaseService';
+import ConsoleHelper from "../../utils/ConsoleHelper";
 
 export default class DataGridStore extends BaseService {
     constructor() {
@@ -90,7 +91,7 @@ export default class DataGridStore extends BaseService {
                 )
                     .then((response) => {
                         let data = response.data;
-                        console.log('DataGridStore -> fetch data: ', data);
+                         ConsoleHelper('DataGridStore -> fetch data: ', data);
                         if (onSuccess) {
                             onSuccess({totalSelectCount: response.totalCount});
                         }
@@ -102,7 +103,7 @@ export default class DataGridStore extends BaseService {
                         };
                     })
                     .catch((err) => {
-                        console.log('Error fetch data grid store for view id={%s}. Error = ', viewIdArg, err);
+                         ConsoleHelper('Error fetch data grid store for view id={%s}. Error = ', viewIdArg, err);
                         if (onError) {
                             onError(err);
                         }

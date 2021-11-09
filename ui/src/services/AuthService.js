@@ -1,6 +1,7 @@
 import decode from 'jwt-decode';
 import moment from 'moment';
 import {readCookieGlobal} from "../utils/Cookie";
+import ConsoleHelper from "../utils/ConsoleHelper";
 
 /*
 Żądanie POST służy do uwierzytelnienia użytkownika i uzyskania tokena, który służy do weryfikacji innego interfejsu API
@@ -58,7 +59,7 @@ export default class AuthService {
             })
                 .then((response) => this.parseJSON(response, headers))
                 .then((response) => {
-                    console.log('response', response);
+                    ConsoleHelper('response', response);
                     if (method === 'POST' || method === 'PUT') {
                         this.counter -= 1;
                         if (this.counter <= 0 && this.unblockUi !== undefined) {
