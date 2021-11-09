@@ -3,7 +3,9 @@ import ReactDOM from 'react-dom';
 import Image from '../components/Image';
 import Constants from './Constants';
 
-let rowIndex = null;
+let _rowIndex = null;
+let _bgColor = null;
+let _fontcolor = null;
 
 export class GridViewUtils {
     static containsOperationButton(operations, type) {
@@ -109,9 +111,11 @@ export class GridViewUtils {
         return function (element, info) {
             let bgColorFinal = undefined;
             let rowSelected = null;
-            if (rowIndex !== info.row.dataIndex) {
+            if (_rowIndex !== info.row.dataIndex) {
                 rowSelected = info?.row?.cells?.filter((c) => c.column?.type === 'selection' && c.value === true).length > 0;
-                rowIndex = info.row.dataIndex;
+                _rowIndex = info.row.dataIndex;
+                _bgColor = info.data['_BGCOLOR'];
+                _fontcolor = info.data['_FONTCOLOR'];
             }
             if (!!rowSelected) {
                 bgColorFinal = undefined;
@@ -119,27 +123,30 @@ export class GridViewUtils {
                 const specialBgColor = info.data['_BGCOLOR_' + info.column?.dataField];
                 if (!!specialBgColor) {
                     bgColorFinal = specialBgColor;
-                }else {
-                    const bgColor = info.data['_BGCOLOR'];
-                    if (bgColor) {
-                        element.style.backgroundColor = bgColor;
+                } else {
+                    if (_bgColor) {
+                        element.style.backgroundColor = _bgColor;
                         bgColorFinal = undefined;
                     }
                 }
             }
             let fontColorFinal = 'black';
-            const fontColor = info.data['_FONTCOLOR'];
-            if (!!fontColor) {
-                fontColorFinal = fontColor;
+            if (!!_fontcolor) {
+                fontColorFinal = _fontcolor;
             } else {
                 const specialFontColor = info.data['_FONTCOLOR_' + info.column?.dataField];
                 if (!!specialFontColor) {
                     fontColorFinal = specialFontColor;
                 }
             }
-
             switch (column?.type) {
                 case 'C':
+                case "N":
+                case 'D':
+                case 'E':
+                case 'T':
+                case 'O':
+                case 'H':
                     return ReactDOM.render(
                         <div
                             style={{

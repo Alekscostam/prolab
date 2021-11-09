@@ -1,15 +1,12 @@
 import {SelectBox, Tabs} from 'devextreme-react';
 import ButtonGroup from 'devextreme-react/button-group';
-import DataGrid, {Column,} from 'devextreme-react/data-grid';
 import PropTypes from 'prop-types';
 import React from 'react';
-import ReactDOM from 'react-dom';
 import BaseContainer from '../baseContainers/BaseContainer';
 import ActionButton from '../components/ActionButton';
 import ActionButtonWithMenu from '../components/ActionButtonWithMenu';
 import EditRowComponent from '../components/EditRowComponent';
 import HeadPanel from '../components/HeadPanel';
-import ShortcutButton from '../components/ShortcutButton';
 import ShortcutsButton from '../components/ShortcutsButton';
 import EditService from '../services/EditService';
 import ViewService from '../services/ViewService';
@@ -22,7 +19,6 @@ import {confirmDialog} from "primereact/confirmdialog";
 import Constants from "../utils/Constants";
 import {localeOptions} from "primereact/api";
 import GridViewComponent from "./dataGrid/GridViewComponent";
-import EditRowUtils from "../utils/EditRowUtils";
 import SelectedGridViewComponent from "./dataGrid/SelectedGridViewComponent";
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
