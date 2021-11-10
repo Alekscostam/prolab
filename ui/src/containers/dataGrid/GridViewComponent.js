@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from "prop-types";
 import DataGrid, {
+    Column,
     Editing,
     FilterRow,
     Grouping,
@@ -31,11 +32,11 @@ class GridViewComponent extends React.Component {
         this.labels = this.props;
         this.dataGrid = null;
         this.editService = new EditService();
-         ConsoleHelper('GridViewComponent -> constructor');
+        ConsoleHelper('GridViewComponent -> constructor');
     }
 
     calculateCustomFilterExpression(value, operations, target, columnDefinition) {
-         ConsoleHelper('calculateFilterExpression:: value: %s operations: %s target: %s columnDefinition: %s',
+        ConsoleHelper('calculateFilterExpression:: value: %s operations: %s target: %s columnDefinition: %s',
             value, operations, target, JSON.stringify(columnDefinition))
         try {
             if (!!columnDefinition) {
@@ -94,7 +95,7 @@ class GridViewComponent extends React.Component {
         return widthTmp;
     }
 
-    customizeColumns = (columns) => {
+    postCustomizeColumns = (columns) => {
         let INDEX_COLUMN = 0;
         if (columns?.length > 0) {
             //when viewData respond a lot of data
@@ -134,10 +135,6 @@ class GridViewComponent extends React.Component {
                         column.fixedPosition = !!columnDefinition.freeze
                             ? columnDefinition.freeze?.toLowerCase()
                             : null;
-                        if (!!columnDefinition?.sortIndex && columnDefinition?.sortIndex > 0 && !!columnDefinition?.sortOrder) {
-                            column.sortIndex = columnDefinition?.sortIndex;
-                            column.sortOrder = columnDefinition?.sortOrder?.toLowerCase();
-                        }
                         if (!!columnDefinition.groupIndex && columnDefinition.groupIndex > 0) {
                             column.groupIndex = columnDefinition.groupIndex;
                         }
@@ -256,6 +253,22 @@ class GridViewComponent extends React.Component {
         return e.column.command === 'select' && e.column.visible === true && e.columnIndex === 0 && e.rowType === 'header';
     }
 
+    preGenerateColumnsDefinition() {
+        let columns = [];
+        this.props.gridViewColumns.forEach((columnDefinition, INDEX_COLUMN) => {
+            let sortOrder;
+            if (!!columnDefinition?.sortIndex && columnDefinition?.sortIndex > 0 && !!columnDefinition?.sortOrder) {
+                sortOrder = columnDefinition?.sortOrder?.toLowerCase();
+            }
+            columns.push(<Column
+                key={INDEX_COLUMN}
+                dataField={columnDefinition.fieldName}
+                sortOrder={sortOrder}
+            />);
+        })
+        return columns;
+    }
+
     render() {
         const showGroupPanel = this.props.parsedGridView?.gridOptions?.showGroupPanel || false;
         const groupExpandAll = this.props.parsedGridView?.gridOptions?.groupExpandAll || false;
@@ -269,7 +282,7 @@ class GridViewComponent extends React.Component {
         const showRowLines = this.props.showRowLines;
         const showBorders = this.props.showBorders;
         const showFilterRow = this.props.showFilterRow;
-        const dataGridHeight = this.props.dataGridHeight|| false;
+        const dataGridHeight = this.props.dataGridHeight || false;
         return (
             <React.Fragment>
                 <DataGrid
@@ -279,7 +292,7 @@ class GridViewComponent extends React.Component {
                     key='ID'
                     ref={(ref) => this.props.handleOnInitialized(ref)}
                     dataSource={this.props.parsedGridViewData}
-                    customizeColumns={this.customizeColumns}
+                    customizeColumns={this.postCustomizeColumns}
                     wordWrapEnabled={rowAutoHeight}
                     columnAutoWidth={columnAutoWidth}
                     columnResizingMode='widget'
@@ -334,6 +347,7 @@ class GridViewComponent extends React.Component {
                                showPane={false}
                                position="absolute"/>
                     <Editing mode='cell'/>
+                    {this.preGenerateColumnsDefinition()}
                 </DataGrid>
             </React.Fragment>
         );
