@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from "prop-types";
-import DivContainer from "./DivContainer";
+import DivContainer from "../DivContainer";
 
 export default class UploadImageFileBase64 extends React.Component {
 

@@ -29,6 +29,15 @@ export default class EditService extends BaseService {
         });
     }
 
+    getEditList(viewId, recordId, parentId, element) {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}/list${parentId ? `?parentId=${parentId}` : ''}`, {
+            method: 'POST',
+            body: JSON.stringify(element),
+        }).catch((err) => {
+            throw err;
+        });
+    }
+
     refreshFieldVisibility(viewId, recordId, parentId, refreshElement) {
         return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}/RefreshFieldVisibility${parentId ? `?parentId=${parentId}` : ''}`, {
             method: 'POST',

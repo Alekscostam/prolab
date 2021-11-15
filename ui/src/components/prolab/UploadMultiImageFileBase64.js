@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from "prop-types";
 
-import "../assets/css/multi_image_upload_base64.scss";
-import ConsoleHelper from "../utils/ConsoleHelper";
+import "../../assets/css/multi_image_upload_base64.scss";
+import ConsoleHelper from "../../utils/ConsoleHelper";
 
 class UploadMultiImageFileBase64 extends React.Component {
 

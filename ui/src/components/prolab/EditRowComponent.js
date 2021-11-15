@@ -3,24 +3,24 @@
 /* eslint-disable react/jsx-max-props-per-line */
 import React from 'react';
 import PropTypes from 'prop-types';
-import DivContainer from "./DivContainer";
+import DivContainer from "../DivContainer";
 import {InputText} from "primereact/inputtext";
-import BaseContainer from "../baseContainers/BaseContainer";
+import BaseContainer from "../../baseContainers/BaseContainer";
 import {Panel} from "primereact/panel";
 import ShortcutButton from "./ShortcutButton";
-import {GridViewUtils} from "../utils/GridViewUtils";
+import {GridViewUtils} from "../../utils/GridViewUtils";
 import {Dropdown} from "primereact/dropdown";
 import {Calendar} from "primereact/calendar";
-import SimpleReactValidator from "./validator";
+import SimpleReactValidator from "../validator";
 import HtmlEditor, {Item, MediaResizing, Toolbar} from 'devextreme-react/html-editor';
 import {Validator} from "devextreme-react";
 import {RequiredRule} from "devextreme-react/validator";
 import moment from 'moment';
-import EditService from "../services/EditService";
+import EditService from "../../services/EditService";
 import {Sidebar} from "primereact/sidebar";
 import UploadMultiImageFileBase64 from "./UploadMultiImageFileBase64";
 import {Checkbox} from "primereact/checkbox";
-import ConsoleHelper from "../utils/ConsoleHelper";
+import ConsoleHelper from "../../utils/ConsoleHelper";
 
 export class EditRowComponent extends BaseContainer {
 

@@ -208,7 +208,7 @@ export class GridViewUtils {
                                     padding: '2px 0px 2px 0px',
                                 }}
                             >
-                                <Image style={{maxWidth: '100%'}} base64={info.text}/>
+                                <Image style={{maxHeight:'26px'}} base64={info.text}/>
                             </div>,
                             element
                         );

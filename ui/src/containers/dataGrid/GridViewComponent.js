@@ -17,8 +17,8 @@ import DataGrid, {
 import {Breadcrumb} from "../../utils/BreadcrumbUtils";
 import {GridViewUtils} from "../../utils/GridViewUtils";
 import ReactDOM from "react-dom";
-import ShortcutButton from "../../components/ShortcutButton";
-import ActionButtonWithMenu from "../../components/ActionButtonWithMenu";
+import ShortcutButton from "../../components/prolab/ShortcutButton";
+import ActionButtonWithMenu from "../../components/prolab/ActionButtonWithMenu";
 import AppPrefixUtils from "../../utils/AppPrefixUtils";
 import EditService from "../../services/EditService";
 import moment from "moment";
@@ -250,7 +250,7 @@ class GridViewComponent extends React.Component {
     };
 
     ifSelectAllEvent(e) {
-        return e.column.command === 'select' && e.column.visible === true && e.columnIndex === 0 && e.rowType === 'header';
+        return !!e && e.column?.command === 'select' && e.column?.visible === true && e.columnIndex === 0 && e.rowType === 'header';
     }
 
     preGenerateColumnsDefinition() {
@@ -336,7 +336,7 @@ class GridViewComponent extends React.Component {
                     <Sorting mode='multiple'/>
 
                     <Selection mode={showSelection ? 'multiple' : 'none'} selectAllMode='allPages'
-                               showCheckBoxesMode='always' allowSelectAll={true}/>
+                               showCheckBoxesMode='always' allowSelectAll={true} />
 
                     <Scrolling mode="virtual" rowRenderingMode="virtual"/>
                     <Paging defaultPageSize={packageCount}/>

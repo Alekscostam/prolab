@@ -2,7 +2,7 @@
 /* eslint-disable react/jsx-max-props-per-line */
 import React from 'react';
 import PropTypes from 'prop-types';
-import Image from "./Image";
+import Image from "../Image";
 
 export const Avatar = (props) => {
     const {userName, base64, rendered, collapsed} = props;

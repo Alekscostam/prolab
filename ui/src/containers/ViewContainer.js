@@ -4,11 +4,11 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import BaseContainer from '../baseContainers/BaseContainer';
 import ActionButton from '../components/ActionButton';
-import ActionButtonWithMenu from '../components/ActionButtonWithMenu';
-import EditRowComponent from '../components/EditRowComponent';
-import HeadPanel from '../components/HeadPanel';
-import ShortcutButton from '../components/ShortcutButton';
-import ShortcutsButton from '../components/ShortcutsButton';
+import ActionButtonWithMenu from '../components/prolab/ActionButtonWithMenu';
+import EditRowComponent from '../components/prolab/EditRowComponent';
+import HeadPanel from '../components/prolab/HeadPanel';
+import ShortcutButton from '../components/prolab/ShortcutButton';
+import ShortcutsButton from '../components/prolab/ShortcutsButton';
 import EditService from '../services/EditService';
 import ViewService from '../services/ViewService';
 import AppPrefixUtils from '../utils/AppPrefixUtils';
@@ -34,7 +34,7 @@ export class ViewContainer extends BaseContainer {
     _isMounted = false;
 
     constructor(props) {
-         ConsoleHelper('ViewContainer -> constructor');
+        ConsoleHelper('ViewContainer -> constructor');
         super(props);
         this.viewService = new ViewService();
         this.editService = new EditService();
@@ -47,6 +47,7 @@ export class ViewContainer extends BaseContainer {
             elementId: props.id,
             elementSubViewId: null,
             elementRecordId: null,
+            elementParentId: null,
             viewMode: props.viewMode,
             parsedGridView: {},
             parsedGridViewData: {},
@@ -83,6 +84,7 @@ export class ViewContainer extends BaseContainer {
         const recordId = UrlUtils.getURLParameter('recordId');
         const filterId = UrlUtils.getURLParameter('filterId');
         const viewType = UrlUtils.getURLParameter('viewType');
+        const parentId = UrlUtils.getURLParameter('parentId');
         let id = UrlUtils.getViewIdFromURL();
         if (id === undefined) {
             id = this.props.id;
@@ -95,6 +97,8 @@ export class ViewContainer extends BaseContainer {
                 elementRecordId: recordId,
                 elementFilterId: filterId,
                 gridViewType: viewType,
+                //z dashboardu
+                elementParentId: parentId,
             },
             () => {
                 this.downloadData(
@@ -102,6 +106,7 @@ export class ViewContainer extends BaseContainer {
                     this.state.elementRecordId,
                     this.state.elementSubViewId,
                     this.state.elementFilterId,
+                    this.state.elementParentId,
                     viewType
                 );
             }
@@ -109,7 +114,7 @@ export class ViewContainer extends BaseContainer {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-         ConsoleHelper('ViewContainer::componentDidUpdate prevProps id={%s} id={%s}', prevProps.id, this.props.id);
+        ConsoleHelper('ViewContainer::componentDidUpdate prevProps id={%s} id={%s}', prevProps.id, this.props.id);
         let id = UrlUtils.getViewIdFromURL();
         if (id === undefined) {
             id = this.props.id;
@@ -119,10 +124,11 @@ export class ViewContainer extends BaseContainer {
         const filterId = UrlUtils.getURLParameter('filterId');
         const gridViewType = UrlUtils.getURLParameter('viewType');
         const force = UrlUtils.getURLParameter('force');
+        const parentId = UrlUtils.getURLParameter('parentId');
         const firstSubViewMode = !!recordId && !!id && !!!subViewId;
-         ConsoleHelper('ViewContainer::componentDidUpdate: firstSubViewMode -> ' + firstSubViewMode);
-         ConsoleHelper(`ViewContainer::componentDidUpdate: store params -> Id =  ${id} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`);
-         ConsoleHelper(`ViewContainer::componentDidUpdate: elementId=${this.state.elementId}, id=${id}, 
+        ConsoleHelper('ViewContainer::componentDidUpdate: firstSubViewMode -> ' + firstSubViewMode);
+        ConsoleHelper(`ViewContainer::componentDidUpdate: store params -> Id =  ${id} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`);
+        ConsoleHelper(`ViewContainer::componentDidUpdate: elementId=${this.state.elementId}, id=${id}, 
             firstSubViewMode=${firstSubViewMode}, elementSubViewId=${this.state.elementSubViewId}, subViewId=${subViewId}, 
             elementRecordId=${this.state.elementRecordId}, recordId=${recordId},
             prevState.gridViewType=${this.state.gridViewType}, gridViewType=${gridViewType}`,
@@ -136,7 +142,7 @@ export class ViewContainer extends BaseContainer {
             this.state.subView.subViews.length > 0 &&
             this.state.elementSubViewId !== this.state.subView.subViews[0].id;
 
-         ConsoleHelper('ViewContainer::componentDidUpdate -> ' + prevState.gridViewType + '::' + this.state.gridViewType);
+        ConsoleHelper('ViewContainer::componentDidUpdate -> ' + prevState.gridViewType + '::' + this.state.gridViewType);
         if (
             !!force ||
             !GridViewUtils.equalNumbers(this.state.elementId, id) ||
@@ -147,14 +153,16 @@ export class ViewContainer extends BaseContainer {
         ) {
             const newUrl = UrlUtils.deleteParameterFromURL(window.document.URL.toString(), 'force');
             window.history.replaceState('', '', newUrl);
-             ConsoleHelper('ViewContainer::componentDidUpdate -> updating....');
-             ConsoleHelper('ViewContainer::componentDidUpdate -> ' + prevState.gridViewType + '::' + this.state.gridViewType + '::' + gridViewType);
+            ConsoleHelper('ViewContainer::componentDidUpdate -> updating....');
+            ConsoleHelper('ViewContainer::componentDidUpdate -> ' + prevState.gridViewType + '::' + this.state.gridViewType + '::' + gridViewType);
             this.setState(
                 {
                     elementId: id,
                     elementSubViewId: subViewId,
                     elementRecordId: recordId,
                     elementFilterId: filterId,
+                    //z dashboardu
+                    elementParentId: parentId,
                     gridViewType,
                 },
                 () => {
@@ -163,12 +171,13 @@ export class ViewContainer extends BaseContainer {
                         this.state.elementRecordId,
                         this.state.elementSubViewId,
                         this.state.elementFilterId,
+                        this.state.elementParentId,
                         gridViewType
                     );
                 }
             );
         } else {
-             ConsoleHelper('ViewContainer::componentDidUpdate -> do not download view data!');
+            ConsoleHelper('ViewContainer::componentDidUpdate -> do not download view data!');
         }
         if (this.state.gridViewType === 'cardView' && this.cardGrid !== null) {
             this.cardGrid._scrollView.on('scroll', (e) => {
@@ -181,7 +190,7 @@ export class ViewContainer extends BaseContainer {
                     this.setState(
                         {cardScrollLoading: true, cardSkip: this.state.cardSkip + this.state.cardTake},
                         () => {
-                             ConsoleHelper('Datasource', this.cardGrid.getDataSource());
+                            ConsoleHelper('Datasource', this.cardGrid.getDataSource());
                             this.cardGrid.beginUpdate();
                             this.dataGridStore
                                 .getDataForCard(this.props.id, {
@@ -235,9 +244,9 @@ export class ViewContainer extends BaseContainer {
         }
     }
 
-    downloadData(viewId, recordId, subviewId, filterId, viewType) {
-         ConsoleHelper(
-            `ViewContainer::downloadData: viewId=${viewId}, recordId=${recordId}, subViewId=${subviewId}, viewType=${viewType}`
+    downloadData(viewId, recordId, subviewId, filterId, parentId, viewType) {
+        ConsoleHelper(
+            `ViewContainer::downloadData: viewId=${viewId}, recordId=${recordId}, subViewId=${subviewId}, viewType=${viewType}, parentId=${parentId}`
         );
         let subviewMode = !!recordId && !!viewId;
         if (subviewMode) {
@@ -280,7 +289,7 @@ export class ViewContainer extends BaseContainer {
                             },
                             () => {
                                 this.unblockUi();
-                                this.getViewById(elementSubViewId, recordId, filterId, viewType, subviewMode);
+                                this.getViewById(elementSubViewId, recordId, filterId, parentId, viewType, subviewMode);
                                 return;
                             }
                         );
@@ -294,12 +303,12 @@ export class ViewContainer extends BaseContainer {
             return;
         } else {
             this.setState({subView: null}, () => {
-                this.getViewById(viewId, recordId, filterId, viewType, subviewMode);
+                this.getViewById(viewId, recordId, filterId, parentId, viewType, subviewMode);
             });
         }
     }
 
-    getViewById(viewId, recordId, filterId, viewType, subviewMode) {
+    getViewById(viewId, recordId, filterId, parentId, viewType, subviewMode) {
         this.setState(
             {
                 loading: true,
@@ -359,14 +368,14 @@ export class ViewContainer extends BaseContainer {
                                         let subViewId = UrlUtils.getURLParameter('subview');
                                         let recordId = UrlUtils.getURLParameter('recordId');
                                         if (subviewMode) {
-                                             ConsoleHelper(
+                                            ConsoleHelper(
                                                 `Redirect -> Id =  ${this.state.elementId} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${e.item?.id}`
                                             );
                                             window.location.href = AppPrefixUtils.locationHrefUrl(
                                                 `/#/grid-view/${this.state.elementId}?recordId=${recordId}&subview=${subViewId}&filterId=${e.item?.id}${currentBreadcrumb}`
                                             );
                                         } else {
-                                             ConsoleHelper(
+                                            ConsoleHelper(
                                                 `Redirect -> Id =  ${this.state.elementId} RecordId = ${recordId} FilterId = ${e.item?.id}`
                                             );
                                             if (!!e.item?.id) {
@@ -457,6 +466,7 @@ export class ViewContainer extends BaseContainer {
                                                 'gridView',
                                                 this.state.subView == null ? null : this.state.elementRecordId,
                                                 !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId,
+                                                parentId,
                                                 //onError
                                                 (err) => {
                                                     this.showErrorMessages(err);
@@ -512,6 +522,7 @@ export class ViewContainer extends BaseContainer {
                 this.state.elementRecordId,
                 this.state.elementSubViewId,
                 this.state.elementFilterId,
+                this.state.elementParentId,
                 this.state.gridViewType
             );
         });
@@ -583,7 +594,7 @@ export class ViewContainer extends BaseContainer {
     }
 
     onFilterChanged(e) {
-         ConsoleHelper('onValueChanged', e);
+        ConsoleHelper('onValueChanged', e);
         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
         if (!!e.value && e.value !== e.previousValue) {
             const filterId = parseInt(e.value)
@@ -672,7 +683,7 @@ export class ViewContainer extends BaseContainer {
                     leftContent={this.leftHeadPanelContent()}
                     rightContent={this.rightHeadPanelContent()}
                     handleDelete={() => {
-                         ConsoleHelper('handleDelete');
+                        ConsoleHelper('handleDelete');
                         confirmDialog({
                             message: 'Czy na pewno chcesz usunąć zaznaczone rekordy?',
                             header: 'Potwierdzenie',
@@ -704,7 +715,7 @@ export class ViewContainer extends BaseContainer {
                         })
                     }}
                     handleRestore={() => {
-                         ConsoleHelper('handleRestore');
+                        ConsoleHelper('handleRestore');
                         confirmDialog({
                             message: 'Czy na pewno chcesz przywrócić zaznaczone rekordy?',
                             header: 'Potwierdzenie',
@@ -736,7 +747,7 @@ export class ViewContainer extends BaseContainer {
                         })
                     }}
                     handleCopy={() => {
-                         ConsoleHelper('handleCopy');
+                        ConsoleHelper('handleCopy');
                         confirmDialog({
                             message: 'Czy na pewno chcesz przywrócić zaznaczone rekordy?',
                             header: 'Potwierdzenie',
@@ -769,7 +780,7 @@ export class ViewContainer extends BaseContainer {
                         })
                     }}
                     handleArchive={() => {
-                         ConsoleHelper('handleArchive');
+                        ConsoleHelper('handleArchive');
                         confirmDialog({
                             message: 'Czy na pewno chcesz przenieść do archiwum zaznaczone rekordy?',
                             header: 'Potwierdzenie',

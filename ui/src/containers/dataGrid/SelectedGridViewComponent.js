@@ -3,8 +3,8 @@ import PropTypes from "prop-types";
 import DataGrid, {Column} from "devextreme-react/data-grid";
 import {GridViewUtils} from "../../utils/GridViewUtils";
 import ReactDOM from "react-dom";
-import ShortcutButton from "../../components/ShortcutButton";
-import ActionButtonWithMenu from "../../components/ActionButtonWithMenu";
+import ShortcutButton from "../../components/prolab/ShortcutButton";
+import ActionButtonWithMenu from "../../components/prolab/ActionButtonWithMenu";
 import ConsoleHelper from "../../utils/ConsoleHelper";
 
 class SelectedGridViewComponent extends React.Component {

@@ -19,7 +19,7 @@ import ActionButton from '../../components/ActionButton';
 import VersionService from '../../services/VersionService';
 import AppPrefixUtils from '../../utils/AppPrefixUtils';
 import UrlUtils from '../../utils/UrlUtils';
-import Avatar from '../../components/Avatar';
+import Avatar from '../../components/prolab/Avatar';
 import ConsoleHelper from "../../utils/ConsoleHelper";
 
 class Sidebar extends React.Component {

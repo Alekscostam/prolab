@@ -4,48 +4,14 @@ import 'whatwg-fetch';
 import BaseService from '../../services/BaseService';
 import ConsoleHelper from "../../utils/ConsoleHelper";
 
-export default class DataGridStore extends BaseService {
+export default class EditListDataStore extends BaseService {
     constructor() {
         super();
         this.path = 'viewdata';
     }
 
-    getDataForCard(viewId, loadOptions) {
-        // Get a token from api server using the fetch api
-        let params = '?';
-        [
-            'filter',
-            'filterId',
-            'parentId',
-            'group',
-            'groupSummary',
-            'parentIds',
-            'requireGroupCount',
-            'requireTotalCount',
-            'searchExpr',
-            'searchOperation',
-            'searchValue',
-            'select',
-            'sort',
-            'skip',
-            'take',
-            'totalSummary',
-            'userData',
-        ].forEach((i) => {
-            if (i in loadOptions && this.isNotEmpty(loadOptions[i])) {
-                params += `${i}=${JSON.stringify(loadOptions[i])}&`;
-            }
-        });
-        params += 'viewType=cardView';
-        return this.fetch(`${this.domain}/${this.path}/${viewId}${params}`, {
-            method: 'GET',
-        }).then((res) => {
-            return Promise.resolve(res);
-        });
-    }
-
-    getDataGridStore(viewIdArg, viewTypeArg, recordIdArg, filterIdArg, parentIdArg, onError, onSuccess, onStart) {
-        const dataGridStore = new CustomStore({
+    getEditListDataStore(viewIdArg, viewTypeArg, recordIdArg, filterIdArg, parentIdArg, onError, onSuccess, onStart) {
+        const editListDataStore = new CustomStore({
             key: 'ID',
             //keyExpr: 'ID',
             load: (loadOptions) => {
@@ -112,7 +78,7 @@ export default class DataGridStore extends BaseService {
                     });
             },
         });
-        return dataGridStore;
+        return editListDataStore;
     }
 
     isNotEmpty(value) {

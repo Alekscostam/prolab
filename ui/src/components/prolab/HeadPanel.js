@@ -4,7 +4,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ShortcutButton from "./ShortcutButton";
-import {GridViewUtils} from "../utils/GridViewUtils";
+import {GridViewUtils} from "../../utils/GridViewUtils";
 //OP_DELETE
 //OP_RESTORE
 //OP_COPY

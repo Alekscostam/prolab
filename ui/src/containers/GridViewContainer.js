@@ -4,10 +4,10 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import BaseContainer from '../baseContainers/BaseContainer';
 import ActionButton from '../components/ActionButton';
-import ActionButtonWithMenu from '../components/ActionButtonWithMenu';
-import EditRowComponent from '../components/EditRowComponent';
-import HeadPanel from '../components/HeadPanel';
-import ShortcutsButton from '../components/ShortcutsButton';
+import ActionButtonWithMenu from '../components/prolab/ActionButtonWithMenu';
+import EditRowComponent from '../components/prolab/EditRowComponent';
+import HeadPanel from '../components/prolab/HeadPanel';
+import ShortcutsButton from '../components/prolab/ShortcutsButton';
 import EditService from '../services/EditService';
 import ViewService from '../services/ViewService';
 import AppPrefixUtils from '../utils/AppPrefixUtils';
@@ -254,6 +254,7 @@ export class GridViewContainer extends BaseContainer {
                                             this.state.viewType,
                                             this.state.subView == null ? null : this.state.elementRecordId,
                                             !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId,
+                                            null,
                                             (err) => {
                                                 this.showErrorMessages(err);
                                             },

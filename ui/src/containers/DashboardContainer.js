@@ -9,11 +9,11 @@ import DataGridStore from "./dao/DataGridStore";
 import {GridViewContainer} from "./GridViewContainer";
 import CardViewComponent from "./cardView/CardViewComponent";
 import {Breadcrumb} from "../utils/BreadcrumbUtils";
-import EditRowComponent from "../components/EditRowComponent";
+import EditRowComponent from "../components/prolab/EditRowComponent";
 import {confirmDialog} from "primereact/confirmdialog";
 import {localeOptions} from "primereact/api";
 import PropTypes from "prop-types";
-import ShortcutButton from "../components/ShortcutButton";
+import ShortcutButton from "../components/prolab/ShortcutButton";
 import AppPrefixUtils from "../utils/AppPrefixUtils";
 
 class DashboardContainer extends BaseContainer {
@@ -121,6 +121,7 @@ class DashboardContainer extends BaseContainer {
             operations: this.state.dashboard.headerOperations,
             shortcutButtons: [], documentsList: [], pluginsList: [], batchesList: [], filtersList: []
         }
+        let cardId = this.state.dashboard.headerData[0]?.ID;
 
         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
         return <React.Fragment>
@@ -142,110 +143,63 @@ class DashboardContainer extends BaseContainer {
                         showErrorMessages={(err) => this.showErrorMessages(err)}
                     />
                     {this.state.dashboard.views.filter(item => item.position === 'left').map((item) => {
-                        return (
-                            <React.Fragment>
-                                <div className='panel-dashboard'>
-                                   <span
-                                       className='title-dashboard'>{item.label}</span>
-                                    <div style={{float: 'right'}}>
-                                        <ShortcutButton
-                                            id={`_menu_button`}
-                                            className={`action-button-with-menu`}
-                                            iconName={'mdi-magnify'}
-                                            href={AppPrefixUtils.locationHrefUrl(
-                                                `/#/grid-view/${item.id}${currentBreadcrumb}`
-                                            )}
-                                            label={''}
-                                            title={'Przenieś do'}
-                                            rendered={true}
-                                        />
-                                    </div>
-                                    <GridViewContainer id={item.id}
-                                                       key={item.id}
-                                                       subViewId={undefined}
-                                                       recordId={undefined}
-                                                       filterId={undefined}
-                                                       viewType={'dashboard'}
-                                                       showColumnLines={false}
-                                                       showRowLines={true}
-                                                       showBorders={false}
-                                                       showColumnHeaders={false}
-                                                       showFilterRow={false}
-                                                       showSelection={false}
-                                                       handleBlockUi={() => {
-                                                           this.blockUi();
-                                                           return true;
-                                                       }}
-                                                       handleUnBlockUi={() => {
-                                                           this.unblockUi();
-                                                           return true;
-                                                       }}
-                                                       handleShowErrorMessages={(err) => {
-                                                           this.showErrorMessages(err);
-                                                           return true;
-                                                       }}
-                                                       dataGridHeight={_cardHeight - 60}
-                                    >
-                                    </GridViewContainer>
-                                </div>
-                            </React.Fragment>
-                        )
+                        return this.renderGridView(item, cardId, currentBreadcrumb, _cardHeight);
                     })}
                 </div>
                 <div className="column right">
                     {this.state.dashboard.views.filter(item => item.position === 'right').map((item) => {
-                        return (
-                            <React.Fragment>
-                                <div className='panel-dashboard'>
-                                   <span
-                                       className='title-dashboard'>{item.label}</span>
-                                    <div style={{float: 'right'}}>
-                                        <ShortcutButton
-                                            id={`_menu_button`}
-                                            className={`action-button-with-menu`}
-                                            iconName={'mdi-magnify'}
-                                            href={AppPrefixUtils.locationHrefUrl(
-                                                `/#/grid-view/${item.id}${currentBreadcrumb}`
-                                            )}
-                                            label={''}
-                                            title={'Przenieś do'}
-                                            rendered={true}
-                                        />
-                                    </div>
-                                    <GridViewContainer id={item.id}
-                                                       key={item.id}
-                                                       subViewId={undefined}
-                                                       recordId={undefined}
-                                                       filterId={undefined}
-                                                       viewType={'dashboard'}
-                                                       showColumnLines={false}
-                                                       showRowLines={true}
-                                                       showBorders={false}
-                                                       showColumnHeaders={false}
-                                                       showFilterRow={false}
-                                                       showSelection={false}
-                                                       handleBlockUi={() => {
-                                                           this.blockUi();
-                                                           return true;
-                                                       }}
-                                                       handleUnBlockUi={() => {
-                                                           this.unblockUi();
-                                                           return true;
-                                                       }}
-                                                       handleShowErrorMessages={(err) => {
-                                                           this.showErrorMessages(err);
-                                                           return true;
-                                                       }}
-                                                       dataGridHeight={_cardHeight - 60}
-                                    >
-                                    </GridViewContainer>
-                                </div>
-                            </React.Fragment>
-                        )
+                        return this.renderGridView(item, cardId, currentBreadcrumb, _cardHeight);
                     })}
                 </div>
             </div>
         </React.Fragment>;
+    }
+
+    renderGridView(item, cardViewId, currentBreadcrumb, _cardHeight) {
+        return (<div className='panel-dashboard'>
+                                   <span
+                                       className='title-dashboard'>{item.label}</span>
+            <div style={{float: 'right'}}>
+                <ShortcutButton
+                    id={`_menu_button`}
+                    className={`action-button-with-menu`}
+                    iconName={'mdi-magnify'}
+                    href={AppPrefixUtils.locationHrefUrl(
+                        `/#/grid-view/${item.id}?parentId=${cardViewId}${currentBreadcrumb}`
+                    )}
+                    label={''}
+                    title={'Przenieś do'}
+                    rendered={true}
+                />
+            </div>
+            <GridViewContainer id={item.id}
+                               key={item.id}
+                               subViewId={undefined}
+                               recordId={undefined}
+                               filterId={undefined}
+                               viewType={'dashboard'}
+                               showColumnLines={false}
+                               showRowLines={true}
+                               showBorders={false}
+                               showColumnHeaders={false}
+                               showFilterRow={false}
+                               showSelection={false}
+                               handleBlockUi={() => {
+                                   this.blockUi();
+                                   return true;
+                               }}
+                               handleUnBlockUi={() => {
+                                   this.unblockUi();
+                                   return true;
+                               }}
+                               handleShowErrorMessages={(err) => {
+                                   this.showErrorMessages(err);
+                                   return true;
+                               }}
+                               dataGridHeight={_cardHeight - 60}
+            >
+            </GridViewContainer>
+        </div>);
     }
 
     renderDetails() {
