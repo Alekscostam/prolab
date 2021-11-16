@@ -45,7 +45,9 @@ class BaseContainer extends React.Component {
         this.handleEditRowSave = this.handleEditRowSave.bind(this);
         this.handleEditRowBlur = this.handleEditRowBlur.bind(this);
         this.handleAutoFillRowChange = this.handleAutoFillRowChange.bind(this);
+        this.handleEditListChange = this.handleEditListChange.bind(this);
         this.handleCancelRowChange = this.handleCancelRowChange.bind(this);
+        this.handleEditListRowChange = this.handleEditListRowChange.bind(this);
         this.validator = new SimpleReactValidator();
         this._isMounted = false;
         this.jwtRefreshBlocked = false;
@@ -1052,6 +1054,21 @@ class BaseContainer extends React.Component {
         });
     }
 
+    handleEditListRowChange(editInfo, editListData) {
+        ConsoleHelper(`handleEditListRowChange`)
+        try {
+            let editData = this.state.editData;
+            editListData.forEach((element) => {
+                EditRowUtils.searchAndAutoFill(editData, element.fieldEdit, element.fieldValue);
+            })
+            this.setState({editData: editData});
+        } catch (err) {
+            this.showErrorMessages(err);
+        } finally {
+            this.unblockUi();
+        }
+    }
+
     handleAutoFillRowChange(viewId, recordId, parentId) {
         ConsoleHelper(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
         this.blockUi();
@@ -1065,6 +1082,22 @@ class BaseContainer extends React.Component {
                     EditRowUtils.searchAndAutoFill(editData, element.fieldName, element.value);
                 })
                 this.setState({editData: editData});
+                this.unblockUi();
+            })
+            .catch((err) => {
+                this.showErrorMessages(err);
+            });
+    }
+
+    handleEditListChange(viewId, recordId, parentId) {
+        ConsoleHelper(`handleEditListChange: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
+        this.blockUi();
+        const editListBodyRequest = this.editService.createObjectToEditList(this.state);
+        this.editService
+            .getEditList(viewId, recordId, parentId, editListBodyRequest)
+            .then((editListResponse) => {
+                // let arrayTmp = editListResponse?.data;
+                // this.setState({editData: editListResponse});
                 this.unblockUi();
             })
             .catch((err) => {

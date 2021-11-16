@@ -45,6 +45,9 @@ export default class DataGridStore extends BaseService {
     }
 
     getDataGridStore(viewIdArg, viewTypeArg, recordIdArg, filterIdArg, parentIdArg, onError, onSuccess, onStart) {
+        if (!viewIdArg) {
+            return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0});
+        }
         const dataGridStore = new CustomStore({
             key: 'ID',
             //keyExpr: 'ID',
@@ -81,9 +84,6 @@ export default class DataGridStore extends BaseService {
                 let recordIdParam = recordIdArg !== undefined && recordIdArg != null ? `&parentId=${recordIdArg}` : '';
                 let parentIdParam = parentIdArg !== undefined && parentIdArg != null ? `&parentId=${parentIdArg}` : '';
                 let selectAllParam = !!selectAll ? `&selection=true` : '';
-                if (!viewIdArg) {
-                    return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0});
-                }
                 return this.fetch(
                     `${this.domain}/${this.path}/${viewIdArg}${params}${viewTypeParam}${filterIdParam}${recordIdParam}${selectAllParam}${parentIdParam}`,
                     {

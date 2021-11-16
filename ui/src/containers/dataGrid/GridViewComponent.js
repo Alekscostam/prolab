@@ -255,7 +255,7 @@ class GridViewComponent extends React.Component {
 
     preGenerateColumnsDefinition() {
         let columns = [];
-        this.props.gridViewColumns.forEach((columnDefinition, INDEX_COLUMN) => {
+        this.props.gridViewColumns?.forEach((columnDefinition, INDEX_COLUMN) => {
             let sortOrder;
             if (!!columnDefinition?.sortIndex && columnDefinition?.sortIndex > 0 && !!columnDefinition?.sortOrder) {
                 sortOrder = columnDefinition?.sortOrder?.toLowerCase();
@@ -275,12 +275,16 @@ class GridViewComponent extends React.Component {
         const columnAutoWidth = this.props.parsedGridView?.gridOptions?.columnAutoWidth || true;
         const rowAutoHeight = this.props.parsedGridView?.gridOptions?.rowAutoHeight || false;
         const headerAutoHeight = this.props.parsedGridView?.gridOptions?.headerAutoHeight || false;
+        //multiSelect dla podpowiedzi
+        const multiSelect = this.props.parsedGridView?.gridOptions?.multiSelect;
+        const multiSelection = (multiSelect === undefined || multiSelect === null || !!multiSelect) ? true : false;
         const packageCount = this.props.packageRows;
         const showSelection = this.props.showSelection;
         const showColumnHeaders = this.props.showColumnHeaders;
         const showColumnLines = this.props.showColumnLines;
         const showRowLines = this.props.showRowLines;
-        const showBorders = this.props.showBorders;
+        //myk zeby nie pojawiałą sie ramka tabelki przy wczytywaniu
+        const showBorders = this.props.dataGridStoreSuccess === false || this.props.gridViewColumns?.length === 0 ? false : this.props.showBorders;
         const showFilterRow = this.props.showFilterRow;
         const dataGridHeight = this.props.dataGridHeight || false;
         return (
@@ -305,7 +309,7 @@ class GridViewComponent extends React.Component {
                     columnHidingEnabled={false}
                     height={dataGridHeight ? (dataGridHeight + 'px') : '100%'}
                     rowAlternationEnabled={false}
-                    onSelectionChanged={(e) => this.props.handleSelectedRowKeys(e)}
+                    onSelectionChanged={this.props.handleSelectedRowKeys}
                     renderAsync={true}
                     selectAsync={true}
                     onCellClick={(e) => {
@@ -335,8 +339,10 @@ class GridViewComponent extends React.Component {
 
                     <Sorting mode='multiple'/>
 
-                    <Selection mode={showSelection ? 'multiple' : 'none'} selectAllMode='allPages'
-                               showCheckBoxesMode='always' allowSelectAll={true} />
+                    <Selection mode={showSelection ? (multiSelection ? 'multiple' : 'single') : 'none'}
+                               selectAllMode='allPages'
+                               showCheckBoxesMode='always'
+                               allowSelectAll={true}/>
 
                     <Scrolling mode="virtual" rowRenderingMode="virtual"/>
                     <Paging defaultPageSize={packageCount}/>
@@ -364,6 +370,7 @@ GridViewComponent.defaultProps = {
     showColumnHeaders: true,
     showFilterRow: true,
     showSelection: true,
+    dataGridStoreSuccess: true
 };
 
 GridViewComponent.propTypes = {
@@ -388,6 +395,7 @@ GridViewComponent.propTypes = {
     showFilterRow: PropTypes.bool,
     showSelection: PropTypes.bool,
     dataGridHeight: PropTypes.number,
+    dataGridStoreSuccess: PropTypes.bool,
 };
 
 

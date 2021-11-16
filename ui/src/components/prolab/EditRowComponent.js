@@ -21,12 +21,32 @@ import {Sidebar} from "primereact/sidebar";
 import UploadMultiImageFileBase64 from "./UploadMultiImageFileBase64";
 import {Checkbox} from "primereact/checkbox";
 import ConsoleHelper from "../../utils/ConsoleHelper";
+import {Button} from "primereact/button";
+import EditListComponent from "./EditListComponent";
+import {Toast} from "primereact/toast";
+import EditRowUtils from "../../utils/EditRowUtils";
+import EditListDataStore from "../../containers/dao/EditListDataStore";
 
 export class EditRowComponent extends BaseContainer {
 
     constructor(props) {
         super(props);
         this.service = new EditService();
+
+        this.state = {
+            loading: true,
+            editListVisible: false,
+            parsedGridView: {},
+            parsedGridViewData: {},
+            gridViewColumns: [],
+            gridViewTypes: [],
+            gridViewType: null,
+            dataGridStoreSuccess: false
+        };
+
+        this.editListDataStore = new EditListDataStore();
+        this.editListDataGrid = null;
+
         this.booleanTypes = [
             {name: 'Tak', code: '1'},
             {name: 'Nie', code: '0'},
@@ -41,6 +61,7 @@ export class EditRowComponent extends BaseContainer {
         this.preventSave = false;
         this.handleAutoFill = this.handleAutoFill.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
+        this.editListVisible = this.editListVisible.bind(this);
     }
 
     render() {
@@ -50,7 +71,27 @@ export class EditRowComponent extends BaseContainer {
         const opCancel = GridViewUtils.containsOperationButton(operations, 'OP_CANCEL');
         let editData = this.props.editData;
         let visibleEditPanel = this.props.visibleEditPanel;
+        let editListVisible = this.state.editListVisible;
         return <React.Fragment>
+            <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)}/>
+            <EditListComponent visible={editListVisible}
+                               parsedGridView={this.state.parsedGridView}
+                               parsedGridViewData={this.state.parsedGridViewData}
+                               gridViewColumns={this.state.gridViewColumns}
+                               onHide={() => this.setState({editListVisible: false})}
+                               handleBlockUi={() => {
+                                   this.blockUi();
+                                   return true;
+                               }}
+                               handleUnblockUi={() => this.unblockUi}
+                               handleOnChosen={(editListData) => {
+                                   let editInfo = this.props.editData?.editInfo;
+                                   this.props.onEditList(editInfo, editListData);
+                               }}
+                               showErrorMessages={(err) => this.showErrorMessages(err)}
+                               dataGridStoreSuccess={this.state.dataGridStoreSuccess}
+
+            />
             <Sidebar
                 id='right-sidebar'
                 visible={visibleEditPanel}
@@ -148,7 +189,7 @@ export class EditRowComponent extends BaseContainer {
         const {onChange} = this.props;
         const {onBlur} = this.props;
         const required = field.requiredValue;
-        let validationMsg = this.validator ? this.validator.message(`${this.getType(field.type)}${fieldIndex}`, field.label, field.value, required ? 'required' : 'not_required') : null;
+        let validationMsg = this.validator ? this.validator.message(`${EditRowUtils.getType(field.type)}${fieldIndex}`, field.label, field.value, required ? 'required' : 'not_required') : null;
         switch (field.type) {
             case 'D'://D – Data
                 field.value = !!field.value ? moment(field.value, "YYYY-MM-DD").toDate() : null;
@@ -169,7 +210,9 @@ export class EditRowComponent extends BaseContainer {
                         <div id={`field_${fieldIndex}`} className='field'>
                             <div className={validationMsg ? 'validation-msg invalid' : 'validation-msg'}
                                  aria-live="assertive">
-                                {this.renderInputComponent(field, fieldIndex, onChange, onBlur, groupName, required, validationMsg)}
+                                {this.renderInputComponent(field, fieldIndex, onChange, onBlur, groupName, required, validationMsg, () => {
+                                    this.editListVisible(field);
+                                })}
                                 {validationMsg}
                             </div>
                         </div>
@@ -179,40 +222,72 @@ export class EditRowComponent extends BaseContainer {
         </React.Fragment>;
     }
 
-    getType(type) {
-        switch (type) {
-            case 'C'://C – Znakowy
-                return 'text_field_';
-            case "N"://N – Numeryczny/Liczbowy
-                return 'number_field_';
-            case 'B'://B – Logiczny (0/1)
-                return 'bool_field_';
-            case 'L'://L – Logiczny (T/N)
-                return 'yes_no_field_';
-            case 'D'://D – Data
-                return 'date_';
-            case 'E'://E – Data + czas
-                return 'date_time_';
-            case 'T'://T – Czas
-                return 'time_';
-            case 'O'://O – Opisowe
-                return 'editor_';
-            case 'I'://I – Obrazek
-            case 'IM'://IM – Obrazek multi
-                return 'image_';
-            case 'H'://H - Hyperlink
-                return 'link_';
-            default:
-                return 'text_field_';
-        }
+    editListVisible(field) {
+        let editInfo = this.props.editData?.editInfo;
+        let editListObject = this.service.createObjectToEditList(this.props.editData)
+        this.setState({
+            loading: true,
+            dataGridStoreSuccess: false
+        }, () => {
+            this.service
+                .getEditList(editInfo.viewId, editInfo.recordId, editInfo.parentId, field.id, editListObject)
+                .then((responseView) => {
+                    let filtersListTmp = [];
+                    this.setState(() => ({
+                            gridViewType: responseView?.viewInfo?.type,
+                            parsedGridView: responseView,
+                            gridViewColumns: responseView.gridColumns,
+                            filtersList: filtersListTmp,
+                            packageRows: responseView?.viewInfo?.dataPackageSize,
+                        }),
+                        () => {
+                            const initFilterId = responseView?.viewInfo?.filterdId;
+                            let res = this.editListDataStore.getEditListDataStore(
+                                editInfo.viewId,
+                                'gridView',
+                                editInfo.recordId,
+                                field.id,
+                                editInfo.parentId,
+                                initFilterId,
+                                editListObject,
+                                //onError
+                                (err) => {
+                                    this.showErrorMessages(err);
+                                },
+                                //onSuccess
+                                (response) => {
+                                    this.setState({
+                                        //performance :)
+                                        totalSelectCount: response.totalSelectCount,
+                                        dataGridStoreSuccess: true
+                                    });
+                                },
+                                //onStart
+                                () => {
+                                    return {selectAll: this.state.selectAll};
+                                }
+                            );
+                            this.setState({
+                                loading: false,
+                                parsedGridViewData: res,
+                                editListVisible: true
+                            });
+                        }
+                    );
+                }).catch((err) => {
+                console.error('Error getEditList in EditRowComponent. Exception = ', err);
+                this.showErrorMessages(err);
+            });
+        });
     }
 
-    renderInputComponent(field, fieldIndex, onChange, onBlur, groupName, required, validatorMsgs) {
+    renderInputComponent(field, fieldIndex, onChange, onBlur, groupName, required, validatorMsgs, onClickEditList) {
         const autoFill = field?.autoFill ? 'autofill-border' : '';
         const validate = !!validatorMsgs ? 'p-invalid' : '';
         const autoFillCheckbox = field?.autoFill ? 'autofill-border-checkbox' : '';
         const validateCheckbox = !!validatorMsgs ? 'p-invalid-checkbox' : '';
         const labelColor = !!field.labelColor ? field.labelColor : '';
+        const selectionList = field?.selectionList ? 'p-inputgroup' : null;
         let editInfo = this.props.editData?.editInfo;
         switch (field.type) {
             case 'C'://C – Znakowy
@@ -220,40 +295,48 @@ export class EditRowComponent extends BaseContainer {
                 return (<React.Fragment>
                     <label htmlFor={`field_${fieldIndex}`}
                            style={{color: labelColor}}>{field.label}{required ? '*' : ''}</label>
-                    <InputText id={`${this.getType(field.type)}${fieldIndex}`}
-                               name={field.fieldName}
-                               className={`${autoFill} ${validate}`}
-                               style={{width: '100%'}}
-                               type="text"
-                               value={field.value}
-                               onChange={e => onChange ? onChange('TEXT', e, groupName, editInfo) : null}
-                               onBlur={e => onBlur ? onBlur('TEXT', e, groupName, editInfo) : null}
-                               disabled={!field.edit}
-                               required={required}
-                    />
+                    <div className={`${selectionList}`}>
+                        <InputText id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
+                                   name={field.fieldName}
+                                   className={`${autoFill} ${validate}`}
+                                   style={{width: '100%'}}
+                                   type="text"
+                                   value={field.value}
+                                   onChange={e => onChange ? onChange('TEXT', e, groupName, editInfo) : null}
+                                   onBlur={e => onBlur ? onBlur('TEXT', e, groupName, editInfo) : null}
+                                   disabled={!field.edit}
+                                   required={required}
+                        />
+                        {!!selectionList ? <Button type="button" onClick={onClickEditList} icon="pi pi-question-circle"
+                                                   className="p-button-secondary" /> : null}
+                    </div>
                 </React.Fragment>);
             case "N"://N – Numeryczny/Liczbowy
                 return (<React.Fragment>
                     <label htmlFor={`field_${fieldIndex}`}>{field.label}{required ? '*' : ''}</label>
-                    <InputText id={`${this.getType(field.type)}${fieldIndex}`}
-                               name={field.fieldName}
-                               className={`${autoFill} ${validate}`}
-                               style={{width: '100%'}}
-                               value={field.value}
-                               type="number"
-                               onChange={e => onChange ? onChange('TEXT', e, groupName, editInfo) : null}
-                               onBlur={e => onBlur ? onBlur('TEXT', e, groupName, editInfo) : null}
-                               disabled={!field.edit}
-                               required={required}
-                               padControl="false"
-                    />
+                    <div className={`${selectionList}`}>
+                        <InputText id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
+                                   name={field.fieldName}
+                                   className={`${autoFill} ${validate}`}
+                                   style={{width: '100%'}}
+                                   value={field.value}
+                                   type="number"
+                                   onChange={e => onChange ? onChange('TEXT', e, groupName, editInfo) : null}
+                                   onBlur={e => onBlur ? onBlur('TEXT', e, groupName, editInfo) : null}
+                                   disabled={!field.edit}
+                                   required={required}
+                                   padControl="false"
+                        />
+                        {!!selectionList ? <Button type="button" onClick={onClickEditList} icon="pi pi-question-circle"
+                                                   className="p-button-secondary" /> : null}
+                    </div>
                 </React.Fragment>);
             case 'B'://B – Logiczny (0/1)
                 return (<React.Fragment>
                     <label htmlFor={`bool_field_${fieldIndex}`}
                            style={{color: labelColor}}>{field.label}{required ? '*' : ''}</label>
                     <br/>
-                    <Checkbox id={`${this.getType(field.type)}${fieldIndex}`}
+                    <Checkbox id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                               name={field.fieldName}
                               className={`${autoFillCheckbox} ${validateCheckbox}`}
                               onChange={e => onChange ? onChange('CHECKBOX', e, groupName, editInfo) : null}
@@ -266,7 +349,7 @@ export class EditRowComponent extends BaseContainer {
                 return (<React.Fragment>
                     <label htmlFor={`yes_no_field_${fieldIndex}`}
                            style={{color: labelColor}}>{field.label}{required ? '*' : ''}</label>
-                    <Dropdown id={`${this.getType(field.type)}${fieldIndex}`}
+                    <Dropdown id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                               name={field.fieldName}
                               className={`${autoFill} ${validate}`}
                               style={{width: '100%'}}
@@ -285,7 +368,7 @@ export class EditRowComponent extends BaseContainer {
                 return (<React.Fragment>
                     <label htmlFor={`date_${fieldIndex}`}
                            style={{color: labelColor}}>{field.label}{required ? '*' : ''}</label>
-                    <Calendar id={`${this.getType(field.type)}${fieldIndex}`}
+                    <Calendar id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                               name={field.fieldName}
                               className={`${autoFill} ${validate}`}
                               style={{width: '100%'}}
@@ -303,7 +386,7 @@ export class EditRowComponent extends BaseContainer {
                 return (<React.Fragment>
                     <label htmlFor={`date_time_${fieldIndex}`}
                            style={{color: labelColor}}>{field.label}{required ? '*' : ''}</label>
-                    <Calendar id={`${this.getType(field.type)}${fieldIndex}`}
+                    <Calendar id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                               showTime
                               hourFormat="24"
                               name={field.fieldName}
@@ -323,7 +406,7 @@ export class EditRowComponent extends BaseContainer {
                 return (<React.Fragment>
                     <label htmlFor={`time_${fieldIndex}`}
                            style={{color: labelColor}}>{field.label}{required ? '*' : ''}</label>
-                    <Calendar id={`${this.getType(field.type)}${fieldIndex}`}
+                    <Calendar id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                               timeOnly
                               showTime
                               hourFormat="24"
@@ -342,7 +425,7 @@ export class EditRowComponent extends BaseContainer {
             case 'O'://O – Opisowe
                 return (<React.Fragment>
                     <label style={{color: labelColor}}
-                           htmlFor={`${this.getType(field.type)}${fieldIndex}`}>{field.label}{required ? '*' : ''}</label>
+                           htmlFor={`${EditRowUtils.getType(field.type)}${fieldIndex}`}>{field.label}{required ? '*' : ''}</label>
                     <HtmlEditor
                         id={`editor_${fieldIndex}`}
                         className={`editor ${autoFill} ${validate}`}
@@ -441,7 +524,7 @@ export class EditRowComponent extends BaseContainer {
                 return (<React.Fragment>
                     <label style={{color: labelColor}}
                            htmlFor={`field_${fieldIndex}`}>{field.label}{required ? '*' : ''}</label>
-                    <InputText id={`${this.getType(field.type)}${fieldIndex}`}
+                    <InputText id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                                name={field.fieldName}
                                className={`${autoFill} ${validate}`}
                                style={{width: '100%'}}
@@ -479,6 +562,7 @@ EditRowComponent.propTypes = {
     onSave: PropTypes.func.isRequired,
     onAutoFill: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
+    onEditList: PropTypes.func.isRequired,
     onHide: PropTypes.func.isRequired,
     validator: PropTypes.instanceOf(SimpleReactValidator).isRequired,
     onError: PropTypes.func,

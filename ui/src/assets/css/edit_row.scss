@@ -211,30 +211,54 @@
   color: $link-color;
 }
 
-.p-confirm-dialog-reject {
+#row-edit .p-confirm-dialog-reject {
   box-shadow: 0px 2px 8px 3px rgba(0, 0, 0, 0.1);
 }
 
-.p-confirm-dialog-reject > .p-button-label {
+#row-edit .p-confirm-dialog-reject > .p-button-label {
   color: black;
 }
 
-.p-confirm-dialog-accept:focus {
+#row-edit .p-confirm-dialog-accept:focus {
   background-color: $button-color !important;
 }
 
-.p-checkbox-icon {
+#row-edit .p-checkbox-icon {
   position: relative;
   bottom: 5px;
   right: 5px;
 }
 
-.autofill-border-checkbox {
+#row-edit .autofill-border-checkbox {
   outline: 3px solid yellow;
   border-radius: 2px;
 }
 
-.p-invalid-checkbox {
+#row-edit .p-invalid-checkbox {
   outline: 3px solid $danger-color;
   border-radius: 2px;
+}
+
+#row-edit .p-button.p-button-secondary {
+  color: #0e49eb;
+  background: rgba(0, 0, 0, 0.12) !important;
+  width: 50px;
+}
+
+#row-edit .p-button.p-button-secondary:hover {
+  background: rgba(0, 0, 0, 0.12) !important;
+  color: #0e49eb !important;
+}
+
+#row-edit .p-inputgroup {
+  border: 1px solid rgba(0, 0, 0, 0.38);
+  border-radius: 4px;
+
+  &:hover {
+    border-color: rgba(0, 0, 0, 0.87);
+  }
+}
+
+#row-edit .p-inputgroup > .p-inputtext {
+  border: none;
 }

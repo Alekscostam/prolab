@@ -67,7 +67,8 @@ export class ViewContainer extends BaseContainer {
             modifyEditData: false,
             editData: null,
             selectAll: false,
-            totalSelectCount: null
+            totalSelectCount: null,
+            dataGridStoreSuccess: false,
         };
         this.gridViewTypeChange = this.gridViewTypeChange.bind(this);
         this.renderCard = this.renderCard.bind(this);
@@ -99,6 +100,7 @@ export class ViewContainer extends BaseContainer {
                 gridViewType: viewType,
                 //z dashboardu
                 elementParentId: parentId,
+                dataGridStoreSuccess: false
             },
             () => {
                 this.downloadData(
@@ -164,6 +166,7 @@ export class ViewContainer extends BaseContainer {
                     //z dashboardu
                     elementParentId: parentId,
                     gridViewType,
+                    dataGridStoreSuccess: false
                 },
                 () => {
                     this.downloadData(
@@ -475,12 +478,15 @@ export class ViewContainer extends BaseContainer {
                                                 (response) => {
                                                     this.setState({
                                                         //performance :)
+                                                        dataGridStoreSuccess: true,
                                                         totalSelectCount: response.totalSelectCount
                                                     });
                                                 },
                                                 //onStart
                                                 () => {
-                                                    return {selectAll: this.state.selectAll};
+                                                    return {
+                                                        selectAll: this.state.selectAll
+                                                    };
                                                 }
                                             );
                                             this.setState({
@@ -516,7 +522,7 @@ export class ViewContainer extends BaseContainer {
     gridViewTypeChange(e) {
         let newUrl = UrlUtils.addParameterToURL(window.document.URL.toString(), 'viewType', e.itemData.type);
         window.history.replaceState('', '', newUrl);
-        this.setState({gridViewType: e.itemData.type}, () => {
+        this.setState({gridViewType: e.itemData.type, dataGridStoreSuccess: false}, () => {
             this.downloadData(
                 this.state.elementId,
                 this.state.elementRecordId,
@@ -540,6 +546,7 @@ export class ViewContainer extends BaseContainer {
                         onBlur={this.handleEditRowBlur}
                         onSave={this.handleEditRowSave}
                         onAutoFill={this.handleAutoFillRowChange}
+                        onEditList={this.handleEditListRowChange}
                         onCancel={this.handleCancelRowChange}
                         validator={this.validator}
                         onHide={(e) => !!this.state.modifyEditData ? confirmDialog({
@@ -1078,6 +1085,7 @@ export class ViewContainer extends BaseContainer {
                                             selectAll: !!e ? !prevState.selectAll : false
                                         }));
                                     }}
+                                    dataGridStoreSuccess={this.state.dataGridStoreSuccess}
                                 />
                             </React.Fragment>
                         ) : this.state.gridViewType === 'cardView' ? (

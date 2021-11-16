@@ -320,6 +320,7 @@ export class GridViewContainer extends BaseContainer {
                         onBlur={this.handleEditRowBlur}
                         onSave={this.handleEditRowSave}
                         onAutoFill={this.handleAutoFillRowChange}
+                        onEditList={this.handleEditListRowChange}
                         onCancel={this.handleCancelRowChange}
                         validator={this.validator}
                         onHide={(e) => !!this.state.modifyEditData ? confirmDialog({
