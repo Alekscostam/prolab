@@ -269,6 +269,10 @@ class GridViewComponent extends React.Component {
         return columns;
     }
 
+    waitForSuccess() {
+        return this.props.dataGridStoreSuccess === false || this.props.gridViewColumns?.length === 0;
+    }
+
     render() {
         const showGroupPanel = this.props.parsedGridView?.gridOptions?.showGroupPanel || false;
         const groupExpandAll = this.props.parsedGridView?.gridOptions?.groupExpandAll || false;
@@ -279,12 +283,12 @@ class GridViewComponent extends React.Component {
         const multiSelect = this.props.parsedGridView?.gridOptions?.multiSelect;
         const multiSelection = (multiSelect === undefined || multiSelect === null || !!multiSelect) ? true : false;
         const packageCount = this.props.packageRows;
-        const showSelection = this.props.showSelection;
+        const showSelection = this.waitForSuccess() ? false : this.props.showSelection;
         const showColumnHeaders = this.props.showColumnHeaders;
         const showColumnLines = this.props.showColumnLines;
         const showRowLines = this.props.showRowLines;
         //myk zeby nie pojawiałą sie ramka tabelki przy wczytywaniu
-        const showBorders = this.props.dataGridStoreSuccess === false || this.props.gridViewColumns?.length === 0 ? false : this.props.showBorders;
+        const showBorders = this.waitForSuccess() ? false : this.props.showBorders;
         const showFilterRow = this.props.showFilterRow;
         const dataGridHeight = this.props.dataGridHeight || false;
         return (

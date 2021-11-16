@@ -45,7 +45,6 @@ class BaseContainer extends React.Component {
         this.handleEditRowSave = this.handleEditRowSave.bind(this);
         this.handleEditRowBlur = this.handleEditRowBlur.bind(this);
         this.handleAutoFillRowChange = this.handleAutoFillRowChange.bind(this);
-        this.handleEditListChange = this.handleEditListChange.bind(this);
         this.handleCancelRowChange = this.handleCancelRowChange.bind(this);
         this.handleEditListRowChange = this.handleEditListRowChange.bind(this);
         this.validator = new SimpleReactValidator();
@@ -1061,7 +1060,7 @@ class BaseContainer extends React.Component {
             editListData.forEach((element) => {
                 EditRowUtils.searchAndAutoFill(editData, element.fieldEdit, element.fieldValue);
             })
-            this.setState({editData: editData});
+            this.setState({editData: editData, modifyEditData: true});
         } catch (err) {
             this.showErrorMessages(err);
         } finally {
@@ -1081,23 +1080,7 @@ class BaseContainer extends React.Component {
                 arrayTmp.forEach((element) => {
                     EditRowUtils.searchAndAutoFill(editData, element.fieldName, element.value);
                 })
-                this.setState({editData: editData});
-                this.unblockUi();
-            })
-            .catch((err) => {
-                this.showErrorMessages(err);
-            });
-    }
-
-    handleEditListChange(viewId, recordId, parentId) {
-        ConsoleHelper(`handleEditListChange: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
-        this.blockUi();
-        const editListBodyRequest = this.editService.createObjectToEditList(this.state);
-        this.editService
-            .getEditList(viewId, recordId, parentId, editListBodyRequest)
-            .then((editListResponse) => {
-                // let arrayTmp = editListResponse?.data;
-                // this.setState({editData: editListResponse});
+                this.setState({editData: editData, modifyEditData: true});
                 this.unblockUi();
             })
             .catch((err) => {
