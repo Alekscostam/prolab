@@ -3,6 +3,8 @@ import 'devextreme/dist/css/dx.light.css';
 import 'whatwg-fetch';
 import BaseService from '../../services/BaseService';
 import ConsoleHelper from "../../utils/ConsoleHelper";
+import {v4 as uuidv4} from 'uuid';
+
 //example
 //api//View/{id}/Edit/{recordId}/list/{fieldId}/data?skip={skip}&take={take}&parentId={parentId}&sort={sort}&filter={filter}
 export default class EditListDataStore extends BaseService {
@@ -12,13 +14,12 @@ export default class EditListDataStore extends BaseService {
         this.path = 'View';
     }
 
-    getEditListDataStore(viewIdArg, viewTypeArg, recordIdArg, fieldIdArg, parentIdArg, filterIdArg, elementArg, onError, onSuccess, onStart) {
+    getEditListDataStore(viewIdArg, viewTypeArg, recordIdArg, fieldIdArg, parentIdArg, filterIdArg, elementArg, columnIdExists, onError, onSuccess, onStart) {
         if (!viewIdArg) {
             return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0});
         }
         const editListDataStore = new CustomStore({
-            key: 'ID',
-            //keyExpr: 'ID',
+            key: columnIdExists ? 'ID' : 'UUID',
             load: (loadOptions) => {
                 let selectAll = false;
                 if (onStart) {
@@ -31,7 +32,7 @@ export default class EditListDataStore extends BaseService {
                     'group',
                     'groupSummary',
                     'parentIds',
-                    // 'requireGroupCount',
+                    'requireGroupCount',
                     'requireTotalCount',
                     'searchExpr',
                     'searchOperation',
@@ -60,6 +61,11 @@ export default class EditListDataStore extends BaseService {
                 )
                     .then((response) => {
                         let data = response.data;
+                        if (!columnIdExists) {
+                            data.forEach((data) => {
+                                data.UUID = uuidv4();
+                            });
+                        }
                         ConsoleHelper('EditListDataStore -> fetch data: ', data);
                         if (onSuccess) {
                             onSuccess({totalSelectCount: response.totalCount});

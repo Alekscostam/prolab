@@ -73,7 +73,7 @@ export default class DataGridStore extends BaseService {
                     'skip',
                     'take',
                     'totalSummary',
-                    'userData',
+                    // 'userData',
                 ].forEach((i) => {
                     if (i in loadOptions && this.isNotEmpty(loadOptions[i])) {
                         params += `${i}=${JSON.stringify(loadOptions[i])}&`;

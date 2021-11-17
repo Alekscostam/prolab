@@ -280,7 +280,9 @@ class GridViewComponent extends React.Component {
         const rowAutoHeight = this.props.parsedGridView?.gridOptions?.rowAutoHeight || false;
         const headerAutoHeight = this.props.parsedGridView?.gridOptions?.headerAutoHeight || false;
         //multiSelect dla podpowiedzi
-        const multiSelect = this.props.parsedGridView?.gridOptions?.multiSelect;
+        //TODO odkomentowac
+        // const multiSelect = this.props.parsedGridView?.gridOptions?.multiSelect;
+        const multiSelect = true;
         const multiSelection = (multiSelect === undefined || multiSelect === null || !!multiSelect) ? true : false;
         const packageCount = this.props.packageRows;
         const showSelection = this.waitForSuccess() ? false : this.props.showSelection;
@@ -291,12 +293,13 @@ class GridViewComponent extends React.Component {
         const showBorders = this.waitForSuccess() ? false : this.props.showBorders;
         const showFilterRow = this.props.showFilterRow;
         const dataGridHeight = this.props.dataGridHeight || false;
+        const selectAll = this.props.allowSelectAll;
+        const allowSelectAll = (selectAll === undefined || selectAll === null || !!selectAll) ? true : false;
         return (
             <React.Fragment>
                 <DataGrid
                     id='grid-container'
                     className={`grid-container${headerAutoHeight ? ' grid-header-auto-height' : ''}`}
-                    // keyExpr='ID'
                     ref={(ref) => this.props.handleOnInitialized(ref)}
                     dataSource={this.props.parsedGridViewData}
                     customizeColumns={this.postCustomizeColumns}
@@ -312,6 +315,7 @@ class GridViewComponent extends React.Component {
                     columnHidingEnabled={false}
                     height={dataGridHeight ? (dataGridHeight + 'px') : '100%'}
                     rowAlternationEnabled={false}
+                    defaultSelectedRowKeys={this.defaultSelectedRowKeys}
                     onSelectionChanged={this.props.handleSelectedRowKeys}
                     renderAsync={true}
                     selectAsync={true}
@@ -345,7 +349,7 @@ class GridViewComponent extends React.Component {
                     <Selection mode={showSelection ? (multiSelection ? 'multiple' : 'single') : 'none'}
                                selectAllMode='allPages'
                                showCheckBoxesMode='always'
-                               allowSelectAll={true}/>
+                               allowSelectAll={allowSelectAll}/>
 
                     <Scrolling mode="virtual" rowRenderingMode="virtual"/>
                     <Paging defaultPageSize={packageCount}/>
@@ -373,7 +377,8 @@ GridViewComponent.defaultProps = {
     showColumnHeaders: true,
     showFilterRow: true,
     showSelection: true,
-    dataGridStoreSuccess: true
+    dataGridStoreSuccess: true,
+    allowSelectAll: true
 };
 
 GridViewComponent.propTypes = {
@@ -386,6 +391,7 @@ GridViewComponent.propTypes = {
     packageRows: PropTypes.number,
     handleOnInitialized: PropTypes.func.isRequired,
     handleShowEditPanel: PropTypes.func.isRequired,
+    selectedRowsData: PropTypes.object.isRequired,
     handleSelectedRowKeys: PropTypes.func.isRequired,
     handleSelectAll: PropTypes.func,
     handleBlockUi: PropTypes.func.isRequired,
@@ -399,6 +405,7 @@ GridViewComponent.propTypes = {
     showSelection: PropTypes.bool,
     dataGridHeight: PropTypes.number,
     dataGridStoreSuccess: PropTypes.bool,
+    allowSelectAll: PropTypes.bool,
 };
 
 

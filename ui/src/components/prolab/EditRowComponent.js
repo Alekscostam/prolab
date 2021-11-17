@@ -41,7 +41,8 @@ export class EditRowComponent extends BaseContainer {
             gridViewColumns: [],
             gridViewTypes: [],
             gridViewType: null,
-            dataGridStoreSuccess: false
+            dataGridStoreSuccess: false,
+            selectedRowsData: []
         };
 
         this.editListDataStore = new EditListDataStore();
@@ -62,6 +63,28 @@ export class EditRowComponent extends BaseContainer {
         this.handleAutoFill = this.handleAutoFill.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
         this.editListVisible = this.editListVisible.bind(this);
+    }
+
+    handleSelectedRowData(selectedRowsData) {
+        const fields = this.state.parsedGridView.setFields;
+        let fieldKeys = fields.map((item) => {
+            return item.fieldList;
+        })
+        let selectedRowsDataTmp = [];
+        for (let selectedRows in selectedRowsData) {
+            let selectedRow = selectedRowsData[selectedRows];
+            for (let keyField in fieldKeys) {
+                let newObject = {}
+                for (let keyRow in selectedRow) {
+                    if (fieldKeys[keyField] === keyRow) {
+                        newObject[keyRow] = selectedRow[keyRow]
+                        break;
+                    }
+                }
+                selectedRowsDataTmp.push(newObject);
+            }
+        }
+        this.setState({selectedRowsData: selectedRowsDataTmp})
     }
 
     render() {
@@ -90,7 +113,8 @@ export class EditRowComponent extends BaseContainer {
                                }}
                                showErrorMessages={(err) => this.showErrorMessages(err)}
                                dataGridStoreSuccess={this.state.dataGridStoreSuccess}
-
+                               selectedRowsData={this.state.selectedRowsData}
+                               handleSelectedRowData={(e) => this.handleSelectedRowData(e)}
             />
             <Sidebar
                 id='right-sidebar'
@@ -232,6 +256,16 @@ export class EditRowComponent extends BaseContainer {
             this.service
                 .getEditList(editInfo.viewId, editInfo.recordId, editInfo.parentId, field.id, editListObject)
                 .then((responseView) => {
+                    let initializeSelectedRowsTmp = [];
+                    let editData = this.props.editData;
+                    let fields = responseView.setFields;
+                    fields.forEach((field) => {
+                        EditRowUtils.searchField(editData, field.fieldEdit, (foundField) => {
+                            let fieldTmp = {};
+                            fieldTmp[field.fieldList] = foundField.value;
+                            initializeSelectedRowsTmp.push(fieldTmp);
+                        });
+                    });
                     let filtersListTmp = [];
                     this.setState(() => ({
                             gridViewType: responseView?.viewInfo?.type,
@@ -239,9 +273,17 @@ export class EditRowComponent extends BaseContainer {
                             gridViewColumns: responseView.gridColumns,
                             filtersList: filtersListTmp,
                             packageRows: responseView?.viewInfo?.dataPackageSize,
+                            selectedRowsData: initializeSelectedRowsTmp
                         }),
                         () => {
                             const initFilterId = responseView?.viewInfo?.filterdId;
+                            let columnIdExists = false;
+                            for (const column of responseView?.gridColumns) {
+                                if (column["fieldName"].toUpperCase() === 'ID') {
+                                    columnIdExists = true;
+                                    break;
+                                }
+                            }
                             let res = this.editListDataStore.getEditListDataStore(
                                 editInfo.viewId,
                                 'gridView',
@@ -250,6 +292,7 @@ export class EditRowComponent extends BaseContainer {
                                 editInfo.parentId,
                                 initFilterId,
                                 editListObject,
+                                columnIdExists,
                                 //onError
                                 (err) => {
                                     this.showErrorMessages(err);
@@ -289,6 +332,8 @@ export class EditRowComponent extends BaseContainer {
         const labelColor = !!field.labelColor ? field.labelColor : '';
         const selectionList = field?.selectionList ? 'p-inputgroup' : null;
         let editInfo = this.props.editData?.editInfo;
+        //TODO odkomentowac
+        field.edit = true;
         switch (field.type) {
             case 'C'://C – Znakowy
             default:

@@ -3,28 +3,24 @@ import PropTypes from "prop-types";
 import {Dialog} from "primereact/dialog";
 import GridViewComponent from "../../containers/dataGrid/GridViewComponent";
 import {Button} from "primereact/button";
-import {GridViewUtils} from "../../utils/GridViewUtils";
 
 export default class EditListComponent extends React.Component {
 
     constructor(props) {
         super(props);
         this.dataGrid = {};
-        this.state = {
-            selectedRowKeys: [],
-            selectedRowsData: []
-        };
     }
 
-    onSelectionChanged = ({selectedRowsData}) => {
-        const data = selectedRowsData;
-        this.setState({selectedRowsData: data})
+    handleSelectedRowData({selectedRowsData}) {
+        this.props.handleSelectedRowData(selectedRowsData)
     }
 
     render() {
         let width = this.props.parsedGridView?.info?.windowSize?.width || '50vw';
         let height = this.props.parsedGridView?.info?.windowSize?.height || undefined;
-        let opADD = GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_ADD');
+        //TODO odkomentowac
+        // let opADD = GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_ADD');
+        let opADD = {label: 'Dodaj'}
         return (
             <React.Fragment>
                 <Dialog header="Lista podpowiedzi"
@@ -34,7 +30,7 @@ export default class EditListComponent extends React.Component {
                                 onClick={() => {
                                     const fields = this.props.parsedGridView?.setFields;
                                     const separatorJoin = this.props.parsedGridView?.options?.separatorJoin || ',';
-                                    let selectedRows = this.state.selectedRowsData;
+                                    let selectedRows = this.props.selectedRowsData;
                                     if (!!fields) {
                                         fields.forEach((field) => {
                                             let fieldList = field.fieldList;
@@ -51,7 +47,7 @@ export default class EditListComponent extends React.Component {
                                     this.props.onHide();
                                 }}
                                 label={opADD?.label}
-                                disabled={this.state.selectedRowsData?.length === 0}/> : null
+                                disabled={this.props.selectedRowsData?.length === 0}/> : null
                         }
                         visible={this.props.visible}
                         breakpoints={{'960px': '75vw', '640px': '100vw'}}
@@ -73,13 +69,14 @@ export default class EditListComponent extends React.Component {
                             this.props.handleUnblockUi()
                         }}
                         showSelection={true}
-                        selectedRowKeys={this.state.selectedRowKeys}
-                        handleSelectedRowKeys={this.onSelectionChanged}
+                        selectedRowsData={this.props.selectedRowsData}
+                        handleSelectedRowKeys={(e) => this.handleSelectedRowData(e)}
                         handleSelectAll={(e) => {
                         }}
                         showFilterRow={true}
                         showErrorMessages={(err) => this.props.showErrorMessages(err)}
                         dataGridStoreSuccess={this.props.dataGridStoreSuccess}
+                        allowSelectAll={false}
                     />
                 </Dialog>
             </React.Fragment>
@@ -103,6 +100,8 @@ EditListComponent.defaultProps = {
     handleBlockUi: PropTypes.func.isRequired,
     handleUnblockUi: PropTypes.func.isRequired,
     showErrorMessages: PropTypes.func.isRequired,
-    dataGridStoreSuccess: PropTypes.bool
+    dataGridStoreSuccess: PropTypes.bool,
+    selectedRowsData: PropTypes.object.isRequired,
+    handleSelectedRowData: PropTypes.func.isRequired,
 };
 
