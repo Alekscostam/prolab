@@ -1056,6 +1056,7 @@ class BaseContainer extends React.Component {
     handleEditListRowChange(editInfo, editListData) {
         ConsoleHelper(`handleEditListRowChange`)
         try {
+            this.blockUi();
             let editData = this.state.editData;
             editListData.forEach((element) => {
                 EditRowUtils.searchAndAutoFill(editData, element.fieldEdit, element.fieldValue);

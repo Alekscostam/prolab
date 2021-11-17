@@ -297,7 +297,6 @@ class GridViewComponent extends React.Component {
                     id='grid-container'
                     className={`grid-container${headerAutoHeight ? ' grid-header-auto-height' : ''}`}
                     // keyExpr='ID'
-                    key='ID'
                     ref={(ref) => this.props.handleOnInitialized(ref)}
                     dataSource={this.props.parsedGridViewData}
                     customizeColumns={this.postCustomizeColumns}

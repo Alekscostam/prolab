@@ -20,7 +20,8 @@ export const Image = (props) => {
 };
 
 Image.defaultProps = {
-    rendered: true
+    rendered: true,
+    alt: ''
 };
 
 Image.propTypes = {

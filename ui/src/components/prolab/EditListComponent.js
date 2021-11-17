@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import {Dialog} from "primereact/dialog";
 import GridViewComponent from "../../containers/dataGrid/GridViewComponent";
 import {Button} from "primereact/button";
+import {GridViewUtils} from "../../utils/GridViewUtils";
 
 export default class EditListComponent extends React.Component {
 
@@ -23,32 +24,35 @@ export default class EditListComponent extends React.Component {
     render() {
         let width = this.props.parsedGridView?.info?.windowSize?.width || '50vw';
         let height = this.props.parsedGridView?.info?.windowSize?.height || undefined;
+        let opADD = GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_ADD');
         return (
             <React.Fragment>
                 <Dialog header="Lista podpowiedzi"
-                        footer={
-                            <Button type="button"
-                                    onClick={() => {
-                                        const fields = this.props.parsedGridView?.setFields;
-                                        const separatorJoin = this.props.parsedGridView?.options?.separatorJoin || ',';
-                                        let selectedRows = this.state.selectedRowsData;
-                                        if (!!fields) {
-                                            fields.forEach((field) => {
-                                                let fieldList = field.fieldList;
-                                                let values = [];
-                                                if (!!selectedRows) {
-                                                    selectedRows.forEach((row) => {
-                                                        values.push(row[fieldList]);
-                                                    })
-                                                }
-                                                field.fieldValue = values.join(separatorJoin);
-                                            })
-                                            this.props.handleOnChosen(fields);
-                                        }
-                                        this.props.onHide();
-                                    }}
-                                    label={"Wybierz"}
-                                    disabled={this.state.selectedRowsData?.length === 0}/>}
+                        footer={opADD ?
+                            <Button
+                                type="button"
+                                onClick={() => {
+                                    const fields = this.props.parsedGridView?.setFields;
+                                    const separatorJoin = this.props.parsedGridView?.options?.separatorJoin || ',';
+                                    let selectedRows = this.state.selectedRowsData;
+                                    if (!!fields) {
+                                        fields.forEach((field) => {
+                                            let fieldList = field.fieldList;
+                                            let values = [];
+                                            if (!!selectedRows) {
+                                                selectedRows.forEach((row) => {
+                                                    values.push(row[fieldList]);
+                                                })
+                                            }
+                                            field.fieldValue = values.join(separatorJoin);
+                                        })
+                                        this.props.handleOnChosen(fields);
+                                    }
+                                    this.props.onHide();
+                                }}
+                                label={opADD?.label}
+                                disabled={this.state.selectedRowsData?.length === 0}/> : null
+                        }
                         visible={this.props.visible}
                         breakpoints={{'960px': '75vw', '640px': '100vw'}}
                         style={{width: width, height: height}}
