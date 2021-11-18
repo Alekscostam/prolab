@@ -4,9 +4,6 @@ import 'whatwg-fetch';
 import BaseService from '../../services/BaseService';
 import ConsoleHelper from "../../utils/ConsoleHelper";
 import EditListUtils from "../../utils/EditListUtils";
-
-var hash = require('object-hash');
-
 //example
 //api//View/{id}/Edit/{recordId}/list/{fieldId}/data?skip={skip}&take={take}&parentId={parentId}&sort={sort}&filter={filter}
 export default class EditListDataStore extends BaseService {

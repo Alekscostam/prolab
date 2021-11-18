@@ -3,8 +3,6 @@ import PropTypes from "prop-types";
 import {Dialog} from "primereact/dialog";
 import GridViewComponent from "../../containers/dataGrid/GridViewComponent";
 import {Button} from "primereact/button";
-import {Popup} from "devextreme-react";
-import {Position, ToolbarItem} from "devextreme-react/popup";
 import {GridViewUtils} from "../../utils/GridViewUtils";
 
 export default class EditListComponent extends React.Component {

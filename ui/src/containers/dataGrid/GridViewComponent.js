@@ -295,6 +295,8 @@ class GridViewComponent extends React.Component {
         const dataGridHeight = this.props.dataGridHeight || false;
         const selectAll = this.props.allowSelectAll;
         const allowSelectAll = (selectAll === undefined || selectAll === null || !!selectAll) ? true : false;
+        const defaultSelectedRowKeys = this.props.defaultSelectedRowKeys;
+        const selectedRowKeys = this.props.selectedRowKeys;
         return (
             <React.Fragment>
                 {/*<br/>*/}
@@ -320,7 +322,7 @@ class GridViewComponent extends React.Component {
                     columnHidingEnabled={false}
                     height={dataGridHeight ? (dataGridHeight + 'px') : '100%'}
                     rowAlternationEnabled={false}
-                    selectedRowKeys={this.props.defaultSelectedRowKeys}
+                    selectedRowKeys={defaultSelectedRowKeys || selectedRowKeys}
                     onSelectionChanged={this.props.handleSelectedRowKeys}
                     renderAsync={true}
                     selectAsync={true}
@@ -384,7 +386,6 @@ GridViewComponent.defaultProps = {
     showSelection: true,
     dataGridStoreSuccess: true,
     allowSelectAll: true,
-    defaultSelectedRowKeys: []
 };
 
 GridViewComponent.propTypes = {
@@ -397,7 +398,6 @@ GridViewComponent.propTypes = {
     handleOnInitialized: PropTypes.func.isRequired,
     handleShowEditPanel: PropTypes.func.isRequired,
     //selection
-    defaultSelectedRowKeys: PropTypes.object.isRequired,
     selectedRowKeys: PropTypes.object.isRequired,
     handleSelectedRowKeys: PropTypes.func.isRequired,
     handleSelectAll: PropTypes.func,
