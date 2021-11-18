@@ -1054,7 +1054,7 @@ class BaseContainer extends React.Component {
     }
 
     handleEditListRowChange(editInfo, editListData) {
-        ConsoleHelper(`handleEditListRowChange`)
+        ConsoleHelper(`handleEditListRowChange = `, JSON.stringify(editListData))
         try {
             this.blockUi();
             let editData = this.state.editData;

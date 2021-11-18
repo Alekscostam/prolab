@@ -254,3 +254,8 @@
 #row-edit .p-inputgroup > .p-inputtext {
   border: none;
 }
+
+//TODO ograniczyc tylko do podpowiedzi
+.dx-datagrid .dx-error-row {
+  display: none;
+}

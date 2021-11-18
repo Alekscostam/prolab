@@ -3,12 +3,15 @@ import PropTypes from "prop-types";
 import {Dialog} from "primereact/dialog";
 import GridViewComponent from "../../containers/dataGrid/GridViewComponent";
 import {Button} from "primereact/button";
+import {Popup} from "devextreme-react";
+import {Position, ToolbarItem} from "devextreme-react/popup";
 
 export default class EditListComponent extends React.Component {
 
     constructor(props) {
         super(props);
         this.dataGrid = {};
+
     }
 
     handleSelectedRowData({selectedRowsData}) {
@@ -21,39 +24,121 @@ export default class EditListComponent extends React.Component {
         //TODO odkomentowac
         // let opADD = GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_ADD');
         let opADD = {label: 'Dodaj'}
+        // this.addButtonOptions = {
+        //     text: opADD.label,
+        //     onClick: () => {
+        //         const setFields = this.props.parsedGridView?.setFields;
+        //         const separatorJoin = this.props.parsedGridView?.options?.separatorJoin || ',';
+        //         let selectedRowData = this.props.selectedRowData;
+        //         if (!!setFields) {
+        //             setFields.forEach((field) => {
+        //                 let fieldKey = field.fieldList;
+        //                 let values = [];
+        //                 selectedRowData.forEach((row) => {
+        //                     for (const item in row) {
+        //                         const object = row[item]
+        //                         const firstObjKey = Object.keys(object)[0];
+        //                         if (firstObjKey === fieldKey) {
+        //                             values.push('' + object[firstObjKey]);
+        //                             break;
+        //                         }
+        //                     }
+        //                 })
+        //                 field.fieldValue = values.join(separatorJoin);
+        //             })
+        //             this.props.handleOnChosen(setFields);
+        //         }
+        //         this.props.onHide();
+        //     },
+        // };
         return (
             <React.Fragment>
+                {/*<Popup*/}
+                {/*    visible={this.props.visible}*/}
+                {/*    onHiding={() => this.props.onHide()}*/}
+                {/*    dragEnabled={true}*/}
+                {/*    closeOnOutsideClick={true}*/}
+                {/*    showCloseButton={true}*/}
+                {/*    showTitle={true}*/}
+                {/*    title="Lista podpowiedzi"*/}
+                {/*    container=".dx-viewport"*/}
+                {/*    width={width}*/}
+                {/*    height={height}*/}
+                {/*    resizeEnabled={true}*/}
+                {/*>*/}
+                {/*    /!*selectedRowData: {JSON.stringify(this.props.selectedRowData)}*!/*/}
+                {/*    /!*<br/>*!/*/}
+                {/*    /!*selectedRowDataSize: {this.props.selectedRowData?.length}*!/*/}
+                {/*    <GridViewComponent*/}
+                {/*        id={this.props.id}*/}
+                {/*        elementSubViewId={null}*/}
+                {/*        handleOnInitialized={(ref) => this.dataGrid = ref}*/}
+                {/*        parsedGridView={this.props.parsedGridView}*/}
+                {/*        parsedGridViewData={this.props.parsedGridViewData}*/}
+                {/*        gridViewColumns={this.props.gridViewColumns}*/}
+                {/*        packageRows={this.props.parsedGridView?.info?.dataPackageSize}*/}
+                {/*        handleBlockUi={() => {*/}
+                {/*            this.props.handleBlockUi()*/}
+                {/*        }}*/}
+                {/*        handleUnblockUi={() => {*/}
+                {/*            this.props.handleUnblockUi()*/}
+                {/*        }}*/}
+                {/*        showSelection={true}*/}
+                {/*        defaultSelectedRowKeys={this.props.defaultSelectedRowKeys}*/}
+                {/*        handleSelectedRowKeys={(e) => this.handleSelectedRowData(e)}*/}
+                {/*        handleSelectAll={(e) => {*/}
+                {/*        }}*/}
+                {/*        showFilterRow={true}*/}
+                {/*        showErrorMessages={(err) => this.props.showErrorMessages(err)}*/}
+                {/*        dataGridStoreSuccess={this.props.dataGridStoreSuccess}*/}
+                {/*        allowSelectAll={false}*/}
+                {/*    />*/}
+                {/*    <ToolbarItem*/}
+                {/*        widget="dxButton"*/}
+                {/*        toolbar="bottom"*/}
+                {/*        location="after"*/}
+                {/*        options={this.addButtonOptions}*/}
+                {/*    />*/}
+                {/*</Popup>*/}
                 <Dialog header="Lista podpowiedzi"
                         footer={opADD ?
                             <Button
                                 type="button"
                                 onClick={() => {
-                                    const fields = this.props.parsedGridView?.setFields;
+                                    const setFields = this.props.parsedGridView?.setFields;
                                     const separatorJoin = this.props.parsedGridView?.options?.separatorJoin || ',';
-                                    let selectedRows = this.props.selectedRowsData;
-                                    if (!!fields) {
-                                        fields.forEach((field) => {
-                                            let fieldList = field.fieldList;
+                                    let selectedRowData = this.props.selectedRowData;
+                                    if (!!setFields) {
+                                        setFields.forEach((field) => {
+                                            let fieldKey = field.fieldList;
                                             let values = [];
-                                            if (!!selectedRows) {
-                                                selectedRows.forEach((row) => {
-                                                    values.push(row[fieldList]);
-                                                })
-                                            }
+                                            selectedRowData.forEach((row) => {
+                                                for (const item in row) {
+                                                    const object = row[item]
+                                                    const firstObjKey = Object.keys(object)[0];
+                                                    if (firstObjKey === fieldKey) {
+                                                        values.push('' + object[firstObjKey]);
+                                                        break;
+                                                    }
+                                                }
+                                            })
                                             field.fieldValue = values.join(separatorJoin);
                                         })
-                                        this.props.handleOnChosen(fields);
+                                        this.props.handleOnChosen(setFields);
                                     }
                                     this.props.onHide();
                                 }}
-                                label={opADD?.label}
-                                disabled={this.props.selectedRowsData?.length === 0}/> : null
+                                label={opADD?.label}/> : null
                         }
                         visible={this.props.visible}
+                        resizable={false}
                         breakpoints={{'960px': '75vw', '640px': '100vw'}}
-                        style={{width: width, height: height}}
+                        style={{width: width, height: height, minWidth: width, minHeight: height}}
                         onHide={() => this.props.onHide()}
                 >
+                    {/*selectedRowData: {JSON.stringify(this.props.selectedRowData)}*/}
+                    {/*<br/>*/}
+                    {/*selectedRowDataSize: {this.props.selectedRowData?.length}*/}
                     <GridViewComponent
                         id={this.props.id}
                         elementSubViewId={null}
@@ -69,7 +154,7 @@ export default class EditListComponent extends React.Component {
                             this.props.handleUnblockUi()
                         }}
                         showSelection={true}
-                        selectedRowsData={this.props.selectedRowsData}
+                        defaultSelectedRowKeys={this.props.defaultSelectedRowKeys}
                         handleSelectedRowKeys={(e) => this.handleSelectedRowData(e)}
                         handleSelectAll={(e) => {
                         }}
@@ -101,7 +186,8 @@ EditListComponent.defaultProps = {
     handleUnblockUi: PropTypes.func.isRequired,
     showErrorMessages: PropTypes.func.isRequired,
     dataGridStoreSuccess: PropTypes.bool,
-    selectedRowsData: PropTypes.object.isRequired,
+    selectedRowData: PropTypes.object.isRequired,
+    defaultSelectedRowKeys: PropTypes.object.isRequired,
     handleSelectedRowData: PropTypes.func.isRequired,
 };
 

@@ -26,6 +26,7 @@ import EditListComponent from "./EditListComponent";
 import {Toast} from "primereact/toast";
 import EditRowUtils from "../../utils/EditRowUtils";
 import EditListDataStore from "../../containers/dao/EditListDataStore";
+import EditListUtils from "../../utils/EditListUtils";
 
 export class EditRowComponent extends BaseContainer {
 
@@ -42,7 +43,8 @@ export class EditRowComponent extends BaseContainer {
             gridViewTypes: [],
             gridViewType: null,
             dataGridStoreSuccess: false,
-            selectedRowsData: []
+            selectedRowData: [],
+            defaultSelectedRowKeys: []
         };
 
         this.editListDataStore = new EditListDataStore();
@@ -65,26 +67,113 @@ export class EditRowComponent extends BaseContainer {
         this.editListVisible = this.editListVisible.bind(this);
     }
 
-    handleSelectedRowData(selectedRowsData) {
-        const fields = this.state.parsedGridView.setFields;
-        let fieldKeys = fields.map((item) => {
-            return item.fieldList;
-        })
-        let selectedRowsDataTmp = [];
-        for (let selectedRows in selectedRowsData) {
-            let selectedRow = selectedRowsData[selectedRows];
-            for (let keyField in fieldKeys) {
-                let newObject = {}
-                for (let keyRow in selectedRow) {
-                    if (fieldKeys[keyField] === keyRow) {
-                        newObject[keyRow] = selectedRow[keyRow]
-                        break;
-                    }
-                }
-                selectedRowsDataTmp.push(newObject);
-            }
+    handleSelectedRowData(selectedRowData) {
+        ConsoleHelper("EditRowComponent::handleSelectedRowData obj=" + JSON.stringify(selectedRowData))
+        const setFields = this.state.parsedGridView.setFields;
+        let transformedRowsData = [];
+        let transformedRowsCRC = [];
+        for (let selectedRows in selectedRowData) {
+            let selectedRow = selectedRowData[selectedRows];
+            let transformedSingleRowData = EditListUtils.transformBySetFields(selectedRow, setFields)
+            let CALC_CRC = EditListUtils.calculateCRC(transformedSingleRowData)
+            ConsoleHelper("transformedRowsData = {} hash = {} ", transformedSingleRowData, CALC_CRC);
+            transformedRowsData.push(transformedSingleRowData);
+            transformedRowsCRC.push(CALC_CRC);
         }
-        this.setState({selectedRowsData: selectedRowsDataTmp})
+        this.setState({selectedRowData: transformedRowsData, defaultSelectedRowKeys: transformedRowsCRC})
+    }
+
+    editListVisible(field) {
+        ConsoleHelper('EditRowComponent::editListVisible')
+        let editInfo = this.props.editData?.editInfo;
+        let editListObject = this.service.createObjectToEditList(this.props.editData)
+        this.setState({
+            loading: true,
+            dataGridStoreSuccess: false
+        }, () => {
+            this.service
+                .getEditList(editInfo.viewId, editInfo.recordId, editInfo.parentId, field.id, editListObject)
+                .then((responseView) => {
+                    let selectedRowDataTmp = [];
+                    //CRC key
+                    let defaultSelectedRowKeysTmp = [];
+                    const editData = this.props.editData;
+                    const setFields = responseView.setFields;
+                    const separatorJoin = this.props.parsedGridView?.options?.separatorJoin || ',';
+
+                    let countSeparator = 0;
+                    setFields.forEach((field) => {
+                        EditRowUtils.searchField(editData, field.fieldEdit, (foundFields) => {
+                            const fieldValue = ('' + foundFields.value).split(separatorJoin);
+                            if (fieldValue.length > countSeparator) {
+                                countSeparator = fieldValue.length;
+                            }
+                        });
+                    });
+                    for (let index = 0; index < countSeparator; index++) {
+                        let singleSelectedRowDataTmp = [];
+                        setFields.forEach((field) => {
+                            EditRowUtils.searchField(editData, field.fieldEdit, (foundFields) => {
+                                let fieldTmp = {};
+                                const fieldValue = ('' + foundFields.value).split(separatorJoin);
+                                fieldTmp[field.fieldList] = fieldValue[index];
+                                singleSelectedRowDataTmp.push(fieldTmp);
+                            });
+                        });
+                        selectedRowDataTmp.push(singleSelectedRowDataTmp);
+                        let CALC_CRC = EditListUtils.calculateCRC(singleSelectedRowDataTmp)
+                        defaultSelectedRowKeysTmp.push(CALC_CRC);
+                    }
+                    ConsoleHelper("EditRowComponent::EditRowComponenteditListVisible:: defaultSelectedRowKeys = %s hash = %s ", JSON.stringify(selectedRowDataTmp), JSON.stringify(defaultSelectedRowKeysTmp))
+                    let filtersListTmp = [];
+                    this.setState(() => ({
+                            gridViewType: responseView?.viewInfo?.type,
+                            parsedGridView: responseView,
+                            gridViewColumns: responseView.gridColumns,
+                            filtersList: filtersListTmp,
+                            packageRows: responseView?.viewInfo?.dataPackageSize,
+                            selectedRowData: selectedRowDataTmp,
+                            defaultSelectedRowKeys: defaultSelectedRowKeysTmp
+                        }),
+                        () => {
+                            let res = this.editListDataStore.getEditListDataStore(
+                                editInfo.viewId,
+                                'gridView',
+                                editInfo.recordId,
+                                field.id,
+                                editInfo.parentId,
+                                null,
+                                editListObject,
+                                setFields,
+                                //onError
+                                (err) => {
+                                    this.showErrorMessages(err);
+                                },
+                                //onSuccess
+                                (response) => {
+                                    this.setState({
+                                        //performance :)
+                                        totalSelectCount: response.totalSelectCount,
+                                        dataGridStoreSuccess: true
+                                    });
+                                },
+                                //onStart
+                                () => {
+                                    return {selectAll: this.state.selectAll};
+                                }
+                            );
+                            this.setState({
+                                loading: false,
+                                parsedGridViewData: res,
+                                editListVisible: true
+                            });
+                        }
+                    );
+                }).catch((err) => {
+                console.error('Error getEditList in EditRowComponent. Exception = ', err);
+                this.showErrorMessages(err);
+            });
+        });
     }
 
     render() {
@@ -108,12 +197,14 @@ export class EditRowComponent extends BaseContainer {
                                }}
                                handleUnblockUi={() => this.unblockUi}
                                handleOnChosen={(editListData) => {
+                                   ConsoleHelper('EditRowComponent::handleOnChosen = ', JSON.stringify(editListData))
                                    let editInfo = this.props.editData?.editInfo;
                                    this.props.onEditList(editInfo, editListData);
                                }}
                                showErrorMessages={(err) => this.showErrorMessages(err)}
                                dataGridStoreSuccess={this.state.dataGridStoreSuccess}
-                               selectedRowsData={this.state.selectedRowsData}
+                               selectedRowData={this.state.selectedRowData}
+                               defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
                                handleSelectedRowData={(e) => this.handleSelectedRowData(e)}
             />
             <Sidebar
@@ -244,84 +335,6 @@ export class EditRowComponent extends BaseContainer {
                 </DivContainer>
                 : null}
         </React.Fragment>;
-    }
-
-    editListVisible(field) {
-        let editInfo = this.props.editData?.editInfo;
-        let editListObject = this.service.createObjectToEditList(this.props.editData)
-        this.setState({
-            loading: true,
-            dataGridStoreSuccess: false
-        }, () => {
-            this.service
-                .getEditList(editInfo.viewId, editInfo.recordId, editInfo.parentId, field.id, editListObject)
-                .then((responseView) => {
-                    let initializeSelectedRowsTmp = [];
-                    let editData = this.props.editData;
-                    let fields = responseView.setFields;
-                    fields.forEach((field) => {
-                        EditRowUtils.searchField(editData, field.fieldEdit, (foundField) => {
-                            let fieldTmp = {};
-                            fieldTmp[field.fieldList] = foundField.value;
-                            initializeSelectedRowsTmp.push(fieldTmp);
-                        });
-                    });
-                    let filtersListTmp = [];
-                    this.setState(() => ({
-                            gridViewType: responseView?.viewInfo?.type,
-                            parsedGridView: responseView,
-                            gridViewColumns: responseView.gridColumns,
-                            filtersList: filtersListTmp,
-                            packageRows: responseView?.viewInfo?.dataPackageSize,
-                            selectedRowsData: initializeSelectedRowsTmp
-                        }),
-                        () => {
-                            const initFilterId = responseView?.viewInfo?.filterdId;
-                            let columnIdExists = false;
-                            for (const column of responseView?.gridColumns) {
-                                if (column["fieldName"].toUpperCase() === 'ID') {
-                                    columnIdExists = true;
-                                    break;
-                                }
-                            }
-                            let res = this.editListDataStore.getEditListDataStore(
-                                editInfo.viewId,
-                                'gridView',
-                                editInfo.recordId,
-                                field.id,
-                                editInfo.parentId,
-                                initFilterId,
-                                editListObject,
-                                columnIdExists,
-                                //onError
-                                (err) => {
-                                    this.showErrorMessages(err);
-                                },
-                                //onSuccess
-                                (response) => {
-                                    this.setState({
-                                        //performance :)
-                                        totalSelectCount: response.totalSelectCount,
-                                        dataGridStoreSuccess: true
-                                    });
-                                },
-                                //onStart
-                                () => {
-                                    return {selectAll: this.state.selectAll};
-                                }
-                            );
-                            this.setState({
-                                loading: false,
-                                parsedGridViewData: res,
-                                editListVisible: true
-                            });
-                        }
-                    );
-                }).catch((err) => {
-                console.error('Error getEditList in EditRowComponent. Exception = ', err);
-                this.showErrorMessages(err);
-            });
-        });
     }
 
     renderInputComponent(field, fieldIndex, onChange, onBlur, groupName, required, validatorMsgs, onClickEditList) {

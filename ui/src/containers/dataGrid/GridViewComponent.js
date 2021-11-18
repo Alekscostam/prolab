@@ -297,8 +297,11 @@ class GridViewComponent extends React.Component {
         const allowSelectAll = (selectAll === undefined || selectAll === null || !!selectAll) ? true : false;
         return (
             <React.Fragment>
+                {/*<br/>*/}
+                {/*defaultSelectedRowKeys: {JSON.stringify(this.props.defaultSelectedRowKeys)}*/}
                 <DataGrid
                     id='grid-container'
+                    keyExpr={'CRC'}
                     className={`grid-container${headerAutoHeight ? ' grid-header-auto-height' : ''}`}
                     ref={(ref) => this.props.handleOnInitialized(ref)}
                     dataSource={this.props.parsedGridViewData}
@@ -315,7 +318,7 @@ class GridViewComponent extends React.Component {
                     columnHidingEnabled={false}
                     height={dataGridHeight ? (dataGridHeight + 'px') : '100%'}
                     rowAlternationEnabled={false}
-                    defaultSelectedRowKeys={this.defaultSelectedRowKeys}
+                    selectedRowKeys={this.props.defaultSelectedRowKeys}
                     onSelectionChanged={this.props.handleSelectedRowKeys}
                     renderAsync={true}
                     selectAsync={true}
@@ -378,7 +381,8 @@ GridViewComponent.defaultProps = {
     showFilterRow: true,
     showSelection: true,
     dataGridStoreSuccess: true,
-    allowSelectAll: true
+    allowSelectAll: true,
+    defaultSelectedRowKeys: []
 };
 
 GridViewComponent.propTypes = {
@@ -387,13 +391,15 @@ GridViewComponent.propTypes = {
     parsedGridView: PropTypes.object.isRequired,
     parsedGridViewData: PropTypes.object.isRequired,
     gridViewColumns: PropTypes.object.isRequired,
-    selectedRowKeys: PropTypes.object.isRequired,
     packageRows: PropTypes.number,
     handleOnInitialized: PropTypes.func.isRequired,
     handleShowEditPanel: PropTypes.func.isRequired,
-    selectedRowsData: PropTypes.object.isRequired,
+    //selection
+    defaultSelectedRowKeys: PropTypes.object.isRequired,
+    selectedRowKeys: PropTypes.object.isRequired,
     handleSelectedRowKeys: PropTypes.func.isRequired,
     handleSelectAll: PropTypes.func,
+    //other
     handleBlockUi: PropTypes.func.isRequired,
     handleUnblockUi: PropTypes.func.isRequired,
     showErrorMessages: PropTypes.func.isRequired,
