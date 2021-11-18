@@ -1,13 +1,10 @@
 import React from 'react';
 import PropTypes from "prop-types";
 
-import "../assets/css/multi_image_upload_base64.scss";
+import "../../assets/css/multi_image_upload_base64.scss";
+import ConsoleHelper from "../../utils/ConsoleHelper";
 
 class UploadMultiImageFileBase64 extends React.Component {
-
-    constructor(props) {
-        super(props);
-    }
 
     componentDidMount() {
         this.makeDropRegion();
@@ -16,12 +13,12 @@ class UploadMultiImageFileBase64 extends React.Component {
     }
 
     initImages() {
-        if (this.props.clearOnInput == true) {
+        if (this.props.clearOnInput === true) {
             this.clearPreview();
         }
         let initBase64 = this.props.multiple ? this.props.initBase64 : [this.props.initBase64];
         Array.from(initBase64).forEach(imageBase64 => {
-            if (this.props.preview == true && !!imageBase64) {
+            if (this.props.preview === true && !!imageBase64) {
                 var imagePreviewRegion = document.getElementById("image-preview");
                 // container
                 var imgView = document.createElement("div");
@@ -94,7 +91,7 @@ class UploadMultiImageFileBase64 extends React.Component {
                 }
             });
         } catch (e) {
-            if (e == BreakException) {
+            if (e === BreakException) {
                 return false
             }
         }
@@ -102,7 +99,7 @@ class UploadMultiImageFileBase64 extends React.Component {
     }
 
     clearPreview() {
-        console.log('clearPreview')
+        ConsoleHelper('clearPreview')
         var imagePreviewRegion = document.getElementById("image-preview");
         imagePreviewRegion.innerHTML = "";
     }
@@ -110,7 +107,7 @@ class UploadMultiImageFileBase64 extends React.Component {
     previewAndUploadImage(imageFiles) {
         let base64Images = [];
         Array.from(imageFiles).forEach(imageFile => {
-            if (this.props.preview == true) {
+            if (this.props.preview === true) {
                 var imagePreviewRegion = document.getElementById("image-preview");
 
                 // container
@@ -131,13 +128,13 @@ class UploadMultiImageFileBase64 extends React.Component {
             // read the image...
             var reader = new FileReader();
             reader.onload = (e) => {
-                if (this.props.preview == true) {
+                if (this.props.preview === true) {
                     img.src = e.target.result;
                     base64Images.push(e.target.result);
                 }
             }
-            console.log('imageFile')
-            console.log(imageFile)
+            ConsoleHelper('imageFile')
+            ConsoleHelper(imageFile)
             if (!!imageFile) {
                 reader.readAsDataURL(imageFile)
             } else {
@@ -150,11 +147,11 @@ class UploadMultiImageFileBase64 extends React.Component {
     }
 
     handleFiles(files) {
-        console.log('previewAndUploadImage')
-        if (this.props.clearOnInput == true) {
+        ConsoleHelper('previewAndUploadImage')
+        if (this.props.clearOnInput === true) {
             this.clearPreview();
         }
-        if (this.props.multiple == true) {
+        if (this.props.multiple === true) {
             if (this.validateImage(files)) {
                 this.previewAndUploadImage(files);
             }
@@ -172,7 +169,7 @@ class UploadMultiImageFileBase64 extends React.Component {
             this.handleFiles(files);
         } else {
             //drag andd drop fm chrome
-            if (this.props.dragFromWeb == true) {
+            if (this.props.dragFromWeb === true) {
                 var html = dt.getData('text/html'),
                     match = html && /\bsrc="?([^"\s]+)"?\s*/.exec(html),
                     url = match && match[1];
@@ -240,7 +237,7 @@ UploadMultiImageFileBase64.propTypes = {
 };
 
 UploadMultiImageFileBase64.defaultProps = {
-    className:'',
+    className: '',
     onSuccessBlob: undefined,
     onSuccessB64: undefined,
     onError: undefined,

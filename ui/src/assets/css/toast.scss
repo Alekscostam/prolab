@@ -35,6 +35,10 @@ div#toast-messages .p-toast-message-warn {
   color: $text-bg;
 }
 
+div#toast-messages {
+  z-index: 9999 !important;
+}
+
 //error
 div#toast-messages .p-toast-message-error {
   border: 0px;
@@ -61,7 +65,6 @@ div#toast-messages .p-toast-message-error {
 // .pi-times:before {
 //   content: '';
 // }
-
 
 
 .p-toast .p-toast-message.p-toast-message-success .p-toast-icon-close,

@@ -1,8 +1,11 @@
-import {CheckBox} from 'devextreme-react';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Image from '../components/Image';
 import Constants from './Constants';
+
+let _rowIndex = null;
+let _bgColor = null;
+let _fontcolor = null;
 
 export class GridViewUtils {
     static containsOperationButton(operations, type) {
@@ -25,11 +28,11 @@ export class GridViewUtils {
             for (i = 0; i < arrURLParams.length; i++) {
                 let sParam = arrURLParams[i].split('=');
                 arrParamNames[i] = sParam[0];
-                if (sParam[1] != '') arrParamValues[i] = unescape(sParam[1]);
+                if (sParam[1] !== '') arrParamValues[i] = unescape(sParam[1]);
                 else arrParamValues[i] = null;
             }
             for (i = 0; i < arrURLParams.length; i++) {
-                if (arrParamNames[i] == paramName) {
+                if (arrParamNames[i] === paramName) {
                     //alert("Parameter:" + arrParamValues[i]);
                     return arrParamValues[i];
                 }
@@ -47,7 +50,6 @@ export class GridViewUtils {
         }
     }
 
-    //TODO dopracować
     /*
     Typ kolumny:
         C – Znakowy
@@ -82,12 +84,13 @@ export class GridViewUtils {
                 case 'O':
                 case 'H':
                     return 'string';
+                default:
+                    return undefined;
             }
         }
         return undefined;
     }
 
-    //TODO dopracować
     static specifyColumnFormat(format) {
         if (format) {
             switch (format) {
@@ -97,27 +100,8 @@ export class GridViewUtils {
                     return Constants.DATE_FORMAT.DATE_TIME_FORMAT;
                 case 'T':
                     return Constants.DATE_FORMAT.TIME_FORMAT;
-            }
-        }
-        return undefined;
-    }
-
-    static specifyCellTemplate(template) {
-        if (template) {
-            switch (template) {
-                case 'I':
-                    return function (element, info) {
-                        ReactDOM.render(
-                            <div>
-                                <Image style='display: block; width: 100%;' base64={info.text}/>
-                            </div>,
-                            element
-                        );
-                    };
-                case 'IM':
-                    return function (element, info) {
-                        ReactDOM.render(<div>{info.text}</div>, element);
-                    };
+                default:
+                    return undefined;
             }
         }
         return undefined;
@@ -126,69 +110,77 @@ export class GridViewUtils {
     static cellTemplate(column) {
         return function (element, info) {
             let bgColorFinal = undefined;
-            const bgColor = info.data['_BGCOLOR'];
-            const specialBgColor = info.data['_BGCOLOR_' + info.column?.dataField];
-            if (bgColor) {
-                element.style.backgroundColor = bgColor;
+            let rowSelected = null;
+            if (_rowIndex !== info.row.dataIndex) {
+                rowSelected = info?.row?.cells?.filter((c) => c.column?.type === 'selection' && c.value === true).length > 0;
+                _rowIndex = info.row.dataIndex;
+                _bgColor = info.data['_BGCOLOR'];
+                _fontcolor = info.data['_FONTCOLOR'];
+            }
+            if (!!rowSelected) {
                 bgColorFinal = undefined;
-            }
-            if (specialBgColor) {
-                bgColorFinal = specialBgColor;
-            }
-            const rowSelected =
-                info?.row?.cells?.filter((c) => c.column?.type === 'selection' && c.value === true).length > 0;
-            if (rowSelected) {
-                bgColorFinal = undefined;
-            }
-
-            let fontColorFinal = 'black';
-            const fontColor = info.data['_FONTCOLOR'];
-            const specialFontColor = info.data['_FONTCOLOR_' + info.column?.dataField];
-            if (fontColor) {
-                fontColorFinal = fontColor;
             } else {
-                if (specialFontColor) {
+                const specialBgColor = info.data['_BGCOLOR_' + info.column?.dataField];
+                if (!!specialBgColor) {
+                    bgColorFinal = specialBgColor;
+                } else {
+                    if (_bgColor) {
+                        element.style.backgroundColor = _bgColor;
+                        bgColorFinal = undefined;
+                    }
+                }
+            }
+            let fontColorFinal = 'black';
+            if (!!_fontcolor) {
+                fontColorFinal = _fontcolor;
+            } else {
+                const specialFontColor = info.data['_FONTCOLOR_' + info.column?.dataField];
+                if (!!specialFontColor) {
                     fontColorFinal = specialFontColor;
                 }
             }
-            if (!!info.text) {
-                switch (column?.type) {
-                    case 'I':
-                    case 'IM':
-                        if (Array.isArray(info.text) && info.text?.length > 0) {
-                            return ReactDOM.render(
-                                <div
-                                    style={{
-                                        display: 'inline',
-                                        backgroundColor: bgColorFinal,
-                                        color: fontColorFinal,
-                                        borderRadius: '25px',
-                                        padding: '2px 0px 2px 0px',
-                                    }}
-                                >
-                                    {info.text?.map((i) => {
-                                        return <Image style={{maxWidth: '100%'}} base64={info.text}/>;
-                                    })}
-                                </div>,
-                                element
-                            );
-                        } else {
-                            return ReactDOM.render(
-                                <div
-                                    style={{
-                                        display: 'inline',
-                                        backgroundColor: bgColorFinal,
-                                        color: fontColorFinal,
-                                        borderRadius: '25px',
-                                        padding: '2px 0px 2px 0px',
-                                    }}
-                                >
-                                    <Image style={{maxWidth: '100%'}} base64={info.text}/>
-                                </div>,
-                                element
-                            );
-                        }
-                    case 'B':
+            switch (column?.type) {
+                case 'C':
+                case "N":
+                case 'D':
+                case 'E':
+                case 'T':
+                case 'O':
+                case 'H':
+                    return ReactDOM.render(
+                        <div
+                            style={{
+                                display: 'inline',
+                                backgroundColor: bgColorFinal,
+                                color: fontColorFinal,
+                                borderRadius: '25px',
+                                padding: '2px 6px 2px 6px',
+                            }}
+                            title={info.text}
+                        >
+                            {info.text}
+                        </div>,
+                        element
+                    );
+                case 'B':
+                    return ReactDOM.render(
+                        <div
+                            style={{
+                                display: 'inline',
+                                backgroundColor: bgColorFinal,
+                                color: fontColorFinal,
+                                borderRadius: '25px',
+                                padding: '2px 6px 2px 6px',
+                            }}
+                            title={info.text}
+                        >
+                            <input type="checkbox" readOnly={true} checked={info.text === 1}/>
+                        </div>,
+                        element
+                    );
+                case 'I':
+                case 'IM':
+                    if (Array.isArray(info.text) && info.text?.length > 0) {
                         return ReactDOM.render(
                             <div
                                 style={{
@@ -196,15 +188,16 @@ export class GridViewUtils {
                                     backgroundColor: bgColorFinal,
                                     color: fontColorFinal,
                                     borderRadius: '25px',
-                                    padding: '2px 6px 2px 6px',
+                                    padding: '2px 0px 2px 0px',
                                 }}
-                                title={info.text}
                             >
-                                <CheckBox readOnly={true} value={parseInt(info.text) === 1}/>
+                                {info.text?.map((i, index) => {
+                                    return <Image style={{maxWidth: '100%'}} key={index} base64={info.text}/>;
+                                })}
                             </div>,
                             element
                         );
-                    default:
+                    } else {
                         return ReactDOM.render(
                             <div
                                 style={{
@@ -212,28 +205,30 @@ export class GridViewUtils {
                                     backgroundColor: bgColorFinal,
                                     color: fontColorFinal,
                                     borderRadius: '25px',
-                                    padding: '2px 6px 2px 6px',
+                                    padding: '2px 0px 2px 0px',
                                 }}
-                                title={info.text}
                             >
-                                {info.text}
+                                <Image style={{maxHeight:'26px'}} base64={info.text}/>
                             </div>,
                             element
                         );
-                }
-            } else {
-                return ReactDOM.render(
-                    <div
-                        style={{
-                            display: 'inline',
-                            backgroundColor: bgColorFinal,
-                            color: fontColorFinal,
-                            borderRadius: '25px',
-                            padding: '2px 6px 2px 6px',
-                        }}
-                    ></div>,
-                    element
-                );
+                    }
+                default:
+                    return ReactDOM.render(
+                        <div
+                            style={{
+                                display: 'inline',
+                                backgroundColor: bgColorFinal,
+                                color: fontColorFinal,
+                                borderRadius: '25px',
+                                padding: '2px 6px 2px 6px',
+                            }}
+                            title={info.text}
+                        >
+                            {info.text}
+                        </div>,
+                        element
+                    );
             }
         };
     }
@@ -253,7 +248,7 @@ export class GridViewUtils {
             (n1 === null || n1 === undefined || n1 === 'undefined') &&
             (n2 === null || n2 === undefined || n2 === 'undefined')
         ) {
-            //console.log('equalNumbers: result=' + true + ' {' + n1 + ', ' + n2 + '}' );
+            // ConsoleHelper('equalNumbers: result=' + true + ' {' + n1 + ', ' + n2 + '}' );
             return true;
         }
         let num1, num2;
@@ -268,7 +263,7 @@ export class GridViewUtils {
             num2 = parseInt(n2);
         }
         const result = num1 === num2;
-        //console.log('equalNumbers: result=' + result + ' [' + n1 + ', ' + n2 + '] [' + typeof n1 + ', ' + typeof n2 + ']' );
+        // ConsoleHelper('equalNumbers: result=' + result + ' [' + n1 + ', ' + n2 + '] [' + typeof n1 + ', ' + typeof n2 + ']' );
         return result;
     }
 

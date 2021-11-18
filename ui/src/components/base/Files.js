@@ -343,10 +343,10 @@ Files.propTypes = {
 
 Files.defaultProps = {
 	onChange(files) {
-		console.log(files);
+		 ConsoleHelper(files);
 	},
 	onError(error) {
-		console.log(`error code ${error.code}: ${error.message}`);
+		 ConsoleHelper(`error code ${error.code}: ${error.message}`);
 	},
 	className: 'files-dropzone',
 	dropActiveClassName: 'files-dropzone-active',

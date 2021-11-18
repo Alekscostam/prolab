@@ -5,134 +5,136 @@ $table-border: #d5d5d5;
 $table-selection: #dde6ff;
 
 .dx-datagrid-headers tr > td {
-    text-align: left;
-    font-size: 14px !important;
-    line-height: 16px !important;
-    letter-spacing: 0px;
-    color: $header-label;
-    opacity: 1;
-    font-style: normal;
-    font-variant: normal;
-    font-weight: 500;
+  text-align: left;
+  font-size: 14px !important;
+  line-height: 16px !important;
+  letter-spacing: 0px;
+  color: $header-label;
+  opacity: 1;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 500;
 }
 
 .dx-datagrid-rowsview tr > td {
-    color: $data-label;
-    text-align: left;
-    font-size: 12px !important;
-    line-height: 14px !important;
-    letter-spacing: 0px;
-    font-style: normal;
-    font-variant: normal;
-    font-weight: 500;
+  color: $data-label;
+  text-align: left;
+  font-size: 12px !important;
+  line-height: 14px !important;
+  letter-spacing: 0px;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 500;
 }
 
 .dx-datagrid .dx-column-lines > td {
-    border-left: 1px solid $table-border;
-    border-right: 1px solid $table-border;
+  border-left: 1px solid $table-border;
+  border-right: 1px solid $table-border;
 }
 
 .dx-datagrid .dx-row-lines > td {
-    border-bottom: 1px solid $table-border;
+  border-bottom: 1px solid $table-border;
 }
 
 .dx-datagrid-rowsview .dx-selection > td,
 .dx-datagrid-rowsview .dx-selection > tr > td,
 .dx-datagrid-rowsview .dx-selection > td,
 .dx-datagrid-rowsview .dx-selection > tr > td {
-    background-color: $table-selection !important;
-    color: $data-label;
-    text-align: left;
-    font-size: 12px !important;
-    line-height: 14px !important;
-    letter-spacing: 0px;
-    font-style: normal;
-    font-variant: normal;
-    font-weight: 500;
+  background-color: $table-selection !important;
+  color: $data-label;
+  text-align: left;
+  font-size: 12px !important;
+  line-height: 14px !important;
+  letter-spacing: 0px;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 500;
 }
 
 .dx-command-select .dx-checkbox-checked .dx-checkbox-icon {
-    color: white;
-    background-color: #0e49eb;
+  color: white;
+  background-color: #0e49eb;
 }
 
 .dx-datagrid
-    .dx-datagrid-content
-    .dx-datagrid-table
-    .dx-row
-    > td.dx-cell-modified:not(.dx-field-item-content):not(.dx-validation-pending):first-of-type,
+.dx-datagrid-content
+.dx-datagrid-table
+.dx-row
+> td.dx-cell-modified:not(.dx-field-item-content):not(.dx-validation-pending):first-of-type,
 .dx-datagrid
-    .dx-datagrid-content
-    .dx-datagrid-table
-    .dx-row
-    > td.dx-datagrid-invalid:not(.dx-field-item-content):not(.dx-validation-pending):not(.dx-datagrid-select-all):first-of-type,
+.dx-datagrid-content
+.dx-datagrid-table
+.dx-row
+> td.dx-datagrid-invalid:not(.dx-field-item-content):not(.dx-validation-pending):not(.dx-datagrid-select-all):first-of-type,
 .dx-datagrid
-    .dx-datagrid-content
-    .dx-datagrid-table
-    .dx-row
-    > td:not(.dx-validation-pending):not(.dx-datagrid-select-all):first-of-type {
-    padding-left: 0px;
-}
-
-.dx-datagrid-rowsview .dx-select-checkboxes-hidden > tbody > tr > td > .dx-select-checkbox {
-    display: inline-block !important;
+.dx-datagrid-content
+.dx-datagrid-table
+.dx-row
+> td:not(.dx-validation-pending):not(.dx-datagrid-select-all):first-of-type {
+  padding-left: 0px;
 }
 
 .dx-datagrid-rowsview .dx-select-checkboxes-hidden > tbody > tr > td > .dx-select-checkbox {
-    display: grid;
+  display: inline-block !important;
+}
+
+.dx-datagrid-rowsview .dx-select-checkboxes-hidden > tbody > tr > td > .dx-select-checkbox {
+  display: grid;
 }
 
 .grid-selection-panel {
-    font-size: 12px;
-    line-height: 14px;
-    letter-spacing: 0px;
-    font-style: normal;
-    font-variant: normal;
-    font-weight: 500;
-    padding-left: 5px;
-    padding-right: 5px;
-    margin-top: 5px;
-    margin-bottom: 5px;
-    min-height: 36px;
-    vertical-align: middle;
+  font-size: 12px;
+  line-height: 14px;
+  letter-spacing: 0px;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: 500;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  min-height: 36px;
+  vertical-align: middle;
 }
 
 .grid-selection-panel-non-selection {
-    background-color: $button-text-color;
-    color: $button-color;
+  background-color: $button-text-color;
+  color: $button-color;
 }
 
 .grid-selection-panel-selection {
-    background-color: $button-color;
-    color: $button-text-color;
+  background-color: $button-color;
+  color: $button-text-color;
 }
 
 .grid-count-fragment {
-    margin-top: 2px;
+  margin-top: 2px;
 }
 
 .grid-separator-fragment {
-    border-left: $button-text-color 1px solid;
-    margin-left: 10px;
-    margin-top: 5px;
-    margin-bottom: 5px;
+  border-left: $button-text-color 1px solid;
+  margin-left: 10px;
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 
 .grid-button-panel {
-    background-color: $button-color;
-    color: $button-text-color;
-    font-size: 15px;
-    padding: 0rem 0.4rem;
-    min-width: 0rem;
-    height: 26px;
+  background-color: $button-color;
+  color: $button-text-color;
+  font-size: 15px;
+  padding: 0rem 0.4rem;
+  min-width: 0rem;
+  height: 26px;
 }
 
 .dx-button-mode-outlined.dx-item-selected {
-    background-color: rgba(0, 0, 0, 0.17);
+  background-color: rgba(0, 0, 0, 0.17);
 }
+
 .dx-button-mode-outlined.dx-item-selected {
-    background-color: rgba(0, 0, 0, 0.17);
+  background-color: rgba(0, 0, 0, 0.17);
 }
+
 // .dx-editor-with-menu,
 // .dx-checkbox-icon,
 // .dx-datagrid-columns-separator.dx-datagrid-columns-separator-transparent {
@@ -140,370 +142,444 @@ $table-selection: #dde6ff;
 // }
 
 .dx-datagrid.dx-gridbase-container {
-    z-index: 0;
-    .dx-loadpanel {
-        position: fixed;
-        left: 50%;
-        .dx-loadpanel-wrapper {
-            // display: contents;
-        }
+  z-index: 0;
+
+  .dx-loadpanel {
+    position: fixed;
+    left: 50%;
+    .dx-loadpanel-wrapper {
     }
+  }
 }
 
 .dx-buttongroup-wrapper dx-widget dx-collection {
-    background: white;
-    border-radius: 5px;
+  background: white;
+  border-radius: 5px;
 }
 
 .grid-panel-selection {
-    display: inline-flex;
+  display: inline-flex;
 }
 
 .grid-panel-right {
-    margin-left: auto;
-    order: 3;
+  margin-left: auto;
+  order: 3;
 }
 
 .card-grid {
-    margin-left: -10px;
-    margin-right: -10px;
-    width: calc(100% + 20px);
+  margin-left: -10px;
+  margin-right: -10px;
+  width: calc(100% + 20px);
 }
+
 .card-grid .dx-scrollable-container {
-    overflow-y: scroll;
+  overflow-y: scroll;
 }
+
 .dx-item.dx-tile {
-    border-radius: 10px;
-    padding: 0px;
+  border-radius: 10px;
+  padding: 0px;
 }
+
 .dx-item.dx-tile .dx-tile-image {
-    height: 100%;
-    border-radius: 10px;
+  height: 100%;
+  border-radius: 10px;
 }
+
 .dx-item.dx-tile .dx-tile-image.card-grid-selected {
-    border: 2px solid #0e49eb;
+  border: 2px solid #0e49eb;
 }
+
 .dx-item.dx-tile .dx-tile-image > .row {
-    height: 100%;
-    width: 100%;
-    border-radius: 10px;
-    margin: 0px;
-    display: flex;
-    flex-direction: column;
-    padding: 6px 0px;
+  height: 100%;
+  width: 100%;
+  border-radius: 10px;
+  margin: 0px;
+  display: flex;
+  flex-direction: column;
+  padding: 6px 0px;
 }
+
 .card-grid-header,
 .card-grid-body,
 .card-grid-footer {
-    min-height: 30px;
-    width: 100%;
-    padding: 0px 10px;
+  min-height: 30px;
+  width: 100%;
+  padding: 0px 10px;
 }
+
 .card-grid-footer {
-    display: inline-flex;
-    align-items: flex-end;
-    min-height: 20px;
-    max-height: 20px;
-    height: 20px;
-    .card-grid-footer-content {
-        display: block;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
+  display: inline-flex;
+  align-items: flex-end;
+  min-height: 20px;
+  max-height: 20px;
+  height: 20px;
+
+  .card-grid-footer-content {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
+
 .card-grid-body {
-    display: inline-flex;
-    align-items: flex-start;
-    max-height: calc(100% - 50px);
-    .card-grid-body-content {
-        word-break: normal;
-        display: block;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .card-grid-body-image {
-        padding-right: 10px;
-    }
+  display: inline-flex;
+  align-items: flex-start;
+  max-height: calc(100% - 50px);
+
+  .card-grid-body-content {
+    word-break: normal;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .card-grid-body-image {
+    padding-right: 10px;
+  }
 }
+
 .card-grid-header {
-    min-height: 30px;
-    max-height: 30px;
-    height: 30px;
-    display: inline-flex;
-    .card-grid-header-title {
-        flex-basis: 1;
-        flex-shrink: 0;
-        flex-grow: 1;
-        display: block;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .card-grid-header-buttons {
-        min-width: fit-content;
-    }
-}
-.card-grid-body {
+  min-height: 30px;
+  max-height: 30px;
+  height: 30px;
+  display: inline-flex;
+
+  .card-grid-header-title {
     flex-basis: 1;
     flex-shrink: 0;
     flex-grow: 1;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .card-grid-header-buttons {
+    min-width: fit-content;
+  }
 }
+
+.card-grid-body {
+  flex-basis: 1;
+  flex-shrink: 0;
+  flex-grow: 1;
+}
+
 .card-grid-footer {
-    flex-basis: 0;
-    flex-grow: 0;
-    flex-shrink: 0;
+  flex-basis: 0;
+  flex-grow: 0;
+  flex-shrink: 0;
 }
+
 .card-grid .dx-scrollable-container {
-    overflow-y: auto;
+  overflow-y: auto;
 }
 
 .dx-datagrid .dx-row > td {
-    padding: 3px;
+  padding: 3px;
 }
 
 .dx-datagrid
-    .dx-datagrid-content
-    .dx-datagrid-table
-    .dx-row
-    > td
-    .dx-row
-    > td.dx-cell-modified:not(.dx-field-item-content):not(.dx-validation-pending),
+.dx-datagrid-content
+.dx-datagrid-table
+.dx-row
+> td
+.dx-row
+> td.dx-cell-modified:not(.dx-field-item-content):not(.dx-validation-pending),
 .dx-datagrid
-    .dx-datagrid-content
-    .dx-datagrid-table
-    .dx-row
-    > td.dx-datagrid-invalid:not(.dx-field-item-content):not(.dx-validation-pending):not(.dx-datagrid-select-all),
+.dx-datagrid-content
+.dx-datagrid-table
+.dx-row
+> td.dx-datagrid-invalid:not(.dx-field-item-content):not(.dx-validation-pending):not(.dx-datagrid-select-all),
 .dx-datagrid
-    .dx-datagrid-content
-    .dx-datagrid-table
-    .dx-row
-    > td:not(.dx-validation-pending):not(.dx-datagrid-select-all) {
-    padding-right: 3px;
-    padding-left: 3px;
+.dx-datagrid-content
+.dx-datagrid-table
+.dx-row
+> td:not(.dx-validation-pending):not(.dx-datagrid-select-all) {
+  padding-right: 3px;
+  padding-left: 3px;
 }
+
 .card-grid-header {
-    .shortcut.p-button {
-        border-radius: 0px;
-    }
-    .shortcut.p-button:first-child {
-        border-bottom-left-radius: 4px;
-        border-top-left-radius: 4px;
-    }
-    .shortcut.p-button:last-child {
-        border-bottom-right-radius: 4px;
-        border-top-right-radius: 4px;
-    }
+  .shortcut.p-button {
+    border-radius: 0px;
+  }
+
+  .shortcut.p-button:first-child {
+    border-bottom-left-radius: 4px;
+    border-top-left-radius: 4px;
+  }
+
+  .shortcut.p-button:last-child {
+    border-bottom-right-radius: 4px;
+    border-top-right-radius: 4px;
+  }
 }
+
 .grid-container .shortcut.p-button,
 .card-grid-header .shortcut.p-button {
-    box-shadow: none;
+  box-shadow: none;
 }
+
 body #subviews-panel .dx-tabs {
-    width: auto;
-    max-width: 100%;
+  width: auto;
+  max-width: 100%;
+  border: none;
+  background: none;
+
+  .dx-tabs-scrollable .dx-tab::before {
+    height: 2px;
+  }
+
+  .dx-tabs-wrapper {
     border: none;
-    background: none;
-    .dx-tabs-scrollable .dx-tab::before {
-        height: 2px;
+  }
+
+  .dx-tab {
+    background-color: transparent;
+    padding-bottom: 2px;
+    padding-left: 5px;
+    padding-right: 5px;
+
+    .subview-tab-item {
+      color: #182d67;
+      text-transform: none;
+      font-size: 14px;
+      font-weight: bold;
+      letter-spacing: 0px;
     }
-    .dx-tabs-wrapper {
-        border: none;
+
+    .subview-tab-item-href {
+      display: contents;
+      position: relative;
+      color: #182d67;
+      text-transform: none;
+      font-size: 14px;
+      font-weight: bold;
+      letter-spacing: 0px;
     }
-    .dx-tab {
-        background-color: transparent;
-        padding-bottom: 2px;
-        padding-left: 5px;
-        padding-right: 5px;
-        .subview-tab-item {
-            color: #182d67;
-            text-transform: none;
-            font-size: 14px;
-            font-weight: bold;
-            letter-spacing: 0px;
-        }
-        .subview-tab-item-href {
-            display: contents;
-            position: relative;
-            color: #182d67;
-            text-transform: none;
-            font-size: 14px;
-            font-weight: bold;
-            letter-spacing: 0px;
-        }
-    }
-    .dx-tab.dx-tab-selected::before {
-        background-color: #0e49eb;
-    }
-    .dx-tab.dx-tab-selected::after {
-        border: none;
-    }
+  }
+
+  .dx-tab.dx-tab-selected::before {
+    background-color: #0e49eb;
+  }
+
+  .dx-tab.dx-tab-selected::after {
+    border: none;
+  }
 }
+
 body .grid-container .dx-datagrid-headers .dx-header-row > td > .dx-datagrid-text-content {
-    white-space: unset;
+  white-space: unset;
 }
+
 body .grid-container.grid-header-auto-height .dx-datagrid-headers .dx-header-row > td > .dx-datagrid-text-content {
-    white-space: nowrap;
+  white-space: nowrap;
 }
+
 body .grid-container {
-    max-width: 100%;
-    width: min-content;
-    .dx-checkbox.dx-state-readonly.dx-state-hover {
-        .dx-checkbox-icon {
-            border-color: rgba(0, 0, 0, 0);
-        }
+  max-width: 100%;
+  width: min-content;
+
+  .dx-checkbox.dx-state-readonly.dx-state-hover {
+    .dx-checkbox-icon {
+      border-color: rgba(0, 0, 0, 0);
     }
-    .dx-checkbox.dx-state-readonly {
-        .dx-checkbox-icon {
-            background-color: white;
-        }
-        border-width: 1px;
-        border-style: solid;
-        border-radius: 3px;
+  }
+
+  .dx-checkbox.dx-state-readonly {
+    .dx-checkbox-icon {
+      background-color: white;
     }
+
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 3px;
+  }
+
+  .dx-checkbox {
+    height: 18px;
+  }
+
+  .dx-datagrid-checkbox-size .dx-checkbox-icon {
+    height: 14px;
+  }
+
+  .dx-select-checkbox.dx-checkbox-checked .dx-checkbox-icon {
+    color: $text-bg !important;
+  }
+
+  .dx-checkbox-checked .dx-checkbox-icon {
+    color: $link-color !important;
+  }
 }
+
 .grid-panel-left {
 
-    .op-buttongroup {
-        position: relative;
-        display: inline-block;
-        a {
-            margin-right: 0.25rem;
-        }
-        a:last-child {
-            margin-right: 0;
-        }
-    }
-    .dx-buttongroup {
-        .dx-buttongroup-item.dx-button.dx-button-mode-outlined {
-            background-color: white;
-            .dx-button-content {
-                padding-top: 4px;
-                .dx-icon {
-                    color: #0e49eb;
-                }
-            }
-        }
-        .dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-item-selected,
-        .dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-item-selected.dx-state-hover {
-            background-color: #0e49eb;
+  .op-buttongroup {
+    position: relative;
+    display: inline-block;
 
-            .dx-icon {
-                color: white;
-            }
-        }
-        .dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-state-hover {
-            background-color: rgba(63, 81, 181, 0.92);
-            .dx-icon {
-                color: white;
-            }
-        }
+    a {
+      margin-right: 0.25rem;
     }
 
-    .filter-combo.dx-texteditor.dx-dropdowneditor-active::before,
-    .filter-combo.dx-texteditor::before,
-    .filter-combo.dx-texteditor::after,
-    .filter-combo.dx-texteditor.dx-state-hover::after {
-        border-bottom-width: 0px;
-        border-bottom-style: none;
+    a:last-child {
+      margin-right: 0;
     }
-    .filter-combo.dx-texteditor.dx-state-hover,
-    .filter-combo.dx-texteditor.dx-state-focused,
-    .filter-combo.dx-texteditor.dx-state-active {
-        .dx-dropdowneditor-icon {
-            background-color: transparent;
+  }
+
+  .dx-buttongroup {
+    .dx-buttongroup-item.dx-button.dx-button-mode-outlined {
+      background-color: white;
+
+      .dx-button-content {
+        padding-top: 4px;
+
+        .dx-icon {
+          color: #0e49eb;
+        }
+      }
+    }
+
+    .dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-item-selected,
+    .dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-item-selected.dx-state-hover {
+      background-color: #0e49eb;
+
+      .dx-icon {
+        color: white;
+      }
+    }
+
+    .dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-state-hover {
+      background-color: rgba(63, 81, 181, 0.92);
+
+      .dx-icon {
+        color: white;
+      }
+    }
+  }
+
+  .filter-combo.dx-texteditor.dx-dropdowneditor-active::before,
+  .filter-combo.dx-texteditor::before,
+  .filter-combo.dx-texteditor::after,
+  .filter-combo.dx-texteditor.dx-state-hover::after {
+    border-bottom-width: 0px;
+    border-bottom-style: none;
+  }
+
+  .filter-combo.dx-texteditor.dx-state-hover,
+  .filter-combo.dx-texteditor.dx-state-focused,
+  .filter-combo.dx-texteditor.dx-state-active {
+    .dx-dropdowneditor-icon {
+      background-color: transparent;
+      color: white;
+    }
+
+    .dx-selectbox-container {
+      background-color: rgba(63, 81, 181, 0.92);
+      color: white;
+    }
+
+    .dx-selectbox-container {
+      .dx-texteditor-container {
+        .dx-texteditor-input-container {
+          .dx-placeholder,
+          .dx-texteditor-input {
             color: white;
+          }
         }
-        .dx-selectbox-container {
-            background-color: rgba(63, 81, 181, 0.92);
-            color: white;
-        }
-        .dx-selectbox-container {
-            .dx-texteditor-container {
-                .dx-texteditor-input-container {
-                    .dx-placeholder,
-                    .dx-texteditor-input {
-                        color: white;
-                    }
-                }
-            }
-        }
+      }
     }
-    .filter-combo.dx-texteditor {
-        // top: -1px;
-        display: inline-block;
-        height: 28px;
-        // border-radius: 4px;
-        // border: 1px solid #ddd;
-        border-bottom-width: 0px;
-        border-bottom-style: none;
-        .dx-dropdowneditor-icon {
-            background-color: transparent;
-            color: #0e49eb;
-        }
-        .dx-selectbox-container {
-            border-radius: 4px;
-            border: 1px solid #ddd;
-            background-color: white;
-            color: #0e49eb;
-            .dx-texteditor-container {
-                .dx-texteditor-input-container {
-                    .dx-placeholder,
-                    .dx-texteditor-input {
-                        border: none;
-                        padding: 0px 10px;
-                        height: 26px;
-                        min-height: 26px;
-                        color: #0e49eb;
-                        font-family: 'Roboto';
-                        font-size: 12px;
-                        font-weight: bold;
-                    }
-                    .dx-placeholder::before {
-                        padding: 0px 10px;
-                    }
-                }
-            }
-        }
-        .dx-dropdowneditor-button {
-            width: 18px;
-            min-width: 18px;
-            color: #0e49eb;
-        }
+  }
+
+  .filter-combo.dx-texteditor {
+    // top: -1px;
+    display: inline-block;
+    height: 28px;
+    // border-radius: 4px;
+    // border: 1px solid #ddd;
+    border-bottom-width: 0px;
+    border-bottom-style: none;
+
+    .dx-dropdowneditor-icon {
+      background-color: transparent;
+      color: #0e49eb;
     }
+
+    .dx-selectbox-container {
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      background-color: white;
+      color: #0e49eb;
+
+      .dx-texteditor-container {
+        .dx-texteditor-input-container {
+          .dx-placeholder,
+          .dx-texteditor-input {
+            border: none;
+            padding: 0px 10px;
+            height: 26px;
+            min-height: 26px;
+            color: #0e49eb;
+            font-family: 'Roboto';
+            font-size: 12px;
+            font-weight: bold;
+          }
+
+          .dx-placeholder::before {
+            padding: 0px 10px;
+          }
+        }
+      }
+    }
+
+    .dx-dropdowneditor-button {
+      width: 18px;
+      min-width: 18px;
+      color: #0e49eb;
+    }
+  }
 }
 
 .dx-searchbox.dx-editor-underlined .dx-placeholder::before,
 .dx-searchbox.dx-editor-underlined .dx-texteditor-input {
-    padding-left: 30px;
+  padding-left: 30px;
 }
 
 .center-outside-div {
-    position: relative;
-    top: 50%;
-    transform: translateY(-50%); /* or try 50% */
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%); /* or try 50% */
 }
 
-.center-inside-div{
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
+.center-inside-div {
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
 
-    -webkit-justify-content: center;
-    -ms-flex-pack: center;
-    justify-content: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
 
-    -webkit-align-items: center;
-    -ms-flex-align: center;
-    align-items: center;
+  -webkit-align-items: center;
+  -ms-flex-align: center;
+  align-items: center;
 }
 
 .center-text-in-div {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .hidden {
-    visibility: hidden;
+  visibility: hidden;
+}
+
+.dx-scrollview-scrollbottom-indicator {
+  -webkit-box-shadow: none;
+  box-shadow: none;
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import ShortcutButton from "../ShortcutButton";
+import ShortcutButton from "./ShortcutButton";
 
 ShortcutButtons.propTypes = {};
 

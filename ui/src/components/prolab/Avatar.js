@@ -2,7 +2,7 @@
 /* eslint-disable react/jsx-max-props-per-line */
 import React from 'react';
 import PropTypes from 'prop-types';
-import Image from "./Image";
+import Image from "../Image";
 
 export const Avatar = (props) => {
     const {userName, base64, rendered, collapsed} = props;
@@ -16,8 +16,8 @@ export const Avatar = (props) => {
                         borderRadius: '50%',
                         verticalAlign: 'middle'
                     }} base64={base64}/> :
-                    <div class="avatar-circle">
-                         <span class="avatar-initials">{initials}</span>
+                    <div className="avatar-circle">
+                         <span className="avatar-initials">{initials}</span>
                     </div>}
             </div>
             {collapsed ? null : <div id='user' className={'col-10'}

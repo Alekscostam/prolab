@@ -2,7 +2,7 @@ import React from 'react';
 import AuthService from "../services/AuthService";
 import * as PropTypes from "prop-types";
 import Address from "./Address";
-import AppPrefixUtils from "../utils/AppPrefixUtils";
+import ConsoleHelper from "../utils/ConsoleHelper";
 
 
 class AuthComponent extends React.Component {
@@ -22,10 +22,7 @@ class AuthComponent extends React.Component {
             historyBrowser
         } = this.props;
         if (!this.authService.loggedIn()) {
-            console.log('You not login in !!!')
-            //Old
-            //historyBrowser.push('/');
-            window.location.href = AppPrefixUtils.locationHrefUrl('/#/');
+            this.props.handleLogout();
         } else {
             const userRoles = this.authService.getRoles();
             let authorized = false;
@@ -46,13 +43,19 @@ class AuthComponent extends React.Component {
                         viewMode: viewMode
                     });
                 } catch (err) {
-                    console.log('Error authorized. Exception=', err)
+                    ConsoleHelper('Error authorized. Exception=', err)
                     this.authService.logout();
                     historyBrowser.replace('/');
                 }
             } else {
                 historyBrowser.replace('/403');
             }
+        }
+    }
+
+    componentDidUpdate() {
+        if (!this.authService.loggedIn()) {
+            this.props.handleLogout();
         }
     }
 
@@ -74,6 +77,7 @@ Address.defaultProps = {};
 AuthComponent.propTypes = {
     historyBrowser: PropTypes.any.isRequired,
     roles: PropTypes.any,
+    handleLogout: PropTypes.func
 }
 
 export default AuthComponent;

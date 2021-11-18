@@ -1,6 +1,7 @@
 import decode from 'jwt-decode';
 import moment from 'moment';
 import {readCookieGlobal} from "../utils/Cookie";
+import ConsoleHelper from "../utils/ConsoleHelper";
 
 /*
 Żądanie POST służy do uwierzytelnienia użytkownika i uzyskania tokena, który służy do weryfikacji innego interfejsu API
@@ -58,7 +59,7 @@ export default class AuthService {
             })
                 .then((response) => this.parseJSON(response, headers))
                 .then((response) => {
-                    console.log('response', response);
+                    ConsoleHelper('response', response);
                     if (method === 'POST' || method === 'PUT') {
                         this.counter -= 1;
                         if (this.counter <= 0 && this.unblockUi !== undefined) {
@@ -183,8 +184,8 @@ export default class AuthService {
     isTokenExpiredDate() {
         try {
             const expirationTokenDateStr = localStorage.getItem('expiration_token');
-            if (expirationTokenDateStr && new Date(  expirationTokenDateStr) < Date.now() / 1000) {
-                // Checking if token is expired. N
+            if (!expirationTokenDateStr || new Date(expirationTokenDateStr * 1000) < Date.now()) {
+                // Checking if token is expired.
                 return true;
             } else return false;
         } catch (err) {
@@ -195,7 +196,7 @@ export default class AuthService {
     setToken(idToken, expirationToken, loggedUser) {
         // Saves user token to localStorage
         localStorage.setItem('id_token', idToken);
-        localStorage.setItem('expiration_token', expirationToken);
+        localStorage.setItem('expiration_token', decode(idToken).exp);
         localStorage.setItem('logged_user', JSON.stringify(loggedUser));
     }
 

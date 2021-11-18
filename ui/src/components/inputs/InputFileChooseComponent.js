@@ -49,7 +49,7 @@ class InputFileChooseComponent extends Component {
 					});
 				})
 				.catch(err => {
-					console.log(`can not read system param ${uploadExtParamName}: ${err.message}`);
+					 ConsoleHelper(`can not read system param ${uploadExtParamName}: ${err.message}`);
 					if (handleError) {
 						handleError(err.message);
 					}
@@ -64,7 +64,7 @@ class InputFileChooseComponent extends Component {
 					});
 				})
 				.catch(err => {
-					console.log(`can not read system param ${uploadMaxSizeParamName}: ${err.message}`);
+					 ConsoleHelper(`can not read system param ${uploadMaxSizeParamName}: ${err.message}`);
 					if (handleError) {
 						handleError(err.message);
 					}

@@ -2,6 +2,7 @@ import CustomStore from 'devextreme/data/custom_store';
 import 'devextreme/dist/css/dx.light.css';
 import 'whatwg-fetch';
 import BaseService from '../../services/BaseService';
+import ConsoleHelper from "../../utils/ConsoleHelper";
 
 export default class DataGridStore extends BaseService {
     constructor() {
@@ -43,13 +44,18 @@ export default class DataGridStore extends BaseService {
         });
     }
 
-    getDataGridStore(viewIdArg, viewTypeArg, recordIdArg, filterIdArg, onError, onSuccess, onStart) {
+    getDataGridStore(viewIdArg, viewTypeArg, recordIdArg, filterIdArg, parentIdArg, onError, onSuccess, onStart) {
+        if (!viewIdArg) {
+            return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0});
+        }
         const dataGridStore = new CustomStore({
             key: 'ID',
             //keyExpr: 'ID',
             load: (loadOptions) => {
+                let selectAll = false;
                 if (onStart) {
-                    onStart();
+                    let result = onStart();
+                    selectAll = result?.selectAll
                 }
                 let params = '?';
                 [
@@ -67,7 +73,7 @@ export default class DataGridStore extends BaseService {
                     'skip',
                     'take',
                     'totalSummary',
-                    'userData',
+                    // 'userData',
                 ].forEach((i) => {
                     if (i in loadOptions && this.isNotEmpty(loadOptions[i])) {
                         params += `${i}=${JSON.stringify(loadOptions[i])}&`;
@@ -76,32 +82,29 @@ export default class DataGridStore extends BaseService {
                 let viewTypeParam = viewTypeArg !== undefined && viewTypeArg != null ? `&viewType=${viewTypeArg}` : '';
                 let filterIdParam = filterIdArg !== undefined && filterIdArg != null ? `&filterId=${filterIdArg}` : '';
                 let recordIdParam = recordIdArg !== undefined && recordIdArg != null ? `&parentId=${recordIdArg}` : '';
-                //let parentIdParam = recordIdArg !== undefined && recordIdArg != null ? `&parentId=${recordIdArg}` : '';
-                if (!viewIdArg) {
-                    return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0});
-                }
+                let parentIdParam = parentIdArg !== undefined && parentIdArg != null ? `&parentId=${parentIdArg}` : '';
+                let selectAllParam = !!selectAll ? `&selection=true` : '';
                 return this.fetch(
-                    `${this.domain}/${this.path}/${viewIdArg}${params}${viewTypeParam}${filterIdParam}${recordIdParam}`,
+                    `${this.domain}/${this.path}/${viewIdArg}${params}${viewTypeParam}${filterIdParam}${recordIdParam}${selectAllParam}${parentIdParam}`,
                     {
                         method: 'GET',
                     }
                 )
                     .then((response) => {
                         let data = response.data;
-                        console.log('DataGridStore -> fetch data: ', data);
+                        ConsoleHelper('DataGridStore -> fetch data: ', data);
                         if (onSuccess) {
-                            onSuccess();
+                            onSuccess({totalSelectCount: response.totalCount});
                         }
                         return {
                             data: data,
-                            //TODO
                             totalCount: response.totalCount,
                             summary: response.summary || [],
                             groupCount: response.groupCount || 0,
                         };
                     })
                     .catch((err) => {
-                        console.log('Error fetch data grid store for view id={%s}. Error = ', viewIdArg, err);
+                        ConsoleHelper('Error fetch data grid store for view id={%s}. Error = ', viewIdArg, err);
                         if (onError) {
                             onError(err);
                         }

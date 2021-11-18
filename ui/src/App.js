@@ -2,12 +2,12 @@ import React, {Component} from 'react';
 import {HashRouter, Route, Switch} from 'react-router-dom';
 import Sidebar from './containers/layout/Sidebar';
 import Login from './containers/LoginContainer';
-import StartContainer from './containers/StartContainer';
+import DashboardContainer from './containers/DashboardContainer';
 import AuthService from './services/AuthService';
 import AuthComponent from './components/AuthComponent';
 import PrimeReact, {addLocale, locale as primeReactLocale} from 'primereact/api';
 import "@fontsource/roboto"
-import {GridViewContainer} from "./containers/GridViewContainer";
+import {ViewContainer} from "./containers/ViewContainer";
 import {createBrowserHistory} from 'history';
 import {loadMessages, locale as devExpressLocale} from "devextreme/localization";
 import AppPrefixUtils from "./utils/AppPrefixUtils";
@@ -16,6 +16,7 @@ import ReadConfigService from "./services/ReadConfigService";
 import {readCookieGlobal, saveCookieGlobal} from "./utils/Cookie";
 import LocalizationService from './services/LocalizationService';
 import config from "devextreme/core/config";
+import ConsoleHelper from "./utils/ConsoleHelper";
 
 class App extends Component {
     constructor() {
@@ -51,7 +52,7 @@ class App extends Component {
         config({
             editorStylingMode: 'underlined'
         });
-        console.log("App version = " + packageJson.version);
+        ConsoleHelper("App version = " + packageJson.version);
     }
 
 
@@ -138,7 +139,7 @@ class App extends Component {
                     });
             })
             .catch(err => {
-                console.log(`App:getLocalization error`, err);
+                ConsoleHelper(`App:getLocalization error`, err);
             })
     }
 
@@ -147,7 +148,7 @@ class App extends Component {
         rawFile.overrideMimeType("application/json");
         rawFile.open("GET", file, true);
         rawFile.onreadystatechange = function () {
-            if (rawFile.readyState === 4 && rawFile.status == "200") {
+            if (rawFile.readyState === 4 && rawFile.status === "200") {
                 callback(rawFile.responseText);
             }
         }
@@ -171,12 +172,17 @@ class App extends Component {
     render() {
         const authService = this.authService;
         const {labels} = this.state;
+        const loggedIn = authService.loggedIn();
         return (
             <React.Fragment>
                 {this.state.loadedConfiguration ?
-                    <HashRouter history={this.historyBrowser}>
-                        <div className={`${authService.loggedIn() ? 'app' : ''}`}>
-                            {authService.loggedIn() ?
+                    <HashRouter history={this.historyBrowser} getUserConfirmation={(message, callback) => {
+                        // this is the default behavior
+                        const allowTransition = window.confirm(message);
+                        callback(allowTransition);
+                    }}>
+                        <div className={`${loggedIn ? 'app' : ''}`}>
+                            {loggedIn ?
                                 <Sidebar
                                     authService={this.authService}
                                     historyBrowser={this.historyBrowser}
@@ -184,7 +190,7 @@ class App extends Component {
                                     labels={this.state.labels}
                                 /> : null}
                             <main>
-                                <div className={`${authService.loggedIn() ? 'container-fluid' : ''}`}>
+                                <div className={`${loggedIn ? 'container-fluid' : ''}`}>
                                     <Switch>
                                         <Route exact path='/' render={(props) => this.renderLoginContainer(props)}/>
                                         <Route path='/login' render={(props) => this.renderLoginContainer(props)}/>
@@ -193,8 +199,9 @@ class App extends Component {
                                                    return (
                                                        <AuthComponent viewMode={'VIEW'}
                                                                       historyBrowser={this.historyBrowser}
+                                                                      handleLogout={() => this.handleLogoutUser()}
                                                        >
-                                                           <StartContainer/>
+                                                           <DashboardContainer labels={labels}/>
                                                        </AuthComponent>
                                                    )
                                                }}/>
@@ -202,8 +209,9 @@ class App extends Component {
                                                render={(props) => {
                                                    return (
                                                        <AuthComponent viewMode={'VIEW'}
-                                                                      historyBrowser={this.historyBrowser}>
-                                                           <GridViewContainer
+                                                                      historyBrowser={this.historyBrowser}
+                                                                      handleLogout={() => this.handleLogoutUser()}>
+                                                           <ViewContainer
                                                                id={props.match.params.id}
                                                                labels={labels}
                                                            />

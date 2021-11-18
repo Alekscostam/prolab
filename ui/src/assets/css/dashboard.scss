@@ -1,0 +1,51 @@
+.dashboard .column {
+  padding: 10px;
+}
+
+.dashboard .left {
+  margin: 0px 20px 0px 0px;
+  float: left;
+}
+
+.dashboard .right {
+  margin: 10px;
+  display: flex;
+  flex-direction: column;
+  min-width: 420px;
+}
+
+.dashboard .rows {
+  width: 100%;
+}
+
+.dashboard .title-dashboard {
+  font-weight: bold;
+  text-align: left;
+  font-size: 25px;
+  line-height: 29px;
+  letter-spacing: 0px;
+  color: $text-color;
+  margin: 0px 0px 7px 12px;
+}
+
+.dashboard .dx-item.dx-tile {
+  top: 0px !important;
+}
+
+.dashboard .panel-dashboard {
+  padding: 10px;
+  margin: 0px 0px 20px 0px;
+  box-shadow: 0px 0px 6px #00000029;
+}
+
+.dashboard .grid-container {
+  width: 100%;
+}
+
+.dashboard .dx-tile {
+  border: none;
+}
+
+.dashboard .dx-scrollable-wrapper{
+  overflow: hidden;
+}

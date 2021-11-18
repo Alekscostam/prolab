@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from "prop-types";
-import DivContainer from "./DivContainer";
+import DivContainer from "../DivContainer";
 
 export default class UploadImageFileBase64 extends React.Component {
 
@@ -74,7 +74,7 @@ export default class UploadImageFileBase64 extends React.Component {
                         <DivContainer>
                             <input
                                 id={this.props.id}
-                                class={`file-chooser ${this.props.className}`}
+                                className={`file-chooser ${this.props.className}`}
                                 type="file"
                                 accept="image/*"
                                 onChange={this.handleChange.bind(this)}

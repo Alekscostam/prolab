@@ -1,6 +1,10 @@
 import {
+    BatchesList,
+    CardElement,
+    CardOptions,
     Column,
     DocumentsList,
+    FiltersList,
     GridColumns,
     GridOptions,
     Operations,
@@ -8,10 +12,6 @@ import {
     ShortcutButtons,
     ViewInfo,
     ViewResponse,
-    BatchesList,
-    FiltersList,
-    CardElement,
-    CardOptions,
 } from '../../model/ViewModel';
 import {parseBoolean} from './ValidationUtils';
 
