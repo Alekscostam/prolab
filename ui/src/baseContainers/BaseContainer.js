@@ -987,6 +987,12 @@ class BaseContainer extends React.Component {
         this.rowSave(viewId, recordId, parentId, saveElement, false);
     }
 
+    refreshGridView() {
+        if (!!this.dataGrid) {
+            this.dataGrid.instance.refresh(true);
+        }
+    }
+
     rowSave = (viewId, recordId, parentId, saveElement, confirmSave) => {
         this.blockUi();
         this.editService
@@ -1002,7 +1008,12 @@ class BaseContainer extends React.Component {
                                 rejectClassName: 'hidden',
                                 acceptLabel: 'OK',
                                 rejectLabel: undefined,
-                                accept: () => this.setState({visibleEditPanel: false})
+                                accept: () => {
+                                    this.setState({visibleEditPanel: false});
+                                    if (!!this.dataGrid) {
+                                        this.refreshGridView();
+                                    }
+                                }
                             })
                         } else if (!!saveResponse.error) {
                             this.showResponseErrorMessage(saveResponse);

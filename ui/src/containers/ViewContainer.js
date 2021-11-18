@@ -1062,7 +1062,9 @@ export class ViewContainer extends BaseContainer {
                                 <GridViewComponent
                                     id={this.props.id}
                                     elementSubViewId={this.state.elementSubViewId}
-                                    handleOnInitialized={(ref) => this.dataGrid = ref}
+                                    handleOnInitialized={(ref) => {
+                                        this.dataGrid = ref;
+                                    }}
                                     parsedGridView={this.state.parsedGridView}
                                     parsedGridViewData={this.state.parsedGridViewData}
                                     gridViewColumns={this.state.gridViewColumns}
