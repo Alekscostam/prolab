@@ -279,10 +279,10 @@ class GridViewComponent extends React.Component {
         const columnAutoWidth = this.props.parsedGridView?.gridOptions?.columnAutoWidth || true;
         const rowAutoHeight = this.props.parsedGridView?.gridOptions?.rowAutoHeight || false;
         const headerAutoHeight = this.props.parsedGridView?.gridOptions?.headerAutoHeight || false;
+        //odkomentowac dla mock
+        //const multiSelect = true;
         //multiSelect dla podpowiedzi
-        //TODO odkomentowac
-        // const multiSelect = this.props.parsedGridView?.gridOptions?.multiSelect;
-        const multiSelect = true;
+        const multiSelect = this.props.parsedGridView?.gridOptions?.multiSelect;
         const multiSelection = (multiSelect === undefined || multiSelect === null || !!multiSelect) ? true : false;
         const packageCount = this.props.packageRows;
         const showSelection = this.waitForSuccess() ? false : this.props.showSelection;

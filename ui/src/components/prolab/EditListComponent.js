@@ -5,6 +5,7 @@ import GridViewComponent from "../../containers/dataGrid/GridViewComponent";
 import {Button} from "primereact/button";
 import {Popup} from "devextreme-react";
 import {Position, ToolbarItem} from "devextreme-react/popup";
+import {GridViewUtils} from "../../utils/GridViewUtils";
 
 export default class EditListComponent extends React.Component {
 
@@ -21,9 +22,9 @@ export default class EditListComponent extends React.Component {
     render() {
         let width = this.props.parsedGridView?.info?.windowSize?.width || '50vw';
         let height = this.props.parsedGridView?.info?.windowSize?.height || undefined;
-        //TODO odkomentowac
-        // let opADD = GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_ADD');
-        let opADD = {label: 'Dodaj'}
+        let opADD = GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_ADD');
+        //odkomentowac dla mocka
+        // let opADD = {label: 'Dodaj'}
         // this.addButtonOptions = {
         //     text: opADD.label,
         //     onClick: () => {

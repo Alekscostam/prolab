@@ -83,7 +83,7 @@ export default class EditListDataStore extends BaseService {
                             }
                             this.response = {
                                 data: data,
-                                totalCount: response.totalCount || 1000,
+                                totalCount: response.totalCount,
                                 summary: response.summary || [],
                                 groupCount: response.groupCount || 0,
                             }

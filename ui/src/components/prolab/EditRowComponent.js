@@ -345,8 +345,8 @@ export class EditRowComponent extends BaseContainer {
         const labelColor = !!field.labelColor ? field.labelColor : '';
         const selectionList = field?.selectionList ? 'p-inputgroup' : null;
         let editInfo = this.props.editData?.editInfo;
-        //TODO odkomentowac
-        field.edit = true;
+        //odkomentowac dla mocka
+        // field.edit = true;
         switch (field.type) {
             case 'C'://C – Znakowy
             default:
