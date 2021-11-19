@@ -366,7 +366,7 @@ export class EditRowComponent extends BaseContainer {
                                    required={required}
                         />
                         {!!selectionList ? <Button type="button" onClick={onClickEditList} icon="pi pi-question-circle"
-                                                   className="p-button-secondary" disabled={!field.edit}/> : null}
+                                                   className="p-button-secondary"/> : null}
                     </div>
                 </React.Fragment>);
             case "N"://N – Numeryczny/Liczbowy
@@ -386,7 +386,7 @@ export class EditRowComponent extends BaseContainer {
                                    padControl="false"
                         />
                         {!!selectionList ? <Button type="button" onClick={onClickEditList} icon="pi pi-question-circle"
-                                                   className="p-button-secondary" disabled={!field.edit}/> : null}
+                                                   className="p-button-secondary"/> : null}
                     </div>
                 </React.Fragment>);
             case 'B'://B – Logiczny (0/1)
