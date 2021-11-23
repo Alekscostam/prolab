@@ -583,3 +583,7 @@ body .grid-container {
   -webkit-box-shadow: none;
   box-shadow: none;
 }
+//fix z uciekającymi bordersami tabelek
+.dx-row.dx-column-lines.dx-datagrid-filter-row{
+  height: 37px;
+}

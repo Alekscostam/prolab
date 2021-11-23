@@ -367,28 +367,6 @@ export class ViewContainer extends BaseContainer {
                                 filtersListTmp.push({
                                     id: responseView?.filtersList[filter].id,
                                     label: responseView?.filtersList[filter].label,
-                                    command: (e) => {
-                                        let subViewId = UrlUtils.getURLParameter('subview');
-                                        let recordId = UrlUtils.getURLParameter('recordId');
-                                        if (subviewMode) {
-                                            ConsoleHelper(
-                                                `Redirect -> Id =  ${this.state.elementId} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${e.item?.id}`
-                                            );
-                                            window.location.href = AppPrefixUtils.locationHrefUrl(
-                                                `/#/grid-view/${this.state.elementId}?recordId=${recordId}&subview=${subViewId}&filterId=${e.item?.id}${currentBreadcrumb}`
-                                            );
-                                        } else {
-                                            ConsoleHelper(
-                                                `Redirect -> Id =  ${this.state.elementId} RecordId = ${recordId} FilterId = ${e.item?.id}`
-                                            );
-                                            if (!!e.item?.id) {
-                                                const filterId = parseInt(e.item?.id)
-                                                window.location.href = AppPrefixUtils.locationHrefUrl(
-                                                    `/#/grid-view/${this.state.elementId}/?filterId=${filterId}${currentBreadcrumb}`
-                                                );
-                                            }
-                                        }
-                                    },
                                 });
                             }
                             let viewInfoTypesTmp = [];
@@ -605,9 +583,26 @@ export class ViewContainer extends BaseContainer {
         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
         if (!!e.value && e.value !== e.previousValue) {
             const filterId = parseInt(e.value)
-            window.location.href = AppPrefixUtils.locationHrefUrl(
-                `/#/grid-view/${this.state.elementId}/?filterId=${filterId}${currentBreadcrumb}`
-            );
+            let subViewId = UrlUtils.getURLParameter('subview');
+            let recordId = UrlUtils.getURLParameter('recordId');
+            let subviewMode = !!recordId && !!this.state.elementId;
+            if (subviewMode) {
+                ConsoleHelper(
+                    `Redirect -> Id =  ${this.state.elementId} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`
+                );
+                window.location.href = AppPrefixUtils.locationHrefUrl(
+                    `/#/grid-view/${this.state.elementId}?recordId=${recordId}&subview=${subViewId}&filterId=${filterId}${currentBreadcrumb}`
+                );
+            } else {
+                ConsoleHelper(
+                    `Redirect -> Id =  ${this.state.elementId} RecordId = ${recordId} FilterId = ${filterId}`
+                );
+                if (filterId) {
+                    window.location.href = AppPrefixUtils.locationHrefUrl(
+                        `/#/grid-view/${this.state.elementId}/?filterId=${filterId}${currentBreadcrumb}`
+                    );
+                }
+            }
         }
     }
 

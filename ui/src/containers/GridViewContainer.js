@@ -388,9 +388,9 @@ export class GridViewContainer extends BaseContainer {
                         className='filter-combo mr-1 mt-1 mb-1'
                         id='combo_filters'
                         items={this.state.filtersList}
-                        displayExpr='label'
-                        valueExpr='id'
-                        value={parseInt(this.state.elementFilterId || this.state.parsedGridView?.viewInfo?.filterdId)}
+
+
+                        value={this.state.elementFilterId || this.state.parsedGridView?.viewInfo?.filterdId}
                         onValueChanged={this.onFilterChanged}
                         stylingMode='underlined'
                     />
