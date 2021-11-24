@@ -1007,9 +1007,6 @@ class BaseContainer extends React.Component {
                                 rejectLabel: undefined,
                                 accept: () => {
                                     this.setState({visibleEditPanel: false});
-                                    if (!!this.dataGrid) {
-                                        this.refreshGridView();
-                                    }
                                 }
                             })
                         } else if (!!saveResponse.error) {
@@ -1051,6 +1048,7 @@ class BaseContainer extends React.Component {
                         }
                         break;
                 }
+                this.refreshGridView();
                 this.unblockUi();
             }).catch((err) => {
             if (!!err.error) {
