@@ -3,7 +3,6 @@ import ButtonGroup from 'devextreme-react/button-group';
 import PropTypes from 'prop-types';
 import React from 'react';
 import BaseContainer from '../baseContainers/BaseContainer';
-import ActionButton from '../components/ActionButton';
 import ActionButtonWithMenu from '../components/prolab/ActionButtonWithMenu';
 import EditRowComponent from '../components/prolab/EditRowComponent';
 import HeadPanel from '../components/prolab/HeadPanel';
@@ -25,7 +24,6 @@ import {localeOptions} from "primereact/api";
 import CardViewComponent from "./cardView/CardViewComponent";
 import GridViewComponent from "./dataGrid/GridViewComponent";
 import DashboardContainer from "./DashboardContainer";
-import SubGridViewComponent from "./dataGrid/SubGridViewComponent";
 import ConsoleHelper from "../utils/ConsoleHelper";
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -570,8 +568,8 @@ export class ViewContainer extends BaseContainer {
         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
         if (!!e.value && e.value !== e.previousValue) {
             const filterId = parseInt(e.value)
-            let subViewId = UrlUtils.getURLParameter('subview');
-            let recordId = UrlUtils.getURLParameter('recordId');
+            let subViewId = UrlUtils.getURLParameter('subview') || this.state.elementSubViewId;
+            let recordId = UrlUtils.getURLParameter('recordId') || this.state.elementRecordId;
             let subviewMode = !!recordId && !!this.state.elementId;
             if (subviewMode) {
                 ConsoleHelper(
@@ -1082,7 +1080,11 @@ export class ViewContainer extends BaseContainer {
                                     handleSelectedRowKeys={(e) => this.setState({selectedRowKeys: e})}/>
                             </React.Fragment>
                         ) : this.state.gridViewType === 'dashboard' ? (<React.Fragment>
+                            {Breadcrumb.render(labels)}
                             <DashboardContainer dashboard={this.state.subView}
+                                                handleRenderNoRefreshContent={(renderNoRefreshContent) => {
+                                                    this.props.handleRenderNoRefreshContent(renderNoRefreshContent)
+                                                }}
                                                 labels={labels}
                             />
                         </React.Fragment>) : null}
