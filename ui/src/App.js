@@ -17,6 +17,11 @@ import {readCookieGlobal, saveCookieGlobal} from "./utils/Cookie";
 import LocalizationService from './services/LocalizationService';
 import config from "devextreme/core/config";
 import ConsoleHelper from "./utils/ConsoleHelper";
+import SubGridViewComponent from "./containers/dataGrid/SubGridViewComponent";
+import DivContainer from "./components/DivContainer";
+import {Breadcrumb} from "./utils/BreadcrumbUtils";
+import {GridViewUtils} from "./utils/GridViewUtils";
+import ActionButton from "./components/ActionButton";
 
 class App extends Component {
     constructor() {
@@ -25,12 +30,18 @@ class App extends Component {
         this.authService = new AuthService();
         this.historyBrowser = this.history;
         this.localizationService = new LocalizationService();
+        this.viewContainer = React.createRef();
         this.state = {
             loadedConfiguration: false,
             configUrl: null,
             user: this.authService.getProfile(),
             langs: [],
             labels: [],
+            renderNoRefreshContent: false,
+            viewInfoName: null,
+            subView: null,
+            operations: null,
+            shortcutButtons: null
         };
         this.handleLogoutUser = this.handleLogoutUser.bind(this);
         //primereact config
@@ -101,7 +112,7 @@ class App extends Component {
     handleLogoutUser() {
         this.authService.logout();
         if (this.state.user) {
-            this.setState({user: null});
+            this.setState({user: null, renderNoRefreshContent: false});
             const logoutUrl = AppPrefixUtils.locationHrefUrl('/#/');
             window.location.href = logoutUrl;
         }
@@ -173,6 +184,7 @@ class App extends Component {
         const authService = this.authService;
         const {labels} = this.state;
         const loggedIn = authService.loggedIn();
+        let opADD = GridViewUtils.containsOperationButton(this.state.operations, 'OP_ADD');
         return (
             <React.Fragment>
                 {this.state.loadedConfiguration ?
@@ -191,6 +203,30 @@ class App extends Component {
                                 /> : null}
                             <main>
                                 <div className={`${loggedIn ? 'container-fluid' : ''}`}>
+                                    {this.state.renderNoRefreshContent ? <React.Fragment>
+                                        {Breadcrumb.render(labels)}
+                                        <DivContainer colClass='row base-container-header'>
+                                            <DivContainer id='header-left' colClass='col-11'>
+                                                <div className='font-medium mb-4'> {this.state.viewInfoName}</div>
+                                            </DivContainer>
+                                            <DivContainer id='header-right' colClass='col-1 to-right'>
+                                                <ActionButton rendered={opADD} label={opADD?.label}/>
+                                            </DivContainer>
+                                            <DivContainer id='header-content' colClass='col-12'>
+                                            </DivContainer>
+                                        </DivContainer>
+                                        <div style={{marginRight: '30px'}}>
+                                            {!!this.state.subView ?
+                                                <SubGridViewComponent
+                                                    handleOnInitialized={(ref) => this.selectedDataGrid = ref}
+                                                    subView={this.state.subView}
+                                                    labels={labels}
+                                                    handleOnEditClick={(e) => {
+                                                        //TODO antypattern :P
+                                                        this.viewContainer?.current?.editSubView(e)
+                                                    }}/> : null}
+                                        </div>
+                                    </React.Fragment> : null}
                                     <Switch>
                                         <Route exact path='/' render={(props) => this.renderLoginContainer(props)}/>
                                         <Route path='/login' render={(props) => this.renderLoginContainer(props)}/>
@@ -201,7 +237,10 @@ class App extends Component {
                                                                       historyBrowser={this.historyBrowser}
                                                                       handleLogout={() => this.handleLogoutUser()}
                                                        >
-                                                           <DashboardContainer labels={labels}/>
+                                                           <DashboardContainer labels={labels}
+                                                                               handleRenderNoRefreshContent={(renderNoRefreshContent) => {
+                                                                                   this.setState({renderNoRefreshContent: renderNoRefreshContent})
+                                                                               }}/>
                                                        </AuthComponent>
                                                    )
                                                }}/>
@@ -212,8 +251,24 @@ class App extends Component {
                                                                       historyBrowser={this.historyBrowser}
                                                                       handleLogout={() => this.handleLogoutUser()}>
                                                            <ViewContainer
+                                                               ref={this.viewContainer}
                                                                id={props.match.params.id}
                                                                labels={labels}
+                                                               handleRenderNoRefreshContent={(renderNoRefreshContent) => {
+                                                                   this.setState({renderNoRefreshContent: renderNoRefreshContent})
+                                                               }}
+                                                               handleViewInfoName={(viewInfoName) => {
+                                                                   this.setState({viewInfoName: viewInfoName})
+                                                               }}
+                                                               handleSubView={(subView) => {
+                                                                   this.setState({subView: subView})
+                                                               }}
+                                                               handleOperations={(operations => {
+                                                                   this.setState({operations: operations})
+                                                               })}
+                                                               handleShortcutButtons={(shortcutButtons => {
+                                                                   this.setState({shortcutButtons: shortcutButtons})
+                                                               })}
                                                            />
                                                        </AuthComponent>
                                                    )

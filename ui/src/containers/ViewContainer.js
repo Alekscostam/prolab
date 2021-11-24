@@ -3,7 +3,6 @@ import ButtonGroup from 'devextreme-react/button-group';
 import PropTypes from 'prop-types';
 import React from 'react';
 import BaseContainer from '../baseContainers/BaseContainer';
-import ActionButton from '../components/ActionButton';
 import ActionButtonWithMenu from '../components/prolab/ActionButtonWithMenu';
 import EditRowComponent from '../components/prolab/EditRowComponent';
 import HeadPanel from '../components/prolab/HeadPanel';
@@ -25,7 +24,6 @@ import {localeOptions} from "primereact/api";
 import CardViewComponent from "./cardView/CardViewComponent";
 import GridViewComponent from "./dataGrid/GridViewComponent";
 import DashboardContainer from "./DashboardContainer";
-import SelectedGridViewComponent from "./dataGrid/SelectedGridViewComponent";
 import ConsoleHelper from "../utils/ConsoleHelper";
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -255,43 +253,45 @@ export class ViewContainer extends BaseContainer {
         if (subviewMode) {
             this.viewService
                 .getSubView(viewId, recordId)
-                .then((dashBoardResponse) => {
-                    Breadcrumb.updateSubView(dashBoardResponse, recordId);
-                    if (dashBoardResponse.viewInfo?.type === 'dashboard') {
+                .then((subViewResponse) => {
+                    Breadcrumb.updateSubView(subViewResponse, recordId);
+                    if (subViewResponse.viewInfo?.type === 'dashboard') {
                         this.setState({
-                                subView: dashBoardResponse,
+                                subView: subViewResponse,
                                 gridViewType: 'dashboard',
                                 loading: false
                             },
                             () => {
+                                this.props.handleSubView(subViewResponse);
                                 this.unblockUi();
                                 return;
                             }
                         );
                     } else {
-                        const elementSubViewId = subviewId ? subviewId : dashBoardResponse.subViews[0]?.id;
-                        if (!dashBoardResponse.subViews || dashBoardResponse.subViews.length === 0) {
+                        const elementSubViewId = subviewId ? subviewId : subViewResponse.subViews[0]?.id;
+                        if (!subViewResponse.subViews || subViewResponse.subViews.length === 0) {
                             this.showErrorMessages('Brak podwidoków - niepoprawna konfiguracja!');
                             window.history.back();
                             this.unblockUi();
                             return;
                         } else {
                             let subViewsTabs = [];
-                            dashBoardResponse.subViews.forEach((subView, i) => {
+                            subViewResponse.subViews.forEach((subView, i) => {
                                 subViewsTabs.push({id: subView.id, text: subView.label, icon: subView.icon});
                                 if (subView.id === parseInt(elementSubViewId)) {
                                     this.setState({subViewTabIndex: i});
                                 }
                             });
-                            dashBoardResponse.subViewsTabs = subViewsTabs;
+                            subViewResponse.subViewsTabs = subViewsTabs;
                         }
                         this.setState(
                             {
-                                subView: dashBoardResponse,
+                                subView: subViewResponse,
                                 elementSubViewId: elementSubViewId,
                             },
                             () => {
                                 this.unblockUi();
+                                this.props.handleSubView(subViewResponse);
                                 this.getViewById(elementSubViewId, recordId, filterId, parentId, viewType, subviewMode);
                                 return;
                             }
@@ -306,6 +306,7 @@ export class ViewContainer extends BaseContainer {
             return;
         } else {
             this.setState({subView: null}, () => {
+                this.props.handleSubView(null);
                 this.getViewById(viewId, recordId, filterId, parentId, viewType, subviewMode);
             });
         }
@@ -367,28 +368,6 @@ export class ViewContainer extends BaseContainer {
                                 filtersListTmp.push({
                                     id: responseView?.filtersList[filter].id,
                                     label: responseView?.filtersList[filter].label,
-                                    command: (e) => {
-                                        let subViewId = UrlUtils.getURLParameter('subview');
-                                        let recordId = UrlUtils.getURLParameter('recordId');
-                                        if (subviewMode) {
-                                            ConsoleHelper(
-                                                `Redirect -> Id =  ${this.state.elementId} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${e.item?.id}`
-                                            );
-                                            window.location.href = AppPrefixUtils.locationHrefUrl(
-                                                `/#/grid-view/${this.state.elementId}?recordId=${recordId}&subview=${subViewId}&filterId=${e.item?.id}${currentBreadcrumb}`
-                                            );
-                                        } else {
-                                            ConsoleHelper(
-                                                `Redirect -> Id =  ${this.state.elementId} RecordId = ${recordId} FilterId = ${e.item?.id}`
-                                            );
-                                            if (!!e.item?.id) {
-                                                const filterId = parseInt(e.item?.id)
-                                                window.location.href = AppPrefixUtils.locationHrefUrl(
-                                                    `/#/grid-view/${this.state.elementId}/?filterId=${filterId}${currentBreadcrumb}`
-                                                );
-                                            }
-                                        }
-                                    },
                                 });
                             }
                             let viewInfoTypesTmp = [];
@@ -430,6 +409,10 @@ export class ViewContainer extends BaseContainer {
                                     packageRows: responseView?.viewInfo?.dataPackageSize,
                                 }),
                                 () => {
+                                    this.props.handleRenderNoRefreshContent(true);
+                                    this.props.handleViewInfoName(this.state.parsedGridView?.viewInfo?.name);
+                                    this.props.handleOperations(this.state.parsedGridView?.operations);
+                                    this.props.handleShortcutButtons(this.state.parsedGridView?.shortcutButtons);
                                     const initFilterId = responseView?.viewInfo?.filterdId;
                                     if (this.state.gridViewType === 'cardView') {
                                         this.setState({loading: true, cardSkip: 0}, () =>
@@ -514,11 +497,6 @@ export class ViewContainer extends BaseContainer {
         );
     }
 
-    //override
-    getViewInfoName() {
-        return this.state.parsedGridView?.viewInfo?.name;
-    }
-
     gridViewTypeChange(e) {
         let newUrl = UrlUtils.addParameterToURL(window.document.URL.toString(), 'viewType', e.itemData.type);
         window.history.replaceState('', '', newUrl);
@@ -566,27 +544,12 @@ export class ViewContainer extends BaseContainer {
 
     //override
     renderHeaderLeft() {
-        if (this.state.gridViewType === 'dashboard') {
-            return <React.Fragment/>
-        }
-        return (
-            <React.Fragment>
-                <div id='left-header-panel' className='float-left pt-2'></div>
-            </React.Fragment>
-        );
+        return <React.Fragment/>
     }
 
     //override
     renderHeaderRight() {
-        if (this.state.gridViewType === 'dashboard') {
-            return <React.Fragment/>
-        }
-        let opADD = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_ADD');
-        return (
-            <React.Fragment>
-                <ActionButton rendered={opADD} label={opADD?.label}/>
-            </React.Fragment>
-        );
+        return <React.Fragment/>
     }
 
     rightHeadPanelContent = () => {
@@ -605,9 +568,26 @@ export class ViewContainer extends BaseContainer {
         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
         if (!!e.value && e.value !== e.previousValue) {
             const filterId = parseInt(e.value)
-            window.location.href = AppPrefixUtils.locationHrefUrl(
-                `/#/grid-view/${this.state.elementId}/?filterId=${filterId}${currentBreadcrumb}`
-            );
+            let subViewId = UrlUtils.getURLParameter('subview') || this.state.elementSubViewId;
+            let recordId = UrlUtils.getURLParameter('recordId') || this.state.elementRecordId;
+            let subviewMode = !!recordId && !!this.state.elementId;
+            if (subviewMode) {
+                ConsoleHelper(
+                    `Redirect -> Id =  ${this.state.elementId} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`
+                );
+                window.location.href = AppPrefixUtils.locationHrefUrl(
+                    `/#/grid-view/${this.state.elementId}?recordId=${recordId}&subview=${subViewId}&filterId=${filterId}${currentBreadcrumb}`
+                );
+            } else {
+                ConsoleHelper(
+                    `Redirect -> Id =  ${this.state.elementId} RecordId = ${recordId} FilterId = ${filterId}`
+                );
+                if (filterId) {
+                    window.location.href = AppPrefixUtils.locationHrefUrl(
+                        `/#/grid-view/${this.state.elementId}/?filterId=${filterId}${currentBreadcrumb}`
+                    );
+                }
+            }
         }
     }
 
@@ -840,34 +820,8 @@ export class ViewContainer extends BaseContainer {
         if (this.state.gridViewType === 'dashboard') {
             return <React.Fragment/>
         }
-        const {labels} = this.props;
         return (
             <React.Fragment>
-                <SelectedGridViewComponent
-                    handleOnInitialized={(ref) => this.selectedDataGrid = ref}
-                    subView={this.state.subView}
-                    labels={labels}
-                    handleOnSelectionChanged={(e) => {
-                        this.setState({
-                            selectedRowKeys: e,
-                        });
-                    }}
-                    handleOnEditClick={(e) => {
-                        this.blockUi();
-                        this.editService
-                            .getEdit(e.viewId, e.recordId)
-                            .then((editDataResponse) => {
-                                this.setState({
-                                    visibleEditPanel: true,
-                                    editData: editDataResponse
-                                });
-                                this.unblockUi();
-                            })
-                            .catch((err) => {
-                                this.showErrorMessages(err);
-                                this.unblockUi();
-                            });
-                    }}/>
                 {/*Zakładki podwidoków*/}
                 <div id='subviews-panel'>
                     {this.state.subView != null &&
@@ -885,6 +839,23 @@ export class ViewContainer extends BaseContainer {
                 </div>
             </React.Fragment>
         );
+    }
+
+    editSubView(e) {
+        this.blockUi();
+        this.editService
+            .getEdit(e.viewId, e.recordId)
+            .then((editDataResponse) => {
+                this.setState({
+                    visibleEditPanel: true,
+                    editData: editDataResponse
+                });
+                this.unblockUi();
+            })
+            .catch((err) => {
+                this.showErrorMessages(err);
+                this.unblockUi();
+            });
     }
 
     renderTabItem = (itemData) => {
@@ -1044,7 +1015,6 @@ export class ViewContainer extends BaseContainer {
         const {labels} = this.props;
         return (
             <React.Fragment>
-                {Breadcrumb.render(labels)}
                 {super.render()}
             </React.Fragment>
         );
@@ -1110,7 +1080,11 @@ export class ViewContainer extends BaseContainer {
                                     handleSelectedRowKeys={(e) => this.setState({selectedRowKeys: e})}/>
                             </React.Fragment>
                         ) : this.state.gridViewType === 'dashboard' ? (<React.Fragment>
+                            {Breadcrumb.render(labels)}
                             <DashboardContainer dashboard={this.state.subView}
+                                                handleRenderNoRefreshContent={(renderNoRefreshContent) => {
+                                                    this.props.handleRenderNoRefreshContent(renderNoRefreshContent)
+                                                }}
                                                 labels={labels}
                             />
                         </React.Fragment>) : null}
@@ -1128,5 +1102,11 @@ ViewContainer.defaultProps =
 
 ViewContainer.propTypes =
     {
-        id: PropTypes.string.isRequired
+        id: PropTypes.string.isRequired,
+        labels: PropTypes.object.isRequired,
+        handleRenderNoRefreshContent: PropTypes.bool.isRequired,
+        handleViewInfoName: PropTypes.func.isRequired,
+        handleSubView: PropTypes.func.isRequired,
+        handleOperations: PropTypes.func.isRequired,
+        handleShortcutButtons: PropTypes.func.isRequired,
     }

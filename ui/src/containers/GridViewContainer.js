@@ -19,7 +19,7 @@ import {confirmDialog} from "primereact/confirmdialog";
 import Constants from "../utils/Constants";
 import {localeOptions} from "primereact/api";
 import GridViewComponent from "./dataGrid/GridViewComponent";
-import SelectedGridViewComponent from "./dataGrid/SelectedGridViewComponent";
+import SubGridViewComponent from "./dataGrid/SubGridViewComponent";
 import ConsoleHelper from "../utils/ConsoleHelper";
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -34,6 +34,7 @@ export class GridViewContainer extends BaseContainer {
         this.editService = new EditService();
         this.dataGridStore = new DataGridStore();
         this.dataGrid = null;
+        this.subGridView = null;
         this.state = {
             loading: true,
             elementId: props.id,
@@ -289,11 +290,6 @@ export class GridViewContainer extends BaseContainer {
         );
     }
 
-    //override
-    getViewInfoName() {
-        return this.state.parsedGridView?.viewInfo?.name;
-    }
-
     viewTypeChange(e) {
         let newUrl = UrlUtils.addParameterToURL(window.document.URL.toString(), 'viewType', e.itemData.type);
         window.history.replaceState('', '', newUrl);
@@ -388,9 +384,9 @@ export class GridViewContainer extends BaseContainer {
                         className='filter-combo mr-1 mt-1 mb-1'
                         id='combo_filters'
                         items={this.state.filtersList}
-                        displayExpr='label'
-                        valueExpr='id'
-                        value={parseInt(this.state.elementFilterId || this.state.parsedGridView?.viewInfo?.filterdId)}
+
+
+                        value={this.state.elementFilterId || this.state.parsedGridView?.viewInfo?.filterdId}
                         onValueChanged={this.onFilterChanged}
                         stylingMode='underlined'
                     />
@@ -600,15 +596,10 @@ export class GridViewContainer extends BaseContainer {
         const {labels} = this.props;
         return (
             <React.Fragment>
-                <SelectedGridViewComponent
-                    handleOnInitialized={(ref) => this.selectedDataGrid = ref}
+                <SubGridViewComponent
+                    handleOnInitialized={(ref) => this.subGridView = ref}
                     subView={this.state.subView}
                     labels={labels}
-                    handleOnSelectionChanged={(e) => {
-                        this.setState({
-                            selectedRowKeys: e,
-                        });
-                    }}
                     handleOnEditClick={(e) => {
                         this.blockUi();
                         this.editService

@@ -321,6 +321,7 @@ class GridViewComponent extends React.Component {
                     showColumnHeaders={showColumnHeaders}
                     columnHidingEnabled={false}
                     height={dataGridHeight ? (dataGridHeight + 'px') : '100%'}
+                    width={columnAutoWidth ? '100%' : undefined}
                     rowAlternationEnabled={false}
                     selectedRowKeys={defaultSelectedRowKeys || selectedRowKeys}
                     onSelectionChanged={this.props.handleSelectedRowKeys}

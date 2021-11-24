@@ -34,8 +34,8 @@ class CardViewComponent extends React.Component {
             styleTile = {
                 backgroundImage: `linear-gradient(to bottom right, ${cardBgColor1}, ${cardBgColor2})`,
                 color: fontColor,
-                width: width,
-                height: height
+                width: width-10,
+                height: height-10
             };
         } else {
             styleTile = {backgroundColor: rowData._BGCOLOR, color: rowData._FONT_COLOR, width: width, height: height};
@@ -98,7 +98,7 @@ class CardViewComponent extends React.Component {
                             className={`dx-tile-image ${this.isSelectionEnabled() ? (
                                 this.props.selectedRowKeys.includes(recordId) ? 'card-grid-selected' : '') : ''
                             }`}
-                            style={this.styleTile(rowData, cardBgColor1, cardBgColor2, fontColor, cardWidth - 10, cardHeight - 10)}
+                            style={this.styleTile(rowData, cardBgColor1, cardBgColor2, fontColor, cardWidth, cardHeight)}
                         >
                             <div className='row'>
                                 <div className='card-grid-header'>

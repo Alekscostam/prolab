@@ -15,6 +15,7 @@ import {localeOptions} from "primereact/api";
 import PropTypes from "prop-types";
 import ShortcutButton from "../components/prolab/ShortcutButton";
 import AppPrefixUtils from "../utils/AppPrefixUtils";
+import Constants from "../utils/Constants";
 
 class DashboardContainer extends BaseContainer {
 
@@ -30,6 +31,7 @@ class DashboardContainer extends BaseContainer {
 
     componentDidMount() {
         super.componentDidMount();
+        this.props.handleRenderNoRefreshContent(false);
         if (!!this.props.dashboard) {
             this.setState({
                 dashboard: this.props.dashboard,
@@ -39,10 +41,18 @@ class DashboardContainer extends BaseContainer {
         } else {
             this.dashboardService
                 .getDashboard()
-                .then((dashboardResponse) => {
+                .then((response) => {
                     this.setState({
-                        dashboard: dashboardResponse,
+                        dashboard: response,
                         loading: false
+                    }, () => {
+                        let title = this.state.dashboard?.message?.title;
+                        let text = this.state.dashboard?.message?.text;
+                        if (!!title || !!text) {
+                            title = !!title ? title : '';
+                            text = !!text ? text : '';
+                            this.showSuccessMessage(text, Constants.SUCCESS_MSG_LIFE, title);
+                        }
                     });
                     this.unblockUi();
                 }).catch((err) => {
@@ -80,50 +90,62 @@ class DashboardContainer extends BaseContainer {
     renderGlobalTop() {
         return (
             <React.Fragment>
-                <React.Fragment>
-                    <EditRowComponent
-                        visibleEditPanel={this.state.visibleEditPanel}
-                        editData={this.state.editData}
-                        onChange={this.handleEditRowChange}
-                        onBlur={this.handleEditRowBlur}
-                        onSave={this.handleEditRowSave}
-                        onAutoFill={this.handleAutoFillRowChange}
-                        onCancel={this.handleCancelRowChange}
-                        validator={this.validator}
-                        onHide={(e) => !!this.state.modifyEditData ? confirmDialog({
-                            message: 'Czy na pewno chcesz zamknąć edycję?',
-                            header: 'Potwierdzenie',
-                            icon: 'pi pi-exclamation-triangle',
-                            acceptLabel: localeOptions('accept'),
-                            rejectLabel: localeOptions('reject'),
-                            accept: () => this.setState({visibleEditPanel: e}),
-                            reject: () => undefined,
-                        }) : this.setState({visibleEditPanel: e})}
-                        onError={(e) => this.showErrorMessage(e)}
-                    />
-                </React.Fragment>
-            </React.Fragment>);
+                <EditRowComponent
+                    visibleEditPanel={this.state.visibleEditPanel}
+                    editData={this.state.editData}
+                    onChange={this.handleEditRowChange}
+                    onBlur={this.handleEditRowBlur}
+                    onSave={this.handleEditRowSave}
+                    onAutoFill={this.handleAutoFillRowChange}
+                    onCancel={this.handleCancelRowChange}
+                    validator={this.validator}
+                    onHide={(e) => !!this.state.modifyEditData ? confirmDialog({
+                        message: 'Czy na pewno chcesz zamknąć edycję?',
+                        header: 'Potwierdzenie',
+                        icon: 'pi pi-exclamation-triangle',
+                        acceptLabel: localeOptions('accept'),
+                        rejectLabel: localeOptions('reject'),
+                        accept: () => this.setState({visibleEditPanel: e}),
+                        reject: () => undefined,
+                    }) : this.setState({visibleEditPanel: e})}
+                    onError={(e) => this.showErrorMessage(e)}
+                />
+            </React.Fragment>)
+    }
+
+    renderHeaderLeft() {
+        return <React.Fragment>
+            <div className='font-medium mb-4'>{this.getViewInfoName()}</div>
+        </React.Fragment>;
     }
 
     renderContent() {
-        let cardOptions = this.state.dashboard.headerOptions;
-        let _cardWidth = cardOptions.width;
-        let _cardHeight = cardOptions.height;
-        cardOptions.width = _cardWidth + 10;
-        cardOptions.height = _cardHeight + 10;
-        let cardView = {
-            viewInfo: this.state.dashboard.viewInfo,
-            cardOptions: cardOptions,
-            cardHeader: this.state.dashboard.headerFields.cardHeader,
-            cardImage: this.state.dashboard.headerFields.cardImage,
-            cardBody: this.state.dashboard.headerFields.cardBody,
-            cardFooter: this.state.dashboard.headerFields.cardFooter,
-            operations: this.state.dashboard.headerOperations,
-            shortcutButtons: [], documentsList: [], pluginsList: [], batchesList: [], filtersList: []
+        let cardId;
+        let currentBreadcrumb;
+        let cardView;
+        let _cardWidth;
+        let _cardHeight;
+        try {
+            let cardOptions = this.state.dashboard.headerOptions;
+            _cardWidth = cardOptions.width;
+            _cardHeight = cardOptions.height;
+            cardOptions.width = _cardWidth + 10;
+            cardOptions.height = _cardHeight + 10;
+            cardView = {
+                viewInfo: this.state.dashboard.viewInfo,
+                cardOptions: cardOptions,
+                cardHeader: this.state.dashboard.headerFields.cardHeader,
+                cardImage: this.state.dashboard.headerFields.cardImage,
+                cardBody: this.state.dashboard.headerFields.cardBody,
+                cardFooter: this.state.dashboard.headerFields.cardFooter,
+                operations: this.state.dashboard.headerOperations,
+                shortcutButtons: [], documentsList: [], pluginsList: [], batchesList: [], filtersList: []
+            }
+            cardId = this.state.dashboard.headerData[0]?.ID;
+            currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+        } catch (e) {
+            return null;
         }
-        let cardId = this.state.dashboard.headerData[0]?.ID;
-
-        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
         return <React.Fragment>
             <div className="rows">
                 <div className="column left" style={{width: _cardWidth + 10}}>
@@ -211,6 +233,6 @@ class DashboardContainer extends BaseContainer {
 }
 
 DashboardContainer.defaultProps = {}
-DashboardContainer.propTypes = {dashboard: PropTypes.object}
+DashboardContainer.propTypes = {dashboard: PropTypes.object, handleRenderNoRefreshContent: PropTypes.bool.isRequired,}
 
 export default DashboardContainer;
