@@ -25,7 +25,7 @@ import {localeOptions} from "primereact/api";
 import CardViewComponent from "./cardView/CardViewComponent";
 import GridViewComponent from "./dataGrid/GridViewComponent";
 import DashboardContainer from "./DashboardContainer";
-import SelectedGridViewComponent from "./dataGrid/SelectedGridViewComponent";
+import SubGridViewComponent from "./dataGrid/SubGridViewComponent";
 import ConsoleHelper from "../utils/ConsoleHelper";
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -824,33 +824,6 @@ export class ViewContainer extends BaseContainer {
         }
         return (
             <React.Fragment>
-                {/*<SelectedGridViewComponent*/}
-                {/*    handleOnInitialized={(ref) => this.selectedDataGrid = ref}*/}
-                {/*    subView={this.state.subView}*/}
-                {/*    labels={labels}*/}
-                {/*    handleOnSelectionChanged={(e) => {*/}
-                {/*        //TODO jak nic sie nie stanie to usunac*/}
-                {/*        // this.setState({*/}
-                {/*        //     selectedRowKeys: e,*/}
-                {/*        // });*/}
-                {/*    }}*/}
-                {/*    handleOnEditClick={(e) => {*/}
-                {/*        //TODO jak nic sie nie stanie to usunac*/}
-                {/*        // this.blockUi();*/}
-                {/*        // this.editService*/}
-                {/*        //     .getEdit(e.viewId, e.recordId)*/}
-                {/*        //     .then((editDataResponse) => {*/}
-                {/*        //         this.setState({*/}
-                {/*        //             visibleEditPanel: true,*/}
-                {/*        //             editData: editDataResponse*/}
-                {/*        //         });*/}
-                {/*        //         this.unblockUi();*/}
-                {/*        //     })*/}
-                {/*        //     .catch((err) => {*/}
-                {/*        //         this.showErrorMessages(err);*/}
-                {/*        //         this.unblockUi();*/}
-                {/*        //     });*/}
-                {/*    }}/>*/}
                 {/*Zakładki podwidoków*/}
                 <div id='subviews-panel'>
                     {this.state.subView != null &&
@@ -868,6 +841,23 @@ export class ViewContainer extends BaseContainer {
                 </div>
             </React.Fragment>
         );
+    }
+
+    editSubView(e) {
+        this.blockUi();
+        this.editService
+            .getEdit(e.viewId, e.recordId)
+            .then((editDataResponse) => {
+                this.setState({
+                    visibleEditPanel: true,
+                    editData: editDataResponse
+                });
+                this.unblockUi();
+            })
+            .catch((err) => {
+                this.showErrorMessages(err);
+                this.unblockUi();
+            });
     }
 
     renderTabItem = (itemData) => {

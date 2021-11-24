@@ -17,7 +17,7 @@ import {readCookieGlobal, saveCookieGlobal} from "./utils/Cookie";
 import LocalizationService from './services/LocalizationService';
 import config from "devextreme/core/config";
 import ConsoleHelper from "./utils/ConsoleHelper";
-import SelectedGridViewComponent from "./containers/dataGrid/SelectedGridViewComponent";
+import SubGridViewComponent from "./containers/dataGrid/SubGridViewComponent";
 import DivContainer from "./components/DivContainer";
 import {Breadcrumb} from "./utils/BreadcrumbUtils";
 import {GridViewUtils} from "./utils/GridViewUtils";
@@ -30,6 +30,7 @@ class App extends Component {
         this.authService = new AuthService();
         this.historyBrowser = this.history;
         this.localizationService = new LocalizationService();
+        this.viewContainer = React.createRef();
         this.state = {
             loadedConfiguration: false,
             configUrl: null,
@@ -214,11 +215,17 @@ class App extends Component {
                                             <DivContainer id='header-content' colClass='col-12'>
                                             </DivContainer>
                                         </DivContainer>
-                                        {!!this.state.subView ?
-                                            <SelectedGridViewComponent
-                                                handleOnInitialized={(ref) => this.selectedDataGrid = ref}
-                                                subView={this.state.subView}
-                                                labels={labels}/> : null}
+                                        <div style={{marginRight: '30px'}}>
+                                            {!!this.state.subView ?
+                                                <SubGridViewComponent
+                                                    handleOnInitialized={(ref) => this.selectedDataGrid = ref}
+                                                    subView={this.state.subView}
+                                                    labels={labels}
+                                                    handleOnEditClick={(e) => {
+                                                        //TODO antypattern :P
+                                                        this.viewContainer?.current?.editSubView(e)
+                                                    }}/> : null}
+                                        </div>
                                     </React.Fragment> : null}
                                     <Switch>
                                         <Route exact path='/' render={(props) => this.renderLoginContainer(props)}/>
@@ -244,6 +251,7 @@ class App extends Component {
                                                                       historyBrowser={this.historyBrowser}
                                                                       handleLogout={() => this.handleLogoutUser()}>
                                                            <ViewContainer
+                                                               ref={this.viewContainer}
                                                                id={props.match.params.id}
                                                                labels={labels}
                                                                handleRenderNoRefreshContent={(renderNoRefreshContent) => {

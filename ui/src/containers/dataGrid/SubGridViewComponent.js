@@ -7,11 +7,11 @@ import ShortcutButton from "../../components/prolab/ShortcutButton";
 import ActionButtonWithMenu from "../../components/prolab/ActionButtonWithMenu";
 import ConsoleHelper from "../../utils/ConsoleHelper";
 
-class SelectedGridViewComponent extends React.Component {
+class SubGridViewComponent extends React.Component {
 
     constructor(props) {
         super(props);
-        ConsoleHelper('selectedGridViewComponent::constructor');
+        ConsoleHelper('subGridViewComponent::constructor');
     }
 
     // //very important !!!
@@ -22,19 +22,13 @@ class SelectedGridViewComponent extends React.Component {
             }
         }
         const viewId = this.props.subView?.viewInfo?.id;
-        const recordId = this.props.subView?.headerData[0]?.ID;
         const nextViewId = nextProps.subView?.viewInfo?.id;
-        const nextRecordId = nextProps.subView?.headerData[0]?.ID;
-        ConsoleHelper('viewId', viewId)
-        ConsoleHelper('recordId', recordId)
-        ConsoleHelper('nextViewId', nextViewId)
-        ConsoleHelper('nextRecordId', nextRecordId)
         const currentUrl = window.location.href
         if (viewId === nextViewId || currentUrl.includes('force=')) {
-            ConsoleHelper('selectedGridViewComponent::shouldComponentUpdate update=false')
+            ConsoleHelper('subGridViewComponent::shouldComponentUpdate update=false')
             return false;
         }
-        ConsoleHelper('selectedGridViewComponent::shouldComponentUpdate update=true')
+        ConsoleHelper('subGridViewComponent::shouldComponentUpdate update=true')
         return true;
     }
 
@@ -79,9 +73,6 @@ class SelectedGridViewComponent extends React.Component {
                             allowColumnReordering={true}
                             allowColumnResizing={true}
                             columnHidingEnabled={false}
-                            onSelectionChanged={(selectedRowKeys) => {
-                                this.props.handleOnSelectionChanged(selectedRowKeys)
-                            }}
                         >
                             {this.props.subView?.headerColumns
                                 ?.filter((c) => c.visible === true)
@@ -118,14 +109,14 @@ class SelectedGridViewComponent extends React.Component {
                                                     }}
                                                     label={''}
                                                     title={'Edycja'}
-                                                    rendered={true}
+                                                    rendered={showEditButton}
                                                 />
                                                 <ActionButtonWithMenu
                                                     id='more_shortcut'
                                                     iconName='mdi-dots-vertical'
                                                     className={``}
                                                     items={menuItems}
-                                                    remdered={true}
+                                                    rendered={showMenu}
                                                     title={labels['View_AdditionalOptions']}
                                                 />
                                             </div>,
@@ -142,13 +133,12 @@ class SelectedGridViewComponent extends React.Component {
     }
 }
 
-SelectedGridViewComponent.defaultProps = {};
-SelectedGridViewComponent.propTypes = {
+SubGridViewComponent.defaultProps = {};
+SubGridViewComponent.propTypes = {
     subView: PropTypes.object.isRequired,
     labels: PropTypes.object.isRequired,
     handleOnInitialized: PropTypes.func.isRequired,
-    handleOnSelectionChanged: PropTypes.func,
     handleOnEditClick: PropTypes.func,
 };
 
-export default SelectedGridViewComponent;
+export default SubGridViewComponent;
