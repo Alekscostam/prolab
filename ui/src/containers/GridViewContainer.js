@@ -289,11 +289,6 @@ export class GridViewContainer extends BaseContainer {
         );
     }
 
-    //override
-    getViewInfoName() {
-        return this.state.parsedGridView?.viewInfo?.name;
-    }
-
     viewTypeChange(e) {
         let newUrl = UrlUtils.addParameterToURL(window.document.URL.toString(), 'viewType', e.itemData.type);
         window.history.replaceState('', '', newUrl);

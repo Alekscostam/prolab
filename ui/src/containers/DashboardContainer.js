@@ -30,6 +30,7 @@ class DashboardContainer extends BaseContainer {
 
     componentDidMount() {
         super.componentDidMount();
+        this.props.handleRenderNoRefreshContent(false);
         if (!!this.props.dashboard) {
             this.setState({
                 dashboard: this.props.dashboard,
@@ -103,6 +104,13 @@ class DashboardContainer extends BaseContainer {
                     />
                 </React.Fragment>
             </React.Fragment>);
+    }
+
+
+    renderHeaderLeft() {
+        return <React.Fragment>
+            <div className='font-medium mb-4'>{this.getViewInfoName()}</div>
+        </React.Fragment>;
     }
 
     renderContent() {
@@ -211,6 +219,6 @@ class DashboardContainer extends BaseContainer {
 }
 
 DashboardContainer.defaultProps = {}
-DashboardContainer.propTypes = {dashboard: PropTypes.object}
+DashboardContainer.propTypes = {dashboard: PropTypes.object, handleRenderNoRefreshContent: PropTypes.bool.isRequired,}
 
 export default DashboardContainer;

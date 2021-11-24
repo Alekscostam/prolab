@@ -146,9 +146,9 @@ SelectedGridViewComponent.defaultProps = {};
 SelectedGridViewComponent.propTypes = {
     subView: PropTypes.object.isRequired,
     labels: PropTypes.object.isRequired,
-    handleOnSelectionChanged: PropTypes.func.isRequired,
     handleOnInitialized: PropTypes.func.isRequired,
-    handleOnEditClick: PropTypes.func.isRequired,
+    handleOnSelectionChanged: PropTypes.func,
+    handleOnEditClick: PropTypes.func,
 };
 
 export default SelectedGridViewComponent;

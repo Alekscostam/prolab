@@ -211,8 +211,8 @@ class BaseContainer extends React.Component {
         } else {
             title = 'Błąd';
         }
-        this.messages.clear();
-        this.messages.show({
+        this.messages?.clear();
+        this.messages?.show({
             severity: 'error',
             summary: title,
             content: (
@@ -907,10 +907,6 @@ class BaseContainer extends React.Component {
         );
     }
 
-    getViewInfoName() {
-        return '';
-    }
-
     renderContent() {
         return <React.Fragment></React.Fragment>;
     }
@@ -935,43 +931,38 @@ class BaseContainer extends React.Component {
         return <React.Fragment></React.Fragment>
     }
 
-    renderPage() {
-        return (<React.Fragment>
-            {this.renderGlobalTop()}
-            <DivContainer colClass='base-container-div'>
-                <DivContainer colClass='row base-container-header'>
-                    <DivContainer id='header-left' colClass='col-11'>
-                        <div className='font-medium mb-4'>{this.getViewInfoName()}</div>
-                        {this.state.loading === false ? this.renderHeaderLeft() : null}
-                    </DivContainer>
-                    <DivContainer id='header-right' colClass='col-1 to-right'>
-                        {this.state.loading === false ? this.renderHeaderRight() : null}
-                    </DivContainer>
-                    <DivContainer id='header-content' colClass='col-12'>
-                        {this.state.loading === false ? this.renderHeaderContent() : null}
-                    </DivContainer>
-                </DivContainer>
-                <DivContainer colClass='row base-container-head-panel'>
-                    <DivContainer id='header-panel' colClass='col-12'>
-                        {this.state.loading === false ? this.renderHeadPanel() : null}
-                    </DivContainer>
-                </DivContainer>
-                <DivContainer colClass='row base-container-content'>
-                    <DivContainer id='content' colClass='col-12'>
-                        {this.state.loading === false ? this.renderContent() : null}
-                    </DivContainer>
-                </DivContainer>
-            </DivContainer>
-        </React.Fragment>)
-    }
-
     render() {
         return (
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)}/>
                 <BlockUi tag='div' className='block-ui-div' blocking={this.state.blocking || this.state.loading}
                          loader={this.loader} renderBlockUi={this.state.gridViewType !== 'dashboard'}>
-                    {this.renderPage()}
+                    {this.state.loading === false ? <React.Fragment>
+                        {this.renderGlobalTop()}
+                        <DivContainer colClass='base-container-div'>
+                            <DivContainer colClass='row base-container-header'>
+                                <DivContainer id='header-left' colClass='col-11'>
+                                    {this.renderHeaderLeft()}
+                                </DivContainer>
+                                <DivContainer id='header-right' colClass='col-1 to-right'>
+                                    {this.renderHeaderRight()}
+                                </DivContainer>
+                                <DivContainer id='header-content' colClass='col-12'>
+                                    {this.renderHeaderContent()}
+                                </DivContainer>
+                            </DivContainer>
+                            <DivContainer colClass='row base-container-head-panel'>
+                                <DivContainer id='header-panel' colClass='col-12'>
+                                    {this.renderHeadPanel()}
+                                </DivContainer>
+                            </DivContainer>
+                            <DivContainer colClass='row base-container-content'>
+                                <DivContainer id='content' colClass='col-12'>
+                                    {this.renderContent()}
+                                </DivContainer>
+                            </DivContainer>
+                        </DivContainer>
+                    </React.Fragment> : null}
                 </BlockUi>
             </React.Fragment>
         );

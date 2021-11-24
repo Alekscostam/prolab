@@ -20,87 +20,13 @@ export default class EditListComponent extends React.Component {
     render() {
         let width = this.props.parsedGridView?.info?.windowSize?.width || '50vw';
         let height = this.props.parsedGridView?.info?.windowSize?.height || undefined;
-        let opADD = GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_ADD');
+        let opSelect = GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_SELECT');
         //odkomentowac dla mocka
-        // let opADD = {label: 'Dodaj'}
-        // this.addButtonOptions = {
-        //     text: opADD.label,
-        //     onClick: () => {
-        //         const setFields = this.props.parsedGridView?.setFields;
-        //         const separatorJoin = this.props.parsedGridView?.options?.separatorJoin || ',';
-        //         let selectedRowData = this.props.selectedRowData;
-        //         if (!!setFields) {
-        //             setFields.forEach((field) => {
-        //                 let fieldKey = field.fieldList;
-        //                 let values = [];
-        //                 selectedRowData.forEach((row) => {
-        //                     for (const item in row) {
-        //                         const object = row[item]
-        //                         const firstObjKey = Object.keys(object)[0];
-        //                         if (firstObjKey === fieldKey) {
-        //                             values.push('' + object[firstObjKey]);
-        //                             break;
-        //                         }
-        //                     }
-        //                 })
-        //                 field.fieldValue = values.join(separatorJoin);
-        //             })
-        //             this.props.handleOnChosen(setFields);
-        //         }
-        //         this.props.onHide();
-        //     },
-        // };
+        // let opSelect = {label: 'Dodaj'}
         return (
             <React.Fragment>
-                {/*<Popup*/}
-                {/*    visible={this.props.visible}*/}
-                {/*    onHiding={() => this.props.onHide()}*/}
-                {/*    dragEnabled={true}*/}
-                {/*    closeOnOutsideClick={true}*/}
-                {/*    showCloseButton={true}*/}
-                {/*    showTitle={true}*/}
-                {/*    title="Lista podpowiedzi"*/}
-                {/*    container=".dx-viewport"*/}
-                {/*    width={width}*/}
-                {/*    height={height}*/}
-                {/*    resizeEnabled={true}*/}
-                {/*>*/}
-                {/*    /!*selectedRowData: {JSON.stringify(this.props.selectedRowData)}*!/*/}
-                {/*    /!*<br/>*!/*/}
-                {/*    /!*selectedRowDataSize: {this.props.selectedRowData?.length}*!/*/}
-                {/*    <GridViewComponent*/}
-                {/*        id={this.props.id}*/}
-                {/*        elementSubViewId={null}*/}
-                {/*        handleOnInitialized={(ref) => this.dataGrid = ref}*/}
-                {/*        parsedGridView={this.props.parsedGridView}*/}
-                {/*        parsedGridViewData={this.props.parsedGridViewData}*/}
-                {/*        gridViewColumns={this.props.gridViewColumns}*/}
-                {/*        packageRows={this.props.parsedGridView?.info?.dataPackageSize}*/}
-                {/*        handleBlockUi={() => {*/}
-                {/*            this.props.handleBlockUi()*/}
-                {/*        }}*/}
-                {/*        handleUnblockUi={() => {*/}
-                {/*            this.props.handleUnblockUi()*/}
-                {/*        }}*/}
-                {/*        showSelection={true}*/}
-                {/*        defaultSelectedRowKeys={this.props.defaultSelectedRowKeys}*/}
-                {/*        handleSelectedRowKeys={(e) => this.handleSelectedRowData(e)}*/}
-                {/*        handleSelectAll={(e) => {*/}
-                {/*        }}*/}
-                {/*        showFilterRow={true}*/}
-                {/*        showErrorMessages={(err) => this.props.showErrorMessages(err)}*/}
-                {/*        dataGridStoreSuccess={this.props.dataGridStoreSuccess}*/}
-                {/*        allowSelectAll={false}*/}
-                {/*    />*/}
-                {/*    <ToolbarItem*/}
-                {/*        widget="dxButton"*/}
-                {/*        toolbar="bottom"*/}
-                {/*        location="after"*/}
-                {/*        options={this.addButtonOptions}*/}
-                {/*    />*/}
-                {/*</Popup>*/}
                 <Dialog header="Lista podpowiedzi"
-                        footer={opADD ?
+                        footer={opSelect ?
                             <Button
                                 type="button"
                                 onClick={() => {
@@ -127,7 +53,7 @@ export default class EditListComponent extends React.Component {
                                     }
                                     this.props.onHide();
                                 }}
-                                label={opADD?.label}/> : null
+                                label={opSelect?.label}/> : null
                         }
                         visible={this.props.visible}
                         resizable={false}
