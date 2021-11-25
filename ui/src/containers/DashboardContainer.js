@@ -16,6 +16,7 @@ import PropTypes from "prop-types";
 import ShortcutButton from "../components/prolab/ShortcutButton";
 import AppPrefixUtils from "../utils/AppPrefixUtils";
 import Constants from "../utils/Constants";
+import UrlUtils from "../utils/UrlUtils";
 
 class DashboardContainer extends BaseContainer {
 
@@ -125,7 +126,9 @@ class DashboardContainer extends BaseContainer {
         let cardView;
         let _cardWidth;
         let _cardHeight;
+        let recordId;
         try {
+            recordId = UrlUtils.getURLParameter('recordId');
             let cardOptions = this.state.dashboard.headerOptions;
             _cardWidth = cardOptions.width;
             _cardHeight = cardOptions.height;
@@ -165,19 +168,19 @@ class DashboardContainer extends BaseContainer {
                         showErrorMessages={(err) => this.showErrorMessages(err)}
                     />
                     {this.state.dashboard.views.filter(item => item.position === 'left').map((item) => {
-                        return this.renderGridView(item, cardId, currentBreadcrumb, _cardHeight);
+                        return this.renderGridView(item, cardId, currentBreadcrumb, _cardHeight, recordId);
                     })}
                 </div>
                 <div className="column right">
                     {this.state.dashboard.views.filter(item => item.position === 'right').map((item) => {
-                        return this.renderGridView(item, cardId, currentBreadcrumb, _cardHeight);
+                        return this.renderGridView(item, cardId, currentBreadcrumb, _cardHeight, recordId);
                     })}
                 </div>
             </div>
         </React.Fragment>;
     }
 
-    renderGridView(item, cardViewId, currentBreadcrumb, _cardHeight) {
+    renderGridView(item, cardViewId, currentBreadcrumb, _cardHeight, recordId) {
         return (<div className='panel-dashboard'>
                                    <span
                                        className='title-dashboard'>{item.label}</span>
@@ -197,7 +200,7 @@ class DashboardContainer extends BaseContainer {
             <GridViewContainer id={item.id}
                                key={item.id}
                                subViewId={undefined}
-                               recordId={undefined}
+                               recordId={recordId}
                                filterId={undefined}
                                viewType={'dashboard'}
                                showColumnLines={false}
