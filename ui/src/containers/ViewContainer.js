@@ -450,9 +450,8 @@ export class ViewContainer extends BaseContainer {
                                                     ? this.state.elementId
                                                     : this.state.elementSubViewId,
                                                 'gridView',
-                                                this.state.subView == null ? null : this.state.elementRecordId,
+                                                this.state.subView == null ? parentId : this.state.elementRecordId,
                                                 !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId,
-                                                parentId,
                                                 //onError
                                                 (err) => {
                                                     this.showErrorMessages(err);

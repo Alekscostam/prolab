@@ -102,7 +102,7 @@ export class GridViewContainer extends BaseContainer {
             `GridGridViewContainer::downloadData: viewId=${viewId}, recordId=${recordId}, subViewId=${subviewId}, viewType=${viewType}`
         );
         let subviewMode = !!recordId && !!viewId;
-        if (subviewMode) {
+        if (subviewMode && viewType!=='dashboard') {
             this.viewService
                 .getSubView(viewId, recordId)
                 .then((subViewResponse) => {
@@ -253,9 +253,8 @@ export class GridViewContainer extends BaseContainer {
                                                 ? this.state.elementId
                                                 : this.state.elementSubViewId,
                                             this.state.viewType,
-                                            this.state.subView == null ? null : this.state.elementRecordId,
+                                            this.state.subView == null ? recordId : this.state.elementRecordId,
                                             !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId,
-                                            null,
                                             (err) => {
                                                 this.showErrorMessages(err);
                                             },
