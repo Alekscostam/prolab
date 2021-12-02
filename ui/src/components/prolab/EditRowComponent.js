@@ -99,8 +99,7 @@ export class EditRowComponent extends BaseContainer {
                     let defaultSelectedRowKeysTmp = [];
                     const editData = this.props.editData;
                     const setFields = responseView.setFields;
-                    const separatorJoin = this.props.parsedGridView?.options?.separatorJoin || ',';
-
+                    const separatorJoin = responseView.options?.separatorJoin || ',';
                     let countSeparator = 0;
                     setFields.forEach((field) => {
                         EditRowUtils.searchField(editData, field.fieldEdit, (foundFields) => {
@@ -398,7 +397,7 @@ export class EditRowComponent extends BaseContainer {
                               name={field.fieldName}
                               className={`${autoFillCheckbox} ${validateCheckbox}`}
                               onChange={e => onChange ? onChange('CHECKBOX', e, groupName, editInfo) : null}
-                              checked={field.value}
+                              checked={field.value === true || GridViewUtils.conditionForTrueValueForBoolType(field.value)}
                               disabled={!field.edit}
                               required={required}>
                     </Checkbox>

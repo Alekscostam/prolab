@@ -15,8 +15,8 @@ import {localeOptions} from "primereact/api";
 import PropTypes from "prop-types";
 import ShortcutButton from "../components/prolab/ShortcutButton";
 import AppPrefixUtils from "../utils/AppPrefixUtils";
-import Constants from "../utils/Constants";
 import UrlUtils from "../utils/UrlUtils";
+import EditService from "../services/EditService";
 
 class DashboardContainer extends BaseContainer {
 
@@ -25,8 +25,10 @@ class DashboardContainer extends BaseContainer {
         this.viewService = new ViewService();
         this.dashboardService = new DashboardService();
         this.dataGridStore = new DataGridStore();
+        this.editService = new EditService();
         this.state = {
-            loading: true
+            loading: true,
+            cardView: []
         };
     }
 
@@ -37,6 +39,9 @@ class DashboardContainer extends BaseContainer {
             this.setState({
                 dashboard: this.props.dashboard,
                 loading: false
+            }, () => {
+                this.prepareCardView();
+                this.unblockUi();
             });
             this.unblockUi();
         } else {
@@ -47,15 +52,9 @@ class DashboardContainer extends BaseContainer {
                         dashboard: response,
                         loading: false
                     }, () => {
-                        let title = this.state.dashboard?.message?.title;
-                        let text = this.state.dashboard?.message?.text;
-                        if (!!title || !!text) {
-                            title = !!title ? title : '';
-                            text = !!text ? text : '';
-                            this.showSuccessMessage(text, Constants.SUCCESS_MSG_LIFE, title);
-                        }
+                        this.prepareCardView();
+                        this.unblockUi();
                     });
-                    this.unblockUi();
                 }).catch((err) => {
                 if (!!err.error) {
                     this.showResponseErrorMessage(err);
@@ -63,6 +62,31 @@ class DashboardContainer extends BaseContainer {
                     this.showErrorMessages(err);
                 }
             });
+        }
+    }
+
+    prepareCardView() {
+        try {
+            const cardOptions = this.state.dashboard.headerOptions;
+            cardOptions.width = cardOptions?.width;
+            cardOptions.height = cardOptions?.height;
+            const cardView = {
+                viewInfo: this.state.dashboard.viewInfo,
+                cardOptions: cardOptions,
+                cardHeader: this.state.dashboard.headerFields.cardHeader,
+                cardImage: this.state.dashboard.headerFields.cardImage,
+                cardBody: this.state.dashboard.headerFields.cardBody,
+                cardFooter: this.state.dashboard.headerFields.cardFooter,
+                operations: this.state.dashboard.headerOperations,
+                shortcutButtons: [],
+                documentsList: [],
+                pluginsList: [],
+                batchesList: [],
+                filtersList: []
+            }
+            this.setState({cardView: cardView})
+        } catch (e) {
+            return null;
         }
     }
 
@@ -121,59 +145,34 @@ class DashboardContainer extends BaseContainer {
     }
 
     renderContent() {
-        let cardId;
-        let currentBreadcrumb;
-        let cardView;
-        let _cardWidth;
-        let _cardHeight;
-        let recordId;
-        try {
-            recordId = UrlUtils.getURLParameter('recordId');
-            let cardOptions = this.state.dashboard.headerOptions;
-            _cardWidth = cardOptions.width;
-            _cardHeight = cardOptions.height;
-            cardOptions.width = _cardWidth + 10;
-            cardOptions.height = _cardHeight + 10;
-            cardView = {
-                viewInfo: this.state.dashboard.viewInfo,
-                cardOptions: cardOptions,
-                cardHeader: this.state.dashboard.headerFields.cardHeader,
-                cardImage: this.state.dashboard.headerFields.cardImage,
-                cardBody: this.state.dashboard.headerFields.cardBody,
-                cardFooter: this.state.dashboard.headerFields.cardFooter,
-                operations: this.state.dashboard.headerOperations,
-                shortcutButtons: [], documentsList: [], pluginsList: [], batchesList: [], filtersList: []
-            }
-            cardId = this.state.dashboard.headerData[0]?.ID;
-            currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
-        } catch (e) {
-            return null;
-        }
+        const recordId = UrlUtils.getURLParameter('recordId');
+        const cardId = this.state.dashboard?.headerData ? this.state.dashboard?.headerData[0]?.ID : null;
+        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
         return <React.Fragment>
             <div className="rows">
-                <div className="column left" style={{width: _cardWidth + 10}}>
+                <div className="column left" style={{width: this.state.cardView.cardOptions?.width + 10}}>
                     <CardViewComponent
-                        id={cardView.viewInfo.id}
+                        id={this.state.cardView.viewInfo?.id}
                         mode='dashboard'
-                        handleOnInitialized={(ref) => this.cardGrid = ref}
-                        parsedGridView={cardView}
-                        parsedCardViewData={this.state.dashboard.headerData}
-                        handleShowEditPanel={(editDataResponse) => {
+                            handleOnInitialized={(ref) => this.cardGrid = ref}
+                            parsedGridView={this.state.cardView}
+                            parsedCardViewData={this.state.dashboard.headerData}
+                            handleShowEditPanel={(editDataResponse) => {
                             this.handleShowEditPanel(editDataResponse)
                         }}
-                        handleBlockUi={() => {
+                            handleBlockUi={() => {
                             this.blockUi();
                             return true;
                         }}
-                        showErrorMessages={(err) => this.showErrorMessages(err)}
+                            showErrorMessages={(err) => this.showErrorMessages(err)}
                     />
-                    {this.state.dashboard.views.filter(item => item.position === 'left').map((item) => {
-                        return this.renderGridView(item, cardId, currentBreadcrumb, _cardHeight, recordId);
+                    {this.state.dashboard?.views?.filter(item => item.position === 'left').map((item) => {
+                        return this.renderGridView(item, cardId, currentBreadcrumb, this.state.cardView.cardOptions?.height, recordId);
                     })}
                 </div>
                 <div className="column right">
-                    {this.state.dashboard.views.filter(item => item.position === 'right').map((item) => {
-                        return this.renderGridView(item, cardId, currentBreadcrumb, _cardHeight, recordId);
+                    {this.state.dashboard?.views?.filter(item => item.position === 'right').map((item) => {
+                        return this.renderGridView(item, cardId, currentBreadcrumb, this.state.cardView.cardOptions?.height, recordId);
                     })}
                 </div>
             </div>

@@ -126,6 +126,7 @@ class GridViewComponent extends React.Component {
                         column.caption = columnDefinition?.label;
                         column.dataType = GridViewUtils.specifyColumnType(columnDefinition?.type);
                         column.format = GridViewUtils.specifyColumnFormat(columnDefinition?.type);
+                        // column.editorOptions = GridViewUtils.specifyEditorOptions(columnDefinition?.type);
                         column.cellTemplate = GridViewUtils.cellTemplate(columnDefinition);
                         column.fixed =
                             columnDefinition.freeze !== undefined && columnDefinition?.freeze !== null
@@ -346,7 +347,7 @@ class GridViewComponent extends React.Component {
                         groupPaging={true}
                     />
 
-                    <FilterRow visible={showFilterRow}/>
+                    <FilterRow visible={showFilterRow} applyFilter={true} />
                     <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'}/>
 
                     <Grouping autoExpandAll={groupExpandAll} allowCollapsing={true}/>

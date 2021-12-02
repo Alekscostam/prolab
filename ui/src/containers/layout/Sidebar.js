@@ -115,7 +115,7 @@ class Sidebar extends React.Component {
                 ConsoleHelper('sidebar => menuItem', menuItem)
                 const subMenuItem = menuItem.closest('div').parent();
                 subMenuItem.removeClass('closed');
-                subMenuItem.height('fit-content');
+                // subMenuItem.height('fit-content');
             }, 10);
         }
     }

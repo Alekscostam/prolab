@@ -233,7 +233,7 @@ class Files extends React.Component {
 		const { files } = this.state;
 		this.setState(
 			{
-				files: files.filter(file => file.id !== fileToRemove.id),
+				files: files?.filter(file => file.id !== fileToRemove.id),
 			},
 			() => {
 				const { files } = this.state;

@@ -454,10 +454,12 @@ export class ViewContainer extends BaseContainer {
                                                 !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId,
                                                 //onError
                                                 (err) => {
+                                                    this.unblockUi();
                                                     this.showErrorMessages(err);
                                                 },
                                                 //onSuccess
                                                 (response) => {
+                                                    this.unblockUi();
                                                     this.setState({
                                                         //performance :)
                                                         dataGridStoreSuccess: true,
@@ -466,6 +468,7 @@ export class ViewContainer extends BaseContainer {
                                                 },
                                                 //onStart
                                                 () => {
+                                                    this.blockUi();
                                                     return {
                                                         selectAll: this.state.selectAll
                                                     };

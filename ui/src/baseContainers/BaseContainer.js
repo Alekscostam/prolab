@@ -16,6 +16,7 @@ import {confirmDialog} from "primereact/confirmdialog";
 import {localeOptions} from "primereact/api";
 import EditRowUtils from "../utils/EditRowUtils";
 import ConsoleHelper from "../utils/ConsoleHelper";
+import {LoadIndicator} from "devextreme-react";
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -443,7 +444,7 @@ class BaseContainer extends React.Component {
                             modifiedList = [...modifiedList, parameters[1]];
                         }
                     } else {
-                        modifiedList = modifiedList.filter((v) => {
+                        modifiedList = modifiedList?.filter((v) => {
                             return v[parameters[0]] !== parameters[1][parameters[0]] ? v : null;
                         });
                     }
@@ -899,7 +900,11 @@ class BaseContainer extends React.Component {
         }
         return (
             <div id='cover-spin-container'>
-                <div id='cover-spin'/>
+                <LoadIndicator
+                    visible={true}
+                    height={40}
+                    width={40}
+                />
                 <div id='cover-spin-text'>
                     <p>{label}</p>
                 </div>
@@ -1103,7 +1108,7 @@ class BaseContainer extends React.Component {
         ConsoleHelper(`handleEditRowChange inputType=${inputType} groupName=${groupName}`);
         ConsoleHelper(event)
         let editData = this.state.editData;
-        let groupData = editData.editFields.filter((obj) => {
+        let groupData = editData?.editFields?.filter((obj) => {
             return obj.groupName === groupName;
         });
         let varName;
@@ -1142,7 +1147,7 @@ class BaseContainer extends React.Component {
                     break;
             }
             ConsoleHelper('handleEditRowChange - ', inputType, varName, varValue);
-            let field = groupData[0]?.fields.filter((obj) => {
+            let field = groupData[0]?.fields?.filter((obj) => {
                 return obj.fieldName === varName;
             });
             if (!!field && !!field[0]) {

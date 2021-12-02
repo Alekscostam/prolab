@@ -49,3 +49,15 @@
 .dashboard .dx-scrollable-wrapper{
   overflow: hidden;
 }
+
+.dashboard .dx-tile.dx-state-active {
+  -webkit-transform: none !important;
+  -moz-transform: none !important;
+  -ms-transform: none !important;
+  -o-transform: none !important;
+  transform: none !important;
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -o-transition: none !important;
+  transition: none !important;
+}

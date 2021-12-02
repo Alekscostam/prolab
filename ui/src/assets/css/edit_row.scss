@@ -259,3 +259,8 @@
 .dx-datagrid .dx-error-row {
   display: none;
 }
+
+#innerHTML p {
+  margin-top: revert;
+  margin-bottom: revert;
+}
