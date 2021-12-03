@@ -358,7 +358,9 @@ class GridViewComponent extends React.Component {
                     <Selection mode={showSelection ? (multiSelection ? 'multiple' : 'single') : 'none'}
                                selectAllMode='allPages'
                                showCheckBoxesMode='always'
-                               allowSelectAll={allowSelectAll}/>
+                               allowSelectAll={allowSelectAll}
+                               deferred={true}
+                                />
 
                     <Scrolling mode="virtual" rowRenderingMode="virtual"/>
                     <Paging defaultPageSize={packageCount}/>

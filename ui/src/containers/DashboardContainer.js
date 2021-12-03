@@ -45,27 +45,32 @@ class DashboardContainer extends BaseContainer {
             });
             this.unblockUi();
         } else {
-            this.dashboardService
-                .getDashboard()
-                .then((response) => {
-                    this.setState({
-                        dashboard: response,
-                        loading: false
-                    }, () => {
-                        this.prepareCardView();
-                        this.unblockUi();
-                    });
-                }).catch((err) => {
-                if (!!err.error) {
-                    this.showResponseErrorMessage(err);
-                } else {
-                    this.showErrorMessages(err);
-                }
-            });
+            this.initializeDashboard();
         }
     }
 
-    prepareCardView() {
+    initializeDashboard = () => {
+        this.dashboardService
+            .getDashboard()
+            .then((response) => {
+                this.setState({
+                    dashboard: response,
+                    loading: false
+                }, () => {
+                    this.prepareCardView();
+                    this.forceUpdate();
+                    this.unblockUi();
+                });
+            }).catch((err) => {
+            if (!!err.error) {
+                this.showResponseErrorMessage(err);
+            } else {
+                this.showErrorMessages(err);
+            }
+        });
+    }
+
+    prepareCardView = () => {
         try {
             const cardOptions = this.state.dashboard.headerOptions;
             cardOptions.width = cardOptions?.width;
@@ -95,7 +100,7 @@ class DashboardContainer extends BaseContainer {
         return (
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => this.messages = el}/>
-                <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
+                <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader} renderBlockUi={true}>
                     <DivContainer colClass='col-12 dashboard-link-container'>
                         {!!this.props.dashboard ? null : Breadcrumb.render(labels)}
                         <DivContainer colClass='dashboard'>
@@ -144,6 +149,11 @@ class DashboardContainer extends BaseContainer {
         </React.Fragment>;
     }
 
+    //override
+    refreshGridView() {
+        this.initializeDashboard();
+    }
+
     renderContent() {
         const recordId = UrlUtils.getURLParameter('recordId');
         const cardId = this.state.dashboard?.headerData ? this.state.dashboard?.headerData[0]?.ID : null;
@@ -154,17 +164,17 @@ class DashboardContainer extends BaseContainer {
                     <CardViewComponent
                         id={this.state.cardView.viewInfo?.id}
                         mode='dashboard'
-                            handleOnInitialized={(ref) => this.cardGrid = ref}
-                            parsedGridView={this.state.cardView}
-                            parsedCardViewData={this.state.dashboard.headerData}
-                            handleShowEditPanel={(editDataResponse) => {
+                        handleOnInitialized={(ref) => this.cardGrid = ref}
+                        parsedGridView={this.state.cardView}
+                        parsedCardViewData={this.state.dashboard.headerData}
+                        handleShowEditPanel={(editDataResponse) => {
                             this.handleShowEditPanel(editDataResponse)
                         }}
-                            handleBlockUi={() => {
+                        handleBlockUi={() => {
                             this.blockUi();
                             return true;
                         }}
-                            showErrorMessages={(err) => this.showErrorMessages(err)}
+                        showErrorMessages={(err) => this.showErrorMessages(err)}
                     />
                     {this.state.dashboard?.views?.filter(item => item.position === 'left').map((item) => {
                         return this.renderGridView(item, cardId, currentBreadcrumb, this.state.cardView.cardOptions?.height, recordId);

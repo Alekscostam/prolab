@@ -345,7 +345,7 @@ export class EditRowComponent extends BaseContainer {
         const selectionList = field?.selectionList ? 'p-inputgroup' : null;
         let editInfo = this.props.editData?.editInfo;
         //odkomentowac dla mocka
-        // field.edit = true;
+       field.edit = true;
         switch (field.type) {
             case 'C'://C – Znakowy
             default:

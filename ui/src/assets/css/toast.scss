@@ -6,6 +6,7 @@ div#toast-messages .p-toast-message-content {
 div#toast-messages .p-toast-message-success {
   border: 0px;
   background: $success-color 0% 0% no-repeat padding-box;
+  color: $text-bg;
 }
 
 .p-toast-message-content .p-inline-message-success {
@@ -17,6 +18,7 @@ div#toast-messages .p-toast-message-success {
 div#toast-messages .p-toast-message-info {
   border: 0px;
   background: $info-color 0% 0% no-repeat padding-box;
+  color: $text-bg;
 }
 
 .p-toast-message-content .p-inline-message-info {
@@ -28,6 +30,7 @@ div#toast-messages .p-toast-message-info {
 div#toast-messages .p-toast-message-warn {
   border: 0px;
   background: $warn-color 0% 0% no-repeat padding-box;
+  color: $text-bg;
 }
 
 .p-toast-message-content .p-inline-message-warn {
@@ -43,7 +46,7 @@ div#toast-messages {
 div#toast-messages .p-toast-message-error {
   border: 0px;
   background: $danger-color 0% 0% no-repeat padding-box;
-  color: white;
+  color: $text-bg;
 }
 
 

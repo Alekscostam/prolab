@@ -230,7 +230,7 @@ class App extends Component {
                                     <Switch>
                                         <Route exact path='/' render={(props) => this.renderLoginContainer(props)}/>
                                         <Route path='/login' render={(props) => this.renderLoginContainer(props)}/>
-                                        <Route exact path='/start'
+                                        <Route path='/start'
                                                render={(props) => {
                                                    return (
                                                        <AuthComponent viewMode={'VIEW'}

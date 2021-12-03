@@ -211,8 +211,18 @@
   color: $link-color;
 }
 
-#row-edit .p-confirm-dialog-accept:focus {
+#row-edit .p-button p-component p-confirm-dialog-accept:focus,
+#row-edit .p-button p-component p-confirm-dialog-accept:active,
+#row-edit .p-button p-component p-confirm-dialog-accept:visited,
+#row-edit .p-button p-component p-confirm-dialog-accept:hover {
   background-color: $button-color !important;
+}
+
+.p-button:not(a):not(.p-disabled):focus,
+.p-button:not(a):not(.p-disabled):active,
+.p-button:not(a):not(.p-disabled):hover,
+.p-button:not(a):not(.p-disabled):visited, {
+  background: $button-color !important;
 }
 
 #row-edit .p-checkbox-icon {

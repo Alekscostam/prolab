@@ -2,6 +2,7 @@ import React, {Component, Fragment} from 'react';
 import PropTypes from 'prop-types';
 import Loader from './Loader';
 import safeActiveElement from './safeActiveElement';
+import ActionButton from "../ActionButton";
 
 const defaultProps = {
     tag: 'div',
@@ -234,5 +235,4 @@ BlockUi.propTypes = {
     waitPanelLabel: PropTypes.string,
 };
 BlockUi.defaultProps = defaultProps;
-
 export default BlockUi;
