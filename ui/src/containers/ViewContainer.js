@@ -64,6 +64,7 @@ export class ViewContainer extends BaseContainer {
             visibleEditPanel: false,
             modifyEditData: false,
             editData: null,
+            select: false,
             selectAll: false,
             totalSelectCount: null,
             dataGridStoreSuccess: false,
@@ -92,13 +93,14 @@ export class ViewContainer extends BaseContainer {
         const newUrl = UrlUtils.deleteParameterFromURL(window.document.URL.toString(), 'force');
         window.history.replaceState('', '', newUrl);
         this.setState({
+                gridViewType: viewType,
                 elementSubViewId: subViewId,
                 elementRecordId: recordId,
                 elementFilterId: filterId,
-                gridViewType: viewType,
-                //z dashboardu
                 elementParentId: parentId,
-                dataGridStoreSuccess: false
+                dataGridStoreSuccess: false,
+                select: false,
+                selectAll: false,
             },
             () => {
                 this.downloadData(
@@ -407,6 +409,8 @@ export class ViewContainer extends BaseContainer {
                                     selectedRowKeys: [],
                                     viewInfoTypes: viewInfoTypesTmp,
                                     packageRows: responseView?.viewInfo?.dataPackageSize,
+                                    select: false,
+                                    selectAll: false,
                                 }),
                                 () => {
                                     this.props.handleRenderNoRefreshContent(true);
@@ -454,6 +458,10 @@ export class ViewContainer extends BaseContainer {
                                                 !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId,
                                                 //onError
                                                 (err) => {
+                                                    this.setState({
+                                                        select: false,
+                                                        selectAll: false,
+                                                    });
                                                     this.unblockUi();
                                                     this.showErrorMessages(err);
                                                 },
@@ -461,8 +469,10 @@ export class ViewContainer extends BaseContainer {
                                                 (response) => {
                                                     this.unblockUi();
                                                     this.setState({
-                                                        //performance :)
+                                                        select: false,
+                                                        selectAll: false,
                                                         dataGridStoreSuccess: true,
+                                                        //performance :)
                                                         totalSelectCount: response.totalSelectCount
                                                     });
                                                 },
@@ -470,6 +480,7 @@ export class ViewContainer extends BaseContainer {
                                                 () => {
                                                     this.blockUi();
                                                     return {
+                                                        select: this.state.select,
                                                         selectAll: this.state.selectAll
                                                     };
                                                 }
@@ -1055,9 +1066,17 @@ export class ViewContainer extends BaseContainer {
                                         this.setState({selectedRowKeys: e?.selectedRowKeys})
                                     }}
                                     handleSelectAll={(e) => {
-                                        this.setState(prevState => ({
-                                            selectAll: !!e ? !prevState.selectAll : false
-                                        }));
+                                        if (e === null) {
+                                            this.setState({
+                                                selectAll: false,
+                                                select: true
+                                            });
+                                        } else {
+                                            this.setState({
+                                                selectAll: e,
+                                                select: false
+                                            });
+                                        }
                                     }}
                                     dataGridStoreSuccess={this.state.dataGridStoreSuccess}
                                 />

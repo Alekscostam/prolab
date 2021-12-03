@@ -251,7 +251,13 @@ class GridViewComponent extends React.Component {
     };
 
     ifSelectAllEvent(e) {
-        return !!e && e.column?.command === 'select' && e.column?.visible === true && e.columnIndex === 0 && e.rowType === 'header';
+        // return !!e && e.column?.command === 'select' && e.column?.visible === true && e.columnIndex === 0 && e.rowType === 'header';
+        return e.cellElement?.className?.includes('dx-command-select dx-cell-focus-disabled dx-editor-cell dx-editor-inline-block');
+    }
+
+    selectAllEvent(e) {
+        const value = e?.cellElement?.children[0]?.children[0]?.value;
+        return value === 'true' || value === true;
     }
 
     preGenerateColumnsDefinition() {
@@ -331,9 +337,10 @@ class GridViewComponent extends React.Component {
                     onCellClick={(e) => {
                         if (!!this.props.handleSelectAll) {
                             if (this.ifSelectAllEvent(e)) {
-                                this.props.handleSelectAll(true);
+                                let event = this.selectAllEvent(e);
+                                this.props.handleSelectAll(event);
                             } else {
-                                this.props.handleSelectAll(false);
+                                this.props.handleSelectAll(null);
                             }
                         }
                     }}
@@ -347,7 +354,7 @@ class GridViewComponent extends React.Component {
                         groupPaging={true}
                     />
 
-                    <FilterRow visible={showFilterRow} applyFilter={true} />
+                    <FilterRow visible={showFilterRow} applyFilter={true}/>
                     <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'}/>
 
                     <Grouping autoExpandAll={groupExpandAll} allowCollapsing={true}/>
@@ -359,8 +366,7 @@ class GridViewComponent extends React.Component {
                                selectAllMode='allPages'
                                showCheckBoxesMode='always'
                                allowSelectAll={allowSelectAll}
-                               deferred={true}
-                                />
+                    />
 
                     <Scrolling mode="virtual" rowRenderingMode="virtual"/>
                     <Paging defaultPageSize={packageCount}/>
