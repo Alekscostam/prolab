@@ -33,7 +33,7 @@ export class GridViewContainer extends BaseContainer {
         this.viewService = new ViewService();
         this.editService = new EditService();
         this.dataGridStore = new DataGridStore();
-        this.dataGrid = null;
+        this.refDataGrid = null;
         this.subGridView = null;
         this.state = {
             loading: true,
@@ -61,6 +61,9 @@ export class GridViewContainer extends BaseContainer {
         this.onFilterChanged = this.onFilterChanged.bind(this);
     }
 
+    getRefGridView() {
+        return this.refDataGrid;
+    }
 
     componentDidMount() {
         ConsoleHelper('GridViewContainer::componentDidMount -> path ', window.location.pathname);
@@ -255,19 +258,19 @@ export class GridViewContainer extends BaseContainer {
                                             this.state.viewType,
                                             this.state.subView == null ? recordId : this.state.elementRecordId,
                                             !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId,
-                                            (err) => {
-                                                this.showErrorMessages(err);
+                                            () => {
+                                                this.setState({
+                                                    blocking: true,
+                                                });
                                             },
                                             () => {
                                                 this.setState({
                                                     blocking: false,
                                                 });
                                             },
-                                            () => {
-                                                this.setState({
-                                                    blocking: true,
-                                                });
-                                            }
+                                            (err) => {
+                                                this.showErrorMessages(err);
+                                            },
                                         );
                                         this.setState({
                                             loading: false,
@@ -577,11 +580,11 @@ export class GridViewContainer extends BaseContainer {
     }
 
     refreshDataGrid() {
-        this.dataGrid.instance.getDataSource().reload();
+        this.getRefGridView().instance.getDataSource().reload();
     }
 
     unselectedDataGrid() {
-        this.dataGrid.instance.deselectAll();
+        this.getRefGridView().instance.deselectAll();
         this.setState({
             selectedRowKeys: {}
         });
@@ -723,7 +726,7 @@ export class GridViewContainer extends BaseContainer {
                         <GridViewComponent
                             id={this.props.id}
                             elementSubViewId={this.state.elementSubViewId}
-                            handleOnInitialized={(ref) => this.dataGrid = ref}
+                            handleOnDataGrid={(ref) => this.refDataGrid = ref}
                             parsedGridView={this.state.parsedGridView}
                             parsedGridViewData={this.state.parsedGridViewData}
                             gridViewColumns={this.state.gridViewColumns}

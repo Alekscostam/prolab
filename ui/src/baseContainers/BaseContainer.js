@@ -989,9 +989,19 @@ class BaseContainer extends React.Component {
         this.rowSave(viewId, recordId, parentId, saveElement, false);
     }
 
+    getRefGridView() {
+       return null;
+    }
+
     refreshGridView() {
-        if (!!this.dataGrid) {
-            this.dataGrid.instance.refresh(true);
+        if (!!this.getRefGridView()) {
+            this.getRefGridView().instance.refresh(true);
+        }
+    }
+
+    repaintGridView() {
+        if (!!this.getRefGridView()) {
+            this.getRefGridView().instance.repaint();
         }
     }
 

@@ -9,7 +9,7 @@ export default class EditListComponent extends React.Component {
 
     constructor(props) {
         super(props);
-        this.dataGrid = {};
+        this.refDataGrid = {};
 
     }
 
@@ -25,7 +25,8 @@ export default class EditListComponent extends React.Component {
         // let opSelect = {label: 'Dodaj'}
         return (
             <React.Fragment>
-                <Dialog header="Lista podpowiedzi"
+                <Dialog id="editListDialog"
+                        header="Lista podpowiedzi"
                         footer={opSelect ?
                             <Button
                                 type="button"
@@ -67,7 +68,7 @@ export default class EditListComponent extends React.Component {
                     <GridViewComponent
                         id={this.props.id}
                         elementSubViewId={null}
-                        handleOnInitialized={(ref) => this.dataGrid = ref}
+                        handleOnDataGrid={(ref) => this.refDataGrid = ref}
                         parsedGridView={this.props.parsedGridView}
                         parsedGridViewData={this.props.parsedGridViewData}
                         gridViewColumns={this.props.gridViewColumns}
@@ -81,8 +82,6 @@ export default class EditListComponent extends React.Component {
                         showSelection={true}
                         defaultSelectedRowKeys={this.props.defaultSelectedRowKeys}
                         handleSelectedRowKeys={(e) => this.handleSelectedRowData(e)}
-                        handleSelectAll={(e) => {
-                        }}
                         showFilterRow={true}
                         showErrorMessages={(err) => this.props.showErrorMessages(err)}
                         dataGridStoreSuccess={this.props.dataGridStoreSuccess}

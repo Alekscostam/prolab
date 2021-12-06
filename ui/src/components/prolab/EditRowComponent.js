@@ -152,7 +152,7 @@ export class EditRowComponent extends BaseContainer {
                                 (response) => {
                                     this.setState({
                                         //performance :)
-                                        totalSelectCount: response.totalSelectCount,
+                                        // totalSelectCount: response.totalSelectCount,
                                         dataGridStoreSuccess: true
                                     });
                                 },

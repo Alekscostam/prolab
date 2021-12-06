@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from "prop-types";
 import DataGrid, {
     Column,
-    Editing,
     FilterRow,
     Grouping,
     GroupPanel,
@@ -251,8 +250,11 @@ class GridViewComponent extends React.Component {
     };
 
     ifSelectAllEvent(e) {
-        // return !!e && e.column?.command === 'select' && e.column?.visible === true && e.columnIndex === 0 && e.rowType === 'header';
         return e.cellElement?.className?.includes('dx-command-select dx-cell-focus-disabled dx-editor-cell dx-editor-inline-block');
+    }
+
+    ifSelectEvent(e) {
+        return e.cellElement?.className?.includes('dx-command-select dx-editor-cell dx-editor-inline-block dx-cell-focus-disabled');
     }
 
     selectAllEvent(e) {
@@ -310,10 +312,10 @@ class GridViewComponent extends React.Component {
                 {/*defaultSelectedRowKeys: {JSON.stringify(this.props.defaultSelectedRowKeys)}*/}
                 <DataGrid
                     id='grid-container'
-                    keyExpr={'CRC'}
+                    keyExpr='CRC'
                     className={`grid-container${headerAutoHeight ? ' grid-header-auto-height' : ''}`}
                     ref={(ref) => {
-                        this.props.handleOnInitialized(ref)
+                        this.props.handleOnDataGrid(ref)
                     }}
                     dataSource={this.props.parsedGridViewData}
                     customizeColumns={this.postCustomizeColumns}
@@ -332,17 +334,21 @@ class GridViewComponent extends React.Component {
                     rowAlternationEnabled={false}
                     selectedRowKeys={defaultSelectedRowKeys || selectedRowKeys}
                     onSelectionChanged={this.props.handleSelectedRowKeys}
-                    renderAsync={true}
-                    selectAsync={true}
+                    renderAsync={false}
+                    selectAsync={false}
                     onCellClick={(e) => {
                         if (!!this.props.handleSelectAll) {
                             if (this.ifSelectAllEvent(e)) {
                                 let event = this.selectAllEvent(e);
                                 this.props.handleSelectAll(event);
-                            } else {
+                            } else if (this.ifSelectEvent(e)) {
                                 this.props.handleSelectAll(null);
                             }
                         }
+                    }}
+                    onInitialized={(ref) => {
+                        if (!!this.props.handleOnInitialized)
+                            this.props.handleOnInitialized(ref)
                     }}
                 >
                     <RemoteOperations
@@ -366,9 +372,10 @@ class GridViewComponent extends React.Component {
                                selectAllMode='allPages'
                                showCheckBoxesMode='always'
                                allowSelectAll={allowSelectAll}
+                               deferred={this.props.selectionDeferred}
                     />
 
-                    <Scrolling mode="virtual" rowRenderingMode="virtual"/>
+                    <Scrolling mode="virtual" rowRenderingMode="virtual" renderAsync={true}/>
                     <Paging defaultPageSize={packageCount}/>
 
                     <LoadPanel enabled={true}
@@ -376,7 +383,6 @@ class GridViewComponent extends React.Component {
                                shadingColor="rgba(0,0,0,0.4)"
                                showPane={false}
                                position="absolute"/>
-                    <Editing mode='cell'/>
                     {this.preGenerateColumnsDefinition()}
                 </DataGrid>
             </React.Fragment>
@@ -396,6 +402,7 @@ GridViewComponent.defaultProps = {
     showSelection: true,
     dataGridStoreSuccess: true,
     allowSelectAll: true,
+    selectionDeferred: false
 };
 
 GridViewComponent.propTypes = {
@@ -405,12 +412,14 @@ GridViewComponent.propTypes = {
     parsedGridViewData: PropTypes.object.isRequired,
     gridViewColumns: PropTypes.object.isRequired,
     packageRows: PropTypes.number,
-    handleOnInitialized: PropTypes.func.isRequired,
-    handleShowEditPanel: PropTypes.func.isRequired,
+    handleOnDataGrid: PropTypes.func.isRequired,
+    handleOnInitialized: PropTypes.func,
+    handleShowEditPanel: PropTypes.func,
     //selection
     selectedRowKeys: PropTypes.object.isRequired,
-    handleSelectedRowKeys: PropTypes.func.isRequired,
+    handleSelectedRowKeys: PropTypes.func,
     handleSelectAll: PropTypes.func,
+    selectionDeferred: PropTypes.bool,
     //other
     handleBlockUi: PropTypes.func.isRequired,
     handleUnblockUi: PropTypes.func.isRequired,
