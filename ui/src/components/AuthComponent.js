@@ -17,12 +17,10 @@ class AuthComponent extends React.Component {
 
     componentDidMount() {
         let {
-            roles,
-            viewMode,
-            historyBrowser
+            roles, viewMode, historyBrowser
         } = this.props;
         if (!this.authService.loggedIn()) {
-            this.props.handleLogout();
+            this.props.handleLogout(false);
         } else {
             const userRoles = this.authService.getRoles();
             let authorized = false;
@@ -39,8 +37,7 @@ class AuthComponent extends React.Component {
                 try {
                     const profile = this.authService.getProfile();
                     this.setState({
-                        user: profile,
-                        viewMode: viewMode
+                        user: profile, viewMode: viewMode
                     });
                 } catch (err) {
                     ConsoleHelper('Error authorized. Exception=', err)
@@ -60,24 +57,16 @@ class AuthComponent extends React.Component {
     }
 
     render() {
-        if (true) {
-            return (
-                <React.Fragment>
-                    {this.props.children}
-                </React.Fragment>
-            );
-        } else {
-            return null;
-        }
+        return (<React.Fragment>
+            {this.props.children}
+        </React.Fragment>);
     }
 }
 
 Address.defaultProps = {};
 
 AuthComponent.propTypes = {
-    historyBrowser: PropTypes.any.isRequired,
-    roles: PropTypes.any,
-    handleLogout: PropTypes.func
+    historyBrowser: PropTypes.any.isRequired, roles: PropTypes.any, handleLogout: PropTypes.func
 }
 
 export default AuthComponent;

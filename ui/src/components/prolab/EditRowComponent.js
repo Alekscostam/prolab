@@ -149,7 +149,7 @@ export class EditRowComponent extends BaseContainer {
                                     this.showErrorMessages(err);
                                 },
                                 //onSuccess
-                                (response) => {
+                                () => {
                                     this.setState({
                                         //performance :)
                                         // totalSelectCount: response.totalSelectCount,
@@ -619,7 +619,7 @@ EditRowComponent.propTypes = {
     onSave: PropTypes.func.isRequired,
     onAutoFill: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
-    onEditList: PropTypes.func.isRequired,
+    onEditList: PropTypes.func,
     onHide: PropTypes.func.isRequired,
     validator: PropTypes.instanceOf(SimpleReactValidator).isRequired,
     onError: PropTypes.func,

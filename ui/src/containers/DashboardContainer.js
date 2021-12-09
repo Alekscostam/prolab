@@ -17,6 +17,7 @@ import ShortcutButton from "../components/prolab/ShortcutButton";
 import AppPrefixUtils from "../utils/AppPrefixUtils";
 import UrlUtils from "../utils/UrlUtils";
 import EditService from "../services/EditService";
+import LocUtils from "../utils/LocUtils";
 
 class DashboardContainer extends BaseContainer {
 
@@ -73,8 +74,6 @@ class DashboardContainer extends BaseContainer {
     prepareCardView = () => {
         try {
             const cardOptions = this.state.dashboard.headerOptions;
-            cardOptions.width = cardOptions?.width;
-            cardOptions.height = cardOptions?.height;
             const cardView = {
                 viewInfo: this.state.dashboard.viewInfo,
                 cardOptions: cardOptions,
@@ -130,8 +129,8 @@ class DashboardContainer extends BaseContainer {
                     onCancel={this.handleCancelRowChange}
                     validator={this.validator}
                     onHide={(e) => !!this.state.modifyEditData ? confirmDialog({
-                        message: 'Czy na pewno chcesz zamknąć edycję?',
-                        header: 'Potwierdzenie',
+                        message: LocUtils.loc(this.props.labels, 'Question_Close_Edit', 'Czy na pewno chcesz zamknąć edycję?'),
+                        header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
                         icon: 'pi pi-exclamation-triangle',
                         acceptLabel: localeOptions('accept'),
                         rejectLabel: localeOptions('reject'),
@@ -202,7 +201,7 @@ class DashboardContainer extends BaseContainer {
                         `/#/grid-view/${item.id}?parentId=${cardViewId}${currentBreadcrumb}`
                     )}
                     label={''}
-                    title={'Przenieś do'}
+                    title={LocUtils.loc(this.props.labels, 'Move_To', 'Przenieś do')}
                     rendered={true}
                 />
             </div>

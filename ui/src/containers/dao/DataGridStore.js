@@ -49,7 +49,7 @@ export default class DataGridStore extends BaseService {
     getSelectAllDataGridStore(viewIdArg, viewTypeArg, recordParentIdArg, filterIdArg, filters) {
         let params = '?';
         [
-            !!filters ? 'filter' : undefined,
+            !!filters && filters.length > 0 ? 'filter' : undefined,
             'group',
             'groupSummary',
             'parentIds',
@@ -91,9 +91,9 @@ export default class DataGridStore extends BaseService {
             }
             return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0});
         }
-        const dataGridStore = new CustomStore({
+        return new CustomStore({
             key: 'ID',
-            //keyExpr: 'ID',
+            keyExpr: 'ID',
             load: (loadOptions) => {
                 this.cachedLoadOptions = loadOptions;
                 let params = '?';
@@ -147,13 +147,12 @@ export default class DataGridStore extends BaseService {
                     }
                 ).then((response) => {
                     ConsoleHelper('DataGridStore -> fetch ');
-                    const responseData = {
+                    this.cachedLastResponse = {
                         data: response.data,
                         totalCount: response.totalCount,
                         summary: response.summary || [],
                         groupCount: response.groupCount || 0
                     };
-                    this.cachedLastResponse = responseData;
                     if (onSuccess) {
                         onSuccess();
                     }
@@ -167,7 +166,6 @@ export default class DataGridStore extends BaseService {
                 });
             },
         });
-        return dataGridStore;
     }
 
     isNotEmpty(value) {

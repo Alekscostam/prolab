@@ -23,6 +23,7 @@ import EditService from "../../services/EditService";
 import moment from "moment";
 import Constants from "../../utils/Constants";
 import ConsoleHelper from "../../utils/ConsoleHelper";
+import $ from "jquery";
 
 class GridViewComponent extends React.Component {
 
@@ -96,6 +97,7 @@ class GridViewComponent extends React.Component {
 
     postCustomizeColumns = (columns) => {
         let INDEX_COLUMN = 0;
+        console.log(columns)
         if (columns?.length > 0) {
             //when viewData respond a lot of data
             const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
@@ -292,7 +294,7 @@ class GridViewComponent extends React.Component {
         //const multiSelect = true;
         //multiSelect dla podpowiedzi
         const multiSelect = this.props.parsedGridView?.gridOptions?.multiSelect;
-        const multiSelection = (multiSelect === undefined || multiSelect === null || !!multiSelect) ? true : false;
+        const multiSelection = (multiSelect === undefined || multiSelect === null || !!multiSelect);
         const packageCount = this.props.packageRows;
         const showSelection = this.waitForSuccess() ? false : this.props.showSelection;
         const showColumnHeaders = this.props.showColumnHeaders;
@@ -303,7 +305,7 @@ class GridViewComponent extends React.Component {
         const showFilterRow = this.props.showFilterRow;
         const dataGridHeight = this.props.dataGridHeight || false;
         const selectAll = this.props.allowSelectAll;
-        const allowSelectAll = (selectAll === undefined || selectAll === null || !!selectAll) ? true : false;
+        const allowSelectAll = (selectAll === undefined || selectAll === null || !!selectAll);
         const defaultSelectedRowKeys = this.props.defaultSelectedRowKeys;
         const selectedRowKeys = this.props.selectedRowKeys;
         return (
@@ -312,7 +314,7 @@ class GridViewComponent extends React.Component {
                 {/*defaultSelectedRowKeys: {JSON.stringify(this.props.defaultSelectedRowKeys)}*/}
                 <DataGrid
                     id='grid-container'
-                    keyExpr='CRC'
+                    keyExpr='ID'
                     className={`grid-container${headerAutoHeight ? ' grid-header-auto-height' : ''}`}
                     ref={(ref) => {
                         this.props.handleOnDataGrid(ref)
@@ -321,7 +323,7 @@ class GridViewComponent extends React.Component {
                     customizeColumns={this.postCustomizeColumns}
                     wordWrapEnabled={rowAutoHeight}
                     columnAutoWidth={columnAutoWidth}
-                    columnResizingMode='widget'
+                    columnResizingMode='nextColumn'
                     allowColumnReordering={true}
                     allowColumnResizing={true}
                     showColumnLines={showColumnLines}
@@ -336,6 +338,7 @@ class GridViewComponent extends React.Component {
                     onSelectionChanged={this.props.handleSelectedRowKeys}
                     renderAsync={false}
                     selectAsync={false}
+                    cacheEnabled={false}
                     onCellClick={(e) => {
                         if (!!this.props.handleSelectAll) {
                             if (this.ifSelectAllEvent(e)) {
@@ -349,6 +352,12 @@ class GridViewComponent extends React.Component {
                     onInitialized={(ref) => {
                         if (!!this.props.handleOnInitialized)
                             this.props.handleOnInitialized(ref)
+                    }}
+                    //myczek na rozjezdzajace sie linie wierszy w dataGrid
+                    onContentReady={(e) => {
+                        $(document).ready(function () {
+                            e.component.resize();
+                        });
                     }}
                 >
                     <RemoteOperations
@@ -375,7 +384,7 @@ class GridViewComponent extends React.Component {
                                deferred={this.props.selectionDeferred}
                     />
 
-                    <Scrolling mode="virtual" rowRenderingMode="virtual" renderAsync={true}/>
+                    <Scrolling mode="virtual" rowRenderingMode="virtual" renderAsync={true} preloadEnabled={false}/>
                     <Paging defaultPageSize={packageCount}/>
 
                     <LoadPanel enabled={true}

@@ -25,6 +25,7 @@ import CardViewComponent from "./cardView/CardViewComponent";
 import GridViewComponent from "./dataGrid/GridViewComponent";
 import DashboardContainer from "./DashboardContainer";
 import ConsoleHelper from "../utils/ConsoleHelper";
+import LocUtils from "../utils/LocUtils";
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -275,13 +276,12 @@ export class ViewContainer extends BaseContainer {
                             () => {
                                 this.props.handleSubView(subViewResponse);
                                 this.unblockUi();
-                                return;
                             }
                         );
                     } else {
                         const elementSubViewId = subviewId ? subviewId : subViewResponse.subViews[0]?.id;
                         if (!subViewResponse.subViews || subViewResponse.subViews.length === 0) {
-                            this.showErrorMessages('Brak podwidoków - niepoprawna konfiguracja!');
+                            this.showErrorMessages(LocUtils.loc(this.props.labels, 'No_Subview', 'Brak podwidoków - niepoprawna konfiguracja!'));
                             window.history.back();
                             this.unblockUi();
                             return;
@@ -304,7 +304,6 @@ export class ViewContainer extends BaseContainer {
                                 this.unblockUi();
                                 this.props.handleSubView(subViewResponse);
                                 this.getViewById(elementSubViewId, recordId, filterId, parentId, viewType, subviewMode);
-                                return;
                             }
                         );
                     }
@@ -314,16 +313,17 @@ export class ViewContainer extends BaseContainer {
                     window.history.back();
                     this.unblockUi();
                 });
-            return;
         } else {
             this.setState({subView: null}, () => {
                 this.props.handleSubView(null);
-                this.getViewById(viewId, recordId, filterId, parentId, viewType, subviewMode);
+                this.getViewById(viewId, recordId, filterId, parentId, viewType);
             });
         }
     }
 
-    getViewById(viewId, recordId, filterId, parentId, viewType, subviewMode) {
+    getViewById(viewId, recordId, filterId, parentId, viewType,
+                // subviewMode
+    ) {
         this.setState(
             {
                 loading: true,
@@ -405,7 +405,7 @@ export class ViewContainer extends BaseContainer {
                                 });
                             }
                             this.setState(
-                                (prevState) => ({
+                                () => ({
                                     loading: false,
                                     //elementId: this.props.id,
                                     gridViewType: responseView?.viewInfo?.type,
@@ -473,7 +473,7 @@ export class ViewContainer extends BaseContainer {
                                                         selectAll: this.state.selectAll
                                                     };
                                                 },
-                                                (success) => {
+                                                () => {
                                                     this.setState({
                                                         select: false,
                                                         selectAll: false,
@@ -546,8 +546,8 @@ export class ViewContainer extends BaseContainer {
                         onCancel={this.handleCancelRowChange}
                         validator={this.validator}
                         onHide={(e) => !!this.state.modifyEditData ? confirmDialog({
-                            message: 'Czy na pewno chcesz zamknąć edycję?',
-                            header: 'Potwierdzenie',
+                            message: LocUtils.loc(this.props.labels, 'Question_Close_Edit', 'Czy na pewno chcesz zamknąć edycję?'),
+                            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
                             icon: 'pi pi-exclamation-triangle',
                             acceptLabel: localeOptions('accept'),
                             rejectLabel: localeOptions('reject'),
@@ -692,8 +692,8 @@ export class ViewContainer extends BaseContainer {
                     handleDelete={() => {
                         ConsoleHelper('handleDelete');
                         confirmDialog({
-                            message: 'Czy na pewno chcesz usunąć zaznaczone rekordy?',
-                            header: 'Potwierdzenie',
+                            message: LocUtils.loc(this.props.labels, 'Question_Delete_Label', 'Czy na pewno chcesz usunąć zaznaczone rekordy?'),
+                            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
                             icon: 'pi pi-exclamation-triangle',
                             acceptLabel: localeOptions('accept'),
                             rejectLabel: localeOptions('reject'),
@@ -727,8 +727,8 @@ export class ViewContainer extends BaseContainer {
                     handleRestore={() => {
                         ConsoleHelper('handleRestore');
                         confirmDialog({
-                            message: 'Czy na pewno chcesz przywrócić zaznaczone rekordy?',
-                            header: 'Potwierdzenie',
+                            message: LocUtils.loc(this.props.labels, 'Question_Restore_Label', 'Czy na pewno chcesz przywrócić zaznaczone rekordy?'),
+                            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
                             icon: 'pi pi-exclamation-triangle',
                             acceptLabel: localeOptions('accept'),
                             rejectLabel: localeOptions('reject'),
@@ -762,8 +762,8 @@ export class ViewContainer extends BaseContainer {
                     handleCopy={() => {
                         ConsoleHelper('handleCopy');
                         confirmDialog({
-                            message: 'Czy na pewno chcesz przywrócić zaznaczone rekordy?',
-                            header: 'Potwierdzenie',
+                            message: LocUtils.loc(this.props.labels, 'Question_Copy_Label', 'Czy na pewno chcesz zkopiować zaznaczone rekordy?'),
+                            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
                             icon: 'pi pi-exclamation-triangle',
                             acceptLabel: localeOptions('accept'),
                             rejectLabel: localeOptions('reject'),
@@ -798,8 +798,8 @@ export class ViewContainer extends BaseContainer {
                     handleArchive={() => {
                         ConsoleHelper('handleArchive');
                         confirmDialog({
-                            message: 'Czy na pewno chcesz przenieść do archiwum zaznaczone rekordy?',
-                            header: 'Potwierdzenie',
+                            message: LocUtils.loc(this.props.labels, 'Question_Archive_Label', 'Czy na pewno chcesz przenieść do archiwum zaznaczone rekordy?'),
+                            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
                             icon: 'pi pi-exclamation-triangle',
                             acceptLabel: localeOptions('accept'),
                             rejectLabel: localeOptions('reject'),
@@ -1085,7 +1085,6 @@ export class ViewContainer extends BaseContainer {
 
     //override
     render() {
-        const {labels} = this.props;
         return (
             <React.Fragment>
                 {super.render()}

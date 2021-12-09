@@ -214,7 +214,7 @@ CardViewComponent.propTypes = {
     mode: PropTypes.string.isRequired,
     parsedGridView: PropTypes.object.isRequired,
     parsedCardViewData: PropTypes.object.isRequired,
-    elementSubViewId: PropTypes.object.isRequired,
+    elementSubViewId: PropTypes.object,
     handleOnInitialized: PropTypes.func.isRequired,
     handleShowEditPanel: PropTypes.func.isRequired,
     handleBlockUi: PropTypes.func.isRequired,

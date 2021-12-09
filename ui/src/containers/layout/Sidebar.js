@@ -92,7 +92,7 @@ class Sidebar extends React.Component {
                     }
                 );
             })
-            .catch((err) => {
+            .catch(() => {
             });
     }
 
@@ -153,7 +153,7 @@ class Sidebar extends React.Component {
                 loading: true,
             },
             () => {
-                this.props.handleLogoutUser();
+                this.props.handleLogoutUser(false);
             }
         );
     }
@@ -218,11 +218,11 @@ class Sidebar extends React.Component {
         let {authService} = this.props;
         const {collapsed, filterValue} = this.state;
         const loggedIn = authService.loggedIn();
-        $(document).on('click', '.pro-inner-item', function (e) {
-            $('.pro-inner-item').each(function (index) {
+        $(document).on('click', '.pro-inner-item', function () {
+            $('.pro-inner-item').each(function () {
                 $(this).removeClass('active');
             });
-            $('.pro-menu-item').each(function (index) {
+            $('.pro-menu-item').each(function () {
                 $(this).removeClass('active');
             });
             $(this).addClass('active').siblings().removeClass('active');
@@ -420,6 +420,7 @@ class Sidebar extends React.Component {
                                                 $('#filterValue').focus();
                                             });
                                         }}
+                                        label={"Wyszukaj"}
                                     />
                                 </div>
                             ) : null}

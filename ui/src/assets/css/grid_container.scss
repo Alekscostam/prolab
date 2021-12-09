@@ -8,7 +8,7 @@ $table-selection: #dde6ff;
   text-align: left;
   font-size: 14px !important;
   line-height: 16px !important;
-  letter-spacing: 0px;
+  letter-spacing: 0;
   color: $header-label;
   opacity: 1;
   font-style: normal;
@@ -21,7 +21,7 @@ $table-selection: #dde6ff;
   text-align: left;
   font-size: 12px !important;
   line-height: 14px !important;
-  letter-spacing: 0px;
+  letter-spacing: 0;
   font-style: normal;
   font-variant: normal;
   font-weight: 500;
@@ -45,7 +45,7 @@ $table-selection: #dde6ff;
   text-align: left;
   font-size: 12px !important;
   line-height: 14px !important;
-  letter-spacing: 0px;
+  letter-spacing: 0;
   font-style: normal;
   font-variant: normal;
   font-weight: 500;
@@ -56,22 +56,10 @@ $table-selection: #dde6ff;
   background-color: #0e49eb;
 }
 
-.dx-datagrid
-.dx-datagrid-content
-.dx-datagrid-table
-.dx-row
-> td.dx-cell-modified:not(.dx-field-item-content):not(.dx-validation-pending):first-of-type,
-.dx-datagrid
-.dx-datagrid-content
-.dx-datagrid-table
-.dx-row
-> td.dx-datagrid-invalid:not(.dx-field-item-content):not(.dx-validation-pending):not(.dx-datagrid-select-all):first-of-type,
-.dx-datagrid
-.dx-datagrid-content
-.dx-datagrid-table
-.dx-row
-> td:not(.dx-validation-pending):not(.dx-datagrid-select-all):first-of-type {
-  padding-left: 0px;
+.dx-datagrid .dx-datagrid-content .dx-datagrid-table .dx-row > td.dx-cell-modified:not(.dx-field-item-content):not(.dx-validation-pending):first-of-type,
+.dx-datagrid .dx-datagrid-content .dx-datagrid-table .dx-row > td.dx-datagrid-invalid:not(.dx-field-item-content):not(.dx-validation-pending):not(.dx-datagrid-select-all):first-of-type,
+.dx-datagrid .dx-datagrid-content .dx-datagrid-table .dx-row > td:not(.dx-validation-pending):not(.dx-datagrid-select-all):first-of-type {
+  padding-left: 0;
 }
 
 .dx-datagrid-rowsview .dx-select-checkboxes-hidden > tbody > tr > td > .dx-select-checkbox {
@@ -85,7 +73,7 @@ $table-selection: #dde6ff;
 .grid-selection-panel {
   font-size: 12px;
   line-height: 14px;
-  letter-spacing: 0px;
+  letter-spacing: 0;
   font-style: normal;
   font-variant: normal;
   font-weight: 500;
@@ -122,8 +110,8 @@ $table-selection: #dde6ff;
   background-color: $button-color;
   color: $button-text-color;
   font-size: 15px;
-  padding: 0rem 0.4rem;
-  min-width: 0rem;
+  padding: 0 0.4rem;
+  min-width: 0;
   height: 26px;
 }
 
@@ -178,7 +166,7 @@ $table-selection: #dde6ff;
 
 .dx-item.dx-tile {
   border-radius: 10px;
-  padding: 0px;
+  padding: 0;
 }
 
 .dx-item.dx-tile .dx-tile-image {
@@ -194,10 +182,10 @@ $table-selection: #dde6ff;
   height: 100%;
   width: 100%;
   border-radius: 10px;
-  margin: 0px;
+  margin: 0;
   display: flex;
   flex-direction: column;
-  padding: 6px 0px;
+  padding: 6px 0;
 }
 
 .card-grid-header,
@@ -205,7 +193,7 @@ $table-selection: #dde6ff;
 .card-grid-footer {
   min-height: 30px;
   width: 100%;
-  padding: 0px 10px;
+  padding: 0 10px;
 }
 
 .card-grid-footer {
@@ -247,7 +235,7 @@ $table-selection: #dde6ff;
   display: inline-flex;
 
   .card-grid-header-title {
-    flex-basis: 1;
+    flex-basis: initial;
     flex-shrink: 0;
     flex-grow: 1;
     display: block;
@@ -262,7 +250,7 @@ $table-selection: #dde6ff;
 }
 
 .card-grid-body {
-  flex-basis: 1;
+  flex-basis: initial;
   flex-shrink: 0;
   flex-grow: 1;
 }
@@ -281,30 +269,16 @@ $table-selection: #dde6ff;
   padding: 3px;
 }
 
-.dx-datagrid
-.dx-datagrid-content
-.dx-datagrid-table
-.dx-row
-> td
-.dx-row
-> td.dx-cell-modified:not(.dx-field-item-content):not(.dx-validation-pending),
-.dx-datagrid
-.dx-datagrid-content
-.dx-datagrid-table
-.dx-row
-> td.dx-datagrid-invalid:not(.dx-field-item-content):not(.dx-validation-pending):not(.dx-datagrid-select-all),
-.dx-datagrid
-.dx-datagrid-content
-.dx-datagrid-table
-.dx-row
-> td:not(.dx-validation-pending):not(.dx-datagrid-select-all) {
+.dx-datagrid .dx-datagrid-content .dx-datagrid-table .dx-row > td .dx-row > td.dx-cell-modified:not(.dx-field-item-content):not(.dx-validation-pending),
+.dx-datagrid .dx-datagrid-content .dx-datagrid-table .dx-row > td.dx-datagrid-invalid:not(.dx-field-item-content):not(.dx-validation-pending):not(.dx-datagrid-select-all),
+.dx-datagrid .dx-datagrid-content .dx-datagrid-table .dx-row > td:not(.dx-validation-pending):not(.dx-datagrid-select-all) {
   padding-right: 3px;
   padding-left: 3px;
 }
 
 .card-grid-header {
   .shortcut.p-button {
-    border-radius: 0px;
+    border-radius: 0;
   }
 
   .shortcut.p-button:first-child {
@@ -348,7 +322,7 @@ body #subviews-panel .dx-tabs {
       text-transform: none;
       font-size: 14px;
       font-weight: bold;
-      letter-spacing: 0px;
+      letter-spacing: 0;
     }
 
     .subview-tab-item-href {
@@ -358,7 +332,7 @@ body #subviews-panel .dx-tabs {
       text-transform: none;
       font-size: 14px;
       font-weight: bold;
-      letter-spacing: 0px;
+      letter-spacing: 0;
     }
   }
 
@@ -466,7 +440,7 @@ body .grid-container {
   .filter-combo.dx-texteditor::before,
   .filter-combo.dx-texteditor::after,
   .filter-combo.dx-texteditor.dx-state-hover::after {
-    border-bottom-width: 0px;
+    border-bottom-width: 0;
     border-bottom-style: none;
   }
 
@@ -501,7 +475,7 @@ body .grid-container {
     height: 28px;
     // border-radius: 4px;
     // border: 1px solid #ddd;
-    border-bottom-width: 0px;
+    border-bottom-width: 0;
     border-bottom-style: none;
 
     .dx-dropdowneditor-icon {
@@ -520,17 +494,17 @@ body .grid-container {
           .dx-placeholder,
           .dx-texteditor-input {
             border: none;
-            padding: 0px 10px;
+            padding: 0 10px;
             height: 26px;
             min-height: 26px;
             color: #0e49eb;
-            font-family: 'Roboto';
+            font-family: 'Roboto', sans-serif;;
             font-size: 12px;
             font-weight: bold;
           }
 
           .dx-placeholder::before {
-            padding: 0px 10px;
+            padding: 0 10px;
           }
         }
       }
@@ -587,3 +561,4 @@ body .grid-container {
 .dx-row.dx-column-lines.dx-datagrid-filter-row{
   height: 37px;
 }
+
