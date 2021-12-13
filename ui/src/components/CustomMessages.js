@@ -54,7 +54,7 @@ class CustomMessages extends Component {
 	onClose(message) {
 		const { onRemove } = this.props;
 		const { messages } = this.state;
-		const newMessages = messages.filter(msg => msg.id !== message.id);
+		const newMessages = messages?.filter(msg => msg.id !== message.id);
 		this.setState({
 			messages: newMessages,
 		});

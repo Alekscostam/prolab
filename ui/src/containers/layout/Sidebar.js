@@ -92,7 +92,7 @@ class Sidebar extends React.Component {
                     }
                 );
             })
-            .catch((err) => {
+            .catch(() => {
             });
     }
 
@@ -115,33 +115,34 @@ class Sidebar extends React.Component {
                 ConsoleHelper('sidebar => menuItem', menuItem)
                 const subMenuItem = menuItem.closest('div').parent();
                 subMenuItem.removeClass('closed');
-                subMenuItem.height('fit-content');
+                // subMenuItem.height('fit-content');
             }, 10);
         }
     }
 
     //very important !!!
     shouldComponentUpdate(nextProps, nextState, nextContext) {
-        if (!!window.performance) {
-            if (performance.navigation.type === 1) {
-                return true;
-            }
+        if ($('nav.pro-menu.shaped.circle').length === 1) {
+            return true;
         }
-        const history = this.props.history;
+        // if (!!window.performance && !!performance.navigation && performance.navigation.type === 1) {
+        //     return true;
+        // }
         const currentUrl = window.location.href
         if (this.doNotUpdate === true
-            || (!(this.state.filterValue !== nextState.filterValue)
-                && !(this.state.collapsed !== nextState.collapsed)
-                && !(this.state.toggled !== nextState.toggled)
-                && !(this.state.viewId !== nextState.viewId)
-                && !!this.state.viewId && nextState.viewId === this.state.viewId)
+            || (this.state.filterValue === nextState.filterValue
+                && this.state.collapsed === nextState.collapsed
+                && this.state.toggled === nextState.toggled
+                && this.state.viewId === nextState.viewId
+                && (!!this.state.viewId && nextState.viewId === this.state.viewId))
             || currentUrl.includes('force=')) {
             this.doNotUpdate = false;
-             ConsoleHelper('sidebar => shouldComponentUpdate=%s prev_view_id=%s next_view_id=%s url=%s', false, this.state.viewId, nextState.viewId, window.location.href);
+            ConsoleHelper('sidebar => shouldComponentUpdate=%s prev_view_id=%s next_view_id=%s url=%s', false, this.state.viewId, nextState.viewId, window.location.href);
             return false;
-        }else {
+        } else {
+            const history = this.props.history;
             const result = history.action !== 'PUSH' || (history.action !== 'PUSH' && nextProps.location.pathname === '/start');
-             ConsoleHelper('sidebar => shouldComponentUpdate=%s prev_view_id=%s next_view_id=%s url=%s', result, this.state.viewId, nextState.viewId, window.location.href);
+            ConsoleHelper('sidebar => shouldComponentUpdate=%s prev_view_id=%s next_view_id=%s url=%s', result, this.state.viewId, nextState.viewId, window.location.href);
             return result;
         }
     }
@@ -152,7 +153,7 @@ class Sidebar extends React.Component {
                 loading: true,
             },
             () => {
-                this.props.handleLogoutUser();
+                this.props.handleLogoutUser(false);
             }
         );
     }
@@ -213,15 +214,15 @@ class Sidebar extends React.Component {
     }
 
     render() {
-         ConsoleHelper('sidebar => render', this.state.viewId);
+        ConsoleHelper('sidebar => render', this.state.viewId);
         let {authService} = this.props;
         const {collapsed, filterValue} = this.state;
         const loggedIn = authService.loggedIn();
-        $(document).on('click', '.pro-inner-item', function (e) {
-            $('.pro-inner-item').each(function (index) {
+        $(document).on('click', '.pro-inner-item', function () {
+            $('.pro-inner-item').each(function () {
                 $(this).removeClass('active');
             });
-            $('.pro-menu-item').each(function (index) {
+            $('.pro-menu-item').each(function () {
                 $(this).removeClass('active');
             });
             $(this).addClass('active').siblings().removeClass('active');
@@ -419,6 +420,7 @@ class Sidebar extends React.Component {
                                                 $('#filterValue').focus();
                                             });
                                         }}
+                                        label={"Wyszukaj"}
                                     />
                                 </div>
                             ) : null}

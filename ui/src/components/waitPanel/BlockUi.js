@@ -1,4 +1,4 @@
-import React, {Component, Fragment} from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import Loader from './Loader';
 import safeActiveElement from './safeActiveElement';
@@ -23,7 +23,6 @@ class BlockUi extends Component {
         this.setContainer = this.setRef.bind(this, 'container');
         this.setMessageContainer = this.setRef.bind(this, 'messageContainer');
         this.handleScroll = this.handleScroll.bind(this);
-
         this.state = {top: '50%'};
     }
 
@@ -86,7 +85,7 @@ class BlockUi extends Component {
     blockingTab(e, withShift = false) {
         const {blocking} = this.props;
         // eslint-disable-next-line eqeqeq
-        return blocking && (e.key === 'Tab' || e.keyCode === 9) && e.shiftKey == withShift;
+        return blocking && (e.key === 'Tab' || e.keyCode === 9) && e.shiftKey === withShift;
     }
 
     handleTabbedUpTop(e) {
@@ -234,5 +233,4 @@ BlockUi.propTypes = {
     waitPanelLabel: PropTypes.string,
 };
 BlockUi.defaultProps = defaultProps;
-
 export default BlockUi;

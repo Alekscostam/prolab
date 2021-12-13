@@ -34,8 +34,8 @@ class CardViewComponent extends React.Component {
             styleTile = {
                 backgroundImage: `linear-gradient(to bottom right, ${cardBgColor1}, ${cardBgColor2})`,
                 color: fontColor,
-                width: width-10,
-                height: height-10
+                width: width,
+                height: height
             };
         } else {
             styleTile = {backgroundColor: rowData._BGCOLOR, color: rowData._FONT_COLOR, width: width, height: height};
@@ -43,9 +43,11 @@ class CardViewComponent extends React.Component {
         return styleTile;
     }
 
+
     render() {
-        let cardWidth = this.isDashboard() ? this.props.parsedGridView?.cardOptions?.width - 10 : this.props.parsedGridView?.cardOptions?.width ?? 300;
-        let cardHeight = this.isDashboard() ? this.props.parsedGridView?.cardOptions?.height - 10 : this.props.parsedGridView?.cardOptions?.height ?? 200;
+        const padding = 2;
+        let cardWidth = this.props.parsedGridView?.cardOptions?.width ?? 300;
+        let cardHeight = this.props.parsedGridView?.cardOptions?.height ?? 200;
         let cardBgColor1 = this.props.parsedGridView?.cardOptions?.bgColor1;
         let cardBgColor2 = this.props.parsedGridView?.cardOptions?.bgColor2;
         let fontColor = this.props.parsedGridView?.cardOptions?.fontColor;
@@ -53,7 +55,6 @@ class CardViewComponent extends React.Component {
             <TileView
                 onInitialized={(e) => (this.props.handleOnInitialized(e.component))}
                 className='card-grid'
-                style={this.isDashboard() ? {width: cardWidth, height: cardHeight + 10} : null}
                 items={this.props.parsedCardViewData}
                 itemRender={(rowData) => {
                     const {cardBody, cardHeader, cardImage, cardFooter} = this.props.parsedGridView;
@@ -179,8 +180,8 @@ class CardViewComponent extends React.Component {
                     );
                 }}
                 height='100%'
-                baseItemHeight={cardHeight}
-                baseItemWidth={cardWidth}
+                baseItemHeight={cardHeight + padding}
+                baseItemWidth={cardWidth + padding}
                 itemMargin={10}
                 showScrollbar
                 direction='vertical'
@@ -213,7 +214,7 @@ CardViewComponent.propTypes = {
     mode: PropTypes.string.isRequired,
     parsedGridView: PropTypes.object.isRequired,
     parsedCardViewData: PropTypes.object.isRequired,
-    elementSubViewId: PropTypes.object.isRequired,
+    elementSubViewId: PropTypes.object,
     handleOnInitialized: PropTypes.func.isRequired,
     handleShowEditPanel: PropTypes.func.isRequired,
     handleBlockUi: PropTypes.func.isRequired,

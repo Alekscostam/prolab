@@ -99,8 +99,7 @@ export class EditRowComponent extends BaseContainer {
                     let defaultSelectedRowKeysTmp = [];
                     const editData = this.props.editData;
                     const setFields = responseView.setFields;
-                    const separatorJoin = this.props.parsedGridView?.options?.separatorJoin || ',';
-
+                    const separatorJoin = responseView.options?.separatorJoin || ',';
                     let countSeparator = 0;
                     setFields.forEach((field) => {
                         EditRowUtils.searchField(editData, field.fieldEdit, (foundFields) => {
@@ -150,10 +149,10 @@ export class EditRowComponent extends BaseContainer {
                                     this.showErrorMessages(err);
                                 },
                                 //onSuccess
-                                (response) => {
+                                () => {
                                     this.setState({
                                         //performance :)
-                                        totalSelectCount: response.totalSelectCount,
+                                        // totalSelectCount: response.totalSelectCount,
                                         dataGridStoreSuccess: true
                                     });
                                 },
@@ -346,7 +345,7 @@ export class EditRowComponent extends BaseContainer {
         const selectionList = field?.selectionList ? 'p-inputgroup' : null;
         let editInfo = this.props.editData?.editInfo;
         //odkomentowac dla mocka
-        // field.edit = true;
+       field.edit = true;
         switch (field.type) {
             case 'C'://C – Znakowy
             default:
@@ -398,7 +397,7 @@ export class EditRowComponent extends BaseContainer {
                               name={field.fieldName}
                               className={`${autoFillCheckbox} ${validateCheckbox}`}
                               onChange={e => onChange ? onChange('CHECKBOX', e, groupName, editInfo) : null}
-                              checked={field.value}
+                              checked={field.value === true || GridViewUtils.conditionForTrueValueForBoolType(field.value)}
                               disabled={!field.edit}
                               required={required}>
                     </Checkbox>
@@ -620,7 +619,7 @@ EditRowComponent.propTypes = {
     onSave: PropTypes.func.isRequired,
     onAutoFill: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
-    onEditList: PropTypes.func.isRequired,
+    onEditList: PropTypes.func,
     onHide: PropTypes.func.isRequired,
     validator: PropTypes.instanceOf(SimpleReactValidator).isRequired,
     onError: PropTypes.func,

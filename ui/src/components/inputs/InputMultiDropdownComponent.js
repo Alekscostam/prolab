@@ -106,7 +106,7 @@ class InputMultiDropdownComponent extends Component {
 						? value.map((val, i) => {
 								let calculatedOptions = options;
 								if (calculatedOptions !== null && calculatedOptions !== undefined) {
-									calculatedOptions = calculatedOptions.filter(o => {
+									calculatedOptions = calculatedOptions?.filter(o => {
 										let remove = false;
 										value.forEach(v => {
 											if (
@@ -209,7 +209,7 @@ class InputMultiDropdownComponent extends Component {
 							? value.map((val, i) => {
 									let calculatedOptions = options;
 									if (calculatedOptions !== null && calculatedOptions !== undefined) {
-										calculatedOptions = calculatedOptions.filter(o => {
+										calculatedOptions = calculatedOptions?.filter(o => {
 											let remove = false;
 											value.forEach(v => {
 												if (

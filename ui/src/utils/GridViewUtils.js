@@ -107,8 +107,29 @@ export class GridViewUtils {
         return undefined;
     }
 
+    static specifyEditorOptions(format) {
+        if (format) {
+            switch (format) {
+                case 'T':
+                    return {type: "time"};
+                default:
+                    return undefined;
+            }
+        }
+        return undefined;
+    }
+
+    static conditionForTrueValueForLogicType(text) {
+        return text === "T" || text === "t";
+    }
+
+    static conditionForTrueValueForBoolType(text) {
+        return text === "1" || text === 1;
+    }
+
     static cellTemplate(column) {
         return function (element, info) {
+
             let bgColorFinal = undefined;
             let rowSelected = null;
             if (_rowIndex !== info.row.dataIndex) {
@@ -145,7 +166,6 @@ export class GridViewUtils {
                 case 'D':
                 case 'E':
                 case 'T':
-                case 'O':
                 case 'H':
                     return ReactDOM.render(
                         <div
@@ -162,6 +182,16 @@ export class GridViewUtils {
                         </div>,
                         element
                     );
+                case 'O':
+                    element.innerHTML
+                        = '<div id="innerHTML" style="' +
+                        // 'display: inline; ' +
+                        'border-radius: 25px; ' +
+                        'padding: 2px 6px 2px 6px; ' +
+                        'background-color: ' + bgColorFinal +'; '+
+                        'color: ' + fontColorFinal + ';">' + info.text + '' +
+                        '</div>'
+                    break;
                 case 'B':
                     return ReactDOM.render(
                         <div
@@ -174,7 +204,23 @@ export class GridViewUtils {
                             }}
                             title={info.text}
                         >
-                            <input type="checkbox" readOnly={true} checked={info.text === 1}/>
+                            <input type="checkbox" readOnly={true} checked={GridViewUtils.conditionForTrueValueForBoolType(info.text)}/>
+                        </div>,
+                        element
+                    );
+                case 'L':
+                    return ReactDOM.render(
+                        <div
+                            style={{
+                                display: 'inline',
+                                backgroundColor: bgColorFinal,
+                                color: fontColorFinal,
+                                borderRadius: '25px',
+                                padding: '2px 6px 2px 6px',
+                            }}
+                            title={info.text}
+                        >
+                            <input type="checkbox" readOnly={true} checked={GridViewUtils.conditionForTrueValueForLogicType(info.text)}/>
                         </div>,
                         element
                     );
@@ -208,7 +254,7 @@ export class GridViewUtils {
                                     padding: '2px 0px 2px 0px',
                                 }}
                             >
-                                <Image style={{maxHeight:'26px'}} base64={info.text}/>
+                                <Image style={{maxHeight: '26px'}} base64={info.text}/>
                             </div>,
                             element
                         );

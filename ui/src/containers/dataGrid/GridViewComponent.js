@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from "prop-types";
 import DataGrid, {
     Column,
-    Editing,
     FilterRow,
     Grouping,
     GroupPanel,
@@ -24,6 +23,7 @@ import EditService from "../../services/EditService";
 import moment from "moment";
 import Constants from "../../utils/Constants";
 import ConsoleHelper from "../../utils/ConsoleHelper";
+import $ from "jquery";
 
 class GridViewComponent extends React.Component {
 
@@ -97,6 +97,7 @@ class GridViewComponent extends React.Component {
 
     postCustomizeColumns = (columns) => {
         let INDEX_COLUMN = 0;
+        console.log(columns)
         if (columns?.length > 0) {
             //when viewData respond a lot of data
             const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
@@ -126,6 +127,7 @@ class GridViewComponent extends React.Component {
                         column.caption = columnDefinition?.label;
                         column.dataType = GridViewUtils.specifyColumnType(columnDefinition?.type);
                         column.format = GridViewUtils.specifyColumnFormat(columnDefinition?.type);
+                        // column.editorOptions = GridViewUtils.specifyEditorOptions(columnDefinition?.type);
                         column.cellTemplate = GridViewUtils.cellTemplate(columnDefinition);
                         column.fixed =
                             columnDefinition.freeze !== undefined && columnDefinition?.freeze !== null
@@ -250,7 +252,16 @@ class GridViewComponent extends React.Component {
     };
 
     ifSelectAllEvent(e) {
-        return !!e && e.column?.command === 'select' && e.column?.visible === true && e.columnIndex === 0 && e.rowType === 'header';
+        return e.cellElement?.className?.includes('dx-command-select dx-cell-focus-disabled dx-editor-cell dx-editor-inline-block');
+    }
+
+    ifSelectEvent(e) {
+        return e.cellElement?.className?.includes('dx-command-select dx-editor-cell dx-editor-inline-block dx-cell-focus-disabled');
+    }
+
+    selectAllEvent(e) {
+        const value = e?.cellElement?.children[0]?.children[0]?.value;
+        return value === 'true' || value === true;
     }
 
     preGenerateColumnsDefinition() {
@@ -283,7 +294,7 @@ class GridViewComponent extends React.Component {
         //const multiSelect = true;
         //multiSelect dla podpowiedzi
         const multiSelect = this.props.parsedGridView?.gridOptions?.multiSelect;
-        const multiSelection = (multiSelect === undefined || multiSelect === null || !!multiSelect) ? true : false;
+        const multiSelection = (multiSelect === undefined || multiSelect === null || !!multiSelect);
         const packageCount = this.props.packageRows;
         const showSelection = this.waitForSuccess() ? false : this.props.showSelection;
         const showColumnHeaders = this.props.showColumnHeaders;
@@ -294,7 +305,7 @@ class GridViewComponent extends React.Component {
         const showFilterRow = this.props.showFilterRow;
         const dataGridHeight = this.props.dataGridHeight || false;
         const selectAll = this.props.allowSelectAll;
-        const allowSelectAll = (selectAll === undefined || selectAll === null || !!selectAll) ? true : false;
+        const allowSelectAll = (selectAll === undefined || selectAll === null || !!selectAll);
         const defaultSelectedRowKeys = this.props.defaultSelectedRowKeys;
         const selectedRowKeys = this.props.selectedRowKeys;
         return (
@@ -303,16 +314,16 @@ class GridViewComponent extends React.Component {
                 {/*defaultSelectedRowKeys: {JSON.stringify(this.props.defaultSelectedRowKeys)}*/}
                 <DataGrid
                     id='grid-container'
-                    keyExpr={'CRC'}
+                    keyExpr='ID'
                     className={`grid-container${headerAutoHeight ? ' grid-header-auto-height' : ''}`}
                     ref={(ref) => {
-                        this.props.handleOnInitialized(ref)
+                        this.props.handleOnDataGrid(ref)
                     }}
                     dataSource={this.props.parsedGridViewData}
                     customizeColumns={this.postCustomizeColumns}
                     wordWrapEnabled={rowAutoHeight}
                     columnAutoWidth={columnAutoWidth}
-                    columnResizingMode='widget'
+                    columnResizingMode='nextColumn'
                     allowColumnReordering={true}
                     allowColumnResizing={true}
                     showColumnLines={showColumnLines}
@@ -325,16 +336,28 @@ class GridViewComponent extends React.Component {
                     rowAlternationEnabled={false}
                     selectedRowKeys={defaultSelectedRowKeys || selectedRowKeys}
                     onSelectionChanged={this.props.handleSelectedRowKeys}
-                    renderAsync={true}
-                    selectAsync={true}
+                    renderAsync={false}
+                    selectAsync={false}
+                    cacheEnabled={false}
                     onCellClick={(e) => {
                         if (!!this.props.handleSelectAll) {
                             if (this.ifSelectAllEvent(e)) {
-                                this.props.handleSelectAll(true);
-                            } else {
-                                this.props.handleSelectAll(false);
+                                let event = this.selectAllEvent(e);
+                                this.props.handleSelectAll(event);
+                            } else if (this.ifSelectEvent(e)) {
+                                this.props.handleSelectAll(null);
                             }
                         }
+                    }}
+                    onInitialized={(ref) => {
+                        if (!!this.props.handleOnInitialized)
+                            this.props.handleOnInitialized(ref)
+                    }}
+                    //myczek na rozjezdzajace sie linie wierszy w dataGrid
+                    onContentReady={(e) => {
+                        $(document).ready(function () {
+                            e.component.resize();
+                        });
                     }}
                 >
                     <RemoteOperations
@@ -346,7 +369,7 @@ class GridViewComponent extends React.Component {
                         groupPaging={true}
                     />
 
-                    <FilterRow visible={showFilterRow}/>
+                    <FilterRow visible={showFilterRow} applyFilter={true}/>
                     <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'}/>
 
                     <Grouping autoExpandAll={groupExpandAll} allowCollapsing={true}/>
@@ -357,9 +380,11 @@ class GridViewComponent extends React.Component {
                     <Selection mode={showSelection ? (multiSelection ? 'multiple' : 'single') : 'none'}
                                selectAllMode='allPages'
                                showCheckBoxesMode='always'
-                               allowSelectAll={allowSelectAll}/>
+                               allowSelectAll={allowSelectAll}
+                               deferred={this.props.selectionDeferred}
+                    />
 
-                    <Scrolling mode="virtual" rowRenderingMode="virtual"/>
+                    <Scrolling mode="virtual" rowRenderingMode="virtual" renderAsync={true} preloadEnabled={false}/>
                     <Paging defaultPageSize={packageCount}/>
 
                     <LoadPanel enabled={true}
@@ -367,7 +392,6 @@ class GridViewComponent extends React.Component {
                                shadingColor="rgba(0,0,0,0.4)"
                                showPane={false}
                                position="absolute"/>
-                    <Editing mode='cell'/>
                     {this.preGenerateColumnsDefinition()}
                 </DataGrid>
             </React.Fragment>
@@ -387,6 +411,7 @@ GridViewComponent.defaultProps = {
     showSelection: true,
     dataGridStoreSuccess: true,
     allowSelectAll: true,
+    selectionDeferred: false
 };
 
 GridViewComponent.propTypes = {
@@ -396,12 +421,14 @@ GridViewComponent.propTypes = {
     parsedGridViewData: PropTypes.object.isRequired,
     gridViewColumns: PropTypes.object.isRequired,
     packageRows: PropTypes.number,
-    handleOnInitialized: PropTypes.func.isRequired,
-    handleShowEditPanel: PropTypes.func.isRequired,
+    handleOnDataGrid: PropTypes.func.isRequired,
+    handleOnInitialized: PropTypes.func,
+    handleShowEditPanel: PropTypes.func,
     //selection
     selectedRowKeys: PropTypes.object.isRequired,
-    handleSelectedRowKeys: PropTypes.func.isRequired,
+    handleSelectedRowKeys: PropTypes.func,
     handleSelectAll: PropTypes.func,
+    selectionDeferred: PropTypes.bool,
     //other
     handleBlockUi: PropTypes.func.isRequired,
     handleUnblockUi: PropTypes.func.isRequired,

@@ -76,7 +76,7 @@ export default class EditListDataStore extends BaseService {
                             ConsoleHelper('EditListDataStore -> fetch data');
                             console.timeEnd('CALC_CRC');
                             if (onSuccess) {
-                                onSuccess({totalSelectCount: response.totalCount});
+                                onSuccess();
                             }
                             this.response = {
                                 data: data,

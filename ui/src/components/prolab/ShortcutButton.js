@@ -96,7 +96,7 @@ ShortcutButton.propTypes = {
     iconSide: PropTypes.string,
     iconSize: PropTypes.string,
     id: PropTypes.string,
-    label: PropTypes.string.isRequired,
+    label: PropTypes.string,
     params: PropTypes.object,
     rendered: PropTypes.bool,
     size: PropTypes.string,

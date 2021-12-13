@@ -211,8 +211,18 @@
   color: $link-color;
 }
 
-#row-edit .p-confirm-dialog-accept:focus {
+#row-edit .p-button p-component p-confirm-dialog-accept:focus,
+#row-edit .p-button p-component p-confirm-dialog-accept:active,
+#row-edit .p-button p-component p-confirm-dialog-accept:visited,
+#row-edit .p-button p-component p-confirm-dialog-accept:hover {
   background-color: $button-color !important;
+}
+
+.p-button:not(a):not(.p-disabled):focus,
+.p-button:not(a):not(.p-disabled):active,
+.p-button:not(a):not(.p-disabled):hover,
+.p-button:not(a):not(.p-disabled):visited, {
+  background: $button-color !important;
 }
 
 #row-edit .p-checkbox-icon {
@@ -234,7 +244,6 @@
 #row-edit .p-button.p-button-secondary {
   color: #0e49eb;
   background: rgba(0, 0, 0, 0.12) !important;
-  width: 50px;
 }
 
 #row-edit .p-button.p-button-secondary:hover {
@@ -256,6 +265,15 @@
 }
 
 //TODO ograniczyc tylko do podpowiedzi
-.dx-datagrid .dx-error-row {
+#editListDialog  .dx-datagrid .dx-error-row {
   display: none;
+}
+
+#innerHTML p {
+  margin-top: revert;
+  margin-bottom: revert;
+}
+
+#editListDialog .dx-datagrid-headers .dx-checkbox-container {
+  visibility: hidden;
 }

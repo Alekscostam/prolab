@@ -25,9 +25,12 @@ import CardViewComponent from "./cardView/CardViewComponent";
 import GridViewComponent from "./dataGrid/GridViewComponent";
 import DashboardContainer from "./DashboardContainer";
 import ConsoleHelper from "../utils/ConsoleHelper";
+import LocUtils from "../utils/LocUtils";
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
+let dataGrid;
+
 export class ViewContainer extends BaseContainer {
     _isMounted = false;
 
@@ -37,7 +40,7 @@ export class ViewContainer extends BaseContainer {
         this.viewService = new ViewService();
         this.editService = new EditService();
         this.dataGridStore = new DataGridStore();
-        this.dataGrid = null;
+        this.refDataGrid = null;
         this.cardGrid = null;
         this.selectedDataGrid = null;
         this.state = {
@@ -64,7 +67,9 @@ export class ViewContainer extends BaseContainer {
             visibleEditPanel: false,
             modifyEditData: false,
             editData: null,
+            select: false,
             selectAll: false,
+            isSelectAll: false,
             totalSelectCount: null,
             dataGridStoreSuccess: false,
         };
@@ -74,6 +79,11 @@ export class ViewContainer extends BaseContainer {
         this.downloadData = this.downloadData.bind(this);
         this.onTabsSelectionChanged = this.onTabsSelectionChanged.bind(this);
         this.onFilterChanged = this.onFilterChanged.bind(this);
+        this.onInitialize = this.onInitialize.bind(this);
+    }
+
+    getRefGridView() {
+        return this.refDataGrid;
     }
 
     componentDidMount() {
@@ -92,13 +102,15 @@ export class ViewContainer extends BaseContainer {
         const newUrl = UrlUtils.deleteParameterFromURL(window.document.URL.toString(), 'force');
         window.history.replaceState('', '', newUrl);
         this.setState({
+                gridViewType: viewType,
                 elementSubViewId: subViewId,
                 elementRecordId: recordId,
                 elementFilterId: filterId,
-                gridViewType: viewType,
-                //z dashboardu
                 elementParentId: parentId,
-                dataGridStoreSuccess: false
+                dataGridStoreSuccess: false,
+                select: false,
+                selectAll: false,
+                isSelectAll: false,
             },
             () => {
                 this.downloadData(
@@ -264,13 +276,12 @@ export class ViewContainer extends BaseContainer {
                             () => {
                                 this.props.handleSubView(subViewResponse);
                                 this.unblockUi();
-                                return;
                             }
                         );
                     } else {
                         const elementSubViewId = subviewId ? subviewId : subViewResponse.subViews[0]?.id;
                         if (!subViewResponse.subViews || subViewResponse.subViews.length === 0) {
-                            this.showErrorMessages('Brak podwidoków - niepoprawna konfiguracja!');
+                            this.showErrorMessages(LocUtils.loc(this.props.labels, 'No_Subview', 'Brak podwidoków - niepoprawna konfiguracja!'));
                             window.history.back();
                             this.unblockUi();
                             return;
@@ -293,7 +304,6 @@ export class ViewContainer extends BaseContainer {
                                 this.unblockUi();
                                 this.props.handleSubView(subViewResponse);
                                 this.getViewById(elementSubViewId, recordId, filterId, parentId, viewType, subviewMode);
-                                return;
                             }
                         );
                     }
@@ -303,16 +313,17 @@ export class ViewContainer extends BaseContainer {
                     window.history.back();
                     this.unblockUi();
                 });
-            return;
         } else {
             this.setState({subView: null}, () => {
                 this.props.handleSubView(null);
-                this.getViewById(viewId, recordId, filterId, parentId, viewType, subviewMode);
+                this.getViewById(viewId, recordId, filterId, parentId, viewType);
             });
         }
     }
 
-    getViewById(viewId, recordId, filterId, parentId, viewType, subviewMode) {
+    getViewById(viewId, recordId, filterId, parentId, viewType,
+                // subviewMode
+    ) {
         this.setState(
             {
                 loading: true,
@@ -363,7 +374,7 @@ export class ViewContainer extends BaseContainer {
                                     label: responseView?.batchesList[batch].label,
                                 });
                             }
-                            const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+                            Breadcrumb.currentBreadcrumbAsUrlParam();
                             for (let filter in responseView?.filtersList) {
                                 filtersListTmp.push({
                                     id: responseView?.filtersList[filter].id,
@@ -394,7 +405,7 @@ export class ViewContainer extends BaseContainer {
                                 });
                             }
                             this.setState(
-                                (prevState) => ({
+                                () => ({
                                     loading: false,
                                     //elementId: this.props.id,
                                     gridViewType: responseView?.viewInfo?.type,
@@ -407,6 +418,9 @@ export class ViewContainer extends BaseContainer {
                                     selectedRowKeys: [],
                                     viewInfoTypes: viewInfoTypesTmp,
                                     packageRows: responseView?.viewInfo?.dataPackageSize,
+                                    select: false,
+                                    selectAll: false,
+                                    isSelectAll: false,
                                 }),
                                 () => {
                                     this.props.handleRenderNoRefreshContent(true);
@@ -452,46 +466,51 @@ export class ViewContainer extends BaseContainer {
                                                 'gridView',
                                                 this.state.subView == null ? parentId : this.state.elementRecordId,
                                                 !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId,
-                                                //onError
-                                                (err) => {
-                                                    this.showErrorMessages(err);
-                                                },
-                                                //onSuccess
-                                                (response) => {
-                                                    this.setState({
-                                                        //performance :)
-                                                        dataGridStoreSuccess: true,
-                                                        totalSelectCount: response.totalSelectCount
-                                                    });
-                                                },
-                                                //onStart
                                                 () => {
+                                                    this.blockUi();
                                                     return {
+                                                        select: this.state.select,
                                                         selectAll: this.state.selectAll
                                                     };
-                                                }
+                                                },
+                                                () => {
+                                                    this.setState({
+                                                        select: false,
+                                                        selectAll: false,
+                                                        dataGridStoreSuccess: true,
+                                                    }, () => {
+                                                        this.unblockUi();
+                                                    });
+                                                },
+                                                (err) => {
+                                                    this.setState({
+                                                        select: false,
+                                                        selectAll: false,
+                                                    }, () => {
+                                                        this.unblockUi();
+                                                        this.showErrorMessages(err);
+                                                    });
+                                                },
                                             );
-                                            this.setState({
-                                                loading: false,
-                                                parsedGridViewData: res
-                                            });
+                                            if (!!res) {
+                                                this.setState({
+                                                    loading: false,
+                                                    parsedGridViewData: res
+                                                });
+                                            }
                                         });
                                     }
                                 }
                             );
                         }
-                    })
-                    .catch((err) => {
-                        console.error('Error getView in GridView. Exception = ', err);
-                        this.setState(
-                            {
-                                loading: false,
-                            },
-                            () => {
-                                this.showErrorMessages(err); //'Nie udało się pobrać danych strony o id: ' + viewId);
-                            }
-                        );
-                    });
+                    }).catch((err) => {
+                    console.error('Error getView in GridView. Exception = ', err);
+                    this.setState({loading: false,},
+                        () => {
+                            this.showErrorMessages(err); //'Nie udało się pobrać danych strony o id: ' + viewId);
+                        }
+                    );
+                });
             }
         );
     }
@@ -527,8 +546,8 @@ export class ViewContainer extends BaseContainer {
                         onCancel={this.handleCancelRowChange}
                         validator={this.validator}
                         onHide={(e) => !!this.state.modifyEditData ? confirmDialog({
-                            message: 'Czy na pewno chcesz zamknąć edycję?',
-                            header: 'Potwierdzenie',
+                            message: LocUtils.loc(this.props.labels, 'Question_Close_Edit', 'Czy na pewno chcesz zamknąć edycję?'),
+                            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
                             icon: 'pi pi-exclamation-triangle',
                             acceptLabel: localeOptions('accept'),
                             rejectLabel: localeOptions('reject'),
@@ -653,6 +672,9 @@ export class ViewContainer extends BaseContainer {
         );
     }
 
+    onInitialize(e) {
+        dataGrid = e.component;
+    }
 
     //override
     renderHeadPanel = () => {
@@ -664,23 +686,25 @@ export class ViewContainer extends BaseContainer {
             <React.Fragment>
                 <HeadPanel
                     selectedRowKeys={this.state.selectedRowKeys}
-                    totalSelectCount={!!this.state.selectAll ? this.state.totalSelectCount : null}
                     operations={this.state.parsedGridView?.operations}
                     leftContent={this.leftHeadPanelContent()}
                     rightContent={this.rightHeadPanelContent()}
                     handleDelete={() => {
                         ConsoleHelper('handleDelete');
                         confirmDialog({
-                            message: 'Czy na pewno chcesz usunąć zaznaczone rekordy?',
-                            header: 'Potwierdzenie',
+                            message: LocUtils.loc(this.props.labels, 'Question_Delete_Label', 'Czy na pewno chcesz usunąć zaznaczone rekordy?'),
+                            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
                             icon: 'pi pi-exclamation-triangle',
                             acceptLabel: localeOptions('accept'),
                             rejectLabel: localeOptions('reject'),
                             accept: () => {
                                 this.blockUi();
-                                this.editService.delete(viewId, this.state.selectedRowKeys)
+                                const selectedRowKeysIds = this.state.selectedRowKeys.map((e) => {
+                                    return e.ID;
+                                })
+                                this.editService.delete(viewId, selectedRowKeysIds)
                                     .then((deleteResponse) => {
-                                        this.unselectedDataGrid();
+                                        this.unselectAllDataGrid();
                                         this.refreshDataGrid();
                                         const msg = deleteResponse.message;
                                         if (!!msg) {
@@ -703,16 +727,19 @@ export class ViewContainer extends BaseContainer {
                     handleRestore={() => {
                         ConsoleHelper('handleRestore');
                         confirmDialog({
-                            message: 'Czy na pewno chcesz przywrócić zaznaczone rekordy?',
-                            header: 'Potwierdzenie',
+                            message: LocUtils.loc(this.props.labels, 'Question_Restore_Label', 'Czy na pewno chcesz przywrócić zaznaczone rekordy?'),
+                            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
                             icon: 'pi pi-exclamation-triangle',
                             acceptLabel: localeOptions('accept'),
                             rejectLabel: localeOptions('reject'),
                             accept: () => {
                                 this.blockUi();
-                                this.editService.restore(viewId, this.state.selectedRowKeys)
+                                const selectedRowKeysIds = this.state.selectedRowKeys.map((e) => {
+                                    return e.ID;
+                                })
+                                this.editService.restore(viewId, selectedRowKeysIds)
                                     .then((restoreResponse) => {
-                                        this.unselectedDataGrid();
+                                        this.unselectAllDataGrid();
                                         this.refreshDataGrid();
                                         const msg = restoreResponse.message;
                                         if (!!msg) {
@@ -735,17 +762,20 @@ export class ViewContainer extends BaseContainer {
                     handleCopy={() => {
                         ConsoleHelper('handleCopy');
                         confirmDialog({
-                            message: 'Czy na pewno chcesz przywrócić zaznaczone rekordy?',
-                            header: 'Potwierdzenie',
+                            message: LocUtils.loc(this.props.labels, 'Question_Copy_Label', 'Czy na pewno chcesz zkopiować zaznaczone rekordy?'),
+                            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
                             icon: 'pi pi-exclamation-triangle',
                             acceptLabel: localeOptions('accept'),
                             rejectLabel: localeOptions('reject'),
                             accept: () => {
                                 this.blockUi();
                                 const parentId = this.state.parsedGridView?.viewInfo.parentId;
-                                this.editService.copy(viewId, parentId, this.state.selectedRowKeys)
+                                const selectedRowKeysIds = this.state.selectedRowKeys.map((e) => {
+                                    return e.ID;
+                                })
+                                this.editService.copy(viewId, parentId, selectedRowKeysIds)
                                     .then((copyResponse) => {
-                                        this.unselectedDataGrid();
+                                        this.unselectAllDataGrid();
                                         this.refreshDataGrid();
                                         const msg = copyResponse.message;
                                         if (!!msg) {
@@ -768,17 +798,20 @@ export class ViewContainer extends BaseContainer {
                     handleArchive={() => {
                         ConsoleHelper('handleArchive');
                         confirmDialog({
-                            message: 'Czy na pewno chcesz przenieść do archiwum zaznaczone rekordy?',
-                            header: 'Potwierdzenie',
+                            message: LocUtils.loc(this.props.labels, 'Question_Archive_Label', 'Czy na pewno chcesz przenieść do archiwum zaznaczone rekordy?'),
+                            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
                             icon: 'pi pi-exclamation-triangle',
                             acceptLabel: localeOptions('accept'),
                             rejectLabel: localeOptions('reject'),
                             accept: () => {
                                 this.blockUi();
                                 const parentId = this.state.parsedGridView?.viewInfo.parentId;
-                                this.editService.archive(viewId, parentId, this.state.selectedRowKeys)
+                                const selectedRowKeysIds = this.state.selectedRowKeys.map((e) => {
+                                    return e.ID;
+                                })
+                                this.editService.archive(viewId, parentId, selectedRowKeysIds)
                                     .then((archiveResponse) => {
-                                        this.unselectedDataGrid();
+                                        this.unselectAllDataGrid();
                                         this.refreshDataGrid();
                                         const msg = archiveResponse.message;
                                         if (!!msg) {
@@ -804,13 +837,54 @@ export class ViewContainer extends BaseContainer {
     }
 
     refreshDataGrid() {
-        this.dataGrid.instance.getDataSource().reload();
+        this.refDataGrid.instance.getDataSource().reload();
     }
 
-    unselectedDataGrid() {
-        this.dataGrid.instance.deselectAll();
+    selectAllDataGrid(selectionValue) {
         this.setState({
-            selectedRowKeys: {}
+            selectAll: true,
+            isSelectAll: selectionValue,
+            select: false,
+        }, () => {
+            this.refDataGrid.instance.selectAll();
+            this.dataGridStore.getSelectAllDataGridStore(
+                this.state.subView == null
+                    ? this.state.elementId
+                    : this.state.elementSubViewId,
+                'gridView',
+                this.state.elementRecordId,
+                this.state.elementFilterId,
+                //onError
+                this.refDataGrid.instance.getCombinedFilter()
+            ).then((result) => {
+                this.setState({
+                    selectAll: false,
+                    select: false,
+                    selectedRowKeys: result.data
+                }, () => {
+                    this.unblockUi();
+                });
+            }).catch((err) => {
+                this.unblockUi();
+                this.showErrorMessages(err);
+            });
+        });
+    }
+
+    unselectAllDataGrid(selectionValue) {
+        this.setState({
+            selectAll: true,
+            isSelectAll: selectionValue,
+            select: false
+        }, () => {
+            this.refDataGrid.instance.deselectAll();
+            this.setState({
+                selectAll: false,
+                select: false,
+                selectedRowKeys: []
+            }, () => {
+                this.unblockUi();
+            });
         });
     }
 
@@ -1011,7 +1085,6 @@ export class ViewContainer extends BaseContainer {
 
     //override
     render() {
-        const {labels} = this.props;
         return (
             <React.Fragment>
                 {super.render()}
@@ -1028,16 +1101,20 @@ export class ViewContainer extends BaseContainer {
                     <React.Fragment>
                         {this.state.gridViewType === 'gridView' ? (
                             <React.Fragment>
+                                {/*{JSON.stringify(this.state.selectedRowKeys.length)}<br/>*/}
+                                {/*select: {JSON.stringify(this.state.select)}<br/>*/}
+                                {/*isSelectAll: {JSON.stringify(this.state.isSelectAll)}<br/>*/}
+                                {/*selectAll: {JSON.stringify(this.state.selectAll)}<br/>*/}
                                 <GridViewComponent
                                     id={this.props.id}
                                     elementSubViewId={this.state.elementSubViewId}
-                                    handleOnInitialized={(ref) => {
-                                        this.dataGrid = ref;
+                                    handleOnInitialized={this.onInitialize}
+                                    handleOnDataGrid={(ref) => {
+                                        this.refDataGrid = ref;
                                     }}
                                     parsedGridView={this.state.parsedGridView}
                                     parsedGridViewData={this.state.parsedGridViewData}
                                     gridViewColumns={this.state.gridViewColumns}
-                                    selectedRowKeys={this.state.selectedRowKeys}
                                     handleBlockUi={() => {
                                         this.blockUi();
                                         return true;
@@ -1048,15 +1125,28 @@ export class ViewContainer extends BaseContainer {
                                     handleShowEditPanel={(editDataResponse) => {
                                         this.handleShowEditPanel(editDataResponse)
                                     }}
-                                    handleSelectedRowKeys={(e) => {
-                                        this.setState({selectedRowKeys: e?.selectedRowKeys})
-                                    }}
-                                    handleSelectAll={(e) => {
-                                        this.setState(prevState => ({
-                                            selectAll: !!e ? !prevState.selectAll : false
-                                        }));
+                                    handleSelectAll={(selectionValue) => {
+                                        this.blockUi();
+                                        if (selectionValue === null) {
+                                            this.setState({
+                                                selectAll: false,
+                                                select: true
+                                            });
+                                            dataGrid.getSelectedRowsData().then((rowData) => {
+                                                this.setState({selectedRowKeys: rowData}, () => {
+                                                    this.unblockUi();
+                                                })
+                                            });
+                                        } else {
+                                            if (selectionValue) {
+                                                this.selectAllDataGrid(selectionValue);
+                                            } else {
+                                                this.unselectAllDataGrid(selectionValue);
+                                            }
+                                        }
                                     }}
                                     dataGridStoreSuccess={this.state.dataGridStoreSuccess}
+                                    selectionDeferred={true}
                                 />
                             </React.Fragment>
                         ) : this.state.gridViewType === 'cardView' ? (

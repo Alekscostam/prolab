@@ -22,6 +22,8 @@ import DivContainer from "./components/DivContainer";
 import {Breadcrumb} from "./utils/BreadcrumbUtils";
 import {GridViewUtils} from "./utils/GridViewUtils";
 import ActionButton from "./components/ActionButton";
+import {Toast} from "primereact/toast";
+import LocUtils from "./utils/LocUtils";
 
 class App extends Component {
     constructor() {
@@ -59,7 +61,7 @@ class App extends Component {
         //     'pl': translationPL,
         //     'en' : translationENG,
         //     'de' : translationDE,
-        // });     
+        // });
         config({
             editorStylingMode: 'underlined'
         });
@@ -109,14 +111,23 @@ class App extends Component {
         })
     }
 
-    handleLogoutUser() {
+    handleLogoutUser(forceByButton, labels) {
         this.authService.logout();
         if (this.state.user) {
             this.setState({user: null, renderNoRefreshContent: false});
-            const logoutUrl = AppPrefixUtils.locationHrefUrl('/#/');
-            window.location.href = logoutUrl;
+            window.location.href =  AppPrefixUtils.locationHrefUrl('/#/');
+            if (!forceByButton) {
+                this.messages?.show({
+                    severity: 'error',
+                    sticky: false,
+                    life: 10000,
+                    summary: LocUtils.loc(labels, 'Logout_User', 'Sesja wygasła'),
+                    detail: LocUtils.loc(labels, 'Session_Expired', 'Nastąpiło wylogowanie użytkownika z powodu przekroczenia czasu bezczynności użytkownika'),
+                });
+            }
         }
     }
+
 
     getLocalization(configUrl) {
         this.localizationService.reConfigureDomain();
@@ -187,6 +198,7 @@ class App extends Component {
         let opADD = GridViewUtils.containsOperationButton(this.state.operations, 'OP_ADD');
         return (
             <React.Fragment>
+                <Toast id='toast-messages' position='top-center' ref={(el) => this.messages = el}/>
                 {this.state.loadedConfiguration ?
                     <HashRouter history={this.historyBrowser} getUserConfirmation={(message, callback) => {
                         // this is the default behavior
@@ -198,7 +210,7 @@ class App extends Component {
                                 <Sidebar
                                     authService={this.authService}
                                     historyBrowser={this.historyBrowser}
-                                    handleLogoutUser={this.handleLogoutUser}
+                                    handleLogoutUser={(forceByButton) => this.handleLogoutUser(forceByButton, this.state.labels)}
                                     labels={this.state.labels}
                                 /> : null}
                             <main>
@@ -230,12 +242,12 @@ class App extends Component {
                                     <Switch>
                                         <Route exact path='/' render={(props) => this.renderLoginContainer(props)}/>
                                         <Route path='/login' render={(props) => this.renderLoginContainer(props)}/>
-                                        <Route exact path='/start'
-                                               render={(props) => {
+                                        <Route path='/start'
+                                               render={() => {
                                                    return (
                                                        <AuthComponent viewMode={'VIEW'}
                                                                       historyBrowser={this.historyBrowser}
-                                                                      handleLogout={() => this.handleLogoutUser()}
+                                                                      handleLogout={(forceByButton) => this.handleLogoutUser(forceByButton)}
                                                        >
                                                            <DashboardContainer labels={labels}
                                                                                handleRenderNoRefreshContent={(renderNoRefreshContent) => {
@@ -249,7 +261,7 @@ class App extends Component {
                                                    return (
                                                        <AuthComponent viewMode={'VIEW'}
                                                                       historyBrowser={this.historyBrowser}
-                                                                      handleLogout={() => this.handleLogoutUser()}>
+                                                                      handleLogout={(forceByButton) => this.handleLogoutUser(forceByButton)}>
                                                            <ViewContainer
                                                                ref={this.viewContainer}
                                                                id={props.match.params.id}
@@ -279,9 +291,8 @@ class App extends Component {
                         </div>
                     </HashRouter> :
                     <React.Fragment>
-                        Proszę czekać, trwa ładowanie aplikacji....
+                        {LocUtils.loc(labels, 'App_Loading', 'Proszę czekać, trwa ładowanie aplikacji....')}
                     </React.Fragment>}
-
             </React.Fragment>
         );
     }

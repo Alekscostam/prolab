@@ -108,7 +108,6 @@ class SubGridViewComponent extends React.Component {
                                                         this.props.handleOnEditClick(e)
                                                     }}
                                                     label={''}
-                                                    title={'Edycja'}
                                                     rendered={showEditButton}
                                                 />
                                                 <ActionButtonWithMenu

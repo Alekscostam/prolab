@@ -8,6 +8,8 @@ export default class DataGridStore extends BaseService {
     constructor() {
         super();
         this.path = 'viewdata';
+        this.cachedLastResponse = null;
+        this.cachedLoadOptions = null;
     }
 
     getDataForCard(viewId, loadOptions) {
@@ -44,19 +46,56 @@ export default class DataGridStore extends BaseService {
         });
     }
 
-    getDataGridStore(viewIdArg, viewTypeArg, recordParentIdArg, filterIdArg, onError, onSuccess, onStart) {
+    getSelectAllDataGridStore(viewIdArg, viewTypeArg, recordParentIdArg, filterIdArg, filters) {
+        let params = '?';
+        [
+            !!filters && filters.length > 0 ? 'filter' : undefined,
+            'group',
+            'groupSummary',
+            'parentIds',
+            'requireGroupCount',
+            'requireTotalCount',
+            'searchExpr',
+            'searchOperation',
+            'searchValue',
+            'select',
+            'sort',
+            'totalSummary',
+            // 'userData',
+        ].forEach((i) => {
+            if (i in this.cachedLoadOptions
+                && this.isNotEmpty(this.cachedLoadOptions[i])) {
+                params += `${i}=${JSON.stringify(this.cachedLoadOptions[i])}&`;
+            }
+        });
+        let eventSelectAll = true;
+        const viewTypeParam = viewTypeArg !== undefined && viewTypeArg != null ? `&viewType=${viewTypeArg}` : '';
+        const filterIdParam = filterIdArg !== undefined && filterIdArg != null ? `&filterId=${filterIdArg}` : '';
+        const recordParentIdParam = recordParentIdArg !== undefined && recordParentIdArg != null ? `&parentId=${recordParentIdArg}` : '';
+        const selectAllParam = !!eventSelectAll ? `&selection=true` : '';
+        let url = `${this.domain}/${this.path}/${viewIdArg}${params}${viewTypeParam}${filterIdParam}${selectAllParam}${recordParentIdParam}`;
+        return this.fetch(
+            url,
+            {
+                method: 'GET',
+            }
+        ).then((res) => {
+            return Promise.resolve(res);
+        });
+    }
+
+    getDataGridStore(viewIdArg, viewTypeArg, recordParentIdArg, filterIdArg, onStart, onSuccess, onError) {
         if (!viewIdArg) {
+            if (onSuccess) {
+                onSuccess();
+            }
             return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0});
         }
-        const dataGridStore = new CustomStore({
+        return new CustomStore({
             key: 'ID',
-            //keyExpr: 'ID',
+            keyExpr: 'ID',
             load: (loadOptions) => {
-                let selectAll = false;
-                if (onStart) {
-                    let result = onStart();
-                    selectAll = result?.selectAll
-                }
+                this.cachedLoadOptions = loadOptions;
                 let params = '?';
                 [
                     'filter',
@@ -75,43 +114,58 @@ export default class DataGridStore extends BaseService {
                     'totalSummary',
                     // 'userData',
                 ].forEach((i) => {
-                    if (i in loadOptions && this.isNotEmpty(loadOptions[i])) {
+                    if (i in loadOptions
+                        && this.isNotEmpty(loadOptions[i])) {
                         params += `${i}=${JSON.stringify(loadOptions[i])}&`;
                     }
                 });
-                let viewTypeParam = viewTypeArg !== undefined && viewTypeArg != null ? `&viewType=${viewTypeArg}` : '';
-                let filterIdParam = filterIdArg !== undefined && filterIdArg != null ? `&filterId=${filterIdArg}` : '';
-                let recordParentIdParam = recordParentIdArg !== undefined && recordParentIdArg != null ? `&parentId=${recordParentIdArg}` : '';
-                let selectAllParam = !!selectAll ? `&selection=true` : '';
+
+                let addSelectAllParam = false;
+                if (!!onStart) {
+                    let result = onStart();
+                    if (result?.select || result?.selectAll) {
+                        addSelectAllParam = true
+                    }
+                }
+                const viewTypeParam = viewTypeArg !== undefined && viewTypeArg != null ? `&viewType=${viewTypeArg}` : '';
+                const filterIdParam = filterIdArg !== undefined && filterIdArg != null ? `&filterId=${filterIdArg}` : '';
+                const recordParentIdParam = recordParentIdArg !== undefined && recordParentIdArg != null ? `&parentId=${recordParentIdArg}` : '';
+                const selectAllParam = !!addSelectAllParam ? `&selection=true` : '';
+                let url = `${this.domain}/${this.path}/${viewIdArg}${params}${viewTypeParam}${filterIdParam}${selectAllParam}${recordParentIdParam}`;
+                //blokuj dziwne strzały ze stora
+                if (url.split("&").length - 1 <= 2) {
+                    if (onSuccess) {
+                        onSuccess();
+                    }
+                    console.log('Prevent store fetch, url: ' + url)
+                    return Promise.resolve(this.cachedLastResponse);
+                }
                 return this.fetch(
-                    `${this.domain}/${this.path}/${viewIdArg}${params}${viewTypeParam}${filterIdParam}${selectAllParam}${recordParentIdParam}`,
+                    url,
                     {
                         method: 'GET',
                     }
-                )
-                    .then((response) => {
-                        let data = response.data;
-                        ConsoleHelper('DataGridStore -> fetch data: ', data);
-                        if (onSuccess) {
-                            onSuccess({totalSelectCount: response.totalCount});
-                        }
-                        return {
-                            data: data,
-                            totalCount: response.totalCount,
-                            summary: response.summary || [],
-                            groupCount: response.groupCount || 0,
-                        };
-                    })
-                    .catch((err) => {
-                        ConsoleHelper('Error fetch data grid store for view id={%s}. Error = ', viewIdArg, err);
-                        if (onError) {
-                            onError(err);
-                        }
-                        return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0});
-                    });
+                ).then((response) => {
+                    ConsoleHelper('DataGridStore -> fetch ');
+                    this.cachedLastResponse = {
+                        data: response.data,
+                        totalCount: response.totalCount,
+                        summary: response.summary || [],
+                        groupCount: response.groupCount || 0
+                    };
+                    if (onSuccess) {
+                        onSuccess();
+                    }
+                    return this.cachedLastResponse;
+                }).catch((err) => {
+                    ConsoleHelper('Error fetch data grid store for view id={%s}. Error = ', viewIdArg, err);
+                    if (onError) {
+                        onError(err);
+                    }
+                    return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0, selectAll: false});
+                });
             },
         });
-        return dataGridStore;
     }
 
     isNotEmpty(value) {
