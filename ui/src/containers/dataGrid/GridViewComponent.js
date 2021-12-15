@@ -338,7 +338,7 @@ class GridViewComponent extends React.Component {
                     onSelectionChanged={this.props.handleSelectedRowKeys}
                     renderAsync={false}
                     selectAsync={false}
-                    cacheEnabled={true}
+                    cacheEnabled={false}
                     onCellClick={(e) => {
                         if (!!this.props.handleSelectAll) {
                             if (this.ifSelectAllEvent(e)) {
