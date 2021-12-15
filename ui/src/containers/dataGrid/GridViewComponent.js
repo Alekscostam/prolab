@@ -295,7 +295,7 @@ class GridViewComponent extends React.Component {
         //multiSelect dla podpowiedzi
         const multiSelect = this.props.parsedGridView?.gridOptions?.multiSelect;
         const multiSelection = (multiSelect === undefined || multiSelect === null || !!multiSelect);
-        const packageCount = this.props.packageRows;
+        const packageCount = (!!this.props.packageRows || this.props.packageRows === 0) ? 20 : this.props.packageRows;
         const showSelection = this.waitForSuccess() ? false : this.props.showSelection;
         const showColumnHeaders = this.props.showColumnHeaders;
         const showColumnLines = this.props.showColumnLines;
@@ -338,7 +338,7 @@ class GridViewComponent extends React.Component {
                     onSelectionChanged={this.props.handleSelectedRowKeys}
                     renderAsync={false}
                     selectAsync={false}
-                    cacheEnabled={false}
+                    cacheEnabled={true}
                     onCellClick={(e) => {
                         if (!!this.props.handleSelectAll) {
                             if (this.ifSelectAllEvent(e)) {
