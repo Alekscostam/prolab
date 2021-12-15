@@ -295,7 +295,7 @@ class GridViewComponent extends React.Component {
         //multiSelect dla podpowiedzi
         const multiSelect = this.props.parsedGridView?.gridOptions?.multiSelect;
         const multiSelection = (multiSelect === undefined || multiSelect === null || !!multiSelect);
-        const packageCount = (!!this.props.packageRows || this.props.packageRows === 0) ? 20 : this.props.packageRows;
+        const packageCount = (!!this.props.packageRows || this.props.packageRows === 0) ? 30 : this.props.packageRows;
         const showSelection = this.waitForSuccess() ? false : this.props.showSelection;
         const showColumnHeaders = this.props.showColumnHeaders;
         const showColumnLines = this.props.showColumnLines;
@@ -336,7 +336,7 @@ class GridViewComponent extends React.Component {
                     rowAlternationEnabled={false}
                     selectedRowKeys={defaultSelectedRowKeys || selectedRowKeys}
                     onSelectionChanged={this.props.handleSelectedRowKeys}
-                    renderAsync={false}
+                    renderAsync={true}
                     selectAsync={false}
                     cacheEnabled={false}
                     onCellClick={(e) => {
@@ -384,7 +384,7 @@ class GridViewComponent extends React.Component {
                                deferred={this.props.selectionDeferred}
                     />
 
-                    <Scrolling mode="virtual" rowRenderingMode="virtual" renderAsync={true} preloadEnabled={false}/>
+                    <Scrolling mode="virtual" rowRenderingMode="virtual" renderAsync={false} preloadEnabled={false}/>
                     <Paging defaultPageSize={packageCount}/>
 
                     <LoadPanel enabled={true}

@@ -61,7 +61,6 @@ export class ViewContainer extends BaseContainer {
             subView: null,
             viewInfoTypes: [],
             cardSkip: 0,
-            cardTake: 20,
             cardTotalRows: 0,
             cardScrollLoading: false,
             visibleEditPanel: false,
@@ -135,17 +134,17 @@ export class ViewContainer extends BaseContainer {
         const gridViewType = UrlUtils.getURLParameter('viewType');
         const force = UrlUtils.getURLParameter('force');
         const parentId = UrlUtils.getURLParameter('parentId');
-        const notFirstSubViewMode = !(!!recordId && !!id && !!!subViewId);
-        ConsoleHelper('ViewContainer::componentDidUpdate: firstSubViewMode -> ' + notFirstSubViewMode);
+        const firstSubViewMode = !!recordId && !!id && !!!subViewId;
+        ConsoleHelper('ViewContainer::componentDidUpdate: firstSubViewMode -> ' + firstSubViewMode);
         ConsoleHelper(`ViewContainer::componentDidUpdate: store params -> Id =  ${id} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`);
         ConsoleHelper(`ViewContainer::componentDidUpdate: elementId=${this.state.elementId}, id=${id}, 
-            firstSubViewMode=${notFirstSubViewMode}, elementSubViewId=${this.state.elementSubViewId}, subViewId=${subViewId}, 
+            firstSubViewMode=${firstSubViewMode}, elementSubViewId=${this.state.elementSubViewId}, subViewId=${subViewId}, 
             elementRecordId=${this.state.elementRecordId}, recordId=${recordId},
             prevState.gridViewType=${this.state.gridViewType}, gridViewType=${gridViewType}`,
             this.state.subView
         );
         const fromSubviewToFirstSubView =
-            notFirstSubViewMode &&
+            firstSubViewMode &&
             this.state.elementSubViewId &&
             this.state.subView &&
             this.state.subView.subViews &&
@@ -155,11 +154,11 @@ export class ViewContainer extends BaseContainer {
         ConsoleHelper('ViewContainer::componentDidUpdate -> ' + prevState.gridViewType + '::' + this.state.gridViewType);
         if (
             !!force ||
-            GridViewUtils.notEqualNumbers(this.state.elementId, id) ||
-            (notFirstSubViewMode && GridViewUtils.notEqualNumbers(this.state.elementSubViewId, subViewId)) ||
+            !GridViewUtils.equalNumbers(this.state.elementId, id) ||
+            (!firstSubViewMode && !GridViewUtils.equalNumbers(this.state.elementSubViewId, subViewId)) ||
             fromSubviewToFirstSubView ||
-            GridViewUtils.notEqualNumbers(this.state.elementFilterId, filterId) ||
-            GridViewUtils.notEqualNumbers(this.state.elementRecordId, recordId)
+            !GridViewUtils.equalNumbers(this.state.elementFilterId, filterId) ||
+            !GridViewUtils.equalNumbers(this.state.elementRecordId, recordId)
         ) {
             const newUrl = UrlUtils.deleteParameterFromURL(window.document.URL.toString(), 'force');
             window.history.replaceState('', '', newUrl);
@@ -198,8 +197,10 @@ export class ViewContainer extends BaseContainer {
                     this.state.gridViewType === 'cardView' &&
                     this.state.parsedCardViewData.length < this.state.cardTotalRows
                 ) {
+                    const dataPackageSize = this.state.parsedGridView?.viewInfo?.dataPackageSize;
+                    const packageCount = (!!dataPackageSize || dataPackageSize === 0) ? 30 : dataPackageSize;
                     this.setState(
-                        {cardScrollLoading: true, cardSkip: this.state.cardSkip + this.state.cardTake},
+                        {cardScrollLoading: true, cardSkip: this.state.cardSkip + packageCount},
                         () => {
                             ConsoleHelper('Datasource', this.cardGrid.getDataSource());
                             this.cardGrid.beginUpdate();
@@ -207,11 +208,11 @@ export class ViewContainer extends BaseContainer {
                             const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : this.state.parsedGridView?.viewInfo?.filterdId;
                             this.dataGridStore
                                 .getDataForCard(this.props.id, {
-                                    skip: this.state.cardSkip,
-                                    take: this.state.cardTake,
-                                    parentId: parentIdArg,
-                                    filterId: filterIdArg
-                                })
+                                        skip: this.state.cardSkip,
+                                        take: packageCount
+                                    },
+                                    parentIdArg,
+                                    filterIdArg)
                                 .then((res) => {
                                     let parsedCardViewData = this.state.parsedCardViewData;
                                     res.data.forEach((item) => {
@@ -426,15 +427,15 @@ export class ViewContainer extends BaseContainer {
                                     const parentIdArg = this.state.subView == null ? parentId : this.state.elementRecordId;
                                     const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId;
                                     if (this.state.gridViewType === 'cardView') {
+                                        const dataPackageSize = this.state.parsedGridView?.viewInfo?.dataPackageSize;
+                                        const packageCount = (!!dataPackageSize || dataPackageSize === 0) ? 30 : dataPackageSize;
                                         this.setState({loading: true, cardSkip: 0}, () =>
                                             this.dataGridStore
                                                 .getDataForCard(viewIdArg,
                                                     {
                                                         skip: this.state.cardSkip,
-                                                        take: this.state.cardTake,
-                                                        parentId: parentIdArg,
-                                                        filterId: filterIdArg
-                                                    })
+                                                        take: packageCount
+                                                    }, parentIdArg, filterIdArg)
                                                 .then((res) => {
                                                     let parsedCardViewData = res.data.map(function (item) {
                                                         for (var key in item) {
@@ -461,7 +462,7 @@ export class ViewContainer extends BaseContainer {
                                                 parentIdArg,
                                                 filterIdArg,
                                                 () => {
-                                                    this.blockUi();
+                                                    // this.blockUi();
                                                     return {
                                                         select: this.state.select,
                                                         selectAll: this.state.selectAll
@@ -851,7 +852,6 @@ export class ViewContainer extends BaseContainer {
                 'gridView',
                 this.state.elementRecordId,
                 this.state.elementFilterId,
-                //onError
                 this.refDataGrid.instance.getCombinedFilter()
             ).then((result) => {
                 this.setState({
