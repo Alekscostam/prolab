@@ -12,8 +12,7 @@ export default class DataGridStore extends BaseService {
         this.cachedLoadOptions = null;
     }
 
-    getDataForCard(viewId, loadOptions) {
-        // Get a token from api server using the fetch api
+    getDataForCard(viewIdArg, loadOptions, recordParentIdArg, filterIdArg) {
         let params = '?';
         [
             'filter',
@@ -39,7 +38,9 @@ export default class DataGridStore extends BaseService {
             }
         });
         params += 'viewType=cardView';
-        return this.fetch(`${this.domain}/${this.path}/${viewId}${params}`, {
+        const filterIdParam = filterIdArg !== undefined && filterIdArg != null ? `&filterId=${filterIdArg}` : '';
+        const recordParentIdParam = recordParentIdArg !== undefined && recordParentIdArg != null ? `&parentId=${recordParentIdArg}` : '';
+        return this.fetch(`${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${recordParentIdParam}`, {
             method: 'GET',
         }).then((res) => {
             return Promise.resolve(res);
@@ -84,7 +85,7 @@ export default class DataGridStore extends BaseService {
         });
     }
 
-    getDataGridStore(viewIdArg, viewTypeArg, recordParentIdArg, filterIdArg, onStart, onSuccess, onError) {
+    getDataGridStore(viewIdArg, viewTypeArg, parentIdArg, filterIdArg, onStart, onSuccess, onError) {
         if (!viewIdArg) {
             if (onSuccess) {
                 onSuccess();
@@ -129,7 +130,7 @@ export default class DataGridStore extends BaseService {
                 }
                 const viewTypeParam = viewTypeArg !== undefined && viewTypeArg != null ? `&viewType=${viewTypeArg}` : '';
                 const filterIdParam = filterIdArg !== undefined && filterIdArg != null ? `&filterId=${filterIdArg}` : '';
-                const recordParentIdParam = recordParentIdArg !== undefined && recordParentIdArg != null ? `&parentId=${recordParentIdArg}` : '';
+                const recordParentIdParam = parentIdArg !== undefined && parentIdArg != null ? `&parentId=${parentIdArg}` : '';
                 const selectAllParam = !!addSelectAllParam ? `&selection=true` : '';
                 let url = `${this.domain}/${this.path}/${viewIdArg}${params}${viewTypeParam}${filterIdParam}${selectAllParam}${recordParentIdParam}`;
                 //blokuj dziwne strzały ze stora
