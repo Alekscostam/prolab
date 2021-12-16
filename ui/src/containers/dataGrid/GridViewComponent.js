@@ -97,7 +97,6 @@ class GridViewComponent extends React.Component {
 
     postCustomizeColumns = (columns) => {
         let INDEX_COLUMN = 0;
-        console.log(columns)
         if (columns?.length > 0) {
             //when viewData respond a lot of data
             const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();

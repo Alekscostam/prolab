@@ -672,6 +672,39 @@ export class ViewContainer extends BaseContainer {
 
     onInitialize(e) {
         dataGrid = e.component;
+        //umożliwa filrowanie po niepełniej dacie (która się nie parsuje) i naciśnięciu Enter
+        $(document).keyup(event => {
+            try {
+                const keycode = event.keyCode || event.which;
+                if (keycode == '13'
+                    && event.target?.className === 'dx-texteditor-input'
+                    && event.originalEvent?.path[8]?.className === 'dx-row dx-column-lines dx-datagrid-filter-row'
+                    && event.originalEvent?.path[4]?.className?.includes('dx-datebox-calendar')) {
+                    let td = event.originalEvent?.path[7]
+                    let ariaDescribedby = td?.getAttribute("aria-describedby");
+                    let columnName = new String(ariaDescribedby)?.replace(new RegExp('column_[0-9]+_'), '')?.toUpperCase();
+                    let inputValue = event.originalEvent?.path[0]?.value;
+                    if (inputValue.includes("*")) {
+                        this.setState({specialFilter: true}, () => {
+                            this.refDataGrid?.instance?.filter([columnName, '=', inputValue]);
+                        });
+                    } else if (inputValue === '' || inputValue === null || inputValue === undefined) {
+                        if (this.state.specialFilter) {
+                            let combinedFilter = this.refDataGrid.instance.getCombinedFilter();
+                            if (combinedFilter.length > 1) {
+                                if (combinedFilter[0] instanceof Array) {
+                                    this.refDataGrid?.instance?.clearFilter('dataSource');
+                                } else {
+                                    this.refDataGrid?.instance?.clearFilter();
+                                }
+                            }
+                            this.setState({specialFilter: false});
+                        }
+                    }
+                }
+            } catch (err) {
+            }
+        });
     }
 
     //override

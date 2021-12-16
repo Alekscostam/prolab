@@ -138,7 +138,7 @@ export default class DataGridStore extends BaseService {
                     if (onSuccess) {
                         onSuccess();
                     }
-                    console.log('Prevent store fetch, url: ' + url)
+                    ConsoleHelper('Prevent store fetch, url: ' + url)
                     return Promise.resolve(this.cachedLastResponse);
                 }
                 return this.fetch(
