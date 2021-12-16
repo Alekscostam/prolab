@@ -154,12 +154,12 @@ export class GridViewUtils {
                 }
             }
             let fontColorFinal = 'black';
-            if (!!_fontcolor) {
-                fontColorFinal = _fontcolor;
+            const specialFontColor = info.data['_FONTCOLOR_' + info.column?.dataField];
+            if (!!specialFontColor) {
+                fontColorFinal = specialFontColor;
             } else {
-                const specialFontColor = info.data['_FONTCOLOR_' + info.column?.dataField];
-                if (!!specialFontColor) {
-                    fontColorFinal = specialFontColor;
+                if (!!_fontcolor) {
+                    fontColorFinal = _fontcolor;
                 }
             }
             switch (column?.type) {
