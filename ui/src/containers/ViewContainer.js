@@ -680,29 +680,57 @@ export class ViewContainer extends BaseContainer {
                     && event.target?.className === 'dx-texteditor-input'
                     && event.originalEvent?.path[8]?.className === 'dx-row dx-column-lines dx-datagrid-filter-row'
                     && event.originalEvent?.path[4]?.className?.includes('dx-datebox-calendar')) {
-                    let td = event.originalEvent?.path[7]
-                    let ariaDescribedby = td?.getAttribute("aria-describedby");
-                    let columnName = new String(ariaDescribedby)?.replace(new RegExp('column_[0-9]+_'), '')?.toUpperCase();
+                    // let td = event.originalEvent?.path[7]
+                    // let ariaDescribedby = td?.getAttribute("aria-describedby");
+                    // let columnName = new String(ariaDescribedby)?.replace(new RegExp('column_[0-9]+_'), '')?.toUpperCase();
                     let inputValue = event.originalEvent?.path[0]?.value;
-                    if (inputValue.includes("*")) {
+                    if (inputValue === undefined || inputValue === null || inputValue === '' || inputValue.includes("*")) {
                         this.setState({specialFilter: true}, () => {
-                            this.refDataGrid?.instance?.filter([columnName, '=', inputValue]);
-                        });
-                    } else if (inputValue === '' || inputValue === null || inputValue === undefined) {
-                        if (this.state.specialFilter) {
-                            let combinedFilter = this.refDataGrid.instance.getCombinedFilter();
-                            if (combinedFilter.length > 1) {
-                                if (combinedFilter[0] instanceof Array) {
-                                    this.refDataGrid?.instance?.clearFilter('dataSource');
-                                } else {
-                                    this.refDataGrid?.instance?.clearFilter();
+                            let filterArray = [];
+                            let tr = event.originalEvent?.path[8];
+                            for (let child of tr.children) {
+                                if (child.className !== 'dx-command-select') {
+                                    if (child?.children[0]?.children[1]?.children[0]?.className?.includes('dx-datebox-calendar')) {
+                                        let inputValue = child?.children[0]?.children[1]?.children[0]?.children[0]?.children[1]?.children[0]?.children[0]?.value;
+                                        if (inputValue !== undefined && inputValue !== null && inputValue !== '') {
+                                            let ariaDescribedby = child?.getAttribute("aria-describedby");
+                                            let columnName = new String(ariaDescribedby)?.replace(new RegExp('column_[0-9]+_'), '')?.toUpperCase();
+                                            if (filterArray.length > 0) {
+                                                filterArray.push('and')
+                                            }
+                                            filterArray.push([columnName, '=', inputValue])
+                                        }
+                                    }
                                 }
                             }
-                            this.setState({specialFilter: false});
-                        }
+                            if (filterArray.length > 0) {
+                                this.refDataGrid?.instance?.filter(filterArray);
+                            } else {
+                                this.refDataGrid?.instance?.clearFilter('dataSource');
+                            }
+                        });
                     }
+                    // else if (inputValue === undefined || inputValue === null || inputValue === '') {
+                    //     console.log('1')
+                    //     if (this.state.specialFilter) {
+                    //         console.log('2')
+                    //         let combinedFilter = this.refDataGrid?.instance?.getCombinedFilter();
+                    //         if (combinedFilter.length > 1) {
+                    //             console.log('4')
+                    //             if (combinedFilter[0] instanceof Array) {
+                    //                 console.log('5')
+                    //                 this.refDataGrid?.instance?.clearFilter('dataSource');
+                    //             } else {
+                    //                 console.log('6')
+                    //                 this.refDataGrid?.instance?.clearFilter();
+                    //             }
+                    //         }
+                    //         this.setState({specialFilter: false});
+                    //     }
+                    // }
                 }
             } catch (err) {
+                console.log(err)
             }
         });
     }

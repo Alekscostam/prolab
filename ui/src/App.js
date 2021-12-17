@@ -115,19 +115,18 @@ class App extends Component {
         this.authService.logout();
         if (this.state.user) {
             this.setState({user: null, renderNoRefreshContent: false});
-            window.location.href =  AppPrefixUtils.locationHrefUrl('/#/');
+            window.location.href = AppPrefixUtils.locationHrefUrl('/#/');
             if (!forceByButton) {
                 this.messages?.show({
                     severity: 'error',
                     sticky: false,
-                    life: 10000,
+                    life: 100000000,
                     summary: LocUtils.loc(labels, 'Logout_User', 'Sesja wygasła'),
                     detail: LocUtils.loc(labels, 'Session_Expired', 'Nastąpiło wylogowanie użytkownika z powodu przekroczenia czasu bezczynności użytkownika'),
                 });
             }
         }
     }
-
 
     getLocalization(configUrl) {
         this.localizationService.reConfigureDomain();

@@ -153,7 +153,7 @@ class Sidebar extends React.Component {
                 loading: true,
             },
             () => {
-                this.props.handleLogoutUser(false);
+                this.props.handleLogoutUser(true);
             }
         );
     }
