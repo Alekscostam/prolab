@@ -322,7 +322,7 @@ class GridViewComponent extends React.Component {
                     customizeColumns={this.postCustomizeColumns}
                     wordWrapEnabled={rowAutoHeight}
                     columnAutoWidth={columnAutoWidth}
-                    columnResizingMode='nextColumn'
+                    columnResizingMode='widget'
                     allowColumnReordering={true}
                     allowColumnResizing={true}
                     showColumnLines={showColumnLines}
