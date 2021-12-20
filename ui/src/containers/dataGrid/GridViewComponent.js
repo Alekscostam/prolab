@@ -310,7 +310,6 @@ class GridViewComponent extends React.Component {
         const selectedRowKeys = this.props.selectedRowKeys;
         return (
             <React.Fragment>
-                {packageCount}
                 <DataGrid
                     id='grid-container'
                     keyExpr='ID'
@@ -338,6 +337,7 @@ class GridViewComponent extends React.Component {
                     renderAsync={true}
                     selectAsync={false}
                     cacheEnabled={false}
+                    remoteOperations={true}
                     onCellClick={(e) => {
                         if (!!this.props.handleSelectAll) {
                             if (this.ifSelectAllEvent(e)) {
@@ -383,7 +383,7 @@ class GridViewComponent extends React.Component {
                                deferred={this.props.selectionDeferred}
                     />
 
-                    <Scrolling mode="virtual" rowRenderingMode="virtual" renderAsync={false} preloadEnabled={false}/>
+                    <Scrolling mode="virtual" rowRenderingMode="virtual"/>
                     <Paging defaultPageSize={packageCount} pageSize={packageCount}/>
 
                     <LoadPanel enabled={true}
