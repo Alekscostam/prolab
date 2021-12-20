@@ -86,13 +86,14 @@ export class EditRowComponent extends BaseContainer {
     editListVisible(field) {
         ConsoleHelper('EditRowComponent::editListVisible')
         let editInfo = this.props.editData?.editInfo;
+        let kindView = this.props.kindView;
         let editListObject = this.service.createObjectToEditList(this.props.editData)
         this.setState({
             loading: true,
             dataGridStoreSuccess: false
         }, () => {
             this.service
-                .getEditList(editInfo.viewId, editInfo.recordId, editInfo.parentId, field.id, editListObject)
+                .getEditList(editInfo.viewId, editInfo.recordId, editInfo.parentId, field.id, kindView, editListObject)
                 .then((responseView) => {
                     let selectedRowDataTmp = [];
                     //CRC key
@@ -278,7 +279,8 @@ export class EditRowComponent extends BaseContainer {
 
     handleAutoFill() {
         let editInfo = this.props.editData?.editInfo;
-        this.props.onAutoFill(editInfo.viewId, editInfo.recordId, editInfo.parentId);
+        let kindView = this.props.kindView;
+        this.props.onAutoFill(editInfo.viewId, editInfo.recordId, editInfo.parentId, kindView);
     }
 
     handleCancel() {
@@ -613,6 +615,7 @@ EditRowComponent.defaultProps = {};
 EditRowComponent.propTypes = {
     visibleEditPanel: PropTypes.bool.isRequired,
     editData: PropTypes.object.isRequired,
+    kindView: PropTypes.string,
     onAfterStateChange: PropTypes.func,
     onChange: PropTypes.func.isRequired,
     onBlur: PropTypes.func,

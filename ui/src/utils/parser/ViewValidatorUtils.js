@@ -18,11 +18,12 @@ import {parseBoolean} from './ValidationUtils';
 export class ViewValidatorUtils {
     static validation(jsonDataArg) {
         let parsedViewObject = jsonDataArg;
-        const viewValidObject = new ViewResponse({
+        return new ViewResponse({
             viewInfo: new ViewInfo({
                 id: parsedViewObject.viewInfo.id,
                 name: parsedViewObject.viewInfo.name,
                 type: parsedViewObject.viewInfo.type,
+                kindView: parsedViewObject.viewInfo.kindView,
             }),
             gridOptions: new GridOptions({
                 showGroupPanel: parseBoolean(parsedViewObject.gridOptions?.showGroupPanel),
@@ -121,7 +122,5 @@ export class ViewValidatorUtils {
             batchesList: parsedViewObject.batchesList?.map((p) => new BatchesList({id: p.id, label: p.label})),
             FiltersList: parsedViewObject.FiltersList?.map((p) => new FiltersList({id: p.id, label: p.label})),
         });
-
-        return viewValidObject;
     }
 }

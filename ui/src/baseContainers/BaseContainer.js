@@ -17,10 +17,12 @@ import {localeOptions} from "primereact/api";
 import EditRowUtils from "../utils/EditRowUtils";
 import ConsoleHelper from "../utils/ConsoleHelper";
 import {LoadIndicator} from "devextreme-react";
+import {GridViewUtils} from "../utils/GridViewUtils";
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
         super(props);
+        this.refDataGrid = null;
         this.service = service;
         this.authService = new AuthService(this.props.backendUrl);
         this.scrollToFirstError = this.scrollToFirstError.bind(this);
@@ -48,6 +50,7 @@ class BaseContainer extends React.Component {
         this.handleAutoFillRowChange = this.handleAutoFillRowChange.bind(this);
         this.handleCancelRowChange = this.handleCancelRowChange.bind(this);
         this.handleEditListRowChange = this.handleEditListRowChange.bind(this);
+        this.getRealViewId = this.getRealViewId.bind(this);
         this.validator = new SimpleReactValidator();
         this._isMounted = false;
         this.jwtRefreshBlocked = false;
@@ -110,7 +113,7 @@ class BaseContainer extends React.Component {
             summary: summary,
             content: (
                 <div className='p-flex p-flex-column' style={{flex: '1'}}>
-                    <Message severity={'info'} content={detail}></Message>
+                    <Message severity={'info'} content={detail}/>
                 </div>
             ),
         });
@@ -123,7 +126,7 @@ class BaseContainer extends React.Component {
             summary: summary,
             content: (
                 <div className='p-flex p-flex-column' style={{flex: '1'}}>
-                    <Message severity={'warn'} content={detail}></Message>
+                    <Message severity={'warn'} content={detail}/>
                 </div>
             ),
         });
@@ -141,7 +144,7 @@ class BaseContainer extends React.Component {
 
     showResponseErrorMessage(errorResponse) {
         let title = "Błąd";
-        let message = "";
+        let message;
         if (!!errorResponse.error) {
             message = errorResponse.error?.message;
         } else {
@@ -271,7 +274,7 @@ class BaseContainer extends React.Component {
     handleChangeSetState(varName, varValue, onAfterStateChange, stateField, parameter) {
         if (stateField && stateField !== '') {
             const stateFieldArray = stateField.split('.');
-            let stateFieldValue = undefined;
+            let stateFieldValue;
             stateFieldValue = this.getValueInObjPath(stateFieldArray[0]);
             if (this._isMounted) {
                 if (parameter) {
@@ -989,10 +992,6 @@ class BaseContainer extends React.Component {
         this.rowSave(viewId, recordId, parentId, saveElement, false);
     }
 
-    getRefGridView() {
-       return null;
-    }
-
     refreshGridView() {
         if (!!this.getRefGridView()) {
             this.getRefGridView().instance.refresh(true);
@@ -1090,12 +1089,12 @@ class BaseContainer extends React.Component {
         }
     }
 
-    handleAutoFillRowChange(viewId, recordId, parentId) {
-        ConsoleHelper(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
+    handleAutoFillRowChange(viewId, recordId, parentId, kindView) {
+        ConsoleHelper(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId} parentId = ${kindView}`)
         this.blockUi();
         const autofillBodyRequest = this.editService.createObjectToAutoFill(this.state);
         this.editService
-            .getEditAutoFill(viewId, recordId, parentId, autofillBodyRequest)
+            .getEditAutoFill(viewId, recordId, parentId, kindView, autofillBodyRequest)
             .then((editAutoFillResponse) => {
                 let arrayTmp = editAutoFillResponse?.data;
                 let editData = this.state.editData;
@@ -1196,7 +1195,7 @@ class BaseContainer extends React.Component {
                 this.setState({editData: editData});
                 this.unblockUi();
             })
-            .catch((err) => { //zjadam
+            .catch(() => { //zjadam
             });
     }
 
@@ -1208,6 +1207,21 @@ class BaseContainer extends React.Component {
         });
         this.unblockUi();
     }
+
+    getRefGridView() {
+        return !!this.refDataGrid ? this.refDataGrid : null;
+    }
+
+    getRealViewId() {
+        const {elementSubViewId} = this.state;
+        const elementId = this.props.id;
+        return GridViewUtils.getRealViewId(elementSubViewId, elementId)
+    }
+
+    refreshDataGrid() {
+        this.getRefGridView().instance.getDataSource().reload();
+    }
+
 }
 
 BaseContainer.defaultProps = {

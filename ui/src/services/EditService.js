@@ -23,16 +23,16 @@ export default class EditService extends BaseService {
         this.createObjectToEditList = this.createObjectToEditList.bind(this);
     }
 
-    getEdit(viewId, recordId, parentId) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}${parentId ? `?parentId=${parentId}` : ''}`, {
+    getEdit(viewId, recordId, parentId, kindView) {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
             method: 'GET',
         }).catch((err) => {
             throw err;
         });
     }
 
-    getEditAutoFill(viewId, recordId, parentId, element) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}/AutoFill${parentId ? `?parentId=${parentId}` : ''}`, {
+    getEditAutoFill(viewId, recordId, parentId, kindView, element) {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}/AutoFill${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
             method: 'POST',
             body: JSON.stringify(element),
         }).catch((err) => {
@@ -40,8 +40,8 @@ export default class EditService extends BaseService {
         });
     }
 
-    getEditList(viewId, recordId, parentId, fieldId, element) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}/list/${fieldId}${parentId ? `?parentId=${parentId}` : ''}`, {
+    getEditList(viewId, recordId, parentId, fieldId, kindView, element) {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}/list/${fieldId}${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
             method: 'POST',
             body: JSON.stringify(element),
         }).catch((err) => {

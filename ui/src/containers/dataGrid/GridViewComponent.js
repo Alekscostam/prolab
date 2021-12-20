@@ -181,6 +181,7 @@ class GridViewComponent extends React.Component {
                             el.id = `actions-${info.column.headerId}-${info.rowIndex}`;
                             element.append(el);
                             const elementSubViewId = this.props.elementSubViewId;
+                            const elementKindView = this.props.elementKindView;
                             const elementId = this.props.id;
                             const viewId = GridViewUtils.getRealViewId(elementSubViewId, elementId);
                             const recordId = info.row?.data?.ID;
@@ -196,7 +197,7 @@ class GridViewComponent extends React.Component {
                                             let result = this.props.handleBlockUi();
                                             if (result) {
                                                 this.editService
-                                                    .getEdit(viewId, recordId, subviewId)
+                                                    .getEdit(viewId, recordId, subviewId, elementKindView)
                                                     .then((editDataResponse) => {
                                                         this.props.handleShowEditPanel(editDataResponse);
                                                     })
@@ -309,8 +310,7 @@ class GridViewComponent extends React.Component {
         const selectedRowKeys = this.props.selectedRowKeys;
         return (
             <React.Fragment>
-                {/*<br/>*/}
-                {/*defaultSelectedRowKeys: {JSON.stringify(this.props.defaultSelectedRowKeys)}*/}
+                {packageCount}
                 <DataGrid
                     id='grid-container'
                     keyExpr='ID'
@@ -384,7 +384,7 @@ class GridViewComponent extends React.Component {
                     />
 
                     <Scrolling mode="virtual" rowRenderingMode="virtual" renderAsync={false} preloadEnabled={false}/>
-                    <Paging defaultPageSize={packageCount}/>
+                    <Paging defaultPageSize={packageCount} pageSize={packageCount}/>
 
                     <LoadPanel enabled={true}
                                showIndicator={true}
@@ -415,7 +415,8 @@ GridViewComponent.defaultProps = {
 
 GridViewComponent.propTypes = {
     id: PropTypes.number.isRequired,
-    elementSubViewId: PropTypes.number.isRequired,
+    elementSubViewId: PropTypes.number,
+    elementKindView: PropTypes.string,
     parsedGridView: PropTypes.object.isRequired,
     parsedGridViewData: PropTypes.object.isRequired,
     gridViewColumns: PropTypes.object.isRequired,

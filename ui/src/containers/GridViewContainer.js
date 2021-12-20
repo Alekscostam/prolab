@@ -1,4 +1,4 @@
-import {SelectBox, Tabs} from 'devextreme-react';
+import {Tabs} from 'devextreme-react';
 import ButtonGroup from 'devextreme-react/button-group';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -34,7 +34,6 @@ export class GridViewContainer extends BaseContainer {
         this.viewService = new ViewService();
         this.editService = new EditService();
         this.dataGridStore = new DataGridStore();
-        this.refDataGrid = null;
         this.subGridView = null;
         this.state = {
             loading: true,
@@ -54,16 +53,12 @@ export class GridViewContainer extends BaseContainer {
             visibleEditPanel: false,
             modifyEditData: false,
             editData: null,
+            kindView: 'View'
         };
         this.viewTypeChange = this.viewTypeChange.bind(this);
         this.getViewById = this.getViewById.bind(this);
         this.downloadData = this.downloadData.bind(this);
         this.onTabsSelectionChanged = this.onTabsSelectionChanged.bind(this);
-        this.onFilterChanged = this.onFilterChanged.bind(this);
-    }
-
-    getRefGridView() {
-        return this.refDataGrid;
     }
 
     componentDidMount() {
@@ -106,7 +101,7 @@ export class GridViewContainer extends BaseContainer {
             `GridGridViewContainer::downloadData: viewId=${viewId}, recordId=${recordId}, subViewId=${subviewId}, viewType=${viewType}`
         );
         let subviewMode = !!recordId && !!viewId;
-        if (subviewMode && viewType!=='dashboard') {
+        if (subviewMode && viewType !== 'dashboard') {
             this.viewService
                 .getSubView(viewId, recordId)
                 .then((subViewResponse) => {
@@ -150,6 +145,7 @@ export class GridViewContainer extends BaseContainer {
         this.getViewById(viewId, recordId, filterId, viewType, subviewMode);
     }
 
+    //@override
     getViewById(viewId, recordId, filterId, viewType, subviewMode) {
         this.setState({loading: true,},
             () => {
@@ -258,6 +254,7 @@ export class GridViewContainer extends BaseContainer {
                                             this.state.viewType,
                                             this.state.subView == null ? recordId : this.state.elementRecordId,
                                             !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId,
+                                            this.state.kindView,
                                             () => {
                                                 this.setState({
                                                     blocking: true,
@@ -292,6 +289,7 @@ export class GridViewContainer extends BaseContainer {
         );
     }
 
+    //override
     viewTypeChange(e) {
         let newUrl = UrlUtils.addParameterToURL(window.document.URL.toString(), 'viewType', e.itemData.type);
         window.history.replaceState('', '', newUrl);
@@ -340,7 +338,7 @@ export class GridViewContainer extends BaseContainer {
     renderHeaderLeft() {
         return (
             <React.Fragment>
-                <div id='left-header-panel' className='float-left pt-2'></div>
+                <div id='left-header-panel' className='float-left pt-2'/>
             </React.Fragment>
         );
     }
@@ -355,6 +353,7 @@ export class GridViewContainer extends BaseContainer {
         );
     }
 
+    //override
     rightHeadPanelContent = () => {
         return (
             <React.Fragment>
@@ -363,36 +362,13 @@ export class GridViewContainer extends BaseContainer {
         );
     }
 
-    onFilterChanged(e) {
-        ConsoleHelper('onValueChanged', e);
-        if (!!e.value && e.value !== e.previousValue) {
-            const filterId = parseInt(e.value)
-            window.location.href = AppPrefixUtils.locationHrefUrl(
-                `/#/grid-view/${this.state.elementId}/?filterId=${filterId}`
-            );
-        }
-    }
-
     leftHeadPanelContent = () => {
         let centerElementStyle = 'mr-1 ';
-        let opFilter = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_FILTER');
         let opBatches = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_BATCH');
         let opDocuments = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_DOCUMENTS');
         let opPlugins = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_PLUGINS');
         return (
             <React.Fragment>
-                {opFilter && this.state.filtersList?.length > 0 ? (
-                    <SelectBox
-                        className='filter-combo mr-1 mt-1 mb-1'
-                        id='combo_filters'
-                        items={this.state.filtersList}
-
-
-                        value={this.state.elementFilterId || this.state.parsedGridView?.viewInfo?.filterdId}
-                        onValueChanged={this.onFilterChanged}
-                        stylingMode='underlined'
-                    />
-                ) : null}
                 <ButtonGroup
                     className={`${centerElementStyle}`}
                     items={this.state.viewInfoTypes}
@@ -432,7 +408,6 @@ export class GridViewContainer extends BaseContainer {
             </React.Fragment>
         );
     }
-
 
     //override
     renderHeadPanel = () => {
@@ -579,10 +554,6 @@ export class GridViewContainer extends BaseContainer {
         );
     }
 
-    refreshDataGrid() {
-        this.getRefGridView().instance.getDataSource().reload();
-    }
-
     unselectedDataGrid() {
         this.getRefGridView().instance.deselectAll();
         this.setState({
@@ -605,7 +576,7 @@ export class GridViewContainer extends BaseContainer {
                     handleOnEditClick={(e) => {
                         this.blockUi();
                         this.editService
-                            .getEdit(e.viewId, e.recordId)
+                            .getEdit(e.viewId, e.recordId, e.kindView)
                             .then((editDataResponse) => {
                                 this.setState({
                                     visibleEditPanel: true,
@@ -637,6 +608,7 @@ export class GridViewContainer extends BaseContainer {
         );
     }
 
+    //override
     renderTabItem = (itemData) => {
         const viewInfoId = this.state.subView.viewInfo?.id;
         const subViewId = itemData.id;
@@ -653,6 +625,7 @@ export class GridViewContainer extends BaseContainer {
         );
     }
 
+    //override
     onTabsSelectionChanged(args) {
         if (args.name === 'selectedItem') {
             if (args.value?.id && args.previousValue !== null && args.value?.id !== args.previousValue?.id) {
@@ -671,12 +644,6 @@ export class GridViewContainer extends BaseContainer {
         }
     }
 
-    getRealViewId() {
-        const {elementSubViewId} = this.state;
-        const elementId = this.props.id;
-        return GridViewUtils.getRealViewId(elementSubViewId, elementId)
-    }
-
     //override
     render() {
         return (
@@ -687,6 +654,7 @@ export class GridViewContainer extends BaseContainer {
         );
     }
 
+    //override
     blockUi() {
         if (!!this.props.handleBlockUi()) {
             return this.props.handleBlockUi();
@@ -696,6 +664,7 @@ export class GridViewContainer extends BaseContainer {
         }
     }
 
+    //override
     unblockUi() {
         if (!!this.props.handleUnBlockUi()) {
             return this.props.handleUnBlockUi();
@@ -705,6 +674,7 @@ export class GridViewContainer extends BaseContainer {
         }
     }
 
+    //override
     showErrorMessages(err) {
         if (!!this.props.handleShowErrorMessages(err)) {
             return this.props.handleShowErrorMessages(err);
