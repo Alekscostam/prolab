@@ -33,6 +33,7 @@ let dataGrid;
 
 export class ViewContainer extends BaseContainer {
     _isMounted = false;
+    defaultKindView = 'View';
 
     constructor(props) {
         ConsoleHelper('ViewContainer -> constructor');
@@ -48,7 +49,7 @@ export class ViewContainer extends BaseContainer {
             elementSubViewId: null,
             elementRecordId: null,
             elementParentId: null,
-            elementKindView: 'View',
+            elementKindView: this.defaultKindView,
             elementViewType: '',
             viewMode: props.viewMode,
             parsedGridView: {},
@@ -216,7 +217,7 @@ export class ViewContainer extends BaseContainer {
                                     parentIdArg,
                                     filterIdArg,
                                     kindViewArg
-                                    )
+                                )
                                 .then((res) => {
                                     let parsedCardViewData = this.state.parsedCardViewData;
                                     res.data.forEach((item) => {
@@ -293,18 +294,24 @@ export class ViewContainer extends BaseContainer {
                         } else {
                             let subViewsTabs = [];
                             subViewResponse.subViews.forEach((subView, i) => {
-                                subViewsTabs.push({id: subView.id, text: subView.label, icon: subView.icon});
+                                subViewsTabs.push({
+                                    id: subView.id,
+                                    text: subView.label,
+                                    icon: subView.icon,
+                                    kindView: subView.kindView
+                                });
                                 if (subView.id === parseInt(elementSubViewId)) {
                                     this.setState({subViewTabIndex: i});
                                 }
                             });
                             subViewResponse.subViewsTabs = subViewsTabs;
                         }
+                        const currentSubView = subViewResponse.subViewsTabs?.filter(i => i.id === parseInt(elementSubViewId));
                         this.setState(
                             {
                                 subView: subViewResponse,
                                 gridViewType: subViewResponse.viewInfo?.type,
-                                elementKindView: subViewResponse.viewInfo?.kindView,
+                                elementKindView: !!currentSubView ? currentSubView[0].kindView : this.defaultKindView,
                                 elementSubViewId: elementSubViewId,
                             },
                             () => {
@@ -754,10 +761,12 @@ export class ViewContainer extends BaseContainer {
                             rejectLabel: localeOptions('reject'),
                             accept: () => {
                                 this.blockUi();
+                                const parentId = this.state.elementRecordId;
                                 const selectedRowKeysIds = this.state.selectedRowKeys.map((e) => {
                                     return e.ID;
-                                })
-                                this.editService.delete(viewId, selectedRowKeysIds)
+                                });
+                                const kindView = this.state.elementKindView;
+                                this.editService.delete(viewId, parentId, kindView, selectedRowKeysIds)
                                     .then((deleteResponse) => {
                                         this.unselectAllDataGrid();
                                         this.refreshDataGrid();
@@ -789,10 +798,12 @@ export class ViewContainer extends BaseContainer {
                             rejectLabel: localeOptions('reject'),
                             accept: () => {
                                 this.blockUi();
+                                const parentId = this.state.elementRecordId;
                                 const selectedRowKeysIds = this.state.selectedRowKeys.map((e) => {
                                     return e.ID;
-                                })
-                                this.editService.restore(viewId, selectedRowKeysIds)
+                                });
+                                const kindView = this.state.elementKindView;
+                                this.editService.restore(viewId, parentId, kindView, selectedRowKeysIds)
                                     .then((restoreResponse) => {
                                         this.unselectAllDataGrid();
                                         this.refreshDataGrid();
@@ -824,11 +835,12 @@ export class ViewContainer extends BaseContainer {
                             rejectLabel: localeOptions('reject'),
                             accept: () => {
                                 this.blockUi();
-                                const parentId = this.state.parsedGridView?.viewInfo.parentId;
+                                const parentId = this.state.elementRecordId;
                                 const selectedRowKeysIds = this.state.selectedRowKeys.map((e) => {
                                     return e.ID;
-                                })
-                                this.editService.copy(viewId, parentId, selectedRowKeysIds)
+                                });
+                                const kindView = this.state.elementKindView;
+                                this.editService.copy(viewId, parentId, kindView, selectedRowKeysIds)
                                     .then((copyResponse) => {
                                         this.unselectAllDataGrid();
                                         this.refreshDataGrid();
@@ -860,11 +872,12 @@ export class ViewContainer extends BaseContainer {
                             rejectLabel: localeOptions('reject'),
                             accept: () => {
                                 this.blockUi();
-                                const parentId = this.state.parsedGridView?.viewInfo.parentId;
+                                let parentId = this.state.elementRecordId;
                                 const selectedRowKeysIds = this.state.selectedRowKeys.map((e) => {
                                     return e.ID;
                                 })
-                                this.editService.archive(viewId, parentId, selectedRowKeysIds)
+                                const kindView = this.state.elementKindView;
+                                this.editService.archive(viewId, parentId, kindView, selectedRowKeysIds)
                                     .then((archiveResponse) => {
                                         this.unselectAllDataGrid();
                                         this.refreshDataGrid();
@@ -967,8 +980,10 @@ export class ViewContainer extends BaseContainer {
 
     editSubView(e) {
         this.blockUi();
+        const parentId = this.state.elementRecordId;
+        const kindView = this.state.elementKindView;
         this.editService
-            .getEdit(e.viewId, e.recordId, e.kindView)
+            .getEdit(e.viewId, e.recordId, parentId, kindView)
             .then((editDataResponse) => {
                 this.setState({
                     visibleEditPanel: true,
@@ -992,8 +1007,7 @@ export class ViewContainer extends BaseContainer {
                 href={AppPrefixUtils.locationHrefUrl(
                     `/#/grid-view/${viewInfoId}/?recordId=${recordId}&subview=${subViewId}${currentBreadcrumb}`
                 )}
-                className='subview-tab-item-href'
-            >
+                className='subview-tab-item-href'>
                 {itemData.text}
             </a>
         );
@@ -1010,7 +1024,7 @@ export class ViewContainer extends BaseContainer {
                 const subViewId = args.value.id;
                 const viewInfoId = this.state.subView.viewInfo.id;
                 const recordId = this.state.elementRecordId
-                const kindView = this.state.subView.viewInfo?.kindView || 'View';
+                const kindView = !!this.state.subView.viewInfo?.kindView ? this.state.subView.viewInfo?.kindView : this.defaultKindView;
                 const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
                 window.location.href = AppPrefixUtils.locationHrefUrl(
                     `/#/grid-view/${viewInfoId}?recordId=${recordId}&subview=${subViewId}&kindView=${kindView}${currentBreadcrumb}`
@@ -1155,6 +1169,7 @@ export class ViewContainer extends BaseContainer {
                                     id={this.props.id}
                                     elementSubViewId={this.state.elementSubViewId}
                                     elementKindView={this.state.elementKindView}
+                                    elementRecordId={this.state.elementRecordId}
                                     handleOnInitialized={this.onInitialize}
                                     handleOnDataGrid={(ref) => {
                                         this.refDataGrid = ref;

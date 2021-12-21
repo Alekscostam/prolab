@@ -5,15 +5,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ShortcutButton from "./ShortcutButton";
 import {GridViewUtils} from "../../utils/GridViewUtils";
+import MockService from "../../services/MockService";
 //OP_DELETE
 //OP_RESTORE
 //OP_COPY
 //OP_ARCHIVE
 export const HeadPanel = props => {
-    const opDelete = GridViewUtils.containsOperationButton(props.operations, 'OP_DELETE');
-    const opRestore = GridViewUtils.containsOperationButton(props.operations, 'OP_RESTORE');
-    const opCopy = GridViewUtils.containsOperationButton(props.operations, 'OP_COPY');
-    const opArchive = GridViewUtils.containsOperationButton(props.operations, 'OP_ARCHIVE');
+    const opDelete = GridViewUtils.containsOperationButton(props.operations, 'OP_DELETE') || MockService.isMock();
+    const opRestore = GridViewUtils.containsOperationButton(props.operations, 'OP_RESTORE') || MockService.isMock();
+    const opCopy = GridViewUtils.containsOperationButton(props.operations, 'OP_COPY') || MockService.isMock();
+    const opArchive = GridViewUtils.containsOperationButton(props.operations, 'OP_ARCHIVE') || MockService.isMock();
     return (<React.Fragment>
         <div id="grid-selection-panel"
              className={props.selectedRowKeys?.length > 0 ? "d-flex flex-row grid-selection-panel grid-selection-panel-selection"
@@ -30,7 +31,7 @@ export const HeadPanel = props => {
                     <div id="grid-panel-selection" className="grid-panel-selection">
                         <div id="grid-count-panel"
                              className="grid-count-fragment center-text-in-div">Pozycje: {props.selectedRowKeys.length | 0}</div>
-                        <div id="grid-separator" className="p-1 grid-separator-fragment"></div>
+                        <div id="grid-separator" className="p-1 grid-separator-fragment"/>
                         <div id="grid-buttons-fragment" className="p-1 grid-buttons-fragment">
                             <ShortcutButton className={`grid-button-panel mr-2`}
                                             handleClick={(e) => props.handleDelete(e)}

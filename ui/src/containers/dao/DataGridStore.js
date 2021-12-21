@@ -12,6 +12,14 @@ export default class DataGridStore extends BaseService {
         this.cachedLoadOptions = null;
     }
 
+    commonCorrectUrl(correctUrl) {
+        const phraseToEraseFromUrl = '&searchOperation="contains"';
+        if (correctUrl.includes(phraseToEraseFromUrl)) {
+            correctUrl = correctUrl.replace(phraseToEraseFromUrl, '');
+        }
+        return correctUrl;
+    }
+
     getDataForCard(viewIdArg, loadOptions, recordParentIdArg, filterIdArg, kindViewArg) {
         let params = '?';
         [
@@ -41,9 +49,14 @@ export default class DataGridStore extends BaseService {
         const filterIdParam = filterIdArg !== undefined && filterIdArg != null ? `&filterId=${filterIdArg}` : '';
         const recordParentIdParam = recordParentIdArg !== undefined && recordParentIdArg != null ? `&parentId=${recordParentIdArg}` : '';
         const kindViewParam = kindViewArg !== undefined && kindViewArg != null ? `&kindView=${kindViewArg}` : '';
-        return this.fetch(`${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${recordParentIdParam}${kindViewParam}`, {
-            method: 'GET',
-        }).then((res) => {
+        let url = `${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${recordParentIdParam}${kindViewParam}`;
+        url = this.commonCorrectUrl(url);
+        return this.fetch(
+            url,
+            {
+                method: 'GET',
+            }
+        ).then((res) => {
             return Promise.resolve(res);
         });
     }
@@ -77,6 +90,7 @@ export default class DataGridStore extends BaseService {
         const kindViewParam = !!kindViewArg && !!recordParentIdParam ? `&kindView=${kindViewArg}` : '';
         const selectAllParam = !!eventSelectAll ? `&selection=true` : '';
         let url = `${this.domain}/${this.path}/${viewIdArg}${params}${viewTypeParam}${filterIdParam}${selectAllParam}${recordParentIdParam}${kindViewParam}`;
+        url = this.commonCorrectUrl(url);
         return this.fetch(
             url,
             {
@@ -136,6 +150,7 @@ export default class DataGridStore extends BaseService {
                 const kindViewParam = !!kindViewArg && !!recordParentIdParam ? `&kindView=${kindViewArg}` : '';
                 const selectAllParam = !!addSelectAllParam ? `&selection=true` : '';
                 let url = `${this.domain}/${this.path}/${viewIdArg}${params}${viewTypeParam}${filterIdParam}${selectAllParam}${recordParentIdParam}${kindViewParam}`;
+                url = this.commonCorrectUrl(url);
                 //blokuj dziwne strzały ze stora
                 if (url.split("&").length - 1 <= 2) {
                     if (onSuccess) {

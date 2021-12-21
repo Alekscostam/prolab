@@ -13,7 +13,7 @@ import {loadMessages, locale as devExpressLocale} from "devextreme/localization"
 import AppPrefixUtils from "./utils/AppPrefixUtils";
 import packageJson from '../package.json';
 import ReadConfigService from "./services/ReadConfigService";
-import {readCookieGlobal, saveCookieGlobal} from "./utils/Cookie";
+import {readObjFromCookieGlobal, saveObjToCookieGlobal} from "./utils/Cookie";
 import LocalizationService from './services/LocalizationService';
 import config from "devextreme/core/config";
 import ConsoleHelper from "./utils/ConsoleHelper";
@@ -76,7 +76,7 @@ class App extends Component {
             browseUrl = browseUrl.substring(0, id + 1);
         }
         let configUrl;
-        const urlPrefixCookie = readCookieGlobal("REACT_APP_URL_PREFIX");
+        const urlPrefixCookie = readObjFromCookieGlobal("REACT_APP_URL_PREFIX");
         if (urlPrefixCookie === undefined || urlPrefixCookie == null || urlPrefixCookie === '') {
             configUrl = browseUrl
             // .trim()
@@ -97,8 +97,8 @@ class App extends Component {
 
     readConfigAndSaveInCookie(configUrl) {
         return new ReadConfigService(configUrl).getConfiguration().then(configuration => {
-            saveCookieGlobal("REACT_APP_BACKEND_URL", configuration.REACT_APP_BACKEND_URL);
-            saveCookieGlobal("REACT_APP_URL_PREFIX", configuration.REACT_APP_URL_PREFIX);
+            saveObjToCookieGlobal("REACT_APP_BACKEND_URL", configuration.REACT_APP_BACKEND_URL);
+            saveObjToCookieGlobal("REACT_APP_URL_PREFIX", configuration.REACT_APP_URL_PREFIX);
             this.setState({
                 loadedConfiguration: true,
                 config: configuration,

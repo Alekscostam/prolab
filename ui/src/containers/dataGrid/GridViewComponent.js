@@ -180,12 +180,12 @@ class GridViewComponent extends React.Component {
                             let el = document.createElement('div');
                             el.id = `actions-${info.column.headerId}-${info.rowIndex}`;
                             element.append(el);
-                            const elementSubViewId = this.props.elementSubViewId;
-                            const elementKindView = this.props.elementKindView;
-                            const elementId = this.props.id;
-                            const viewId = GridViewUtils.getRealViewId(elementSubViewId, elementId);
+                            const subViewId = this.props.elementSubViewId;
+                            const kindView = this.props.elementKindView;
                             const recordId = info.row?.data?.ID;
-                            const subviewId = elementSubViewId ? elementId : undefined;
+                            const parentId = this.props.elementRecordId;
+                            let viewId = this.props.id;
+                            viewId = GridViewUtils.getRealViewId(subViewId, viewId);
                             ReactDOM.render(
                                 <div style={{textAlign: 'center'}}>
                                     <ShortcutButton
@@ -197,7 +197,7 @@ class GridViewComponent extends React.Component {
                                             let result = this.props.handleBlockUi();
                                             if (result) {
                                                 this.editService
-                                                    .getEdit(viewId, recordId, subviewId, elementKindView)
+                                                    .getEdit(viewId, recordId, parentId, kindView)
                                                     .then((editDataResponse) => {
                                                         this.props.handleShowEditPanel(editDataResponse);
                                                     })
@@ -416,6 +416,7 @@ GridViewComponent.defaultProps = {
 GridViewComponent.propTypes = {
     id: PropTypes.number.isRequired,
     elementSubViewId: PropTypes.number,
+    elementRecordId: PropTypes.number,
     elementKindView: PropTypes.string,
     parsedGridView: PropTypes.object.isRequired,
     parsedGridViewData: PropTypes.object.isRequired,

@@ -1006,8 +1006,9 @@ class BaseContainer extends React.Component {
 
     rowSave = (viewId, recordId, parentId, saveElement, confirmSave) => {
         this.blockUi();
+        const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
         this.editService
-            .save(viewId, recordId, parentId, saveElement, confirmSave)
+            .save(viewId, recordId, parentId, kindView, saveElement, confirmSave)
             .then((saveResponse) => {
                 switch (saveResponse.status) {
                     case 'OK':
@@ -1184,8 +1185,9 @@ class BaseContainer extends React.Component {
 
     refreshFieldVisibility(viewInfo) {
         const refreshObject = this.editService.createObjectToRefresh(this.state)
+        const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
         this.editService
-            .refreshFieldVisibility(viewInfo.viewId, viewInfo.recordId, viewInfo.parentId, refreshObject)
+            .refreshFieldVisibility(viewInfo.viewId, viewInfo.recordId, viewInfo.parentId, kindView, refreshObject)
             .then((editRefreshResponse) => {
                 let arrayTmp = editRefreshResponse?.data;
                 let editData = this.state.editData;

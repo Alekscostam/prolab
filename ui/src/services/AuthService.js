@@ -1,6 +1,6 @@
 import decode from 'jwt-decode';
 import moment from 'moment';
-import {readCookieGlobal} from "../utils/Cookie";
+import {readObjFromCookieGlobal} from "../utils/Cookie";
 import ConsoleHelper from "../utils/ConsoleHelper";
 
 /*
@@ -13,7 +13,7 @@ export default class AuthService {
         if (domain !== null && domain !== undefined) {
             this.domain = domain;
         } else {
-            this.domain = readCookieGlobal("REACT_APP_BACKEND_URL"); // API server domain
+            this.domain = readObjFromCookieGlobal("REACT_APP_BACKEND_URL"); // API server domain
         }
         this.fetch = this.fetch.bind(this);
         this.setUiMethods = this.setUiMethods.bind(this);
@@ -170,12 +170,7 @@ export default class AuthService {
         try {
             const decoded = decode(token);
             let seconds = moment().diff(new Date(decoded.created), 'seconds');
-            if (seconds > 30) {
-                // Checking if token is expired. N
-                return true;
-            } else {
-                return false;
-            }
+            return seconds > 30;
         } catch (err) {
             return false;
         }
@@ -184,10 +179,7 @@ export default class AuthService {
     isTokenExpiredDate() {
         try {
             const expirationTokenDateStr = localStorage.getItem('expiration_token');
-            if (!expirationTokenDateStr || new Date(expirationTokenDateStr * 1000) < Date.now()) {
-                // Checking if token is expired.
-                return true;
-            } else return false;
+            return !expirationTokenDateStr || new Date(expirationTokenDateStr * 1000) < Date.now();
         } catch (err) {
             return false;
         }
