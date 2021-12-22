@@ -719,7 +719,7 @@ export class ViewContainer extends BaseContainer {
                                             if (filterArray.length > 0) {
                                                 filterArray.push('and')
                                             }
-                                            filterArray.push([columnName, '=', inputValue])
+                                            filterArray.push([columnName, 'contains', inputValue])
                                         }
                                     }
                                 }

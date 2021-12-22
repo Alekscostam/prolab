@@ -120,7 +120,7 @@ class App extends Component {
                 this.messages?.show({
                     severity: 'error',
                     sticky: false,
-                    life: 100000000,
+                    life: 10000,
                     summary: LocUtils.loc(labels, 'Logout_User', 'Sesja wygasła'),
                     detail: LocUtils.loc(labels, 'Session_Expired', 'Nastąpiło wylogowanie użytkownika z powodu przekroczenia czasu bezczynności użytkownika'),
                 });
