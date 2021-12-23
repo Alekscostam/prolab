@@ -1141,7 +1141,7 @@ class BaseContainer extends React.Component {
                 case 'CHECKBOX':
                     varName = event.target.name;
                     varValue = event.checked ? event.checked : false;
-                    refreshFieldVisibility = false || info.field.refreshFieldVisibility
+                    refreshFieldVisibility = event.refreshFieldVisibility
                     break;
                 case 'EDITOR':
                     varName = event.name;

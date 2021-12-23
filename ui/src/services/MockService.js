@@ -10,7 +10,8 @@ export default class MockService {
     static getFieldValueOrMock(value, fieldName) {
         if (MockService.isMock()) {
             const valueFromCookie = readValueCookieGlobal(fieldName);
-            return !valueFromCookie ? value : valueFromCookie === 'true';
+            const ret = !valueFromCookie ? value : valueFromCookie === 'true';
+            return ret;
         }
         return value;
     }

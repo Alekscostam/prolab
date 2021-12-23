@@ -347,14 +347,6 @@ export class EditRowComponent extends BaseContainer {
     }
 
     renderInputComponent(field, fieldIndex, onChange, onBlur, groupName, required, validatorMsgs, onClickEditList) {
-        const autoFill = field?.autoFill ? 'autofill-border' : '';
-        const validate = !!validatorMsgs ? 'p-invalid' : '';
-        const autoFillCheckbox = field?.autoFill ? 'autofill-border-checkbox' : '';
-        const validateCheckbox = !!validatorMsgs ? 'p-invalid-checkbox' : '';
-        const labelColor = !!field.labelColor ? field.labelColor : '';
-        const selectionList = field?.selectionList ? 'p-inputgroup' : null;
-        let info = this.props.editData?.editInfo;
-        info.field = field;
         //mock functionality
         field.edit = MockService.getFieldValueOrMock(field.edit, 'edit');
         field.autoFill = MockService.getFieldValueOrMock(field.autoFill, 'autoFill');
@@ -363,6 +355,15 @@ export class EditRowComponent extends BaseContainer {
         field.refreshFieldVisibility = MockService.getFieldValueOrMock(field.refreshFieldVisibility, 'refreshFieldVisibility');
         field.selectionList = MockService.getFieldValueOrMock(field.selectionList, 'selectionList');
         field.visible = MockService.getFieldValueOrMock(field.visible, 'visible');
+        //end mock functionality
+        const autoFill = field?.autoFill ? 'autofill-border' : '';
+        const validate = !!validatorMsgs ? 'p-invalid' : '';
+        const autoFillCheckbox = field?.autoFill ? 'autofill-border-checkbox' : '';
+        const validateCheckbox = !!validatorMsgs ? 'p-invalid-checkbox' : '';
+        const labelColor = !!field.labelColor ? field.labelColor : '';
+        const selectionList = field?.selectionList ? 'p-inputgroup' : null;
+        const refreshFieldVisibility = !!field?.refreshFieldVisibility ? true : false;
+        let info = this.props.editData?.editInfo;
         switch (field.type) {
             case 'C'://C – Znakowy
             default:
@@ -415,7 +416,12 @@ export class EditRowComponent extends BaseContainer {
                     <Checkbox id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                               name={field.fieldName}
                               className={`${autoFillCheckbox} ${validateCheckbox}`}
-                              onChange={e => onChange ? onChange('CHECKBOX', e, groupName, info) : null}
+                              onChange={(e) => {
+                                  if (this.props.onChange) {
+                                      e.refreshFieldVisibility = refreshFieldVisibility
+                                      this.props.onChange('CHECKBOX', e, groupName, info);
+                                  }
+                              }}
                               checked={field.value === true || GridViewUtils.conditionForTrueValueForBoolType(field.value)}
                               disabled={!field.edit}
                               required={required}
