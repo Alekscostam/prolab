@@ -362,7 +362,7 @@ export class EditRowComponent extends BaseContainer {
         const validateCheckbox = !!validatorMsgs ? 'p-invalid-checkbox' : '';
         const labelColor = !!field.labelColor ? field.labelColor : '';
         const selectionList = field?.selectionList ? 'p-inputgroup' : null;
-        const refreshFieldVisibility = !!field?.refreshFieldVisibility ? true : false;
+        const refreshFieldVisibility = !!field?.refreshFieldVisibility;
         let info = this.props.editData?.editInfo;
         switch (field.type) {
             case 'C'://C – Znakowy
