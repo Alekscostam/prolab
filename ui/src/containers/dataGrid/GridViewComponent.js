@@ -337,7 +337,6 @@ class GridViewComponent extends React.Component {
                     renderAsync={true}
                     selectAsync={false}
                     cacheEnabled={false}
-                    remoteOperations={true}
                     onCellClick={(e) => {
                         if (!!this.props.handleSelectAll) {
                             if (this.ifSelectAllEvent(e)) {
@@ -371,7 +370,7 @@ class GridViewComponent extends React.Component {
                     <FilterRow visible={showFilterRow} applyFilter={true}/>
                     <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'}/>
 
-                    <Grouping autoExpandAll={groupExpandAll} allowCollapsing={true}/>
+                    <Grouping autoExpandAll={groupExpandAll} allowCollapsing={true} contextMenuEnabled={true}/>
                     <GroupPanel visible={showGroupPanel}/>
 
                     <Sorting mode='multiple'/>
@@ -383,7 +382,7 @@ class GridViewComponent extends React.Component {
                                deferred={this.props.selectionDeferred}
                     />
 
-                    <Scrolling mode="virtual" rowRenderingMode="virtual"/>
+                    <Scrolling mode="virtual" rowRenderingMode="virtual" preloadEnabled={false}/>
                     <Paging defaultPageSize={packageCount} pageSize={packageCount}/>
 
                     <LoadPanel enabled={true}
@@ -442,7 +441,7 @@ GridViewComponent.propTypes = {
     showSelection: PropTypes.bool,
     dataGridHeight: PropTypes.number,
     dataGridStoreSuccess: PropTypes.bool,
-    allowSelectAll: PropTypes.bool,
+    allowSelectAll: PropTypes.bool
 };
 
 
