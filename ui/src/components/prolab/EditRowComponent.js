@@ -27,6 +27,8 @@ import {Toast} from "primereact/toast";
 import EditRowUtils from "../../utils/EditRowUtils";
 import EditListDataStore from "../../containers/dao/EditListDataStore";
 import EditListUtils from "../../utils/EditListUtils";
+import MockService from "../../services/MockService";
+import LocUtils from "../../utils/LocUtils";
 
 export class EditRowComponent extends BaseContainer {
 
@@ -36,6 +38,7 @@ export class EditRowComponent extends BaseContainer {
 
         this.state = {
             loading: true,
+            editListField: {},
             editListVisible: false,
             parsedGridView: {},
             parsedGridViewData: {},
@@ -124,7 +127,7 @@ export class EditRowComponent extends BaseContainer {
                         let CALC_CRC = EditListUtils.calculateCRC(singleSelectedRowDataTmp)
                         defaultSelectedRowKeysTmp.push(CALC_CRC);
                     }
-                    ConsoleHelper("EditRowComponent::EditRowComponenteditListVisible:: defaultSelectedRowKeys = %s hash = %s ", JSON.stringify(selectedRowDataTmp), JSON.stringify(defaultSelectedRowKeysTmp))
+                    ConsoleHelper("EditRowComponent::ListVisible:: defaultSelectedRowKeys = %s hash = %s ", JSON.stringify(selectedRowDataTmp), JSON.stringify(defaultSelectedRowKeysTmp))
                     let filtersListTmp = [];
                     this.setState(() => ({
                             gridViewType: responseView?.viewInfo?.type,
@@ -166,6 +169,7 @@ export class EditRowComponent extends BaseContainer {
                             this.setState({
                                 loading: false,
                                 parsedGridViewData: res,
+                                editListField: field,
                                 editListVisible: true
                             });
                         }
@@ -188,6 +192,7 @@ export class EditRowComponent extends BaseContainer {
         return <React.Fragment>
             <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)}/>
             <EditListComponent visible={editListVisible}
+                               field={this.state.editListField}
                                parsedGridView={this.state.parsedGridView}
                                parsedGridViewData={this.state.parsedGridViewData}
                                gridViewColumns={this.state.gridViewColumns}
@@ -197,9 +202,10 @@ export class EditRowComponent extends BaseContainer {
                                    return true;
                                }}
                                handleUnblockUi={() => this.unblockUi}
-                               handleOnChosen={(editListData) => {
+                               handleOnChosen={(editListData, field) => {
                                    ConsoleHelper('EditRowComponent::handleOnChosen = ', JSON.stringify(editListData))
                                    let editInfo = this.props.editData?.editInfo;
+                                   editInfo.field = field;
                                    this.props.onEditList(editInfo, editListData);
                                }}
                                showErrorMessages={(err) => this.showErrorMessages(err)}
@@ -207,6 +213,7 @@ export class EditRowComponent extends BaseContainer {
                                selectedRowData={this.state.selectedRowData}
                                defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
                                handleSelectedRowData={(e) => this.handleSelectedRowData(e)}
+                               labels={this.props.labels}
             />
             <Sidebar
                 id='right-sidebar'
@@ -245,7 +252,7 @@ export class EditRowComponent extends BaseContainer {
                 <form onSubmit={this.handleFormSubmit} noValidate>
                     <div id="row-edit" className="row-edit-container">
                         {this.preventSave ? <div id="validation-panel" className="validation-panel">
-                            Wypełnij wszystkie wymagane pola
+                            {LocUtils.loc(this.props.labels, 'Fields_Mandatory_Label', 'Wypełnij wszystkie wymagane pola')}
                         </div> : null}
                         {editData?.editFields?.map((group, index) => {
                                 return this.renderGroup(group, index)
@@ -346,15 +353,23 @@ export class EditRowComponent extends BaseContainer {
         const validateCheckbox = !!validatorMsgs ? 'p-invalid-checkbox' : '';
         const labelColor = !!field.labelColor ? field.labelColor : '';
         const selectionList = field?.selectionList ? 'p-inputgroup' : null;
-        let editInfo = this.props.editData?.editInfo;
-        //odkomentowac dla mocka
-        field.edit = true;
+        let info = this.props.editData?.editInfo;
+        info.field = field;
+        //mock functionality
+        field.edit = MockService.getFieldValueOrMock(field.edit, 'edit');
+        field.autoFill = MockService.getFieldValueOrMock(field.autoFill, 'autoFill');
+        field.autoFillOnlyEmpty = MockService.getFieldValueOrMock(field.autoFillOnlyEmpty, 'autoFillOnlyEmpty');
+        field.requiredValue = MockService.getFieldValueOrMock(field.requiredValue, 'requiredValue');
+        field.refreshFieldVisibility = MockService.getFieldValueOrMock(field.refreshFieldVisibility, 'refreshFieldVisibility');
+        field.selectionList = MockService.getFieldValueOrMock(field.selectionList, 'selectionList');
+        field.visible = MockService.getFieldValueOrMock(field.visible, 'visible');
         switch (field.type) {
             case 'C'://C – Znakowy
             default:
                 return (<React.Fragment>
                     <label htmlFor={`field_${fieldIndex}`}
-                           style={{color: labelColor}}>{field.label}{required ? '*' : ''}</label>
+                           style={{color: labelColor}}
+                           title={MockService.printField(field)}>{field.label}{required ? '*' : ''}</label>
                     <div className={`${selectionList}`}>
                         <InputText id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                                    name={field.fieldName}
@@ -362,8 +377,8 @@ export class EditRowComponent extends BaseContainer {
                                    style={{width: '100%'}}
                                    type="text"
                                    value={field.value}
-                                   onChange={e => onChange ? onChange('TEXT', e, groupName, editInfo) : null}
-                                   onBlur={e => onBlur ? onBlur('TEXT', e, groupName, editInfo) : null}
+                                   onChange={e => onChange ? onChange('TEXT', e, groupName, info) : null}
+                                   onBlur={e => onBlur ? onBlur('TEXT', e, groupName, info) : null}
                                    disabled={!field.edit}
                                    required={required}
                         />
@@ -373,7 +388,8 @@ export class EditRowComponent extends BaseContainer {
                 </React.Fragment>);
             case "N"://N – Numeryczny/Liczbowy
                 return (<React.Fragment>
-                    <label htmlFor={`field_${fieldIndex}`}>{field.label}{required ? '*' : ''}</label>
+                    <label htmlFor={`field_${fieldIndex}`}
+                           title={MockService.printField(field)}>{field.label}{required ? '*' : ''}</label>
                     <div className={`${selectionList}`}>
                         <InputText id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                                    name={field.fieldName}
@@ -381,11 +397,10 @@ export class EditRowComponent extends BaseContainer {
                                    style={{width: '100%'}}
                                    value={field.value}
                                    type="number"
-                                   onChange={e => onChange ? onChange('TEXT', e, groupName, editInfo) : null}
-                                   onBlur={e => onBlur ? onBlur('TEXT', e, groupName, editInfo) : null}
+                                   onChange={e => onChange ? onChange('TEXT', e, groupName, info) : null}
+                                   onBlur={e => onBlur ? onBlur('TEXT', e, groupName, info) : null}
                                    disabled={!field.edit}
                                    required={required}
-                                   padControl="false"
                         />
                         {!!selectionList ? <Button type="button" onClick={onClickEditList} icon="pi pi-question-circle"
                                                    className="p-button-secondary"/> : null}
@@ -394,28 +409,31 @@ export class EditRowComponent extends BaseContainer {
             case 'B'://B – Logiczny (0/1)
                 return (<React.Fragment>
                     <label htmlFor={`bool_field_${fieldIndex}`}
+                           title={MockService.printField(field)}
                            style={{color: labelColor}}>{field.label}{required ? '*' : ''}</label>
                     <br/>
                     <Checkbox id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                               name={field.fieldName}
                               className={`${autoFillCheckbox} ${validateCheckbox}`}
-                              onChange={e => onChange ? onChange('CHECKBOX', e, groupName, editInfo) : null}
+                              onChange={e => onChange ? onChange('CHECKBOX', e, groupName, info) : null}
                               checked={field.value === true || GridViewUtils.conditionForTrueValueForBoolType(field.value)}
                               disabled={!field.edit}
-                              required={required}>
+                              required={required}
+                    >
                     </Checkbox>
                 </React.Fragment>);
             case 'L'://L – Logiczny (T/N)
                 return (<React.Fragment>
                     <label htmlFor={`yes_no_field_${fieldIndex}`}
-                           style={{color: labelColor}}>{field.label}{required ? '*' : ''}</label>
+                           style={{color: labelColor}}
+                           title={MockService.printField(field)}>{field.label}{required ? '*' : ''}</label>
                     <Dropdown id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                               name={field.fieldName}
                               className={`${autoFill} ${validate}`}
                               style={{width: '100%'}}
                               value={field.value}
                               options={this.yesNoTypes}
-                              onChange={e => onChange ? onChange('DROPDOWN', e, groupName, editInfo) : null}
+                              onChange={e => onChange ? onChange('DROPDOWN', e, groupName, info) : null}
                               appendTo="self"
                               showClear
                               optionLabel="name"
@@ -427,14 +445,15 @@ export class EditRowComponent extends BaseContainer {
             case 'D'://D – Data
                 return (<React.Fragment>
                     <label htmlFor={`date_${fieldIndex}`}
-                           style={{color: labelColor}}>{field.label}{required ? '*' : ''}</label>
+                           style={{color: labelColor}}
+                           title={MockService.printField(field)}>{field.label}{required ? '*' : ''}</label>
                     <Calendar id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                               name={field.fieldName}
                               className={`${autoFill} ${validate}`}
                               style={{width: '100%'}}
                               value={field.value}
                               dateFormat="yy-mm-dd"
-                              onChange={e => onChange ? onChange('DATE', e, groupName, editInfo) : null}
+                              onChange={e => onChange ? onChange('DATE', e, groupName, info) : null}
                               appendTo="self"
                               disabled={!field.edit}
                               required={required}
@@ -445,7 +464,8 @@ export class EditRowComponent extends BaseContainer {
             case 'E'://E – Data + czas
                 return (<React.Fragment>
                     <label htmlFor={`date_time_${fieldIndex}`}
-                           style={{color: labelColor}}>{field.label}{required ? '*' : ''}</label>
+                           style={{color: labelColor}}
+                           title={MockService.printField(field)}>{field.label}{required ? '*' : ''}</label>
                     <Calendar id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                               showTime
                               hourFormat="24"
@@ -455,7 +475,7 @@ export class EditRowComponent extends BaseContainer {
                               value={field.value}
                               dateFormat="yy-mm-dd"
                               appendTo="self"
-                              onChange={e => onChange ? onChange('DATETIME', e, groupName, editInfo) : null}
+                              onChange={e => onChange ? onChange('DATETIME', e, groupName, info) : null}
                               disabled={!field.edit}
                               required={required}
                               showButtonBar
@@ -465,7 +485,8 @@ export class EditRowComponent extends BaseContainer {
             case 'T'://T – Czas
                 return (<React.Fragment>
                     <label htmlFor={`time_${fieldIndex}`}
-                           style={{color: labelColor}}>{field.label}{required ? '*' : ''}</label>
+                           style={{color: labelColor}}
+                           title={MockService.printField(field)}>{field.label}{required ? '*' : ''}</label>
                     <Calendar id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                               timeOnly
                               showTime
@@ -475,7 +496,7 @@ export class EditRowComponent extends BaseContainer {
                               style={{width: '100%'}}
                               value={field.value}
                               appendTo="self"
-                              onChange={e => onChange ? onChange('TIME', e, groupName, editInfo) : null}
+                              onChange={e => onChange ? onChange('TIME', e, groupName, info) : null}
                               disabled={!field.edit}
                               required={required}
                               showButtonBar
@@ -485,7 +506,8 @@ export class EditRowComponent extends BaseContainer {
             case 'O'://O – Opisowe
                 return (<React.Fragment>
                     <label style={{color: labelColor}}
-                           htmlFor={`${EditRowUtils.getType(field.type)}${fieldIndex}`}>{field.label}{required ? '*' : ''}</label>
+                           htmlFor={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
+                           title={MockService.printField(field)}>{field.label}{required ? '*' : ''}</label>
                     <HtmlEditor
                         id={`editor_${fieldIndex}`}
                         className={`editor ${autoFill} ${validate}`}
@@ -495,9 +517,9 @@ export class EditRowComponent extends BaseContainer {
                                 name: field.fieldName,
                                 value: e
                             }
-                            onChange('EDITOR', event, groupName, editInfo)
+                            onChange('EDITOR', event, groupName, info)
                         }}
-                        onFocusOut={e => onBlur ? onBlur('EDITOR', e, groupName, editInfo) : null}
+                        onFocusOut={e => onBlur ? onBlur('EDITOR', e, groupName, info) : null}
                         validationMessageMode="always"
                         disabled={!field.edit}
                         required={true}
@@ -546,7 +568,8 @@ export class EditRowComponent extends BaseContainer {
                 return (<React.Fragment>
                     <div className={`image-base ${autoFill} ${validate}`}>
                         <label style={{color: labelColor}}
-                               htmlFor={`image_${fieldIndex}`}>{field.label}{required ? '*' : ''}</label>
+                               htmlFor={`image_${fieldIndex}`}
+                               title={MockService.printField(field)}>{field.label}{required ? '*' : ''}</label>
                         <br/>
                         <UploadMultiImageFileBase64 multiple={false}
                                                     displayText={""}
@@ -557,7 +580,7 @@ export class EditRowComponent extends BaseContainer {
                                                             base64: e
                                                         },
                                                         groupName,
-                                                        editInfo)}
+                                                        info)}
                                                     onError={(e) => this.props.onError(e)}/>
                     </div>
                 </React.Fragment>);
@@ -565,7 +588,8 @@ export class EditRowComponent extends BaseContainer {
                 return (<React.Fragment>
                     <div className={`image-base ${autoFill} ${validate}`}>
                         <label style={{color: labelColor}}
-                               htmlFor={`image_${fieldIndex}`}>{field.label}{required ? '*' : ''}</label>
+                               htmlFor={`image_${fieldIndex}`}
+                               title={MockService.printField(field)}>{field.label}{required ? '*' : ''}</label>
                         <br/>
                         <UploadMultiImageFileBase64 multiple={true}
                                                     displayText={""}
@@ -576,14 +600,15 @@ export class EditRowComponent extends BaseContainer {
                                                             base64: e
                                                         },
                                                         groupName,
-                                                        editInfo)}
+                                                        info)}
                                                     onError={(e) => this.props.onError(e)}/>
                     </div>
                 </React.Fragment>);
             case 'H'://H - Hyperlink
                 return (<React.Fragment>
                     <label style={{color: labelColor}}
-                           htmlFor={`field_${fieldIndex}`}>{field.label}{required ? '*' : ''}</label>
+                           htmlFor={`field_${fieldIndex}`}
+                           title={MockService.printField(field)}>{field.label}{required ? '*' : ''}</label>
                     <InputText id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                                name={field.fieldName}
                                className={`${autoFill} ${validate}`}
@@ -591,9 +616,9 @@ export class EditRowComponent extends BaseContainer {
                                type="text"
                                value={field.value}
                                onChange={e =>
-                                   onChange ? onChange('TEXT', e, groupName, editInfo) : null
+                                   onChange ? onChange('TEXT', e, groupName, info) : null
                                }
-                               onBlur={e => onBlur ? onBlur('TEXT', e, groupName, editInfo) : null}
+                               onBlur={e => onBlur ? onBlur('TEXT', e, groupName, info) : null}
                                disabled={!field.edit}
                                required={required}
                     />
@@ -627,6 +652,7 @@ EditRowComponent.propTypes = {
     onHide: PropTypes.func.isRequired,
     validator: PropTypes.instanceOf(SimpleReactValidator).isRequired,
     onError: PropTypes.func,
+    labels: PropTypes.object.isRequired,
 };
 
 export default EditRowComponent;

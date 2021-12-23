@@ -34,6 +34,7 @@ export class ActionButtonWithMenu extends React.Component {
         return (
             <React.Fragment>
                 <Menu
+                    appendTo={document.body}
                     id={`${id}_popup_menu`}
                     className='action-button-with-menu-popup'
                     popup
@@ -53,7 +54,7 @@ export class ActionButtonWithMenu extends React.Component {
                     params={params}
                     rendered={rendered}
                     title={title}
-                ></ShortcutButton>
+                />
             </React.Fragment>
         );
     }

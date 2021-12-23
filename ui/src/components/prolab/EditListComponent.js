@@ -4,13 +4,13 @@ import {Dialog} from "primereact/dialog";
 import GridViewComponent from "../../containers/dataGrid/GridViewComponent";
 import {Button} from "primereact/button";
 import {GridViewUtils} from "../../utils/GridViewUtils";
+import LocUtils from "../../utils/LocUtils";
 
 export default class EditListComponent extends React.Component {
 
     constructor(props) {
         super(props);
         this.refDataGrid = {};
-
     }
 
     handleSelectedRowData({selectedRowsData}) {
@@ -21,12 +21,10 @@ export default class EditListComponent extends React.Component {
         let width = this.props.parsedGridView?.info?.windowSize?.width || '50vw';
         let height = this.props.parsedGridView?.info?.windowSize?.height || undefined;
         let opSelect = GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_SELECT');
-        //odkomentowac dla mocka
-        // let opSelect = {label: 'Dodaj'}
         return (
             <React.Fragment>
                 <Dialog id="editListDialog"
-                        header="Lista podpowiedzi"
+                        header={LocUtils.loc(this.props.labels, 'Selection_List_Label', 'Lista podpowiedzi')}
                         footer={opSelect ?
                             <Button
                                 type="button"
@@ -50,7 +48,7 @@ export default class EditListComponent extends React.Component {
                                             })
                                             field.fieldValue = values.join(separatorJoin);
                                         })
-                                        this.props.handleOnChosen(setFields);
+                                        this.props.handleOnChosen(setFields, this.props.field);
                                     }
                                     this.props.onHide();
                                 }}
@@ -62,9 +60,6 @@ export default class EditListComponent extends React.Component {
                         style={{width: width, height: height, minWidth: width, minHeight: height}}
                         onHide={() => this.props.onHide()}
                 >
-                    {/*selectedRowData: {JSON.stringify(this.props.selectedRowData)}*/}
-                    {/*<br/>*/}
-                    {/*selectedRowDataSize: {this.props.selectedRowData?.length}*/}
                     <GridViewComponent
                         id={this.props.id}
                         elementSubViewId={null}
@@ -102,6 +97,7 @@ EditListComponent.defaultProps = {
     id: PropTypes.number.isRequired,
     visible: PropTypes.bool.isRequired,
     onHide: PropTypes.func.isRequired,
+    field: PropTypes.object.isRequired,
     parsedGridView: PropTypes.object.isRequired,
     parsedGridViewData: PropTypes.object.isRequired,
     gridViewColumns: PropTypes.object.isRequired,
@@ -113,5 +109,6 @@ EditListComponent.defaultProps = {
     selectedRowData: PropTypes.object.isRequired,
     defaultSelectedRowKeys: PropTypes.object.isRequired,
     handleSelectedRowData: PropTypes.func.isRequired,
+    labels: PropTypes.object.isRequired,
 };
 

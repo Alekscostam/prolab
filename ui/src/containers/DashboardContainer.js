@@ -139,6 +139,7 @@ class DashboardContainer extends BaseContainer {
                         reject: () => undefined,
                     }) : this.setState({visibleEditPanel: e})}
                     onError={(e) => this.showErrorMessage(e)}
+                    labels={this.props.labels}
                 />
             </React.Fragment>)
     }

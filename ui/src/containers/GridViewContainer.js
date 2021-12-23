@@ -320,7 +320,7 @@ export class GridViewContainer extends BaseContainer {
                         onCancel={this.handleCancelRowChange}
                         validator={this.validator}
                         onHide={(e) => !!this.state.modifyEditData ? confirmDialog({
-                            appendTo:  document.body,
+                            appendTo: document.body,
                             message: LocUtils.loc(this.props.labels, 'Question_Close_Edit', 'Czy na pewno chcesz zamknąć edycję?'),
                             header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
                             icon: 'pi pi-exclamation-triangle',
@@ -330,6 +330,7 @@ export class GridViewContainer extends BaseContainer {
                             reject: () => undefined,
                         }) : this.setState({visibleEditPanel: e})}
                         onError={(e) => this.showErrorMessage(e)}
+                        labels={this.props.labels}
                     />
                 </React.Fragment>
             </React.Fragment>);
@@ -423,7 +424,7 @@ export class GridViewContainer extends BaseContainer {
                     handleDelete={() => {
                         ConsoleHelper('handleDelete');
                         confirmDialog({
-                            appendTo:  document.body,
+                            appendTo: document.body,
                             message: LocUtils.loc(this.props.labels, 'Question_Delete_Label', 'Czy na pewno chcesz usunąć zaznaczone rekordy?'),
                             header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
                             icon: 'pi pi-exclamation-triangle',
@@ -456,7 +457,7 @@ export class GridViewContainer extends BaseContainer {
                     handleRestore={() => {
                         ConsoleHelper('handleRestore');
                         confirmDialog({
-                            appendTo:  document.body,
+                            appendTo: document.body,
                             message: LocUtils.loc(this.props.labels, 'Question_Restore_Label', 'Czy na pewno chcesz przywrócić zaznaczone rekordy?'),
                             header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
                             icon: 'pi pi-exclamation-triangle',
@@ -489,7 +490,7 @@ export class GridViewContainer extends BaseContainer {
                     handleCopy={() => {
                         ConsoleHelper('handleCopy');
                         confirmDialog({
-                            appendTo:  document.body,
+                            appendTo: document.body,
                             message: LocUtils.loc(this.props.labels, 'Question_Copy_Label', 'Czy na pewno chcesz zkopiować zaznaczone rekordy?'),
                             header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
                             icon: 'pi pi-exclamation-triangle',
@@ -523,7 +524,7 @@ export class GridViewContainer extends BaseContainer {
                     handleArchive={() => {
                         ConsoleHelper('handleArchive');
                         confirmDialog({
-                            appendTo:  document.body,
+                            appendTo: document.body,
                             message: LocUtils.loc(this.props.labels, 'Question_Archive_Label', 'Czy na pewno chcesz przenieść do archiwum zaznaczone rekordy?'),
                             header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
                             icon: 'pi pi-exclamation-triangle',

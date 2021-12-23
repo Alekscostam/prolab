@@ -123,7 +123,6 @@ export class ViewContainer extends BaseContainer {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        ConsoleHelper('ViewContainer::componentDidUpdate prevProps id={%s} id={%s}', prevProps.id, this.props.id);
         let id = UrlUtils.getViewIdFromURL();
         if (id === undefined) {
             id = this.props.id;
@@ -136,14 +135,6 @@ export class ViewContainer extends BaseContainer {
         const parentId = UrlUtils.getURLParameter('parentId');
         const kindView = UrlUtils.getURLParameter('kindView');
         const firstSubViewMode = !!recordId && !!id && !!!subViewId;
-        ConsoleHelper('ViewContainer::componentDidUpdate: firstSubViewMode -> ' + firstSubViewMode);
-        ConsoleHelper(`ViewContainer::componentDidUpdate: store params -> Id =  ${id} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`);
-        ConsoleHelper(`ViewContainer::componentDidUpdate: elementId=${this.state.elementId}, id=${id}, 
-            firstSubViewMode=${firstSubViewMode}, elementSubViewId=${this.state.elementSubViewId}, subViewId=${subViewId}, 
-            elementRecordId=${this.state.elementRecordId}, recordId=${recordId},
-            prevState.gridViewType=${this.state.gridViewType}, viewType=${viewType}`,
-            this.state.subView
-        );
         const fromSubviewToFirstSubView =
             firstSubViewMode &&
             this.state.elementSubViewId &&
@@ -151,20 +142,17 @@ export class ViewContainer extends BaseContainer {
             this.state.subView.subViews &&
             this.state.subView.subViews.length > 0 &&
             this.state.elementSubViewId !== this.state.subView.subViews[0].id;
-
-        ConsoleHelper('ViewContainer::componentDidUpdate -> ' + prevState.gridViewType + '::' + this.state.gridViewType);
-        if (
-            !!force ||
+        const updatePage = !!force ||
             !GridViewUtils.equalNumbers(this.state.elementId, id) ||
             (!firstSubViewMode && !GridViewUtils.equalNumbers(this.state.elementSubViewId, subViewId)) ||
             fromSubviewToFirstSubView ||
             !GridViewUtils.equalNumbers(this.state.elementFilterId, filterId) ||
             !GridViewUtils.equalNumbers(this.state.elementRecordId, recordId)
-        ) {
+        ConsoleHelper('ViewContainer::componentDidUpdate -> updatePage={%s id={%s} id={%s} type={%s} type={%s}'
+            , updatePage, prevProps.id, this.props.id, prevState.gridViewType, this.state.gridViewType);
+        if (updatePage) {
             const newUrl = UrlUtils.deleteParameterFromURL(window.document.URL.toString(), 'force');
             window.history.replaceState('', '', newUrl);
-            ConsoleHelper('ViewContainer::componentDidUpdate -> updating....');
-            ConsoleHelper('ViewContainer::componentDidUpdate -> ' + prevState.gridViewType + '::' + this.state.gridViewType + '::' + viewType);
             this.setState(
                 {
                     elementId: id,
@@ -189,7 +177,7 @@ export class ViewContainer extends BaseContainer {
                 }
             );
         } else {
-            ConsoleHelper('ViewContainer::componentDidUpdate -> do not download view data!');
+            ConsoleHelper('ViewContainer::componentDidUpdate -> not updating !');
         }
         if (this.state.gridViewType === 'cardView' && this.cardGrid !== null) {
             this.cardGrid._scrollView.on('scroll', (e) => {
@@ -562,7 +550,7 @@ export class ViewContainer extends BaseContainer {
                         onCancel={this.handleCancelRowChange}
                         validator={this.validator}
                         onHide={(e) => !!this.state.modifyEditData ? confirmDialog({
-                            appendTo:  document.body,
+                            appendTo: document.body,
                             message: LocUtils.loc(this.props.labels, 'Question_Close_Edit', 'Czy na pewno chcesz zamknąć edycję?'),
                             header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
                             icon: 'pi pi-exclamation-triangle',
@@ -572,6 +560,7 @@ export class ViewContainer extends BaseContainer {
                             reject: () => undefined,
                         }) : this.setState({visibleEditPanel: e})}
                         onError={(e) => this.showErrorMessage(e)}
+                        labels={this.props.labels}
                     />
                 </React.Fragment>
             </React.Fragment>);
@@ -755,7 +744,7 @@ export class ViewContainer extends BaseContainer {
                     handleDelete={() => {
                         ConsoleHelper('handleDelete');
                         confirmDialog({
-                            appendTo:  document.body,
+                            appendTo: document.body,
                             message: LocUtils.loc(this.props.labels, 'Question_Delete_Label', 'Czy na pewno chcesz usunąć zaznaczone rekordy?'),
                             header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
                             icon: 'pi pi-exclamation-triangle',
@@ -793,7 +782,7 @@ export class ViewContainer extends BaseContainer {
                     handleRestore={() => {
                         ConsoleHelper('handleRestore');
                         confirmDialog({
-                            appendTo:  document.body,
+                            appendTo: document.body,
                             message: LocUtils.loc(this.props.labels, 'Question_Restore_Label', 'Czy na pewno chcesz przywrócić zaznaczone rekordy?'),
                             header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
                             icon: 'pi pi-exclamation-triangle',
@@ -831,7 +820,7 @@ export class ViewContainer extends BaseContainer {
                     handleCopy={() => {
                         ConsoleHelper('handleCopy');
                         confirmDialog({
-                            appendTo:  document.body,
+                            appendTo: document.body,
                             message: LocUtils.loc(this.props.labels, 'Question_Copy_Label', 'Czy na pewno chcesz zkopiować zaznaczone rekordy?'),
                             header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
                             icon: 'pi pi-exclamation-triangle',
@@ -869,7 +858,7 @@ export class ViewContainer extends BaseContainer {
                     handleArchive={() => {
                         ConsoleHelper('handleArchive');
                         confirmDialog({
-                            appendTo:  document.body,
+                            appendTo: document.body,
                             message: LocUtils.loc(this.props.labels, 'Question_Archive_Label', 'Czy na pewno chcesz przenieść do archiwum zaznaczone rekordy?'),
                             header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
                             icon: 'pi pi-exclamation-triangle',
