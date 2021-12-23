@@ -1014,6 +1014,7 @@ class BaseContainer extends React.Component {
                     case 'OK':
                         if (!!saveResponse.message) {
                             confirmDialog({
+                                appendTo:  document.body,
                                 message: saveResponse?.message?.text,
                                 header: saveResponse?.message?.title,
                                 icon: 'pi pi-info-circle',
@@ -1033,6 +1034,7 @@ class BaseContainer extends React.Component {
                     case 'NOK':
                         if (!!saveResponse.question) {
                             confirmDialog({
+                                appendTo:  document.body,
                                 message: saveResponse?.question?.text,
                                 header: saveResponse?.question?.title,
                                 icon: 'pi pi-question-circle',
@@ -1043,6 +1045,7 @@ class BaseContainer extends React.Component {
                             })
                         } else if (!!saveResponse.message) {
                             confirmDialog({
+                                appendTo:  document.body,
                                 message: saveResponse?.message?.text,
                                 header: saveResponse?.message?.title,
                                 icon: 'pi pi-info-circle',

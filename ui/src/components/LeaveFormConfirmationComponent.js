@@ -55,11 +55,12 @@ export class LeaveFormConfirmationComponent extends React.Component {
 
 	render() {
 		const { when } = this.props;
-		const { modalVisible, lastLocation } = this.state;
+		const { modalVisible } = this.state;
 		return (
 			<>
 				<Prompt when={when} message={this.handleBlockedNavigation} />
 				<ConfirmDialog
+					appendTo={document.body}
                     acceptLabel='TAK'
                     rejectLabel='NIE'
 					visible={modalVisible}

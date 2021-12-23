@@ -129,6 +129,7 @@ class DashboardContainer extends BaseContainer {
                     onCancel={this.handleCancelRowChange}
                     validator={this.validator}
                     onHide={(e) => !!this.state.modifyEditData ? confirmDialog({
+                        appendTo:  document.body,
                         message: LocUtils.loc(this.props.labels, 'Question_Close_Edit', 'Czy na pewno chcesz zamknąć edycję?'),
                         header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
                         icon: 'pi pi-exclamation-triangle',
