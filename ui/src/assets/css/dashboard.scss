@@ -61,3 +61,10 @@
   -o-transition: none !important;
   transition: none !important;
 }
+
+.dashboard .dx-datagrid-rowsview.dx-datagrid-nowrap.dx-scrollable.dx-visibility-change-handler.dx-scrollable-both.dx-scrollable-simulated.dx-fixed-columns {
+  border: none !important;
+}
+.dashboard .dx-pointer-events-none.dx-first-cell{
+  border: none !important;
+}

@@ -1086,13 +1086,6 @@ export class ViewContainer extends BaseContainer {
                                     handleClick={() => this.setState({visibleEditPanel: true})}
                                     rendered={showEditButton && oppEdit}
                                 />
-                                <ActionButtonWithMenu
-                                    id={`${rowData.id}_more_shortcut`}
-                                    className={`action-button-with-menu`}
-                                    iconName='mdi-dots-vertical'
-                                    items={menuItems}
-                                    remdered={showMenu}
-                                />
                                 <ShortcutButton
                                     id={`${rowData.id}_menu_button`}
                                     className={`action-button-with-menu`}
@@ -1102,6 +1095,13 @@ export class ViewContainer extends BaseContainer {
                                     href={AppPrefixUtils.locationHrefUrl(
                                         `/#/grid-view/${viewId}?recordId=${recordId}${currentBreadcrumb}`
                                     )}
+                                />
+                                <ActionButtonWithMenu
+                                    id={`${rowData.id}_more_shortcut`}
+                                    className={`action-button-with-menu`}
+                                    iconName='mdi-dots-vertical'
+                                    items={menuItems}
+                                    remdered={showMenu}
                                 />
                             </div>
                         ) : null}

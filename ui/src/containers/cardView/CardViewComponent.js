@@ -131,13 +131,6 @@ class CardViewComponent extends React.Component {
                                                 }}
                                                 rendered={showEditButton && oppEdit}
                                             />
-                                            <ActionButtonWithMenu
-                                                id={`${recordId}_more_shortcut`}
-                                                className={`action-button-with-menu`}
-                                                iconName='mdi-dots-vertical'
-                                                items={menuItems}
-                                                rendered={showMenu}
-                                            />
                                             <ShortcutButton
                                                 id={`${recordId}_menu_button`}
                                                 className={`action-button-with-menu`}
@@ -147,6 +140,13 @@ class CardViewComponent extends React.Component {
                                                 href={AppPrefixUtils.locationHrefUrl(
                                                     `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${!!currentBreadcrumb ? currentBreadcrumb : ``}`
                                                 )}
+                                            />
+                                            <ActionButtonWithMenu
+                                                id={`${recordId}_more_shortcut`}
+                                                className={`action-button-with-menu`}
+                                                iconName='mdi-dots-vertical'
+                                                items={menuItems}
+                                                rendered={showMenu}
                                             />
                                         </div>
                                     ) : null}

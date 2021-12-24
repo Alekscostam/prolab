@@ -6,12 +6,17 @@ import ReactDOM from "react-dom";
 import ShortcutButton from "../../components/prolab/ShortcutButton";
 import ActionButtonWithMenu from "../../components/prolab/ActionButtonWithMenu";
 import ConsoleHelper from "../../utils/ConsoleHelper";
+import DivContainer from "../../components/DivContainer";
+import GridViewMinimalizedComponent from "./GridViewMinimalizedComponent";
 
 class SubGridViewComponent extends React.Component {
 
     constructor(props) {
         super(props);
         ConsoleHelper('subGridViewComponent::constructor');
+        this.state = {
+            minimalized: false
+        };
     }
 
     // //very important !!!
@@ -59,72 +64,91 @@ class SubGridViewComponent extends React.Component {
         const subViewMode = !!this.props.subView;
         const viewId = this.props.subView?.viewInfo?.id;
         const recordId = this.props.subView?.headerData[0]?.ID;
+        this.props.subView?.headerColumns
+            ?.filter((c) => c.visible === true)
+            .map((c) => {
+                return c
+            });
+
         return (
             <React.Fragment>
                 {subViewMode ? (
                     <div id='selection-row' className='float-left width-100'>
-                        <DataGrid
-                            id='selection-data-grid'
-                            // keyExpr='ID'
-                            ref={(ref) => this.props.handleOnInitialized(ref)}
-                            dataSource={this.props.subView?.headerData}
-                            wordWrapEnabled={rowAutoHeight}
-                            columnAutoWidth={columnAutoWidth}
-                            allowColumnReordering={true}
-                            allowColumnResizing={true}
-                            columnHidingEnabled={false}
-                        >
-                            {this.props.subView?.headerColumns
-                                ?.filter((c) => c.visible === true)
-                                .map((c) => {
-                                    return (
+                        {this.state.minimalized ?
+                            <GridViewMinimalizedComponent subView={this.props.subView} onClick={() => {
+                                this.setState({minimalized: false});
+                                this.forceUpdate();
+                            }}/> :
+                            <div className='maximalized-sub-view'>
+                                <DataGrid
+                                    id='selection-data-grid'
+                                    ref={(ref) => this.props.handleOnInitialized(ref)}
+                                    dataSource={this.props.subView?.headerData}
+                                    wordWrapEnabled={rowAutoHeight}
+                                    columnAutoWidth={columnAutoWidth}
+                                    allowColumnReordering={true}
+                                    allowColumnResizing={true}
+                                    columnHidingEnabled={false}
+                                >
+                                    {this.props.subView?.headerColumns
+                                        ?.filter((c) => c.visible === true)
+                                        .map((c) => {
+                                            return (
+                                                <Column
+                                                    allowFixing={true}
+                                                    caption={c.label}
+                                                    dataType={GridViewUtils.specifyColumnType(c?.type)}
+                                                    format={GridViewUtils.specifyColumnFormat(c?.type)}
+                                                    cellTemplate={GridViewUtils.cellTemplate(c)}
+                                                    dataField={c.fieldName}
+                                                />
+                                            );
+                                        })}
+                                    {showEditButton || showMenu ? (
                                         <Column
                                             allowFixing={true}
-                                            caption={c.label}
-                                            dataType={GridViewUtils.specifyColumnType(c?.type)}
-                                            format={GridViewUtils.specifyColumnFormat(c?.type)}
-                                            cellTemplate={GridViewUtils.cellTemplate(c)}
-                                            dataField={c.fieldName}
-                                        />
-                                    );
-                                })}
-                            {showEditButton || showMenu ? (
-                                <Column
-                                    allowFixing={true}
-                                    caption=''
-                                    width={widthTmp}
-                                    fixed={true}
-                                    fixedPosition='right'
-                                    cellTemplate={(element, info) => {
-                                        ReactDOM.render(
-                                            <div>
-                                                <ShortcutButton
-                                                    id={`${info.column.headerId}_menu_button`}
-                                                    className={`action-button-with-menu`}
-                                                    iconName={'mdi-pencil'}
-                                                    handleClick={(e) => {
-                                                        e.viewId = viewId;
-                                                        e.recordId = recordId;
-                                                        this.props.handleOnEditClick(e)
-                                                    }}
-                                                    label={''}
-                                                    rendered={showEditButton}
-                                                />
-                                                <ActionButtonWithMenu
-                                                    id='more_shortcut'
-                                                    iconName='mdi-dots-vertical'
-                                                    className={``}
-                                                    items={menuItems}
-                                                    rendered={showMenu}
-                                                    title={labels['View_AdditionalOptions']}
-                                                />
-                                            </div>,
-                                            element
-                                        );
-                                    }}
-                                ></Column>
-                            ) : null}
-                        </DataGrid>
+                                            caption=''
+                                            width={widthTmp}
+                                            fixed={true}
+                                            fixedPosition='right'
+                                            cellTemplate={(element, info) => {
+                                                ReactDOM.render(
+                                                    <div>
+                                                        <ShortcutButton
+                                                            id={`${info.column.headerId}_menu_button`}
+                                                            className={`action-button-with-menu`}
+                                                            iconName={'mdi-pencil'}
+                                                            handleClick={(e) => {
+                                                                e.viewId = viewId;
+                                                                e.recordId = recordId;
+                                                                this.props.handleOnEditClick(e)
+                                                            }}
+                                                            label={''}
+                                                            rendered={showEditButton}
+                                                        />
+                                                        <ActionButtonWithMenu
+                                                            id='more_shortcut'
+                                                            iconName='mdi-dots-vertical'
+                                                            className={``}
+                                                            items={menuItems}
+                                                            rendered={showMenu}
+                                                            title={labels['View_AdditionalOptions']}
+                                                        />
+                                                    </div>,
+                                                    element
+                                                );
+                                            }}
+                                        ></Column>
+                                    ) : null}
+                                </DataGrid>
+                                <div className="arrow-open" onClick={() => {
+                                    this.setState({
+                                        minimalized: true
+                                    });
+                                    this.forceUpdate();
+                                }}></div>
+                            </div>
+                        }
                     </div>
                 ) : null}
             </React.Fragment>

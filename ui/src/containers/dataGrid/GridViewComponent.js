@@ -208,14 +208,6 @@ class GridViewComponent extends React.Component {
                                         }}
                                         rendered={showEditButton}
                                     />
-                                    <ActionButtonWithMenu
-                                        id='more_shortcut'
-                                        iconName='mdi-dots-vertical'
-                                        className={``}
-                                        items={menuItems}
-                                        title={this.labels['View_AdditionalOptions']}
-                                        rendered={showMenu}
-                                    />
                                     <ShortcutButton
                                         id={`${info.column.headerId}_menu_button`}
                                         className={`action-button-with-menu`}
@@ -225,6 +217,14 @@ class GridViewComponent extends React.Component {
                                             `/#/grid-view/${viewId}?recordId=${recordId}${currentBreadcrumb}`
                                         )}
                                         rendered={showSubviewButton}
+                                    />
+                                    <ActionButtonWithMenu
+                                        id='more_shortcut'
+                                        iconName='mdi-dots-vertical'
+                                        className={``}
+                                        items={menuItems}
+                                        title={this.labels['View_AdditionalOptions']}
+                                        rendered={showMenu}
                                     />
                                 </div>,
                                 element

@@ -198,7 +198,7 @@ class DashboardContainer extends BaseContainer {
                 <ShortcutButton
                     id={`_menu_button`}
                     className={`action-button-with-menu`}
-                    iconName={'mdi-magnify'}
+                    iconName={'mdi-open-in-new'}
                     href={AppPrefixUtils.locationHrefUrl(
                         `/#/grid-view/${item.id}?parentId=${cardViewId}${currentBreadcrumb}`
                     )}

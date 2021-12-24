@@ -357,6 +357,7 @@ export class EditRowComponent extends BaseContainer {
         field.visible = MockService.getFieldEnableDisableOrMock(field.visible, 'visible');
         //end mock functionality
         const autoFill = field?.autoFill ? 'autofill-border' : '';
+        const editable = field?.edit ? 'editable-border' : '';
         const validate = !!validatorMsgs ? 'p-invalid' : '';
         const autoFillCheckbox = field?.autoFill ? 'autofill-border-checkbox' : '';
         const validateCheckbox = !!validatorMsgs ? 'p-invalid-checkbox' : '';
@@ -374,7 +375,7 @@ export class EditRowComponent extends BaseContainer {
                     <div className={`${selectionList}`}>
                         <InputText id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                                    name={field.fieldName}
-                                   className={`${autoFill} ${validate}`}
+                                   className={`${autoFill} ${editable} ${validate}`}
                                    style={{width: '100%'}}
                                    type="text"
                                    value={field.value}
@@ -394,7 +395,7 @@ export class EditRowComponent extends BaseContainer {
                     <div className={`${selectionList}`}>
                         <InputText id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                                    name={field.fieldName}
-                                   className={`${autoFill} ${validate}`}
+                                   className={`${autoFill} ${editable} ${validate}`}
                                    style={{width: '100%'}}
                                    value={field.value}
                                    type="number"
@@ -413,20 +414,21 @@ export class EditRowComponent extends BaseContainer {
                            title={MockService.printField(field)}
                            style={{color: labelColor}}>{field.label}{required ? '*' : ''}</label>
                     <br/>
-                    <Checkbox id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
-                              name={field.fieldName}
-                              className={`${autoFillCheckbox} ${validateCheckbox}`}
-                              onChange={(e) => {
-                                  if (this.props.onChange) {
-                                      e.refreshFieldVisibility = refreshFieldVisibility
-                                      this.props.onChange('CHECKBOX', e, groupName, info);
-                                  }
-                              }}
-                              checked={field.value === true || GridViewUtils.conditionForTrueValueForBoolType(field.value)}
-                              disabled={!field.edit}
-                              required={required}
-                    >
-                    </Checkbox>
+                    <div style={{display: 'inline-block'}}
+                         className={`${autoFillCheckbox} ${editable} ${validateCheckbox}`}>
+                        <Checkbox id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
+                                  name={field.fieldName}
+                                  onChange={(e) => {
+                                      if (this.props.onChange) {
+                                          e.refreshFieldVisibility = refreshFieldVisibility
+                                          this.props.onChange('CHECKBOX', e, groupName, info);
+                                      }
+                                  }}
+                                  checked={field.value === true || GridViewUtils.conditionForTrueValueForBoolType(field.value)}
+                                  disabled={!field.edit}
+                                  required={required}
+                        />
+                    </div>
                 </React.Fragment>);
             case 'L'://L – Logiczny (T/N)
                 return (<React.Fragment>
@@ -435,7 +437,7 @@ export class EditRowComponent extends BaseContainer {
                            title={MockService.printField(field)}>{field.label}{required ? '*' : ''}</label>
                     <Dropdown id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                               name={field.fieldName}
-                              className={`${autoFill} ${validate}`}
+                              className={`${autoFill} ${editable} ${validate}`}
                               style={{width: '100%'}}
                               value={field.value}
                               options={this.yesNoTypes}
@@ -455,7 +457,7 @@ export class EditRowComponent extends BaseContainer {
                            title={MockService.printField(field)}>{field.label}{required ? '*' : ''}</label>
                     <Calendar id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                               name={field.fieldName}
-                              className={`${autoFill} ${validate}`}
+                              className={`${autoFill} ${editable} ${validate}`}
                               style={{width: '100%'}}
                               value={field.value}
                               dateFormat="yy-mm-dd"
@@ -476,7 +478,7 @@ export class EditRowComponent extends BaseContainer {
                               showTime
                               hourFormat="24"
                               name={field.fieldName}
-                              className={`${autoFill} ${validate}`}
+                              className={`${autoFill} ${editable} ${validate}`}
                               style={{width: '100%'}}
                               value={field.value}
                               dateFormat="yy-mm-dd"
@@ -498,7 +500,7 @@ export class EditRowComponent extends BaseContainer {
                               showTime
                               hourFormat="24"
                               name={field.fieldName}
-                              className={`${autoFill} ${validate}`}
+                              className={`${autoFill} ${editable} ${validate}`}
                               style={{width: '100%'}}
                               value={field.value}
                               appendTo={document.body}
@@ -516,7 +518,7 @@ export class EditRowComponent extends BaseContainer {
                            title={MockService.printField(field)}>{field.label}{required ? '*' : ''}</label>
                     <HtmlEditor
                         id={`editor_${fieldIndex}`}
-                        className={`editor ${autoFill} ${validate}`}
+                        className={`editor ${autoFill} ${editable} ${validate}`}
                         defaultValue={field.value}
                         onValueChange={e => {
                             let event = {
@@ -533,7 +535,7 @@ export class EditRowComponent extends BaseContainer {
                         <RequiredRule message={`Pole jest wymagane`}/>
                     </Validator> : null}
                         <MediaResizing enabled={true}/>
-                        <Toolbar>
+                        <Toolbar multiline={false}>
                             <Item name="undo"/>
                             <Item name="redo"/>
                             <Item name="separator"/>
@@ -617,7 +619,7 @@ export class EditRowComponent extends BaseContainer {
                            title={MockService.printField(field)}>{field.label}{required ? '*' : ''}</label>
                     <InputText id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                                name={field.fieldName}
-                               className={`${autoFill} ${validate}`}
+                               className={`${autoFill} ${editable} ${validate}`}
                                style={{width: '100%'}}
                                type="text"
                                value={field.value}
