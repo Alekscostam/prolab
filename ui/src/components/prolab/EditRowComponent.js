@@ -348,13 +348,13 @@ export class EditRowComponent extends BaseContainer {
 
     renderInputComponent(field, fieldIndex, onChange, onBlur, groupName, required, validatorMsgs, onClickEditList) {
         //mock functionality
-        field.edit = MockService.getFieldValueOrMock(field.edit, 'edit');
-        field.autoFill = MockService.getFieldValueOrMock(field.autoFill, 'autoFill');
-        field.autoFillOnlyEmpty = MockService.getFieldValueOrMock(field.autoFillOnlyEmpty, 'autoFillOnlyEmpty');
-        field.requiredValue = MockService.getFieldValueOrMock(field.requiredValue, 'requiredValue');
-        field.refreshFieldVisibility = MockService.getFieldValueOrMock(field.refreshFieldVisibility, 'refreshFieldVisibility');
-        field.selectionList = MockService.getFieldValueOrMock(field.selectionList, 'selectionList');
-        field.visible = MockService.getFieldValueOrMock(field.visible, 'visible');
+        field.edit = MockService.getFieldEnableDisableOrMock(field.edit, 'edit');
+        field.autoFill = MockService.getFieldEnableDisableOrMock(field.autoFill, 'autoFill');
+        field.autoFillOnlyEmpty = MockService.getFieldEnableDisableOrMock(field.autoFillOnlyEmpty, 'autoFillOnlyEmpty');
+        field.requiredValue = MockService.getFieldEnableDisableOrMock(field.requiredValue, 'requiredValue');
+        field.refreshFieldVisibility = MockService.getFieldEnableDisableOrMock(field.refreshFieldVisibility, 'refreshFieldVisibility');
+        field.selectionList = MockService.getFieldEnableDisableOrMock(field.selectionList, 'selectionList');
+        field.visible = MockService.getFieldEnableDisableOrMock(field.visible, 'visible');
         //end mock functionality
         const autoFill = field?.autoFill ? 'autofill-border' : '';
         const validate = !!validatorMsgs ? 'p-invalid' : '';
@@ -460,7 +460,7 @@ export class EditRowComponent extends BaseContainer {
                               value={field.value}
                               dateFormat="yy-mm-dd"
                               onChange={e => onChange ? onChange('DATE', e, groupName, info) : null}
-                              appendTo="self"
+                              appendTo={document.body}
                               disabled={!field.edit}
                               required={required}
                               showButtonBar
@@ -480,7 +480,7 @@ export class EditRowComponent extends BaseContainer {
                               style={{width: '100%'}}
                               value={field.value}
                               dateFormat="yy-mm-dd"
-                              appendTo="self"
+                              appendTo={document.body}
                               onChange={e => onChange ? onChange('DATETIME', e, groupName, info) : null}
                               disabled={!field.edit}
                               required={required}
@@ -501,7 +501,7 @@ export class EditRowComponent extends BaseContainer {
                               className={`${autoFill} ${validate}`}
                               style={{width: '100%'}}
                               value={field.value}
-                              appendTo="self"
+                              appendTo={document.body}
                               onChange={e => onChange ? onChange('TIME', e, groupName, info) : null}
                               disabled={!field.edit}
                               required={required}

@@ -7,10 +7,19 @@ export default class MockService {
         return mockSystem === '04151';
     }
 
-    static getFieldValueOrMock(value, fieldName) {
+    static getFieldEnableDisableOrMock(value, fieldName) {
         if (MockService.isMock()) {
             const valueFromCookie = readValueCookieGlobal(fieldName);
             const ret = !valueFromCookie ? value : valueFromCookie === 'true';
+            return ret;
+        }
+        return value;
+    }
+
+    static getFieldValueOrMock(value, fieldName) {
+        if (MockService.isMock()) {
+            const valueFromCookie = readValueCookieGlobal(fieldName);
+            const ret = !valueFromCookie ? value : valueFromCookie;
             return ret;
         }
         return value;

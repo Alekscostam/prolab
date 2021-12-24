@@ -4,9 +4,6 @@
   background: transparent linear-gradient(90deg, #F7F9FD 0%, #ECF2FB 100%) 0% 0% no-repeat padding-box !important;
 }
 
-#row-edit {
-}
-
 #row-edit .p-panel {
   background: #FFFFFF 0% 0% no-repeat padding-box;
   box-shadow: 0px 0px 6px #00000029 !important;
@@ -147,6 +144,19 @@
   color: $link-color;
 }
 
+#row-edit .p-calendar-w-btn .p-datepicker-trigger {
+  background-color: rgba(0, 0, 0, 0.12);
+}
+
+.p-datepicker-buttonbar > .p-button.p-component.p-button-text.p-button-secondary {
+  color: $button-text-color;
+  background-color: $link-color;
+}
+
+#row-edit .p-calendar > .p-button {
+  width: 45px;
+}
+
 #row-edit .dx-overlay-content.dx-invalid-message-content.dx-resizable {
   visibility: hidden;
 }
@@ -265,7 +275,7 @@
 }
 
 //TODO ograniczyc tylko do podpowiedzi
-#editListDialog  .dx-datagrid .dx-error-row {
+#editListDialog .dx-datagrid .dx-error-row {
   display: none;
 }
 

@@ -1,4 +1,6 @@
 import BaseService from "./BaseService";
+import MockService from "./MockService";
+import moment from "moment";
 
 /*
 Kontroler do edycji danych.
@@ -26,6 +28,26 @@ export default class EditService extends BaseService {
     getEdit(viewId, recordId, parentId, kindView) {
         return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
             method: 'GET',
+        }).then(editDataResponse => {
+            for (let editField of editDataResponse?.editFields) {
+                for (let field of editField.fields) {
+                    if (field?.type) {
+                        field.value = MockService.getFieldValueOrMock(field.value, 'value');
+                        switch (field.type) {
+                            case 'D':
+                                field.value = new Date(moment(field.value, 'YYYY-MM-DD'));
+                                break;
+                            case 'E':
+                                field.value = new Date(moment(field.value, 'YYYY-MM-DD HH:mm'));
+                                break;
+                            case 'T':
+                                field.value = new Date(moment(field.value, 'HH:mm'));
+                                break;
+                        }
+                    }
+                }
+            }
+            return Promise.resolve(editDataResponse);
         }).catch((err) => {
             throw err;
         });
@@ -157,6 +179,7 @@ export default class EditService extends BaseService {
         editData.editFields?.forEach(groupFields => {
             groupFields?.fields.forEach(field => {
                 // if (field.hidden != true) {
+                field = this.convertFieldsPerType(field);
                 const elementTmp = {
                     fieldName: field.fieldName,
                     value: field.value
@@ -174,6 +197,7 @@ export default class EditService extends BaseService {
         editData.editFields?.forEach(groupFields => {
             groupFields?.fields.forEach(field => {
                 // if (field.autoFill == true) {
+                field = this.convertFieldsPerType(field);
                 const elementTmp = {
                     fieldName: field.fieldName,
                     value: field.value
@@ -190,6 +214,7 @@ export default class EditService extends BaseService {
         let arrayTmp = [];
         editData.editFields?.forEach(groupFields => {
             groupFields?.fields.forEach(field => {
+                field = this.convertFieldsPerType(field);
                 const elementTmp = {
                     fieldName: field.fieldName,
                     value: field.value
@@ -204,6 +229,7 @@ export default class EditService extends BaseService {
         let arrayTmp = [];
         editData.editFields?.forEach(groupFields => {
             groupFields?.fields.forEach(field => {
+                field = this.convertFieldsPerType(field);
                 const elementTmp = {
                     fieldName: field.fieldName,
                     value: field.value
@@ -212,5 +238,22 @@ export default class EditService extends BaseService {
             })
         })
         return {data: arrayTmp};
+    }
+
+    convertFieldsPerType(field) {
+        if (field?.type) {
+            switch (field.type) {
+                case 'D':
+                    field.value = moment(new Date(field.value)).format('YYYY-MM-DD');
+                    break;
+                case 'E':
+                    field.value = moment(new Date(field.value)).format('YYYY-MM-DD HH:mm');
+                    break;
+                case 'T':
+                    field.value = moment(new Date(field.value)).format('HH:mm');
+                    break;
+            }
+        }
+        return field;
     }
 }

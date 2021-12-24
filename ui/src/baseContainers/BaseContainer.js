@@ -1152,6 +1152,12 @@ class BaseContainer extends React.Component {
                     varName = event.target?.name;
                     varValue = event.target?.value || event.target?.value === '' ? event.target.value : undefined;
                     break;
+                case 'DATE':
+                case 'DATETIME':
+                case 'TIME':
+                    varName = event.target?.name;
+                    varValue = event.value || event.value === '' ? event.value : undefined;
+                    break;
                 default:
                     varName = event.target?.name;
                     varValue = event.target?.value || event.target?.value === '' ? event.target.value : undefined;
