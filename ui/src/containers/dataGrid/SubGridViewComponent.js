@@ -6,20 +6,21 @@ import ReactDOM from "react-dom";
 import ShortcutButton from "../../components/prolab/ShortcutButton";
 import ActionButtonWithMenu from "../../components/prolab/ActionButtonWithMenu";
 import ConsoleHelper from "../../utils/ConsoleHelper";
-import DivContainer from "../../components/DivContainer";
-import GridViewMinimalizedComponent from "./GridViewMinimalizedComponent";
+import GridViewMinimizeComponent from "./GridViewMinimizeComponent";
+import {readObjFromCookieGlobal, saveObjToCookieGlobal} from "../../utils/Cookie";
 
 class SubGridViewComponent extends React.Component {
 
     constructor(props) {
         super(props);
         ConsoleHelper('subGridViewComponent::constructor');
+        let minimizeCache = readObjFromCookieGlobal("SUB_GRID_VIEW_MINIMIZE");
         this.state = {
-            minimalized: false
+            minimize: minimizeCache === true
         };
     }
 
-    // //very important !!!
+    //very important !!!
     shouldComponentUpdate(nextProps, nextState, nextContext) {
         if (!!window.performance) {
             if (performance.navigation.type === 1) {
@@ -74,10 +75,12 @@ class SubGridViewComponent extends React.Component {
             <React.Fragment>
                 {subViewMode ? (
                     <div id='selection-row' className='float-left width-100'>
-                        {this.state.minimalized ?
-                            <GridViewMinimalizedComponent subView={this.props.subView} onClick={() => {
-                                this.setState({minimalized: false});
-                                this.forceUpdate();
+                        {this.state.minimize ?
+                            <GridViewMinimizeComponent subView={this.props.subView} onClick={() => {
+                                this.setState({minimize: false}, () => {
+                                    saveObjToCookieGlobal("SUB_GRID_VIEW_MINIMIZE", false);
+                                    this.forceUpdate();
+                                });
                             }}/> :
                             <div className='maximalized-sub-view'>
                                 <DataGrid
@@ -138,15 +141,17 @@ class SubGridViewComponent extends React.Component {
                                                     element
                                                 );
                                             }}
-                                        ></Column>
+                                        />
                                     ) : null}
                                 </DataGrid>
                                 <div className="arrow-open" onClick={() => {
                                     this.setState({
-                                        minimalized: true
+                                        minimize: true
+                                    }, () => {
+                                        saveObjToCookieGlobal("SUB_GRID_VIEW_MINIMIZE", true);
+                                        this.forceUpdate();
                                     });
-                                    this.forceUpdate();
-                                }}></div>
+                                }}/>
                             </div>
                         }
                     </div>

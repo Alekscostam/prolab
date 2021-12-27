@@ -99,7 +99,8 @@ class DashboardContainer extends BaseContainer {
         return (
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => this.messages = el}/>
-                <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader} renderBlockUi={true}>
+                <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader}
+                         renderBlockUi={true}>
                     <DivContainer colClass='col-12 dashboard-link-container'>
                         {!!this.props.dashboard ? null : Breadcrumb.render(labels)}
                         <DivContainer colClass='dashboard'>
@@ -129,7 +130,7 @@ class DashboardContainer extends BaseContainer {
                     onCancel={this.handleCancelRowChange}
                     validator={this.validator}
                     onHide={(e) => !!this.state.modifyEditData ? confirmDialog({
-                        appendTo:  document.body,
+                        appendTo: document.body,
                         message: LocUtils.loc(this.props.labels, 'Question_Close_Edit', 'Czy na pewno chcesz zamknąć edycję?'),
                         header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
                         icon: 'pi pi-exclamation-triangle',
@@ -205,6 +206,7 @@ class DashboardContainer extends BaseContainer {
                     label={''}
                     title={LocUtils.loc(this.props.labels, 'Move_To', 'Przenieś do')}
                     rendered={true}
+                    buttonShadow={false}
                 />
             </div>
             <GridViewContainer id={item.id}

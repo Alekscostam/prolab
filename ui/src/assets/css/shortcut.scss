@@ -1,9 +1,12 @@
 .shortcut {
-  box-shadow: 0px 2px 8px 3px rgba(0, 0, 0, 0.1);
   font-size: 12px;
   font-weight: bold;
   background: $text-bg;
   padding: 0.35rem 0.5rem;
+}
+
+.shortcut-shadow {
+  box-shadow: 0 2px 8px 3px rgba(0, 0, 0, 0.1);
 }
 
 #subviews-panel {
@@ -14,14 +17,13 @@
   color: $text-color;
   font-size: 14px;
   font-weight: bold;
-  letter-spacing: 0px;
+  letter-spacing: 0;
   margin-left: 5px;
   margin-right: 5px;
 }
 
 .shortcut-link:hover {
   color: $button-text-color;
-  backgroud: $link-color-highlighted;
 }
 
 
@@ -33,23 +35,19 @@
   color: $button-color;
 }
 
-.shortcut:hover > .shortcut-text {
-  //color: $button-text-color;
-  backgroud: $link-color-highlighted;
-}
 
 .action-button-with-menu {
   font-size: 20px;
-  padding: 0rem 0.3rem;
-  min-width: 0rem;
+  padding: 0 0.3rem;
+  min-width: 0;
   height: 26px;
   width: 30px;
 }
 
 .button-with-menu-filter {
   font-size: 22px;
-  padding: 0rem 0.2rem;
-  min-width: 0rem;
+  padding: 0 0.2rem;
+  min-width: 0;
   height: 28px;
   width: 30px;
   border: 1px solid #ddd;

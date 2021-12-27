@@ -1,9 +1,8 @@
 import React from 'react';
 import PropTypes from "prop-types";
 import ConsoleHelper from "../../utils/ConsoleHelper";
-import DivContainer from "../../components/DivContainer";
 
-class GridViewMinimalizedComponent extends React.Component {
+class GridViewMinimizeComponent extends React.Component {
 
     constructor(props) {
         super(props);
@@ -21,25 +20,21 @@ class GridViewMinimalizedComponent extends React.Component {
         }
         return (
             <React.Fragment>
-                <div className='minimalize-sub-view'>
-                    <DivContainer colClass='row'>
-                        <DivContainer
-                            colClass='col-4'>{fieldName}</DivContainer>
-                        <DivContainer
-                            colClass='col-7'>{fieldValue}</DivContainer>
-                        <div className="arrow-close" onClick={this.props.onClick}></div>
-                    </DivContainer>
+                <div className='minimize-sub-view'>
+                    <div className='d-inline-flex p-1' style={{color: '#707890'}}>{fieldName}</div>
+                    <div className='d-inline-flex p-1' style={{color: '#333'}}>{fieldValue}</div>
+                    <div className="arrow-close" onClick={this.props.onClick}/>
                 </div>
             </React.Fragment>
         );
     }
 }
 
-GridViewMinimalizedComponent.defaultProps = {};
+GridViewMinimizeComponent.defaultProps = {};
 
-GridViewMinimalizedComponent.propTypes = {
+GridViewMinimizeComponent.propTypes = {
     subView: PropTypes.object.isRequired,
     onClick: PropTypes.func.isRequired
 };
 
-export default GridViewMinimalizedComponent;
+export default GridViewMinimizeComponent;
