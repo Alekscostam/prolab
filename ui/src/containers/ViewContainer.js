@@ -615,6 +615,7 @@ export class ViewContainer extends BaseContainer {
                                 const recordId = UrlUtils.getURLParameter('recordId') || this.state.elementRecordId;
                                 const subviewMode = !!recordId && !!this.state.elementId;
                                 const breadCrumbs = UrlUtils.getURLParameter('bc');
+                                const viewType = UrlUtils.getURLParameter('viewType');
                                 //myczek na błąd [FIX] Przełączanie między widokami a filtry
                                 if (!breadCrumbs) {
                                     return;
@@ -624,7 +625,7 @@ export class ViewContainer extends BaseContainer {
                                         `Redirect -> Id =  ${this.state.elementId} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`
                                     );
                                     window.location.href = AppPrefixUtils.locationHrefUrl(
-                                        `/#/grid-view/${this.state.elementId}?recordId=${recordId}&subview=${subViewId}&filterId=${filterId}${currentBreadcrumb}`
+                                        `/#/grid-view/${this.state.elementId}?recordId=${recordId}&subview=${subViewId}&filterId=${filterId}&viewType=${viewType}${currentBreadcrumb}`
                                     );
                                 } else {
                                     ConsoleHelper(
@@ -632,7 +633,7 @@ export class ViewContainer extends BaseContainer {
                                     );
                                     if (filterId) {
                                         window.location.href = AppPrefixUtils.locationHrefUrl(
-                                            `/#/grid-view/${this.state.elementId}/?filterId=${filterId}${currentBreadcrumb}`
+                                            `/#/grid-view/${this.state.elementId}/?filterId=${filterId}&viewType=${viewType}${currentBreadcrumb}`
                                         );
                                     }
                                 }
