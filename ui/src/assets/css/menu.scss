@@ -20,10 +20,12 @@
 
 .pro-sidebar-layout-light button#buttonCollapsed {
   color: $link-color;
+  background-color: transparent !important;
 }
 
 .pro-sidebar-layout-light button#buttonCollapsed:hover {
   color: $text-color-highlighted;
+  background-color: transparent !important;
 }
 
 .pro-sidebar-layout-light #menu-footer .pro-menu-item {
@@ -44,7 +46,7 @@
 
 .pro-sidebar {
   z-index: 1;
-  box-shadow: 0px 0px 12px #00000029;
+  box-shadow: 0 0 12px #00000029;
 }
 
 .pro-sidebar > .pro-sidebar-inner {
@@ -86,8 +88,8 @@
 }
 
 .pro-sidebar .pro-menu {
-  padding-top: 0px;
-  padding-bottom: 0px;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .pro-sidebar .pro-menu .pro-menu-item > .pro-inner-item > .pro-icon-wrapper {
@@ -112,12 +114,12 @@
 }
 
 .pro-sidebar .pro-menu > ul > .pro-sub-menu > .pro-inner-list-item > div > ul {
-  padding-top: 0px;
-  padding-bottom: 0px;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .pro-sidebar.collapsed .pro-menu > ul > .pro-menu-item.pro-sub-menu > .pro-inner-list-item > .popper-inner {
-  background: #0e40c8 0% 0% no-repeat padding-box;
+  background: #0e40c8 0 0 no-repeat padding-box;
 }
 
 .pro-icon-wrapper {
@@ -134,8 +136,8 @@
   width: 8px;
   bottom: 8px;
   left: -20px;
-  background: transparent linear-gradient(188deg, #0e49eb 0%, #30dbce 100%) 0% 0% no-repeat padding-box;
-  border-radius: 0px 4px 4px 0px;
+  background: transparent linear-gradient(188deg, #0e49eb 0, #30dbce 100%) 0 0 no-repeat padding-box;
+  border-radius: 0 4px 4px 0;
 }
 
 .pro-sidebar > .pro-sidebar-inner > .pro-sidebar-layout {
@@ -182,7 +184,7 @@
   height: var(--avatar-size);
   text-align: center;
   width: var(--avatar-size);
-  box-shadow: 0px 3px 6px #00000029;
+  box-shadow: 0 3px 6px #00000029;
   display: inline-table;
 }
 
@@ -192,9 +194,17 @@
   color: #707890;
   position: relative;
   top: calc(var(--avatar-size) / 4); /* 25% of parent */
-  font-size: 14px;
   font-style: normal;
   font-variant: normal;
   font-weight: 500;
-  letter-spacing: 0px;
+  letter-spacing: 0;
+}
+
+.mdi-styles {
+  display: inline-block;
+  font: normal normal normal 24px/1 "Material Design Icons";
+  font-size: inherit;
+  text-rendering: auto;
+  line-height: inherit;
+  -webkit-font-smoothing: antialiased;
 }

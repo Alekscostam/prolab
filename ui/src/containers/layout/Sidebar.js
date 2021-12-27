@@ -99,23 +99,23 @@ class Sidebar extends React.Component {
         const viewId = UrlUtils.getViewIdFromURL();
         ConsoleHelper('sidebar => componentDidUpdate', viewId, prevState.viewId);
         if (prevState.viewId !== viewId) {
-            this.setState({viewId});
-        }
-        if (!!viewId) {
-            setTimeout(() => {
-                const menuItem = $('#menu_item_id_' + viewId);
-                ConsoleHelper('sidebar => menuItem.hasClass(active)', menuItem.hasClass('active'), menuItem)
-                if (!menuItem.hasClass('active')) {
-                    menuItem.addClass('active');
+            this.setState({viewId}, () => {
+                if (!!viewId) {
+                    setTimeout(() => {
+                        const menuItem = $('#menu_item_id_' + viewId);
+                        if (!menuItem.hasClass('active')) {
+                            menuItem.addClass('active');
+                        }
+                        if (!menuItem.find('.pro-inner-item').hasClass('active')) {
+                            menuItem.find('.pro-inner-item').addClass('active');
+                        }
+                        ConsoleHelper('sidebar => menuItem', menuItem)
+                        const subMenuItem = menuItem.closest('div').parent();
+                        subMenuItem.removeClass('closed');
+                        // subMenuItem.height('fit-content');
+                    }, 10);
                 }
-                if (!menuItem.find('.pro-inner-item').hasClass('active')) {
-                    menuItem.find('.pro-inner-item').addClass('active');
-                }
-                ConsoleHelper('sidebar => menuItem', menuItem)
-                const subMenuItem = menuItem.closest('div').parent();
-                subMenuItem.removeClass('closed');
-                // subMenuItem.height('fit-content');
-            }, 10);
+            });
         }
     }
 
@@ -212,6 +212,20 @@ class Sidebar extends React.Component {
         this.setState((prevState) => ({toggled: !prevState.toggled}));
     }
 
+    displayIcon(item) {
+        if (!!item.iconCode) {
+            if (item.iconCode.indexOf('F') === 0) {
+                return <i className={`mdi-styles`}>{String.fromCodePoint(parseInt(item.iconCode, 16))}</i>
+            } else {
+                return <i className={`icon mdi ${item.iconCode}`}/>
+            }
+        } else if (!!item.icon) {
+            return <Image alt={item.name} base64={item.icon}/>
+        } else {
+            return <FaAngleRight/>
+        }
+    }
+
     render() {
         ConsoleHelper('sidebar => render', this.state.viewId);
         let {authService} = this.props;
@@ -246,13 +260,7 @@ class Sidebar extends React.Component {
                                         id={`menu_item_id_${item.id}`}
                                         key={`menu_item_key_${item.id}`}
                                         className={activeItem ? 'active' : ''}
-                                        icon={
-                                            item.icon === undefined || item.icon === '' ? (
-                                                <FaAngleRight/>
-                                            ) : (
-                                                <Image alt={item.name} base64={item.icon}/>
-                                            )
-                                        }
+                                        icon={this.displayIcon(item)}
                                         onClick={() => {
                                             this.doNotUpdate = true;
                                         }}
@@ -277,13 +285,7 @@ class Sidebar extends React.Component {
                             ) : (
                                 <SubMenu
                                     key={`menu_sub_${item.id}`}
-                                    icon={
-                                        item.icon === undefined || item.icon === '' ? (
-                                            <FaAngleDoubleRight/>
-                                        ) : (
-                                            <Image alt={item.name} base64={item.icon}/>
-                                        )
-                                    }
+                                    icon={this.displayIcon(item)}
                                     className={activeItem ? 'active' : ''}
                                     defaultOpen={activeItem}
                                     title={item?.name}
@@ -418,7 +420,6 @@ class Sidebar extends React.Component {
                                             $('#filterValue').focus();
                                         });
                                     }}
-                                    label={"Wyszukaj"}
                                 />
                             </div>
                         ) : null}
@@ -443,11 +444,12 @@ class Sidebar extends React.Component {
                                 <span>{labels['Menu_Logout']}</span>
                             </div>
                         </div>
-                        <div
-                            id={'version'}
-                            className={'to-right'}
-                            style={{marginRight: '5px'}}
-                        >{`ver: ${packageJson.version}_${this.state.uiVersion?.buildNumber} api: ${this.state.versionAPI}`}</div>
+                        {!collapsed ? (
+                            <div
+                                id={'version'}
+                                className={'to-right'}
+                                style={{marginRight: '5px'}}
+                            >{`ver: ${packageJson.version}_${this.state.uiVersion?.buildNumber} api: ${this.state.versionAPI}`}</div>) : null}
                     </SidebarFooter>
                 </ProSidebar>
             </React.Fragment>
