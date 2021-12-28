@@ -695,7 +695,7 @@ export class ViewContainer extends BaseContainer {
         $(document).keyup(event => {
             try {
                 const keycode = event.keyCode || event.which;
-                if (keycode == '13'
+                if (keycode === 13
                     && event.target?.className === 'dx-texteditor-input'
                     && event.originalEvent?.path[8]?.className === 'dx-row dx-column-lines dx-datagrid-filter-row'
                     && event.originalEvent?.path[4]?.className?.includes('dx-datebox-calendar')) {
@@ -713,7 +713,7 @@ export class ViewContainer extends BaseContainer {
                                         let inputValue = child?.children[0]?.children[1]?.children[0]?.children[0]?.children[1]?.children[0]?.children[0]?.value;
                                         if (inputValue !== undefined && inputValue !== null && inputValue !== '') {
                                             let ariaDescribedby = child?.getAttribute("aria-describedby");
-                                            let columnName = new String(ariaDescribedby)?.replace(new RegExp('column_[0-9]+_'), '')?.toUpperCase();
+                                            let columnName = '' + ariaDescribedby?.replace(new RegExp('column_[0-9]+_'), '')?.toUpperCase();
                                             if (filterArray.length > 0) {
                                                 filterArray.push('and')
                                             }

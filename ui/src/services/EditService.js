@@ -43,6 +43,7 @@ export default class EditService extends BaseService {
                             case 'T':
                                 field.value = new Date(moment(field.value, 'HH:mm'));
                                 break;
+                            default:
                         }
                     }
                 }
@@ -252,6 +253,7 @@ export default class EditService extends BaseService {
                 case 'T':
                     field.value = moment(new Date(field.value)).format('HH:mm');
                     break;
+                default:
             }
         }
         return field;

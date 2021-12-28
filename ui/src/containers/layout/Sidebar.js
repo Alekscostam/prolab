@@ -5,7 +5,7 @@ import $ from 'jquery';
 import {Button} from 'primereact/button';
 import * as PropTypes from 'prop-types';
 import React from 'react';
-import {FaAngleDoubleRight, FaAngleRight, FaBars, FaSignOutAlt} from 'react-icons/fa';
+import {FaAngleRight, FaBars, FaSignOutAlt} from 'react-icons/fa';
 import {Menu, MenuItem, ProSidebar, SidebarContent, SidebarFooter, SidebarHeader, SubMenu} from 'react-pro-sidebar';
 import {withRouter} from 'react-router-dom';
 import packageJson from '../../../package.json';
@@ -414,6 +414,7 @@ class Sidebar extends React.Component {
                                     id='mini-search-button'
                                     iconName='mdi-magnify'
                                     title={labels['Menu_Search']}
+                                    label={''}
                                     handleClick={() => {
                                         this.handleCollapseChange();
                                         $(document).ready(function () {
