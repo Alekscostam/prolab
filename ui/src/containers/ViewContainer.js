@@ -607,6 +607,7 @@ export class ViewContainer extends BaseContainer {
                 {opFilter && this.state.filtersList?.length > 0 ? (
                     <SelectBox
                         className='filter-combo mr-1 mt-1 mb-1'
+                        wrapItemText={true}
                         id='combo_filters'
                         items={this.state.filtersList}
                         displayExpr='label'

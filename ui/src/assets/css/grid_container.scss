@@ -400,7 +400,7 @@ body .grid-container {
 
   .op-buttongroup {
     position: relative;
-    display: inline-block;
+    display: flex;
 
     a {
       margin-right: 0.25rem;
@@ -614,4 +614,8 @@ body .grid-container {
 
 #selection-data-grid {
   width: 99%;
+}
+
+#combo_filters{
+  min-width: 100px;
 }
