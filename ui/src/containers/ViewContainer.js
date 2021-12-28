@@ -251,9 +251,6 @@ export class ViewContainer extends BaseContainer {
     }
 
     downloadData(viewId, recordId, subviewId, filterId, parentId, viewType) {
-        ConsoleHelper(
-            `ViewContainer::downloadData: viewId=${viewId}, recordId=${recordId}, subViewId=${subviewId}, viewType=${viewType}, parentId=${parentId}`
-        );
         let subviewMode = !!recordId && !!viewId;
         if (subviewMode) {
             this.viewService
@@ -261,10 +258,14 @@ export class ViewContainer extends BaseContainer {
                 .then((subViewResponse) => {
                     Breadcrumb.updateSubView(subViewResponse, recordId);
                     if (subViewResponse.viewInfo?.type === 'dashboard') {
+                        const kindView = subViewResponse.viewInfo.kindView;
+                        ConsoleHelper(
+                            `ViewContainer::downloadDashboardData: viewId=${viewId}, recordId=${recordId},  parentId=${parentId}, viewType=${viewType}, kindView=${kindView}`
+                        );
                         this.setState({
                                 subView: subViewResponse,
                                 gridViewType: 'dashboard',
-                                elementKindView: subViewResponse.viewInfo.kindView,
+                                elementKindView: kindView,
                                 loading: false
                             },
                             () => {
@@ -273,6 +274,9 @@ export class ViewContainer extends BaseContainer {
                             }
                         );
                     } else {
+                        ConsoleHelper(
+                            `ViewContainer::downloadSubViewData: viewId=${viewId}, subviewId=${subviewId}, recordId=${recordId}, filterId=${filterId}, parentId=${parentId}, viewType=${viewType},`
+                        );
                         const elementSubViewId = subviewId ? subviewId : subViewResponse.subViews[0]?.id;
                         if (!subViewResponse.subViews || subViewResponse.subViews.length === 0) {
                             this.showErrorMessages(LocUtils.loc(this.props.labels, 'No_Subview', 'Brak podwidoków - niepoprawna konfiguracja!'));
@@ -298,24 +302,25 @@ export class ViewContainer extends BaseContainer {
                         this.setState(
                             {
                                 subView: subViewResponse,
-                                gridViewType: subViewResponse.viewInfo?.type,
                                 elementKindView: !!currentSubView ? currentSubView[0].kindView : this.defaultKindView,
                                 elementSubViewId: elementSubViewId,
                             },
                             () => {
                                 this.props.handleSubView(subViewResponse);
-                                this.getViewById(elementSubViewId, recordId, filterId, parentId, subViewResponse.viewInfo?.type);
+                                this.getViewById(elementSubViewId, recordId, filterId, parentId, viewType);
                                 this.unblockUi();
                             }
                         );
                     }
                 })
                 .catch((err) => {
-                    this.showErrorMessages(err);
+                    this.showGlobalErrorMessage(err);
                     window.history.back();
-                    this.unblockUi();
                 });
         } else {
+            ConsoleHelper(
+                `ViewContainer::downloadData: viewId=${viewId}, recordId=${recordId}, filterId=${filterId}, parentId=${parentId}, viewType=${viewType},`
+            );
             this.setState({subView: null}, () => {
                 this.props.handleSubView(null);
                 this.getViewById(viewId, recordId, filterId, parentId, viewType);
@@ -464,8 +469,8 @@ export class ViewContainer extends BaseContainer {
                                         );
                                     } else {
                                         this.setState({loading: true}, () => {
-                                            let res = this.dataGridStore.getDataGridStore(viewIdArg,
-                                                'gridView',
+                                            let res = this.dataGridStore.getDataGridStore(
+                                                viewIdArg,
                                                 parentIdArg,
                                                 filterIdArg,
                                                 kindViewArg,
@@ -510,7 +515,7 @@ export class ViewContainer extends BaseContainer {
                     console.error('Error getView in GridView. Exception = ', err);
                     this.setState({loading: false,},
                         () => {
-                            this.showErrorMessages(err); //'Nie udało się pobrać danych strony o id: ' + viewId);
+                            this.showGlobalErrorMessage(err); //'Nie udało się pobrać danych strony o id: ' + viewId);
                         }
                     );
                 });
@@ -724,7 +729,7 @@ export class ViewContainer extends BaseContainer {
                     }
                 }
             } catch (err) {
-                console.log(err)
+                this.showGlobalErrorMessage(err);
             }
         });
     }
@@ -770,11 +775,7 @@ export class ViewContainer extends BaseContainer {
                                         }
                                         this.unblockUi();
                                     }).catch((err) => {
-                                    if (!!err.error) {
-                                        this.showResponseErrorMessage(err);
-                                    } else {
-                                        this.showErrorMessages(err);
-                                    }
+                                    this.showGlobalErrorMessage(err);
                                 })
                             },
                             reject: () => undefined,
@@ -808,11 +809,7 @@ export class ViewContainer extends BaseContainer {
                                         }
                                         this.unblockUi();
                                     }).catch((err) => {
-                                    if (!!err.error) {
-                                        this.showResponseErrorMessage(err);
-                                    } else {
-                                        this.showErrorMessages(err);
-                                    }
+                                    this.showGlobalErrorMessage(err);
                                 })
                             },
                             reject: () => undefined,
@@ -846,11 +843,7 @@ export class ViewContainer extends BaseContainer {
                                         }
                                         this.unblockUi();
                                     }).catch((err) => {
-                                    if (!!err.error) {
-                                        this.showResponseErrorMessage(err);
-                                    } else {
-                                        this.showErrorMessages(err);
-                                    }
+                                    this.showGlobalErrorMessage(err);
                                 })
                             },
                             reject: () => undefined,
@@ -884,11 +877,7 @@ export class ViewContainer extends BaseContainer {
                                         }
                                         this.unblockUi();
                                     }).catch((err) => {
-                                    if (!!err.error) {
-                                        this.showResponseErrorMessage(err);
-                                    } else {
-                                        this.showErrorMessages(err);
-                                    }
+                                    this.showGlobalErrorMessage(err);
                                 })
                             },
                             reject: () => undefined,
@@ -910,7 +899,6 @@ export class ViewContainer extends BaseContainer {
                 this.state.subView == null
                     ? this.state.elementId
                     : this.state.elementSubViewId,
-                'gridView',
                 this.state.elementRecordId,
                 this.state.elementFilterId,
                 this.state.kindView,
@@ -924,8 +912,7 @@ export class ViewContainer extends BaseContainer {
                     this.unblockUi();
                 });
             }).catch((err) => {
-                this.unblockUi();
-                this.showErrorMessages(err);
+                this.showGlobalErrorMessage(err);
             });
         });
     }
@@ -987,8 +974,7 @@ export class ViewContainer extends BaseContainer {
                 this.unblockUi();
             })
             .catch((err) => {
-                this.showErrorMessages(err);
-                this.unblockUi();
+                this.showGlobalErrorMessage(err);
             });
     }
 
@@ -1154,6 +1140,8 @@ export class ViewContainer extends BaseContainer {
             <React.Fragment>
                 {this.state.loading ? null : (
                     <React.Fragment>
+                        {/*gridViewType:{this.state.gridViewType}<br/>*/}
+                        {/*elementViewType:{this.state.elementViewType}*/}
                         {this.state.gridViewType === 'gridView' ? (
                             <React.Fragment>
                                 {/*{JSON.stringify(this.state.selectedRowKeys.length)}<br/>*/}

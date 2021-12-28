@@ -133,9 +133,8 @@ export class GridViewContainer extends BaseContainer {
                     );
                 })
                 .catch((err) => {
-                    this.showErrorMessages(err);
+                    this.showGlobalErrorMessage(err);
                     window.history.back();
-                    this.unblockUi();
                 });
 
             return;
@@ -251,7 +250,6 @@ export class GridViewContainer extends BaseContainer {
                                             this.state.subView == null
                                                 ? this.state.elementId
                                                 : this.state.elementSubViewId,
-                                            this.state.viewType,
                                             this.state.subView == null ? recordId : this.state.elementRecordId,
                                             !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId,
                                             this.state.kindView,
@@ -281,7 +279,7 @@ export class GridViewContainer extends BaseContainer {
                     .catch((err) => {
                         console.error('Error getView in GridView. Exception = ', err);
                         this.setState({loading: false,}, () => {
-                                this.showErrorMessages(err);
+                                this.showGlobalErrorMessage(err);
                             }
                         );
                     });
@@ -444,11 +442,7 @@ export class GridViewContainer extends BaseContainer {
                                         }
                                         this.unblockUi();
                                     }).catch((err) => {
-                                    if (!!err.error) {
-                                        this.showResponseErrorMessage(err);
-                                    } else {
-                                        this.showErrorMessages(err);
-                                    }
+                                    this.showGlobalErrorMessage(err);
                                 })
                             },
                             reject: () => undefined,
@@ -477,11 +471,7 @@ export class GridViewContainer extends BaseContainer {
                                         }
                                         this.unblockUi();
                                     }).catch((err) => {
-                                    if (!!err.error) {
-                                        this.showResponseErrorMessage(err);
-                                    } else {
-                                        this.showErrorMessages(err);
-                                    }
+                                    this.showGlobalErrorMessage(err);
                                 })
                             },
                             reject: () => undefined,
@@ -511,11 +501,7 @@ export class GridViewContainer extends BaseContainer {
                                         }
                                         this.unblockUi();
                                     }).catch((err) => {
-                                    if (!!err.error) {
-                                        this.showResponseErrorMessage(err);
-                                    } else {
-                                        this.showErrorMessages(err);
-                                    }
+                                    this.showGlobalErrorMessage(err);
                                 })
                             },
                             reject: () => undefined,
@@ -545,11 +531,7 @@ export class GridViewContainer extends BaseContainer {
                                         }
                                         this.unblockUi();
                                     }).catch((err) => {
-                                    if (!!err.error) {
-                                        this.showResponseErrorMessage(err);
-                                    } else {
-                                        this.showErrorMessages(err);
-                                    }
+                                    this.showGlobalErrorMessage(err);
                                 })
                             },
                             reject: () => undefined,
@@ -591,8 +573,7 @@ export class GridViewContainer extends BaseContainer {
                                 this.unblockUi();
                             })
                             .catch((err) => {
-                                this.showErrorMessages(err);
-                                this.unblockUi();
+                                this.showGlobalErrorMessage(err);
                             });
                     }}/>
                 {/*Zakładki podwidoków*/}

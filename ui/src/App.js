@@ -90,7 +90,7 @@ class App extends Component {
         }
 
         this.readConfigAndSaveInCookie(configUrl)
-            .catch(err => {
+            .catch((err) => {
                 console.error("Error start application = ", err)
             });
     }

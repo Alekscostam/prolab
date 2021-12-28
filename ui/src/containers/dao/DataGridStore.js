@@ -84,12 +84,12 @@ export default class DataGridStore extends BaseService {
             }
         });
         let eventSelectAll = true;
-        const viewTypeParam = !!viewTypeArg ? `&viewType=${viewTypeArg}` : '';
+        params += 'viewType=gridView';
         const filterIdParam = !!filterIdArg ? `&filterId=${filterIdArg}` : '';
         const recordParentIdParam = !!recordParentIdArg ? `&parentId=${recordParentIdArg}` : '';
         const kindViewParam = !!kindViewArg && !!recordParentIdParam ? `&kindView=${kindViewArg}` : '';
         const selectAllParam = !!eventSelectAll ? `&selection=true` : '';
-        let url = `${this.domain}/${this.path}/${viewIdArg}${params}${viewTypeParam}${filterIdParam}${selectAllParam}${recordParentIdParam}${kindViewParam}`;
+        let url = `${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${selectAllParam}${recordParentIdParam}${kindViewParam}`;
         url = this.commonCorrectUrl(url);
         return this.fetch(
             url,
@@ -101,7 +101,7 @@ export default class DataGridStore extends BaseService {
         });
     }
 
-    getDataGridStore(viewIdArg, viewTypeArg, recordParentIdArg, filterIdArg, kindViewArg, onStart, onSuccess, onError) {
+    getDataGridStore(viewIdArg, recordParentIdArg, filterIdArg, kindViewArg, onStart, onSuccess, onError) {
         if (!viewIdArg) {
             if (onSuccess) {
                 onSuccess();
@@ -136,7 +136,6 @@ export default class DataGridStore extends BaseService {
                         params += `${i}=${JSON.stringify(loadOptions[i])}&`;
                     }
                 });
-
                 let addSelectAllParam = false;
                 if (!!onStart) {
                     let result = onStart();
@@ -144,12 +143,12 @@ export default class DataGridStore extends BaseService {
                         addSelectAllParam = true
                     }
                 }
-                const viewTypeParam = !!viewTypeArg ? `&viewType=${viewTypeArg}` : '';
+                params += 'viewType=gridView';
                 const filterIdParam = !!filterIdArg ? `&filterId=${filterIdArg}` : '';
                 const recordParentIdParam = !!recordParentIdArg ? `&parentId=${recordParentIdArg}` : '';
                 const kindViewParam = !!kindViewArg && !!recordParentIdParam ? `&kindView=${kindViewArg}` : '';
                 const selectAllParam = !!addSelectAllParam ? `&selection=true` : '';
-                let url = `${this.domain}/${this.path}/${viewIdArg}${params}${viewTypeParam}${filterIdParam}${selectAllParam}${recordParentIdParam}${kindViewParam}`;
+                let url = `${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${selectAllParam}${recordParentIdParam}${kindViewParam}`;
                 url = this.commonCorrectUrl(url);
                 //blokuj dziwne strzały ze stora
                 if (url.split("&").length - 1 <= 2) {

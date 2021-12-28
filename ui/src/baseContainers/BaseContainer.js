@@ -161,6 +161,14 @@ class BaseContainer extends React.Component {
         this.unblockUi();
     }
 
+    showGlobalErrorMessage(err) {
+        if (!!err.error) {
+            this.showResponseErrorMessage(err);
+        } else {
+            this.showErrorMessages(err);
+        }
+    }
+
     showErrorMessage(errMsg, life = Constants.ERROR_MSG_LIFE, closable = true, summary = 'Błąd!') {
         this.messages?.show({
             severity: 'error',
@@ -778,18 +786,16 @@ class BaseContainer extends React.Component {
                 />
             );
         } else if (item.type === 'SUBMIT') {
-            return (
-                <button
-                    value={item.label}
-                    // eslint-disable-next-line max-len
-                    className={`p-button p-component p-button-text-only header-item ${item.className} ${item.variant} ${item.size}`}
-                    type='submit'
-                    rendered={item.rendered}
-                    disabled={item.disabled}
-                    key={item.label + index}
-                >
-                    <span className='p-button-text p-c'>{item.label}</span>
-                </button>
+            return (item.rendered ?
+                    <button
+                        value={item.label}
+                        // eslint-disable-next-line max-len
+                        className={`p-button p-component p-button-text-only header-item ${item.className} ${item.variant} ${item.size}`}
+                        type='submit'
+                        disabled={item.disabled}
+                        key={item.label + index}>
+                        <span className='p-button-text p-c'>{item.label}</span>
+                    </button> : null
             );
         } else {
             return (
@@ -915,27 +921,27 @@ class BaseContainer extends React.Component {
     }
 
     renderContent() {
-        return <React.Fragment></React.Fragment>;
+        return <React.Fragment/>;
     }
 
     renderHeaderRight() {
-        return <React.Fragment></React.Fragment>;
+        return <React.Fragment/>;
     }
 
     renderHeaderLeft() {
-        return <React.Fragment></React.Fragment>;
+        return <React.Fragment/>;
     }
 
     renderHeaderContent() {
-        return <React.Fragment></React.Fragment>;
+        return <React.Fragment/>;
     }
 
     renderHeadPanel() {
-        return <React.Fragment></React.Fragment>;
+        return <React.Fragment/>;
     }
 
     renderGlobalTop() {
-        return <React.Fragment></React.Fragment>
+        return <React.Fragment/>;
     }
 
     render() {
@@ -1068,11 +1074,7 @@ class BaseContainer extends React.Component {
                 this.refreshGridView();
                 this.unblockUi();
             }).catch((err) => {
-            if (!!err.error) {
-                this.showResponseErrorMessage(err);
-            } else {
-                this.showErrorMessages(err);
-            }
+            this.showGlobalErrorMessage(err);
         });
     }
 
@@ -1111,7 +1113,7 @@ class BaseContainer extends React.Component {
                 this.unblockUi();
             })
             .catch((err) => {
-                this.showErrorMessages(err);
+                this.showGlobalErrorMessage(err);
             });
     }
 
@@ -1198,11 +1200,7 @@ class BaseContainer extends React.Component {
                 })
                 this.setState({editData: editData});
             }).catch((err) => {
-            if (!!err.error) {
-                this.showResponseErrorMessage(err);
-            } else {
-                this.showErrorMessages(err);
-            }
+            this.showGlobalErrorMessage(err);
         }).finally(() => {
             this.unblockUi();
         });
