@@ -471,6 +471,7 @@ export class ViewContainer extends BaseContainer {
                                         this.setState({loading: true}, () => {
                                             let res = this.dataGridStore.getDataGridStore(
                                                 viewIdArg,
+                                                'gridView',
                                                 parentIdArg,
                                                 filterIdArg,
                                                 kindViewArg,
@@ -899,6 +900,7 @@ export class ViewContainer extends BaseContainer {
                 this.state.subView == null
                     ? this.state.elementId
                     : this.state.elementSubViewId,
+                'gridView',
                 this.state.elementRecordId,
                 this.state.elementFilterId,
                 this.state.kindView,

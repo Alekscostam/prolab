@@ -250,6 +250,7 @@ export class GridViewContainer extends BaseContainer {
                                             this.state.subView == null
                                                 ? this.state.elementId
                                                 : this.state.elementSubViewId,
+                                            this.state.viewType,
                                             this.state.subView == null ? recordId : this.state.elementRecordId,
                                             !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId,
                                             this.state.kindView,
