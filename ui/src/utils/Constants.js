@@ -17,7 +17,8 @@ export const Constants = {
         ],
     },
     SUCCESS_MSG_LIFE: 7500,
-    ERROR_MSG_LIFE: 7500
+    ERROR_MSG_LIFE: 7500,
+    DEFAULT_DATA_PACKAGE_COUNT: 30,
 };
 
 export default Constants;

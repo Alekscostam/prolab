@@ -295,7 +295,7 @@ class GridViewComponent extends React.Component {
         //multiSelect dla podpowiedzi
         const multiSelect = this.props.parsedGridView?.gridOptions?.multiSelect;
         const multiSelection = (multiSelect === undefined || multiSelect === null || !!multiSelect);
-        const packageCount = (!!this.props.packageRows || this.props.packageRows === 0) ? 30 : this.props.packageRows;
+        const packageCount = (!!this.props.packageRows || this.props.packageRows === 0) ? Constants.DEFAULT_DATA_PACKAGE_COUNT : this.props.packageRows;
         const showSelection = this.waitForSuccess() ? false : this.props.showSelection;
         const showColumnHeaders = this.props.showColumnHeaders;
         const showColumnLines = this.props.showColumnLines;
@@ -400,7 +400,7 @@ class GridViewComponent extends React.Component {
 GridViewComponent.defaultProps = {
     parsedGridView: [],
     selectedRowKeys: [],
-    packageRows: 30,
+    packageRows: Constants.DEFAULT_DATA_PACKAGE_COUNT,
     showColumnLines: true,
     showRowLines: true,
     showBorders: true,

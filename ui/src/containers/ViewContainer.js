@@ -56,7 +56,7 @@ export class ViewContainer extends BaseContainer {
             parsedGridViewData: {},
             gridViewColumns: [],
             selectedRowKeys: [],
-            parsedCardViewData: [],
+            parsedCardViewData: {},
             batchesList: [],
             gridViewType: null,
             gridViewTypes: [],
@@ -178,63 +178,6 @@ export class ViewContainer extends BaseContainer {
             );
         } else {
             ConsoleHelper('ViewContainer::componentDidUpdate -> not updating !');
-        }
-        if (this.state.gridViewType === 'cardView' && this.cardGrid !== null) {
-            this.cardGrid._scrollView.on('scroll', (e) => {
-                if (
-                    e.reachedBottom &&
-                    !this.state.cardScrollLoading &&
-                    this.state.gridViewType === 'cardView' &&
-                    this.state.parsedCardViewData.length < this.state.cardTotalRows
-                ) {
-                    const dataPackageSize = this.state.parsedGridView?.viewInfo?.dataPackageSize;
-                    const packageCount = (!!dataPackageSize || dataPackageSize === 0) ? 30 : dataPackageSize;
-                    this.setState(
-                        {cardScrollLoading: true, cardSkip: this.state.cardSkip + packageCount},
-                        () => {
-                            ConsoleHelper('Datasource', this.cardGrid.getDataSource());
-                            this.cardGrid.beginUpdate();
-                            const parentIdArg = this.state.subView == null ? parentId : this.state.elementRecordId;
-                            const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : this.state.parsedGridView?.viewInfo?.filterdId;
-                            const kindViewArg = !!this.state.elementKindView ? this.state.elementKindView : kindView;
-                            this.dataGridStore
-                                .getDataForCard(this.props.id, {
-                                        skip: this.state.cardSkip,
-                                        take: packageCount
-                                    },
-                                    parentIdArg,
-                                    filterIdArg,
-                                    kindViewArg
-                                )
-                                .then((res) => {
-                                    let parsedCardViewData = this.state.parsedCardViewData;
-                                    res.data.forEach((item) => {
-                                        for (var key in item) {
-                                            var upper = key.toUpperCase();
-                                            // check if it already wasn't uppercase
-                                            if (upper !== key) {
-                                                item[upper] = item[key];
-                                                delete item[key];
-                                            }
-                                        }
-                                        parsedCardViewData.push(item);
-                                    });
-                                    this.setState(
-                                        {
-                                            parsedCardViewData,
-                                            cardScrollLoading: false,
-                                            cardTotalRows: res.totalCount,
-                                        },
-                                        () => {
-                                            this.cardGrid.endUpdate();
-                                            this.cardGrid.repaint();
-                                        }
-                                    );
-                                });
-                        }
-                    );
-                }
-            });
         }
     }
 
@@ -436,37 +379,40 @@ export class ViewContainer extends BaseContainer {
                                     const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId;
                                     const kindViewArg = this.state.kindView;
                                     if (this.state.gridViewType === 'cardView') {
-                                        const dataPackageSize = this.state.parsedGridView?.viewInfo?.dataPackageSize;
-                                        const packageCount = (!!dataPackageSize || dataPackageSize === 0) ? 30 : dataPackageSize;
-                                        this.setState({loading: true, cardSkip: 0}, () =>
-                                            this.dataGridStore
-                                                .getDataForCard(viewIdArg,
-                                                    {
-                                                        skip: this.state.cardSkip,
-                                                        take: packageCount
-                                                    },
-                                                    parentIdArg,
-                                                    filterIdArg,
-                                                    kindViewArg)
-                                                .then((res) => {
-                                                    let parsedCardViewData = res.data.map(function (item) {
-                                                        for (var key in item) {
-                                                            var upper = key.toUpperCase();
-                                                            // check if it already wasn't uppercase
-                                                            if (upper !== key) {
-                                                                item[upper] = item[key];
-                                                                delete item[key];
-                                                            }
-                                                        }
-                                                        return item;
-                                                    });
+                                        this.setState({loading: true}, () => {
+                                            const dataPackageSize = this.state.parsedGridView?.viewInfo?.dataPackageSize;
+                                            const packageCount = (!!dataPackageSize || dataPackageSize === 0) ? Constants.DEFAULT_DATA_PACKAGE_COUNT : dataPackageSize;
+                                            let res = this.dataGridStore.getDataCardStore(
+                                                viewIdArg,
+                                                {
+                                                    skip: this.state.cardSkip,
+                                                    take: packageCount
+                                                },
+                                                parentIdArg,
+                                                filterIdArg,
+                                                kindViewArg,
+                                                () => {
+                                                    return null;
+                                                },
+                                                () => {
                                                     this.setState({
-                                                        parsedCardViewData,
-                                                        loading: false,
-                                                        cardTotalRows: res.totalCount,
+                                                        dataGridStoreSuccess: true,
+                                                    }, () => {
+                                                        this.unblockUi();
                                                     });
-                                                })
-                                        );
+                                                },
+                                                (err) => {
+                                                    this.unblockUi();
+                                                    this.showErrorMessages(err);
+                                                },
+                                            );
+                                            if (!!res) {
+                                                this.setState({
+                                                    loading: false,
+                                                    parsedCardViewData: res
+                                                });
+                                            }
+                                        });
                                     } else {
                                         this.setState({loading: true}, () => {
                                             let res = this.dataGridStore.getDataGridStore(
