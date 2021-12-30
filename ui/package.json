@@ -33,7 +33,11 @@
     "react-through": "^1.1.4",
     "react-transition-group": "^4.4.1",
     "sanitize-html-react": "1.13.0",
-    "object-hash": "^2.2.0"
+    "object-hash": "^2.2.0",
+    "react-virtualized": "9.21.2",
+    "react-virtualized-auto-sizer": "1.0.2",
+    "react-window": "1.8.6",
+    "react-window-infinite-loader": "1.0.7"
   },
   "scripts": {
     "init-dev-version": "npm version 0.0.0",

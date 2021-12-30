@@ -10,6 +10,15 @@ import AppPrefixUtils from "../../utils/AppPrefixUtils";
 import PropTypes from "prop-types";
 import EditService from "../../services/EditService";
 import ConsoleHelper from "../../utils/ConsoleHelper";
+import AutoSizer from "react-virtualized-auto-sizer";
+import InfiniteLoader from "react-virtualized/dist/commonjs/InfiniteLoader/InfiniteLoader";
+import {List} from "react-virtualized";
+import {Container} from "react-bootstrap";
+import {FixedSizeList} from "react-window";
+import Item from "react-through/src_/Item";
+import ExampleWrapper from "./ExampleWrapper";
+import DataGridStore from "../dao/DataGridStore";
+
 
 class CardViewComponent extends React.Component {
 
@@ -17,6 +26,16 @@ class CardViewComponent extends React.Component {
         super(props);
         this.editService = new EditService();
         this.labels = this.props;
+        this.dataGridStore = new DataGridStore();
+        this.state = {
+            hasNextPage: true,
+            isNextPageLoading: false,
+            items: [],
+            cardSkip: 0,
+            cardScrollLoading: false,
+
+
+        }
         ConsoleHelper('CardViewComponent -> constructor');
     }
 
@@ -43,165 +62,380 @@ class CardViewComponent extends React.Component {
         return styleTile;
     }
 
+    _loadNextPage = (...args) => {
+        console.log("loadNextPage", ...args);
+        console.log(args[0])
+        const dataPackageSize = 30;
+        const packageCount = (!!dataPackageSize || dataPackageSize === 0) ? 30 : dataPackageSize;
+        this.setState({
+            isNextPageLoading: true,
+            cardScrollLoading: true,
+            cardSkip: this.state.cardSkip + packageCount
+        }, () => {
+            this.dataGridStore
+                .getDataForCard(this.props.id, {
+                        skip: args[0],
+                        take: 30
+                    },
+                    0,
+                    0,
+                    null
+                )
+                .then((res) => {
+                    let parsedCardViewData = [];
+                    res.data.forEach((item) => {
+                        for (var key in item) {
+                            var upper = key.toUpperCase();
+                            // check if it already wasn't uppercase
+                            if (upper !== key) {
+                                item[upper] = item[key];
+                                delete item[key];
+                            }
+                        }
+                        parsedCardViewData.push(item);
+                    });
+                    this.setState(state => ({
+                        hasNextPage: state.items.length < res.totalCount,
+                        isNextPageLoading: false,
+                        items: [...state.items].concat(
+                            parsedCardViewData
+                        )
+                    }));
+                });
+        });
+    };
+
+    chunkData = (array, size = 1) => {
+        size = Math.max(parseInt(size), 0);
+        const length = array == null ? 0 : array.length;
+        if (!length || size < 1) {
+            return [];
+        }
+        let index = 0;
+        let resIndex = 0;
+        const result = new Array(Math.ceil(length / size));
+
+        while (index < length) {
+            result[resIndex++] = array.slice(index, (index += size));
+        }
+        return result;
+    };
 
     render() {
-        const padding = 2;
-        let cardWidth = this.props.parsedGridView?.cardOptions?.width ?? 300;
-        let cardHeight = this.props.parsedGridView?.cardOptions?.height ?? 200;
-        let cardBgColor1 = this.props.parsedGridView?.cardOptions?.bgColor1;
-        let cardBgColor2 = this.props.parsedGridView?.cardOptions?.bgColor2;
-        let fontColor = this.props.parsedGridView?.cardOptions?.fontColor;
-        return (
-            <TileView
-                onInitialized={(e) => (this.props.handleOnInitialized(e.component))}
-                className='card-grid'
-                items={this.props.parsedCardViewData}
-                itemRender={(rowData) => {
-                    const {cardBody, cardHeader, cardImage, cardFooter} = this.props.parsedGridView;
-                    let showEditButton = false;
-                    let showSubviewButton = false;
-                    let showMenu = false;
-                    let menuItems = [];
-                    if (this.props.parsedGridView?.operations) {
-                        this.props.parsedGridView?.operations.forEach((operation) => {
-                            showEditButton = showEditButton || operation.type === 'OP_EDIT';
-                            showSubviewButton = showSubviewButton || operation.type === 'OP_SUBVIEWS';
-                            if (
-                                operation.type === 'OP_PUBLIC' ||
-                                operation.type === 'OP_HISTORY' ||
-                                operation.type === 'OP_ATTACHMENTS'
-                            ) {
-                                menuItems.push(operation);
-                            }
-                        });
-                        showMenu = menuItems.length > 0;
+        const isItemLoaded = index => !this.state.hasNextPage || index < this.state.items.length;
+        const Item = ({index, style}) => {
+            let rowData;
+            if (!isItemLoaded(index)) {
+                rowData = "Loading...";
+            } else {
+                rowData = this.state.items[index];
+            }
+            const padding = 2;
+            let cardWidth = this.props.parsedGridView?.cardOptions?.width ?? 300;
+            let cardHeight = this.props.parsedGridView?.cardOptions?.height ?? 200;
+            let cardBgColor1 = this.props.parsedGridView?.cardOptions?.bgColor1;
+            let cardBgColor2 = this.props.parsedGridView?.cardOptions?.bgColor2;
+            let fontColor = this.props.parsedGridView?.cardOptions?.fontColor;
+            const {cardBody, cardHeader, cardImage, cardFooter} = this.props.parsedGridView;
+            let showEditButton = false;
+            let showSubviewButton = false;
+            let showMenu = false;
+            let menuItems = [];
+            if (this.props.parsedGridView?.operations) {
+                this.props.parsedGridView?.operations.forEach((operation) => {
+                    showEditButton = showEditButton || operation.type === 'OP_EDIT';
+                    showSubviewButton = showSubviewButton || operation.type === 'OP_SUBVIEWS';
+                    if (
+                        operation.type === 'OP_PUBLIC' ||
+                        operation.type === 'OP_HISTORY' ||
+                        operation.type === 'OP_ATTACHMENTS'
+                    ) {
+                        menuItems.push(operation);
                     }
-                    let oppEdit = GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_EDIT');
-                    let oppSubview = GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_SUBVIEWS');
-                    const elementSubViewId = this.props.elementSubViewId;
-                    const elementKindView = this.props.elementKindView;
-                    const elementId = this.props.id;
-                    const viewId = GridViewUtils.getRealViewId(elementSubViewId, elementId);
-                    const recordId = rowData.ID;
-                    const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
-                    const subviewId = elementSubViewId ? elementId : undefined;
+                });
+                showMenu = menuItems.length > 0;
+            }
+            let oppEdit = GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_EDIT');
+            let oppSubview = GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_SUBVIEWS');
+            const elementSubViewId = this.props.elementSubViewId;
+            const elementKindView = this.props.elementKindView;
+            const elementId = this.props.id;
+            const viewId = GridViewUtils.getRealViewId(elementSubViewId, elementId);
+            const recordId = rowData.ID;
+            const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+            const subviewId = elementSubViewId ? elementId : undefined;
 
-                    setTimeout(() => {
-                        const cardHeight = this.props.parsedGridView?.cardOptions?.heigh ?? 200;
-                        var p = $(`#${recordId} .card-grid-body-content`);
-                        while ($(p).outerHeight() > cardHeight - 52) {
-                            $(p).text(function (index, text) {
-                                return text.replace(/\W*\s(\S)*$/, '...');
-                            });
-                        }
-                    }, 10);
-                    return (
-                        <div
-                            id={recordId}
-                            className={`dx-tile-image ${this.isSelectionEnabled() ? (
-                                this.props.selectedRowKeys.includes(recordId) ? 'card-grid-selected' : '') : ''
-                            }`}
-                            style={this.styleTile(rowData, cardBgColor1, cardBgColor2, fontColor, cardWidth, cardHeight)}
-                        >
-                            <div className='row'>
-                                <div className='card-grid-header'>
-                                    {cardHeader?.visible
-                                        ? CardViewUtils.cellTemplate(cardHeader, rowData, 'card-grid-header-title', 'HEADER')
-                                        : null}
-                                    {showEditButton || showMenu || showSubviewButton ? (
-                                        <div className='card-grid-header-buttons'>
-                                            <ShortcutButton
-                                                id={`${recordId}_menu_button`}
-                                                className={`action-button-with-menu`}
-                                                iconName={'mdi-pencil'}
-                                                label={''}
-                                                title={oppEdit?.label}
-                                                handleClick={() => {
-                                                    let result = this.props.handleBlockUi();
-                                                    if (result) {
-                                                        this.editService
-                                                            .getEdit(viewId, recordId, subviewId, elementKindView)
-                                                            .then((editDataResponse) => {
-                                                                this.props.handleShowEditPanel(editDataResponse);
-                                                            })
-                                                            .catch((err) => {
-                                                                this.props.showErrorMessages(err);
-                                                            });
-                                                    }
-                                                }}
-                                                rendered={showEditButton && oppEdit}
-                                            />
-                                            <ShortcutButton
-                                                id={`${recordId}_menu_button`}
-                                                className={`action-button-with-menu`}
-                                                iconName={'mdi-playlist-plus '}
-                                                title={oppSubview?.label}
-                                                rendered={oppSubview}
-                                                href={AppPrefixUtils.locationHrefUrl(
-                                                    `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${!!currentBreadcrumb ? currentBreadcrumb : ``}`
-                                                )}
-                                            />
-                                            <ActionButtonWithMenu
-                                                id={`${recordId}_more_shortcut`}
-                                                className={`action-button-with-menu`}
-                                                iconName='mdi-dots-vertical'
-                                                items={menuItems}
-                                                rendered={showMenu}
-                                            />
-                                        </div>
-                                    ) : null}
-                                </div>
-                                <div className='card-grid-body'>
-                                    {/* <div className='row'> */}
-                                    {cardImage?.visible && cardImage?.fieldName && rowData[cardImage?.fieldName]
-                                        ? // <div className={cardBody?.visible ? 'col-3' : 'col-12'}>
-                                        CardViewUtils.cellTemplate(cardImage, rowData, 'card-grid-body-image', 'IMG')
-                                        : // </div>
-                                        null}
-                                    {cardBody?.visible
-                                        ? // <div className={cardImage?.visible ? 'col-9' : 'col-12'}>
-                                        CardViewUtils.cellTemplate(
-                                            cardBody,
-                                            rowData,
-                                            'card-grid-body-content',
-                                            cardImage?.visible && cardImage?.fieldName && rowData[cardImage?.fieldName]
-                                                ? 'BODY_WITH_IMG'
-                                                : 'BODY'
-                                        )
-                                        : // </div>
-                                        null}
-                                    {/* </div> */}
-                                </div>
-                                <div className='card-grid-footer'>
-                                    {cardFooter?.visible
-                                        ? CardViewUtils.cellTemplate(cardFooter, rowData, 'card-grid-footer-content', 'FOOTER')
-                                        : null}
-                                </div>
+            setTimeout(() => {
+                const cardHeight = this.props.parsedGridView?.cardOptions?.heigh ?? 200;
+                var p = $(`#${recordId} .card-grid-body-content`);
+                while ($(p).outerHeight() > cardHeight - 52) {
+                    $(p).text(function (index, text) {
+                        return text.replace(/\W*\s(\S)*$/, '...');
+                    });
+                }
+            }, 10);
+
+
+            return (<div className={'dx-item dx-tile'}>
+                <div className={'dx-item-content dx-tile-content'} style={style}>
+                    <div id={recordId}
+                         className={`dx-tile-image ${this.isSelectionEnabled() ? (
+                             this.props.selectedRowKeys.includes(recordId) ? 'card-grid-selected' : '') : ''
+                         }`}
+                         style={this.styleTile(rowData, cardBgColor1, cardBgColor2, fontColor, cardWidth, cardHeight)}
+                    >
+                        <div className='row'>
+                            <div className='card-grid-header'>
+                                {cardHeader?.visible
+                                    ? CardViewUtils.cellTemplate(cardHeader, rowData, 'card-grid-header-title', 'HEADER')
+                                    : null}
+                                {showEditButton || showMenu || showSubviewButton ? (
+                                    <div className='card-grid-header-buttons'>
+                                        <ShortcutButton
+                                            id={`${recordId}_menu_button`}
+                                            className={`action-button-with-menu`}
+                                            iconName={'mdi-pencil'}
+                                            label={''}
+                                            title={oppEdit?.label}
+                                            handleClick={() => {
+                                                let result = this.props.handleBlockUi();
+                                                if (result) {
+                                                    this.editService
+                                                        .getEdit(viewId, recordId, subviewId, elementKindView)
+                                                        .then((editDataResponse) => {
+                                                            this.props.handleShowEditPanel(editDataResponse);
+                                                        })
+                                                        .catch((err) => {
+                                                            this.props.showErrorMessages(err);
+                                                        });
+                                                }
+                                            }}
+                                            rendered={showEditButton && oppEdit}
+                                        />
+                                        <ShortcutButton
+                                            id={`${recordId}_menu_button`}
+                                            className={`action-button-with-menu`}
+                                            iconName={'mdi-playlist-plus '}
+                                            title={oppSubview?.label}
+                                            rendered={oppSubview}
+                                            href={AppPrefixUtils.locationHrefUrl(
+                                                `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${!!currentBreadcrumb ? currentBreadcrumb : ``}`
+                                            )}
+                                        />
+                                        <ActionButtonWithMenu
+                                            id={`${recordId}_more_shortcut`}
+                                            className={`action-button-with-menu`}
+                                            iconName='mdi-dots-vertical'
+                                            items={menuItems}
+                                            rendered={showMenu}
+                                        />
+                                    </div>
+                                ) : null}
+                            </div>
+                            <div className='card-grid-body'>
+                                {/* <div className='row'> */}
+                                {cardImage?.visible && cardImage?.fieldName && rowData[cardImage?.fieldName]
+                                    ? // <div className={cardBody?.visible ? 'col-3' : 'col-12'}>
+                                    CardViewUtils.cellTemplate(cardImage, rowData, 'card-grid-body-image', 'IMG')
+                                    : // </div>
+                                    null}
+                                {cardBody?.visible
+                                    ? // <div className={cardImage?.visible ? 'col-9' : 'col-12'}>
+                                    CardViewUtils.cellTemplate(
+                                        cardBody,
+                                        rowData,
+                                        'card-grid-body-content',
+                                        cardImage?.visible && cardImage?.fieldName && rowData[cardImage?.fieldName]
+                                            ? 'BODY_WITH_IMG'
+                                            : 'BODY'
+                                    )
+                                    : // </div>
+                                    null}
+                                {/* </div> */}
+                            </div>
+                            <div className='card-grid-footer'>
+                                {cardFooter?.visible
+                                    ? CardViewUtils.cellTemplate(cardFooter, rowData, 'card-grid-footer-content', 'FOOTER')
+                                    : null}
                             </div>
                         </div>
-                    );
-                }}
-                height='100%'
-                baseItemHeight={cardHeight + padding}
-                baseItemWidth={cardWidth + padding}
-                itemMargin={10}
-                showScrollbar
-                direction='vertical'
-                onItemClick={(item) => {
-                    if (this.isSelectionEnabled()) {
-                        let selectedRowKeys = this.props.selectedRowKeys;
-                        var index = selectedRowKeys.indexOf(item.itemData.ID);
-                        if (index !== -1) {
-                            selectedRowKeys.splice(index, 1);
-                        } else {
-                            selectedRowKeys.push(item.itemData.ID);
-                        }
-                        this.props.handleSelectedRowKeys(selectedRowKeys)
-                    }
-                }}
-            />
-        );
+                    </div>
+
+                </div>
+            </div>);
+        };
+        return (
+            <React.Fragment>
+                length:{this.state.items.length}
+                <ExampleWrapper
+                    hasNextPage={this.state.hasNextPage}
+                    isNextPageLoading={this.state.isNextPageLoading}
+                    items={this.state.items}
+                    loadNextPage={this._loadNextPage}
+                    item={Item}
+                />
+            </React.Fragment>
+        )
     }
+
+// render() {
+//     const padding = 2;
+//     let cardWidth = this.props.parsedGridView?.cardOptions?.width ?? 300;
+//     let cardHeight = this.props.parsedGridView?.cardOptions?.height ?? 200;
+//     let cardBgColor1 = this.props.parsedGridView?.cardOptions?.bgColor1;
+//     let cardBgColor2 = this.props.parsedGridView?.cardOptions?.bgColor2;
+//     let fontColor = this.props.parsedGridView?.cardOptions?.fontColor;
+//     return (
+//         <TileView
+//             onInitialized={(e) => (this.props.handleOnInitialized(e.component))}
+//             className='card-grid'
+//             items={this.props.parsedCardViewData}
+//             itemRender={(rowData) => {
+//                 const {cardBody, cardHeader, cardImage, cardFooter} = this.props.parsedGridView;
+//                 let showEditButton = false;
+//                 let showSubviewButton = false;
+//                 let showMenu = false;
+//                 let menuItems = [];
+//                 if (this.props.parsedGridView?.operations) {
+//                     this.props.parsedGridView?.operations.forEach((operation) => {
+//                         showEditButton = showEditButton || operation.type === 'OP_EDIT';
+//                         showSubviewButton = showSubviewButton || operation.type === 'OP_SUBVIEWS';
+//                         if (
+//                             operation.type === 'OP_PUBLIC' ||
+//                             operation.type === 'OP_HISTORY' ||
+//                             operation.type === 'OP_ATTACHMENTS'
+//                         ) {
+//                             menuItems.push(operation);
+//                         }
+//                     });
+//                     showMenu = menuItems.length > 0;
+//                 }
+//                 let oppEdit = GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_EDIT');
+//                 let oppSubview = GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_SUBVIEWS');
+//                 const elementSubViewId = this.props.elementSubViewId;
+//                 const elementKindView = this.props.elementKindView;
+//                 const elementId = this.props.id;
+//                 const viewId = GridViewUtils.getRealViewId(elementSubViewId, elementId);
+//                 const recordId = rowData.ID;
+//                 const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+//                 const subviewId = elementSubViewId ? elementId : undefined;
+//
+//                 setTimeout(() => {
+//                     const cardHeight = this.props.parsedGridView?.cardOptions?.heigh ?? 200;
+//                     var p = $(`#${recordId} .card-grid-body-content`);
+//                     while ($(p).outerHeight() > cardHeight - 52) {
+//                         $(p).text(function (index, text) {
+//                             return text.replace(/\W*\s(\S)*$/, '...');
+//                         });
+//                     }
+//                 }, 10);
+//                 return (
+//                     <div
+//                         id={recordId}
+//                         className={`dx-tile-image ${this.isSelectionEnabled() ? (
+//                             this.props.selectedRowKeys.includes(recordId) ? 'card-grid-selected' : '') : ''
+//                         }`}
+//                         style={this.styleTile(rowData, cardBgColor1, cardBgColor2, fontColor, cardWidth, cardHeight)}
+//                     >
+//                         <div className='row'>
+//                             <div className='card-grid-header'>
+//                                 {cardHeader?.visible
+//                                     ? CardViewUtils.cellTemplate(cardHeader, rowData, 'card-grid-header-title', 'HEADER')
+//                                     : null}
+//                                 {showEditButton || showMenu || showSubviewButton ? (
+//                                     <div className='card-grid-header-buttons'>
+//                                         <ShortcutButton
+//                                             id={`${recordId}_menu_button`}
+//                                             className={`action-button-with-menu`}
+//                                             iconName={'mdi-pencil'}
+//                                             label={''}
+//                                             title={oppEdit?.label}
+//                                             handleClick={() => {
+//                                                 let result = this.props.handleBlockUi();
+//                                                 if (result) {
+//                                                     this.editService
+//                                                         .getEdit(viewId, recordId, subviewId, elementKindView)
+//                                                         .then((editDataResponse) => {
+//                                                             this.props.handleShowEditPanel(editDataResponse);
+//                                                         })
+//                                                         .catch((err) => {
+//                                                             this.props.showErrorMessages(err);
+//                                                         });
+//                                                 }
+//                                             }}
+//                                             rendered={showEditButton && oppEdit}
+//                                         />
+//                                         <ShortcutButton
+//                                             id={`${recordId}_menu_button`}
+//                                             className={`action-button-with-menu`}
+//                                             iconName={'mdi-playlist-plus '}
+//                                             title={oppSubview?.label}
+//                                             rendered={oppSubview}
+//                                             href={AppPrefixUtils.locationHrefUrl(
+//                                                 `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${!!currentBreadcrumb ? currentBreadcrumb : ``}`
+//                                             )}
+//                                         />
+//                                         <ActionButtonWithMenu
+//                                             id={`${recordId}_more_shortcut`}
+//                                             className={`action-button-with-menu`}
+//                                             iconName='mdi-dots-vertical'
+//                                             items={menuItems}
+//                                             rendered={showMenu}
+//                                         />
+//                                     </div>
+//                                 ) : null}
+//                             </div>
+//                             <div className='card-grid-body'>
+//                                 {/* <div className='row'> */}
+//                                 {cardImage?.visible && cardImage?.fieldName && rowData[cardImage?.fieldName]
+//                                     ? // <div className={cardBody?.visible ? 'col-3' : 'col-12'}>
+//                                     CardViewUtils.cellTemplate(cardImage, rowData, 'card-grid-body-image', 'IMG')
+//                                     : // </div>
+//                                     null}
+//                                 {cardBody?.visible
+//                                     ? // <div className={cardImage?.visible ? 'col-9' : 'col-12'}>
+//                                     CardViewUtils.cellTemplate(
+//                                         cardBody,
+//                                         rowData,
+//                                         'card-grid-body-content',
+//                                         cardImage?.visible && cardImage?.fieldName && rowData[cardImage?.fieldName]
+//                                             ? 'BODY_WITH_IMG'
+//                                             : 'BODY'
+//                                     )
+//                                     : // </div>
+//                                     null}
+//                                 {/* </div> */}
+//                             </div>
+//                             <div className='card-grid-footer'>
+//                                 {cardFooter?.visible
+//                                     ? CardViewUtils.cellTemplate(cardFooter, rowData, 'card-grid-footer-content', 'FOOTER')
+//                                     : null}
+//                             </div>
+//                         </div>
+//                     </div>
+//                 );
+//             }}
+//             height='100%'
+//             baseItemHeight={cardHeight + padding}
+//             baseItemWidth={cardWidth + padding}
+//             itemMargin={10}
+//             showScrollbar
+//             direction='vertical'
+//             onItemClick={(item) => {
+//                 if (this.isSelectionEnabled()) {
+//                     let selectedRowKeys = this.props.selectedRowKeys;
+//                     var index = selectedRowKeys.indexOf(item.itemData.ID);
+//                     if (index !== -1) {
+//                         selectedRowKeys.splice(index, 1);
+//                     } else {
+//                         selectedRowKeys.push(item.itemData.ID);
+//                     }
+//                     this.props.handleSelectedRowKeys(selectedRowKeys)
+//                 }
+//             }}
+//         />
+//     );
+// }
 }
 
 CardViewComponent.defaultProps = {
