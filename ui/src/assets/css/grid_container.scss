@@ -616,6 +616,26 @@ body .grid-container {
   width: 99%;
 }
 
-#combo_filters{
+#combo_filters {
   min-width: 100px;
+}
+
+.tiles {
+  display: inline-flex;
+}
+
+.tile {
+  border-radius: 10px;
+  padding: 0;
+  color: #333;
+  background-color: #fff;
+  border: 1px solid rgba(221, 221, 221, .6);
+  text-align: left;
+  outline: 0;
+}
+
+.dx-item.dx-tile {
+  position: relative;
+  align-self: flex-start;
+  margin-right: 10px;
 }

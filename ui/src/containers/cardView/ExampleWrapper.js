@@ -20,7 +20,8 @@ export default function ExampleWrapper({
 
                                            // Callback function responsible for loading the next page of items.
                                            loadNextPage,
-                                           item
+                                           item,
+                                           columnCount
                                        }) {
     // If there are more items to be loaded then add an extra row to hold a loading indicator.
     const itemCount = hasNextPage ? items.length + 1 : items.length;
@@ -31,8 +32,7 @@ export default function ExampleWrapper({
     } : loadNextPage;
 
     // Every row is loaded except for our loading indicator row.
-    const isItemLoaded = index => !hasNextPage || index < items.length;
-
+    const isItemLoaded = index => !hasNextPage || index < items.length / columnCount;
 
 
     return (
@@ -44,9 +44,9 @@ export default function ExampleWrapper({
                 <List
                     className="List"
                     height={700}
-                    width={700}
+                    width={1200}
                     itemCount={itemCount}
-                    itemSize={210}
+                    itemSize={215}
                     onItemsRendered={onItemsRendered}
                     ref={ref}
                     innerElementType={ListContainer}>

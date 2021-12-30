@@ -122,62 +122,92 @@ class CardViewComponent extends React.Component {
     };
 
     render() {
+        const columnCount = 5;
         const isItemLoaded = index => !this.state.hasNextPage || index < this.state.items.length;
         const Item = ({index, style}) => {
-            let rowData;
+            let rowData = this.state.items
+            rowData = this.chunkData(rowData, columnCount);
+            rowData = rowData[index];
             if (!isItemLoaded(index)) {
-                rowData = "Loading...";
+                return <div id={'row'} className={'tiles'} style={style}> "Loading..."</div>
             } else {
-                rowData = this.state.items[index];
+                return (<React.Fragment>
+                    {!!rowData ?
+                        <div id={'row'} className={'tiles'} style={style}>
+                            {React.Children.toArray(
+                                Array.from(rowData).map((data, i) => this.renderSingleTile(data, i))
+                            )}
+                        </div> : null}
+                </React.Fragment>);
             }
-            const padding = 2;
-            let cardWidth = this.props.parsedGridView?.cardOptions?.width ?? 300;
-            let cardHeight = this.props.parsedGridView?.cardOptions?.height ?? 200;
-            let cardBgColor1 = this.props.parsedGridView?.cardOptions?.bgColor1;
-            let cardBgColor2 = this.props.parsedGridView?.cardOptions?.bgColor2;
-            let fontColor = this.props.parsedGridView?.cardOptions?.fontColor;
-            const {cardBody, cardHeader, cardImage, cardFooter} = this.props.parsedGridView;
-            let showEditButton = false;
-            let showSubviewButton = false;
-            let showMenu = false;
-            let menuItems = [];
-            if (this.props.parsedGridView?.operations) {
-                this.props.parsedGridView?.operations.forEach((operation) => {
-                    showEditButton = showEditButton || operation.type === 'OP_EDIT';
-                    showSubviewButton = showSubviewButton || operation.type === 'OP_SUBVIEWS';
-                    if (
-                        operation.type === 'OP_PUBLIC' ||
-                        operation.type === 'OP_HISTORY' ||
-                        operation.type === 'OP_ATTACHMENTS'
-                    ) {
-                        menuItems.push(operation);
-                    }
-                });
-                showMenu = menuItems.length > 0;
-            }
-            let oppEdit = GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_EDIT');
-            let oppSubview = GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_SUBVIEWS');
-            const elementSubViewId = this.props.elementSubViewId;
-            const elementKindView = this.props.elementKindView;
-            const elementId = this.props.id;
-            const viewId = GridViewUtils.getRealViewId(elementSubViewId, elementId);
-            const recordId = rowData.ID;
-            const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
-            const subviewId = elementSubViewId ? elementId : undefined;
+        };
+        console.log(isItemLoaded)
+        return (
+            <React.Fragment>
+                length:{this.state.items.length}
+                isItemLoaded:{JSON.stringify(isItemLoaded)}
+                <ExampleWrapper
+                    hasNextPage={this.state.hasNextPage}
+                    isNextPageLoading={this.state.isNextPageLoading}
+                    items={this.state.items}
+                    loadNextPage={this._loadNextPage}
+                    item={Item}
+                    columnCount={columnCount}
+                />
+            </React.Fragment>
+        )
+    }
 
-            setTimeout(() => {
-                const cardHeight = this.props.parsedGridView?.cardOptions?.heigh ?? 200;
-                var p = $(`#${recordId} .card-grid-body-content`);
-                while ($(p).outerHeight() > cardHeight - 52) {
-                    $(p).text(function (index, text) {
-                        return text.replace(/\W*\s(\S)*$/, '...');
-                    });
+    renderSingleTile(rowData, i) {
+        const padding = 2;
+        let cardWidth = this.props.parsedGridView?.cardOptions?.width ?? 300;
+        let cardHeight = this.props.parsedGridView?.cardOptions?.height ?? 200;
+        let cardBgColor1 = this.props.parsedGridView?.cardOptions?.bgColor1;
+        let cardBgColor2 = this.props.parsedGridView?.cardOptions?.bgColor2;
+        let fontColor = this.props.parsedGridView?.cardOptions?.fontColor;
+        const {cardBody, cardHeader, cardImage, cardFooter} = this.props.parsedGridView;
+        let showEditButton = false;
+        let showSubviewButton = false;
+        let showMenu = false;
+        let menuItems = [];
+        if (this.props.parsedGridView?.operations) {
+            this.props.parsedGridView?.operations.forEach((operation) => {
+                showEditButton = showEditButton || operation.type === 'OP_EDIT';
+                showSubviewButton = showSubviewButton || operation.type === 'OP_SUBVIEWS';
+                if (
+                    operation.type === 'OP_PUBLIC' ||
+                    operation.type === 'OP_HISTORY' ||
+                    operation.type === 'OP_ATTACHMENTS'
+                ) {
+                    menuItems.push(operation);
                 }
-            }, 10);
+            });
+            showMenu = menuItems.length > 0;
+        }
+        let oppEdit = GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_EDIT');
+        let oppSubview = GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_SUBVIEWS');
+        const elementSubViewId = this.props.elementSubViewId;
+        const elementKindView = this.props.elementKindView;
+        const elementId = this.props.id;
+        const viewId = GridViewUtils.getRealViewId(elementSubViewId, elementId);
+        const recordId = rowData.ID;
+        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+        const subviewId = elementSubViewId ? elementId : undefined;
+
+        setTimeout(() => {
+            const cardHeight = this.props.parsedGridView?.cardOptions?.heigh ?? 200;
+            var p = $(`#${recordId} .card-grid-body-content`);
+            while ($(p).outerHeight() > cardHeight - 52) {
+                $(p).text(function (index, text) {
+                    return text.replace(/\W*\s(\S)*$/, '...');
+                });
+            }
+        }, 10);
 
 
-            return (<div className={'dx-item dx-tile'}>
-                <div className={'dx-item-content dx-tile-content'} style={style}>
+        return (<React.Fragment>
+            <div key={i} className={'dx-item dx-tile'}>
+                <div className={'dx-item-content dx-tile-content'}>
                     <div id={recordId}
                          className={`dx-tile-image ${this.isSelectionEnabled() ? (
                              this.props.selectedRowKeys.includes(recordId) ? 'card-grid-selected' : '') : ''
@@ -260,22 +290,9 @@ class CardViewComponent extends React.Component {
                             </div>
                         </div>
                     </div>
-
                 </div>
-            </div>);
-        };
-        return (
-            <React.Fragment>
-                length:{this.state.items.length}
-                <ExampleWrapper
-                    hasNextPage={this.state.hasNextPage}
-                    isNextPageLoading={this.state.isNextPageLoading}
-                    items={this.state.items}
-                    loadNextPage={this._loadNextPage}
-                    item={Item}
-                />
-            </React.Fragment>
-        )
+            </div>
+        </React.Fragment>);
     }
 
 // render() {
