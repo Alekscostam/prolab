@@ -21,7 +21,7 @@ import {confirmDialog} from "primereact/confirmdialog";
 import Constants from "../utils/Constants";
 import $ from 'jquery';
 import {localeOptions} from "primereact/api";
-import CardViewComponent from "./cardView/CardViewComponent";
+import CardViewInfiniteComponent from "./cardView/CardViewInfiniteComponent";
 import GridViewComponent from "./dataGrid/GridViewComponent";
 import DashboardContainer from "./DashboardContainer";
 import ConsoleHelper from "../utils/ConsoleHelper";
@@ -1145,7 +1145,7 @@ export class ViewContainer extends BaseContainer {
                             </React.Fragment>
                         ) : this.state.gridViewType === 'cardView' ? (
                             <React.Fragment>
-                                <CardViewComponent
+                                <CardViewInfiniteComponent
                                     id={this.props.id}
                                     elementSubViewId={this.state.elementSubViewId}
                                     elementKindView={this.state.elementKindView}
@@ -1161,7 +1161,9 @@ export class ViewContainer extends BaseContainer {
                                         return true;
                                     }}
                                     selectedRowKeys={this.state.selectedRowKeys}
-                                    handleSelectedRowKeys={(e) => this.setState({selectedRowKeys: e})}/>
+                                    handleSelectedRowKeys={(e) => this.setState({selectedRowKeys: e})}
+                                    collapsed={this.props.collapsed}
+                                />
                             </React.Fragment>
                         ) : this.state.gridViewType === 'dashboard' ? (<React.Fragment>
                             {Breadcrumb.render(labels)}
@@ -1193,4 +1195,5 @@ ViewContainer.propTypes =
         handleSubView: PropTypes.func.isRequired,
         handleOperations: PropTypes.func.isRequired,
         handleShortcutButtons: PropTypes.func.isRequired,
+        collapsed: PropTypes.bool.isRequired,
     }

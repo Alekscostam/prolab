@@ -166,6 +166,7 @@ class Sidebar extends React.Component {
                 } else {
                     $('.pro-sidebar-inner').css('position', 'fixed');
                 }
+                this.props.handleCollapseChange(this.state.collapsed);
             }
         );
     }
@@ -460,6 +461,7 @@ class Sidebar extends React.Component {
 
 Sidebar.propTypes = {
     labels: PropTypes.array.isRequired,
+    handleCollapseChange: PropTypes.func.isRequired,
     loggedUser: PropTypes.any,
     handleLogoutUser: PropTypes.any,
     authService: PropTypes.any,

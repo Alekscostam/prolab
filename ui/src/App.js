@@ -43,7 +43,8 @@ class App extends Component {
             viewInfoName: null,
             subView: null,
             operations: null,
-            shortcutButtons: null
+            shortcutButtons: null,
+            collapsed: false,
         };
         this.handleLogoutUser = this.handleLogoutUser.bind(this);
         //primereact config
@@ -66,6 +67,7 @@ class App extends Component {
             editorStylingMode: 'underlined'
         });
         ConsoleHelper("App version = " + packageJson.version);
+        this.handleCollapseChange = this.handleCollapseChange.bind(this);
     }
 
 
@@ -190,6 +192,10 @@ class App extends Component {
         )
     }
 
+    handleCollapseChange(collapsed) {
+        this.setState({collapsed: collapsed});
+    }
+
     render() {
         const authService = this.authService;
         const {labels} = this.state;
@@ -211,6 +217,8 @@ class App extends Component {
                                     historyBrowser={this.historyBrowser}
                                     handleLogoutUser={(forceByButton) => this.handleLogoutUser(forceByButton, this.state.labels)}
                                     labels={this.state.labels}
+                                    collapsed={this.state.collapsed}
+                                    handleCollapseChange={(e) => this.handleCollapseChange(e)}
                                 /> : null}
                             <main>
                                 <div className={`${loggedIn ? 'container-fluid' : ''}`}>
@@ -280,6 +288,7 @@ class App extends Component {
                                                                handleShortcutButtons={(shortcutButtons => {
                                                                    this.setState({shortcutButtons: shortcutButtons})
                                                                })}
+                                                               collapsed={this.state.collapsed}
                                                            />
                                                        </AuthComponent>
                                                    )

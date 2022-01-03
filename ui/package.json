@@ -15,6 +15,7 @@
     "js-cookie": "^2.2.1",
     "jwt-decode": "2.2.0",
     "moment": "^2.28.0",
+    "object-hash": "^2.2.0",
     "objectmodel": "^4.2.3",
     "popper.js": "^1.14.7",
     "primeicons": "^4.1.0",
@@ -32,12 +33,11 @@
     "react-scripts": "^4.0.3",
     "react-through": "^1.1.4",
     "react-transition-group": "^4.4.1",
-    "sanitize-html-react": "1.13.0",
-    "object-hash": "^2.2.0",
     "react-virtualized": "9.21.2",
-    "react-virtualized-auto-sizer": "1.0.2",
     "react-window": "1.8.6",
-    "react-window-infinite-loader": "1.0.7"
+    "react-window-infinite-loader": "1.0.7",
+    "react-window-size-listener": "^1.5.4",
+    "sanitize-html-react": "1.13.0"
   },
   "scripts": {
     "init-dev-version": "npm version 0.0.0",

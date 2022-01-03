@@ -7,7 +7,7 @@ import DashboardService from "../services/DashboardService";
 import ViewService from "../services/ViewService";
 import DataGridStore from "./dao/DataGridStore";
 import {GridViewContainer} from "./GridViewContainer";
-import CardViewComponent from "./cardView/CardViewComponent";
+import CardViewInfiniteComponent from "./cardView/CardViewInfiniteComponent";
 import {Breadcrumb} from "../utils/BreadcrumbUtils";
 import EditRowComponent from "../components/prolab/EditRowComponent";
 import {confirmDialog} from "primereact/confirmdialog";
@@ -163,7 +163,7 @@ class DashboardContainer extends BaseContainer {
         return <React.Fragment>
             <div className="rows">
                 <div className="column left" style={{width: this.state.cardView.cardOptions?.width + 10}}>
-                    <CardViewComponent
+                    <CardViewInfiniteComponent
                         id={this.state.cardView.viewInfo?.id}
                         mode='dashboard'
                         handleOnInitialized={(ref) => this.cardGrid = ref}
