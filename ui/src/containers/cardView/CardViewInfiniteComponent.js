@@ -156,7 +156,6 @@ class CardViewInfiniteComponent extends React.Component {
         };
         return (
             <React.Fragment>
-                {JSON.stringify(this.props.selectedRowKeys)}
                 <WindowSizeListener onResize={(windowSize) => {
                     this.setState({columnCount: this.calculateColumns(windowSize.windowWidth, cardWidth)})
                 }}>
