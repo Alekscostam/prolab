@@ -85,8 +85,8 @@ class CardViewInfiniteComponent extends React.Component {
                         skip: args[0] * this.state.columnCount,
                         take: 30
                     },
-                    0,
-                    0,
+                    this.props.parentId,
+                    this.props.filterId,
                     this.props.kindView
                 )
                 .then((res) => {
@@ -330,16 +330,19 @@ CardViewInfiniteComponent.propTypes = {
     mode: PropTypes.string.isRequired,
     parsedGridView: PropTypes.object.isRequired,
     parsedCardViewData: PropTypes.object.isRequired,
-    elementSubViewId: PropTypes.object,
-    elementKindView: PropTypes.string,
     handleOnInitialized: PropTypes.func.isRequired,
     handleShowEditPanel: PropTypes.func.isRequired,
     handleBlockUi: PropTypes.func.isRequired,
     showErrorMessages: PropTypes.func.isRequired,
-    selectedRowKeys: PropTypes.object,
-    handleSelectedRowKeys: PropTypes.func,
     collapsed: PropTypes.bool.isRequired,
     kindView: PropTypes.string.isRequired,
+    parentId: PropTypes.string.isRequired,
+    filterId: PropTypes.string.isRequired,
+    elementSubViewId: PropTypes.object,
+    elementKindView: PropTypes.string,
+    selectedRowKeys: PropTypes.object,
+    handleSelectedRowKeys: PropTypes.func,
+
 };
 
 export default CardViewInfiniteComponent;

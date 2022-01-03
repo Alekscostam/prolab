@@ -1085,6 +1085,9 @@ export class ViewContainer extends BaseContainer {
     //override
     renderContent = () => {
         const {labels} = this.props;
+        const parentIdArg = this.state.subView == null ? UrlUtils.getURLParameter('parentId') : this.state.elementRecordId;
+        const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : this.state.parsedGridView?.viewInfo?.filterdId;
+        const kindViewArg = !!this.state.elementKindView ? this.state.elementKindView : UrlUtils.getURLParameter('kindView');
         return (
             <React.Fragment>
                 {this.state.loading ? null : (
@@ -1163,6 +1166,9 @@ export class ViewContainer extends BaseContainer {
                                     selectedRowKeys={this.state.selectedRowKeys}
                                     handleSelectedRowKeys={(e) => this.setState({selectedRowKeys: e})}
                                     collapsed={this.props.collapsed}
+                                    kindView={kindViewArg}
+                                    parentId={parentIdArg}
+                                    filterId={filterIdArg}
                                 />
                             </React.Fragment>
                         ) : this.state.gridViewType === 'dashboard' ? (<React.Fragment>
