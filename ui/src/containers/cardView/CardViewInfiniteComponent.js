@@ -13,7 +13,6 @@ import CardInfiniteLoaderWrapper from "./CardInfiniteLoaderWrapper";
 import DataGridStore from "../dao/DataGridStore";
 import WindowSizeListener from "react-window-size-listener";
 
-
 class CardViewInfiniteComponent extends React.Component {
 
     constructor(props) {
@@ -30,6 +29,15 @@ class CardViewInfiniteComponent extends React.Component {
             columnCount: 1
         }
         ConsoleHelper('CardViewComponent -> constructor');
+    }
+
+    componentDidMount() {
+        $(document).on('mousedown', '.dx-item.dx-tile', function () {
+            $(this).addClass('dx-state-active');
+        });
+        $(document).on('click', '.dx-item.dx-tile', function () {
+            $(this).removeClass('dx-state-active');
+        });
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -65,7 +73,6 @@ class CardViewInfiniteComponent extends React.Component {
 
     _loadNextPage = (...args) => {
         console.log("loadNextPage", ...args);
-
         const dataPackageSize = 30;
         const packageCount = (!!dataPackageSize || dataPackageSize === 0) ? 30 : dataPackageSize;
         this.setState({
@@ -80,7 +87,7 @@ class CardViewInfiniteComponent extends React.Component {
                     },
                     0,
                     0,
-                    null
+                    this.props.kindView
                 )
                 .then((res) => {
                     let parsedCardViewData = [];
@@ -149,6 +156,7 @@ class CardViewInfiniteComponent extends React.Component {
         };
         return (
             <React.Fragment>
+                {JSON.stringify(this.props.selectedRowKeys)}
                 <WindowSizeListener onResize={(windowSize) => {
                     this.setState({columnCount: this.calculateColumns(windowSize.windowWidth, cardWidth)})
                 }}>
@@ -169,7 +177,6 @@ class CardViewInfiniteComponent extends React.Component {
         let cardBgColor1 = this.props.parsedGridView?.cardOptions?.bgColor1;
         let cardBgColor2 = this.props.parsedGridView?.cardOptions?.bgColor2;
         let fontColor = this.props.parsedGridView?.cardOptions?.fontColor;
-        const {cardBody, cardHeader, cardImage, cardFooter} = this.props.parsedGridView;
         let showEditButton = false;
         let showSubviewButton = false;
         let showMenu = false;
@@ -190,6 +197,7 @@ class CardViewInfiniteComponent extends React.Component {
         }
         let oppEdit = GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_EDIT');
         let oppSubview = GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_SUBVIEWS');
+        const {cardBody, cardHeader, cardImage, cardFooter} = this.props.parsedGridView;
         const elementSubViewId = this.props.elementSubViewId;
         const elementKindView = this.props.elementKindView;
         const elementId = this.props.id;
@@ -197,7 +205,6 @@ class CardViewInfiniteComponent extends React.Component {
         const recordId = rowData.ID;
         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
         const subviewId = elementSubViewId ? elementId : undefined;
-
         setTimeout(() => {
             const cardHeight = this.props.parsedGridView?.cardOptions?.heigh ?? 200;
             var p = $(`#${recordId} .card-grid-body-content`);
@@ -208,7 +215,20 @@ class CardViewInfiniteComponent extends React.Component {
             }
         }, 10);
         return (<React.Fragment>
-            <div key={index} className={'dx-item dx-tile'}>
+            <div key={index}
+                 className={`dx-item dx-tile`}
+                 onClick={() => {
+                     if (this.isSelectionEnabled()) {
+                         let selectedRowKeys = this.props.selectedRowKeys;
+                         var index = selectedRowKeys.indexOf(rowData.ID);
+                         if (index !== -1) {
+                             selectedRowKeys.splice(index, 1);
+                         } else {
+                             selectedRowKeys.push(rowData.ID);
+                         }
+                         this.props.handleSelectedRowKeys(selectedRowKeys)
+                     }
+                 }}>
                 <div className={'dx-item-content dx-tile-content'}>
                     <div id={recordId}
                          className={`dx-tile-image ${this.isSelectionEnabled() ? (
@@ -320,6 +340,7 @@ CardViewInfiniteComponent.propTypes = {
     selectedRowKeys: PropTypes.object,
     handleSelectedRowKeys: PropTypes.func,
     collapsed: PropTypes.bool.isRequired,
+    kindView: PropTypes.string.isRequired,
 };
 
 export default CardViewInfiniteComponent;
