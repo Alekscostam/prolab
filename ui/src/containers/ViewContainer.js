@@ -41,7 +41,8 @@ export class ViewContainer extends BaseContainer {
         this.viewService = new ViewService();
         this.editService = new EditService();
         this.dataGridStore = new DataGridStore();
-        this.cardGrid = null;
+        this.refDataGrid = null
+        this.refCardGrid = React.createRef();
         this.selectedDataGrid = null;
         this.state = {
             loading: true,
@@ -837,7 +838,7 @@ export class ViewContainer extends BaseContainer {
     }
 
     selectAllDataGrid(selectionValue) {
-        if (this.isGridView() ) {
+        if (this.isGridView()) {
             this.setState({
                 selectAll: true,
                 isSelectAll: selectionValue,
@@ -1156,6 +1157,7 @@ export class ViewContainer extends BaseContainer {
                             <React.Fragment>
                                 <CardViewInfiniteComponent
                                     id={viewIdArg}
+                                    ref={this.refCardGrid}
                                     elementSubViewId={this.state.elementSubViewId}
                                     elementKindView={this.state.elementKindView}
                                     handleOnInitialized={(ref) => this.cardGrid = ref}

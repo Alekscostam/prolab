@@ -43,7 +43,6 @@ class CardViewComponent extends React.Component {
         return styleTile;
     }
 
-
     render() {
         const padding = 2;
         let cardWidth = this.props.parsedGridView?.cardOptions?.width ?? 300;

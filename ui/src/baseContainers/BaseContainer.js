@@ -999,8 +999,12 @@ class BaseContainer extends React.Component {
     }
 
     refreshGridView() {
-        if (!!this.getRefGridView()) {
-            this.getRefGridView().instance.refresh(true);
+        if (this.isCardView()) {
+            this.getCardGridView().current?.refresh(true);
+        } else {
+            if (!!this.getRefGridView()) {
+                this.getRefGridView().instance.refresh(true);
+            }
         }
     }
 
@@ -1218,6 +1222,10 @@ class BaseContainer extends React.Component {
 
     getRefGridView() {
         return !!this.refDataGrid ? this.refDataGrid : null;
+    }
+
+    getCardGridView() {
+        return !!this.refCardGrid ? this.refCardGrid : null;
     }
 
     getRealViewId() {

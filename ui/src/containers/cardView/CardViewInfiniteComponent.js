@@ -28,6 +28,7 @@ class CardViewInfiniteComponent extends React.Component {
             cardScrollLoading: false,
             columnCount: 1
         }
+        this.cardViewRef = React.createRef();
         ConsoleHelper('CardViewComponent -> constructor');
     }
 
@@ -69,6 +70,16 @@ class CardViewInfiniteComponent extends React.Component {
             styleTile = {backgroundColor: rowData._BGCOLOR, color: rowData._FONT_COLOR, width: width, height: height};
         }
         return styleTile;
+    }
+
+    refresh() {
+        this.setState({
+            hasNextPage: true,
+            isNextPageLoading: false,
+            items: [],
+            cardSkip: 0,
+            cardScrollLoading: false,
+        })
     }
 
     _loadNextPage = (...args) => {
@@ -161,7 +172,6 @@ class CardViewInfiniteComponent extends React.Component {
         };
         return (
             <React.Fragment>
-                {this.state.items.length}
                 <WindowSizeListener onResize={(windowSize) => {
                     this.setState({columnCount: this.calculateColumns(windowSize.windowWidth, cardWidth)})
                 }}>
