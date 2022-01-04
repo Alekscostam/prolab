@@ -10,8 +10,8 @@ import PropTypes from "prop-types";
 import EditService from "../../services/EditService";
 import ConsoleHelper from "../../utils/ConsoleHelper";
 import CardInfiniteLoaderWrapper from "./CardInfiniteLoaderWrapper";
-import DataGridStore from "../dao/DataGridStore";
 import WindowSizeListener from "react-window-size-listener";
+import DataCardStore from "../dao/DataCardStore";
 
 class CardViewInfiniteComponent extends React.Component {
 
@@ -19,7 +19,7 @@ class CardViewInfiniteComponent extends React.Component {
         super(props);
         this.editService = new EditService();
         this.labels = this.props;
-        this.dataGridStore = new DataGridStore();
+        this.dataCardStore = new DataCardStore();
         this.state = {
             hasNextPage: true,
             isNextPageLoading: false,
@@ -96,7 +96,7 @@ class CardViewInfiniteComponent extends React.Component {
                 let divide = args[0] * columnCount;
                 skip = Math.ceil(divide / packageCount) * dataPackageSize
             }
-            this.dataGridStore
+            this.dataCardStore
                 .getDataForCard(this.props.id, {
                         skip: skip,
                         take: packageCount

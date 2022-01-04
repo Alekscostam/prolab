@@ -2,30 +2,30 @@ import {Tabs} from 'devextreme-react';
 import ButtonGroup from 'devextreme-react/button-group';
 import PropTypes from 'prop-types';
 import React from 'react';
-import BaseContainer from '../baseContainers/BaseContainer';
-import ActionButton from '../components/ActionButton';
-import ActionButtonWithMenu from '../components/prolab/ActionButtonWithMenu';
-import EditRowComponent from '../components/prolab/EditRowComponent';
-import HeadPanel from '../components/prolab/HeadPanel';
-import ShortcutsButton from '../components/prolab/ShortcutsButton';
-import EditService from '../services/EditService';
-import ViewService from '../services/ViewService';
-import AppPrefixUtils from '../utils/AppPrefixUtils';
-import {GridViewUtils} from '../utils/GridViewUtils';
-import {ViewValidatorUtils} from '../utils/parser/ViewValidatorUtils';
-import UrlUtils from '../utils/UrlUtils';
-import DataGridStore from './dao/DataGridStore';
+import BaseContainer from '../../baseContainers/BaseContainer';
+import ActionButton from '../../components/ActionButton';
+import ActionButtonWithMenu from '../../components/prolab/ActionButtonWithMenu';
+import EditRowComponent from '../../components/prolab/EditRowComponent';
+import HeadPanel from '../../components/prolab/HeadPanel';
+import ShortcutsButton from '../../components/prolab/ShortcutsButton';
+import EditService from '../../services/EditService';
+import ViewService from '../../services/ViewService';
+import AppPrefixUtils from '../../utils/AppPrefixUtils';
+import {GridViewUtils} from '../../utils/GridViewUtils';
+import {ViewValidatorUtils} from '../../utils/parser/ViewValidatorUtils';
+import UrlUtils from '../../utils/UrlUtils';
+import DataGridStore from '../dao/DataGridStore';
 import {confirmDialog} from "primereact/confirmdialog";
-import Constants from "../utils/Constants";
+import Constants from "../../utils/Constants";
 import {localeOptions} from "primereact/api";
-import GridViewComponent from "./dataGrid/GridViewComponent";
-import SubGridViewComponent from "./dataGrid/SubGridViewComponent";
-import ConsoleHelper from "../utils/ConsoleHelper";
-import LocUtils from "../utils/LocUtils";
+import GridViewComponent from "../dataGrid/GridViewComponent";
+import SubGridViewComponent from "../dataGrid/SubGridViewComponent";
+import ConsoleHelper from "../../utils/ConsoleHelper";
+import LocUtils from "../../utils/LocUtils";
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
-export class GridViewContainer extends BaseContainer {
+export class DashboardGridViewComponent extends BaseContainer {
     _isMounted = false;
 
     constructor(props) {

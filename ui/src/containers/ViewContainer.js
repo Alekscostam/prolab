@@ -23,9 +23,10 @@ import $ from 'jquery';
 import {localeOptions} from "primereact/api";
 import CardViewInfiniteComponent from "./cardView/CardViewInfiniteComponent";
 import GridViewComponent from "./dataGrid/GridViewComponent";
-import DashboardContainer from "./DashboardContainer";
+import DashboardContainer from "./dashboard/DashboardContainer";
 import ConsoleHelper from "../utils/ConsoleHelper";
 import LocUtils from "../utils/LocUtils";
+import DataCardStore from "./dao/DataCardStore";
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -41,6 +42,7 @@ export class ViewContainer extends BaseContainer {
         this.viewService = new ViewService();
         this.editService = new EditService();
         this.dataGridStore = new DataGridStore();
+        this.dataCardStore = new DataCardStore();
         this.refDataGrid = null
         this.refCardGrid = React.createRef();
         this.selectedDataGrid = null;
@@ -383,7 +385,7 @@ export class ViewContainer extends BaseContainer {
                                         this.setState({loading: true}, () => {
                                             const dataPackageSize = this.state.parsedGridView?.viewInfo?.dataPackageSize;
                                             const packageCount = (!!dataPackageSize || dataPackageSize === 0) ? Constants.DEFAULT_DATA_PACKAGE_COUNT : dataPackageSize;
-                                            let res = this.dataGridStore.getDataCardStore(
+                                            let res = this.dataCardStore.getDataCardStore(
                                                 viewIdArg,
                                                 {
                                                     skip: this.state.cardSkip,
@@ -1099,14 +1101,8 @@ export class ViewContainer extends BaseContainer {
             <React.Fragment>
                 {this.state.loading ? null : (
                     <React.Fragment>
-                        {/*gridViewType:{this.state.gridViewType}<br/>*/}
-                        {/*elementViewType:{this.state.elementViewType}*/}
                         {this.isGridView() ? (
                             <React.Fragment>
-                                {/*{JSON.stringify(this.state.selectedRowKeys.length)}<br/>*/}
-                                {/*select: {JSON.stringify(this.state.select)}<br/>*/}
-                                {/*isSelectAll: {JSON.stringify(this.state.isSelectAll)}<br/>*/}
-                                {/*selectAll: {JSON.stringify(this.state.selectAll)}<br/>*/}
                                 <GridViewComponent
                                     id={this.props.id}
                                     elementSubViewId={this.state.elementSubViewId}

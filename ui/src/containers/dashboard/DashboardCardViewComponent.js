@@ -11,7 +11,7 @@ import PropTypes from "prop-types";
 import EditService from "../../services/EditService";
 import ConsoleHelper from "../../utils/ConsoleHelper";
 
-class CardViewComponent extends React.Component {
+class DashboardCardViewComponent extends React.Component {
 
     constructor(props) {
         super(props);
@@ -203,7 +203,7 @@ class CardViewComponent extends React.Component {
     }
 }
 
-CardViewComponent.defaultProps = {
+DashboardCardViewComponent.defaultProps = {
     parsedGridView: true,
     parsedCardViewData: false,
     selectedRowKeys: [],
@@ -211,7 +211,7 @@ CardViewComponent.defaultProps = {
     mode: 'view'
 };
 
-CardViewComponent.propTypes = {
+DashboardCardViewComponent.propTypes = {
     mode: PropTypes.string.isRequired,
     parsedGridView: PropTypes.object.isRequired,
     parsedCardViewData: PropTypes.object.isRequired,
@@ -225,4 +225,4 @@ CardViewComponent.propTypes = {
     handleSelectedRowKeys: PropTypes.func,
 };
 
-export default CardViewComponent;
+export default DashboardCardViewComponent;

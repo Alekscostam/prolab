@@ -154,4 +154,23 @@ export default class BaseService {
     getPath() {
         return `${this.domain}/${this.path}`;
     }
+
+    isNotEmpty(value) {
+        return value !== undefined && value !== null && value !== '';
+    }
+
+    handleErrors(response) {
+        if (!response.ok) {
+            throw Error(response.statusText);
+        }
+        return response;
+    }
+
+    commonCorrectUrl(correctUrl) {
+        const phraseToEraseFromUrl = '&searchOperation="contains"';
+        if (correctUrl.includes(phraseToEraseFromUrl)) {
+            correctUrl = correctUrl.replace(phraseToEraseFromUrl, '');
+        }
+        return correctUrl;
+    }
 }
