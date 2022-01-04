@@ -378,7 +378,7 @@ export class ViewContainer extends BaseContainer {
                                     const parentIdArg = this.state.subView == null ? parentId : this.state.elementRecordId;
                                     const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId;
                                     const kindViewArg = this.state.kindView;
-                                    if (this.state.gridViewType === 'cardView') {
+                                    if (this.isCardView()) {
                                         this.setState({loading: true}, () => {
                                             const dataPackageSize = this.state.parsedGridView?.viewInfo?.dataPackageSize;
                                             const packageCount = (!!dataPackageSize || dataPackageSize === 0) ? Constants.DEFAULT_DATA_PACKAGE_COUNT : dataPackageSize;
@@ -529,7 +529,7 @@ export class ViewContainer extends BaseContainer {
     }
 
     rightHeadPanelContent = () => {
-        if (this.state.gridViewType === 'dashboard') {
+        if (this.isDashboard()) {
             return <React.Fragment/>
         }
         return (
@@ -540,7 +540,7 @@ export class ViewContainer extends BaseContainer {
     }
 
     leftHeadPanelContent = () => {
-        if (this.state.gridViewType === 'dashboard') {
+        if (this.isDashboard()) {
             return <React.Fragment/>
         }
         let centerElementStyle = 'mr-1 ';
@@ -684,7 +684,7 @@ export class ViewContainer extends BaseContainer {
 
     //override
     renderHeadPanel = () => {
-        if (this.state.gridViewType === 'dashboard') {
+        if (this.isDashboard()) {
             return <React.Fragment/>
         }
         const viewId = this.getRealViewId();
@@ -837,55 +837,59 @@ export class ViewContainer extends BaseContainer {
     }
 
     selectAllDataGrid(selectionValue) {
-        this.setState({
-            selectAll: true,
-            isSelectAll: selectionValue,
-            select: false,
-        }, () => {
-            this.getRefGridView().instance.selectAll();
-            this.dataGridStore.getSelectAllDataGridStore(
-                this.state.subView == null
-                    ? this.state.elementId
-                    : this.state.elementSubViewId,
-                'gridView',
-                this.state.elementRecordId,
-                this.state.elementFilterId,
-                this.state.kindView,
-                this.getRefGridView().instance.getCombinedFilter()
-            ).then((result) => {
-                this.setState({
-                    selectAll: false,
-                    select: false,
-                    selectedRowKeys: result.data
-                }, () => {
-                    this.unblockUi();
+        if (this.isGridView() ) {
+            this.setState({
+                selectAll: true,
+                isSelectAll: selectionValue,
+                select: false,
+            }, () => {
+                this.getRefGridView().instance.selectAll();
+                this.dataGridStore.getSelectAllDataGridStore(
+                    this.state.subView == null
+                        ? this.state.elementId
+                        : this.state.elementSubViewId,
+                    'gridView',
+                    this.state.elementRecordId,
+                    this.state.elementFilterId,
+                    this.state.kindView,
+                    this.getRefGridView().instance.getCombinedFilter()
+                ).then((result) => {
+                    this.setState({
+                        selectAll: false,
+                        select: false,
+                        selectedRowKeys: result.data
+                    }, () => {
+                        this.unblockUi();
+                    });
+                }).catch((err) => {
+                    this.showGlobalErrorMessage(err);
                 });
-            }).catch((err) => {
-                this.showGlobalErrorMessage(err);
             });
-        });
+        }
     }
 
     unselectAllDataGrid(selectionValue) {
-        this.setState({
-            selectAll: true,
-            isSelectAll: selectionValue,
-            select: false
-        }, () => {
-            this.getRefGridView().instance.deselectAll();
+        if (this.isGridView()) {
             this.setState({
-                selectAll: false,
-                select: false,
-                selectedRowKeys: []
+                selectAll: true,
+                isSelectAll: selectionValue,
+                select: false
             }, () => {
-                this.unblockUi();
+                this.getRefGridView().instance.deselectAll();
+                this.setState({
+                    selectAll: false,
+                    select: false,
+                    selectedRowKeys: []
+                }, () => {
+                    this.unblockUi();
+                });
             });
-        });
+        }
     }
 
     //override
     renderHeaderContent() {
-        if (this.state.gridViewType === 'dashboard') {
+        if (this.isDashboard()) {
             return <React.Fragment/>
         }
         return (
@@ -1088,13 +1092,15 @@ export class ViewContainer extends BaseContainer {
         const parentIdArg = this.state.subView == null ? UrlUtils.getURLParameter('parentId') : this.state.elementRecordId;
         const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : this.state.parsedGridView?.viewInfo?.filterdId;
         const kindViewArg = !!this.state.elementKindView ? this.state.elementKindView : UrlUtils.getURLParameter('kindView');
+        const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
+
         return (
             <React.Fragment>
                 {this.state.loading ? null : (
                     <React.Fragment>
                         {/*gridViewType:{this.state.gridViewType}<br/>*/}
                         {/*elementViewType:{this.state.elementViewType}*/}
-                        {this.state.gridViewType === 'gridView' ? (
+                        {this.isGridView() ? (
                             <React.Fragment>
                                 {/*{JSON.stringify(this.state.selectedRowKeys.length)}<br/>*/}
                                 {/*select: {JSON.stringify(this.state.select)}<br/>*/}
@@ -1146,10 +1152,10 @@ export class ViewContainer extends BaseContainer {
                                     selectionDeferred={true}
                                 />
                             </React.Fragment>
-                        ) : this.state.gridViewType === 'cardView' ? (
+                        ) : this.isCardView() ? (
                             <React.Fragment>
                                 <CardViewInfiniteComponent
-                                    id={this.props.id}
+                                    id={viewIdArg}
                                     elementSubViewId={this.state.elementSubViewId}
                                     elementKindView={this.state.elementKindView}
                                     handleOnInitialized={(ref) => this.cardGrid = ref}
@@ -1171,7 +1177,7 @@ export class ViewContainer extends BaseContainer {
                                     filterId={filterIdArg}
                                 />
                             </React.Fragment>
-                        ) : this.state.gridViewType === 'dashboard' ? (<React.Fragment>
+                        ) : this.isDashboard() ? (<React.Fragment>
                             {Breadcrumb.render(labels)}
                             <DashboardContainer dashboard={this.state.subView}
                                                 handleRenderNoRefreshContent={(renderNoRefreshContent) => {

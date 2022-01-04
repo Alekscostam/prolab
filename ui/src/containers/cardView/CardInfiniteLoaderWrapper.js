@@ -22,6 +22,7 @@ export default function CardInfiniteLoaderWrapper({
                                                       loadNextPage,
                                                       item,
                                                       columnCount,
+                                                      cardHeight
                                                   }) {
     // If there are more items to be loaded then add an extra row to hold a loading indicator.
     const itemCount = hasNextPage ? items.length + 1 : items.length;
@@ -35,6 +36,8 @@ export default function CardInfiniteLoaderWrapper({
     const isItemLoaded = (index) => {
         return !hasNextPage || index < (Math.floor(items.length / columnCount))
     };
+
+    const padding = 10;
 
     const itemCountFinal = Math.ceil(itemCount / columnCount) < 1 ? 1 : Math.ceil(itemCount / columnCount)
     return (
@@ -51,10 +54,10 @@ export default function CardInfiniteLoaderWrapper({
                 {({onItemsRendered, ref}) => (
                     <List
                         className="infinite-loader-card"
-                        height={760}
+                        height={800}
                         width={1200}
                         itemCount={itemCountFinal}
-                        itemSize={215}
+                        itemSize={cardHeight + padding}
                         onItemsRendered={onItemsRendered}
                         ref={ref}
                         innerElementType={CardListContainer}>

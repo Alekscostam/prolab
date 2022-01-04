@@ -242,20 +242,33 @@ export default class EditService extends BaseService {
     }
 
     convertFieldsPerType(field) {
-        if (field?.type) {
-            switch (field.type) {
-                case 'D':
-                    field.value = moment(new Date(field.value)).format('YYYY-MM-DD');
-                    break;
-                case 'E':
-                    field.value = moment(new Date(field.value)).format('YYYY-MM-DD HH:mm');
-                    break;
-                case 'T':
-                    field.value = moment(new Date(field.value)).format('HH:mm');
-                    break;
-                default:
+        try {
+            if (field?.type) {
+                switch (field.type) {
+                    case 'D':
+                        field.value = this.dateFormatAndKeepCorrectness(field.value, 'YYYY-MM-DD');
+                        break;
+                    case 'E':
+                        field.value = this.dateFormatAndKeepCorrectness(field.value, 'YYYY-MM-DD HH:mm');
+                        break;
+                    case 'T':
+                        field.value = this.dateFormatAndKeepCorrectness(field.value, 'HH:mm');
+                        break;
+                    default:
+                }
             }
+        } catch (err) {
         }
         return field;
     }
+
+    dateFormatAndKeepCorrectness(fieldValue, format) {
+        if (fieldValue === null
+            || fieldValue === ''
+            || !(fieldValue instanceof Date && !isNaN(fieldValue))) {
+            return '';
+        }
+        return moment(new Date(fieldValue)).format(format);
+    }
+
 }

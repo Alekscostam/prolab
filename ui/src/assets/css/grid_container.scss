@@ -644,3 +644,15 @@ body .grid-container {
   width: 100% !important;
   //height: 100% !important;
 }
+
+.infinite-loader-card::-webkit-scrollbar {
+  width: 4px;
+}
+
+.infinite-loader-card::-webkit-scrollbar-track {
+  background: none;
+}
+
+.infinite-loader-card::-webkit-scrollbar-thumb {
+  background-color: silver;
+}

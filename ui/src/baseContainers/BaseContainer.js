@@ -162,6 +162,7 @@ class BaseContainer extends React.Component {
     }
 
     showGlobalErrorMessage(err) {
+        console.error(err)
         if (!!err.error) {
             this.showResponseErrorMessage(err);
         } else {
@@ -1226,7 +1227,21 @@ class BaseContainer extends React.Component {
     }
 
     refreshDataGrid() {
-        this.getRefGridView().instance.getDataSource().reload();
+        if (this.isGridView()) {
+            this.getRefGridView().instance.getDataSource().reload();
+        }
+    }
+
+    isGridView() {
+        return this.state.gridViewType === 'gridView';
+    }
+
+    isCardView() {
+        return this.state.gridViewType === 'cardView';
+    }
+
+    isDashboard() {
+        return this.state.gridViewType === 'dashboard';
     }
 
 }

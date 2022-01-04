@@ -72,7 +72,6 @@ class CardViewInfiniteComponent extends React.Component {
     }
 
     _loadNextPage = (...args) => {
-        console.log("loadNextPage", ...args);
         const dataPackageSize = 30;
         const packageCount = (!!dataPackageSize || dataPackageSize === 0) ? 30 : dataPackageSize;
         this.setState({
@@ -80,10 +79,16 @@ class CardViewInfiniteComponent extends React.Component {
             cardScrollLoading: true,
             cardSkip: this.state.cardSkip + packageCount
         }, () => {
+            const columnCount = this.state.columnCount;
+            let skip = args[0] * columnCount;
+            if ((args[0] * columnCount) % packageCount !== 0) {
+                let divide = args[0] * columnCount;
+                skip = Math.ceil(divide / packageCount) * dataPackageSize
+            }
             this.dataGridStore
                 .getDataForCard(this.props.id, {
-                        skip: args[0] * this.state.columnCount,
-                        take: 30
+                        skip: skip,
+                        take: packageCount
                     },
                     this.props.parentId,
                     this.props.filterId,
@@ -156,6 +161,7 @@ class CardViewInfiniteComponent extends React.Component {
         };
         return (
             <React.Fragment>
+                {this.state.items.length}
                 <WindowSizeListener onResize={(windowSize) => {
                     this.setState({columnCount: this.calculateColumns(windowSize.windowWidth, cardWidth)})
                 }}>
@@ -166,6 +172,7 @@ class CardViewInfiniteComponent extends React.Component {
                         loadNextPage={this._loadNextPage}
                         item={Item}
                         columnCount={this.state.columnCount}
+                        cardHeight={cardHeight}
                     />
                 </WindowSizeListener>
             </React.Fragment>
@@ -213,17 +220,17 @@ class CardViewInfiniteComponent extends React.Component {
                 });
             }
         }, 10);
+        let selectedRowKeys = this.props.selectedRowKeys;
         return (<React.Fragment>
             <div key={index}
                  className={`dx-item dx-tile`}
                  onClick={() => {
                      if (this.isSelectionEnabled()) {
-                         let selectedRowKeys = this.props.selectedRowKeys;
-                         var index = selectedRowKeys.indexOf(rowData.ID);
+                         var index = selectedRowKeys.findIndex(item => item.ID === rowData.ID);
                          if (index !== -1) {
                              selectedRowKeys.splice(index, 1);
                          } else {
-                             selectedRowKeys.push(rowData.ID);
+                             selectedRowKeys.push({ID: rowData.ID});
                          }
                          this.props.handleSelectedRowKeys(selectedRowKeys)
                      }
@@ -231,7 +238,7 @@ class CardViewInfiniteComponent extends React.Component {
                 <div className={'dx-item-content dx-tile-content'}>
                     <div id={recordId}
                          className={`dx-tile-image ${this.isSelectionEnabled() ? (
-                             this.props.selectedRowKeys.includes(recordId) ? 'card-grid-selected' : '') : ''
+                             selectedRowKeys.findIndex(item => item.ID === recordId) > -1 ? 'card-grid-selected' : '') : ''
                          }`}
                          style={this.styleTile(rowData, cardBgColor1, cardBgColor2, fontColor, cardWidth, cardHeight)}
                     >
@@ -327,6 +334,7 @@ CardViewInfiniteComponent.defaultProps = {
 };
 
 CardViewInfiniteComponent.propTypes = {
+    id: PropTypes.number.isRequired,
     mode: PropTypes.string.isRequired,
     parsedGridView: PropTypes.object.isRequired,
     parsedCardViewData: PropTypes.object.isRequired,
