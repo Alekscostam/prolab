@@ -29,6 +29,7 @@ import EditListDataStore from "../../containers/dao/EditListDataStore";
 import EditListUtils from "../../utils/EditListUtils";
 import MockService from "../../services/MockService";
 import LocUtils from "../../utils/LocUtils";
+import {Password} from "primereact/password";
 
 export class EditRowComponent extends BaseContainer {
 
@@ -383,6 +384,28 @@ export class EditRowComponent extends BaseContainer {
                                    onBlur={e => onBlur ? onBlur('TEXT', e, groupName, info) : null}
                                    disabled={!field.edit}
                                    required={required}
+                        />
+                        {!!selectionList ? <Button type="button" onClick={onClickEditList} icon="pi pi-question-circle"
+                                                   className="p-button-secondary"/> : null}
+                    </div>
+                </React.Fragment>);
+            case 'P'://P - hasło
+                return (<React.Fragment>
+                    <label htmlFor={`field_${fieldIndex}`}
+                           style={{color: labelColor}}
+                           title={MockService.printField(field)}>{field.label}{required ? '*' : ''}</label>
+                    <div className={`${selectionList}`}>
+                        <Password id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
+                                  name={field.fieldName}
+                                  className={`${autoFill} ${editable} ${validate}`}
+                                  style={{width: '100%'}}
+                                  type="text"
+                                  value={field.value}
+                                  onChange={e => onChange ? onChange('TEXT', e, groupName, info) : null}
+                                  onBlur={e => onBlur ? onBlur('TEXT', e, groupName, info) : null}
+                                  disabled={!field.edit}
+                                  required={required}
+                                  feedback={false}
                         />
                         {!!selectionList ? <Button type="button" onClick={onClickEditList} icon="pi pi-question-circle"
                                                    className="p-button-secondary"/> : null}
