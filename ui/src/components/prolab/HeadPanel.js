@@ -25,7 +25,7 @@ export const HeadPanel = props => {
                              className="grid-count-fragment center-text-in-div">Pozycje: {props.selectedRowKeys.length | 0}</div>
                         <div id="grid-separator" className="p-1 grid-separator-fragment"/>
                         <div id="grid-buttons-fragment" className="p-1 grid-buttons-fragment">
-                            <OperationRecordButtons labels={this.props.labels}
+                            <OperationRecordButtons labels={props.labels}
                                                     operation={props.operations}
                                                     handleRestore={(e) => props.handleRestore(e)}
                                                     handleDelete={(e) => props.handleDelete(e)}

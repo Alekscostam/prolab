@@ -927,7 +927,7 @@ export class ViewContainer extends BaseContainer {
                                     elementSubViewId={this.state.elementSubViewId}
                                     elementKindView={this.state.elementKindView}
                                     handleOnInitialized={(ref) => this.cardGrid = ref}
-                                    parsedGridView={this.state.parsedGridView}
+                                    parsedCardView={this.state.parsedGridView}
                                     parsedCardViewData={this.state.parsedCardViewData}
                                     handleShowEditPanel={(editDataResponse) => {
                                         this.handleShowEditPanel(editDataResponse)

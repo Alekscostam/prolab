@@ -12,6 +12,7 @@ import ConsoleHelper from "../../utils/ConsoleHelper";
 import CardInfiniteLoaderWrapper from "./CardInfiniteLoaderWrapper";
 import WindowSizeListener from "react-window-size-listener";
 import DataCardStore from "../dao/DataCardStore";
+import OperationRecordButtons from "../../components/prolab/OperationRecordButtons";
 
 class CardViewInfiniteComponent extends React.Component {
 
@@ -44,7 +45,7 @@ class CardViewInfiniteComponent extends React.Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (this.props.collapsed !== prevProps.collapsed) {
             let windowSizeWidth = window.innerWidth;
-            let cardWidth = this.props.parsedGridView?.cardOptions?.width ?? 300;
+            let cardWidth = this.props.parsedCardView?.cardOptions?.width ?? 300;
             this.setState({columnCount: this.calculateColumns(windowSizeWidth, cardWidth)})
         }
     }
@@ -150,8 +151,8 @@ class CardViewInfiniteComponent extends React.Component {
     }
 
     render() {
-        let cardWidth = this.props.parsedGridView?.cardOptions?.width ?? 300;
-        let cardHeight = this.props.parsedGridView?.cardOptions?.height ?? 200;
+        let cardWidth = this.props.parsedCardView?.cardOptions?.width ?? 300;
+        let cardHeight = this.props.parsedCardView?.cardOptions?.height ?? 200;
         const isItemLoaded = index => !this.state.hasNextPage || index < this.state.items.length;
         const Item = ({index, style}) => {
             let rowData = this.state.items
@@ -190,15 +191,15 @@ class CardViewInfiniteComponent extends React.Component {
     }
 
     renderSingleTile(rowData, index, cardWidth, cardHeight) {
-        let cardBgColor1 = this.props.parsedGridView?.cardOptions?.bgColor1;
-        let cardBgColor2 = this.props.parsedGridView?.cardOptions?.bgColor2;
-        let fontColor = this.props.parsedGridView?.cardOptions?.fontColor;
+        let cardBgColor1 = this.props.parsedCardView?.cardOptions?.bgColor1;
+        let cardBgColor2 = this.props.parsedCardView?.cardOptions?.bgColor2;
+        let fontColor = this.props.parsedCardView?.cardOptions?.fontColor;
         let showEditButton = false;
         let showSubviewButton = false;
         let showMenu = false;
         let menuItems = [];
-        if (this.props.parsedGridView?.operations) {
-            this.props.parsedGridView?.operations.forEach((operation) => {
+        if (this.props.parsedCardView?.operations) {
+            this.props.parsedCardView?.operations.forEach((operation) => {
                 showEditButton = showEditButton || operation.type === 'OP_EDIT';
                 showSubviewButton = showSubviewButton || operation.type === 'OP_SUBVIEWS';
                 if (
@@ -211,9 +212,9 @@ class CardViewInfiniteComponent extends React.Component {
             });
             showMenu = menuItems.length > 0;
         }
-        let oppEdit = GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_EDIT');
-        let oppSubview = GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_SUBVIEWS');
-        const {cardBody, cardHeader, cardImage, cardFooter} = this.props.parsedGridView;
+        let oppEdit = GridViewUtils.containsOperationButton(this.props.parsedCardView?.operations, 'OP_EDIT');
+        let oppSubview = GridViewUtils.containsOperationButton(this.props.parsedCardView?.operations, 'OP_SUBVIEWS');
+        const {cardBody, cardHeader, cardImage, cardFooter} = this.props.parsedCardView;
         const elementSubViewId = this.props.elementSubViewId;
         const elementKindView = this.props.elementKindView;
         const elementId = this.props.id;
@@ -222,7 +223,7 @@ class CardViewInfiniteComponent extends React.Component {
         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
         const subviewId = elementSubViewId ? elementId : undefined;
         setTimeout(() => {
-            const cardHeight = this.props.parsedGridView?.cardOptions?.heigh ?? 200;
+            const cardHeight = this.props.parsedCardView?.cardOptions?.heigh ?? 200;
             var p = $(`#${recordId} .card-grid-body-content`);
             while ($(p).outerHeight() > cardHeight - 52) {
                 $(p).text(function (index, text) {
@@ -336,7 +337,7 @@ class CardViewInfiniteComponent extends React.Component {
 }
 
 CardViewInfiniteComponent.defaultProps = {
-    parsedGridView: true,
+    parsedCardView: true,
     parsedCardViewData: false,
     selectedRowKeys: [],
     cardGrid: null,
@@ -346,7 +347,7 @@ CardViewInfiniteComponent.defaultProps = {
 CardViewInfiniteComponent.propTypes = {
     id: PropTypes.number.isRequired,
     mode: PropTypes.string.isRequired,
-    parsedGridView: PropTypes.object.isRequired,
+    parsedCardView: PropTypes.object.isRequired,
     parsedCardViewData: PropTypes.object.isRequired,
     handleOnInitialized: PropTypes.func.isRequired,
     handleShowEditPanel: PropTypes.func.isRequired,

@@ -31,8 +31,6 @@ export class ActionButtonWithMenu extends React.Component {
             items,
             title,
         } = this.props;
-
-
         return (
             <React.Fragment>
                 <Menu

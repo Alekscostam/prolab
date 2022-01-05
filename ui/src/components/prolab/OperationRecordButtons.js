@@ -81,8 +81,28 @@ export const OperationRecordButtons = props => {
     }
 
     const menuItems = props.operationList.map((i) => {
-        return {label: i.label, icon: i.iconCode}
-    })
+            return {
+                label: i.label, icon: `mdi ${i.iconCode}`, command: () => {
+                    switch (i.type?.toUpperCase()) {
+                        case 'OP_EDIT':
+                            return props.handleEdit();
+                        case 'OP_SUBVIEWS':
+                            return props.hrefSubview;
+                        case 'OP_DELETE':
+                            return props.handleDelete();
+                        case 'OP_RESTORE':
+                            return props.handleRestore();
+                        case 'OP_COPY':
+                            return props.handleCopy();
+                        case 'OP_ARCHIVE':
+                            return props.handleArchive();
+                        default:
+                            return null;
+                    }
+                }
+            }
+        }
+    )
 
     const showOperationList = props.operationList?.length > 0;
 
@@ -122,7 +142,7 @@ OperationRecordButtons.propTypes = {
     labels: PropTypes.object.isRequired,
     operation: PropTypes.array.isRequired,
     operationList: PropTypes.array.isRequired,
-    info: PropTypes.string.isRequired,
+    info: PropTypes.object.isRequired,
     handleEdit: PropTypes.func.isRequired,
     hrefSubview: PropTypes.string.isRequired,
     handleDelete: PropTypes.func.isRequired,
