@@ -39,6 +39,7 @@ class SubGridViewComponent extends React.Component {
     }
 
     render() {
+        //TODO jak będzie potrzeba przepiąć guziki na OperationRecordButtons
         const {labels} = this.props;
         let showEditButton = false;
         let menuItems = [];
@@ -65,12 +66,9 @@ class SubGridViewComponent extends React.Component {
         const subViewMode = !!this.props.subView;
         const viewId = this.props.subView?.viewInfo?.id;
         const recordId = this.props.subView?.headerData[0]?.ID;
-        this.props.subView?.headerColumns
-            ?.filter((c) => c.visible === true)
-            .map((c) => {
-                return c
-            });
-
+        this.props.subView?.headerColumns?.filter((c) => c.visible === true).map((c) => {
+            return c
+        });
         return (
             <React.Fragment>
                 {subViewMode ? (
