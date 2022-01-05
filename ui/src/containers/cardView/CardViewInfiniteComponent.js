@@ -360,7 +360,6 @@ CardViewInfiniteComponent.propTypes = {
     elementKindView: PropTypes.string,
     selectedRowKeys: PropTypes.object,
     handleSelectedRowKeys: PropTypes.func,
-
 };
 
 export default CardViewInfiniteComponent;

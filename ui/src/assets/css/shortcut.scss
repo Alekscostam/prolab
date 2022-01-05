@@ -2,7 +2,7 @@
   font-size: 12px;
   font-weight: bold;
   background: $text-bg;
-  padding: 0.35rem 0.5rem;
+  padding: 0.35rem 0.5rem;;
 }
 
 .shortcut-shadow {
@@ -35,6 +35,14 @@
   color: $button-color;
 }
 
+.grid-buttons-fragment{
+  display: flex;
+  flex-direction: row;
+}
+
+.grid-buttons-fragment .shortcut {
+  width: 28px;
+}
 
 .action-button-with-menu {
   font-size: 20px;

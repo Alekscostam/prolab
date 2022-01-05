@@ -1,4 +1,3 @@
-import {Tabs} from 'devextreme-react';
 import ButtonGroup from 'devextreme-react/button-group';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -16,10 +15,8 @@ import {ViewValidatorUtils} from '../../utils/parser/ViewValidatorUtils';
 import UrlUtils from '../../utils/UrlUtils';
 import DataGridStore from '../dao/DataGridStore';
 import {confirmDialog} from "primereact/confirmdialog";
-import Constants from "../../utils/Constants";
 import {localeOptions} from "primereact/api";
 import GridViewComponent from "../dataGrid/GridViewComponent";
-import SubGridViewComponent from "../dataGrid/SubGridViewComponent";
 import ConsoleHelper from "../../utils/ConsoleHelper";
 import LocUtils from "../../utils/LocUtils";
 //
@@ -58,7 +55,6 @@ export class DashboardGridViewComponent extends BaseContainer {
         this.viewTypeChange = this.viewTypeChange.bind(this);
         this.getViewById = this.getViewById.bind(this);
         this.downloadData = this.downloadData.bind(this);
-        this.onTabsSelectionChanged = this.onTabsSelectionChanged.bind(this);
     }
 
     componentDidMount() {
@@ -100,48 +96,7 @@ export class DashboardGridViewComponent extends BaseContainer {
         ConsoleHelper(
             `GridGridViewContainer::downloadData: viewId=${viewId}, recordId=${recordId}, subViewId=${subviewId}, viewType=${viewType}`
         );
-        let subviewMode = !!recordId && !!viewId;
-        if (subviewMode && viewType !== 'dashboard') {
-            this.viewService
-                .getSubView(viewId, recordId)
-                .then((subViewResponse) => {
-                    const elementSubViewId = subviewId ? subviewId : subViewResponse.subViews[0]?.id;
-                    if (!subViewResponse.subViews || subViewResponse.subViews.length === 0) {
-                        this.showErrorMessages(LocUtils.loc(this.props.labels, 'No_Subview', 'Brak podwidoków - niepoprawna konfiguracja!'));
-                        window.history.back();
-                        this.unblockUi();
-                        return;
-                    } else {
-                        let subViewsTabs = [];
-                        subViewResponse.subViews.forEach((subView, i) => {
-                            subViewsTabs.push({id: subView.id, text: subView.label, icon: subView.icon});
-                            if (subView.id === parseInt(elementSubViewId)) {
-                                this.setState({subViewTabIndex: i});
-                            }
-                        });
-                        subViewResponse.subViewsTabs = subViewsTabs;
-                    }
-                    this.setState(
-                        {
-                            subView: subViewResponse,
-                            elementSubViewId: elementSubViewId,
-                        },
-                        () => {
-                            this.unblockUi();
-                            this.getViewById(elementSubViewId, recordId, filterId, viewType, subviewMode);
-                        }
-                    );
-                })
-                .catch((err) => {
-                    this.showGlobalErrorMessage(err);
-                    window.history.back();
-                });
-
-            return;
-        } else {
-            this.setState({subView: null});
-        }
-        this.getViewById(viewId, recordId, filterId, viewType, subviewMode);
+        this.getViewById(viewId, recordId, filterId, viewType, null);
     }
 
     //@override
@@ -169,7 +124,6 @@ export class DashboardGridViewComponent extends BaseContainer {
                                     });
                                 });
                             });
-                            // ConsoleHelper('GridViewContainer -> fetch columns: ', gridViewColumnsTmp);
                             for (let plugin in responseView?.pluginsList) {
                                 pluginsListTmp.push({
                                     id: responseView?.pluginsList[plugin].id,
@@ -193,26 +147,17 @@ export class DashboardGridViewComponent extends BaseContainer {
                                     id: responseView?.filtersList[filter].id,
                                     label: responseView?.filtersList[filter].label,
                                     command: (e) => {
-                                        let subViewId = UrlUtils.getURLParameter('subview');
                                         let recordId = UrlUtils.getURLParameter('recordId');
-                                        if (subviewMode) {
-                                            ConsoleHelper(
-                                                `Redirect -> Id =  ${this.state.elementId} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${e.item?.id}`
-                                            );
+                                        ConsoleHelper(
+                                            `Redirect -> Id =  ${this.state.elementId} RecordId = ${recordId} FilterId = ${e.item?.id}`
+                                        );
+                                        if (!!e.item?.id) {
+                                            const filterId = parseInt(e.item?.id)
                                             window.location.href = AppPrefixUtils.locationHrefUrl(
-                                                `/#/grid-view/${this.state.elementId}?recordId=${recordId}&subview=${subViewId}&filterId=${e.item?.id}`
+                                                `/#/grid-view/${this.state.elementId}/?filterId=${filterId}`
                                             );
-                                        } else {
-                                            ConsoleHelper(
-                                                `Redirect -> Id =  ${this.state.elementId} RecordId = ${recordId} FilterId = ${e.item?.id}`
-                                            );
-                                            if (!!e.item?.id) {
-                                                const filterId = parseInt(e.item?.id)
-                                                window.location.href = AppPrefixUtils.locationHrefUrl(
-                                                    `/#/grid-view/${this.state.elementId}/?filterId=${filterId}`
-                                                );
-                                            }
                                         }
+
                                     },
                                 });
                             }
@@ -412,132 +357,18 @@ export class DashboardGridViewComponent extends BaseContainer {
 
     //override
     renderHeadPanel = () => {
-        const viewId = this.getRealViewId();
         return (
             <React.Fragment>
                 <HeadPanel
+                    labels={this.props.labels}
                     selectedRowKeys={this.state.selectedRowKeys}
                     operations={this.state.parsedGridView?.operations}
                     leftContent={this.leftHeadPanelContent()}
                     rightContent={this.rightHeadPanelContent()}
-                    handleDelete={() => {
-                        ConsoleHelper('handleDelete');
-                        confirmDialog({
-                            appendTo: document.body,
-                            message: LocUtils.loc(this.props.labels, 'Question_Delete_Label', 'Czy na pewno chcesz usunąć zaznaczone rekordy?'),
-                            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
-                            icon: 'pi pi-exclamation-triangle',
-                            acceptLabel: localeOptions('accept'),
-                            rejectLabel: localeOptions('reject'),
-                            accept: () => {
-                                this.blockUi();
-                                this.editService.delete(viewId, this.state.selectedRowKeys)
-                                    .then((deleteResponse) => {
-                                        this.unselectedDataGrid();
-                                        this.refreshDataGrid();
-                                        const msg = deleteResponse.message;
-                                        if (!!msg) {
-                                            this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
-                                        } else if (!!deleteResponse.error) {
-                                            this.showResponseErrorMessage(deleteResponse);
-                                        }
-                                        this.unblockUi();
-                                    }).catch((err) => {
-                                    this.showGlobalErrorMessage(err);
-                                })
-                            },
-                            reject: () => undefined,
-                        })
-                    }}
-                    handleRestore={() => {
-                        ConsoleHelper('handleRestore');
-                        confirmDialog({
-                            appendTo: document.body,
-                            message: LocUtils.loc(this.props.labels, 'Question_Restore_Label', 'Czy na pewno chcesz przywrócić zaznaczone rekordy?'),
-                            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
-                            icon: 'pi pi-exclamation-triangle',
-                            acceptLabel: localeOptions('accept'),
-                            rejectLabel: localeOptions('reject'),
-                            accept: () => {
-                                this.blockUi();
-                                this.editService.restore(viewId, this.state.selectedRowKeys)
-                                    .then((restoreResponse) => {
-                                        this.unselectedDataGrid();
-                                        this.refreshDataGrid();
-                                        const msg = restoreResponse.message;
-                                        if (!!msg) {
-                                            this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
-                                        } else if (!!restoreResponse.error) {
-                                            this.showResponseErrorMessage(restoreResponse);
-                                        }
-                                        this.unblockUi();
-                                    }).catch((err) => {
-                                    this.showGlobalErrorMessage(err);
-                                })
-                            },
-                            reject: () => undefined,
-                        })
-                    }}
-                    handleCopy={() => {
-                        ConsoleHelper('handleCopy');
-                        confirmDialog({
-                            appendTo: document.body,
-                            message: LocUtils.loc(this.props.labels, 'Question_Copy_Label', 'Czy na pewno chcesz zkopiować zaznaczone rekordy?'),
-                            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
-                            icon: 'pi pi-exclamation-triangle',
-                            acceptLabel: localeOptions('accept'),
-                            rejectLabel: localeOptions('reject'),
-                            accept: () => {
-                                this.blockUi();
-                                const parentId = this.state.parsedGridView?.viewInfo.parentId;
-                                this.editService.copy(viewId, parentId, this.state.selectedRowKeys)
-                                    .then((copyResponse) => {
-                                        this.unselectedDataGrid();
-                                        this.refreshDataGrid();
-                                        const msg = copyResponse.message;
-                                        if (!!msg) {
-                                            this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
-                                        } else if (!!copyResponse.error) {
-                                            this.showResponseErrorMessage(copyResponse);
-                                        }
-                                        this.unblockUi();
-                                    }).catch((err) => {
-                                    this.showGlobalErrorMessage(err);
-                                })
-                            },
-                            reject: () => undefined,
-                        })
-                    }}
-                    handleArchive={() => {
-                        ConsoleHelper('handleArchive');
-                        confirmDialog({
-                            appendTo: document.body,
-                            message: LocUtils.loc(this.props.labels, 'Question_Archive_Label', 'Czy na pewno chcesz przenieść do archiwum zaznaczone rekordy?'),
-                            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
-                            icon: 'pi pi-exclamation-triangle',
-                            acceptLabel: localeOptions('accept'),
-                            rejectLabel: localeOptions('reject'),
-                            accept: () => {
-                                this.blockUi();
-                                const parentId = this.state.parsedGridView?.viewInfo.parentId;
-                                this.editService.archive(viewId, parentId, this.state.selectedRowKeys)
-                                    .then((archiveResponse) => {
-                                        this.unselectedDataGrid();
-                                        this.refreshDataGrid();
-                                        const msg = archiveResponse.message;
-                                        if (!!msg) {
-                                            this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
-                                        } else if (!!archiveResponse.error) {
-                                            this.showResponseErrorMessage(archiveResponse);
-                                        }
-                                        this.unblockUi();
-                                    }).catch((err) => {
-                                    this.showGlobalErrorMessage(err);
-                                })
-                            },
-                            reject: () => undefined,
-                        })
-                    }}
+                    handleDelete={() => this.delete()}
+                    handleRestore={() => this.restore()}
+                    handleCopy={() => this.copy()}
+                    handleArchive={() => this.archive()}
                 />
             </React.Fragment>
         );
@@ -554,81 +385,6 @@ export class DashboardGridViewComponent extends BaseContainer {
     renderHeaderContent() {
         if (this.state.gridViewType === 'dashboard') {
             return <React.Fragment/>
-        }
-        const {labels} = this.props;
-        return (
-            <React.Fragment>
-                <SubGridViewComponent
-                    handleOnInitialized={(ref) => this.subGridView = ref}
-                    subView={this.state.subView}
-                    labels={labels}
-                    handleOnEditClick={(e) => {
-                        this.blockUi();
-                        this.editService
-                            .getEdit(e.viewId, e.recordId, e.kindView)
-                            .then((editDataResponse) => {
-                                this.setState({
-                                    visibleEditPanel: true,
-                                    editData: editDataResponse
-                                });
-                                this.unblockUi();
-                            })
-                            .catch((err) => {
-                                this.showGlobalErrorMessage(err);
-                            });
-                    }}/>
-                {/*Zakładki podwidoków*/}
-                <div id='subviews-panel'>
-                    {this.state.subView != null &&
-                    this.state.subView.subViews != null &&
-                    this.state.subView.subViews.length > 0 ? (
-                        <Tabs
-                            dataSource={this.state.subView.subViewsTabs}
-                            selectedIndex={this.state.subViewTabIndex}
-                            onOptionChanged={this.onTabsSelectionChanged}
-                            scrollByContent={true}
-                            itemRender={this.renderTabItem}
-                            showNavButtons={true}
-                        />
-                    ) : null}
-                </div>
-            </React.Fragment>
-        );
-    }
-
-    //override
-    renderTabItem = (itemData) => {
-        const viewInfoId = this.state.subView.viewInfo?.id;
-        const subViewId = itemData.id;
-        const recordId = this.state.elementRecordId;
-        return (
-            <a
-                href={AppPrefixUtils.locationHrefUrl(
-                    `/#/grid-view/${viewInfoId}/?recordId=${recordId}&subview=${subViewId}`
-                )}
-                className='subview-tab-item-href'
-            >
-                {itemData.text}
-            </a>
-        );
-    }
-
-    //override
-    onTabsSelectionChanged(args) {
-        if (args.name === 'selectedItem') {
-            if (args.value?.id && args.previousValue !== null && args.value?.id !== args.previousValue?.id) {
-                this.state.subView.subViewsTabs.forEach((subView, i) => {
-                    if (subView.id === args.value.id) {
-                        this.setState({subViewTabIndex: i});
-                    }
-                });
-                const viewInfoId = this.state.subView.viewInfo?.id;
-                const subViewId = args.value.id;
-                const recordId = this.state.elementRecordId;
-                window.location.href = AppPrefixUtils.locationHrefUrl(
-                    `/#/grid-view/${viewInfoId}?recordId=${recordId}&subview=${subViewId}`
-                );
-            }
         }
     }
 
@@ -712,6 +468,10 @@ export class DashboardGridViewComponent extends BaseContainer {
                             showFilterRow={this.props.showFilterRow}
                             showSelection={this.props.showSelection}
                             dataGridHeight={this.props.dataGridHeight}
+                            handleDeleteRow={(id) => this.delete(id)}
+                            handleRestoreRow={(id) => this.restore(id)}
+                            handleCopyRow={(id) => this.copy(id)}
+                            handleArchiveRow={(id) => this.archive(id)}
                         />
                     </React.Fragment>
                 )}
@@ -746,7 +506,8 @@ export class DashboardGridViewComponent extends BaseContainer {
             handleBlockUi: PropTypes.func,
             handleUnBlockUi: PropTypes.func,
             handleShowErrorMessages: PropTypes.func,
-            dataGridHeight: PropTypes.number
+            dataGridHeight: PropTypes.number,
+            labels: PropTypes.object.isRequired,
         }
 }
 

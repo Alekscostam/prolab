@@ -6,13 +6,11 @@ import BaseContainer from '../baseContainers/BaseContainer';
 import ActionButtonWithMenu from '../components/prolab/ActionButtonWithMenu';
 import EditRowComponent from '../components/prolab/EditRowComponent';
 import HeadPanel from '../components/prolab/HeadPanel';
-import ShortcutButton from '../components/prolab/ShortcutButton';
 import ShortcutsButton from '../components/prolab/ShortcutsButton';
 import EditService from '../services/EditService';
 import ViewService from '../services/ViewService';
 import AppPrefixUtils from '../utils/AppPrefixUtils';
 import {Breadcrumb} from '../utils/BreadcrumbUtils';
-import {CardViewUtils} from '../utils/CardViewUtils';
 import {GridViewUtils} from '../utils/GridViewUtils';
 import {ViewValidatorUtils} from '../utils/parser/ViewValidatorUtils';
 import UrlUtils from '../utils/UrlUtils';
@@ -65,24 +63,17 @@ export class ViewContainer extends BaseContainer {
             gridViewTypes: [],
             subView: null,
             viewInfoTypes: [],
-            cardSkip: 0,
-            cardTotalRows: 0,
-            cardScrollLoading: false,
             visibleEditPanel: false,
             modifyEditData: false,
             editData: null,
             select: false,
             selectAll: false,
             isSelectAll: false,
-            totalSelectCount: null,
             dataGridStoreSuccess: false,
         };
-        this.gridViewTypeChange = this.gridViewTypeChange.bind(this);
-        this.renderCard = this.renderCard.bind(this);
+        this.onInitialize = this.onInitialize.bind(this);
         this.getViewById = this.getViewById.bind(this);
         this.downloadData = this.downloadData.bind(this);
-        this.onTabsSelectionChanged = this.onTabsSelectionChanged.bind(this);
-        this.onInitialize = this.onInitialize.bind(this);
     }
 
     componentDidMount() {
@@ -186,14 +177,6 @@ export class ViewContainer extends BaseContainer {
 
     componentWillUnmount() {
         this._isMounted = false;
-    }
-
-    trackScrolling() {
-        const wrappedElement = document.getElementById('header');
-        if (this.isBottom(wrappedElement)) {
-            // ConsoleHelper('Header bottom reached');
-            document.removeEventListener('scroll', this.trackScrolling);
-        }
     }
 
     downloadData(viewId, recordId, subviewId, filterId, parentId, viewType) {
@@ -303,7 +286,7 @@ export class ViewContainer extends BaseContainer {
                                     });
                                 });
                             });
-                            // ConsoleHelper('ViewContainer -> fetch columns: ', gridViewColumnsTmp);
+
                             for (let plugin in responseView?.pluginsList) {
                                 pluginsListTmp.push({
                                     id: responseView?.pluginsList[plugin].id,
@@ -388,7 +371,7 @@ export class ViewContainer extends BaseContainer {
                                             let res = this.dataCardStore.getDataCardStore(
                                                 viewIdArg,
                                                 {
-                                                    skip: this.state.cardSkip,
+                                                    skip: 0,
                                                     take: packageCount
                                                 },
                                                 parentIdArg,
@@ -473,51 +456,34 @@ export class ViewContainer extends BaseContainer {
         );
     }
 
-    gridViewTypeChange(e) {
-        let newUrl = UrlUtils.addParameterToURL(window.document.URL.toString(), 'viewType', e.itemData.type);
-        window.history.replaceState('', '', newUrl);
-        this.setState({gridViewType: e.itemData.type, dataGridStoreSuccess: false}, () => {
-            this.downloadData(
-                this.state.elementId,
-                this.state.elementRecordId,
-                this.state.elementSubViewId,
-                this.state.elementFilterId,
-                this.state.elementParentId,
-                this.state.gridViewType
-            );
-        });
-    }
-
     //override
     renderGlobalTop() {
         return (
             <React.Fragment>
-                <React.Fragment>
-                    <EditRowComponent
-                        visibleEditPanel={this.state.visibleEditPanel}
-                        editData={this.state.editData}
-                        kindView={this.state.elementKindView}
-                        onChange={this.handleEditRowChange}
-                        onBlur={this.handleEditRowBlur}
-                        onSave={this.handleEditRowSave}
-                        onAutoFill={this.handleAutoFillRowChange}
-                        onEditList={this.handleEditListRowChange}
-                        onCancel={this.handleCancelRowChange}
-                        validator={this.validator}
-                        onHide={(e) => !!this.state.modifyEditData ? confirmDialog({
-                            appendTo: document.body,
-                            message: LocUtils.loc(this.props.labels, 'Question_Close_Edit', 'Czy na pewno chcesz zamknąć edycję?'),
-                            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
-                            icon: 'pi pi-exclamation-triangle',
-                            acceptLabel: localeOptions('accept'),
-                            rejectLabel: localeOptions('reject'),
-                            accept: () => this.setState({visibleEditPanel: e}),
-                            reject: () => undefined,
-                        }) : this.setState({visibleEditPanel: e})}
-                        onError={(e) => this.showErrorMessage(e)}
-                        labels={this.props.labels}
-                    />
-                </React.Fragment>
+                <EditRowComponent
+                    visibleEditPanel={this.state.visibleEditPanel}
+                    editData={this.state.editData}
+                    kindView={this.state.elementKindView}
+                    onChange={this.handleEditRowChange}
+                    onBlur={this.handleEditRowBlur}
+                    onSave={this.handleEditRowSave}
+                    onAutoFill={this.handleAutoFillRowChange}
+                    onEditList={this.handleEditListRowChange}
+                    onCancel={this.handleCancelRowChange}
+                    validator={this.validator}
+                    onHide={(e) => !!this.state.modifyEditData ? confirmDialog({
+                        appendTo: document.body,
+                        message: LocUtils.loc(this.props.labels, 'Question_Close_Edit', 'Czy na pewno chcesz zamknąć edycję?'),
+                        header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
+                        icon: 'pi pi-exclamation-triangle',
+                        acceptLabel: localeOptions('accept'),
+                        rejectLabel: localeOptions('reject'),
+                        accept: () => this.setState({visibleEditPanel: e}),
+                        reject: () => undefined,
+                    }) : this.setState({visibleEditPanel: e})}
+                    onError={(e) => this.showErrorMessage(e)}
+                    labels={this.props.labels}
+                />
             </React.Fragment>);
     }
 
@@ -535,107 +501,148 @@ export class ViewContainer extends BaseContainer {
         if (this.isDashboard()) {
             return <React.Fragment/>
         }
-        return (
-            <React.Fragment>
-                <ShortcutsButton items={this.state.parsedGridView?.shortcutButtons} maxShortcutButtons={5}/>
-            </React.Fragment>
-        );
+        return (<React.Fragment>
+            <ShortcutsButton items={this.state.parsedGridView?.shortcutButtons} maxShortcutButtons={5}/>
+        </React.Fragment>);
+    }
+
+    renderButton(operation, index) {
+        const margin = Constants.DEFAULT_MARGIN_BETWEEN_BUTTONS;
+        if (!!operation.type) {
+            switch (new String(operation.type).toUpperCase()) {
+                case 'OP_FILTER':
+                    return (
+                        <React.Fragment>
+                            {this.state.filtersList?.length > 0 ? (
+                                <SelectBox
+                                    className={`filter-combo ${margin}`}
+                                    wrapItemText={true}
+                                    id='combo_filters'
+                                    items={this.state.filtersList}
+                                    displayExpr='label'
+                                    valueExpr='id'
+                                    value={parseInt(this.state.elementFilterId || this.state.parsedGridView?.viewInfo?.filterdId)}
+                                    onValueChanged={(e) => {
+                                        ConsoleHelper('onValueChanged', e);
+                                        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+                                        if (!!e.value && e.value !== e.previousValue) {
+                                            const filterId = parseInt(e.value)
+                                            const subViewId = UrlUtils.getURLParameter('subview') || this.state.elementSubViewId;
+                                            const recordId = UrlUtils.getURLParameter('recordId') || this.state.elementRecordId;
+                                            const subviewMode = !!recordId && !!this.state.elementId;
+                                            const breadCrumbs = UrlUtils.getURLParameter('bc');
+                                            const viewType = UrlUtils.getURLParameter('viewType');
+                                            //myczek na błąd [FIX] Przełączanie między widokami a filtry
+                                            if (!breadCrumbs) {
+                                                return;
+                                            }
+                                            if (subviewMode) {
+                                                ConsoleHelper(
+                                                    `Redirect -> Id =  ${this.state.elementId} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`
+                                                );
+                                                window.location.href = AppPrefixUtils.locationHrefUrl(
+                                                    `/#/grid-view/${this.state.elementId}?recordId=${recordId}&subview=${subViewId}&filterId=${filterId}&viewType=${viewType}${currentBreadcrumb}`
+                                                );
+                                            } else {
+                                                ConsoleHelper(
+                                                    `Redirect -> Id =  ${this.state.elementId} RecordId = ${recordId} FilterId = ${filterId}`
+                                                );
+                                                if (filterId) {
+                                                    window.location.href = AppPrefixUtils.locationHrefUrl(
+                                                        `/#/grid-view/${this.state.elementId}/?filterId=${filterId}&viewType=${viewType}${currentBreadcrumb}`
+                                                    );
+                                                }
+                                            }
+                                        }
+                                    }}
+                                    stylingMode='underlined'
+                                />
+                            ) : null}
+                        </React.Fragment>);
+                case 'OP_BATCH':
+                    return (<React.Fragment>
+                        {/*{this.state.batchesList?.length > 0 ? (*/}
+                        <ActionButtonWithMenu
+                            id='button_batches'
+                            className={`${margin}`}
+                            iconName={operation?.iconCode || 'mdi-cogs'}
+                            items={this.state.batchesList}
+                            title={operation?.label}
+                        />
+                        {/*) : null}*/}
+                    </React.Fragment>)
+                case 'OP_DOCUMENTS':
+                    return (<React.Fragment>
+                        {/*{this.state.documentsList?.length > 0 ? (*/}
+                        <ActionButtonWithMenu
+                            id='button_documents'
+                            className={`${margin}`}
+                            iconName={operation?.iconCode || 'mdi-file-document'}
+                            items={this.state.documentsList}
+                            title={operation?.label}
+                        />
+                        {/*) : null}*/}
+                    </React.Fragment>)
+                case 'OP_PLUGINS':
+                    return (<React.Fragment>
+                        {/*{this.state.pluginsList?.length > 0 ? (*/}
+                        <ActionButtonWithMenu
+                            id='button_plugins'
+                            className={`${margin}`}
+                            iconName={operation?.iconCode || 'mdi-puzzle'}
+                            items={this.state.pluginsList}
+                            title={operation?.label}
+                        />
+                        {/*) : null}*/}
+                    </React.Fragment>)
+                case 'OP_CARDVIEW':
+                case 'OP_GRIDVIEW':
+                    let indexInArray = this.state.parsedGridView?.operations?.findIndex(
+                        o => new String(o.type).toUpperCase() === 'OP_CARDVIEW' || new String(o.type).toUpperCase() === 'OP_GRIDVIEW');
+                    //condition for only one display
+                    if (index > indexInArray) {
+                        return (this.state.viewInfoTypes ? <React.Fragment>
+                            <ButtonGroup
+                                className={`${margin}`}
+                                items={this.state.viewInfoTypes}
+                                keyExpr='type'
+                                stylingMode='outlined'
+                                selectedItemKeys={this.state.gridViewType}
+                                onItemClick={(e) => {
+                                    let newUrl = UrlUtils.addParameterToURL(window.document.URL.toString(), 'viewType', e.itemData.type);
+                                    window.history.replaceState('', '', newUrl);
+                                    this.setState({gridViewType: e.itemData.type, dataGridStoreSuccess: false}, () => {
+                                        this.downloadData(
+                                            this.state.elementId,
+                                            this.state.elementRecordId,
+                                            this.state.elementSubViewId,
+                                            this.state.elementFilterId,
+                                            this.state.elementParentId,
+                                            this.state.gridViewType
+                                        );
+                                    });
+                                }}
+                            />
+                        </React.Fragment> : null);
+                    } else {
+                        return null;
+                    }
+                default:
+                    return null;
+            }
+        }
     }
 
     leftHeadPanelContent = () => {
         if (this.isDashboard()) {
             return <React.Fragment/>
         }
-        let centerElementStyle = 'mr-1 ';
-        let opFilter = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_FILTER');
-        let opBatches = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_BATCH');
-        let opDocuments = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_DOCUMENTS');
-        let opPlugins = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_PLUGINS');
-        return (
-            <React.Fragment>
-                {opFilter && this.state.filtersList?.length > 0 ? (
-                    <SelectBox
-                        className='filter-combo mr-1 mt-1 mb-1'
-                        wrapItemText={true}
-                        id='combo_filters'
-                        items={this.state.filtersList}
-                        displayExpr='label'
-                        valueExpr='id'
-                        value={parseInt(this.state.elementFilterId || this.state.parsedGridView?.viewInfo?.filterdId)}
-                        onValueChanged={(e) => {
-                            ConsoleHelper('onValueChanged', e);
-                            const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
-                            if (!!e.value && e.value !== e.previousValue) {
-                                const filterId = parseInt(e.value)
-                                const subViewId = UrlUtils.getURLParameter('subview') || this.state.elementSubViewId;
-                                const recordId = UrlUtils.getURLParameter('recordId') || this.state.elementRecordId;
-                                const subviewMode = !!recordId && !!this.state.elementId;
-                                const breadCrumbs = UrlUtils.getURLParameter('bc');
-                                const viewType = UrlUtils.getURLParameter('viewType');
-                                //myczek na błąd [FIX] Przełączanie między widokami a filtry
-                                if (!breadCrumbs) {
-                                    return;
-                                }
-                                if (subviewMode) {
-                                    ConsoleHelper(
-                                        `Redirect -> Id =  ${this.state.elementId} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`
-                                    );
-                                    window.location.href = AppPrefixUtils.locationHrefUrl(
-                                        `/#/grid-view/${this.state.elementId}?recordId=${recordId}&subview=${subViewId}&filterId=${filterId}&viewType=${viewType}${currentBreadcrumb}`
-                                    );
-                                } else {
-                                    ConsoleHelper(
-                                        `Redirect -> Id =  ${this.state.elementId} RecordId = ${recordId} FilterId = ${filterId}`
-                                    );
-                                    if (filterId) {
-                                        window.location.href = AppPrefixUtils.locationHrefUrl(
-                                            `/#/grid-view/${this.state.elementId}/?filterId=${filterId}&viewType=${viewType}${currentBreadcrumb}`
-                                        );
-                                    }
-                                }
-                            }
-                        }}
-                        stylingMode='underlined'
-                    />
-                ) : null}
-                <ButtonGroup
-                    className={`${centerElementStyle}`}
-                    items={this.state.viewInfoTypes}
-                    keyExpr='type'
-                    stylingMode='outlined'
-                    selectedItemKeys={this.state.gridViewType}
-                    onItemClick={this.gridViewTypeChange}
-                />
-                <div className={`${centerElementStyle} op-buttongroup`}>
-                    {opDocuments && this.state.documentsList?.length > 0 ? (
-                        <ActionButtonWithMenu
-                            id='button_documents'
-                            iconName='mdi-file-document'
-                            items={this.state.documentsList}
-                            title={opDocuments?.label}
-                        />
-                    ) : null}
-
-                    {opPlugins && this.state.pluginsList?.length > 0 ? (
-                        <ActionButtonWithMenu
-                            id='button_plugins'
-                            iconName='mdi-puzzle'
-                            items={this.state.pluginsList}
-                            title={opPlugins?.label}
-                        />
-                    ) : null}
-
-                    {opBatches && this.state.batchesList?.length > 0 ? (
-                        <ActionButtonWithMenu
-                            id='batches_plugins'
-                            iconName='mdi-cogs'
-                            items={this.state.batchesList}
-                            title={opBatches?.label}
-                        />
-                    ) : null}
-                </div>
-            </React.Fragment>
-        );
+        return (<React.Fragment>
+            {this.state.parsedGridView?.operations.map((operation, index) => {
+                    return <div key={index}>{this.renderButton(operation, index)}</div>;
+                }
+            )}
+        </React.Fragment>);
     }
 
     onInitialize(e) {
@@ -685,155 +692,24 @@ export class ViewContainer extends BaseContainer {
         });
     }
 
+
     //override
     renderHeadPanel = () => {
         if (this.isDashboard()) {
             return <React.Fragment/>
         }
-        const viewId = this.getRealViewId();
         return (
             <React.Fragment>
                 <HeadPanel
+                    labels={this.props.labels}
                     selectedRowKeys={this.state.selectedRowKeys}
                     operations={this.state.parsedGridView?.operations}
                     leftContent={this.leftHeadPanelContent()}
                     rightContent={this.rightHeadPanelContent()}
-                    handleDelete={() => {
-                        ConsoleHelper('handleDelete');
-                        confirmDialog({
-                            appendTo: document.body,
-                            message: LocUtils.loc(this.props.labels, 'Question_Delete_Label', 'Czy na pewno chcesz usunąć zaznaczone rekordy?'),
-                            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
-                            icon: 'pi pi-exclamation-triangle',
-                            acceptLabel: localeOptions('accept'),
-                            rejectLabel: localeOptions('reject'),
-                            accept: () => {
-                                this.blockUi();
-                                const parentId = this.state.elementRecordId;
-                                const selectedRowKeysIds = this.state.selectedRowKeys.map((e) => {
-                                    return e.ID;
-                                });
-                                const kindView = this.state.elementKindView;
-                                this.editService.delete(viewId, parentId, kindView, selectedRowKeysIds)
-                                    .then((deleteResponse) => {
-                                        this.unselectAllDataGrid();
-                                        this.refreshDataGrid();
-                                        const msg = deleteResponse.message;
-                                        if (!!msg) {
-                                            this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
-                                        } else if (!!deleteResponse.error) {
-                                            this.showResponseErrorMessage(deleteResponse);
-                                        }
-                                        this.unblockUi();
-                                    }).catch((err) => {
-                                    this.showGlobalErrorMessage(err);
-                                })
-                            },
-                            reject: () => undefined,
-                        })
-                    }}
-                    handleRestore={() => {
-                        ConsoleHelper('handleRestore');
-                        confirmDialog({
-                            appendTo: document.body,
-                            message: LocUtils.loc(this.props.labels, 'Question_Restore_Label', 'Czy na pewno chcesz przywrócić zaznaczone rekordy?'),
-                            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
-                            icon: 'pi pi-exclamation-triangle',
-                            acceptLabel: localeOptions('accept'),
-                            rejectLabel: localeOptions('reject'),
-                            accept: () => {
-                                this.blockUi();
-                                const parentId = this.state.elementRecordId;
-                                const selectedRowKeysIds = this.state.selectedRowKeys.map((e) => {
-                                    return e.ID;
-                                });
-                                const kindView = this.state.elementKindView;
-                                this.editService.restore(viewId, parentId, kindView, selectedRowKeysIds)
-                                    .then((restoreResponse) => {
-                                        this.unselectAllDataGrid();
-                                        this.refreshDataGrid();
-                                        const msg = restoreResponse.message;
-                                        if (!!msg) {
-                                            this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
-                                        } else if (!!restoreResponse.error) {
-                                            this.showResponseErrorMessage(restoreResponse);
-                                        }
-                                        this.unblockUi();
-                                    }).catch((err) => {
-                                    this.showGlobalErrorMessage(err);
-                                })
-                            },
-                            reject: () => undefined,
-                        })
-                    }}
-                    handleCopy={() => {
-                        ConsoleHelper('handleCopy');
-                        confirmDialog({
-                            appendTo: document.body,
-                            message: LocUtils.loc(this.props.labels, 'Question_Copy_Label', 'Czy na pewno chcesz zkopiować zaznaczone rekordy?'),
-                            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
-                            icon: 'pi pi-exclamation-triangle',
-                            acceptLabel: localeOptions('accept'),
-                            rejectLabel: localeOptions('reject'),
-                            accept: () => {
-                                this.blockUi();
-                                const parentId = this.state.elementRecordId;
-                                const selectedRowKeysIds = this.state.selectedRowKeys.map((e) => {
-                                    return e.ID;
-                                });
-                                const kindView = this.state.elementKindView;
-                                this.editService.copy(viewId, parentId, kindView, selectedRowKeysIds)
-                                    .then((copyResponse) => {
-                                        this.unselectAllDataGrid();
-                                        this.refreshDataGrid();
-                                        const msg = copyResponse.message;
-                                        if (!!msg) {
-                                            this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
-                                        } else if (!!copyResponse.error) {
-                                            this.showResponseErrorMessage(copyResponse);
-                                        }
-                                        this.unblockUi();
-                                    }).catch((err) => {
-                                    this.showGlobalErrorMessage(err);
-                                })
-                            },
-                            reject: () => undefined,
-                        })
-                    }}
-                    handleArchive={() => {
-                        ConsoleHelper('handleArchive');
-                        confirmDialog({
-                            appendTo: document.body,
-                            message: LocUtils.loc(this.props.labels, 'Question_Archive_Label', 'Czy na pewno chcesz przenieść do archiwum zaznaczone rekordy?'),
-                            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
-                            icon: 'pi pi-exclamation-triangle',
-                            acceptLabel: localeOptions('accept'),
-                            rejectLabel: localeOptions('reject'),
-                            accept: () => {
-                                this.blockUi();
-                                let parentId = this.state.elementRecordId;
-                                const selectedRowKeysIds = this.state.selectedRowKeys.map((e) => {
-                                    return e.ID;
-                                })
-                                const kindView = this.state.elementKindView;
-                                this.editService.archive(viewId, parentId, kindView, selectedRowKeysIds)
-                                    .then((archiveResponse) => {
-                                        this.unselectAllDataGrid();
-                                        this.refreshDataGrid();
-                                        const msg = archiveResponse.message;
-                                        if (!!msg) {
-                                            this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
-                                        } else if (!!archiveResponse.error) {
-                                            this.showResponseErrorMessage(archiveResponse);
-                                        }
-                                        this.unblockUi();
-                                    }).catch((err) => {
-                                    this.showGlobalErrorMessage(err);
-                                })
-                            },
-                            reject: () => undefined,
-                        })
-                    }}
+                    handleDelete={() => this.delete()}
+                    handleRestore={() => this.restore()}
+                    handleCopy={() => this.copy()}
+                    handleArchive={() => this.archive()}
                 />
             </React.Fragment>
         );
@@ -887,6 +763,10 @@ export class ViewContainer extends BaseContainer {
                     this.unblockUi();
                 });
             });
+        } else {
+            this.setState({
+                selectedRowKeys: []
+            });
         }
     }
 
@@ -905,9 +785,41 @@ export class ViewContainer extends BaseContainer {
                         <Tabs
                             dataSource={this.state.subView.subViewsTabs}
                             selectedIndex={this.state.subViewTabIndex}
-                            onOptionChanged={this.onTabsSelectionChanged}
+                            onOptionChanged={(args) => {
+                                if (args.name === 'selectedItem') {
+                                    if (args.value?.id && args.previousValue !== null && args.value?.id !== args.previousValue?.id) {
+                                        this.state.subView.subViewsTabs.forEach((subView, i) => {
+                                            if (subView.id === args.value.id) {
+                                                this.setState({subViewTabIndex: i});
+                                            }
+                                        });
+                                        const subViewId = args.value.id;
+                                        const viewInfoId = this.state.subView.viewInfo.id;
+                                        const recordId = this.state.elementRecordId
+                                        const kindView = !!this.state.subView.viewInfo?.kindView ? this.state.subView.viewInfo?.kindView : this.defaultKindView;
+                                        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+                                        window.location.href = AppPrefixUtils.locationHrefUrl(
+                                            `/#/grid-view/${viewInfoId}?recordId=${recordId}&subview=${subViewId}&kindView=${kindView}${currentBreadcrumb}`
+                                        );
+                                    }
+                                }
+                            }}
                             scrollByContent={true}
-                            itemRender={this.renderTabItem}
+                            itemRender={(itemData) => {
+                                const viewInfoId = this.state.subView.viewInfo?.id;
+                                const subViewId = itemData.id;
+                                const recordId = this.state.elementRecordId;
+                                const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+                                return (
+                                    <a
+                                        href={AppPrefixUtils.locationHrefUrl(
+                                            `/#/grid-view/${viewInfoId}/?recordId=${recordId}&subview=${subViewId}${currentBreadcrumb}`
+                                        )}
+                                        className='subview-tab-item-href'>
+                                        {itemData.text}
+                                    </a>
+                                );
+                            }}
                             showNavButtons={true}
                         />
                     ) : null}
@@ -932,152 +844,6 @@ export class ViewContainer extends BaseContainer {
             .catch((err) => {
                 this.showGlobalErrorMessage(err);
             });
-    }
-
-    renderTabItem = (itemData) => {
-        const viewInfoId = this.state.subView.viewInfo?.id;
-        const subViewId = itemData.id;
-        const recordId = this.state.elementRecordId;
-        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
-        return (
-            <a
-                href={AppPrefixUtils.locationHrefUrl(
-                    `/#/grid-view/${viewInfoId}/?recordId=${recordId}&subview=${subViewId}${currentBreadcrumb}`
-                )}
-                className='subview-tab-item-href'>
-                {itemData.text}
-            </a>
-        );
-    }
-
-    onTabsSelectionChanged(args) {
-        if (args.name === 'selectedItem') {
-            if (args.value?.id && args.previousValue !== null && args.value?.id !== args.previousValue?.id) {
-                this.state.subView.subViewsTabs.forEach((subView, i) => {
-                    if (subView.id === args.value.id) {
-                        this.setState({subViewTabIndex: i});
-                    }
-                });
-                const subViewId = args.value.id;
-                const viewInfoId = this.state.subView.viewInfo.id;
-                const recordId = this.state.elementRecordId
-                const kindView = !!this.state.subView.viewInfo?.kindView ? this.state.subView.viewInfo?.kindView : this.defaultKindView;
-                const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
-                window.location.href = AppPrefixUtils.locationHrefUrl(
-                    `/#/grid-view/${viewInfoId}?recordId=${recordId}&subview=${subViewId}&kindView=${kindView}${currentBreadcrumb}`
-                );
-            }
-        }
-    }
-
-    //override
-    renderCard(rowData) {
-        const {cardBody, cardHeader, cardImage, cardFooter} = this.state.parsedGridView;
-        let showEditButton = false;
-        let showSubviewButton = false;
-        let showMenu = false;
-        let menuItems = [];
-        if (this.state.parsedGridView?.operations) {
-            this.state.parsedGridView?.operations.forEach((operation) => {
-                showEditButton = showEditButton || operation.type === 'OP_EDIT';
-                showSubviewButton = showSubviewButton || operation.type === 'OP_SUBVIEWS';
-                if (
-                    operation.type === 'OP_PUBLIC' ||
-                    operation.type === 'OP_HISTORY' ||
-                    operation.type === 'OP_ATTACHMENTS'
-                ) {
-                    menuItems.push(operation);
-                }
-            });
-            showMenu = menuItems.length > 0;
-        }
-        let oppEdit = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_EDIT');
-        let oppSubview = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_SUBVIEWS');
-        const viewId = this.getRealViewId();
-        const recordId = rowData.ID;
-        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
-        setTimeout(() => {
-            const cardHeight = this.state.parsedGridView?.cardOptions?.heigh ?? 200;
-            var p = $(`#${rowData.ID} .card-grid-body-content`);
-            while ($(p).outerHeight() > cardHeight - 52) {
-                $(p).text(function (index, text) {
-                    return text.replace(/\W*\s(\S)*$/, '...');
-                });
-            }
-        }, 10);
-        return (
-            <div
-                id={rowData.ID}
-                className={`dx-tile-image ${
-                    this.state.selectedRowKeys.includes(rowData.ID) ? 'card-grid-selected' : ''
-                }`}
-                style={{backgroundColor: rowData._BGCOLOR, color: rowData._FONT_COLOR}}
-            >
-                <div className='row'>
-                    <div className='card-grid-header'>
-                        {cardHeader?.visible
-                            ? CardViewUtils.cellTemplate(cardHeader, rowData, 'card-grid-header-title', 'HEADER')
-                            : null}
-                        {showEditButton || showMenu || showSubviewButton ? (
-                            <div className='card-grid-header-buttons'>
-                                <ShortcutButton
-                                    id={`${rowData.id}_menu_button`}
-                                    className={`action-button-with-menu`}
-                                    iconName={'mdi-pencil'}
-                                    label={''}
-                                    title={''}
-                                    handleClick={() => this.setState({visibleEditPanel: true})}
-                                    rendered={showEditButton && oppEdit}
-                                />
-                                <ShortcutButton
-                                    id={`${rowData.id}_menu_button`}
-                                    className={`action-button-with-menu`}
-                                    iconName={'mdi-playlist-plus '}
-                                    title={oppSubview?.label}
-                                    rendered={oppSubview}
-                                    href={AppPrefixUtils.locationHrefUrl(
-                                        `/#/grid-view/${viewId}?recordId=${recordId}${currentBreadcrumb}`
-                                    )}
-                                />
-                                <ActionButtonWithMenu
-                                    id={`${rowData.id}_more_shortcut`}
-                                    className={`action-button-with-menu`}
-                                    iconName='mdi-dots-vertical'
-                                    items={menuItems}
-                                    remdered={showMenu}
-                                />
-                            </div>
-                        ) : null}
-                    </div>
-                    <div className='card-grid-body'>
-                        {/* <div className='row'> */}
-                        {cardImage?.visible && cardImage?.fieldName && rowData[cardImage?.fieldName]
-                            ? // <div className={cardBody?.visible ? 'col-3' : 'col-12'}>
-                            CardViewUtils.cellTemplate(cardImage, rowData, 'card-grid-body-image', 'IMG')
-                            : // </div>
-                            null}
-                        {cardBody?.visible
-                            ? // <div className={cardImage?.visible ? 'col-9' : 'col-12'}>
-                            CardViewUtils.cellTemplate(
-                                cardBody,
-                                rowData,
-                                'card-grid-body-content',
-                                cardImage?.visible && cardImage?.fieldName && rowData[cardImage?.fieldName]
-                                    ? 'BODY_WITH_IMG'
-                                    : 'BODY'
-                            )
-                            : // </div>
-                            null}
-                        {/* </div> */}
-                    </div>
-                    <div className='card-grid-footer'>
-                        {cardFooter?.visible
-                            ? CardViewUtils.cellTemplate(cardFooter, rowData, 'card-grid-footer-content', 'FOOTER')
-                            : null}
-                    </div>
-                </div>
-            </div>
-        );
     }
 
     //override
@@ -1147,6 +913,10 @@ export class ViewContainer extends BaseContainer {
                                     }}
                                     dataGridStoreSuccess={this.state.dataGridStoreSuccess}
                                     selectionDeferred={true}
+                                    handleDeleteRow={(id) => this.delete(id)}
+                                    handleRestoreRow={(id) => this.restore(id)}
+                                    handleCopyRow={(id) => this.copy(id)}
+                                    handleArchiveRow={(id) => this.archive(id)}
                                 />
                             </React.Fragment>
                         ) : this.isCardView() ? (
@@ -1175,15 +945,16 @@ export class ViewContainer extends BaseContainer {
                                     filterId={filterIdArg}
                                 />
                             </React.Fragment>
-                        ) : this.isDashboard() ? (<React.Fragment>
-                            {Breadcrumb.render(labels)}
-                            <DashboardContainer dashboard={this.state.subView}
-                                                handleRenderNoRefreshContent={(renderNoRefreshContent) => {
-                                                    this.props.handleRenderNoRefreshContent(renderNoRefreshContent)
-                                                }}
-                                                labels={labels}
-                            />
-                        </React.Fragment>) : null}
+                        ) : this.isDashboard() ? (
+                            <React.Fragment>
+                                {Breadcrumb.render(labels)}
+                                <DashboardContainer dashboard={this.state.subView}
+                                                    handleRenderNoRefreshContent={(renderNoRefreshContent) => {
+                                                        this.props.handleRenderNoRefreshContent(renderNoRefreshContent)
+                                                    }}
+                                                    labels={labels}
+                                />
+                            </React.Fragment>) : null}
                     </React.Fragment>
                 )}
             </React.Fragment>

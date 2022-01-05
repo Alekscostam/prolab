@@ -152,7 +152,7 @@ class DashboardContainer extends BaseContainer {
     }
 
     //override
-    refreshGridView() {
+    refreshView() {
         this.initializeDashboard();
     }
 
@@ -233,6 +233,7 @@ class DashboardContainer extends BaseContainer {
                                             return true;
                                         }}
                                         dataGridHeight={_cardHeight - 60}
+                                        labels={this.props.labels}
             />
         </div>);
     }
