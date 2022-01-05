@@ -3,8 +3,6 @@ import {GridViewUtils} from "../../utils/GridViewUtils";
 import {Breadcrumb} from "../../utils/BreadcrumbUtils";
 import $ from "jquery";
 import {CardViewUtils} from "../../utils/CardViewUtils";
-import ShortcutButton from "../../components/prolab/ShortcutButton";
-import ActionButtonWithMenu from "../../components/prolab/ActionButtonWithMenu";
 import AppPrefixUtils from "../../utils/AppPrefixUtils";
 import PropTypes from "prop-types";
 import EditService from "../../services/EditService";
@@ -212,8 +210,6 @@ class CardViewInfiniteComponent extends React.Component {
             });
             showMenu = menuItems.length > 0;
         }
-        let oppEdit = GridViewUtils.containsOperationButton(this.props.parsedCardView?.operations, 'OP_EDIT');
-        let oppSubview = GridViewUtils.containsOperationButton(this.props.parsedCardView?.operations, 'OP_SUBVIEWS');
         const {cardBody, cardHeader, cardImage, cardFooter} = this.props.parsedCardView;
         const elementSubViewId = this.props.elementSubViewId;
         const elementKindView = this.props.elementKindView;
@@ -260,44 +256,39 @@ class CardViewInfiniteComponent extends React.Component {
                                     : null}
                                 {showEditButton || showMenu || showSubviewButton ? (
                                     <div className='card-grid-header-buttons'>
-                                        <ShortcutButton
-                                            id={`${recordId}_menu_button`}
-                                            className={`action-button-with-menu`}
-                                            iconName={'mdi-pencil'}
-                                            label={''}
-                                            title={oppEdit?.label}
-                                            handleClick={() => {
-                                                let result = this.props.handleBlockUi();
-                                                if (result) {
-                                                    this.editService
-                                                        .getEdit(viewId, recordId, subviewId, elementKindView)
-                                                        .then((editDataResponse) => {
-                                                            this.props.handleShowEditPanel(editDataResponse);
-                                                        })
-                                                        .catch((err) => {
-                                                            this.props.showErrorMessages(err);
-                                                        });
-                                                }
-                                            }}
-                                            rendered={showEditButton && oppEdit}
-                                        />
-                                        <ShortcutButton
-                                            id={`${recordId}_menu_button`}
-                                            className={`action-button-with-menu`}
-                                            iconName={'mdi-playlist-plus '}
-                                            title={oppSubview?.label}
-                                            rendered={oppSubview}
-                                            href={AppPrefixUtils.locationHrefUrl(
-                                                `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${!!currentBreadcrumb ? currentBreadcrumb : ``}`
-                                            )}
-                                        />
-                                        <ActionButtonWithMenu
-                                            id={`${recordId}_more_shortcut`}
-                                            className={`action-button-with-menu`}
-                                            iconName='mdi-dots-vertical'
-                                            items={menuItems}
-                                            rendered={showMenu}
-                                        />
+                                        <OperationRecordButtons margin={'mr-0'}
+                                                                labels={this.labels}
+                                                                operation={this.props.parsedCardView.operations}
+                                                                operationList={this.props.parsedCardView.operationsRecordList}
+                                                                info={null}
+                                                                handleEdit={() => {
+                                                                    let result = this.props.handleBlockUi();
+                                                                    if (result) {
+                                                                        this.editService
+                                                                            .getEdit(viewId, recordId, subviewId, elementKindView)
+                                                                            .then((editDataResponse) => {
+                                                                                this.props.handleShowEditPanel(editDataResponse);
+                                                                            })
+                                                                            .catch((err) => {
+                                                                                this.props.showErrorMessages(err);
+                                                                            });
+                                                                    }
+                                                                }}
+                                                                hrefSubview={AppPrefixUtils.locationHrefUrl(
+                                                                    `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${!!currentBreadcrumb ? currentBreadcrumb : ``}`
+                                                                )}
+                                                                handleArchive={() => {
+                                                                    this.props.handleArchiveRow(recordId)
+                                                                }}
+                                                                handleCopy={() => {
+                                                                    this.props.handleCopyRow(recordId)
+                                                                }}
+                                                                handleDelete={() => {
+                                                                    this.props.handleDeleteRow(recordId)
+                                                                }}
+                                                                handleRestore={() => {
+                                                                    this.props.handleRestoreRow(recordId)
+                                                                }}/>
                                     </div>
                                 ) : null}
                             </div>
@@ -361,6 +352,11 @@ CardViewInfiniteComponent.propTypes = {
     elementKindView: PropTypes.string,
     selectedRowKeys: PropTypes.object,
     handleSelectedRowKeys: PropTypes.func,
+    //buttons
+    handleArchiveRow: PropTypes.func.isRequired,
+    handleCopyRow: PropTypes.func.isRequired,
+    handleDeleteRow: PropTypes.func.isRequired,
+    handleRestoreRow: PropTypes.func.isRequired,
 };
 
 export default CardViewInfiniteComponent;

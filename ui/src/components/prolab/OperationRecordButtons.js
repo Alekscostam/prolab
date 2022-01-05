@@ -11,7 +11,7 @@ export const OperationRecordButtons = props => {
 
     const renderSelectionButton = (operation) => {
         const info = props.info;
-        const margin = Constants.DEFAULT_MARGIN_BETWEEN_BUTTONS;
+        const margin = props.margin;
         if (!!operation.type) {
             switch (operation.type?.toUpperCase()) {
                 case 'OP_EDIT':
@@ -136,6 +136,7 @@ OperationRecordButtons.defaultProps = {
     },
     handleArchive: () => {
     },
+    margin: Constants.DEFAULT_MARGIN_BETWEEN_BUTTONS
 };
 
 OperationRecordButtons.propTypes = {
@@ -149,6 +150,7 @@ OperationRecordButtons.propTypes = {
     handleRestore: PropTypes.func.isRequired,
     handleCopy: PropTypes.func.isRequired,
     handleArchive: PropTypes.func.isRequired,
+    margin: PropTypes.string
 };
 
 export default OperationRecordButtons;

@@ -509,7 +509,7 @@ export class ViewContainer extends BaseContainer {
     renderButton(operation, index) {
         const margin = Constants.DEFAULT_MARGIN_BETWEEN_BUTTONS;
         if (!!operation.type) {
-            switch (new String(operation.type).toUpperCase()) {
+            switch (operation.type?.toUpperCase()) {
                 case 'OP_FILTER':
                     return (
                         <React.Fragment>
@@ -598,7 +598,7 @@ export class ViewContainer extends BaseContainer {
                 case 'OP_CARDVIEW':
                 case 'OP_GRIDVIEW':
                     let indexInArray = this.state.parsedGridView?.operations?.findIndex(
-                        o => new String(o.type).toUpperCase() === 'OP_CARDVIEW' || new String(o.type).toUpperCase() === 'OP_GRIDVIEW');
+                        o => o?.type?.toUpperCase() === 'OP_CARDVIEW' || o?.type?.toUpperCase() === 'OP_GRIDVIEW');
                     //condition for only one display
                     if (index > indexInArray) {
                         return (this.state.viewInfoTypes ? <React.Fragment>
@@ -943,6 +943,10 @@ export class ViewContainer extends BaseContainer {
                                     kindView={kindViewArg}
                                     parentId={parentIdArg}
                                     filterId={filterIdArg}
+                                    handleDeleteRow={(id) => this.delete(id)}
+                                    handleRestoreRow={(id) => this.restore(id)}
+                                    handleCopyRow={(id) => this.copy(id)}
+                                    handleArchiveRow={(id) => this.archive(id)}
                                 />
                             </React.Fragment>
                         ) : this.isDashboard() ? (
