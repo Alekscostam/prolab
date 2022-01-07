@@ -15,12 +15,19 @@ export default class ViewService extends BaseService {
         this.getSubView = this.getSubView.bind(this);
     }
 
-    getView(viewId, viewType) {
-        let viewTypeParam = '';
+    getView(viewId, viewType, recordParentId, kindView) {
+        let paramArrays = [];
         if (!!viewType) {
-            viewTypeParam = `?viewType=${viewType}`;
+            paramArrays.push(`viewType=${viewType}`)
         }
-        return this.fetch(`${this.domain}/${this.path}/${viewId}${viewTypeParam}`, {
+        if (!!recordParentId) {
+            paramArrays.push(`parentId=${recordParentId}`)
+        }
+        if (!!recordParentId && !!kindView) {
+            paramArrays.push(`kindView=${kindView}`)
+        }
+        const parameters = paramArrays.length > 0 ? '?' + paramArrays.join('&') : '';
+        return this.fetch(`${this.domain}/${this.path}/${viewId}${parameters}`, {
             method: 'GET',
         }).catch((err) => {
             throw err;

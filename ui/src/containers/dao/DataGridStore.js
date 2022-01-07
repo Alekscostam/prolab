@@ -12,41 +12,7 @@ export default class DataGridStore extends BaseService {
         this.cachedLoadOptions = null;
     }
 
-    getDataForCard(viewId, loadOptions) {
-        // Get a token from api server using the fetch api
-        let params = '?';
-        [
-            'filter',
-            'filterId',
-            'parentId',
-            'group',
-            'groupSummary',
-            'parentIds',
-            'requireGroupCount',
-            'requireTotalCount',
-            'searchExpr',
-            'searchOperation',
-            'searchValue',
-            'select',
-            'sort',
-            'skip',
-            'take',
-            'totalSummary',
-            'userData',
-        ].forEach((i) => {
-            if (i in loadOptions && this.isNotEmpty(loadOptions[i])) {
-                params += `${i}=${JSON.stringify(loadOptions[i])}&`;
-            }
-        });
-        params += 'viewType=cardView';
-        return this.fetch(`${this.domain}/${this.path}/${viewId}${params}`, {
-            method: 'GET',
-        }).then((res) => {
-            return Promise.resolve(res);
-        });
-    }
-
-    getSelectAllDataGridStore(viewIdArg, viewTypeArg, recordParentIdArg, filterIdArg, filters) {
+    getSelectAllDataGridStore(viewIdArg, viewTypeArg, recordParentIdArg, filterIdArg, kindViewArg, filters) {
         let params = '?';
         [
             !!filters && filters.length > 0 ? 'filter' : undefined,
@@ -69,11 +35,13 @@ export default class DataGridStore extends BaseService {
             }
         });
         let eventSelectAll = true;
-        const viewTypeParam = viewTypeArg !== undefined && viewTypeArg != null ? `&viewType=${viewTypeArg}` : '';
-        const filterIdParam = filterIdArg !== undefined && filterIdArg != null ? `&filterId=${filterIdArg}` : '';
-        const recordParentIdParam = recordParentIdArg !== undefined && recordParentIdArg != null ? `&parentId=${recordParentIdArg}` : '';
+        const viewTypeParam = !!viewTypeArg ? `&viewType=${viewTypeArg}` : '';
+        const filterIdParam = !!filterIdArg ? `&filterId=${filterIdArg}` : '';
+        const recordParentIdParam = !!recordParentIdArg ? `&parentId=${recordParentIdArg}` : '';
+        const kindViewParam = !!kindViewArg && !!recordParentIdParam ? `&kindView=${kindViewArg}` : '';
         const selectAllParam = !!eventSelectAll ? `&selection=true` : '';
-        let url = `${this.domain}/${this.path}/${viewIdArg}${params}${viewTypeParam}${filterIdParam}${selectAllParam}${recordParentIdParam}`;
+        let url = `${this.domain}/${this.path}/${viewIdArg}${params}${viewTypeParam}${filterIdParam}${selectAllParam}${recordParentIdParam}${kindViewParam}`;
+        url = this.commonCorrectUrl(url);
         return this.fetch(
             url,
             {
@@ -84,7 +52,7 @@ export default class DataGridStore extends BaseService {
         });
     }
 
-    getDataGridStore(viewIdArg, viewTypeArg, recordParentIdArg, filterIdArg, onStart, onSuccess, onError) {
+    getDataGridStore(viewIdArg, viewTypeArg, recordParentIdArg, filterIdArg, kindViewArg, onStart, onSuccess, onError) {
         if (!viewIdArg) {
             if (onSuccess) {
                 onSuccess();
@@ -127,17 +95,19 @@ export default class DataGridStore extends BaseService {
                         addSelectAllParam = true
                     }
                 }
-                const viewTypeParam = viewTypeArg !== undefined && viewTypeArg != null ? `&viewType=${viewTypeArg}` : '';
-                const filterIdParam = filterIdArg !== undefined && filterIdArg != null ? `&filterId=${filterIdArg}` : '';
-                const recordParentIdParam = recordParentIdArg !== undefined && recordParentIdArg != null ? `&parentId=${recordParentIdArg}` : '';
+                const viewTypeParam = !!viewTypeArg ? `&viewType=${viewTypeArg}` : '';
+                const filterIdParam = !!filterIdArg ? `&filterId=${filterIdArg}` : '';
+                const recordParentIdParam = !!recordParentIdArg ? `&parentId=${recordParentIdArg}` : '';
+                const kindViewParam = !!kindViewArg && !!recordParentIdParam ? `&kindView=${kindViewArg}` : '';
                 const selectAllParam = !!addSelectAllParam ? `&selection=true` : '';
-                let url = `${this.domain}/${this.path}/${viewIdArg}${params}${viewTypeParam}${filterIdParam}${selectAllParam}${recordParentIdParam}`;
+                let url = `${this.domain}/${this.path}/${viewIdArg}${params}${viewTypeParam}${filterIdParam}${selectAllParam}${recordParentIdParam}${kindViewParam}`;
+                url = this.commonCorrectUrl(url);
                 //blokuj dziwne strzały ze stora
                 if (url.split("&").length - 1 <= 2) {
                     if (onSuccess) {
                         onSuccess();
                     }
-                    console.log('Prevent store fetch, url: ' + url)
+                    ConsoleHelper('Prevent store fetch, url: ' + url)
                     return Promise.resolve(this.cachedLastResponse);
                 }
                 return this.fetch(
@@ -168,14 +138,4 @@ export default class DataGridStore extends BaseService {
         });
     }
 
-    isNotEmpty(value) {
-        return value !== undefined && value !== null && value !== '';
-    }
-
-    handleErrors(response) {
-        if (!response.ok) {
-            throw Error(response.statusText);
-        }
-        return response;
-    }
 }

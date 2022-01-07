@@ -541,4 +541,14 @@ body main div.container-fluid {
   color: $button-text-color !important;
 }
 
+.dx-show-clear-button .dx-icon-clear {
+  background-color: transparent;
+  top: 35% !important;
+}
+
+//fix dla blędu na node14
+iframe{
+  visibility: hidden;
+}
+
 @import 'edit_row';

@@ -17,10 +17,13 @@ import {localeOptions} from "primereact/api";
 import EditRowUtils from "../utils/EditRowUtils";
 import ConsoleHelper from "../utils/ConsoleHelper";
 import {LoadIndicator} from "devextreme-react";
+import {GridViewUtils} from "../utils/GridViewUtils";
+import LocUtils from "../utils/LocUtils";
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
         super(props);
+        this.refDataGrid = null;
         this.service = service;
         this.authService = new AuthService(this.props.backendUrl);
         this.scrollToFirstError = this.scrollToFirstError.bind(this);
@@ -48,6 +51,7 @@ class BaseContainer extends React.Component {
         this.handleAutoFillRowChange = this.handleAutoFillRowChange.bind(this);
         this.handleCancelRowChange = this.handleCancelRowChange.bind(this);
         this.handleEditListRowChange = this.handleEditListRowChange.bind(this);
+        this.getRealViewId = this.getRealViewId.bind(this);
         this.validator = new SimpleReactValidator();
         this._isMounted = false;
         this.jwtRefreshBlocked = false;
@@ -104,33 +108,33 @@ class BaseContainer extends React.Component {
     }
 
     showInfoMessage(detail, life = Constants.SUCCESS_MSG_LIFE, summary = 'Informacja') {
-        this.messages.show({
+        this.messages?.show({
             severity: 'info',
             life: Constants.SUCCESS_MSG_LIFE,
             summary: summary,
             content: (
                 <div className='p-flex p-flex-column' style={{flex: '1'}}>
-                    <Message severity={'info'} content={detail}></Message>
+                    <Message severity={'info'} content={detail}/>
                 </div>
             ),
         });
     }
 
     showWarningMessage(detail, life = Constants.ERROR_MSG_LIFE, summary = '') {
-        this.messages.show({
+        this.messages?.show({
             severity: 'warn',
             life: Constants.ERROR_MSG_LIFE,
             summary: summary,
             content: (
                 <div className='p-flex p-flex-column' style={{flex: '1'}}>
-                    <Message severity={'warn'} content={detail}></Message>
+                    <Message severity={'warn'} content={detail}/>
                 </div>
             ),
         });
     }
 
     showSuccessMessage(detail, life = Constants.SUCCESS_MSG_LIFE, summary = '') {
-        this.messages.show({
+        this.messages?.show({
             severity: 'success',
             life: life,
             summary: summary,
@@ -141,13 +145,13 @@ class BaseContainer extends React.Component {
 
     showResponseErrorMessage(errorResponse) {
         let title = "Błąd";
-        let message = "";
-        if (!!errorResponse.error) {
+        let message;
+        if (!!errorResponse?.error) {
             message = errorResponse.error?.message;
         } else {
             message = 'Wystąpił nieoczekiwany błąd';
         }
-        this.messages.show({
+        this.messages?.show({
             severity: 'error',
             sticky: false,
             closable: true,
@@ -158,8 +162,17 @@ class BaseContainer extends React.Component {
         this.unblockUi();
     }
 
+    showGlobalErrorMessage(err) {
+        console.error(err)
+        if (!!err.error) {
+            this.showResponseErrorMessage(err);
+        } else {
+            this.showErrorMessages(err);
+        }
+    }
+
     showErrorMessage(errMsg, life = Constants.ERROR_MSG_LIFE, closable = true, summary = 'Błąd!') {
-        this.messages.show({
+        this.messages?.show({
             severity: 'error',
             sticky: false,
             life: life,
@@ -230,7 +243,6 @@ class BaseContainer extends React.Component {
                         </div>
                     </div>
                 </React.Fragment>
-
             ),
             life: Constants.ERROR_MSG_LIFE,
             closable: true,
@@ -240,8 +252,8 @@ class BaseContainer extends React.Component {
 
     showMessage(severity, summary, detail, life = Constants.ERROR_MSG_LIFE, closable = true, errMsg) {
         if (this.messages !== undefined && this.messages !== null) {
-            this.messages.clear();
-            this.messages.show({
+            this.messages?.clear();
+            this.messages?.show({
                 severity,
                 summary,
                 detail,
@@ -271,7 +283,7 @@ class BaseContainer extends React.Component {
     handleChangeSetState(varName, varValue, onAfterStateChange, stateField, parameter) {
         if (stateField && stateField !== '') {
             const stateFieldArray = stateField.split('.');
-            let stateFieldValue = undefined;
+            let stateFieldValue;
             stateFieldValue = this.getValueInObjPath(stateFieldArray[0]);
             if (this._isMounted) {
                 if (parameter) {
@@ -776,18 +788,16 @@ class BaseContainer extends React.Component {
                 />
             );
         } else if (item.type === 'SUBMIT') {
-            return (
-                <button
-                    value={item.label}
-                    // eslint-disable-next-line max-len
-                    className={`p-button p-component p-button-text-only header-item ${item.className} ${item.variant} ${item.size}`}
-                    type='submit'
-                    rendered={item.rendered}
-                    disabled={item.disabled}
-                    key={item.label + index}
-                >
-                    <span className='p-button-text p-c'>{item.label}</span>
-                </button>
+            return (item.rendered ?
+                    <button
+                        value={item.label}
+                        // eslint-disable-next-line max-len
+                        className={`p-button p-component p-button-text-only header-item ${item.className} ${item.variant} ${item.size}`}
+                        type='submit'
+                        disabled={item.disabled}
+                        key={item.label + index}>
+                        <span className='p-button-text p-c'>{item.label}</span>
+                    </button> : null
             );
         } else {
             return (
@@ -913,27 +923,27 @@ class BaseContainer extends React.Component {
     }
 
     renderContent() {
-        return <React.Fragment></React.Fragment>;
+        return <React.Fragment/>;
     }
 
     renderHeaderRight() {
-        return <React.Fragment></React.Fragment>;
+        return <React.Fragment/>;
     }
 
     renderHeaderLeft() {
-        return <React.Fragment></React.Fragment>;
+        return <React.Fragment/>;
     }
 
     renderHeaderContent() {
-        return <React.Fragment></React.Fragment>;
+        return <React.Fragment/>;
     }
 
     renderHeadPanel() {
-        return <React.Fragment></React.Fragment>;
+        return <React.Fragment/>;
     }
 
     renderGlobalTop() {
-        return <React.Fragment></React.Fragment>
+        return <React.Fragment/>;
     }
 
     render() {
@@ -989,13 +999,19 @@ class BaseContainer extends React.Component {
         this.rowSave(viewId, recordId, parentId, saveElement, false);
     }
 
-    getRefGridView() {
-       return null;
+    refreshView() {
+        if (this.isCardView()) {
+            this.getCardGridView().current?.refresh(true);
+        } else {
+            if (!!this.getRefGridView()) {
+                this.getRefGridView().instance.getDataSource().reload();
+            }
+        }
     }
 
-    refreshGridView() {
-        if (!!this.getRefGridView()) {
-            this.getRefGridView().instance.refresh(true);
+    reloadOnlyDataGrid() {
+        if (this.isGridView() && !!this.getRefGridView()) {
+            this.getRefGridView().instance.getDataSource().reload();
         }
     }
 
@@ -1007,13 +1023,15 @@ class BaseContainer extends React.Component {
 
     rowSave = (viewId, recordId, parentId, saveElement, confirmSave) => {
         this.blockUi();
+        const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
         this.editService
-            .save(viewId, recordId, parentId, saveElement, confirmSave)
+            .save(viewId, recordId, parentId, kindView, saveElement, confirmSave)
             .then((saveResponse) => {
                 switch (saveResponse.status) {
                     case 'OK':
                         if (!!saveResponse.message) {
                             confirmDialog({
+                                appendTo: document.body,
                                 message: saveResponse?.message?.text,
                                 header: saveResponse?.message?.title,
                                 icon: 'pi pi-info-circle',
@@ -1033,6 +1051,7 @@ class BaseContainer extends React.Component {
                     case 'NOK':
                         if (!!saveResponse.question) {
                             confirmDialog({
+                                appendTo: document.body,
                                 message: saveResponse?.question?.text,
                                 header: saveResponse?.question?.title,
                                 icon: 'pi pi-question-circle',
@@ -1043,6 +1062,7 @@ class BaseContainer extends React.Component {
                             })
                         } else if (!!saveResponse.message) {
                             confirmDialog({
+                                appendTo: document.body,
                                 message: saveResponse?.message?.text,
                                 header: saveResponse?.message?.title,
                                 icon: 'pi pi-info-circle',
@@ -1063,15 +1083,156 @@ class BaseContainer extends React.Component {
                         }
                         break;
                 }
-                this.refreshGridView();
+                this.refreshView();
                 this.unblockUi();
             }).catch((err) => {
-            if (!!err.error) {
-                this.showResponseErrorMessage(err);
-            } else {
-                this.showErrorMessages(err);
-            }
+            this.showGlobalErrorMessage(err);
         });
+    }
+
+    delete(id) {
+        ConsoleHelper('handleDelete');
+        const viewId = this.getRealViewId();
+        confirmDialog({
+            appendTo: document.body,
+            message: LocUtils.loc(this.props.labels, 'Question_Delete_Label', 'Czy na pewno chcesz usunąć zaznaczone rekordy?'),
+            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
+            icon: 'pi pi-exclamation-triangle',
+            acceptLabel: localeOptions('accept'),
+            rejectLabel: localeOptions('reject'),
+            accept: () => {
+                this.blockUi();
+                const parentId = this.state.elementRecordId;
+                const selectedRowKeysIds = (id === undefined || id === null || id === '') ? this.state.selectedRowKeys.map((e) => {
+                    return e.ID;
+                }) : [id];
+                const kindView = this.state.elementKindView;
+                console.log(selectedRowKeysIds)
+                this.editService.delete(viewId, parentId, kindView, selectedRowKeysIds)
+                    .then((deleteResponse) => {
+                        this.unselectAllDataGrid();
+                        this.refreshView();
+                        const msg = deleteResponse.message;
+                        if (!!msg) {
+                            this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
+                        } else if (!!deleteResponse.error) {
+                            this.showResponseErrorMessage(deleteResponse);
+                        }
+                        this.unblockUi();
+                    }).catch((err) => {
+                    this.showGlobalErrorMessage(err);
+                })
+            },
+            reject: () => undefined,
+        })
+    }
+
+    copy(id) {
+        ConsoleHelper('handleCopy');
+        const viewId = this.getRealViewId();
+        confirmDialog({
+            appendTo: document.body,
+            message: LocUtils.loc(this.props.labels, 'Question_Copy_Label', 'Czy na pewno chcesz zkopiować zaznaczone rekordy?'),
+            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
+            icon: 'pi pi-exclamation-triangle',
+            acceptLabel: localeOptions('accept'),
+            rejectLabel: localeOptions('reject'),
+            accept: () => {
+                this.blockUi();
+                const parentId = this.state.elementRecordId;
+                const selectedRowKeysIds = (id === undefined || id === null || id === '') ? this.state.selectedRowKeys.map((e) => {
+                    return e.ID;
+                }) : [id];
+                const kindView = this.state.elementKindView;
+                this.editService.copy(viewId, parentId, kindView, selectedRowKeysIds)
+                    .then((copyResponse) => {
+                        this.unselectAllDataGrid();
+                        this.refreshView();
+                        const msg = copyResponse.message;
+                        if (!!msg) {
+                            this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
+                        } else if (!!copyResponse.error) {
+                            this.showResponseErrorMessage(copyResponse);
+                        }
+                        this.unblockUi();
+                    }).catch((err) => {
+                    this.showGlobalErrorMessage(err);
+                })
+            },
+            reject: () => undefined,
+        })
+    }
+
+    restore(id) {
+        ConsoleHelper('handleRestore');
+        const viewId = this.getRealViewId();
+        confirmDialog({
+            appendTo: document.body,
+            message: LocUtils.loc(this.props.labels, 'Question_Restore_Label', 'Czy na pewno chcesz przywrócić zaznaczone rekordy?'),
+            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
+            icon: 'pi pi-exclamation-triangle',
+            acceptLabel: localeOptions('accept'),
+            rejectLabel: localeOptions('reject'),
+            accept: () => {
+                this.blockUi();
+                const parentId = this.state.elementRecordId;
+                const selectedRowKeysIds = (id === undefined || id === null || id === '') ? this.state.selectedRowKeys.map((e) => {
+                    return e.ID;
+                }) : [id];
+                const kindView = this.state.elementKindView;
+                this.editService.restore(viewId, parentId, kindView, selectedRowKeysIds)
+                    .then((restoreResponse) => {
+                        this.unselectAllDataGrid();
+                        this.refreshView();
+                        const msg = restoreResponse.message;
+                        if (!!msg) {
+                            this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
+                        } else if (!!restoreResponse.error) {
+                            this.showResponseErrorMessage(restoreResponse);
+                        }
+                        this.unblockUi();
+                    }).catch((err) => {
+                    this.showGlobalErrorMessage(err);
+                })
+            },
+            reject: () => undefined,
+        })
+    }
+
+    archive(id) {
+        ConsoleHelper('handleArchive');
+        const viewId = this.getRealViewId();
+        confirmDialog({
+            appendTo: document.body,
+            message: LocUtils.loc(this.props.labels, 'Question_Archive_Label', 'Czy na pewno chcesz przenieść do archiwum zaznaczone rekordy?'),
+            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
+            icon: 'pi pi-exclamation-triangle',
+            acceptLabel: localeOptions('accept'),
+            rejectLabel: localeOptions('reject'),
+            accept: () => {
+                this.blockUi();
+                let parentId = this.state.elementRecordId;
+                const selectedRowKeysIds = (id === undefined || id === null || id === '') ? this.state.selectedRowKeys.map((e) => {
+                    return e.ID;
+                }) : [id];
+                const kindView = this.state.elementKindView;
+                this.editService.archive(viewId, parentId, kindView, selectedRowKeysIds)
+                    .then((archiveResponse) => {
+                        this.unselectAllDataGrid();
+                        this.refreshView();
+                        const msg = archiveResponse.message;
+                        if (!!msg) {
+                            this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
+                        } else if (!!archiveResponse.error) {
+                            this.showResponseErrorMessage(archiveResponse);
+                        }
+                        this.unblockUi();
+                    }).catch((err) => {
+                    this.showGlobalErrorMessage(err);
+                })
+            },
+            reject: () => undefined,
+        })
     }
 
     handleEditListRowChange(editInfo, editListData) {
@@ -1083,6 +1244,9 @@ class BaseContainer extends React.Component {
                 EditRowUtils.searchAndAutoFill(editData, element.fieldEdit, element.fieldValue);
             })
             this.setState({editData: editData, modifyEditData: true});
+            if (editInfo?.field?.refreshFieldVisibility) {
+                this.refreshFieldVisibility(editInfo);
+            }
         } catch (err) {
             this.showErrorMessages(err);
         } finally {
@@ -1090,12 +1254,12 @@ class BaseContainer extends React.Component {
         }
     }
 
-    handleAutoFillRowChange(viewId, recordId, parentId) {
-        ConsoleHelper(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
+    handleAutoFillRowChange(viewId, recordId, parentId, kindView) {
+        ConsoleHelper(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId} parentId = ${kindView}`)
         this.blockUi();
         const autofillBodyRequest = this.editService.createObjectToAutoFill(this.state);
         this.editService
-            .getEditAutoFill(viewId, recordId, parentId, autofillBodyRequest)
+            .getEditAutoFill(viewId, recordId, parentId, kindView, autofillBodyRequest)
             .then((editAutoFillResponse) => {
                 let arrayTmp = editAutoFillResponse?.data;
                 let editData = this.state.editData;
@@ -1106,7 +1270,7 @@ class BaseContainer extends React.Component {
                 this.unblockUi();
             })
             .catch((err) => {
-                this.showErrorMessages(err);
+                this.showGlobalErrorMessage(err);
             });
     }
 
@@ -1114,18 +1278,15 @@ class BaseContainer extends React.Component {
         ConsoleHelper(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
     }
 
-    handleEditRowChange(inputType, event, groupName, viewInfo, forceRefreshFieldVisibility = false) {
+    handleEditRowChange(inputType, event, groupName, info) {
         ConsoleHelper(`handleEditRowChange inputType=${inputType} groupName=${groupName}`);
-        ConsoleHelper(event)
         let editData = this.state.editData;
         let groupData = editData?.editFields?.filter((obj) => {
             return obj.groupName === groupName;
         });
         let varName;
         let varValue;
-        let startRefreshFieldVisibility = true;
-        console.clear();
-        ConsoleHelper(event)
+        let refreshFieldVisibility = false;
         if (event !== undefined) {
             switch (inputType) {
                 case 'IMAGE64':
@@ -1139,34 +1300,37 @@ class BaseContainer extends React.Component {
                 case 'CHECKBOX':
                     varName = event.target.name;
                     varValue = event.checked ? event.checked : false;
+                    refreshFieldVisibility = event.refreshFieldVisibility
                     break;
                 case 'EDITOR':
                     varName = event.name;
                     varValue = event.value || event.value === '' ? event.value : undefined;
-                    startRefreshFieldVisibility = false;
                     break;
                 case 'TEXT':
                 case 'AREA':
                     varName = event.target?.name;
                     varValue = event.target?.value || event.target?.value === '' ? event.target.value : undefined;
-                    startRefreshFieldVisibility = false;
+                    break;
+                case 'DATE':
+                case 'DATETIME':
+                case 'TIME':
+                    varName = event.target?.name;
+                    varValue = event.value || event.value === '' ? event.value : undefined;
                     break;
                 default:
                     varName = event.target?.name;
                     varValue = event.target?.value || event.target?.value === '' ? event.target.value : undefined;
                     break;
             }
-            ConsoleHelper('handleEditRowChange - ', inputType, varName, varValue);
-            let field = groupData[0]?.fields?.filter((obj) => {
+            let fieldArr = groupData[0]?.fields?.filter((obj) => {
                 return obj.fieldName === varName;
             });
-            if (!!field && !!field[0]) {
-                field[0].value = varValue;
+            let field = fieldArr[0];
+            if (!!fieldArr && !!field) {
+                field.value = varValue;
             }
-            if (!!field[0]
-                && !!field[0]?.selectionList
-                && (startRefreshFieldVisibility || forceRefreshFieldVisibility)) {
-                this.refreshFieldVisibility(viewInfo);
+            if (!!field && refreshFieldVisibility) {
+                this.refreshFieldVisibility(info);
             }
             this.setState({editData: editData, modifyEditData: true});
         } else {
@@ -1174,19 +1338,17 @@ class BaseContainer extends React.Component {
         }
     }
 
-    handleEditRowBlur(inputType, event, groupName, viewInfo) {
+    handleEditRowBlur(inputType, event, groupName, viewInfo, field) {
         ConsoleHelper(`handleEditRowBlur inputType=${inputType} groupName=${groupName}`);
-        if (inputType === 'EDITOR') {
-            this.refreshFieldVisibility(viewInfo);
-        } else {
-            this.handleEditRowChange(inputType, event, groupName, viewInfo, true);
-        }
+        this.handleEditRowChange(inputType, event, groupName, viewInfo, field);
     }
 
-    refreshFieldVisibility(viewInfo) {
+    refreshFieldVisibility(info) {
+        this.blockUi();
         const refreshObject = this.editService.createObjectToRefresh(this.state)
+        const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
         this.editService
-            .refreshFieldVisibility(viewInfo.viewId, viewInfo.recordId, viewInfo.parentId, refreshObject)
+            .refreshFieldVisibility(info.viewId, info.recordId, info.parentId, kindView, refreshObject)
             .then((editRefreshResponse) => {
                 let arrayTmp = editRefreshResponse?.data;
                 let editData = this.state.editData;
@@ -1194,10 +1356,11 @@ class BaseContainer extends React.Component {
                     EditRowUtils.searchAndRefreshVisibility(editData, element.fieldName, element.hidden);
                 })
                 this.setState({editData: editData});
-                this.unblockUi();
-            })
-            .catch((err) => { //zjadam
-            });
+            }).catch((err) => {
+            this.showGlobalErrorMessage(err);
+        }).finally(() => {
+            this.unblockUi();
+        });
     }
 
     handleShowEditPanel(editDataResponse) {
@@ -1208,6 +1371,33 @@ class BaseContainer extends React.Component {
         });
         this.unblockUi();
     }
+
+    getRefGridView() {
+        return !!this.refDataGrid ? this.refDataGrid : null;
+    }
+
+    getCardGridView() {
+        return !!this.refCardGrid ? this.refCardGrid : null;
+    }
+
+    getRealViewId() {
+        const {elementSubViewId} = this.state;
+        const elementId = this.props.id;
+        return GridViewUtils.getRealViewId(elementSubViewId, elementId)
+    }
+
+    isGridView() {
+        return this.state.gridViewType === 'gridView';
+    }
+
+    isCardView() {
+        return this.state.gridViewType === 'cardView';
+    }
+
+    isDashboard() {
+        return this.state.gridViewType === 'dashboard';
+    }
+
 }
 
 BaseContainer.defaultProps = {

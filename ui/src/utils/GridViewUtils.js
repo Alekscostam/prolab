@@ -10,7 +10,9 @@ let _fontcolor = null;
 export class GridViewUtils {
     static containsOperationButton(operations, type) {
         for (let button in operations) {
-            if (operations[button].type === type) {
+            if (operations[button]
+                && operations[button].type
+                && operations[button].type.toUpperCase() === type.toUpperCase()) {
                 return operations[button];
             }
         }
@@ -24,7 +26,7 @@ export class GridViewUtils {
             let arrURLParams = arrParams[1].split('&');
             let arrParamNames = new Array(arrURLParams.length);
             let arrParamValues = new Array(arrURLParams.length);
-            let i = 0;
+            let i;
             for (i = 0; i < arrURLParams.length; i++) {
                 let sParam = arrURLParams[i].split('=');
                 arrParamNames[i] = sParam[0];
@@ -152,12 +154,12 @@ export class GridViewUtils {
                 }
             }
             let fontColorFinal = 'black';
-            if (!!_fontcolor) {
-                fontColorFinal = _fontcolor;
+            const specialFontColor = info.data['_FONTCOLOR_' + info.column?.dataField];
+            if (!!specialFontColor) {
+                fontColorFinal = specialFontColor;
             } else {
-                const specialFontColor = info.data['_FONTCOLOR_' + info.column?.dataField];
-                if (!!specialFontColor) {
-                    fontColorFinal = specialFontColor;
+                if (!!_fontcolor) {
+                    fontColorFinal = _fontcolor;
                 }
             }
             switch (column?.type) {
@@ -188,7 +190,7 @@ export class GridViewUtils {
                         // 'display: inline; ' +
                         'border-radius: 25px; ' +
                         'padding: 2px 6px 2px 6px; ' +
-                        'background-color: ' + bgColorFinal +'; '+
+                        'background-color: ' + bgColorFinal + '; ' +
                         'color: ' + fontColorFinal + ';">' + info.text + '' +
                         '</div>'
                     break;
@@ -204,7 +206,8 @@ export class GridViewUtils {
                             }}
                             title={info.text}
                         >
-                            <input type="checkbox" readOnly={true} checked={GridViewUtils.conditionForTrueValueForBoolType(info.text)}/>
+                            <input type="checkbox" readOnly={true}
+                                   checked={GridViewUtils.conditionForTrueValueForBoolType(info.text)}/>
                         </div>,
                         element
                     );
@@ -220,7 +223,8 @@ export class GridViewUtils {
                             }}
                             title={info.text}
                         >
-                            <input type="checkbox" readOnly={true} checked={GridViewUtils.conditionForTrueValueForLogicType(info.text)}/>
+                            <input type="checkbox" readOnly={true}
+                                   checked={GridViewUtils.conditionForTrueValueForLogicType(info.text)}/>
                         </div>,
                         element
                     );
@@ -308,9 +312,11 @@ export class GridViewUtils {
         } else {
             num2 = parseInt(n2);
         }
-        const result = num1 === num2;
-        // ConsoleHelper('equalNumbers: result=' + result + ' [' + n1 + ', ' + n2 + '] [' + typeof n1 + ', ' + typeof n2 + ']' );
-        return result;
+        return num1 === num2;
+    }
+
+    static notEqualNumbers(n1, n2) {
+        return !GridViewUtils.equalNumbers(n1, n2)
     }
 
     static getDefaultSortOrder(value) {
@@ -328,8 +334,7 @@ export class GridViewUtils {
     }
 
     static getRealViewId(elementSubViewId, elementId) {
-        const viewId = elementSubViewId ? elementSubViewId : elementId;
-        return viewId
+        return elementSubViewId ? elementSubViewId : elementId
     }
 
 }

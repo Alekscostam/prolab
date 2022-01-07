@@ -33,6 +33,8 @@ export class EditRowUtils {
         switch (type) {
             case 'C'://C – Znakowy
                 return 'text_field_';
+            case 'P'://C – hasło
+                return 'password_';
             case "N"://N – Numeryczny/Liczbowy
                 return 'number_field_';
             case 'B'://B – Logiczny (0/1)

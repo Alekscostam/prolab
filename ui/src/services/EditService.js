@@ -1,4 +1,6 @@
 import BaseService from "./BaseService";
+import MockService from "./MockService";
+import moment from "moment";
 
 /*
 Kontroler do edycji danych.
@@ -23,16 +25,37 @@ export default class EditService extends BaseService {
         this.createObjectToEditList = this.createObjectToEditList.bind(this);
     }
 
-    getEdit(viewId, recordId, parentId) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}${parentId ? `?parentId=${parentId}` : ''}`, {
+    getEdit(viewId, recordId, parentId, kindView) {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
             method: 'GET',
+        }).then(editDataResponse => {
+            for (let editField of editDataResponse?.editFields) {
+                for (let field of editField.fields) {
+                    if (field?.type) {
+                        field.value = MockService.getFieldValueOrMock(field.value, 'value');
+                        switch (field.type) {
+                            case 'D':
+                                field.value = new Date(moment(field.value, 'YYYY-MM-DD'));
+                                break;
+                            case 'E':
+                                field.value = new Date(moment(field.value, 'YYYY-MM-DD HH:mm'));
+                                break;
+                            case 'T':
+                                field.value = new Date(moment(field.value, 'HH:mm'));
+                                break;
+                            default:
+                        }
+                    }
+                }
+            }
+            return Promise.resolve(editDataResponse);
         }).catch((err) => {
             throw err;
         });
     }
 
-    getEditAutoFill(viewId, recordId, parentId, element) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}/AutoFill${parentId ? `?parentId=${parentId}` : ''}`, {
+    getEditAutoFill(viewId, recordId, parentId, kindView, element) {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}/AutoFill${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
             method: 'POST',
             body: JSON.stringify(element),
         }).catch((err) => {
@@ -40,8 +63,8 @@ export default class EditService extends BaseService {
         });
     }
 
-    getEditList(viewId, recordId, parentId, fieldId, element) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}/list/${fieldId}${parentId ? `?parentId=${parentId}` : ''}`, {
+    getEditList(viewId, recordId, parentId, fieldId, kindView, element) {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}/list/${fieldId}${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
             method: 'POST',
             body: JSON.stringify(element),
         }).catch((err) => {
@@ -49,19 +72,20 @@ export default class EditService extends BaseService {
         });
     }
 
-    refreshFieldVisibility(viewId, recordId, parentId, refreshElement) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}/RefreshFieldVisibility${parentId ? `?parentId=${parentId}` : ''}`, {
+    refreshFieldVisibility(viewId, recordId, parentId, kindView, element) {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}/RefreshFieldVisibility${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
             method: 'POST',
-            body: JSON.stringify(refreshElement),
+            body: JSON.stringify(element),
         }).catch((err) => {
             throw err;
         });
     }
 
-    save(viewId, recordId, parentId, elementToSave, confirmSave) {
+    save(viewId, recordId, parentId, kindView, elementToSave, confirmSave) {
         const queryString = this.objToQueryString({
             parentId: parentId,
-            confirmSave: confirmSave
+            confirmSave: confirmSave,
+            kindView: parentId && kindView ? kindView : undefined
         });
         return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}/Save${queryString}`, {
             method: 'POST',
@@ -71,37 +95,49 @@ export default class EditService extends BaseService {
         });
     }
 
-    delete(viewId, selectedIds) {
-        let queryString = []
-        for (const id in selectedIds) {
-            queryString.push(`recordID=${selectedIds[id]}`);
+    delete(viewId, parentId, kindView, selectedIds) {
+        let queryStringTmp = []
+        if (!!parentId) {
+            queryStringTmp.push(`parentId=${parentId}`);
         }
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Delete/?${queryString.join('&')}`, {
+        if (!!parentId && !!kindView) {
+            queryStringTmp.push(`kindView=${kindView}`);
+        }
+        for (const id in selectedIds) {
+            queryStringTmp.push(`recordID=${selectedIds[id]}`);
+        }
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Delete?${queryStringTmp.join('&')}`, {
             method: 'DELETE',
         }).catch((err) => {
             throw err;
         });
     }
 
-    archive(viewId, parentId, selectedIds) {
-        let queryString = []
-        if (parentId !== undefined && parentId !== null && parentId !== "") {
-            queryString.push(`parentId=${parentId}`);
+    archive(viewId, parentId, kindView, selectedIds) {
+        let queryStringTmp = []
+        if (!!parentId) {
+            queryStringTmp.push(`parentId=${parentId}`);
+        }
+        if (!!parentId && !!kindView) {
+            queryStringTmp.push(`kindView=${kindView}`);
         }
         for (const id in selectedIds) {
-            queryString.push(`recordID=${selectedIds[id]}`);
+            queryStringTmp.push(`recordID=${selectedIds[id]}`);
         }
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Archive/?${queryString.join('&')}`, {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Archive?${queryStringTmp.join('&')}`, {
             method: 'POST',
         }).catch((err) => {
             throw err;
         });
     }
 
-    copy(viewId, parentId, selectedIds, numberOfCopies, headerCopy, specCopy, specWithValuesCopy) {
+    copy(viewId, parentId, kindView, selectedIds, numberOfCopies, headerCopy, specCopy, specWithValuesCopy) {
         let queryStringTmp = []
-        if (parentId !== undefined && parentId !== null && parentId !== "") {
+        if (!!parentId) {
             queryStringTmp.push(`parentId=${parentId}`);
+        }
+        if (!!parentId && !!kindView) {
+            queryStringTmp.push(`kindView=${kindView}`);
         }
         for (const id in selectedIds) {
             queryStringTmp.push(`recordID=${selectedIds[id]}`);
@@ -113,19 +149,25 @@ export default class EditService extends BaseService {
             specWithValuesCopy: specWithValuesCopy
         }) || [];
         queryStringTmp = queryStringTmp.concat(queryStringParams);
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Copy/?${queryStringTmp.join('&')}`, {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Copy?${queryStringTmp.join('&')}`, {
             method: 'POST',
         }).catch((err) => {
             throw err;
         });
     }
 
-    restore(viewId, selectedIds) {
-        let queryString = []
-        for (const id in selectedIds) {
-            queryString.push(`recordID=${selectedIds[id]}`);
+    restore(viewId, parentId, kindView, selectedIds) {
+        let queryStringTmp = []
+        if (!!parentId) {
+            queryStringTmp.push(`parentId=${parentId}`);
         }
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Restore/${queryString}`, {
+        if (!!parentId && !!kindView) {
+            queryStringTmp.push(`kindView=${kindView}`);
+        }
+        for (const id in selectedIds) {
+            queryStringTmp.push(`recordID=${selectedIds[id]}`);
+        }
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Restore?${queryStringTmp.join('&')}`, {
             method: 'POST',
         }).catch((err) => {
             throw err;
@@ -138,6 +180,7 @@ export default class EditService extends BaseService {
         editData.editFields?.forEach(groupFields => {
             groupFields?.fields.forEach(field => {
                 // if (field.hidden != true) {
+                field = this.convertFieldsPerType(field);
                 const elementTmp = {
                     fieldName: field.fieldName,
                     value: field.value
@@ -155,6 +198,7 @@ export default class EditService extends BaseService {
         editData.editFields?.forEach(groupFields => {
             groupFields?.fields.forEach(field => {
                 // if (field.autoFill == true) {
+                field = this.convertFieldsPerType(field);
                 const elementTmp = {
                     fieldName: field.fieldName,
                     value: field.value
@@ -171,6 +215,7 @@ export default class EditService extends BaseService {
         let arrayTmp = [];
         editData.editFields?.forEach(groupFields => {
             groupFields?.fields.forEach(field => {
+                field = this.convertFieldsPerType(field);
                 const elementTmp = {
                     fieldName: field.fieldName,
                     value: field.value
@@ -185,6 +230,7 @@ export default class EditService extends BaseService {
         let arrayTmp = [];
         editData.editFields?.forEach(groupFields => {
             groupFields?.fields.forEach(field => {
+                field = this.convertFieldsPerType(field);
                 const elementTmp = {
                     fieldName: field.fieldName,
                     value: field.value
@@ -194,4 +240,35 @@ export default class EditService extends BaseService {
         })
         return {data: arrayTmp};
     }
+
+    convertFieldsPerType(field) {
+        try {
+            if (field?.type) {
+                switch (field.type) {
+                    case 'D':
+                        field.value = this.dateFormatAndKeepCorrectness(field.value, 'YYYY-MM-DD');
+                        break;
+                    case 'E':
+                        field.value = this.dateFormatAndKeepCorrectness(field.value, 'YYYY-MM-DD HH:mm');
+                        break;
+                    case 'T':
+                        field.value = this.dateFormatAndKeepCorrectness(field.value, 'HH:mm');
+                        break;
+                    default:
+                }
+            }
+        } catch (err) {
+        }
+        return field;
+    }
+
+    dateFormatAndKeepCorrectness(fieldValue, format) {
+        if (fieldValue === null
+            || fieldValue === ''
+            || !(fieldValue instanceof Date && !isNaN(fieldValue))) {
+            return '';
+        }
+        return moment(new Date(fieldValue)).format(format);
+    }
+
 }

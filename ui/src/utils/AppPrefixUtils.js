@@ -1,8 +1,8 @@
-import {readCookieGlobal} from './Cookie';
+import {readObjFromCookieGlobal} from './Cookie';
 
 class AppPrefixUtils {
     static locationHrefUrl(url) {
-        const REACT_APP_URL_PREFIX = readCookieGlobal('REACT_APP_URL_PREFIX');
+        const REACT_APP_URL_PREFIX = readObjFromCookieGlobal('REACT_APP_URL_PREFIX');
         // ConsoleHelper('REACT_APP_URL_PREFIX', REACT_APP_URL_PREFIX);
         if (url === undefined || url === null) {
             return url;

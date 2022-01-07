@@ -11,7 +11,7 @@ import PropTypes from "prop-types";
 import EditService from "../../services/EditService";
 import ConsoleHelper from "../../utils/ConsoleHelper";
 
-class CardViewComponent extends React.Component {
+class DashboardCardViewComponent extends React.Component {
 
     constructor(props) {
         super(props);
@@ -42,7 +42,6 @@ class CardViewComponent extends React.Component {
         }
         return styleTile;
     }
-
 
     render() {
         const padding = 2;
@@ -79,11 +78,13 @@ class CardViewComponent extends React.Component {
                     let oppEdit = GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_EDIT');
                     let oppSubview = GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_SUBVIEWS');
                     const elementSubViewId = this.props.elementSubViewId;
+                    const elementKindView = this.props.elementKindView;
                     const elementId = this.props.id;
                     const viewId = GridViewUtils.getRealViewId(elementSubViewId, elementId);
                     const recordId = rowData.ID;
                     const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
                     const subviewId = elementSubViewId ? elementId : undefined;
+
                     setTimeout(() => {
                         const cardHeight = this.props.parsedGridView?.cardOptions?.heigh ?? 200;
                         var p = $(`#${recordId} .card-grid-body-content`);
@@ -118,7 +119,7 @@ class CardViewComponent extends React.Component {
                                                     let result = this.props.handleBlockUi();
                                                     if (result) {
                                                         this.editService
-                                                            .getEdit(viewId, recordId, subviewId)
+                                                            .getEdit(viewId, recordId, subviewId, elementKindView)
                                                             .then((editDataResponse) => {
                                                                 this.props.handleShowEditPanel(editDataResponse);
                                                             })
@@ -129,13 +130,6 @@ class CardViewComponent extends React.Component {
                                                 }}
                                                 rendered={showEditButton && oppEdit}
                                             />
-                                            <ActionButtonWithMenu
-                                                id={`${recordId}_more_shortcut`}
-                                                className={`action-button-with-menu`}
-                                                iconName='mdi-dots-vertical'
-                                                items={menuItems}
-                                                rendered={showMenu}
-                                            />
                                             <ShortcutButton
                                                 id={`${recordId}_menu_button`}
                                                 className={`action-button-with-menu`}
@@ -145,6 +139,13 @@ class CardViewComponent extends React.Component {
                                                 href={AppPrefixUtils.locationHrefUrl(
                                                     `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${!!currentBreadcrumb ? currentBreadcrumb : ``}`
                                                 )}
+                                            />
+                                            <ActionButtonWithMenu
+                                                id={`${recordId}_more_shortcut`}
+                                                className={`action-button-with-menu`}
+                                                iconName='mdi-dots-vertical'
+                                                items={menuItems}
+                                                rendered={showMenu}
                                             />
                                         </div>
                                     ) : null}
@@ -202,7 +203,7 @@ class CardViewComponent extends React.Component {
     }
 }
 
-CardViewComponent.defaultProps = {
+DashboardCardViewComponent.defaultProps = {
     parsedGridView: true,
     parsedCardViewData: false,
     selectedRowKeys: [],
@@ -210,11 +211,12 @@ CardViewComponent.defaultProps = {
     mode: 'view'
 };
 
-CardViewComponent.propTypes = {
+DashboardCardViewComponent.propTypes = {
     mode: PropTypes.string.isRequired,
     parsedGridView: PropTypes.object.isRequired,
     parsedCardViewData: PropTypes.object.isRequired,
     elementSubViewId: PropTypes.object,
+    elementKindView: PropTypes.string,
     handleOnInitialized: PropTypes.func.isRequired,
     handleShowEditPanel: PropTypes.func.isRequired,
     handleBlockUi: PropTypes.func.isRequired,
@@ -223,4 +225,4 @@ CardViewComponent.propTypes = {
     handleSelectedRowKeys: PropTypes.func,
 };
 
-export default CardViewComponent;
+export default DashboardCardViewComponent;

@@ -5,11 +5,10 @@ import $ from 'jquery';
 import {Button} from 'primereact/button';
 import * as PropTypes from 'prop-types';
 import React from 'react';
-import {FaAngleDoubleRight, FaAngleRight, FaBars, FaSignOutAlt} from 'react-icons/fa';
+import {FaAngleRight, FaBars, FaSignOutAlt} from 'react-icons/fa';
 import {Menu, MenuItem, ProSidebar, SidebarContent, SidebarFooter, SidebarHeader, SubMenu} from 'react-pro-sidebar';
 import {withRouter} from 'react-router-dom';
 import packageJson from '../../../package.json';
-import BlockUi from '../../components/waitPanel/BlockUi';
 import MenuService from '../../services/MenuService';
 import ViewService from '../../services/ViewService';
 import Image from '../../components/Image';
@@ -100,23 +99,23 @@ class Sidebar extends React.Component {
         const viewId = UrlUtils.getViewIdFromURL();
         ConsoleHelper('sidebar => componentDidUpdate', viewId, prevState.viewId);
         if (prevState.viewId !== viewId) {
-            this.setState({viewId});
-        }
-        if (!!viewId) {
-            setTimeout(() => {
-                const menuItem = $('#menu_item_id_' + viewId);
-                ConsoleHelper('sidebar => menuItem.hasClass(active)', menuItem.hasClass('active'), menuItem)
-                if (!menuItem.hasClass('active')) {
-                    menuItem.addClass('active');
+            this.setState({viewId}, () => {
+                if (!!viewId) {
+                    setTimeout(() => {
+                        const menuItem = $('#menu_item_id_' + viewId);
+                        if (!menuItem.hasClass('active')) {
+                            menuItem.addClass('active');
+                        }
+                        if (!menuItem.find('.pro-inner-item').hasClass('active')) {
+                            menuItem.find('.pro-inner-item').addClass('active');
+                        }
+                        ConsoleHelper('sidebar => menuItem', menuItem)
+                        const subMenuItem = menuItem.closest('div').parent();
+                        subMenuItem.removeClass('closed');
+                        // subMenuItem.height('fit-content');
+                    }, 10);
                 }
-                if (!menuItem.find('.pro-inner-item').hasClass('active')) {
-                    menuItem.find('.pro-inner-item').addClass('active');
-                }
-                ConsoleHelper('sidebar => menuItem', menuItem)
-                const subMenuItem = menuItem.closest('div').parent();
-                subMenuItem.removeClass('closed');
-                // subMenuItem.height('fit-content');
-            }, 10);
+            });
         }
     }
 
@@ -153,7 +152,7 @@ class Sidebar extends React.Component {
                 loading: true,
             },
             () => {
-                this.props.handleLogoutUser(false);
+                this.props.handleLogoutUser(true);
             }
         );
     }
@@ -167,6 +166,7 @@ class Sidebar extends React.Component {
                 } else {
                     $('.pro-sidebar-inner').css('position', 'fixed');
                 }
+                this.props.handleCollapseChange(this.state.collapsed);
             }
         );
     }
@@ -213,6 +213,20 @@ class Sidebar extends React.Component {
         this.setState((prevState) => ({toggled: !prevState.toggled}));
     }
 
+    displayIcon(item) {
+        if (!!item.iconCode) {
+            if (item.iconCode.indexOf('F') === 0) {
+                return <i className={`mdi-styles`}>{String.fromCodePoint(parseInt(item.iconCode, 16))}</i>
+            } else {
+                return <i className={`icon mdi ${item.iconCode}`}/>
+            }
+        } else if (!!item.icon) {
+            return <Image alt={item.name} base64={item.icon}/>
+        } else {
+            return <FaAngleRight/>
+        }
+    }
+
     render() {
         ConsoleHelper('sidebar => render', this.state.viewId);
         let {authService} = this.props;
@@ -247,13 +261,7 @@ class Sidebar extends React.Component {
                                         id={`menu_item_id_${item.id}`}
                                         key={`menu_item_key_${item.id}`}
                                         className={activeItem ? 'active' : ''}
-                                        icon={
-                                            item.icon === undefined || item.icon === '' ? (
-                                                <FaAngleRight/>
-                                            ) : (
-                                                <Image alt={item.name} base64={item.icon}/>
-                                            )
-                                        }
+                                        icon={this.displayIcon(item)}
                                         onClick={() => {
                                             this.doNotUpdate = true;
                                         }}
@@ -278,13 +286,7 @@ class Sidebar extends React.Component {
                             ) : (
                                 <SubMenu
                                     key={`menu_sub_${item.id}`}
-                                    icon={
-                                        item.icon === undefined || item.icon === '' ? (
-                                            <FaAngleDoubleRight/>
-                                        ) : (
-                                            <Image alt={item.name} base64={item.icon}/>
-                                        )
-                                    }
+                                    icon={this.displayIcon(item)}
                                     className={activeItem ? 'active' : ''}
                                     defaultOpen={activeItem}
                                     title={item?.name}
@@ -331,52 +333,51 @@ class Sidebar extends React.Component {
 
         return (
             <React.Fragment>
-                <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
-                    <div className='btn-toggle' onClick={() => this.handleToggleSidebar()}>
-                        <FaBars/>
-                    </div>
-                    <ProSidebar
-                        collapsed={this.state.collapsed}
-                        toggled={this.state.toggled}
-                        breakPoint='md'
-                        onToggle={() => this.handleToggleSidebar()}
-                        className={this.state.collapsed ? 'pro-sidebar-layout-light' : 'pro-sidebar-layout-dark'}
-                    >
-                        <SidebarHeader>
-                            <div id={'menu-title'} className={'col-12'}>
-                                <div className='row'>
-                                    <div className={'col-9'}>
-                                        {this.state.collapsed ? null : (
-                                            <div
-                                                style={{
-                                                    padding: '15px',
-                                                    overflow: 'hidden',
-                                                    textOverflow: 'ellipsis',
-                                                    color: 'white',
-                                                    textAlign: 'left',
-                                                }}
-                                            >
-                                                <img
-                                                    height={'25px'}
-                                                    src={`./images/login_logo.svg`}
-                                                    alt='Prolab'
-                                                    className='prolab-logo'
-                                                />
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className={'col-1'}>
-                                        <Button
-                                            id='buttonCollapsed'
-                                            className='p-button-text p-button-icon-only'
-                                            icon='pi pi-bars'
-                                            iconPos='right'
-                                            onClick={this.handleCollapseChange}
-                                        />
-                                    </div>
+                <div className='btn-toggle' onClick={() => this.handleToggleSidebar()}>
+                    <FaBars/>
+                </div>
+                <ProSidebar
+                    collapsed={this.state.collapsed}
+                    toggled={this.state.toggled}
+                    breakPoint='md'
+                    onToggle={() => this.handleToggleSidebar()}
+                    className={this.state.collapsed ? 'pro-sidebar-layout-light' : 'pro-sidebar-layout-dark'}
+                >
+                    <SidebarHeader>
+                        <div id={'menu-title'} className={'col-12'}>
+                            <div className='row'>
+                                <div className={'col-9'}>
+                                    {this.state.collapsed ? null : (
+                                        <div
+                                            style={{
+                                                padding: '15px',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                color: 'white',
+                                                textAlign: 'left',
+                                            }}
+                                        >
+                                            <img
+                                                height={'25px'}
+                                                src={`./images/login_logo.svg`}
+                                                alt='Prolab'
+                                                className='prolab-logo'
+                                            />
+                                        </div>
+                                    )}
                                 </div>
-                                <div className='row mb-2' style={collapsed ? {display: 'none'} : {}}>
-                                    <div className='col-md-12'>
+                                <div className={'col-1'}>
+                                    <Button
+                                        id='buttonCollapsed'
+                                        className='p-button-text p-button-icon-only'
+                                        icon='pi pi-bars'
+                                        iconPos='right'
+                                        onClick={this.handleCollapseChange}
+                                    />
+                                </div>
+                            </div>
+                            <div className='row mb-2' style={collapsed ? {display: 'none'} : {}}>
+                                <div className='col-md-12'>
                                         <span id='menu-search-span' className='p-input-icon-left p-input-icon-right'>
                                             <i className='pi pi-search'/>
                                             <InputText
@@ -405,54 +406,54 @@ class Sidebar extends React.Component {
                                                 }}
                                             />
                                         </span>
-                                    </div>
                                 </div>
                             </div>
-                            {collapsed ? (
-                                <div id='mini-search-panel'>
-                                    <ActionButton
-                                        id='mini-search-button'
-                                        iconName='mdi-magnify'
-                                        title={labels['Menu_Search']}
-                                        handleClick={() => {
-                                            this.handleCollapseChange();
-                                            $(document).ready(function () {
-                                                $('#filterValue').focus();
-                                            });
-                                        }}
-                                        label={"Wyszukaj"}
-                                    />
-                                </div>
-                            ) : null}
-                        </SidebarHeader>
+                        </div>
+                        {collapsed ? (
+                            <div id='mini-search-panel'>
+                                <ActionButton
+                                    id='mini-search-button'
+                                    iconName='mdi-magnify'
+                                    title={labels['Menu_Search']}
+                                    label={''}
+                                    handleClick={() => {
+                                        this.handleCollapseChange();
+                                        $(document).ready(function () {
+                                            $('#filterValue').focus();
+                                        });
+                                    }}
+                                />
+                            </div>
+                        ) : null}
+                    </SidebarHeader>
 
-                        <DynamicMenu id='dynamic-menu' key='dynamic-menu-key' data={dynamicMenuJSON}/>
+                    <DynamicMenu id='dynamic-menu' key='dynamic-menu-key' data={dynamicMenuJSON}/>
 
-                        <SidebarFooter id={'menu-footer'} style={{textAlign: 'center'}}>
-                            <div id={'user-credentials'} className={'col-12'}>
-                                <div className='row mt-3 mb-2'>
-                                    <Avatar base64={avatar} userName={userName} collapsed={collapsed}/>
-                                </div>
+                    <SidebarFooter id={'menu-footer'} style={{textAlign: 'center'}}>
+                        <div id={'user-credentials'} className={'col-12'}>
+                            <div className='row mt-3 mb-2'>
+                                <Avatar base64={avatar} userName={userName} collapsed={collapsed}/>
                             </div>
-                            <div id={'logout_button'} className='sidebar-btn-wrapper' style={{padding: '5px 24px'}}>
-                                <div
-                                    onClick={this.handleLogoutUser}
-                                    className='sidebar-btn'
-                                    rel='noopener noreferrer'
-                                    style={{textAlign: 'center'}}
-                                >
-                                    <FaSignOutAlt/>
-                                    <span>{labels['Menu_Logout']}</span>
-                                </div>
+                        </div>
+                        <div id={'logout_button'} className='sidebar-btn-wrapper' style={{padding: '5px 24px'}}>
+                            <div
+                                onClick={this.handleLogoutUser}
+                                className='sidebar-btn'
+                                rel='noopener noreferrer'
+                                style={{textAlign: 'center'}}
+                            >
+                                <FaSignOutAlt/>
+                                <span>{labels['Menu_Logout']}</span>
                             </div>
+                        </div>
+                        {!collapsed ? (
                             <div
                                 id={'version'}
                                 className={'to-right'}
                                 style={{marginRight: '5px'}}
-                            >{`ver: ${packageJson.version}_${this.state.uiVersion?.buildNumber} api: ${this.state.versionAPI}`}</div>
-                        </SidebarFooter>
-                    </ProSidebar>
-                </BlockUi>
+                            >{`ver: ${packageJson.version}_${this.state.uiVersion?.buildNumber} api: ${this.state.versionAPI}`}</div>) : null}
+                    </SidebarFooter>
+                </ProSidebar>
             </React.Fragment>
         );
     }
@@ -460,6 +461,7 @@ class Sidebar extends React.Component {
 
 Sidebar.propTypes = {
     labels: PropTypes.array.isRequired,
+    handleCollapseChange: PropTypes.func.isRequired,
     loggedUser: PropTypes.any,
     handleLogoutUser: PropTypes.any,
     authService: PropTypes.any,

@@ -3,17 +3,10 @@
 /* eslint-disable react/jsx-max-props-per-line */
 import React from 'react';
 import PropTypes from 'prop-types';
-import ShortcutButton from "./ShortcutButton";
-import {GridViewUtils} from "../../utils/GridViewUtils";
-//OP_DELETE
-//OP_RESTORE
-//OP_COPY
-//OP_ARCHIVE
+import OperationRecordButtons from "./OperationRecordButtons";
+//Komponent wyświetlający górną ramkę i okalający wszystkie przyciski, filtry ....
 export const HeadPanel = props => {
-    const opDelete = GridViewUtils.containsOperationButton(props.operations, 'OP_DELETE');
-    const opRestore = GridViewUtils.containsOperationButton(props.operations, 'OP_RESTORE');
-    const opCopy = GridViewUtils.containsOperationButton(props.operations, 'OP_COPY');
-    const opArchive = GridViewUtils.containsOperationButton(props.operations, 'OP_ARCHIVE');
+
     return (<React.Fragment>
         <div id="grid-selection-panel"
              className={props.selectedRowKeys?.length > 0 ? "d-flex flex-row grid-selection-panel grid-selection-panel-selection"
@@ -24,45 +17,20 @@ export const HeadPanel = props => {
                         {props.leftContent}
                     </div>
                 </React.Fragment>}
-
             {props.selectedRowKeys?.length > 0 ?
                 <React.Fragment>
                     <div id="grid-panel-selection" className="grid-panel-selection">
+                        <div id="grid-separator" className="p-1 grid-separator-fragment"/>
                         <div id="grid-count-panel"
                              className="grid-count-fragment center-text-in-div">Pozycje: {props.selectedRowKeys.length | 0}</div>
-                        <div id="grid-separator" className="p-1 grid-separator-fragment"></div>
+                        <div id="grid-separator" className="p-1 grid-separator-fragment"/>
                         <div id="grid-buttons-fragment" className="p-1 grid-buttons-fragment">
-                            <ShortcutButton className={`grid-button-panel mr-2`}
-                                            handleClick={(e) => props.handleDelete(e)}
-                                            iconName="mdi-delete"
-                                            iconSide="left"
-                                            title={opDelete?.label}
-                                            rendered={opDelete}
-                            />
-
-                            <ShortcutButton className={`grid-button-panel mr-2`}
-                                            handleClick={(e) => props.handleRestore(e)}
-                                            iconName="mdi-restore"
-                                            iconSide="left"
-                                            rendered={opRestore}
-                                            title={opRestore?.label}
-                            />
-
-                            <ShortcutButton className={`grid-button-panel mr-2`}
-                                            handleClick={(e) => props.handleCopy(e)}
-                                            iconName="mdi-content-copy"
-                                            iconSide="left"
-                                            rendered={opCopy}
-                                            title={opCopy?.label}
-                            />
-
-                            <ShortcutButton className={`grid-button-panel mr-2`}
-                                            handleClick={(e) => props.handleArchive(e)}
-                                            iconName="mdi-archive"
-                                            iconSide="left"
-                                            rendered={opArchive}
-                                            title={opArchive?.label}
-                            />
+                            <OperationRecordButtons labels={props.labels}
+                                                    operation={props.operations}
+                                                    handleRestore={(e) => props.handleRestore(e)}
+                                                    handleDelete={(e) => props.handleDelete(e)}
+                                                    handleCopy={(e) => props.handleCopy(e)}
+                                                    handleArchive={(e) => props.handleArchive(e)}/>
                         </div>
                     </div>
                 </React.Fragment> : null}
@@ -79,6 +47,7 @@ export const HeadPanel = props => {
 HeadPanel.defaultProps = {};
 
 HeadPanel.propTypes = {
+    labels: PropTypes.object.isRequired,
     selectedRowKeys: PropTypes.array.isRequired,
     operations: PropTypes.array.isRequired,
     handleDelete: PropTypes.func.isRequired,

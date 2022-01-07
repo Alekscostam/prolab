@@ -114,7 +114,9 @@ class LoginContainer extends BaseContainer {
         if (this.authService.loggedIn()) {
             return this.renderAfterAuth();
         } else {
-            return this.renderBeforeAuth();
+            return <BlockUi tag='div' blocking={this.state.blocking || this.state.loading}
+                            loader={this.loader} renderBlockUi={true}>{this.renderBeforeAuth()}
+            </BlockUi>
         }
     }
 
@@ -150,124 +152,122 @@ class LoginContainer extends BaseContainer {
         const {labels} = this.state;
         return (
             <React.Fragment>
-                <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader}>
-                    <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)}/>
-                    <form onSubmit={this.handleFormSubmit} onKeyDown={(e) => this.onKeyDown(e)}>
-                        <div className='container-fluid login'>
-                            <div className='row no-gutter'>
-                                <div className='col-md-7 d-none d-md-flex bg-color'>
-                                    <img className='login-icon' src={`./images/login_logo.svg`} alt='Prolab'/>
-                                    <img className='login-left-bg' src={`./images/login_left_img.svg`} alt='Tło'/>
-                                </div>
-                                <div className='col-md-5 bg-light'>
-                                    <div className="row">
-                                        <div className="col-12" style={{
-                                            marginTop: '3px',
-                                            textAlign: 'right',
-                                            lineHeight: '5px',
-                                            fontSize: '8px'
-                                        }} id="dsadas">
-                                            <Dropdown
-                                                options={this.state.langs}
-                                                placeholder={'Wybierz język'}
-                                                value={this.state.lang}
-                                                key='lang'
-                                                id='lang'
-                                                inputId='langInput'
-                                                name='lang'
-                                                onChange={(e) => this.setState({lang: e.value}, () => this.getLocalizationLoginPage())}
-                                                appendTo="self"
-                                            />
-                                        </div>
-                                        <div className="col-12">
+                <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)}/>
+                <form onSubmit={this.handleFormSubmit} onKeyDown={(e) => this.onKeyDown(e)}>
+                    <div className='container-fluid login'>
+                        <div className='row no-gutter'>
+                            <div className='col-md-7 d-none d-md-flex bg-color'>
+                                <img className='login-icon' src={`./images/login_logo.svg`} alt='Prolab'/>
+                                <img className='login-left-bg' src={`./images/login_left_img.svg`} alt='Tło'/>
+                            </div>
+                            <div className='col-md-5 bg-light'>
+                                <div className="row">
+                                    <div className="col-12" style={{
+                                        marginTop: '3px',
+                                        textAlign: 'right',
+                                        lineHeight: '5px',
+                                        fontSize: '8px'
+                                    }} id="langs">
+                                        <Dropdown
+                                            options={this.state.langs}
+                                            placeholder={'Wybierz język'}
+                                            value={this.state.lang}
+                                            key='lang'
+                                            id='lang'
+                                            inputId='langInput'
+                                            name='lang'
+                                            onChange={(e) => this.setState({lang: e.value}, () => this.getLocalizationLoginPage())}
+                                            appendTo="self"
+                                        />
+                                    </div>
+                                    <div className="col-12">
 
 
-                                            <div className='login d-flex align-items-center py-5'>
-                                                <div className='container'>
-                                                    <div className='row'>
-                                                        <div className='col-lg-10 col-xl-9 mx-auto'>
-                                                            <div
-                                                                className='font-big  mb-4 '>{labels['Login_Signin']}</div>
-                                                            <form>
-                                                                <div className='form-group mb-4'>
-                                                                    <label
-                                                                        htmlFor='username'>{labels['Login_UserName']}</label>
-                                                                    <InputText
-                                                                        ariaLabel={this.state.labels['Login_UserName']}
-                                                                        key={'username'}
-                                                                        id={'username'}
-                                                                        name={'username'}
-                                                                        placeholder={''}
-                                                                        style={{
-                                                                            width: '100%',
-                                                                        }}
-                                                                        value={this.state.username}
-                                                                        onChange={(e) =>
-                                                                            this.handleChange(
-                                                                                'TEXT',
-                                                                                undefined,
-                                                                                e,
-                                                                                undefined,
-                                                                                ''
-                                                                            )
-                                                                        }
-                                                                        required={true}
-                                                                        validator={this.validator}
-                                                                        validators='required|max:50'
-                                                                    />
-                                                                </div>
-                                                                <div className='form-group mb-3'>
-                                                                    <label
-                                                                        htmlFor='password'>{labels['Login_Password']}</label>
-                                                                    <Password
-                                                                        ariaLabel={labels['Login_Password']}
-                                                                        key={'password'}
-                                                                        id={'password'}
-                                                                        name={'password'}
-                                                                        placeholder={''}
-                                                                        style={{
-                                                                            width: '100%',
-                                                                        }}
-                                                                        value={this.state.password}
-                                                                        onChange={(e) =>
-                                                                            this.handleChange(
-                                                                                'TEXT',
-                                                                                undefined,
-                                                                                e,
-                                                                                undefined,
-                                                                                ''
-                                                                            )
-                                                                        }
-                                                                        promptLabel={labels['Login_Password']}
-                                                                        feedback={false}
-                                                                        required={true}
-                                                                        validator={this.authValidValidator}
-                                                                        validators='not_required'
-                                                                    />
-                                                                </div>
-                                                                <div>
-                                                                    <p className='text-right'>
-                                                                        <a href='https://bootstrapious.com/snippets'>
-                                                                            {labels['Login_ResetPassword']}
-                                                                        </a>
-                                                                    </p>
-                                                                </div>
-                                                                <ActionButton
-                                                                    label={labels['Login_Signin']}
-                                                                    className='mt-4'
-                                                                    variant='login-button'
-                                                                    handleClick={this.handleFormSubmit}
+                                        <div className='login d-flex align-items-center py-5'>
+                                            <div className='container'>
+                                                <div className='row'>
+                                                    <div className='col-lg-10 col-xl-9 mx-auto'>
+                                                        <div
+                                                            className='font-big  mb-4 '>{labels['Login_Signin']}</div>
+                                                        <form>
+                                                            <div className='form-group mb-4'>
+                                                                <label
+                                                                    htmlFor='username'>{labels['Login_UserName']}</label>
+                                                                <InputText
+                                                                    ariaLabel={this.state.labels['Login_UserName']}
+                                                                    key={'username'}
+                                                                    id={'username'}
+                                                                    name={'username'}
+                                                                    placeholder={''}
+                                                                    style={{
+                                                                        width: '100%',
+                                                                    }}
+                                                                    value={this.state.username}
+                                                                    onChange={(e) =>
+                                                                        this.handleChange(
+                                                                            'TEXT',
+                                                                            undefined,
+                                                                            e,
+                                                                            undefined,
+                                                                            ''
+                                                                        )
+                                                                    }
+                                                                    required={true}
+                                                                    validator={this.validator}
+                                                                    validators='required|max:50'
                                                                 />
-                                                                <div className='mt-4'>
-                                                                    <p className='font-normal text-center'>
-                                                                        Nie masz swojego konta?&nbsp;
-                                                                        <a href='https://bootstrapious.com/snippets'>
-                                                                            Stwórz profil
-                                                                        </a>
-                                                                    </p>
-                                                                </div>
-                                                            </form>
-                                                        </div>
+                                                            </div>
+                                                            <div className='form-group mb-3'>
+                                                                <label
+                                                                    htmlFor='password'>{labels['Login_Password']}</label>
+                                                                <Password
+                                                                    ariaLabel={labels['Login_Password']}
+                                                                    key={'password'}
+                                                                    id={'password'}
+                                                                    name={'password'}
+                                                                    placeholder={''}
+                                                                    style={{
+                                                                        width: '100%',
+                                                                    }}
+                                                                    value={this.state.password}
+                                                                    onChange={(e) =>
+                                                                        this.handleChange(
+                                                                            'TEXT',
+                                                                            undefined,
+                                                                            e,
+                                                                            undefined,
+                                                                            ''
+                                                                        )
+                                                                    }
+                                                                    promptLabel={labels['Login_Password']}
+                                                                    feedback={false}
+                                                                    required={true}
+                                                                    validator={this.authValidValidator}
+                                                                    validators='not_required'
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <p className='text-right'>
+                                                                    <a href='https://bootstrapious.com/snippets'>
+                                                                        {labels['Login_ResetPassword']}
+                                                                    </a>
+                                                                </p>
+                                                            </div>
+                                                            <ActionButton
+                                                                label={labels['Login_Signin']}
+                                                                className='mt-4'
+                                                                variant='login-button'
+                                                                handleClick={this.handleFormSubmit}
+                                                            />
+                                                            <div className='mt-4'>
+                                                                <p className='font-normal text-center'>
+                                                                    Nie masz swojego konta?&nbsp;
+                                                                    <a href='https://bootstrapious.com/snippets'>
+                                                                        Stwórz profil
+                                                                    </a>
+                                                                </p>
+                                                            </div>
+                                                        </form>
                                                     </div>
                                                 </div>
                                             </div>
@@ -276,8 +276,9 @@ class LoginContainer extends BaseContainer {
                                 </div>
                             </div>
                         </div>
-                    </form>
-                </BlockUi>
+                    </div>
+                </form>
+
             </React.Fragment>
         );
     }

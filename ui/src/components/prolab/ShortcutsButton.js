@@ -39,7 +39,7 @@ export class ShortcutsButton extends React.Component {
             {this.props.items?.map((button, index) => {
                 if (index < this.props.maxShortcutButtons)
                     return <div className="float-right">
-                        <ShortcutButton className="ml-2" label={button.label}/>
+                        <ShortcutButton className="ml-1 mb-1" label={button.label}/>
                     </div>
                 return null;
             })}

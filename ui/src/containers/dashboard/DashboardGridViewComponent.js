@@ -1,31 +1,28 @@
-import {SelectBox, Tabs} from 'devextreme-react';
 import ButtonGroup from 'devextreme-react/button-group';
 import PropTypes from 'prop-types';
 import React from 'react';
-import BaseContainer from '../baseContainers/BaseContainer';
-import ActionButton from '../components/ActionButton';
-import ActionButtonWithMenu from '../components/prolab/ActionButtonWithMenu';
-import EditRowComponent from '../components/prolab/EditRowComponent';
-import HeadPanel from '../components/prolab/HeadPanel';
-import ShortcutsButton from '../components/prolab/ShortcutsButton';
-import EditService from '../services/EditService';
-import ViewService from '../services/ViewService';
-import AppPrefixUtils from '../utils/AppPrefixUtils';
-import {GridViewUtils} from '../utils/GridViewUtils';
-import {ViewValidatorUtils} from '../utils/parser/ViewValidatorUtils';
-import UrlUtils from '../utils/UrlUtils';
-import DataGridStore from './dao/DataGridStore';
+import BaseContainer from '../../baseContainers/BaseContainer';
+import ActionButton from '../../components/ActionButton';
+import ActionButtonWithMenu from '../../components/prolab/ActionButtonWithMenu';
+import EditRowComponent from '../../components/prolab/EditRowComponent';
+import HeadPanel from '../../components/prolab/HeadPanel';
+import ShortcutsButton from '../../components/prolab/ShortcutsButton';
+import EditService from '../../services/EditService';
+import ViewService from '../../services/ViewService';
+import AppPrefixUtils from '../../utils/AppPrefixUtils';
+import {GridViewUtils} from '../../utils/GridViewUtils';
+import {ViewValidatorUtils} from '../../utils/parser/ViewValidatorUtils';
+import UrlUtils from '../../utils/UrlUtils';
+import DataGridStore from '../dao/DataGridStore';
 import {confirmDialog} from "primereact/confirmdialog";
-import Constants from "../utils/Constants";
 import {localeOptions} from "primereact/api";
-import GridViewComponent from "./dataGrid/GridViewComponent";
-import SubGridViewComponent from "./dataGrid/SubGridViewComponent";
-import ConsoleHelper from "../utils/ConsoleHelper";
-import LocUtils from "../utils/LocUtils";
+import GridViewComponent from "../dataGrid/GridViewComponent";
+import ConsoleHelper from "../../utils/ConsoleHelper";
+import LocUtils from "../../utils/LocUtils";
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
-export class GridViewContainer extends BaseContainer {
+export class DashboardGridViewComponent extends BaseContainer {
     _isMounted = false;
 
     constructor(props) {
@@ -34,7 +31,6 @@ export class GridViewContainer extends BaseContainer {
         this.viewService = new ViewService();
         this.editService = new EditService();
         this.dataGridStore = new DataGridStore();
-        this.refDataGrid = null;
         this.subGridView = null;
         this.state = {
             loading: true,
@@ -54,16 +50,11 @@ export class GridViewContainer extends BaseContainer {
             visibleEditPanel: false,
             modifyEditData: false,
             editData: null,
+            kindView: 'View'
         };
         this.viewTypeChange = this.viewTypeChange.bind(this);
         this.getViewById = this.getViewById.bind(this);
         this.downloadData = this.downloadData.bind(this);
-        this.onTabsSelectionChanged = this.onTabsSelectionChanged.bind(this);
-        this.onFilterChanged = this.onFilterChanged.bind(this);
-    }
-
-    getRefGridView() {
-        return this.refDataGrid;
     }
 
     componentDidMount() {
@@ -105,51 +96,10 @@ export class GridViewContainer extends BaseContainer {
         ConsoleHelper(
             `GridGridViewContainer::downloadData: viewId=${viewId}, recordId=${recordId}, subViewId=${subviewId}, viewType=${viewType}`
         );
-        let subviewMode = !!recordId && !!viewId;
-        if (subviewMode && viewType!=='dashboard') {
-            this.viewService
-                .getSubView(viewId, recordId)
-                .then((subViewResponse) => {
-                    const elementSubViewId = subviewId ? subviewId : subViewResponse.subViews[0]?.id;
-                    if (!subViewResponse.subViews || subViewResponse.subViews.length === 0) {
-                        this.showErrorMessages(LocUtils.loc(this.props.labels, 'No_Subview', 'Brak podwidoków - niepoprawna konfiguracja!'));
-                        window.history.back();
-                        this.unblockUi();
-                        return;
-                    } else {
-                        let subViewsTabs = [];
-                        subViewResponse.subViews.forEach((subView, i) => {
-                            subViewsTabs.push({id: subView.id, text: subView.label, icon: subView.icon});
-                            if (subView.id === parseInt(elementSubViewId)) {
-                                this.setState({subViewTabIndex: i});
-                            }
-                        });
-                        subViewResponse.subViewsTabs = subViewsTabs;
-                    }
-                    this.setState(
-                        {
-                            subView: subViewResponse,
-                            elementSubViewId: elementSubViewId,
-                        },
-                        () => {
-                            this.unblockUi();
-                            this.getViewById(elementSubViewId, recordId, filterId, viewType, subviewMode);
-                        }
-                    );
-                })
-                .catch((err) => {
-                    this.showErrorMessages(err);
-                    window.history.back();
-                    this.unblockUi();
-                });
-
-            return;
-        } else {
-            this.setState({subView: null});
-        }
-        this.getViewById(viewId, recordId, filterId, viewType, subviewMode);
+        this.getViewById(viewId, recordId, filterId, viewType, null);
     }
 
+    //@override
     getViewById(viewId, recordId, filterId, viewType, subviewMode) {
         this.setState({loading: true,},
             () => {
@@ -174,7 +124,6 @@ export class GridViewContainer extends BaseContainer {
                                     });
                                 });
                             });
-                            // ConsoleHelper('GridViewContainer -> fetch columns: ', gridViewColumnsTmp);
                             for (let plugin in responseView?.pluginsList) {
                                 pluginsListTmp.push({
                                     id: responseView?.pluginsList[plugin].id,
@@ -198,26 +147,17 @@ export class GridViewContainer extends BaseContainer {
                                     id: responseView?.filtersList[filter].id,
                                     label: responseView?.filtersList[filter].label,
                                     command: (e) => {
-                                        let subViewId = UrlUtils.getURLParameter('subview');
                                         let recordId = UrlUtils.getURLParameter('recordId');
-                                        if (subviewMode) {
-                                            ConsoleHelper(
-                                                `Redirect -> Id =  ${this.state.elementId} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${e.item?.id}`
-                                            );
+                                        ConsoleHelper(
+                                            `Redirect -> Id =  ${this.state.elementId} RecordId = ${recordId} FilterId = ${e.item?.id}`
+                                        );
+                                        if (!!e.item?.id) {
+                                            const filterId = parseInt(e.item?.id)
                                             window.location.href = AppPrefixUtils.locationHrefUrl(
-                                                `/#/grid-view/${this.state.elementId}?recordId=${recordId}&subview=${subViewId}&filterId=${e.item?.id}`
+                                                `/#/grid-view/${this.state.elementId}/?filterId=${filterId}`
                                             );
-                                        } else {
-                                            ConsoleHelper(
-                                                `Redirect -> Id =  ${this.state.elementId} RecordId = ${recordId} FilterId = ${e.item?.id}`
-                                            );
-                                            if (!!e.item?.id) {
-                                                const filterId = parseInt(e.item?.id)
-                                                window.location.href = AppPrefixUtils.locationHrefUrl(
-                                                    `/#/grid-view/${this.state.elementId}/?filterId=${filterId}`
-                                                );
-                                            }
                                         }
+
                                     },
                                 });
                             }
@@ -258,6 +198,7 @@ export class GridViewContainer extends BaseContainer {
                                             this.state.viewType,
                                             this.state.subView == null ? recordId : this.state.elementRecordId,
                                             !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId,
+                                            this.state.kindView,
                                             () => {
                                                 this.setState({
                                                     blocking: true,
@@ -284,7 +225,7 @@ export class GridViewContainer extends BaseContainer {
                     .catch((err) => {
                         console.error('Error getView in GridView. Exception = ', err);
                         this.setState({loading: false,}, () => {
-                                this.showErrorMessages(err);
+                                this.showGlobalErrorMessage(err);
                             }
                         );
                     });
@@ -292,6 +233,7 @@ export class GridViewContainer extends BaseContainer {
         );
     }
 
+    //override
     viewTypeChange(e) {
         let newUrl = UrlUtils.addParameterToURL(window.document.URL.toString(), 'viewType', e.itemData.type);
         window.history.replaceState('', '', newUrl);
@@ -322,6 +264,7 @@ export class GridViewContainer extends BaseContainer {
                         onCancel={this.handleCancelRowChange}
                         validator={this.validator}
                         onHide={(e) => !!this.state.modifyEditData ? confirmDialog({
+                            appendTo: document.body,
                             message: LocUtils.loc(this.props.labels, 'Question_Close_Edit', 'Czy na pewno chcesz zamknąć edycję?'),
                             header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
                             icon: 'pi pi-exclamation-triangle',
@@ -331,6 +274,7 @@ export class GridViewContainer extends BaseContainer {
                             reject: () => undefined,
                         }) : this.setState({visibleEditPanel: e})}
                         onError={(e) => this.showErrorMessage(e)}
+                        labels={this.props.labels}
                     />
                 </React.Fragment>
             </React.Fragment>);
@@ -340,7 +284,7 @@ export class GridViewContainer extends BaseContainer {
     renderHeaderLeft() {
         return (
             <React.Fragment>
-                <div id='left-header-panel' className='float-left pt-2'></div>
+                <div id='left-header-panel' className='float-left pt-2'/>
             </React.Fragment>
         );
     }
@@ -355,6 +299,7 @@ export class GridViewContainer extends BaseContainer {
         );
     }
 
+    //override
     rightHeadPanelContent = () => {
         return (
             <React.Fragment>
@@ -363,36 +308,13 @@ export class GridViewContainer extends BaseContainer {
         );
     }
 
-    onFilterChanged(e) {
-        ConsoleHelper('onValueChanged', e);
-        if (!!e.value && e.value !== e.previousValue) {
-            const filterId = parseInt(e.value)
-            window.location.href = AppPrefixUtils.locationHrefUrl(
-                `/#/grid-view/${this.state.elementId}/?filterId=${filterId}`
-            );
-        }
-    }
-
     leftHeadPanelContent = () => {
         let centerElementStyle = 'mr-1 ';
-        let opFilter = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_FILTER');
         let opBatches = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_BATCH');
         let opDocuments = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_DOCUMENTS');
         let opPlugins = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_PLUGINS');
         return (
             <React.Fragment>
-                {opFilter && this.state.filtersList?.length > 0 ? (
-                    <SelectBox
-                        className='filter-combo mr-1 mt-1 mb-1'
-                        id='combo_filters'
-                        items={this.state.filtersList}
-
-
-                        value={this.state.elementFilterId || this.state.parsedGridView?.viewInfo?.filterdId}
-                        onValueChanged={this.onFilterChanged}
-                        stylingMode='underlined'
-                    />
-                ) : null}
                 <ButtonGroup
                     className={`${centerElementStyle}`}
                     items={this.state.viewInfoTypes}
@@ -433,154 +355,23 @@ export class GridViewContainer extends BaseContainer {
         );
     }
 
-
     //override
     renderHeadPanel = () => {
-        const viewId = this.getRealViewId();
         return (
             <React.Fragment>
                 <HeadPanel
+                    labels={this.props.labels}
                     selectedRowKeys={this.state.selectedRowKeys}
                     operations={this.state.parsedGridView?.operations}
                     leftContent={this.leftHeadPanelContent()}
                     rightContent={this.rightHeadPanelContent()}
-                    handleDelete={() => {
-                        ConsoleHelper('handleDelete');
-                        confirmDialog({
-                            message: LocUtils.loc(this.props.labels, 'Question_Delete_Label', 'Czy na pewno chcesz usunąć zaznaczone rekordy?'),
-                            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
-                            icon: 'pi pi-exclamation-triangle',
-                            acceptLabel: localeOptions('accept'),
-                            rejectLabel: localeOptions('reject'),
-                            accept: () => {
-                                this.blockUi();
-                                this.editService.delete(viewId, this.state.selectedRowKeys)
-                                    .then((deleteResponse) => {
-                                        this.unselectedDataGrid();
-                                        this.refreshDataGrid();
-                                        const msg = deleteResponse.message;
-                                        if (!!msg) {
-                                            this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
-                                        } else if (!!deleteResponse.error) {
-                                            this.showResponseErrorMessage(deleteResponse);
-                                        }
-                                        this.unblockUi();
-                                    }).catch((err) => {
-                                    if (!!err.error) {
-                                        this.showResponseErrorMessage(err);
-                                    } else {
-                                        this.showErrorMessages(err);
-                                    }
-                                })
-                            },
-                            reject: () => undefined,
-                        })
-                    }}
-                    handleRestore={() => {
-                        ConsoleHelper('handleRestore');
-                        confirmDialog({
-                            message: LocUtils.loc(this.props.labels, 'Question_Restore_Label', 'Czy na pewno chcesz przywrócić zaznaczone rekordy?'),
-                            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
-                            icon: 'pi pi-exclamation-triangle',
-                            acceptLabel: localeOptions('accept'),
-                            rejectLabel: localeOptions('reject'),
-                            accept: () => {
-                                this.blockUi();
-                                this.editService.restore(viewId, this.state.selectedRowKeys)
-                                    .then((restoreResponse) => {
-                                        this.unselectedDataGrid();
-                                        this.refreshDataGrid();
-                                        const msg = restoreResponse.message;
-                                        if (!!msg) {
-                                            this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
-                                        } else if (!!restoreResponse.error) {
-                                            this.showResponseErrorMessage(restoreResponse);
-                                        }
-                                        this.unblockUi();
-                                    }).catch((err) => {
-                                    if (!!err.error) {
-                                        this.showResponseErrorMessage(err);
-                                    } else {
-                                        this.showErrorMessages(err);
-                                    }
-                                })
-                            },
-                            reject: () => undefined,
-                        })
-                    }}
-                    handleCopy={() => {
-                        ConsoleHelper('handleCopy');
-                        confirmDialog({
-                            message: LocUtils.loc(this.props.labels, 'Question_Copy_Label', 'Czy na pewno chcesz zkopiować zaznaczone rekordy?'),
-                            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
-                            icon: 'pi pi-exclamation-triangle',
-                            acceptLabel: localeOptions('accept'),
-                            rejectLabel: localeOptions('reject'),
-                            accept: () => {
-                                this.blockUi();
-                                const parentId = this.state.parsedGridView?.viewInfo.parentId;
-                                this.editService.copy(viewId, parentId, this.state.selectedRowKeys)
-                                    .then((copyResponse) => {
-                                        this.unselectedDataGrid();
-                                        this.refreshDataGrid();
-                                        const msg = copyResponse.message;
-                                        if (!!msg) {
-                                            this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
-                                        } else if (!!copyResponse.error) {
-                                            this.showResponseErrorMessage(copyResponse);
-                                        }
-                                        this.unblockUi();
-                                    }).catch((err) => {
-                                    if (!!err.error) {
-                                        this.showResponseErrorMessage(err);
-                                    } else {
-                                        this.showErrorMessages(err);
-                                    }
-                                })
-                            },
-                            reject: () => undefined,
-                        })
-                    }}
-                    handleArchive={() => {
-                        ConsoleHelper('handleArchive');
-                        confirmDialog({
-                            message: LocUtils.loc(this.props.labels, 'Question_Archive_Label', 'Czy na pewno chcesz przenieść do archiwum zaznaczone rekordy?'),
-                            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
-                            icon: 'pi pi-exclamation-triangle',
-                            acceptLabel: localeOptions('accept'),
-                            rejectLabel: localeOptions('reject'),
-                            accept: () => {
-                                this.blockUi();
-                                const parentId = this.state.parsedGridView?.viewInfo.parentId;
-                                this.editService.archive(viewId, parentId, this.state.selectedRowKeys)
-                                    .then((archiveResponse) => {
-                                        this.unselectedDataGrid();
-                                        this.refreshDataGrid();
-                                        const msg = archiveResponse.message;
-                                        if (!!msg) {
-                                            this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
-                                        } else if (!!archiveResponse.error) {
-                                            this.showResponseErrorMessage(archiveResponse);
-                                        }
-                                        this.unblockUi();
-                                    }).catch((err) => {
-                                    if (!!err.error) {
-                                        this.showResponseErrorMessage(err);
-                                    } else {
-                                        this.showErrorMessages(err);
-                                    }
-                                })
-                            },
-                            reject: () => undefined,
-                        })
-                    }}
+                    handleDelete={() => this.delete()}
+                    handleRestore={() => this.restore()}
+                    handleCopy={() => this.copy()}
+                    handleArchive={() => this.archive()}
                 />
             </React.Fragment>
         );
-    }
-
-    refreshDataGrid() {
-        this.getRefGridView().instance.getDataSource().reload();
     }
 
     unselectedDataGrid() {
@@ -595,86 +386,6 @@ export class GridViewContainer extends BaseContainer {
         if (this.state.gridViewType === 'dashboard') {
             return <React.Fragment/>
         }
-        const {labels} = this.props;
-        return (
-            <React.Fragment>
-                <SubGridViewComponent
-                    handleOnInitialized={(ref) => this.subGridView = ref}
-                    subView={this.state.subView}
-                    labels={labels}
-                    handleOnEditClick={(e) => {
-                        this.blockUi();
-                        this.editService
-                            .getEdit(e.viewId, e.recordId)
-                            .then((editDataResponse) => {
-                                this.setState({
-                                    visibleEditPanel: true,
-                                    editData: editDataResponse
-                                });
-                                this.unblockUi();
-                            })
-                            .catch((err) => {
-                                this.showErrorMessages(err);
-                                this.unblockUi();
-                            });
-                    }}/>
-                {/*Zakładki podwidoków*/}
-                <div id='subviews-panel'>
-                    {this.state.subView != null &&
-                    this.state.subView.subViews != null &&
-                    this.state.subView.subViews.length > 0 ? (
-                        <Tabs
-                            dataSource={this.state.subView.subViewsTabs}
-                            selectedIndex={this.state.subViewTabIndex}
-                            onOptionChanged={this.onTabsSelectionChanged}
-                            scrollByContent={true}
-                            itemRender={this.renderTabItem}
-                            showNavButtons={true}
-                        />
-                    ) : null}
-                </div>
-            </React.Fragment>
-        );
-    }
-
-    renderTabItem = (itemData) => {
-        const viewInfoId = this.state.subView.viewInfo?.id;
-        const subViewId = itemData.id;
-        const recordId = this.state.elementRecordId;
-        return (
-            <a
-                href={AppPrefixUtils.locationHrefUrl(
-                    `/#/grid-view/${viewInfoId}/?recordId=${recordId}&subview=${subViewId}`
-                )}
-                className='subview-tab-item-href'
-            >
-                {itemData.text}
-            </a>
-        );
-    }
-
-    onTabsSelectionChanged(args) {
-        if (args.name === 'selectedItem') {
-            if (args.value?.id && args.previousValue !== null && args.value?.id !== args.previousValue?.id) {
-                this.state.subView.subViewsTabs.forEach((subView, i) => {
-                    if (subView.id === args.value.id) {
-                        this.setState({subViewTabIndex: i});
-                    }
-                });
-                const viewInfoId = this.state.subView.viewInfo?.id;
-                const subViewId = args.value.id;
-                const recordId = this.state.elementRecordId;
-                window.location.href = AppPrefixUtils.locationHrefUrl(
-                    `/#/grid-view/${viewInfoId}?recordId=${recordId}&subview=${subViewId}`
-                );
-            }
-        }
-    }
-
-    getRealViewId() {
-        const {elementSubViewId} = this.state;
-        const elementId = this.props.id;
-        return GridViewUtils.getRealViewId(elementSubViewId, elementId)
     }
 
     //override
@@ -687,6 +398,7 @@ export class GridViewContainer extends BaseContainer {
         );
     }
 
+    //override
     blockUi() {
         if (!!this.props.handleBlockUi()) {
             return this.props.handleBlockUi();
@@ -696,6 +408,7 @@ export class GridViewContainer extends BaseContainer {
         }
     }
 
+    //override
     unblockUi() {
         if (!!this.props.handleUnBlockUi()) {
             return this.props.handleUnBlockUi();
@@ -705,6 +418,7 @@ export class GridViewContainer extends BaseContainer {
         }
     }
 
+    //override
     showErrorMessages(err) {
         if (!!this.props.handleShowErrorMessages(err)) {
             return this.props.handleShowErrorMessages(err);
@@ -754,6 +468,10 @@ export class GridViewContainer extends BaseContainer {
                             showFilterRow={this.props.showFilterRow}
                             showSelection={this.props.showSelection}
                             dataGridHeight={this.props.dataGridHeight}
+                            handleDeleteRow={(id) => this.delete(id)}
+                            handleRestoreRow={(id) => this.restore(id)}
+                            handleCopyRow={(id) => this.copy(id)}
+                            handleArchiveRow={(id) => this.archive(id)}
                         />
                     </React.Fragment>
                 )}
@@ -788,7 +506,8 @@ export class GridViewContainer extends BaseContainer {
             handleBlockUi: PropTypes.func,
             handleUnBlockUi: PropTypes.func,
             handleShowErrorMessages: PropTypes.func,
-            dataGridHeight: PropTypes.number
+            dataGridHeight: PropTypes.number,
+            labels: PropTypes.object.isRequired,
         }
 }
 

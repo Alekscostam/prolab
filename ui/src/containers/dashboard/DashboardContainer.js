@@ -1,23 +1,23 @@
 import React from 'react';
-import BaseContainer from '../baseContainers/BaseContainer';
-import DivContainer from '../components/DivContainer';
-import BlockUi from '../components/waitPanel/BlockUi';
+import BaseContainer from '../../baseContainers/BaseContainer';
+import DivContainer from '../../components/DivContainer';
+import BlockUi from '../../components/waitPanel/BlockUi';
 import {Toast} from "primereact/toast";
-import DashboardService from "../services/DashboardService";
-import ViewService from "../services/ViewService";
-import DataGridStore from "./dao/DataGridStore";
-import {GridViewContainer} from "./GridViewContainer";
-import CardViewComponent from "./cardView/CardViewComponent";
-import {Breadcrumb} from "../utils/BreadcrumbUtils";
-import EditRowComponent from "../components/prolab/EditRowComponent";
+import DashboardService from "../../services/DashboardService";
+import ViewService from "../../services/ViewService";
+import DataGridStore from "../dao/DataGridStore";
+import {DashboardGridViewComponent} from "./DashboardGridViewComponent";
+import {Breadcrumb} from "../../utils/BreadcrumbUtils";
+import EditRowComponent from "../../components/prolab/EditRowComponent";
 import {confirmDialog} from "primereact/confirmdialog";
 import {localeOptions} from "primereact/api";
 import PropTypes from "prop-types";
-import ShortcutButton from "../components/prolab/ShortcutButton";
-import AppPrefixUtils from "../utils/AppPrefixUtils";
-import UrlUtils from "../utils/UrlUtils";
-import EditService from "../services/EditService";
-import LocUtils from "../utils/LocUtils";
+import ShortcutButton from "../../components/prolab/ShortcutButton";
+import AppPrefixUtils from "../../utils/AppPrefixUtils";
+import UrlUtils from "../../utils/UrlUtils";
+import EditService from "../../services/EditService";
+import LocUtils from "../../utils/LocUtils";
+import DashboardCardViewComponent from "./DashboardCardViewComponent";
 
 class DashboardContainer extends BaseContainer {
 
@@ -99,7 +99,8 @@ class DashboardContainer extends BaseContainer {
         return (
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => this.messages = el}/>
-                <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader} renderBlockUi={true}>
+                <BlockUi tag='div' blocking={this.state.blocking || this.state.loading} loader={this.loader}
+                         renderBlockUi={true}>
                     <DivContainer colClass='col-12 dashboard-link-container'>
                         {!!this.props.dashboard ? null : Breadcrumb.render(labels)}
                         <DivContainer colClass='dashboard'>
@@ -129,6 +130,7 @@ class DashboardContainer extends BaseContainer {
                     onCancel={this.handleCancelRowChange}
                     validator={this.validator}
                     onHide={(e) => !!this.state.modifyEditData ? confirmDialog({
+                        appendTo: document.body,
                         message: LocUtils.loc(this.props.labels, 'Question_Close_Edit', 'Czy na pewno chcesz zamknąć edycję?'),
                         header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
                         icon: 'pi pi-exclamation-triangle',
@@ -138,6 +140,7 @@ class DashboardContainer extends BaseContainer {
                         reject: () => undefined,
                     }) : this.setState({visibleEditPanel: e})}
                     onError={(e) => this.showErrorMessage(e)}
+                    labels={this.props.labels}
                 />
             </React.Fragment>)
     }
@@ -149,7 +152,7 @@ class DashboardContainer extends BaseContainer {
     }
 
     //override
-    refreshGridView() {
+    refreshView() {
         this.initializeDashboard();
     }
 
@@ -160,7 +163,7 @@ class DashboardContainer extends BaseContainer {
         return <React.Fragment>
             <div className="rows">
                 <div className="column left" style={{width: this.state.cardView.cardOptions?.width + 10}}>
-                    <CardViewComponent
+                    <DashboardCardViewComponent
                         id={this.state.cardView.viewInfo?.id}
                         mode='dashboard'
                         handleOnInitialized={(ref) => this.cardGrid = ref}
@@ -190,48 +193,48 @@ class DashboardContainer extends BaseContainer {
 
     renderGridView(item, cardViewId, currentBreadcrumb, _cardHeight, recordId) {
         return (<div className='panel-dashboard'>
-                                   <span
-                                       className='title-dashboard'>{item.label}</span>
+            <span className='title-dashboard'>{item.label}</span>
             <div style={{float: 'right'}}>
                 <ShortcutButton
                     id={`_menu_button`}
                     className={`action-button-with-menu`}
-                    iconName={'mdi-magnify'}
+                    iconName={'mdi-open-in-new'}
                     href={AppPrefixUtils.locationHrefUrl(
                         `/#/grid-view/${item.id}?parentId=${cardViewId}${currentBreadcrumb}`
                     )}
                     label={''}
                     title={LocUtils.loc(this.props.labels, 'Move_To', 'Przenieś do')}
                     rendered={true}
+                    buttonShadow={false}
                 />
             </div>
-            <GridViewContainer id={item.id}
-                               key={item.id}
-                               subViewId={undefined}
-                               recordId={recordId}
-                               filterId={undefined}
-                               viewType={'dashboard'}
-                               showColumnLines={false}
-                               showRowLines={true}
-                               showBorders={false}
-                               showColumnHeaders={false}
-                               showFilterRow={false}
-                               showSelection={false}
-                               handleBlockUi={() => {
-                                   this.blockUi();
-                                   return true;
-                               }}
-                               handleUnBlockUi={() => {
-                                   this.unblockUi();
-                                   return true;
-                               }}
-                               handleShowErrorMessages={(err) => {
-                                   this.showErrorMessages(err);
-                                   return true;
-                               }}
-                               dataGridHeight={_cardHeight - 60}
-            >
-            </GridViewContainer>
+            <DashboardGridViewComponent id={item.id}
+                                        key={item.id}
+                                        subViewId={undefined}
+                                        recordId={recordId}
+                                        filterId={undefined}
+                                        viewType={'dashboard'}
+                                        showColumnLines={false}
+                                        showRowLines={true}
+                                        showBorders={false}
+                                        showColumnHeaders={false}
+                                        showFilterRow={false}
+                                        showSelection={false}
+                                        handleBlockUi={() => {
+                                            this.blockUi();
+                                            return true;
+                                        }}
+                                        handleUnBlockUi={() => {
+                                            this.unblockUi();
+                                            return true;
+                                        }}
+                                        handleShowErrorMessages={(err) => {
+                                            this.showErrorMessages(err);
+                                            return true;
+                                        }}
+                                        dataGridHeight={_cardHeight - 60}
+                                        labels={this.props.labels}
+            />
         </div>);
     }
 

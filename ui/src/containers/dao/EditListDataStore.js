@@ -14,12 +14,12 @@ export default class EditListDataStore extends BaseService {
         this.response = {}
     }
 
-    getEditListDataStore(viewIdArg, viewTypeArg, recordIdArg, fieldIdArg, parentIdArg, filterIdArg, elementArg, setFields, onError, onSuccess, onStart) {
+    getEditListDataStore(viewIdArg, viewTypeArg, recordIdArg, fieldIdArg, parentIdArg, filterIdArg, kindViewArg, elementArg, setFields, onError, onSuccess, onStart) {
         if (!viewIdArg) {
             return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0});
         }
         const _key = 'CALC_CRC';
-        const editListDataStore = new CustomStore({
+        return new CustomStore({
             key: _key,
             load: (loadOptions) => {
                 let selectAll = false;
@@ -49,11 +49,12 @@ export default class EditListDataStore extends BaseService {
                         params += `${i}=${JSON.stringify(loadOptions[i])}&`;
                     }
                 });
-                let viewTypeParam = viewTypeArg !== undefined && viewTypeArg != null ? `&viewType=${viewTypeArg}` : '';
-                let filterIdParam = filterIdArg !== undefined && filterIdArg != null ? `&filter=${filterIdArg}` : '';
-                let parentIdParam = parentIdArg !== undefined && parentIdArg != null ? `&parentId=${parentIdArg}` : '';
-                let selectAllParam = !!selectAll ? `&selection=true` : '';
-                const url = `${this.domain}/${this.path}/${viewIdArg}/Edit/${recordIdArg}/list/${fieldIdArg}/data${params}${parentIdParam}${filterIdParam}${selectAllParam}${viewTypeParam}`;
+                const viewTypeParam = viewTypeArg !== undefined && viewTypeArg != null ? `&viewType=${viewTypeArg}` : '';
+                const filterIdParam = filterIdArg !== undefined && filterIdArg != null ? `&filter=${filterIdArg}` : '';
+                const parentIdParam = parentIdArg !== undefined && parentIdArg != null ? `&parentId=${parentIdArg}` : '';
+                const kindViewParam = !!kindViewArg && !!parentIdParam ? `&kindView=${kindViewArg}` : '';
+                const selectAllParam = !!selectAll ? `&selection=true` : '';
+                const url = `${this.domain}/${this.path}/${viewIdArg}/Edit/${recordIdArg}/list/${fieldIdArg}/data${params}${parentIdParam}${filterIdParam}${selectAllParam}${viewTypeParam}${kindViewParam}`;
                 if (url.indexOf(_key) > 0) {
                     //myk blokujący nadmiarowo generowane requesty przez store odnośnie selection
                     return Promise.reject('')
@@ -69,8 +70,7 @@ export default class EditListDataStore extends BaseService {
                             let data = response.data;
                             data.forEach((rowData) => {
                                 if (rowData.CALC_CRC === undefined || rowData.CALC_CRC === null) {
-                                    const calculateCRC = EditListUtils.calculateCRCBySetFields(rowData, setFields);
-                                    rowData.CALC_CRC = calculateCRC;
+                                    rowData.CALC_CRC = EditListUtils.calculateCRCBySetFields(rowData, setFields);
                                 }
                             });
                             ConsoleHelper('EditListDataStore -> fetch data');
@@ -96,7 +96,6 @@ export default class EditListDataStore extends BaseService {
                 }
             }
         });
-        return editListDataStore;
     }
 
     isNotEmpty(value) {

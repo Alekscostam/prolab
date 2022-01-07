@@ -51,7 +51,7 @@ export class CardViewUtils {
                             className={className}
                             title={rowData[fieldDefinition.fieldName]}
                         >
-                            <CheckBox readOnly={true} value={parseInt(rowData[fieldDefinition.fieldName]) === 1} />
+                            <CheckBox readOnly={true} value={parseInt(rowData[fieldDefinition.fieldName]) === 1}/>
                         </div>
                     );
                 // case 'L':
@@ -78,8 +78,8 @@ export class CardViewUtils {
                             }}
                             className={className}
                             title={rowData[fieldDefinition.fieldName]}
+                            dangerouslySetInnerHTML={{__html: rowData[fieldDefinition.fieldName]}}
                         >
-                            {rowData[fieldDefinition.fieldName]}
                         </span>
                     );
             }
@@ -93,8 +93,8 @@ export class CardViewUtils {
                     }}
                     className={className}
                     title={rowData[fieldDefinition.fieldName]}
+                    dangerouslySetInnerHTML={{__html: rowData[fieldDefinition.fieldName]}}
                 >
-                    {rowData[fieldDefinition.fieldName]}
                 </span>
             );
         }

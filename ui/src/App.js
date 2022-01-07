@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {HashRouter, Route, Switch} from 'react-router-dom';
 import Sidebar from './containers/layout/Sidebar';
 import Login from './containers/LoginContainer';
-import DashboardContainer from './containers/DashboardContainer';
+import DashboardContainer from './containers/dashboard/DashboardContainer';
 import AuthService from './services/AuthService';
 import AuthComponent from './components/AuthComponent';
 import PrimeReact, {addLocale, locale as primeReactLocale} from 'primereact/api';
@@ -13,7 +13,7 @@ import {loadMessages, locale as devExpressLocale} from "devextreme/localization"
 import AppPrefixUtils from "./utils/AppPrefixUtils";
 import packageJson from '../package.json';
 import ReadConfigService from "./services/ReadConfigService";
-import {readCookieGlobal, saveCookieGlobal} from "./utils/Cookie";
+import {readObjFromCookieGlobal, saveObjToCookieGlobal} from "./utils/Cookie";
 import LocalizationService from './services/LocalizationService';
 import config from "devextreme/core/config";
 import ConsoleHelper from "./utils/ConsoleHelper";
@@ -43,7 +43,8 @@ class App extends Component {
             viewInfoName: null,
             subView: null,
             operations: null,
-            shortcutButtons: null
+            shortcutButtons: null,
+            collapsed: false,
         };
         this.handleLogoutUser = this.handleLogoutUser.bind(this);
         //primereact config
@@ -66,6 +67,7 @@ class App extends Component {
             editorStylingMode: 'underlined'
         });
         ConsoleHelper("App version = " + packageJson.version);
+        this.handleCollapseChange = this.handleCollapseChange.bind(this);
     }
 
 
@@ -76,7 +78,7 @@ class App extends Component {
             browseUrl = browseUrl.substring(0, id + 1);
         }
         let configUrl;
-        const urlPrefixCookie = readCookieGlobal("REACT_APP_URL_PREFIX");
+        const urlPrefixCookie = readObjFromCookieGlobal("REACT_APP_URL_PREFIX");
         if (urlPrefixCookie === undefined || urlPrefixCookie == null || urlPrefixCookie === '') {
             configUrl = browseUrl
             // .trim()
@@ -90,15 +92,15 @@ class App extends Component {
         }
 
         this.readConfigAndSaveInCookie(configUrl)
-            .catch(err => {
+            .catch((err) => {
                 console.error("Error start application = ", err)
             });
     }
 
     readConfigAndSaveInCookie(configUrl) {
         return new ReadConfigService(configUrl).getConfiguration().then(configuration => {
-            saveCookieGlobal("REACT_APP_BACKEND_URL", configuration.REACT_APP_BACKEND_URL);
-            saveCookieGlobal("REACT_APP_URL_PREFIX", configuration.REACT_APP_URL_PREFIX);
+            saveObjToCookieGlobal("REACT_APP_BACKEND_URL", configuration.REACT_APP_BACKEND_URL);
+            saveObjToCookieGlobal("REACT_APP_URL_PREFIX", configuration.REACT_APP_URL_PREFIX);
             this.setState({
                 loadedConfiguration: true,
                 config: configuration,
@@ -115,7 +117,7 @@ class App extends Component {
         this.authService.logout();
         if (this.state.user) {
             this.setState({user: null, renderNoRefreshContent: false});
-            window.location.href =  AppPrefixUtils.locationHrefUrl('/#/');
+            window.location.href = AppPrefixUtils.locationHrefUrl('/#/');
             if (!forceByButton) {
                 this.messages?.show({
                     severity: 'error',
@@ -127,7 +129,6 @@ class App extends Component {
             }
         }
     }
-
 
     getLocalization(configUrl) {
         this.localizationService.reConfigureDomain();
@@ -191,6 +192,10 @@ class App extends Component {
         )
     }
 
+    handleCollapseChange(collapsed) {
+        this.setState({collapsed: collapsed});
+    }
+
     render() {
         const authService = this.authService;
         const {labels} = this.state;
@@ -212,6 +217,8 @@ class App extends Component {
                                     historyBrowser={this.historyBrowser}
                                     handleLogoutUser={(forceByButton) => this.handleLogoutUser(forceByButton, this.state.labels)}
                                     labels={this.state.labels}
+                                    collapsed={this.state.collapsed}
+                                    handleCollapseChange={(e) => this.handleCollapseChange(e)}
                                 /> : null}
                             <main>
                                 <div className={`${loggedIn ? 'container-fluid' : ''}`}>
@@ -281,6 +288,7 @@ class App extends Component {
                                                                handleShortcutButtons={(shortcutButtons => {
                                                                    this.setState({shortcutButtons: shortcutButtons})
                                                                })}
+                                                               collapsed={this.state.collapsed}
                                                            />
                                                        </AuthComponent>
                                                    )

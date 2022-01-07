@@ -1,6 +1,6 @@
 import moment from 'moment';
 import AuthService from './AuthService';
-import {readCookieGlobal} from "../utils/Cookie";
+import {readObjFromCookieGlobal} from "../utils/Cookie";
 
 export default class BaseService {
     // Initializing important variables
@@ -8,7 +8,7 @@ export default class BaseService {
         if (domain !== null && domain !== undefined) {
             this.domain = domain;
         } else {
-            this.domain = readCookieGlobal("REACT_APP_BACKEND_URL"); // API server domain
+            this.domain = readObjFromCookieGlobal("REACT_APP_BACKEND_URL"); // API server domain
         }
         this.fetch = this.fetch.bind(this);
         this.setUiMethods = this.setUiMethods.bind(this);
@@ -21,7 +21,7 @@ export default class BaseService {
     }
 
     reConfigureDomain() {
-        this.domain = readCookieGlobal("REACT_APP_BACKEND_URL");
+        this.domain = readObjFromCookieGlobal("REACT_APP_BACKEND_URL");
     }
 
     setUiMethods(blockUi, unblockUi) {
@@ -153,5 +153,24 @@ export default class BaseService {
 
     getPath() {
         return `${this.domain}/${this.path}`;
+    }
+
+    isNotEmpty(value) {
+        return value !== undefined && value !== null && value !== '';
+    }
+
+    handleErrors(response) {
+        if (!response.ok) {
+            throw Error(response.statusText);
+        }
+        return response;
+    }
+
+    commonCorrectUrl(correctUrl) {
+        const phraseToEraseFromUrl = '&searchOperation="contains"';
+        if (correctUrl.includes(phraseToEraseFromUrl)) {
+            correctUrl = correctUrl.replace(phraseToEraseFromUrl, '');
+        }
+        return correctUrl;
     }
 }
