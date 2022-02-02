@@ -21,7 +21,6 @@ import EditService from "../../services/EditService";
 import moment from "moment";
 import Constants from "../../utils/Constants";
 import ConsoleHelper from "../../utils/ConsoleHelper";
-import $ from "jquery";
 import OperationRecordButtons from "../../components/prolab/OperationRecordButtons";
 
 class GridViewComponent extends React.Component {
@@ -331,11 +330,11 @@ class GridViewComponent extends React.Component {
                         if (!!this.props.handleOnInitialized)
                             this.props.handleOnInitialized(ref)
                     }}
-                    //myczek na rozjezdzajace sie linie wierszy w dataGrid
                     onContentReady={(e) => {
-                        $(document).ready(function () {
+                        //myczek na rozjezdzajace sie linie wierszy w dataGrid
+                        // $(document).ready(function () {
                             e.component.resize();
-                        });
+                        // });
                     }}
                 >
                     <RemoteOperations
