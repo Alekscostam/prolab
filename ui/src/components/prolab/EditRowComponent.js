@@ -489,7 +489,8 @@ export class EditRowComponent extends BaseContainer {
                               disabled={!field.edit}
                               required={required}
                               showButtonBar
-                              showIcon>
+                              showIcon
+                              mask="9999-99-99">
                     </Calendar>
                 </React.Fragment>);
             case 'E'://E – Data + czas
@@ -510,7 +511,8 @@ export class EditRowComponent extends BaseContainer {
                               disabled={!field.edit}
                               required={required}
                               showButtonBar
-                              showIcon>
+                              showIcon
+                              mask="9999-99-99 99:99">
                     </Calendar>
                 </React.Fragment>);
             case 'T'://T – Czas
@@ -531,7 +533,8 @@ export class EditRowComponent extends BaseContainer {
                               disabled={!field.edit}
                               required={required}
                               showButtonBar
-                              showIcon>
+                              showIcon
+                              mask="99:99">
                     </Calendar>
                 </React.Fragment>);
             case 'O'://O – Opisowe
