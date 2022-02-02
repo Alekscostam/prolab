@@ -12,7 +12,7 @@ export const OperationRecordButtons = props => {
     const renderSelectionButton = (operation) => {
         const info = props.info;
         const margin = props.margin;
-        if (!!operation.type) {
+        if (!!operation && !!operation.type) {
             switch (operation.type?.toUpperCase()) {
                 case 'OP_EDIT':
                     return (
@@ -108,7 +108,7 @@ export const OperationRecordButtons = props => {
 
 
     return (<React.Fragment>
-        {props.operation?.map((operation, index) => {
+        {!!props.operation && props.operation?.map((operation, index) => {
             return <div key={index}>{renderSelectionButton(operation)}</div>;
         })}
         {showOperationList ?
