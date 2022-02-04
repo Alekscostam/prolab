@@ -245,6 +245,12 @@ export default class EditService extends BaseService {
         try {
             if (field?.type) {
                 switch (field.type) {
+                    case 'B':
+                        field.value = !!field.value ? 1 : 0;
+                        break;
+                    case 'L':
+                        field.value = !!field.value ? 'T' : 'N';
+                        break;
                     case 'D':
                         field.value = this.dateFormatAndKeepCorrectness(field.value, 'YYYY-MM-DD');
                         break;
