@@ -24,7 +24,7 @@ import GridViewComponent from "./dataGrid/GridViewComponent";
 import DashboardContainer from "./dashboard/DashboardContainer";
 import ConsoleHelper from "../utils/ConsoleHelper";
 import LocUtils from "../utils/LocUtils";
-import DataCardStore from "./dao/DataCardStore";I
+import DataCardStore from "./dao/DataCardStore";
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -899,7 +899,11 @@ export class ViewContainer extends BaseContainer {
                                                 select: true
                                             });
                                             dataGrid.getSelectedRowsData().then((rowData) => {
-                                                this.setState({selectedRowKeys: rowData}, () => {
+                                                this.setState({
+                                                    selectedRowKeys: rowData,
+                                                    selectAll: false,
+                                                    select: false
+                                                }, () => {
                                                     this.unblockUi();
                                                 })
                                             });
