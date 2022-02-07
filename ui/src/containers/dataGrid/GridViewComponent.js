@@ -254,6 +254,7 @@ class GridViewComponent extends React.Component {
                 key={INDEX_COLUMN}
                 dataField={columnDefinition.fieldName}
                 sortOrder={sortOrder}
+                sortIndex={columnDefinition?.sortIndex}
             />);
         })
         return columns;
