@@ -547,8 +547,37 @@ body main div.container-fluid {
 }
 
 //fix dla blędu na node14
-iframe{
+iframe {
   visibility: hidden;
+}
+
+.p-datepicker{
+  padding: 0.5rem 0.5rem 0rem 0.5rem;
+}
+
+.p-datepicker table td,
+.p-datepicker .p-datepicker-header {
+  padding: 0;
+}
+
+.p-datepicker-calendar,
+.p-datepicker table {
+  margin: 0;
+}
+
+.p-datepicker table td > span {
+  height: 1.8rem;
+}
+
+.p-datepicker .p-datepicker-buttonbar {
+  padding: 0.4rem 0;
+}
+
+.p-datepicker .p-timepicker button {
+  height: 0.5rem;
+}
+.p-datepicker-buttonbar button{
+  height: 25px;
 }
 
 @import 'edit_row';
