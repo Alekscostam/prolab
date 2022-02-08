@@ -216,11 +216,11 @@
 }
 
 #row-edit .autofill-border {
-  outline: 2px solid yellow;
+  outline: 2px solid yellow !important;
 }
 
 #row-edit .editable-border {
-  border: 2px solid $button-color;
+  border: 2px solid $button-color !important;
 }
 
 #row-edit label {
@@ -262,13 +262,13 @@
 
 
 #row-edit .autofill-border-checkbox {
-  outline: 3px solid yellow;
-  border-radius: 2px;
+  outline: 3px solid yellow !important;
+  border-radius: 2px !important;
 }
 
 #row-edit .p-invalid-checkbox {
-  outline: 3px solid $danger-color;
-  border-radius: 2px;
+  outline: 3px solid $danger-color !important;
+  border-radius: 2px !important;
 }
 
 #row-edit .p-button.p-button-secondary {

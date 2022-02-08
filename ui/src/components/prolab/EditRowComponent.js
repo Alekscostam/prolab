@@ -376,7 +376,7 @@ export class EditRowComponent extends BaseContainer {
                     <div className={`${selectionList}`}>
                         <InputText id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                                    name={field.fieldName}
-                                   className={`${autoFill} ${editable} ${validate}`}
+                                   className={` ${editable} ${autoFill} ${validate}`}
                                    style={{width: '100%'}}
                                    type="text"
                                    value={field.value}
