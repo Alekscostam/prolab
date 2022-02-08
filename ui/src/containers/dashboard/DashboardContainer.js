@@ -68,6 +68,10 @@ class DashboardContainer extends BaseContainer {
             } else {
                 this.showErrorMessages(err);
             }
+        }).finally(() => {
+            this.setState({
+                loading: false
+            });
         });
     }
 
@@ -168,7 +172,7 @@ class DashboardContainer extends BaseContainer {
                         mode='dashboard'
                         handleOnInitialized={(ref) => this.cardGrid = ref}
                         parsedGridView={this.state.cardView}
-                        parsedCardViewData={this.state.dashboard.headerData}
+                        parsedCardViewData={this.state.dashboard?.headerData}
                         handleShowEditPanel={(editDataResponse) => {
                             this.handleShowEditPanel(editDataResponse)
                         }}

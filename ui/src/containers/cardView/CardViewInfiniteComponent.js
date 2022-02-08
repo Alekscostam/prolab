@@ -277,6 +277,12 @@ class CardViewInfiniteComponent extends React.Component {
                                                                 hrefSubview={AppPrefixUtils.locationHrefUrl(
                                                                     `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${!!currentBreadcrumb ? currentBreadcrumb : ``}`
                                                                 )}
+                                                                handleHrefSubview={() => {
+                                                                    let newUrl = AppPrefixUtils.locationHrefUrl(
+                                                                        `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${!!currentBreadcrumb ? currentBreadcrumb : ``}`
+                                                                    );
+                                                                    window.location.assign(newUrl);
+                                                                }}
                                                                 handleArchive={() => {
                                                                     this.props.handleArchiveRow(recordId)
                                                                 }}

@@ -359,7 +359,14 @@ body .grid-container .dx-datagrid-headers .dx-header-row > td > .dx-datagrid-tex
 }
 
 body .grid-container.grid-header-auto-height .dx-datagrid-headers .dx-header-row > td > .dx-datagrid-text-content {
-  white-space: nowrap;
+  white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+  white-space: -o-pre-wrap; /* Opera 7 */
+  white-space: pre-wrap; /* css-3 */
+  word-wrap: break-word; /* Internet Explorer 5.5+ */
+  word-break: break-all;
+  white-space: normal;
+  white-space: -pre-wrap; /* Opera 4-6 */
+  white-space: -webkit-pre-wrap; /* Newer versions of Chrome/Safari*/
 }
 
 body .grid-container {

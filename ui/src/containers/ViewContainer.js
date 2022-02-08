@@ -899,7 +899,11 @@ export class ViewContainer extends BaseContainer {
                                                 select: true
                                             });
                                             dataGrid.getSelectedRowsData().then((rowData) => {
-                                                this.setState({selectedRowKeys: rowData}, () => {
+                                                this.setState({
+                                                    selectedRowKeys: rowData,
+                                                    selectAll: false,
+                                                    select: false
+                                                }, () => {
                                                     this.unblockUi();
                                                 })
                                             });

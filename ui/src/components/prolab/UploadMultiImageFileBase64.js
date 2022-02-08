@@ -82,7 +82,7 @@ class UploadMultiImageFileBase64 extends React.Component {
                     }
                     // check the size
                     var maxSizeInBytes = this.props.maxSize;
-                    if (imageFile?.size > maxSizeInBytes) {
+                    if (!!maxSizeInBytes && imageFile?.size > maxSizeInBytes) {
                         if (this.props.onError !== undefined) {
                             this.props.onError(this.props.tooLargeFileText);
                         }
@@ -209,7 +209,7 @@ class UploadMultiImageFileBase64 extends React.Component {
                     <div className="drop-message">
                         {this.props.displayText}
                     </div>
-                    <div id="image-preview"></div>
+                    <div id="image-preview"/>
                 </div>
             </React.Fragment>
         )
@@ -250,7 +250,7 @@ UploadMultiImageFileBase64.defaultProps = {
     multiple: true,
     clearOnInput: true,
     preview: true,
-    maxSize: 10e5 // 1MB
+    maxSize: undefined // 1MB
 };
 
 export default UploadMultiImageFileBase64;

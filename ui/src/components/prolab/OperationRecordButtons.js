@@ -12,7 +12,7 @@ export const OperationRecordButtons = props => {
     const renderSelectionButton = (operation) => {
         const info = props.info;
         const margin = props.margin;
-        if (!!operation.type) {
+        if (!!operation && !!operation.type) {
             switch (operation.type?.toUpperCase()) {
                 case 'OP_EDIT':
                     return (
@@ -87,7 +87,7 @@ export const OperationRecordButtons = props => {
                         case 'OP_EDIT':
                             return props.handleEdit();
                         case 'OP_SUBVIEWS':
-                            return props.hrefSubview;
+                            return props.handleHrefSubview();
                         case 'OP_DELETE':
                             return props.handleDelete();
                         case 'OP_RESTORE':
@@ -108,7 +108,7 @@ export const OperationRecordButtons = props => {
 
 
     return (<React.Fragment>
-        {props.operation?.map((operation, index) => {
+        {!!props.operation && props.operation?.map((operation, index) => {
             return <div key={index}>{renderSelectionButton(operation)}</div>;
         })}
         {showOperationList ?
@@ -125,7 +125,8 @@ OperationRecordButtons.defaultProps = {
     operation: [],
     operationList: [],
     info: null,
-    hrefSubview: '',
+    handleHrefSubview: () => {
+    },
     handleEdit: () => {
     },
     handleDelete: () => {
@@ -146,6 +147,7 @@ OperationRecordButtons.propTypes = {
     info: PropTypes.object.isRequired,
     handleEdit: PropTypes.func.isRequired,
     hrefSubview: PropTypes.string.isRequired,
+    handleHrefSubview: PropTypes.func.isRequired,
     handleDelete: PropTypes.func.isRequired,
     handleRestore: PropTypes.func.isRequired,
     handleCopy: PropTypes.func.isRequired,
