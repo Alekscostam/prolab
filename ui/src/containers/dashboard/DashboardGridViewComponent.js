@@ -7,7 +7,7 @@ import ActionButtonWithMenu from '../../components/prolab/ActionButtonWithMenu';
 import EditRowComponent from '../../components/prolab/EditRowComponent';
 import HeadPanel from '../../components/prolab/HeadPanel';
 import ShortcutsButton from '../../components/prolab/ShortcutsButton';
-import EditService from '../../services/EditService';
+import AddEditService from '../../services/AddEditService';
 import ViewService from '../../services/ViewService';
 import AppPrefixUtils from '../../utils/AppPrefixUtils';
 import {GridViewUtils} from '../../utils/GridViewUtils';
@@ -29,7 +29,7 @@ export class DashboardGridViewComponent extends BaseContainer {
         ConsoleHelper('GridViewContainer -> constructor');
         super(props);
         this.viewService = new ViewService();
-        this.editService = new EditService();
+        this.editService = new AddEditService();
         this.dataGridStore = new DataGridStore();
         this.subGridView = null;
         this.state = {
@@ -270,7 +270,10 @@ export class DashboardGridViewComponent extends BaseContainer {
                             icon: 'pi pi-exclamation-triangle',
                             acceptLabel: localeOptions('accept'),
                             rejectLabel: localeOptions('reject'),
-                            accept: () => this.setState({visibleEditPanel: e}),
+                            accept: () => {
+                                this.handleCancelRowChange();
+                                this.setState({visibleEditPanel: e});
+                            },
                             reject: () => undefined,
                         }) : this.setState({visibleEditPanel: e})}
                         onError={(e) => this.showErrorMessage(e)}
@@ -294,7 +297,10 @@ export class DashboardGridViewComponent extends BaseContainer {
         let opADD = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_ADD');
         return (
             <React.Fragment>
-                <ActionButton rendered={opADD} label={opADD?.label}/>
+                <ActionButton rendered={opADD}
+                              label={opADD?.label}
+                              handleClick={(e) => {
+                              }}/>
             </React.Fragment>
         );
     }

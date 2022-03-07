@@ -1,3 +1,6 @@
+import MockService from "../services/MockService";
+import moment from "moment";
+
 export class EditRowUtils {
 
     static searchField(editData, searchFieldName, callback) {
@@ -57,6 +60,29 @@ export class EditRowUtils {
             default:
                 return 'text_field_';
         }
+    }
+
+    static convertEditResponse(editDataResponse){
+        for (let editField of editDataResponse?.editFields) {
+            for (let field of editField.fields) {
+                if (field?.type) {
+                    field.value = MockService.getFieldValueOrMock(field.value, 'value');
+                    switch (field.type) {
+                        case 'D':
+                            field.value = new Date(moment(field.value, 'YYYY-MM-DD'));
+                            break;
+                        case 'E':
+                            field.value = new Date(moment(field.value, 'YYYY-MM-DD HH:mm'));
+                            break;
+                        case 'T':
+                            field.value = new Date(moment(field.value, 'HH:mm'));
+                            break;
+                        default:
+                    }
+                }
+            }
+        }
+        return editDataResponse;
     }
 
 }

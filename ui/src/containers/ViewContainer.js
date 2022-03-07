@@ -7,7 +7,7 @@ import ActionButtonWithMenu from '../components/prolab/ActionButtonWithMenu';
 import EditRowComponent from '../components/prolab/EditRowComponent';
 import HeadPanel from '../components/prolab/HeadPanel';
 import ShortcutsButton from '../components/prolab/ShortcutsButton';
-import EditService from '../services/EditService';
+import AddEditService from '../services/AddEditService';
 import ViewService from '../services/ViewService';
 import AppPrefixUtils from '../utils/AppPrefixUtils';
 import {Breadcrumb} from '../utils/BreadcrumbUtils';
@@ -25,6 +25,7 @@ import DashboardContainer from "./dashboard/DashboardContainer";
 import ConsoleHelper from "../utils/ConsoleHelper";
 import LocUtils from "../utils/LocUtils";
 import DataCardStore from "./dao/DataCardStore";
+import {EntryResponseUtils} from "../utils/EntryResponseUtils";
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -38,7 +39,7 @@ export class ViewContainer extends BaseContainer {
         ConsoleHelper('ViewContainer -> constructor');
         super(props);
         this.viewService = new ViewService();
-        this.editService = new EditService();
+        this.editService = new AddEditService();
         this.dataGridStore = new DataGridStore();
         this.dataCardStore = new DataCardStore();
         this.refDataGrid = null
@@ -51,6 +52,7 @@ export class ViewContainer extends BaseContainer {
             elementRecordId: null,
             elementParentId: null,
             elementKindView: this.defaultKindView,
+            elementKindOperation: null,
             elementViewType: '',
             viewMode: props.viewMode,
             parsedGridView: {},
@@ -471,14 +473,17 @@ export class ViewContainer extends BaseContainer {
                     onEditList={this.handleEditListRowChange}
                     onCancel={this.handleCancelRowChange}
                     validator={this.validator}
-                    onHide={(e) => !!this.state.modifyEditData ? confirmDialog({
+                    onHide={(e, viewId, recordId, parentId) => !!this.state.modifyEditData ? confirmDialog({
                         appendTo: document.body,
                         message: LocUtils.loc(this.props.labels, 'Question_Close_Edit', 'Czy na pewno chcesz zamknąć edycję?'),
                         header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
                         icon: 'pi pi-exclamation-triangle',
                         acceptLabel: localeOptions('accept'),
                         rejectLabel: localeOptions('reject'),
-                        accept: () => this.setState({visibleEditPanel: e}),
+                        accept: () => {
+                            this.handleCancelRowChange(viewId, recordId, parentId);
+                            this.setState({visibleEditPanel: e});
+                        },
                         reject: () => undefined,
                     }) : this.setState({visibleEditPanel: e})}
                     onError={(e) => this.showErrorMessage(e)}
@@ -828,12 +833,50 @@ export class ViewContainer extends BaseContainer {
         );
     }
 
+    addView(e) {
+        this.blockUi();
+        const subViewId = this.state.elementSubViewId;
+        const kindView = this.state.elementKindView;
+        const parentId = this.state.elementRecordId;
+        const recordId = undefined;
+        let viewId = this.props.id;
+        viewId = GridViewUtils.getRealViewId(subViewId, viewId);
+        this.editService
+            .addEntry(viewId, e.recordId, parentId, kindView)
+            .then((entryResponse) => {
+                EntryResponseUtils.run(
+                    entryResponse,
+                    () => {
+                        if (!!entryResponse.next) {
+                            this.editService
+                                .add(viewId, recordId, parentId, kindView)
+                                .then((editDataResponse) => {
+                                    this.setState({
+                                        visibleEditPanel: true,
+                                        editData: editDataResponse
+                                    });
+                                    this.unblockUi();
+                                })
+                                .catch((err) => {
+                                    this.showGlobalErrorMessage(err);
+                                });
+                        } else {
+                            this.unblockUi();
+                        }
+                    },
+                    () => this.unblockUi()
+                );
+            }).catch((err) => {
+            this.showGlobalErrorMessage(err);
+        });
+    }
+
     editSubView(e) {
         this.blockUi();
         const parentId = this.state.elementRecordId;
         const kindView = this.state.elementKindView;
         this.editService
-            .getEdit(e.viewId, e.recordId, parentId, kindView)
+            .edit(e.viewId, e.recordId, parentId, kindView)
             .then((editDataResponse) => {
                 this.setState({
                     visibleEditPanel: true,
@@ -885,7 +928,7 @@ export class ViewContainer extends BaseContainer {
                                         this.blockUi();
                                         return true;
                                     }}
-                                    handleUnblockUi={() => this.unblockUi}
+                                    handleUnblockUi={() => this.unblockUi()}
                                     showErrorMessages={(err) => this.showErrorMessages(err)}
                                     packageRows={this.state.packageRows}
                                     handleShowEditPanel={(editDataResponse) => {

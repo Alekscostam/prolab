@@ -17,11 +17,12 @@ import {Breadcrumb} from "../../utils/BreadcrumbUtils";
 import {GridViewUtils} from "../../utils/GridViewUtils";
 import ReactDOM from "react-dom";
 import AppPrefixUtils from "../../utils/AppPrefixUtils";
-import EditService from "../../services/EditService";
+import AddEditService from "../../services/AddEditService";
 import moment from "moment";
 import Constants from "../../utils/Constants";
 import ConsoleHelper from "../../utils/ConsoleHelper";
 import OperationRecordButtons from "../../components/prolab/OperationRecordButtons";
+import {EntryResponseUtils} from "../../utils/EntryResponseUtils";
 
 class GridViewComponent extends React.Component {
 
@@ -29,7 +30,7 @@ class GridViewComponent extends React.Component {
         super(props);
         this.labels = this.props;
         this.dataGrid = null;
-        this.editService = new EditService();
+        this.editService = new AddEditService();
         ConsoleHelper('GridViewComponent -> constructor');
     }
 
@@ -182,19 +183,39 @@ class GridViewComponent extends React.Component {
                                                             let result = this.props.handleBlockUi();
                                                             if (result) {
                                                                 this.editService
-                                                                    .getEdit(viewId, recordId, parentId, kindView)
-                                                                    .then((editDataResponse) => {
-                                                                        this.props.handleShowEditPanel(editDataResponse);
-                                                                    })
-                                                                    .catch((err) => {
-                                                                        this.props.showErrorMessages(err);
-                                                                    });
+                                                                    .editEntry(viewId, recordId, parentId, kindView, '')
+                                                                    .then((entryResponse) => {
+                                                                        EntryResponseUtils.run(
+                                                                            entryResponse,
+                                                                            () => {
+                                                                                if (!!entryResponse.next) {
+                                                                                    this.editService
+                                                                                        .edit(viewId, recordId, parentId, kindView)
+                                                                                        .then((editDataResponse) => {
+                                                                                            this.setState({
+                                                                                                editData: editDataResponse
+                                                                                            }, () => {
+                                                                                                this.props.handleShowEditPanel(editDataResponse);
+                                                                                            });
+                                                                                        })
+                                                                                        .catch((err) => {
+                                                                                            this.props.showErrorMessages(err);
+                                                                                        });
+                                                                                } else {
+                                                                                    this.props.handleUnblockUi();
+                                                                                }
+                                                                            },
+                                                                            () => this.props.handleUnblockUi()
+                                                                        );
+                                                                    }).catch((err) => {
+                                                                    this.props.showErrorMessages(err);
+                                                                });
                                                             }
                                                         }}
                                                         hrefSubview={AppPrefixUtils.locationHrefUrl(
                                                             `/#/grid-view/${viewId}?recordId=${recordId}${currentBreadcrumb}`
                                                         )}
-                                                        handleHrefSubview={()=>{
+                                                        handleHrefSubview={() => {
                                                             let newUrl = AppPrefixUtils.locationHrefUrl(
                                                                 `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${!!currentBreadcrumb ? currentBreadcrumb : ``}`
                                                             );
@@ -340,7 +361,7 @@ class GridViewComponent extends React.Component {
                     onContentReady={(e) => {
                         //myczek na rozjezdzajace sie linie wierszy w dataGrid
                         // $(document).ready(function () {
-                            e.component.resize();
+                        e.component.resize();
                         // });
                     }}
                 >
@@ -423,6 +444,7 @@ GridViewComponent.propTypes = {
     //other
     handleBlockUi: PropTypes.func.isRequired,
     handleUnblockUi: PropTypes.func.isRequired,
+    showInfoMessages: PropTypes.func.isRequired,
     showErrorMessages: PropTypes.func.isRequired,
     showColumnHeaders: PropTypes.bool,
     showColumnLines: PropTypes.bool,

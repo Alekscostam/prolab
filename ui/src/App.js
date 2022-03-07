@@ -229,7 +229,10 @@ class App extends Component {
                                                 <div className='font-medium mb-4'> {this.state.viewInfoName}</div>
                                             </DivContainer>
                                             <DivContainer id='header-right' colClass='col-1 to-right'>
-                                                <ActionButton rendered={opADD} label={opADD?.label}/>
+                                                <ActionButton rendered={opADD} label={opADD?.label}
+                                                              handleClick={(e) => {
+                                                                  this.viewContainer?.current?.addView(e)
+                                                              }}/>
                                             </DivContainer>
                                             <DivContainer id='header-content' colClass='col-12'>
                                             </DivContainer>

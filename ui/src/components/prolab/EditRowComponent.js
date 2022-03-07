@@ -16,7 +16,7 @@ import HtmlEditor, {Item, MediaResizing, Toolbar} from 'devextreme-react/html-ed
 import {Validator} from "devextreme-react";
 import {RequiredRule} from "devextreme-react/validator";
 import moment from 'moment';
-import EditService from "../../services/EditService";
+import AddEditService from "../../services/AddEditService";
 import {Sidebar} from "primereact/sidebar";
 import UploadMultiImageFileBase64 from "./UploadMultiImageFileBase64";
 import {Checkbox} from "primereact/checkbox";
@@ -35,7 +35,7 @@ export class EditRowComponent extends BaseContainer {
 
     constructor(props) {
         super(props);
-        this.service = new EditService();
+        this.service = new AddEditService();
 
         this.state = {
             loading: true,
@@ -97,7 +97,7 @@ export class EditRowComponent extends BaseContainer {
             dataGridStoreSuccess: false
         }, () => {
             this.service
-                .getEditList(editInfo.viewId, editInfo.recordId, editInfo.parentId, field.id, kindView, editListObject)
+                .editList(editInfo.viewId, editInfo.recordId, editInfo.parentId, field.id, kindView, editListObject)
                 .then((responseView) => {
                     let selectedRowDataTmp = [];
                     //CRC key
@@ -222,7 +222,10 @@ export class EditRowComponent extends BaseContainer {
                 modal={true}
                 style={{width: '45%'}}
                 position='right'
-                onHide={() => this.props.onHide(!visibleEditPanel)}
+                onHide={() => {
+                    let editInfo = this.props.editData?.editInfo;
+                    this.props.onHide(!visibleEditPanel, editInfo.viewId, editInfo.recordId, editInfo.parentId)
+                }}
                 icons={() => (
                     <React.Fragment>
                         <div id='label' className="label"

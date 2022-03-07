@@ -1,23 +1,30 @@
 import BaseService from "./BaseService";
-import MockService from "./MockService";
 import moment from "moment";
+import EditRowUtils from "../utils/EditRowUtils";
 
 /*
 Kontroler do edycji danych.
  */
-export default class EditService extends BaseService {
+export default class AddEditService extends BaseService {
     // Initializing important variables
     constructor() {
         super();
         this.path = 'View';
-        this.getEdit = this.getEdit.bind(this);
-        this.getEditAutoFill = this.getEditAutoFill.bind(this);
-        this.getEditList = this.getEditList.bind(this);
+        this.addEntry = this.addEntry.bind(this);
+        this.add = this.add.bind(this);
+        this.editEntry = this.editEntry.bind(this);
+        this.edit = this.edit.bind(this);
+        this.editAutoFill = this.editAutoFill.bind(this);
+        this.editList = this.editList.bind(this);
         this.refreshFieldVisibility = this.refreshFieldVisibility.bind(this);
         this.save = this.save.bind(this);
+        this.deleteEntry = this.deleteEntry.bind(this);
         this.delete = this.delete.bind(this);
+        this.archiveEntry = this.archiveEntry.bind(this);
         this.archive = this.archive.bind(this);
+        this.copyEntry = this.copyEntry.bind(this);
         this.copy = this.copy.bind(this);
+        this.restoreEntry = this.restoreEntry.bind(this);
         this.restore = this.restore.bind(this);
         this.createObjectToSave = this.createObjectToSave.bind(this);
         this.createObjectToAutoFill = this.createObjectToAutoFill.bind(this);
@@ -25,36 +32,47 @@ export default class EditService extends BaseService {
         this.createObjectToEditList = this.createObjectToEditList.bind(this);
     }
 
-    getEdit(viewId, recordId, parentId, kindView) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
-            method: 'GET',
-        }).then(editDataResponse => {
-            for (let editField of editDataResponse?.editFields) {
-                for (let field of editField.fields) {
-                    if (field?.type) {
-                        field.value = MockService.getFieldValueOrMock(field.value, 'value');
-                        switch (field.type) {
-                            case 'D':
-                                field.value = new Date(moment(field.value, 'YYYY-MM-DD'));
-                                break;
-                            case 'E':
-                                field.value = new Date(moment(field.value, 'YYYY-MM-DD HH:mm'));
-                                break;
-                            case 'T':
-                                field.value = new Date(moment(field.value, 'HH:mm'));
-                                break;
-                            default:
-                        }
-                    }
-                }
-            }
-            return Promise.resolve(editDataResponse);
+    addEntry(viewId, recordId, parentId, kindView) {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Add${recordId ? `/${recordId}` : ''}/Entry${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
+            method: 'POST',
+        }).then(addDataEntryResponse => {
+            return Promise.resolve(addDataEntryResponse);
         }).catch((err) => {
             throw err;
         });
     }
 
-    getEditAutoFill(viewId, recordId, parentId, kindView, element) {
+    add(viewId, recordId, parentId, kindView) {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Add${recordId ? `/${recordId}` : ''}${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
+            method: 'POST',
+        }).then(addDataResponse => {
+            return Promise.resolve(EditRowUtils.convertEditResponse(addDataResponse));
+        }).catch((err) => {
+            throw err;
+        });
+    }
+
+    editEntry(viewId, recordId, parentId, kindView) {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}/Entry${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
+            method: 'POST',
+        }).then(editDataEntryResponse => {
+            return Promise.resolve(editDataEntryResponse);
+        }).catch((err) => {
+            throw err;
+        });
+    }
+
+    edit(viewId, recordId, parentId, kindView) {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
+            method: 'GET',
+        }).then(editDataResponse => {
+            return Promise.resolve(EditRowUtils.convertEditResponse(editDataResponse));
+        }).catch((err) => {
+            throw err;
+        });
+    }
+
+    editAutoFill(viewId, recordId, parentId, kindView, element) {
         return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}/AutoFill${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
             method: 'POST',
             body: JSON.stringify(element),
@@ -63,7 +81,7 @@ export default class EditService extends BaseService {
         });
     }
 
-    getEditList(viewId, recordId, parentId, fieldId, kindView, element) {
+    editList(viewId, recordId, parentId, fieldId, kindView, element) {
         return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}/list/${fieldId}${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
             method: 'POST',
             body: JSON.stringify(element),
@@ -81,15 +99,50 @@ export default class EditService extends BaseService {
         });
     }
 
-    save(viewId, recordId, parentId, kindView, elementToSave, confirmSave) {
+    save(viewId, recordId, parentId, kindView, kindOperation, elementToSave, confirmSave) {
         const queryString = this.objToQueryString({
             parentId: parentId,
             confirmSave: confirmSave,
-            kindView: parentId && kindView ? kindView : undefined
+            kindView: parentId && kindView ? kindView : undefined,
+            kindOperation: kindOperation
         });
         return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}/Save${queryString}`, {
             method: 'POST',
             body: JSON.stringify(elementToSave),
+        }).catch((err) => {
+            throw err;
+        });
+    }
+
+    cancel(viewId, recordId, parentId, kindView, kindOperation, elementToCancel) {
+        const queryString = this.objToQueryString({
+            parentId: parentId,
+            kindView: parentId && kindView ? kindView : undefined,
+            kindOperation: kindOperation
+        });
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}/Cancel${queryString}`, {
+            method: 'POST',
+            body: JSON.stringify(elementToCancel),
+        }).catch((err) => {
+            throw err;
+        });
+    }
+
+    deleteEntry(viewId, parentId, kindView, selectedIds) {
+        let queryStringTmp = []
+        if (!!parentId) {
+            queryStringTmp.push(`parentId=${parentId}`);
+        }
+        if (!!parentId && !!kindView) {
+            queryStringTmp.push(`kindView=${kindView}`);
+        }
+        for (const id in selectedIds) {
+            queryStringTmp.push(`recordID=${selectedIds[id]}`);
+        }
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Delete/Entry?${queryStringTmp.join('&')}`, {
+            method: 'POST',
+        }).then(deleteResponse => {
+            return Promise.resolve(deleteResponse);
         }).catch((err) => {
             throw err;
         });
@@ -113,6 +166,24 @@ export default class EditService extends BaseService {
         });
     }
 
+    archiveEntry(viewId, parentId, kindView, selectedIds) {
+        let queryStringTmp = []
+        if (!!parentId) {
+            queryStringTmp.push(`parentId=${parentId}`);
+        }
+        if (!!parentId && !!kindView) {
+            queryStringTmp.push(`kindView=${kindView}`);
+        }
+        for (const id in selectedIds) {
+            queryStringTmp.push(`recordID=${selectedIds[id]}`);
+        }
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Archive/Entry?${queryStringTmp.join('&')}`, {
+            method: 'POST',
+        }).catch((err) => {
+            throw err;
+        });
+    }
+
     archive(viewId, parentId, kindView, selectedIds) {
         let queryStringTmp = []
         if (!!parentId) {
@@ -125,6 +196,31 @@ export default class EditService extends BaseService {
             queryStringTmp.push(`recordID=${selectedIds[id]}`);
         }
         return this.fetch(`${this.domain}/${this.path}/${viewId}/Archive?${queryStringTmp.join('&')}`, {
+            method: 'POST',
+        }).catch((err) => {
+            throw err;
+        });
+    }
+
+    copyEntry(viewId, parentId, kindView, selectedIds, numberOfCopies, headerCopy, specCopy, specWithValuesCopy) {
+        let queryStringTmp = []
+        if (!!parentId) {
+            queryStringTmp.push(`parentId=${parentId}`);
+        }
+        if (!!parentId && !!kindView) {
+            queryStringTmp.push(`kindView=${kindView}`);
+        }
+        for (const id in selectedIds) {
+            queryStringTmp.push(`recordID=${selectedIds[id]}`);
+        }
+        let queryStringParams = this.objToQueryString({
+            numberOfCopies: numberOfCopies,
+            headerCopy: headerCopy,
+            specCopy: specCopy,
+            specWithValuesCopy: specWithValuesCopy
+        }) || [];
+        queryStringTmp = queryStringTmp.concat(queryStringParams);
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Copy/Entry?${queryStringTmp.join('&')}`, {
             method: 'POST',
         }).catch((err) => {
             throw err;
@@ -156,6 +252,24 @@ export default class EditService extends BaseService {
         });
     }
 
+    restoreEntry(viewId, parentId, kindView, selectedIds) {
+        let queryStringTmp = []
+        if (!!parentId) {
+            queryStringTmp.push(`parentId=${parentId}`);
+        }
+        if (!!parentId && !!kindView) {
+            queryStringTmp.push(`kindView=${kindView}`);
+        }
+        for (const id in selectedIds) {
+            queryStringTmp.push(`recordID=${selectedIds[id]}`);
+        }
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Restore/Entry?${queryStringTmp.join('&')}`, {
+            method: 'POST',
+        }).catch((err) => {
+            throw err;
+        });
+    }
+
     restore(viewId, parentId, kindView, selectedIds) {
         let queryStringTmp = []
         if (!!parentId) {
@@ -172,6 +286,15 @@ export default class EditService extends BaseService {
         }).catch((err) => {
             throw err;
         });
+    }
+
+    publishEntry(viewId, parentId, kindView, selectedIds) {
+        //TODO to implementation
+    }
+
+
+    publish(viewId, parentId, kindView, selectedIds) {
+        //TODO to implementation
     }
 
     createObjectToSave(state) {

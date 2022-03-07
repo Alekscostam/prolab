@@ -5,7 +5,7 @@ import $ from "jquery";
 import {CardViewUtils} from "../../utils/CardViewUtils";
 import AppPrefixUtils from "../../utils/AppPrefixUtils";
 import PropTypes from "prop-types";
-import EditService from "../../services/EditService";
+import AddEditService from "../../services/AddEditService";
 import ConsoleHelper from "../../utils/ConsoleHelper";
 import CardInfiniteLoaderWrapper from "./CardInfiniteLoaderWrapper";
 import WindowSizeListener from "react-window-size-listener";
@@ -16,7 +16,7 @@ class CardViewInfiniteComponent extends React.Component {
 
     constructor(props) {
         super(props);
-        this.editService = new EditService();
+        this.editService = new AddEditService();
         this.labels = this.props;
         this.dataCardStore = new DataCardStore();
         this.state = {
@@ -265,9 +265,13 @@ class CardViewInfiniteComponent extends React.Component {
                                                                     let result = this.props.handleBlockUi();
                                                                     if (result) {
                                                                         this.editService
-                                                                            .getEdit(viewId, recordId, subviewId, elementKindView)
+                                                                            .edit(viewId, recordId, subviewId, elementKindView)
                                                                             .then((editDataResponse) => {
-                                                                                this.props.handleShowEditPanel(editDataResponse);
+                                                                                this.setState({
+                                                                                    editData: editDataResponse
+                                                                                }, () => {
+                                                                                    this.props.handleShowEditPanel(editDataResponse);
+                                                                                });
                                                                             })
                                                                             .catch((err) => {
                                                                                 this.props.showErrorMessages(err);

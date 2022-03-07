@@ -18,7 +18,7 @@ import EditRowUtils from "../utils/EditRowUtils";
 import ConsoleHelper from "../utils/ConsoleHelper";
 import {LoadIndicator} from "devextreme-react";
 import {GridViewUtils} from "../utils/GridViewUtils";
-import LocUtils from "../utils/LocUtils";
+import {EntryResponseUtils} from "../utils/EntryResponseUtils";
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -1024,8 +1024,9 @@ class BaseContainer extends React.Component {
     rowSave = (viewId, recordId, parentId, saveElement, confirmSave) => {
         this.blockUi();
         const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
+        const kindOperation = this.state.editData.editInfo?.kindOperation ? this.state.editData.editInfo?.kindOperation : undefined;
         this.editService
-            .save(viewId, recordId, parentId, kindView, saveElement, confirmSave)
+            .save(viewId, recordId, parentId, kindView, kindOperation, saveElement, confirmSave)
             .then((saveResponse) => {
                 switch (saveResponse.status) {
                     case 'OK':
@@ -1090,149 +1091,178 @@ class BaseContainer extends React.Component {
         });
     }
 
+    rowCancel = (viewId, recordId, parentId, saveElement) => {
+        this.blockUi();
+        const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
+        const kindOperation = this.state.editData.editInfo?.kindOperation ? this.state.editData.editInfo?.kindOperation : undefined;
+        this.editService
+            .cancel(viewId, recordId, parentId, kindView, kindOperation, saveElement)
+            .then(() => {
+                this.refreshView();
+                this.unblockUi();
+            }).catch((err) => {
+            this.showGlobalErrorMessage(err);
+        });
+    }
+
     delete(id) {
         ConsoleHelper('handleDelete');
+        this.blockUi();
         const viewId = this.getRealViewId();
-        confirmDialog({
-            appendTo: document.body,
-            message: LocUtils.loc(this.props.labels, 'Question_Delete_Label', 'Czy na pewno chcesz usunąć zaznaczone rekordy?'),
-            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
-            icon: 'pi pi-exclamation-triangle',
-            acceptLabel: localeOptions('accept'),
-            rejectLabel: localeOptions('reject'),
-            accept: () => {
-                this.blockUi();
-                const parentId = this.state.elementRecordId;
-                const selectedRowKeysIds = (id === undefined || id === null || id === '') ? this.state.selectedRowKeys.map((e) => {
-                    return e.ID;
-                }) : [id];
-                const kindView = this.state.elementKindView;
-                console.log(selectedRowKeysIds)
-                this.editService.delete(viewId, parentId, kindView, selectedRowKeysIds)
-                    .then((deleteResponse) => {
-                        this.unselectAllDataGrid();
-                        this.refreshView();
-                        const msg = deleteResponse.message;
-                        if (!!msg) {
-                            this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
-                        } else if (!!deleteResponse.error) {
-                            this.showResponseErrorMessage(deleteResponse);
+        const parentId = this.state.elementRecordId;
+        const selectedRowKeysIds = (id === undefined || id === null || id === '') ? this.state.selectedRowKeys.map((e) => {
+            return e.ID;
+        }) : [id];
+        const kindView = this.state.elementKindView;
+        this.editService.deleteEntry(viewId, parentId, kindView, selectedRowKeysIds)
+            .then((entryResponse) => {
+                EntryResponseUtils.run(
+                    entryResponse,
+                    () => {
+                        if (!!entryResponse.next) {
+                            this.editService.delete(viewId, parentId, kindView, selectedRowKeysIds)
+                                .then((deleteResponse) => {
+                                    this.unselectAllDataGrid();
+                                    this.refreshView();
+                                    const msg = deleteResponse.message;
+                                    if (!!msg) {
+                                        this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
+                                    } else if (!!deleteResponse.error) {
+                                        this.showResponseErrorMessage(deleteResponse);
+                                    }
+                                    this.unblockUi();
+                                }).catch((err) => {
+                                this.showGlobalErrorMessage(err);
+                            })
+                        } else {
+                            this.unblockUi()
                         }
-                        this.unblockUi();
-                    }).catch((err) => {
-                    this.showGlobalErrorMessage(err);
-                })
-            },
-            reject: () => undefined,
+                    },
+                    () => this.unblockUi()
+                );
+            }).catch((err) => {
+            this.showGlobalErrorMessage(err);
         })
     }
 
     copy(id) {
         ConsoleHelper('handleCopy');
+        this.blockUi();
         const viewId = this.getRealViewId();
-        confirmDialog({
-            appendTo: document.body,
-            message: LocUtils.loc(this.props.labels, 'Question_Copy_Label', 'Czy na pewno chcesz zkopiować zaznaczone rekordy?'),
-            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
-            icon: 'pi pi-exclamation-triangle',
-            acceptLabel: localeOptions('accept'),
-            rejectLabel: localeOptions('reject'),
-            accept: () => {
-                this.blockUi();
-                const parentId = this.state.elementRecordId;
-                const selectedRowKeysIds = (id === undefined || id === null || id === '') ? this.state.selectedRowKeys.map((e) => {
-                    return e.ID;
-                }) : [id];
-                const kindView = this.state.elementKindView;
-                this.editService.copy(viewId, parentId, kindView, selectedRowKeysIds)
-                    .then((copyResponse) => {
-                        this.unselectAllDataGrid();
-                        this.refreshView();
-                        const msg = copyResponse.message;
-                        if (!!msg) {
-                            this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
-                        } else if (!!copyResponse.error) {
-                            this.showResponseErrorMessage(copyResponse);
+        const parentId = this.state.elementRecordId;
+        const selectedRowKeysIds = (id === undefined || id === null || id === '') ? this.state.selectedRowKeys.map((e) => {
+            return e.ID;
+        }) : [id];
+        const kindView = this.state.elementKindView;
+        this.editService.copyEntry(viewId, parentId, kindView, selectedRowKeysIds)
+            .then((entryResponse) => {
+                EntryResponseUtils.run(
+                    entryResponse,
+                    () => {
+                        if (!!entryResponse.next) {
+                            this.editService.copy(viewId, parentId, kindView, selectedRowKeysIds)
+                                .then((copyResponse) => {
+                                    this.unselectAllDataGrid();
+                                    this.refreshView();
+                                    const msg = copyResponse.message;
+                                    if (!!msg) {
+                                        this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
+                                    } else if (!!copyResponse.error) {
+                                        this.showResponseErrorMessage(copyResponse);
+                                    }
+                                    this.unblockUi();
+                                }).catch((err) => {
+                                this.showGlobalErrorMessage(err);
+                            })
+                        } else {
+                            this.unblockUi()
                         }
-                        this.unblockUi();
-                    }).catch((err) => {
-                    this.showGlobalErrorMessage(err);
-                })
-            },
-            reject: () => undefined,
+                    },
+                    () => this.unblockUi()
+                );
+            }).catch((err) => {
+            this.showGlobalErrorMessage(err);
         })
     }
 
     restore(id) {
         ConsoleHelper('handleRestore');
+        this.blockUi();
         const viewId = this.getRealViewId();
-        confirmDialog({
-            appendTo: document.body,
-            message: LocUtils.loc(this.props.labels, 'Question_Restore_Label', 'Czy na pewno chcesz przywrócić zaznaczone rekordy?'),
-            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
-            icon: 'pi pi-exclamation-triangle',
-            acceptLabel: localeOptions('accept'),
-            rejectLabel: localeOptions('reject'),
-            accept: () => {
-                this.blockUi();
-                const parentId = this.state.elementRecordId;
-                const selectedRowKeysIds = (id === undefined || id === null || id === '') ? this.state.selectedRowKeys.map((e) => {
-                    return e.ID;
-                }) : [id];
-                const kindView = this.state.elementKindView;
-                this.editService.restore(viewId, parentId, kindView, selectedRowKeysIds)
-                    .then((restoreResponse) => {
-                        this.unselectAllDataGrid();
-                        this.refreshView();
-                        const msg = restoreResponse.message;
-                        if (!!msg) {
-                            this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
-                        } else if (!!restoreResponse.error) {
-                            this.showResponseErrorMessage(restoreResponse);
+        const parentId = this.state.elementRecordId;
+        const selectedRowKeysIds = (id === undefined || id === null || id === '') ? this.state.selectedRowKeys.map((e) => {
+            return e.ID;
+        }) : [id];
+        const kindView = this.state.elementKindView;
+        this.editService.restoreEntry(viewId, parentId, kindView, selectedRowKeysIds)
+            .then((entryResponse) => {
+                EntryResponseUtils.run(
+                    entryResponse,
+                    () => {
+                        if (!!entryResponse.next) {
+                            this.editService.restore(viewId, parentId, kindView, selectedRowKeysIds)
+                                .then((restoreResponse) => {
+                                    this.unselectAllDataGrid();
+                                    this.refreshView();
+                                    const msg = restoreResponse.message;
+                                    if (!!msg) {
+                                        this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
+                                    } else if (!!restoreResponse.error) {
+                                        this.showResponseErrorMessage(restoreResponse);
+                                    }
+                                    this.unblockUi();
+                                }).catch((err) => {
+                                this.showGlobalErrorMessage(err);
+                            })
+                        } else {
+                            this.unblockUi()
                         }
-                        this.unblockUi();
-                    }).catch((err) => {
-                    this.showGlobalErrorMessage(err);
-                })
-            },
-            reject: () => undefined,
-        })
+                    },
+                    () => this.unblockUi()
+                );
+            }).catch((err) => {
+            this.showGlobalErrorMessage(err);
+        });
     }
 
     archive(id) {
         ConsoleHelper('handleArchive');
+        this.blockUi();
         const viewId = this.getRealViewId();
-        confirmDialog({
-            appendTo: document.body,
-            message: LocUtils.loc(this.props.labels, 'Question_Archive_Label', 'Czy na pewno chcesz przenieść do archiwum zaznaczone rekordy?'),
-            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
-            icon: 'pi pi-exclamation-triangle',
-            acceptLabel: localeOptions('accept'),
-            rejectLabel: localeOptions('reject'),
-            accept: () => {
-                this.blockUi();
-                let parentId = this.state.elementRecordId;
-                const selectedRowKeysIds = (id === undefined || id === null || id === '') ? this.state.selectedRowKeys.map((e) => {
-                    return e.ID;
-                }) : [id];
-                const kindView = this.state.elementKindView;
-                this.editService.archive(viewId, parentId, kindView, selectedRowKeysIds)
-                    .then((archiveResponse) => {
-                        this.unselectAllDataGrid();
-                        this.refreshView();
-                        const msg = archiveResponse.message;
-                        if (!!msg) {
-                            this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
-                        } else if (!!archiveResponse.error) {
-                            this.showResponseErrorMessage(archiveResponse);
+        let parentId = this.state.elementRecordId;
+        const selectedRowKeysIds = (id === undefined || id === null || id === '') ? this.state.selectedRowKeys.map((e) => {
+            return e.ID;
+        }) : [id];
+        const kindView = this.state.elementKindView;
+        this.editService.archiveEntry(viewId, parentId, kindView, selectedRowKeysIds)
+            .then((entryResponse) => {
+                EntryResponseUtils.run(
+                    entryResponse,
+                    () => {
+                        if (!!entryResponse.next) {
+                            this.editService.archive(viewId, parentId, kindView, selectedRowKeysIds)
+                                .then((archiveResponse) => {
+                                    this.unselectAllDataGrid();
+                                    this.refreshView();
+                                    const msg = archiveResponse.message;
+                                    if (!!msg) {
+                                        this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
+                                    } else if (!!archiveResponse.error) {
+                                        this.showResponseErrorMessage(archiveResponse);
+                                    }
+                                    this.unblockUi();
+                                }).catch((err) => {
+                                this.showGlobalErrorMessage(err);
+                            })
+                        } else {
+                            this.unblockUi()
                         }
-                        this.unblockUi();
-                    }).catch((err) => {
-                    this.showGlobalErrorMessage(err);
-                })
-            },
-            reject: () => undefined,
-        })
+                    },
+                    () => this.unblockUi()
+                );
+            }).catch((err) => {
+            this.showGlobalErrorMessage(err);
+        });
     }
 
     handleEditListRowChange(editInfo, editListData) {
@@ -1275,7 +1305,10 @@ class BaseContainer extends React.Component {
     }
 
     handleCancelRowChange(viewId, recordId, parentId) {
-        ConsoleHelper(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
+        ConsoleHelper(`handleCancelRowChange: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
+        const cancelElement = this.editService.createObjectToSave(this.state);
+        ConsoleHelper(`handleCancelRowChange: element to cancel = ${JSON.stringify(cancelElement)}`)
+        this.rowCancel(viewId, recordId, parentId, cancelElement, false);
     }
 
     handleEditRowChange(inputType, event, groupName, info) {

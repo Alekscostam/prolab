@@ -8,14 +8,14 @@ import ShortcutButton from "../../components/prolab/ShortcutButton";
 import ActionButtonWithMenu from "../../components/prolab/ActionButtonWithMenu";
 import AppPrefixUtils from "../../utils/AppPrefixUtils";
 import PropTypes from "prop-types";
-import EditService from "../../services/EditService";
+import AddEditService from "../../services/AddEditService";
 import ConsoleHelper from "../../utils/ConsoleHelper";
 
 class DashboardCardViewComponent extends React.Component {
 
     constructor(props) {
         super(props);
-        this.editService = new EditService();
+        this.editService = new AddEditService();
         this.labels = this.props;
         ConsoleHelper('CardViewComponent -> constructor');
     }
@@ -119,9 +119,13 @@ class DashboardCardViewComponent extends React.Component {
                                                     let result = this.props.handleBlockUi();
                                                     if (result) {
                                                         this.editService
-                                                            .getEdit(viewId, recordId, subviewId, elementKindView)
+                                                            .edit(viewId, recordId, subviewId, elementKindView)
                                                             .then((editDataResponse) => {
-                                                                this.props.handleShowEditPanel(editDataResponse);
+                                                                this.setState({
+                                                                    editData: editDataResponse
+                                                                },()=>{
+                                                                    this.props.handleShowEditPanel(editDataResponse);
+                                                                });
                                                             })
                                                             .catch((err) => {
                                                                 this.props.showErrorMessages(err);
