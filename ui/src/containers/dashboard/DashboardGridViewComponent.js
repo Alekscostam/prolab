@@ -263,7 +263,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                         onEditList={this.handleEditListRowChange}
                         onCancel={this.handleCancelRowChange}
                         validator={this.validator}
-                        onHide={(e) => !!this.state.modifyEditData ? confirmDialog({
+                        onHide={(e, viewId, recordId, parentId) => !!this.state.modifyEditData ? confirmDialog({
                             appendTo: document.body,
                             message: LocUtils.loc(this.props.labels, 'Question_Close_Edit', 'Czy na pewno chcesz zamknąć edycję?'),
                             header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
@@ -271,11 +271,13 @@ export class DashboardGridViewComponent extends BaseContainer {
                             acceptLabel: localeOptions('accept'),
                             rejectLabel: localeOptions('reject'),
                             accept: () => {
-                                this.handleCancelRowChange();
+                                this.handleCancelRowChange(viewId, recordId, parentId);
                                 this.setState({visibleEditPanel: e});
                             },
                             reject: () => undefined,
-                        }) : this.setState({visibleEditPanel: e})}
+                        }) : this.setState({visibleEditPanel: e}, () => {
+                            this.handleCancelRowChange(viewId, recordId, parentId);
+                        })}
                         onError={(e) => this.showErrorMessage(e)}
                         labels={this.props.labels}
                     />
@@ -299,7 +301,7 @@ export class DashboardGridViewComponent extends BaseContainer {
             <React.Fragment>
                 <ActionButton rendered={opADD}
                               label={opADD?.label}
-                              handleClick={(e) => {
+                              handleClick={() => {
                               }}/>
             </React.Fragment>
         );

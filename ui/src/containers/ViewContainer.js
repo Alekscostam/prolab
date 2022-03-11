@@ -485,7 +485,9 @@ export class ViewContainer extends BaseContainer {
                             this.setState({visibleEditPanel: e});
                         },
                         reject: () => undefined,
-                    }) : this.setState({visibleEditPanel: e})}
+                    }) : this.setState({visibleEditPanel: e}, () => {
+                        this.handleCancelRowChange(viewId, recordId, parentId);
+                    })}
                     onError={(e) => this.showErrorMessage(e)}
                     labels={this.props.labels}
                 />
