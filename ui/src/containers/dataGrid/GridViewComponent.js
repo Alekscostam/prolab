@@ -232,6 +232,9 @@ class GridViewComponent extends React.Component {
                                                         }}
                                                         handleRestore={() => {
                                                             this.props.handleRestoreRow(recordId)
+                                                        }}
+                                                        handlePublish={() => {
+                                                            this.props.handlePublishRow(recordId)
                                                         }}/>
                             </div>,
                             element
@@ -441,6 +444,7 @@ GridViewComponent.propTypes = {
     handleCopyRow: PropTypes.func.isRequired,
     handleDeleteRow: PropTypes.func.isRequired,
     handleRestoreRow: PropTypes.func.isRequired,
+    handlePublishRow: PropTypes.func.isRequired,
     //other
     handleBlockUi: PropTypes.func.isRequired,
     handleUnblockUi: PropTypes.func.isRequired,

@@ -1265,6 +1265,46 @@ class BaseContainer extends React.Component {
         });
     }
 
+    publish(id) {
+        ConsoleHelper('publish');
+        this.blockUi();
+        const viewId = this.getRealViewId();
+        const parentId = this.state.elementRecordId;
+        const selectedRowKeysIds = (id === undefined || id === null || id === '') ? this.state.selectedRowKeys.map((e) => {
+            return e.ID;
+        }) : [id];
+        const kindView = this.state.elementKindView;
+        this.editService.publishEntry(viewId, parentId, kindView, selectedRowKeysIds)
+            .then((entryResponse) => {
+                EntryResponseUtils.run(
+                    entryResponse,
+                    () => {
+                        if (!!entryResponse.next) {
+                            this.editService.publish(viewId, parentId, kindView, selectedRowKeysIds)
+                                .then((publishResponse) => {
+                                    this.unselectAllDataGrid();
+                                    this.refreshView();
+                                    const msg = publishResponse.message;
+                                    if (!!msg) {
+                                        this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
+                                    } else if (!!publishResponse.error) {
+                                        this.showResponseErrorMessage(publishResponse);
+                                    }
+                                    this.unblockUi();
+                                }).catch((err) => {
+                                this.showGlobalErrorMessage(err);
+                            })
+                        } else {
+                            this.unblockUi()
+                        }
+                    },
+                    () => this.unblockUi()
+                );
+            }).catch((err) => {
+            this.showGlobalErrorMessage(err);
+        })
+    }
+
     handleEditListRowChange(editInfo, editListData) {
         ConsoleHelper(`handleEditListRowChange = `, JSON.stringify(editListData))
         try {

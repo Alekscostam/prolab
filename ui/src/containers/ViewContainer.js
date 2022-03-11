@@ -717,6 +717,7 @@ export class ViewContainer extends BaseContainer {
                     handleRestore={() => this.restore()}
                     handleCopy={() => this.copy()}
                     handleArchive={() => this.archive()}
+                    handlePublish={() => this.publish()}
                 />
             </React.Fragment>
         );
@@ -966,6 +967,7 @@ export class ViewContainer extends BaseContainer {
                                     handleRestoreRow={(id) => this.restore(id)}
                                     handleCopyRow={(id) => this.copy(id)}
                                     handleArchiveRow={(id) => this.archive(id)}
+                                    handlePublishRow={(id) => this.publish(id)}
                                 />
                             </React.Fragment>
                         ) : this.isCardView() ? (
@@ -996,6 +998,7 @@ export class ViewContainer extends BaseContainer {
                                     handleRestoreRow={(id) => this.restore(id)}
                                     handleCopyRow={(id) => this.copy(id)}
                                     handleArchiveRow={(id) => this.archive(id)}
+                                    handlePublishRow={(id) => this.publish(id)}
                                 />
                             </React.Fragment>
                         ) : this.isDashboard() ? (

@@ -74,6 +74,14 @@ export const OperationRecordButtons = props => {
                                         iconSide="left"
                                         title={operation?.label}/>
                     </React.Fragment>);
+                case 'OP_PUBLISH':
+                    return (<React.Fragment>
+                        <ShortcutButton className={`grid-button-panel ${margin}`}
+                                        handleClick={(e) => props.handlePublish(e)}
+                                        iconName={operation?.iconCode || 'mdi-publish'}
+                                        iconSide="left"
+                                        title={operation?.label}/>
+                    </React.Fragment>);
                 default:
                     return null;
             }
@@ -96,6 +104,8 @@ export const OperationRecordButtons = props => {
                             return props.handleCopy();
                         case 'OP_ARCHIVE':
                             return props.handleArchive();
+                        case 'OP_PUBLISH':
+                            return props.handlePublish();
                         default:
                             return null;
                     }
@@ -137,6 +147,8 @@ OperationRecordButtons.defaultProps = {
     },
     handleArchive: () => {
     },
+    handlePublish: () => {
+    },
     margin: Constants.DEFAULT_MARGIN_BETWEEN_BUTTONS
 };
 
@@ -152,6 +164,7 @@ OperationRecordButtons.propTypes = {
     handleRestore: PropTypes.func.isRequired,
     handleCopy: PropTypes.func.isRequired,
     handleArchive: PropTypes.func.isRequired,
+    handlePublish: PropTypes.func.isRequired,
     margin: PropTypes.string
 };
 

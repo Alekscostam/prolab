@@ -289,12 +289,40 @@ export default class AddEditService extends BaseService {
     }
 
     publishEntry(viewId, parentId, kindView, selectedIds) {
-        //TODO to implementation
+        let queryStringTmp = []
+        if (!!parentId) {
+            queryStringTmp.push(`parentId=${parentId}`);
+        }
+        if (!!parentId && !!kindView) {
+            queryStringTmp.push(`kindView=${kindView}`);
+        }
+        for (const id in selectedIds) {
+            queryStringTmp.push(`recordID=${selectedIds[id]}`);
+        }
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Publish/Entry?${queryStringTmp.join('&')}`, {
+            method: 'POST',
+        }).catch((err) => {
+            throw err;
+        });
     }
 
 
     publish(viewId, parentId, kindView, selectedIds) {
-        //TODO to implementation
+        let queryStringTmp = []
+        if (!!parentId) {
+            queryStringTmp.push(`parentId=${parentId}`);
+        }
+        if (!!parentId && !!kindView) {
+            queryStringTmp.push(`kindView=${kindView}`);
+        }
+        for (const id in selectedIds) {
+            queryStringTmp.push(`recordID=${selectedIds[id]}`);
+        }
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Publish?${queryStringTmp.join('&')}`, {
+            method: 'POST',
+        }).catch((err) => {
+            throw err;
+        });
     }
 
     createObjectToSave(state) {
