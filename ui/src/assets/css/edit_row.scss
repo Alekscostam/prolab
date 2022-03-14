@@ -318,3 +318,14 @@
 #row-edit .p-password input{
   width: 100%;
 }
+
+#row-edit input::-webkit-outer-spin-button,
+#row-edit input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+#row-edit input[type=number] {
+  -moz-appearance: textfield;
+}
