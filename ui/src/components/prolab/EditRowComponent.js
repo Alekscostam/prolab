@@ -668,7 +668,7 @@ export class EditRowComponent extends BaseContainer {
         }
     }
 
-    getMessages(){
+    getMessages() {
         return this.messages;
     }
 

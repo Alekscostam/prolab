@@ -153,7 +153,7 @@ class BaseViewComponent extends React.Component {
                                                                 .editEntry(viewId, recordId, parentId, kindView, '')
                                                                 .then((entryResponse) => {
                                                                     EntryResponseUtils.run(entryResponse, () => {
-                                                                        // if (!!entryResponse.next) {
+                                                                        if (!!entryResponse.next) {
                                                                             this.crudService
                                                                                 .edit(viewId, recordId, parentId, kindView)
                                                                                 .then((editDataResponse) => {
@@ -166,9 +166,9 @@ class BaseViewComponent extends React.Component {
                                                                                 .catch((err) => {
                                                                                     this.props.showErrorMessages(err);
                                                                                 });
-                                                                        // } else {
-                                                                        //     this.props.handleUnblockUi();
-                                                                        // }
+                                                                        } else {
+                                                                            this.props.handleUnblockUi();
+                                                                        }
                                                                     }, () => this.props.handleUnblockUi());
                                                                 }).catch((err) => {
                                                                 this.props.showErrorMessages(err);

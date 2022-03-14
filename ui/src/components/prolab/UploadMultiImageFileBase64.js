@@ -17,23 +17,25 @@ class UploadMultiImageFileBase64 extends React.Component {
             this.clearPreview();
         }
         let initBase64 = this.props.multiple ? this.props.initBase64 : [this.props.initBase64];
-        Array.from(initBase64).forEach(imageBase64 => {
-            if (this.props.preview === true && !!imageBase64) {
-                var imagePreviewRegion = document.getElementById("image-preview");
-                // container
-                var imgView = document.createElement("div");
-                imgView.className = "image-view";
-                imagePreviewRegion.appendChild(imgView);
-                // create preview image
-                var img = document.createElement("img");
-                img.src = `data:image/jpeg;base64,${imageBase64}`;
-                imgView.appendChild(img);
-                // progress overlay
-                var overlay = document.createElement("div");
-                overlay.className = "overlay";
-                imgView.appendChild(overlay);
-            }
-        });
+        if (initBase64) {
+            Array.from(initBase64).forEach(imageBase64 => {
+                if (this.props.preview === true && !!imageBase64) {
+                    var imagePreviewRegion = document.getElementById("image-preview");
+                    // container
+                    var imgView = document.createElement("div");
+                    imgView.className = "image-view";
+                    imagePreviewRegion.appendChild(imgView);
+                    // create preview image
+                    var img = document.createElement("img");
+                    img.src = `data:image/jpeg;base64,${imageBase64}`;
+                    imgView.appendChild(img);
+                    // progress overlay
+                    var overlay = document.createElement("div");
+                    overlay.className = "overlay";
+                    imgView.appendChild(overlay);
+                }
+            });
+        }
     }
 
     makeDropRegion() {
@@ -106,6 +108,8 @@ class UploadMultiImageFileBase64 extends React.Component {
 
     previewAndUploadImage(imageFiles) {
         let base64Images = [];
+        let imagesCount = imageFiles.length;
+        let count = 1;
         Array.from(imageFiles).forEach(imageFile => {
             if (this.props.preview === true) {
                 var imagePreviewRegion = document.getElementById("image-preview");
@@ -130,8 +134,18 @@ class UploadMultiImageFileBase64 extends React.Component {
             reader.onload = (e) => {
                 if (this.props.preview === true) {
                     img.src = e.target.result;
-                    base64Images.push(e.target.result);
+                    let data = e.target.result.toString();
+                    const index = data.indexOf('base64,') + 7;
+                    try {
+                        base64Images.push(data.substring(index));
+                    } catch (err) {
+                        ConsoleHelper('UploadMultiImageFileBase64 err=', err)
+                    }
                 }
+                if (this.props.onSuccessB64 !== undefined && count >= imagesCount) {
+                    this.props.onSuccessB64(base64Images);
+                }
+                count++;
             }
             ConsoleHelper('imageFile')
             ConsoleHelper(imageFile)
@@ -141,9 +155,6 @@ class UploadMultiImageFileBase64 extends React.Component {
                 this.clearPreview();
             }
         });
-        if (this.props.onSuccessB64 !== undefined) {
-            this.props.onSuccessB64(base64Images)
-        }
     }
 
     handleFiles(files) {
