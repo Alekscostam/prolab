@@ -3,7 +3,7 @@ import {ArrayModel, ObjectModel} from 'objectmodel';
 export const ViewInfo = ObjectModel({
     id: Number,
     name: String,
-    type: ['gridView', 'cardView', 'dashboard'],
+    type: ['gridView', 'cardView', 'dashboard', 'TreeList'],
     kindView: ['View', 'ViewSpec', 'NULL', null],
 });
 

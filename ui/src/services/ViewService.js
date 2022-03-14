@@ -34,6 +34,14 @@ export default class ViewService extends BaseService {
         });
     }
 
+    getViewSpec(viewId, recordParentId) {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/editspec/${recordParentId}?kindView=ViewSpec`, {
+            method: 'GET',
+        }).catch((err) => {
+            throw err;
+        });
+    }
+
     getSubView(viewId, recordId) {
         // czasem na jednym widoku, lub przy przejściu między widokami idzie kilka takich samych zapytań, jedno po drugim;
         // dlatego wyniki zapytań są zapamiętywane lokalnie na 5 sekund

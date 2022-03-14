@@ -23,7 +23,9 @@ import Constants from "../../utils/Constants";
 import ConsoleHelper from "../../utils/ConsoleHelper";
 import OperationRecordButtons from "../../components/prolab/OperationRecordButtons";
 import {EntryResponseUtils} from "../../utils/EntryResponseUtils";
-
+//
+//    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
+//
 class GridViewComponent extends React.Component {
 
     constructor(props) {

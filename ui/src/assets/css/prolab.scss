@@ -423,6 +423,10 @@ label {
 @import 'shortcut';
 /*------------------*/
 
+//tree container
+@import 'tree_container';
+/*------------------*/
+
 //grid container
 @import 'grid_container';
 /*------------------*/
@@ -578,6 +582,12 @@ iframe {
 }
 .p-datepicker-buttonbar button{
   height: 25px;
+}
+.dx-tab.dx-state-focused::after{
+  border: 0 !important;
+  -webkit-appearance: none !important;
+  outline: none !important;
+  box-shadow : none;
 }
 
 @import 'edit_row';

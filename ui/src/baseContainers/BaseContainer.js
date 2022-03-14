@@ -1460,7 +1460,11 @@ class BaseContainer extends React.Component {
     }
 
     isGridView() {
-        return this.state.gridViewType === 'gridView';
+        return this.state.gridViewType === 'gridView' && this.state.kindView === 'View';
+    }
+
+    isTreeView() {
+        return this.state.gridViewType === 'gridView' && this.state.kindView === 'ViewSpec';
     }
 
     isCardView() {

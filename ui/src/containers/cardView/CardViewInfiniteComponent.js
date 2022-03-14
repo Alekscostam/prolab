@@ -73,11 +73,7 @@ class CardViewInfiniteComponent extends React.Component {
 
     refresh() {
         this.setState({
-            hasNextPage: true,
-            isNextPageLoading: false,
-            items: [],
-            cardSkip: 0,
-            cardScrollLoading: false,
+            hasNextPage: true, isNextPageLoading: false, items: [], cardSkip: 0, cardScrollLoading: false,
         })
     }
 
@@ -85,9 +81,7 @@ class CardViewInfiniteComponent extends React.Component {
         const dataPackageSize = 30;
         const packageCount = (!!dataPackageSize || dataPackageSize === 0) ? 30 : dataPackageSize;
         this.setState({
-            isNextPageLoading: true,
-            cardScrollLoading: true,
-            cardSkip: this.state.cardSkip + packageCount
+            isNextPageLoading: true, cardScrollLoading: true, cardSkip: this.state.cardSkip + packageCount
         }, () => {
             const columnCount = this.state.columnCount;
             let skip = args[0] * columnCount;
@@ -97,13 +91,8 @@ class CardViewInfiniteComponent extends React.Component {
             }
             this.dataCardStore
                 .getDataForCard(this.props.id, {
-                        skip: skip,
-                        take: packageCount
-                    },
-                    this.props.parentId,
-                    this.props.filterId,
-                    this.props.kindView
-                )
+                    skip: skip, take: packageCount
+                }, this.props.parentId, this.props.filterId, this.props.kindView)
                 .then((res) => {
                     let parsedCardViewData = [];
                     res.data.forEach((item) => {
@@ -120,9 +109,7 @@ class CardViewInfiniteComponent extends React.Component {
                     this.setState(state => ({
                         hasNextPage: state.items.length < res.totalCount,
                         isNextPageLoading: false,
-                        items: [...state.items].concat(
-                            parsedCardViewData
-                        )
+                        items: [...state.items].concat(parsedCardViewData)
                     }));
                 });
         });
@@ -160,32 +147,27 @@ class CardViewInfiniteComponent extends React.Component {
                 return <div id={'row'} className={'tiles'} style={style}/>
             } else {
                 return (<React.Fragment>
-                    {!!rowData ?
-                        <div id={'row'} className={'tiles'} style={style}>
-                            {React.Children.toArray(
-                                Array.from(rowData).map((data) => this.renderSingleTile(data, index, cardWidth, cardHeight))
-                            )}
-                        </div> : null}
+                    {!!rowData ? <div id={'row'} className={'tiles'} style={style}>
+                        {React.Children.toArray(Array.from(rowData).map((data) => this.renderSingleTile(data, index, cardWidth, cardHeight)))}
+                    </div> : null}
                 </React.Fragment>);
             }
         };
-        return (
-            <React.Fragment>
-                <WindowSizeListener onResize={(windowSize) => {
-                    this.setState({columnCount: this.calculateColumns(windowSize.windowWidth, cardWidth)})
-                }}>
-                    <CardInfiniteLoaderWrapper
-                        hasNextPage={this.state.hasNextPage}
-                        isNextPageLoading={this.state.isNextPageLoading}
-                        items={this.state.items}
-                        loadNextPage={this._loadNextPage}
-                        item={Item}
-                        columnCount={this.state.columnCount}
-                        cardHeight={cardHeight}
-                    />
-                </WindowSizeListener>
-            </React.Fragment>
-        )
+        return (<React.Fragment>
+            <WindowSizeListener onResize={(windowSize) => {
+                this.setState({columnCount: this.calculateColumns(windowSize.windowWidth, cardWidth)})
+            }}>
+                <CardInfiniteLoaderWrapper
+                    hasNextPage={this.state.hasNextPage}
+                    isNextPageLoading={this.state.isNextPageLoading}
+                    items={this.state.items}
+                    loadNextPage={this._loadNextPage}
+                    item={Item}
+                    columnCount={this.state.columnCount}
+                    cardHeight={cardHeight}
+                />
+            </WindowSizeListener>
+        </React.Fragment>)
     }
 
     renderSingleTile(rowData, index, cardWidth, cardHeight) {
@@ -200,11 +182,7 @@ class CardViewInfiniteComponent extends React.Component {
             this.props.parsedCardView?.operations.forEach((operation) => {
                 showEditButton = showEditButton || operation.type === 'OP_EDIT';
                 showSubviewButton = showSubviewButton || operation.type === 'OP_SUBVIEWS';
-                if (
-                    operation.type === 'OP_PUBLIC' ||
-                    operation.type === 'OP_HISTORY' ||
-                    operation.type === 'OP_ATTACHMENTS'
-                ) {
+                if (operation.type === 'OP_PUBLIC' || operation.type === 'OP_HISTORY' || operation.type === 'OP_ATTACHMENTS') {
                     menuItems.push(operation);
                 }
             });
@@ -244,16 +222,12 @@ class CardViewInfiniteComponent extends React.Component {
                  }}>
                 <div className={'dx-item-content dx-tile-content'}>
                     <div id={recordId}
-                         className={`dx-tile-image ${this.isSelectionEnabled() ? (
-                             selectedRowKeys.findIndex(item => item.ID === recordId) > -1 ? 'card-grid-selected' : '') : ''
-                         }`}
+                         className={`dx-tile-image ${this.isSelectionEnabled() ? (selectedRowKeys.findIndex(item => item.ID === recordId) > -1 ? 'card-grid-selected' : '') : ''}`}
                          style={this.styleTile(rowData, cardBgColor1, cardBgColor2, fontColor, cardWidth, cardHeight)}
                     >
                         <div className='row'>
                             <div className='card-grid-header'>
-                                {cardHeader?.visible
-                                    ? CardViewUtils.cellTemplate(cardHeader, rowData, 'card-grid-header-title', 'HEADER')
-                                    : null}
+                                {cardHeader?.visible ? CardViewUtils.cellTemplate(cardHeader, rowData, 'card-grid-header-title', 'HEADER') : null}
                                 {showEditButton || showMenu || showSubviewButton ? (
                                     <div className='card-grid-header-buttons'>
                                         <OperationRecordButtons margin={'mr-0'}
@@ -278,13 +252,9 @@ class CardViewInfiniteComponent extends React.Component {
                                                                             });
                                                                     }
                                                                 }}
-                                                                hrefSubview={AppPrefixUtils.locationHrefUrl(
-                                                                    `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${!!currentBreadcrumb ? currentBreadcrumb : ``}`
-                                                                )}
+                                                                hrefSubview={AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${!!currentBreadcrumb ? currentBreadcrumb : ``}`)}
                                                                 handleHrefSubview={() => {
-                                                                    let newUrl = AppPrefixUtils.locationHrefUrl(
-                                                                        `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${!!currentBreadcrumb ? currentBreadcrumb : ``}`
-                                                                    );
+                                                                    let newUrl = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${!!currentBreadcrumb ? currentBreadcrumb : ``}`);
                                                                     window.location.assign(newUrl);
                                                                 }}
                                                                 handleArchive={() => {
@@ -298,35 +268,25 @@ class CardViewInfiniteComponent extends React.Component {
                                                                 }}
                                                                 handleRestore={() => {
                                                                     this.props.handleRestoreRow(recordId)
-                                                                }}/>
-                                    </div>
-                                ) : null}
+                                                                }}
+                                                                handlePublish={() => {
+                                                                    this.props.handlePublishRow(recordId)
+                                                                }}
+                                        />
+                                    </div>) : null}
                             </div>
                             <div className='card-grid-body'>
                                 {/* <div className='row'> */}
-                                {cardImage?.visible && cardImage?.fieldName && rowData[cardImage?.fieldName]
-                                    ? // <div className={cardBody?.visible ? 'col-3' : 'col-12'}>
-                                    CardViewUtils.cellTemplate(cardImage, rowData, 'card-grid-body-image', 'IMG')
-                                    : // </div>
+                                {cardImage?.visible && cardImage?.fieldName && rowData[cardImage?.fieldName] ? // <div className={cardBody?.visible ? 'col-3' : 'col-12'}>
+                                    CardViewUtils.cellTemplate(cardImage, rowData, 'card-grid-body-image', 'IMG') : // </div>
                                     null}
-                                {cardBody?.visible
-                                    ? // <div className={cardImage?.visible ? 'col-9' : 'col-12'}>
-                                    CardViewUtils.cellTemplate(
-                                        cardBody,
-                                        rowData,
-                                        'card-grid-body-content',
-                                        cardImage?.visible && cardImage?.fieldName && rowData[cardImage?.fieldName]
-                                            ? 'BODY_WITH_IMG'
-                                            : 'BODY'
-                                    )
-                                    : // </div>
+                                {cardBody?.visible ? // <div className={cardImage?.visible ? 'col-9' : 'col-12'}>
+                                    CardViewUtils.cellTemplate(cardBody, rowData, 'card-grid-body-content', cardImage?.visible && cardImage?.fieldName && rowData[cardImage?.fieldName] ? 'BODY_WITH_IMG' : 'BODY') : // </div>
                                     null}
                                 {/* </div> */}
                             </div>
                             <div className='card-grid-footer'>
-                                {cardFooter?.visible
-                                    ? CardViewUtils.cellTemplate(cardFooter, rowData, 'card-grid-footer-content', 'FOOTER')
-                                    : null}
+                                {cardFooter?.visible ? CardViewUtils.cellTemplate(cardFooter, rowData, 'card-grid-footer-content', 'FOOTER') : null}
                             </div>
                         </div>
                     </div>
@@ -338,11 +298,7 @@ class CardViewInfiniteComponent extends React.Component {
 }
 
 CardViewInfiniteComponent.defaultProps = {
-    parsedCardView: true,
-    parsedCardViewData: false,
-    selectedRowKeys: [],
-    cardGrid: null,
-    mode: 'view'
+    parsedCardView: true, parsedCardViewData: false, selectedRowKeys: [], cardGrid: null, mode: 'view'
 };
 
 CardViewInfiniteComponent.propTypes = {
@@ -361,12 +317,12 @@ CardViewInfiniteComponent.propTypes = {
     elementSubViewId: PropTypes.object,
     elementKindView: PropTypes.string,
     selectedRowKeys: PropTypes.object,
-    handleSelectedRowKeys: PropTypes.func,
-    //buttons
+    handleSelectedRowKeys: PropTypes.func, //buttons
     handleArchiveRow: PropTypes.func.isRequired,
     handleCopyRow: PropTypes.func.isRequired,
     handleDeleteRow: PropTypes.func.isRequired,
     handleRestoreRow: PropTypes.func.isRequired,
+    handlePublishRow: PropTypes.func.isRequired,
 };
 
 export default CardViewInfiniteComponent;

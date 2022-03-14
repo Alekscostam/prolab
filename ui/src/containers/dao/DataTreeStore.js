@@ -4,15 +4,15 @@ import 'whatwg-fetch';
 import BaseService from '../../services/BaseService';
 import ConsoleHelper from "../../utils/ConsoleHelper";
 
-export default class DataGridStore extends BaseService {
+export default class DataTreeStore extends BaseService {
     constructor() {
         super();
-        this.path = 'viewdata';
+        this.path = 'view';
         this.cachedLastResponse = null;
         this.cachedLoadOptions = null;
     }
 
-    getSelectAllDataGridStore(viewIdArg, viewTypeArg, recordParentIdArg, filterIdArg, kindViewArg, filters) {
+    getSelectAllDataTreeStore(viewIdArg, viewTypeArg, recordParentIdArg, filterIdArg, kindViewArg, filters) {
         let params = '?';
         [
             !!filters && filters.length > 0 ? 'filter' : undefined,
@@ -40,7 +40,7 @@ export default class DataGridStore extends BaseService {
         const recordParentIdParam = !!recordParentIdArg ? `&parentId=${recordParentIdArg}` : '';
         const kindViewParam = !!kindViewArg && !!recordParentIdParam ? `&kindView=${kindViewArg}` : '';
         const selectAllParam = !!eventSelectAll ? `&selection=true` : '';
-        let url = `${this.domain}/${this.path}/${viewIdArg}${params}${viewTypeParam}${filterIdParam}${selectAllParam}${recordParentIdParam}${kindViewParam}`;
+        let url = `${this.domain}/${this.path}/${viewIdArg}/editspec/${recordParentIdArg}${params}${viewTypeParam}${filterIdParam}${selectAllParam}${kindViewParam}`;
         url = this.commonCorrectUrl(url);
         return this.fetch(
             url,
@@ -52,7 +52,7 @@ export default class DataGridStore extends BaseService {
         });
     }
 
-    getDataGridStore(viewIdArg, viewTypeArg, recordParentIdArg, filterIdArg, kindViewArg, onStart, onSuccess, onError) {
+    getDataTreeStore(viewIdArg, viewTypeArg, recordParentIdArg, filterIdArg, kindViewArg, onStart, onSuccess, onError) {
         if (!viewIdArg) {
             if (onSuccess) {
                 onSuccess();
@@ -95,15 +95,15 @@ export default class DataGridStore extends BaseService {
                         addSelectAllParam = true
                     }
                 }
-                const viewTypeParam = !!viewTypeArg ? `&viewType=${viewTypeArg}` : '';
+                //const viewTypeParam = !!viewTypeArg ? `&viewType=${viewTypeArg}` : '';
                 const filterIdParam = !!filterIdArg ? `&filterId=${filterIdArg}` : '';
-                const recordParentIdParam = !!recordParentIdArg ? `&parentId=${recordParentIdArg}` : '';
-                const kindViewParam = !!kindViewArg && !!recordParentIdParam ? `&kindView=${kindViewArg}` : '';
+                //const recordParentIdParam = !!recordParentIdArg ? `&parentId=${recordParentIdArg}` : '';
+                const kindViewParam = `&kindView=ViewSpec`;
                 const selectAllParam = !!addSelectAllParam ? `&selection=true` : '';
-                let url = `${this.domain}/${this.path}/${viewIdArg}${params}${viewTypeParam}${filterIdParam}${selectAllParam}${recordParentIdParam}${kindViewParam}`;
+                let url = `${this.domain}/${this.path}/${viewIdArg}/editspec/${recordParentIdArg}/data${params}${filterIdParam}${selectAllParam}${kindViewParam}`;
                 url = this.commonCorrectUrl(url);
                 //blokuj dziwne strzały ze stora
-                if (url.split("&").length - 1 <= 2  && !!this.cachedLastResponse) {
+                if ((url.split("&").length - 1 <= 2) && !!this.cachedLastResponse) {
                     if (onSuccess) {
                         onSuccess();
                     }
@@ -116,7 +116,7 @@ export default class DataGridStore extends BaseService {
                         method: 'GET',
                     }
                 ).then((response) => {
-                    ConsoleHelper('DataGridStore -> fetch ');
+                    ConsoleHelper('DataTreeStore -> fetch ');
                     this.cachedLastResponse = {
                         data: response.data,
                         totalCount: response.totalCount,
@@ -128,7 +128,7 @@ export default class DataGridStore extends BaseService {
                     }
                     return this.cachedLastResponse;
                 }).catch((err) => {
-                    ConsoleHelper('Error fetch data grid store for view id={%s}. Error = ', viewIdArg, err);
+                    ConsoleHelper('Error fetch data tree store for view id={%s}. Error = ', viewIdArg, err);
                     if (onError) {
                         onError(err);
                     }
