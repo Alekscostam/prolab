@@ -8,14 +8,13 @@ import ShortcutButton from "../../components/prolab/ShortcutButton";
 import ActionButtonWithMenu from "../../components/prolab/ActionButtonWithMenu";
 import AppPrefixUtils from "../../utils/AppPrefixUtils";
 import PropTypes from "prop-types";
-import AddEditService from "../../services/AddEditService";
+import CrudService from "../../services/CrudService";
 import ConsoleHelper from "../../utils/ConsoleHelper";
 
-class DashboardCardViewComponent extends React.Component {
-
+class DashboardCardViewComponent extends React.Component {I
     constructor(props) {
         super(props);
-        this.editService = new AddEditService();
+        this.crudService = new CrudService();
         this.labels = this.props;
         ConsoleHelper('CardViewComponent -> constructor');
     }
@@ -118,7 +117,7 @@ class DashboardCardViewComponent extends React.Component {
                                                 handleClick={() => {
                                                     let result = this.props.handleBlockUi();
                                                     if (result) {
-                                                        this.editService
+                                                        this.crudService
                                                             .edit(viewId, recordId, subviewId, elementKindView)
                                                             .then((editDataResponse) => {
                                                                 this.setState({

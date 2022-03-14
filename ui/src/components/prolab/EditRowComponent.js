@@ -16,7 +16,6 @@ import HtmlEditor, {Item, MediaResizing, Toolbar} from 'devextreme-react/html-ed
 import {Validator} from "devextreme-react";
 import {RequiredRule} from "devextreme-react/validator";
 import moment from 'moment';
-import AddEditService from "../../services/AddEditService";
 import {Sidebar} from "primereact/sidebar";
 import UploadMultiImageFileBase64 from "./UploadMultiImageFileBase64";
 import {Checkbox} from "primereact/checkbox";
@@ -30,12 +29,13 @@ import EditListUtils from "../../utils/EditListUtils";
 import MockService from "../../services/MockService";
 import LocUtils from "../../utils/LocUtils";
 import {Password} from "primereact/password";
+import CrudService from "../../services/CrudService";
 
 export class EditRowComponent extends BaseContainer {
 
     constructor(props) {
         super(props);
-        this.service = new AddEditService();
+        this.service = new CrudService();
 
         this.state = {
             loading: true,

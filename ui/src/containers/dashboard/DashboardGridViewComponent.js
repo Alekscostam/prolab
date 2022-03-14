@@ -7,7 +7,7 @@ import ActionButtonWithMenu from '../../components/prolab/ActionButtonWithMenu';
 import EditRowComponent from '../../components/prolab/EditRowComponent';
 import HeadPanel from '../../components/prolab/HeadPanel';
 import ShortcutsButton from '../../components/prolab/ShortcutsButton';
-import AddEditService from '../../services/AddEditService';
+import CrudService from '../../services/CrudService';
 import ViewService from '../../services/ViewService';
 import AppPrefixUtils from '../../utils/AppPrefixUtils';
 import {GridViewUtils} from '../../utils/GridViewUtils';
@@ -29,7 +29,7 @@ export class DashboardGridViewComponent extends BaseContainer {
         ConsoleHelper('GridViewContainer -> constructor');
         super(props);
         this.viewService = new ViewService();
-        this.editService = new AddEditService();
+        this.crudService = new CrudService();
         this.dataGridStore = new DataGridStore();
         this.subGridView = null;
         this.state = {

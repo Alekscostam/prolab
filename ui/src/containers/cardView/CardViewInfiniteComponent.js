@@ -5,7 +5,7 @@ import $ from "jquery";
 import {CardViewUtils} from "../../utils/CardViewUtils";
 import AppPrefixUtils from "../../utils/AppPrefixUtils";
 import PropTypes from "prop-types";
-import AddEditService from "../../services/AddEditService";
+import CrudService from "../../services/CrudService";
 import ConsoleHelper from "../../utils/ConsoleHelper";
 import CardInfiniteLoaderWrapper from "./CardInfiniteLoaderWrapper";
 import WindowSizeListener from "react-window-size-listener";
@@ -16,7 +16,7 @@ class CardViewInfiniteComponent extends React.Component {
 
     constructor(props) {
         super(props);
-        this.editService = new AddEditService();
+        this.editService = new CrudService();
         this.labels = this.props;
         this.dataCardStore = new DataCardStore();
         this.state = {

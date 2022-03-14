@@ -7,7 +7,7 @@ import ActionButtonWithMenu from '../components/prolab/ActionButtonWithMenu';
 import EditRowComponent from '../components/prolab/EditRowComponent';
 import HeadPanel from '../components/prolab/HeadPanel';
 import ShortcutsButton from '../components/prolab/ShortcutsButton';
-import AddEditService from '../services/AddEditService';
+import CrudService from '../services/CrudService';
 import ViewService from '../services/ViewService';
 import AppPrefixUtils from '../utils/AppPrefixUtils';
 import {Breadcrumb} from '../utils/BreadcrumbUtils';
@@ -41,12 +41,13 @@ export class ViewContainer extends BaseContainer {
         ConsoleHelper('ViewContainer -> constructor');
         super(props);
         this.viewService = new ViewService();
-        this.editService = new AddEditService();
+        this.editService = new CrudService();
         this.dataGridStore = new DataGridStore();
         this.dataCardStore = new DataCardStore();
         this.dataTreeStore = new DataTreeStore();
-        this.refDataGrid = null
+        this.refDataGrid = React.createRef()
         this.refCardGrid = React.createRef();
+        this.refDataTree = React.createRef()
         this.selectedDataGrid = null;
         this.state = {
             loading: true,
@@ -903,10 +904,7 @@ export class ViewContainer extends BaseContainer {
                         elementSubViewId={this.state.elementSubViewId}
                         elementKindView={this.state.elementKindView}
                         elementRecordId={this.state.elementRecordId}
-                        handleOnInitialized={this.onInitialize}
-                        handleOnDataTree={(ref) => {
-                            this.refDataGrid = ref;
-                        }}
+                        handleOnDataTree={(ref) => this.refDataTree = ref}
                         parsedGridView={this.state.parsedGridView}
                         parsedGridViewData={this.state.parsedGridViewData}
                         gridViewColumns={this.state.gridViewColumns}
@@ -920,29 +918,9 @@ export class ViewContainer extends BaseContainer {
                         handleShowEditPanel={(editDataResponse) => {
                             this.handleShowEditPanel(editDataResponse)
                         }}
-                        handleSelectAll={(selectionValue) => {
-                            this.blockUi();
-                            if (selectionValue === null) {
-                                this.setState({
-                                    selectAll: false, select: true
-                                });
-                                dataGrid.getSelectedRowsData().then((rowData) => {
-                                    this.setState({
-                                        selectedRowKeys: rowData, selectAll: false, select: false
-                                    }, () => {
-                                        this.unblockUi();
-                                    })
-                                });
-                            } else {
-                                if (selectionValue) {
-                                    this.selectAllDataGrid(selectionValue);
-                                } else {
-                                    this.unselectAllDataGrid(selectionValue);
-                                }
-                            }
-                        }}
+                        selectedRowKeys={this.state.selectedRowKeys}
+                        handleSelectedRowKeys={(e) => this.setState({selectedRowKeys: e})}
                         dataTreeStoreSuccess={this.state.dataGridStoreSuccess}
-                        selectionDeferred={true}
                         handleDeleteRow={(id) => this.delete(id)}
                         handleRestoreRow={(id) => this.restore(id)}
                         handleCopyRow={(id) => this.copy(id)}

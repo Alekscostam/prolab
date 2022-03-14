@@ -35,7 +35,7 @@ export class GridViewUtils {
             }
             for (i = 0; i < arrURLParams.length; i++) {
                 if (arrParamNames[i] === paramName) {
-                    //alert("Parameter:" + arrParamValues[i]);
+                    // alert("Parameter:" + arrParamValues[i]);
                     return arrParamValues[i];
                 }
             }

@@ -15,9 +15,9 @@ import PropTypes from "prop-types";
 import ShortcutButton from "../../components/prolab/ShortcutButton";
 import AppPrefixUtils from "../../utils/AppPrefixUtils";
 import UrlUtils from "../../utils/UrlUtils";
-import AddEditService from "../../services/AddEditService";
 import LocUtils from "../../utils/LocUtils";
 import DashboardCardViewComponent from "./DashboardCardViewComponent";
+import CrudService from "../../services/CrudService";
 
 class DashboardContainer extends BaseContainer {
 
@@ -26,7 +26,7 @@ class DashboardContainer extends BaseContainer {
         this.viewService = new ViewService();
         this.dashboardService = new DashboardService();
         this.dataGridStore = new DataGridStore();
-        this.editService = new AddEditService();
+        this.crudService = new CrudService();
         this.state = {
             loading: true,
             cardView: []

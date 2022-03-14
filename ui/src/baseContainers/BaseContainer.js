@@ -1110,9 +1110,7 @@ class BaseContainer extends React.Component {
         this.blockUi();
         const viewId = this.getRealViewId();
         const parentId = this.state.elementRecordId;
-        const selectedRowKeysIds = (id === undefined || id === null || id === '') ? this.state.selectedRowKeys.map((e) => {
-            return e.ID;
-        }) : [id];
+        const selectedRowKeysIds = this.getSelectedRowKeysIds(id)
         const kindView = this.state.elementKindView;
         this.editService.deleteEntry(viewId, parentId, kindView, selectedRowKeysIds)
             .then((entryResponse) => {
@@ -1145,14 +1143,18 @@ class BaseContainer extends React.Component {
         })
     }
 
+    getSelectedRowKeysIds(id) {
+        return (id === undefined || id === null || id === '') ? this.state.selectedRowKeys.map((e) => {
+            return e.ID === undefined ? e : e.ID;
+        }) : [id];
+    }
+
     copy(id) {
         ConsoleHelper('handleCopy');
         this.blockUi();
         const viewId = this.getRealViewId();
         const parentId = this.state.elementRecordId;
-        const selectedRowKeysIds = (id === undefined || id === null || id === '') ? this.state.selectedRowKeys.map((e) => {
-            return e.ID;
-        }) : [id];
+        const selectedRowKeysIds = this.getSelectedRowKeysIds(id)
         const kindView = this.state.elementKindView;
         this.editService.copyEntry(viewId, parentId, kindView, selectedRowKeysIds)
             .then((entryResponse) => {
@@ -1190,9 +1192,7 @@ class BaseContainer extends React.Component {
         this.blockUi();
         const viewId = this.getRealViewId();
         const parentId = this.state.elementRecordId;
-        const selectedRowKeysIds = (id === undefined || id === null || id === '') ? this.state.selectedRowKeys.map((e) => {
-            return e.ID;
-        }) : [id];
+        const selectedRowKeysIds = this.getSelectedRowKeysIds(id)
         const kindView = this.state.elementKindView;
         this.editService.restoreEntry(viewId, parentId, kindView, selectedRowKeysIds)
             .then((entryResponse) => {
@@ -1229,10 +1229,8 @@ class BaseContainer extends React.Component {
         ConsoleHelper('handleArchive');
         this.blockUi();
         const viewId = this.getRealViewId();
-        let parentId = this.state.elementRecordId;
-        const selectedRowKeysIds = (id === undefined || id === null || id === '') ? this.state.selectedRowKeys.map((e) => {
-            return e.ID;
-        }) : [id];
+        const parentId = this.state.elementRecordId;
+        const selectedRowKeysIds = this.getSelectedRowKeysIds(id)
         const kindView = this.state.elementKindView;
         this.editService.archiveEntry(viewId, parentId, kindView, selectedRowKeysIds)
             .then((entryResponse) => {
@@ -1270,9 +1268,7 @@ class BaseContainer extends React.Component {
         this.blockUi();
         const viewId = this.getRealViewId();
         const parentId = this.state.elementRecordId;
-        const selectedRowKeysIds = (id === undefined || id === null || id === '') ? this.state.selectedRowKeys.map((e) => {
-            return e.ID;
-        }) : [id];
+        const selectedRowKeysIds = this.getSelectedRowKeysIds(id)
         const kindView = this.state.elementKindView;
         this.editService.publishEntry(viewId, parentId, kindView, selectedRowKeysIds)
             .then((entryResponse) => {

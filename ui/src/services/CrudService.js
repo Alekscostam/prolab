@@ -5,7 +5,7 @@ import EditRowUtils from "../utils/EditRowUtils";
 /*
 Kontroler do edycji danych.
  */
-export default class AddEditService extends BaseService {
+export default class CrudService extends BaseService {
     // Initializing important variables
     constructor() {
         super();
