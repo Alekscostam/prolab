@@ -23,7 +23,7 @@ class LoginContainer extends BaseContainer {
         this.handleFormSubmit = this.handleFormSubmit.bind(this);
         this.showWarningMessage = this.showWarningMessage.bind(this);
         this.getLocalizationLoginPage = this.getLocalizationLoginPage.bind(this);
-
+        this.messages = React.createRef();
         this.state = {
             username: '',
             password: '',
@@ -282,6 +282,11 @@ class LoginContainer extends BaseContainer {
             </React.Fragment>
         );
     }
+
+    getMessages(){
+        return this.messages;
+    }
+
 }
 
 LoginContainer.propTypes = {

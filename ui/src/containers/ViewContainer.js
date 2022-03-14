@@ -41,13 +41,14 @@ export class ViewContainer extends BaseContainer {
         ConsoleHelper('ViewContainer -> constructor');
         super(props);
         this.viewService = new ViewService();
-        this.editService = new CrudService();
+        this.crudService = new CrudService();
         this.dataGridStore = new DataGridStore();
         this.dataCardStore = new DataCardStore();
         this.dataTreeStore = new DataTreeStore();
         this.refDataGrid = React.createRef()
         this.refCardGrid = React.createRef();
         this.refDataTree = React.createRef()
+        this.messages = React.createRef();
         this.selectedDataGrid = null;
         this.state = {
             loading: true,
@@ -80,6 +81,7 @@ export class ViewContainer extends BaseContainer {
         this.onInitialize = this.onInitialize.bind(this);
         this.getViewById = this.getViewById.bind(this);
         this.downloadData = this.downloadData.bind(this);
+        this.unselectAllDataGrid = this.unselectAllDataGrid.bind(this);
     }
 
     componentDidMount() {
@@ -788,12 +790,12 @@ export class ViewContainer extends BaseContainer {
         const recordId = undefined;
         let viewId = this.props.id;
         viewId = GridViewUtils.getRealViewId(subViewId, viewId);
-        this.editService
+        this.crudService
             .addEntry(viewId, e.recordId, parentId, kindView)
             .then((entryResponse) => {
                 EntryResponseUtils.run(entryResponse, () => {
                     if (!!entryResponse.next) {
-                        this.editService
+                        this.crudService
                             .add(viewId, recordId, parentId, kindView)
                             .then((editDataResponse) => {
                                 this.setState({
@@ -817,7 +819,7 @@ export class ViewContainer extends BaseContainer {
         this.blockUi();
         const parentId = this.state.elementRecordId;
         const kindView = this.state.elementKindView;
-        this.editService
+        this.crudService
             .edit(e.viewId, e.recordId, parentId, kindView)
             .then((editDataResponse) => {
                 this.setState({
@@ -968,6 +970,11 @@ export class ViewContainer extends BaseContainer {
             </React.Fragment>)}
         </React.Fragment>);
     }
+
+    getMessages(){
+        return this.messages;
+    }
+
 }
 
 ViewContainer.defaultProps = {

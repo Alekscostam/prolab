@@ -27,6 +27,7 @@ class DashboardContainer extends BaseContainer {
         this.dashboardService = new DashboardService();
         this.dataGridStore = new DataGridStore();
         this.crudService = new CrudService();
+        this.messages = React.createRef();
         this.state = {
             loading: true,
             cardView: []
@@ -245,6 +246,10 @@ class DashboardContainer extends BaseContainer {
                                         labels={this.props.labels}
             />
         </div>);
+    }
+
+    getMessages(){
+        return this.messages;
     }
 
     renderDetails() {

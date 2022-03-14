@@ -19,6 +19,7 @@ import {localeOptions} from "primereact/api";
 import GridViewComponent from "../dataGrid/GridViewComponent";
 import ConsoleHelper from "../../utils/ConsoleHelper";
 import LocUtils from "../../utils/LocUtils";
+import {Toast} from "primereact/toast";
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -55,6 +56,7 @@ export class DashboardGridViewComponent extends BaseContainer {
         this.viewTypeChange = this.viewTypeChange.bind(this);
         this.getViewById = this.getViewById.bind(this);
         this.downloadData = this.downloadData.bind(this);
+        this.messages = React.createRef();
     }
 
     componentDidMount() {
@@ -401,6 +403,7 @@ export class DashboardGridViewComponent extends BaseContainer {
     render() {
         return (
             <React.Fragment>
+                <Toast id='toast-messages' position='top-center' ref={(el) => this.messages = el}/>
                 {this.renderGlobalTop()}
                 {this.renderContent()}
             </React.Fragment>
@@ -487,6 +490,10 @@ export class DashboardGridViewComponent extends BaseContainer {
                 )}
             </React.Fragment>
         );
+    }
+
+    getMessages(){
+        return this.messages;
     }
 
     static defaultProps =

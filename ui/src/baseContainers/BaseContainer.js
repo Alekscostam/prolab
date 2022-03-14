@@ -52,11 +52,14 @@ class BaseContainer extends React.Component {
         this.handleCancelRowChange = this.handleCancelRowChange.bind(this);
         this.handleEditListRowChange = this.handleEditListRowChange.bind(this);
         this.getRealViewId = this.getRealViewId.bind(this);
+        this.unselectAllDataGrid = this.unselectAllDataGrid.bind(this);
         this.validator = new SimpleReactValidator();
         this._isMounted = false;
         this.jwtRefreshBlocked = false;
         this.scrollToError = false;
-        this.messages = null;
+    }
+
+    getMessages() {
     }
 
     componentDidMount() {
@@ -108,7 +111,7 @@ class BaseContainer extends React.Component {
     }
 
     showInfoMessage(detail, life = Constants.SUCCESS_MSG_LIFE, summary = 'Informacja') {
-        this.messages?.show({
+        this.getMessages()?.show({
             severity: 'info',
             life: Constants.SUCCESS_MSG_LIFE,
             summary: summary,
@@ -121,7 +124,7 @@ class BaseContainer extends React.Component {
     }
 
     showWarningMessage(detail, life = Constants.ERROR_MSG_LIFE, summary = '') {
-        this.messages?.show({
+        this.getMessages()?.show({
             severity: 'warn',
             life: Constants.ERROR_MSG_LIFE,
             summary: summary,
@@ -134,7 +137,7 @@ class BaseContainer extends React.Component {
     }
 
     showSuccessMessage(detail, life = Constants.SUCCESS_MSG_LIFE, summary = '') {
-        this.messages?.show({
+        this.getMessages()?.show({
             severity: 'success',
             life: life,
             summary: summary,
@@ -151,7 +154,7 @@ class BaseContainer extends React.Component {
         } else {
             message = 'Wystąpił nieoczekiwany błąd';
         }
-        this.messages?.show({
+        this.getMessages()?.show({
             severity: 'error',
             sticky: false,
             closable: true,
@@ -172,7 +175,7 @@ class BaseContainer extends React.Component {
     }
 
     showErrorMessage(errMsg, life = Constants.ERROR_MSG_LIFE, closable = true, summary = 'Błąd!') {
-        this.messages?.show({
+        this.getMessages()?.show({
             severity: 'error',
             sticky: false,
             life: life,
@@ -225,8 +228,8 @@ class BaseContainer extends React.Component {
         } else {
             title = 'Błąd';
         }
-        this.messages?.clear();
-        this.messages?.show({
+        this.getMessages()?.clear();
+        this.getMessages()?.show({
             severity: 'error',
             summary: title,
             content: (
@@ -252,8 +255,8 @@ class BaseContainer extends React.Component {
 
     showMessage(severity, summary, detail, life = Constants.ERROR_MSG_LIFE, closable = true, errMsg) {
         if (this.messages !== undefined && this.messages !== null) {
-            this.messages?.clear();
-            this.messages?.show({
+            this.getMessages()?.clear();
+            this.getMessages()?.show({
                 severity,
                 summary,
                 detail,
@@ -994,14 +997,20 @@ class BaseContainer extends React.Component {
 
     handleEditRowSave(viewId, recordId, parentId) {
         ConsoleHelper(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
-        const saveElement = this.editService.createObjectToSave(this.state);
+        const saveElement = this.crudService.createObjectToSave(this.state);
         ConsoleHelper(`handleEditRowSave: element to save = ${JSON.stringify(saveElement)}`)
         this.rowSave(viewId, recordId, parentId, saveElement, false);
     }
 
     refreshView() {
         if (this.isCardView()) {
-            this.getCardGridView().current?.refresh(true);
+            if (!!this.getRefCardGrid()) {
+                this.getRefCardGrid().current?.refresh(true);
+            }
+        } else if (this.isTreeView()) {
+            if (!!this.getRefGridTree()) {
+                this.getRefGridTree().instance.getDataSource().reload();
+            }
         } else {
             if (!!this.getRefGridView()) {
                 this.getRefGridView().instance.getDataSource().reload();
@@ -1010,14 +1019,20 @@ class BaseContainer extends React.Component {
     }
 
     reloadOnlyDataGrid() {
-        if (this.isGridView() && !!this.getRefGridView()) {
-            this.getRefGridView().instance.getDataSource().reload();
+        if (this.isGridView()) {
+            if (!!this.getRefGridView())
+                this.getRefGridView().instance.getDataSource().reload();
+        } else if (this.isTreeView()) {
+            if (!!this.getRefGridTree())
+                this.getRefGridTree().instance.getDataSource().reload();
         }
     }
 
     repaintGridView() {
         if (!!this.getRefGridView()) {
             this.getRefGridView().instance.repaint();
+        } else if (!!this.getRefGridTree()) {
+            this.getRefGridTree().instance.repaint();
         }
     }
 
@@ -1025,7 +1040,7 @@ class BaseContainer extends React.Component {
         this.blockUi();
         const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
         const kindOperation = this.state.editData.editInfo?.kindOperation ? this.state.editData.editInfo?.kindOperation : undefined;
-        this.editService
+        this.crudService
             .save(viewId, recordId, parentId, kindView, kindOperation, saveElement, confirmSave)
             .then((saveResponse) => {
                 switch (saveResponse.status) {
@@ -1095,7 +1110,7 @@ class BaseContainer extends React.Component {
         this.blockUi();
         const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
         const kindOperation = this.state.editData.editInfo?.kindOperation ? this.state.editData.editInfo?.kindOperation : undefined;
-        this.editService
+        this.crudService
             .cancel(viewId, recordId, parentId, kindView, kindOperation, saveElement)
             .then(() => {
                 this.refreshView();
@@ -1112,13 +1127,13 @@ class BaseContainer extends React.Component {
         const parentId = this.state.elementRecordId;
         const selectedRowKeysIds = this.getSelectedRowKeysIds(id)
         const kindView = this.state.elementKindView;
-        this.editService.deleteEntry(viewId, parentId, kindView, selectedRowKeysIds)
+        this.crudService.deleteEntry(viewId, parentId, kindView, selectedRowKeysIds)
             .then((entryResponse) => {
                 EntryResponseUtils.run(
                     entryResponse,
                     () => {
                         if (!!entryResponse.next) {
-                            this.editService.delete(viewId, parentId, kindView, selectedRowKeysIds)
+                            this.crudService.delete(viewId, parentId, kindView, selectedRowKeysIds)
                                 .then((deleteResponse) => {
                                     this.unselectAllDataGrid();
                                     this.refreshView();
@@ -1156,13 +1171,13 @@ class BaseContainer extends React.Component {
         const parentId = this.state.elementRecordId;
         const selectedRowKeysIds = this.getSelectedRowKeysIds(id)
         const kindView = this.state.elementKindView;
-        this.editService.copyEntry(viewId, parentId, kindView, selectedRowKeysIds)
+        this.crudService.copyEntry(viewId, parentId, kindView, selectedRowKeysIds)
             .then((entryResponse) => {
                 EntryResponseUtils.run(
                     entryResponse,
                     () => {
                         if (!!entryResponse.next) {
-                            this.editService.copy(viewId, parentId, kindView, selectedRowKeysIds)
+                            this.crudService.copy(viewId, parentId, kindView, selectedRowKeysIds)
                                 .then((copyResponse) => {
                                     this.unselectAllDataGrid();
                                     this.refreshView();
@@ -1194,13 +1209,13 @@ class BaseContainer extends React.Component {
         const parentId = this.state.elementRecordId;
         const selectedRowKeysIds = this.getSelectedRowKeysIds(id)
         const kindView = this.state.elementKindView;
-        this.editService.restoreEntry(viewId, parentId, kindView, selectedRowKeysIds)
+        this.crudService.restoreEntry(viewId, parentId, kindView, selectedRowKeysIds)
             .then((entryResponse) => {
                 EntryResponseUtils.run(
                     entryResponse,
                     () => {
                         if (!!entryResponse.next) {
-                            this.editService.restore(viewId, parentId, kindView, selectedRowKeysIds)
+                            this.crudService.restore(viewId, parentId, kindView, selectedRowKeysIds)
                                 .then((restoreResponse) => {
                                     this.unselectAllDataGrid();
                                     this.refreshView();
@@ -1232,13 +1247,13 @@ class BaseContainer extends React.Component {
         const parentId = this.state.elementRecordId;
         const selectedRowKeysIds = this.getSelectedRowKeysIds(id)
         const kindView = this.state.elementKindView;
-        this.editService.archiveEntry(viewId, parentId, kindView, selectedRowKeysIds)
+        this.crudService.archiveEntry(viewId, parentId, kindView, selectedRowKeysIds)
             .then((entryResponse) => {
                 EntryResponseUtils.run(
                     entryResponse,
                     () => {
                         if (!!entryResponse.next) {
-                            this.editService.archive(viewId, parentId, kindView, selectedRowKeysIds)
+                            this.crudService.archive(viewId, parentId, kindView, selectedRowKeysIds)
                                 .then((archiveResponse) => {
                                     this.unselectAllDataGrid();
                                     this.refreshView();
@@ -1270,13 +1285,13 @@ class BaseContainer extends React.Component {
         const parentId = this.state.elementRecordId;
         const selectedRowKeysIds = this.getSelectedRowKeysIds(id)
         const kindView = this.state.elementKindView;
-        this.editService.publishEntry(viewId, parentId, kindView, selectedRowKeysIds)
+        this.crudService.publishEntry(viewId, parentId, kindView, selectedRowKeysIds)
             .then((entryResponse) => {
                 EntryResponseUtils.run(
                     entryResponse,
                     () => {
                         if (!!entryResponse.next) {
-                            this.editService.publish(viewId, parentId, kindView, selectedRowKeysIds)
+                            this.crudService.publish(viewId, parentId, kindView, selectedRowKeysIds)
                                 .then((publishResponse) => {
                                     this.unselectAllDataGrid();
                                     this.refreshView();
@@ -1301,6 +1316,9 @@ class BaseContainer extends React.Component {
         })
     }
 
+    unselectAllDataGrid() {
+    }
+
     handleEditListRowChange(editInfo, editListData) {
         ConsoleHelper(`handleEditListRowChange = `, JSON.stringify(editListData))
         try {
@@ -1323,8 +1341,8 @@ class BaseContainer extends React.Component {
     handleAutoFillRowChange(viewId, recordId, parentId, kindView) {
         ConsoleHelper(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId} parentId = ${kindView}`)
         this.blockUi();
-        const autofillBodyRequest = this.editService.createObjectToAutoFill(this.state);
-        this.editService
+        const autofillBodyRequest = this.crudService.createObjectToAutoFill(this.state);
+        this.crudService
             .getEditAutoFill(viewId, recordId, parentId, kindView, autofillBodyRequest)
             .then((editAutoFillResponse) => {
                 let arrayTmp = editAutoFillResponse?.data;
@@ -1342,7 +1360,7 @@ class BaseContainer extends React.Component {
 
     handleCancelRowChange(viewId, recordId, parentId) {
         ConsoleHelper(`handleCancelRowChange: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
-        const cancelElement = this.editService.createObjectToSave(this.state);
+        const cancelElement = this.crudService.createObjectToSave(this.state);
         ConsoleHelper(`handleCancelRowChange: element to cancel = ${JSON.stringify(cancelElement)}`)
         this.rowCancel(viewId, recordId, parentId, cancelElement, false);
     }
@@ -1414,9 +1432,9 @@ class BaseContainer extends React.Component {
 
     refreshFieldVisibility(info) {
         this.blockUi();
-        const refreshObject = this.editService.createObjectToRefresh(this.state)
+        const refreshObject = this.crudService.createObjectToRefresh(this.state)
         const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
-        this.editService
+        this.crudService
             .refreshFieldVisibility(info.viewId, info.recordId, info.parentId, kindView, refreshObject)
             .then((editRefreshResponse) => {
                 let arrayTmp = editRefreshResponse?.data;
@@ -1445,8 +1463,12 @@ class BaseContainer extends React.Component {
         return !!this.refDataGrid ? this.refDataGrid : null;
     }
 
-    getCardGridView() {
+    getRefCardGrid() {
         return !!this.refCardGrid ? this.refCardGrid : null;
+    }
+
+    getRefGridTree() {
+        return !!this.refDataTree ? this.refDataTree : null;
     }
 
     getRealViewId() {

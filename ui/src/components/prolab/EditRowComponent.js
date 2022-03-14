@@ -66,6 +66,7 @@ export class EditRowComponent extends BaseContainer {
         this.fontValues = ['Arial', 'Courier New', 'Georgia', 'Impact', 'Lucida Console', 'Tahoma', 'Times New Roman', 'Verdana'];
         this.headerValues = [false, 1, 2, 3, 4, 5];
         this.preventSave = false;
+        this.messages = React.createRef();
         this.handleAutoFill = this.handleAutoFill.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
         this.editListVisible = this.editListVisible.bind(this);
@@ -665,6 +666,10 @@ export class EditRowComponent extends BaseContainer {
                     </a>
                 </React.Fragment>);
         }
+    }
+
+    getMessages(){
+        return this.messages;
     }
 
     getFiles(files) {

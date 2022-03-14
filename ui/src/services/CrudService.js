@@ -397,10 +397,10 @@ export default class CrudService extends BaseService {
             if (field?.type) {
                 switch (field.type) {
                     case 'B':
-                        field.value = !!field.value ? 1 : 0;
+                        field.value = (field.value === 0 || field.value === '0' || !field.value) ? 0 : 1;
                         break;
                     case 'L':
-                        field.value = !!field.value ? 'T' : 'N';
+                        field.value = field.value === "N" || !field.value ? 'N' : 'T';
                         break;
                     case 'D':
                         field.value = this.dateFormatAndKeepCorrectness(field.value, 'YYYY-MM-DD');

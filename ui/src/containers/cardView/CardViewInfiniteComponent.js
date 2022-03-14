@@ -16,7 +16,7 @@ class CardViewInfiniteComponent extends React.Component {
 
     constructor(props) {
         super(props);
-        this.editService = new CrudService();
+        this.crudService = new CrudService();
         this.labels = this.props;
         this.dataCardStore = new DataCardStore();
         this.state = {
@@ -238,7 +238,7 @@ class CardViewInfiniteComponent extends React.Component {
                                                                 handleEdit={() => {
                                                                     let result = this.props.handleBlockUi();
                                                                     if (result) {
-                                                                        this.editService
+                                                                        this.crudService
                                                                             .edit(viewId, recordId, subviewId, elementKindView)
                                                                             .then((editDataResponse) => {
                                                                                 this.setState({
