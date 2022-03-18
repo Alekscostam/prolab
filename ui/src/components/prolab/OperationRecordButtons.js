@@ -12,6 +12,7 @@ export const OperationRecordButtons = props => {
     const renderSelectionButton = (operation) => {
         const info = props.info;
         const margin = props.margin;
+        const inverseColor = props.inverseColor;
         if (!!operation && !!operation.type) {
             switch (operation.type?.toUpperCase()) {
                 case 'OP_EDIT':
@@ -19,8 +20,9 @@ export const OperationRecordButtons = props => {
                         <React.Fragment>
                             <ShortcutButton
                                 id={`${info?.column.headerId}_menu_button`}
-                                className={`action-button-with-menu ${margin}`}
+                                className={`action-button-with-menu ${inverseColor ? `inverse` : `normal`} ${margin}`}
                                 iconName={operation?.iconCode || 'mdi-pencil'}
+                                iconColor={`${inverseColor ? `blue` : `white`}`}
                                 title={operation.label}
                                 handleClick={(e) => props.handleEdit(e)}
                             />
@@ -30,8 +32,9 @@ export const OperationRecordButtons = props => {
                         <React.Fragment>
                             <ShortcutButton
                                 id={`${info?.column.headerId}_menu_button`}
-                                className={`action-button-with-menu ${margin}`}
+                                className={`action-button-with-menu ${inverseColor ? `inverse` : `normal`} ${margin}`}
                                 iconName={operation?.iconCode || 'mdi-playlist-plus'}
+                                iconColor={`${inverseColor ? `blue` : `white`}`}
                                 title={operation.label}
                                 href={props.hrefSubview}
                             />
@@ -39,46 +42,54 @@ export const OperationRecordButtons = props => {
                 case 'OP_DELETE':
                     return (
                         <React.Fragment>
-                            <ShortcutButton className={`grid-button-panel ${margin}`}
-                                            handleClick={(e) => props.handleDelete(e)}
-                                            iconName={operation?.iconCode || 'mdi-delete'}
-                                            iconSide="left"
-                                            title={operation?.label}
+                            <ShortcutButton
+                                className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
+                                handleClick={(e) => props.handleDelete(e)}
+                                iconName={operation?.iconCode || 'mdi-delete'}
+                                iconColor={`${inverseColor ? `blue` : `white`}`}
+                                iconSide="left"
+                                title={operation?.label}
                             />
                         </React.Fragment>);
                 case 'OP_RESTORE':
                     return (
                         <React.Fragment>
-                            <ShortcutButton className={`grid-button-panel ${margin}`}
-                                            handleClick={(e) => props.handleRestore(e)}
-                                            iconName={operation?.iconCode || 'mdi-restore'}
-                                            iconSide="left"
-                                            title={operation?.label}
+                            <ShortcutButton
+                                className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
+                                handleClick={(e) => props.handleRestore(e)}
+                                iconName={operation?.iconCode || 'mdi-restore'}
+                                iconColor={`${inverseColor ? `blue` : `white`}`}
+                                iconSide="left"
+                                title={operation?.label}
                             />
                         </React.Fragment>);
                 case 'OP_COPY':
                     return (
                         <React.Fragment>
-                            <ShortcutButton className={`grid-button-panel ${margin}`}
-                                            handleClick={(e) => props.handleCopy(e)}
-                                            iconName={operation?.iconCode || 'mdi-content-copy'}
-                                            iconSide="left"
-                                            title={operation?.label}
+                            <ShortcutButton
+                                className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
+                                handleClick={(e) => props.handleCopy(e)}
+                                iconName={operation?.iconCode || 'mdi-content-copy'}
+                                iconColor={`${inverseColor ? `blue` : `white`}`}
+                                iconSide="left"
+                                title={operation?.label}
                             />
                         </React.Fragment>);
                 case 'OP_ARCHIVE':
                     return (<React.Fragment>
-                        <ShortcutButton className={`grid-button-panel ${margin}`}
+                        <ShortcutButton className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
                                         handleClick={(e) => props.handleArchive(e)}
                                         iconName={operation?.iconCode || 'mdi-archive'}
+                                        iconColor={`${inverseColor ? `blue` : `white`}`}
                                         iconSide="left"
                                         title={operation?.label}/>
                     </React.Fragment>);
                 case 'OP_PUBLISH':
                     return (<React.Fragment>
-                        <ShortcutButton className={`grid-button-panel ${margin}`}
+                        <ShortcutButton className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
                                         handleClick={(e) => props.handlePublish(e)}
                                         iconName={operation?.iconCode || 'mdi-publish'}
+                                        iconColor={`${inverseColor ? `blue` : `white`}`}
                                         iconSide="left"
                                         title={operation?.label}/>
                     </React.Fragment>);
@@ -149,6 +160,7 @@ OperationRecordButtons.defaultProps = {
     },
     handlePublish: () => {
     },
+    inverseColor: false,
     margin: Constants.DEFAULT_MARGIN_BETWEEN_BUTTONS
 };
 
@@ -165,7 +177,8 @@ OperationRecordButtons.propTypes = {
     handleCopy: PropTypes.func.isRequired,
     handleArchive: PropTypes.func.isRequired,
     handlePublish: PropTypes.func.isRequired,
-    margin: PropTypes.string
+    margin: PropTypes.string,
+    inverseColor: PropTypes.bool,
 };
 
 export default OperationRecordButtons;

@@ -107,12 +107,26 @@ $table-selection: #dde6ff;
 }
 
 .grid-button-panel {
-  background-color: $button-color;
-  color: $button-text-color;
   font-size: 15px;
   padding: 0 0.4rem;
   min-width: 0;
   height: 26px;
+
+  &.normal {
+    background-color: $button-color;
+  }
+
+  &.inverse {
+    background-color: $button-text-color;
+  }
+}
+
+.blue{
+  color: $button-color !important;
+}
+
+.white{
+  color: $button-text-color  !important;;
 }
 
 .dx-button-mode-outlined.dx-item-selected {
@@ -235,6 +249,7 @@ $table-selection: #dde6ff;
   height: 35px;
   margin-bottom: 2px;
   display: inline-flex;
+  justify-content: space-between;
 
   .card-grid-header-title {
     //flex-basis: initial;

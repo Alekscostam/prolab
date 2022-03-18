@@ -174,20 +174,20 @@ class CardViewInfiniteComponent extends React.Component {
         let cardBgColor1 = this.props.parsedCardView?.cardOptions?.bgColor1;
         let cardBgColor2 = this.props.parsedCardView?.cardOptions?.bgColor2;
         let fontColor = this.props.parsedCardView?.cardOptions?.fontColor;
-        let showEditButton = false;
-        let showSubviewButton = false;
-        let showMenu = false;
-        let menuItems = [];
-        if (this.props.parsedCardView?.operations) {
-            this.props.parsedCardView?.operations.forEach((operation) => {
-                showEditButton = showEditButton || operation.type === 'OP_EDIT';
-                showSubviewButton = showSubviewButton || operation.type === 'OP_SUBVIEWS';
-                if (operation.type === 'OP_PUBLIC' || operation.type === 'OP_HISTORY' || operation.type === 'OP_ATTACHMENTS') {
-                    menuItems.push(operation);
-                }
-            });
-            showMenu = menuItems.length > 0;
-        }
+        // let showEditButton = false;
+        // let showSubviewButton = false;
+        // let showMenu = false;
+        // let menuItems = [];
+        // if (this.props.parsedCardView?.operations) {
+        //     this.props.parsedCardView?.operations.forEach((operation) => {
+        //         showEditButton = showEditButton || operation.type === 'OP_EDIT';
+        //         showSubviewButton = showSubviewButton || operation.type === 'OP_SUBVIEWS';
+        //         if (operation.type === 'OP_PUBLIC' || operation.type === 'OP_HISTORY' || operation.type === 'OP_ATTACHMENTS') {
+        //             menuItems.push(operation);
+        //         }
+        //     });
+        //     showMenu = menuItems.length > 0;
+        // }
         const {cardBody, cardHeader, cardImage, cardFooter} = this.props.parsedCardView;
         const elementSubViewId = this.props.elementSubViewId;
         const elementKindView = this.props.elementKindView;
@@ -228,9 +228,9 @@ class CardViewInfiniteComponent extends React.Component {
                         <div className='row'>
                             <div className='card-grid-header'>
                                 {cardHeader?.visible ? CardViewUtils.cellTemplate(cardHeader, rowData, 'card-grid-header-title', 'HEADER') : null}
-                                {showEditButton || showMenu || showSubviewButton ? (
                                     <div className='card-grid-header-buttons'>
                                         <OperationRecordButtons margin={'mr-0'}
+                                                                inverseColor={true}
                                                                 labels={this.labels}
                                                                 operation={this.props.parsedCardView.operations}
                                                                 operationList={this.props.parsedCardView.operationsRecordList}
@@ -273,7 +273,7 @@ class CardViewInfiniteComponent extends React.Component {
                                                                     this.props.handlePublishRow(recordId)
                                                                 }}
                                         />
-                                    </div>) : null}
+                                    </div>
                             </div>
                             <div className='card-grid-body'>
                                 {/* <div className='row'> */}

@@ -196,7 +196,8 @@ class Sidebar extends React.Component {
             item.type === 'View'
         ) {
             filteredMenu.push({
-                icon: item.icon,
+                icon: this.displayIcon(item),
+                iconText: item,
                 id: item.id,
                 name: item.name,
                 type: item.type,
@@ -214,14 +215,16 @@ class Sidebar extends React.Component {
     }
 
     displayIcon(item) {
-        if (!!item.iconCode) {
+        if (item.iconCode !== undefined && item.iconCode !== null && item.iconCode !== "") {
             if (item.iconCode.indexOf('F') === 0) {
                 return <i className={`mdi-styles`}>{String.fromCodePoint(parseInt(item.iconCode, 16))}</i>
             } else {
                 return <i className={`icon mdi ${item.iconCode}`}/>
             }
-        } else if (!!item.icon) {
+        } else if (item.icon !== undefined && item.icon !== null && item.icon !== "" && typeof item.icon === 'symbol') {
             return <Image alt={item.name} base64={item.icon}/>
+        } else if (item.iconText !== undefined && item.iconText !== null && item.iconText !== "") {
+            return this.displayIcon(item.iconText)
         } else {
             return <FaAngleRight/>
         }

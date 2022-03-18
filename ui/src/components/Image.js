@@ -5,18 +5,21 @@ import PropTypes from 'prop-types';
 
 export const Image = (props) => {
     const {alt, base64, rendered, style, className} = props;
-    let base64Tmp;
-    let indexOfComa = base64?.indexOf("data:image");
-    if (indexOfComa === 0) {
-        base64Tmp = `${base64}`;
-    } else {
-        base64Tmp = `data:image/jpeg;base64,${base64}`;
+    if (!!base64) {
+        let base64Tmp
+        let indexOfComa = base64?.toString().indexOf("data:image");
+        if (indexOfComa === 0) {
+            base64Tmp = `${base64}`;
+        } else {
+            base64Tmp = `data:image/jpeg;base64,${base64}`;
+        }
+        if (rendered) {
+            return <img style={style} className={className} alt={alt} src={base64Tmp}/>;
+        } else {
+            return null;
+        }
     }
-    if (rendered) {
-        return <img style={style} className={className} alt={alt} src={base64Tmp}/>;
-    } else {
-        return null;
-    }
+    return null;
 };
 
 Image.defaultProps = {
