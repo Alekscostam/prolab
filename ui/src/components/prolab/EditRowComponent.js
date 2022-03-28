@@ -185,9 +185,9 @@ export class EditRowComponent extends BaseContainer {
 
     render() {
         const operations = this.props.editData?.operations;
-        const opSave = GridViewUtils.containsOperationButton(operations, 'OP_SAVE');
-        const opFill = GridViewUtils.containsOperationButton(operations, 'OP_FILL');
-        const opCancel = GridViewUtils.containsOperationButton(operations, 'OP_CANCEL');
+        const opSave = GridViewUtils.containsOperationsButton(operations, 'OP_SAVE');
+        const opFill = GridViewUtils.containsOperationsButton(operations, 'OP_FILL');
+        const opCancel = GridViewUtils.containsOperationsButton(operations, 'OP_CANCEL');
         let editData = this.props.editData;
         let visibleEditPanel = this.props.visibleEditPanel;
         let editListVisible = this.state.editListVisible;

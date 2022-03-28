@@ -113,11 +113,13 @@ $table-selection: #dde6ff;
   height: 26px;
 
   &.normal {
-    background-color: $button-color;
+    background-color: $button-text-color;
+    color: $button-color;
   }
 
   &.inverse {
-    background-color: $button-text-color;
+    background-color: $button-color;
+    color: $button-text-color;
   }
 }
 

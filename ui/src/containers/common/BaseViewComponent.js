@@ -5,7 +5,7 @@ import Constants from "../../utils/Constants";
 import {GridViewUtils} from "../../utils/GridViewUtils";
 import {Breadcrumb} from "../../utils/BreadcrumbUtils";
 import ReactDOM from "react-dom";
-import OperationRecordButtons from "../../components/prolab/OperationRecordButtons";
+import OperationsButtons from "../../components/prolab/OperationsButtons";
 import {EntryResponseUtils} from "../../utils/EntryResponseUtils";
 import AppPrefixUtils from "../../utils/AppPrefixUtils";
 import {Column} from "devextreme-react/tree-list";
@@ -118,17 +118,17 @@ class BaseViewComponent extends React.Component {
                     }
                 }
             });
-            let operationRecord = this.props.parsedGridView?.operationRecord;
+            let operationsRecord = this.props.parsedGridView?.operationsRecord;
             let operationsRecordList = this.props.parsedGridView?.operationsRecordList;
-            if (!(operationRecord instanceof Array)) {
-                operationRecord = [];
-                operationRecord.push(this.props.parsedGridView?.operationRecord)
+            if (!(operationsRecord instanceof Array)) {
+                operationsRecord = [];
+                operationsRecord.push(this.props.parsedGridView?.operationsRecord)
             }
-            if (operationRecord instanceof Array && operationRecord.length > 0) {
+            if (operationsRecord instanceof Array && operationsRecord.length > 0) {
                 columns?.push({
                     caption: '',
                     fixed: true,
-                    width: 10 + (33 * operationRecord.length + (operationsRecordList?.length > 0 ? 33 : 0)),
+                    width: 10 + (33 * operationsRecord.length + (operationsRecordList?.length > 0 ? 33 : 0)),
                     fixedPosition: 'right',
                     cellTemplate: (element, info) => {
                         let el = document.createElement('div');
@@ -142,11 +142,11 @@ class BaseViewComponent extends React.Component {
                         let viewId = this.props.id;
                         viewId = GridViewUtils.getRealViewId(subViewId, viewId);
                         ReactDOM.render(<div style={{textAlign: 'center', display: 'flex'}}>
-                            <OperationRecordButtons labels={this.labels}
-                                                    operation={operationRecord}
-                                                    operationList={operationsRecordList}
-                                                    info={info}
-                                                    handleEdit={() => {
+                            <OperationsButtons labels={this.labels}
+                                               operations={operationsRecord}
+                                               operationList={operationsRecordList}
+                                               info={info}
+                                               handleEdit={() => {
                                                         let result = this.props.handleBlockUi();
                                                         if (result) {
                                                             this.crudService
@@ -175,21 +175,21 @@ class BaseViewComponent extends React.Component {
                                                             });
                                                         }
                                                     }}
-                                                    hrefSubview={AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewId}?recordId=${recordId}${currentBreadcrumb}`)}
-                                                    handleHrefSubview={() => {
+                                               hrefSubview={AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewId}?recordId=${recordId}${currentBreadcrumb}`)}
+                                               handleHrefSubview={() => {
                                                         let newUrl = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${!!currentBreadcrumb ? currentBreadcrumb : ``}`);
                                                         window.location.assign(newUrl);
                                                     }}
-                                                    handleArchive={() => {
+                                               handleArchive={() => {
                                                         this.props.handleArchiveRow(recordId)
                                                     }}
-                                                    handleCopy={() => {
+                                               handleCopy={() => {
                                                         this.props.handleCopyRow(recordId)
                                                     }}
-                                                    handleDelete={() => {
+                                               handleDelete={() => {
                                                         this.props.handleDeleteRow(recordId)
                                                     }}
-                                                    handleRestore={() => {
+                                               handleRestore={() => {
                                                         this.props.handleRestoreRow(recordId)
                                                     }}/>
                         </div>, element);

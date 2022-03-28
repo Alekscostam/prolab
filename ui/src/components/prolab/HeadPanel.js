@@ -3,7 +3,7 @@
 /* eslint-disable react/jsx-max-props-per-line */
 import React from 'react';
 import PropTypes from 'prop-types';
-import OperationRecordButtons from "./OperationRecordButtons";
+import OperationsButtons from "./OperationsButtons";
 //Komponent wyświetlający górną ramkę i okalający wszystkie przyciski, filtry ....
 export const HeadPanel = props => {
 
@@ -25,12 +25,14 @@ export const HeadPanel = props => {
                              className="grid-count-fragment center-text-in-div">Pozycje: {props.selectedRowKeys.length | 0}</div>
                         <div id="grid-separator" className="p-1 grid-separator-fragment"/>
                         <div id="grid-buttons-fragment" className="p-1 grid-buttons-fragment">
-                            <OperationRecordButtons labels={props.labels}
-                                                    operation={props.operations}
-                                                    handleRestore={(e) => props.handleRestore(e)}
-                                                    handleDelete={(e) => props.handleDelete(e)}
-                                                    handleCopy={(e) => props.handleCopy(e)}
-                                                    handleArchive={(e) => props.handleArchive(e)}/>
+                            <OperationsButtons labels={props.labels}
+                                               operations={props.operations}
+                                               handleRestore={(e) => props.handleRestore(e)}
+                                               handleDelete={(e) => props.handleDelete(e)}
+                                               handleCopy={(e) => props.handleCopy(e)}
+                                               handleArchive={(e) => props.handleArchive(e)}
+                                               inverseColor={true}
+                                               buttonShadow={false}/>
                         </div>
                     </div>
                 </React.Fragment> : null}

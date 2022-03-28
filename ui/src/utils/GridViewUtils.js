@@ -8,7 +8,7 @@ let _bgColor = null;
 let _fontcolor = null;
 
 export class GridViewUtils {
-    static containsOperationButton(operations, type) {
+    static containsOperationsButton(operations, type) {
         for (let button in operations) {
             if (operations[button]
                 && operations[button].type

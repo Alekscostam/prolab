@@ -322,13 +322,13 @@ export class ViewContainer extends BaseContainer {
                 });
             }
             let viewInfoTypesTmp = [];
-            let cardButton = GridViewUtils.containsOperationButton(responseView.operations, 'OP_CARDVIEW');
+            let cardButton = GridViewUtils.containsOperationsButton(responseView.operations, 'OP_CARDVIEW');
             if (cardButton) {
                 viewInfoTypesTmp.push({
                     icon: 'mediumiconslayout', type: 'cardView', hint: cardButton?.label,
                 });
             }
-            let viewButton = GridViewUtils.containsOperationButton(responseView.operations, 'OP_GRIDVIEW');
+            let viewButton = GridViewUtils.containsOperationsButton(responseView.operations, 'OP_GRIDVIEW');
             if (viewButton) {
                 viewInfoTypesTmp.push({
                     icon: 'contentlayout', type: 'gridView', hint: viewButton?.label,
@@ -384,34 +384,36 @@ export class ViewContainer extends BaseContainer {
                             });
                         }
                     });
-                } else if (this.isTreeView()) {
-                    this.setState({loading: true}, () => {
-                        let res = this.dataTreeStore.getDataTreeStore(viewIdArg, 'gridView', parentIdArg, filterIdArg, kindViewArg, () => {
-                            // this.blockUi();
-                            return {
-                                select: this.state.select, selectAll: this.state.selectAll
-                            };
-                        }, () => {
-                            this.setState({
-                                select: false, selectAll: false, dataGridStoreSuccess: true,
-                            }, () => {
-                                this.unblockUi();
-                            });
-                        }, (err) => {
-                            this.setState({
-                                select: false, selectAll: false,
-                            }, () => {
-                                this.unblockUi();
-                                this.showErrorMessages(err);
-                            });
-                        },);
-                        if (!!res) {
-                            this.setState({
-                                loading: false, parsedGridViewData: res
-                            });
-                        }
-                    });
-                } else {
+                }
+                // else if (this.isTreeView()) {
+                //     this.setState({loading: true}, () => {
+                //         let res = this.dataTreeStore.getDataTreeStore(viewIdArg, 'gridView', parentIdArg, filterIdArg, kindViewArg, () => {
+                //             // this.blockUi();
+                //             return {
+                //                 select: this.state.select, selectAll: this.state.selectAll
+                //             };
+                //         }, () => {
+                //             this.setState({
+                //                 select: false, selectAll: false, dataGridStoreSuccess: true,
+                //             }, () => {
+                //                 this.unblockUi();
+                //             });
+                //         }, (err) => {
+                //             this.setState({
+                //                 select: false, selectAll: false,
+                //             }, () => {
+                //                 this.unblockUi();
+                //                 this.showErrorMessages(err);
+                //             });
+                //         },);
+                //         if (!!res) {
+                //             this.setState({
+                //                 loading: false, parsedGridViewData: res
+                //             });
+                //         }
+                //     });
+                // }
+                else {
                     this.setState({loading: true}, () => {
                         let res = this.dataGridStore.getDataGridStore(viewIdArg, 'gridView', parentIdArg, filterIdArg, kindViewArg, () => {
                             // this.blockUi();
@@ -666,19 +668,6 @@ export class ViewContainer extends BaseContainer {
         if (this.isDashboard()) {
             return <React.Fragment/>
         }
-        return (<React.Fragment>
-            <HeadPanel
-                labels={this.props.labels}
-                selectedRowKeys={this.state.selectedRowKeys}
-                operations={this.state.parsedGridView?.operations}
-                leftContent={this.leftHeadPanelContent()}
-                rightContent={this.rightHeadPanelContent()}
-                handleDelete={() => this.delete()}
-                handleRestore={() => this.restore()}
-                handleCopy={() => this.copy()}
-                handleArchive={() => this.archive()}
-            />
-        </React.Fragment>);
         return (
             <React.Fragment>
                 <HeadPanel
@@ -900,36 +889,39 @@ export class ViewContainer extends BaseContainer {
                         handleArchiveRow={(id) => this.archive(id)}
                         handlePublishRow={(id) => this.publish(id)}
                     />
-                </React.Fragment>) : this.isTreeView() ? (<React.Fragment>
-                    <TreeViewComponent
-                        id={this.props.id}
-                        elementSubViewId={this.state.elementSubViewId}
-                        elementKindView={this.state.elementKindView}
-                        elementRecordId={this.state.elementRecordId}
-                        handleOnDataTree={(ref) => this.refDataTree = ref}
-                        parsedGridView={this.state.parsedGridView}
-                        parsedGridViewData={this.state.parsedGridViewData}
-                        gridViewColumns={this.state.gridViewColumns}
-                        handleBlockUi={() => {
-                            this.blockUi();
-                            return true;
-                        }}
-                        handleUnblockUi={() => this.unblockUi()}
-                        showErrorMessages={(err) => this.showErrorMessages(err)}
-                        packageRows={this.state.packageRows}
-                        handleShowEditPanel={(editDataResponse) => {
-                            this.handleShowEditPanel(editDataResponse)
-                        }}
-                        selectedRowKeys={this.state.selectedRowKeys}
-                        handleSelectedRowKeys={(e) => this.setState({selectedRowKeys: e})}
-                        dataTreeStoreSuccess={this.state.dataGridStoreSuccess}
-                        handleDeleteRow={(id) => this.delete(id)}
-                        handleRestoreRow={(id) => this.restore(id)}
-                        handleCopyRow={(id) => this.copy(id)}
-                        handleArchiveRow={(id) => this.archive(id)}
-                        handlePublishRow={(id) => this.publish(id)}
-                    />
-                </React.Fragment>) : this.isCardView() ? (<React.Fragment>
+                </React.Fragment>)
+                //     : this.isTreeView() ?
+                //     (<React.Fragment>
+                //     <TreeViewComponent
+                //         id={this.props.id}
+                //         elementSubViewId={this.state.elementSubViewId}
+                //         elementKindView={this.state.elementKindView}
+                //         elementRecordId={this.state.elementRecordId}
+                //         handleOnDataTree={(ref) => this.refDataTree = ref}
+                //         parsedGridView={this.state.parsedGridView}
+                //         parsedGridViewData={this.state.parsedGridViewData}
+                //         gridViewColumns={this.state.gridViewColumns}
+                //         handleBlockUi={() => {
+                //             this.blockUi();
+                //             return true;
+                //         }}
+                //         handleUnblockUi={() => this.unblockUi()}
+                //         showErrorMessages={(err) => this.showErrorMessages(err)}
+                //         packageRows={this.state.packageRows}
+                //         handleShowEditPanel={(editDataResponse) => {
+                //             this.handleShowEditPanel(editDataResponse)
+                //         }}
+                //         selectedRowKeys={this.state.selectedRowKeys}
+                //         handleSelectedRowKeys={(e) => this.setState({selectedRowKeys: e})}
+                //         dataTreeStoreSuccess={this.state.dataGridStoreSuccess}
+                //         handleDeleteRow={(id) => this.delete(id)}
+                //         handleRestoreRow={(id) => this.restore(id)}
+                //         handleCopyRow={(id) => this.copy(id)}
+                //         handleArchiveRow={(id) => this.archive(id)}
+                //         handlePublishRow={(id) => this.publish(id)}
+                //     />
+                // </React.Fragment>)
+                        : this.isCardView() ? (<React.Fragment>
                     <CardViewInfiniteComponent
                         id={viewIdArg}
                         ref={this.refCardGrid}

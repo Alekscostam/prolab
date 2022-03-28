@@ -1007,11 +1007,13 @@ class BaseContainer extends React.Component {
             if (!!this.getRefCardGrid()) {
                 this.getRefCardGrid().current?.refresh(true);
             }
-        } else if (this.isTreeView()) {
-            if (!!this.getRefGridTree()) {
-                this.getRefGridTree().instance.getDataSource().reload();
-            }
-        } else {
+        }
+        // else if (this.isTreeView()) {
+        //     if (!!this.getRefGridTree()) {
+        //         this.getRefGridTree().instance.getDataSource().reload();
+        //     }
+        // }
+        else {
             if (!!this.getRefGridView()) {
                 this.getRefGridView().instance.getDataSource().reload();
             }
@@ -1022,10 +1024,11 @@ class BaseContainer extends React.Component {
         if (this.isGridView()) {
             if (!!this.getRefGridView())
                 this.getRefGridView().instance.getDataSource().reload();
-        } else if (this.isTreeView()) {
-            if (!!this.getRefGridTree())
-                this.getRefGridTree().instance.getDataSource().reload();
         }
+        // else if (this.isTreeView()) {
+        //     if (!!this.getRefGridTree())
+        //         this.getRefGridTree().instance.getDataSource().reload();
+        // }
     }
 
     repaintGridView() {
@@ -1343,7 +1346,7 @@ class BaseContainer extends React.Component {
         this.blockUi();
         const autofillBodyRequest = this.crudService.createObjectToAutoFill(this.state);
         this.crudService
-            .getEditAutoFill(viewId, recordId, parentId, kindView, autofillBodyRequest)
+            .editAutoFill(viewId, recordId, parentId, kindView, autofillBodyRequest)
             .then((editAutoFillResponse) => {
                 let arrayTmp = editAutoFillResponse?.data;
                 let editData = this.state.editData;
@@ -1478,12 +1481,12 @@ class BaseContainer extends React.Component {
     }
 
     isGridView() {
-        return this.state.gridViewType === 'gridView' && this.state.kindView === 'View';
+        return this.state.gridViewType === 'gridView';
     }
 
-    isTreeView() {
-        return this.state.gridViewType === 'gridView' && this.state.kindView === 'ViewSpec';
-    }
+    // isTreeView() {
+    //     return this.state.gridViewType === 'gridView' && this.state.kindView === 'ViewSpec';
+    // }
 
     isCardView() {
         return this.state.gridViewType === 'cardView';

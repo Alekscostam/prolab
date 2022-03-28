@@ -74,8 +74,8 @@ class DashboardCardViewComponent extends React.Component {I
                         });
                         showMenu = menuItems.length > 0;
                     }
-                    let oppEdit = GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_EDIT');
-                    let oppSubview = GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_SUBVIEWS');
+                    let oppEdit = GridViewUtils.containsOperationsButton(this.props.parsedGridView?.operations, 'OP_EDIT');
+                    let oppSubview = GridViewUtils.containsOperationsButton(this.props.parsedGridView?.operations, 'OP_SUBVIEWS');
                     const elementSubViewId = this.props.elementSubViewId;
                     const elementKindView = this.props.elementKindView;
                     const elementId = this.props.id;

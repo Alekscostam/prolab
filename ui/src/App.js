@@ -200,7 +200,7 @@ class App extends Component {
         const authService = this.authService;
         const {labels} = this.state;
         const loggedIn = authService.loggedIn();
-        let opADD = GridViewUtils.containsOperationButton(this.state.operations, 'OP_ADD');
+        let opADD = GridViewUtils.containsOperationsButton(this.state.operations, 'OP_ADD');
         return (
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => this.messages = el}/>

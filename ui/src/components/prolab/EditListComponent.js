@@ -20,7 +20,7 @@ export default class EditListComponent extends React.Component {
     render() {
         let width = this.props.parsedGridView?.info?.windowSize?.width || '50vw';
         let height = this.props.parsedGridView?.info?.windowSize?.height || undefined;
-        let opSelect = GridViewUtils.containsOperationButton(this.props.parsedGridView?.operations, 'OP_SELECT');
+        let opSelect = GridViewUtils.containsOperationsButton(this.props.parsedGridView?.operations, 'OP_SELECT');
         return (
             <React.Fragment>
                 <Dialog id="editListDialog"

@@ -164,7 +164,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                                 });
                             }
                             let viewInfoTypesTmp = [];
-                            let viewButton = GridViewUtils.containsOperationButton(
+                            let viewButton = GridViewUtils.containsOperationsButton(
                                 responseView.operations,
                                 'OP_GRIDVIEW'
                             );
@@ -298,7 +298,7 @@ export class DashboardGridViewComponent extends BaseContainer {
 
     //override
     renderHeaderRight() {
-        let opADD = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_ADD');
+        let opADD = GridViewUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_ADD');
         return (
             <React.Fragment>
                 <ActionButton rendered={opADD}
@@ -320,9 +320,9 @@ export class DashboardGridViewComponent extends BaseContainer {
 
     leftHeadPanelContent = () => {
         let centerElementStyle = 'mr-1 ';
-        let opBatches = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_BATCH');
-        let opDocuments = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_DOCUMENTS');
-        let opPlugins = GridViewUtils.containsOperationButton(this.state.parsedGridView?.operations, 'OP_PLUGINS');
+        let opBatches = GridViewUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_BATCH');
+        let opDocuments = GridViewUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_DOCUMENTS');
+        let opPlugins = GridViewUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_PLUGINS');
         return (
             <React.Fragment>
                 <ButtonGroup

@@ -10,7 +10,7 @@ import ConsoleHelper from "../../utils/ConsoleHelper";
 import CardInfiniteLoaderWrapper from "./CardInfiniteLoaderWrapper";
 import WindowSizeListener from "react-window-size-listener";
 import DataCardStore from "../dao/DataCardStore";
-import OperationRecordButtons from "../../components/prolab/OperationRecordButtons";
+import OperationsButtons from "../../components/prolab/OperationsButtons";
 
 class CardViewInfiniteComponent extends React.Component {
 
@@ -229,13 +229,14 @@ class CardViewInfiniteComponent extends React.Component {
                             <div className='card-grid-header'>
                                 {cardHeader?.visible ? CardViewUtils.cellTemplate(cardHeader, rowData, 'card-grid-header-title', 'HEADER') : null}
                                     <div className='card-grid-header-buttons'>
-                                        <OperationRecordButtons margin={'mr-0'}
-                                                                inverseColor={true}
-                                                                labels={this.labels}
-                                                                operation={this.props.parsedCardView.operations}
-                                                                operationList={this.props.parsedCardView.operationsRecordList}
-                                                                info={null}
-                                                                handleEdit={() => {
+                                        <OperationsButtons margin={'mr-0'}
+                                                           inverseColor={false}
+                                                           buttonShadow={false}
+                                                           labels={this.labels}
+                                                           operations={this.props.parsedCardView.operationsRecord}
+                                                           operationList={this.props.parsedCardView.operationsRecordList}
+                                                           info={null}
+                                                           handleEdit={() => {
                                                                     let result = this.props.handleBlockUi();
                                                                     if (result) {
                                                                         this.crudService
@@ -252,24 +253,24 @@ class CardViewInfiniteComponent extends React.Component {
                                                                             });
                                                                     }
                                                                 }}
-                                                                hrefSubview={AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${!!currentBreadcrumb ? currentBreadcrumb : ``}`)}
-                                                                handleHrefSubview={() => {
+                                                           hrefSubview={AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${!!currentBreadcrumb ? currentBreadcrumb : ``}`)}
+                                                           handleHrefSubview={() => {
                                                                     let newUrl = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${!!currentBreadcrumb ? currentBreadcrumb : ``}`);
                                                                     window.location.assign(newUrl);
                                                                 }}
-                                                                handleArchive={() => {
+                                                           handleArchive={() => {
                                                                     this.props.handleArchiveRow(recordId)
                                                                 }}
-                                                                handleCopy={() => {
+                                                           handleCopy={() => {
                                                                     this.props.handleCopyRow(recordId)
                                                                 }}
-                                                                handleDelete={() => {
+                                                           handleDelete={() => {
                                                                     this.props.handleDeleteRow(recordId)
                                                                 }}
-                                                                handleRestore={() => {
+                                                           handleRestore={() => {
                                                                     this.props.handleRestoreRow(recordId)
                                                                 }}
-                                                                handlePublish={() => {
+                                                           handlePublish={() => {
                                                                     this.props.handlePublishRow(recordId)
                                                                 }}
                                         />
