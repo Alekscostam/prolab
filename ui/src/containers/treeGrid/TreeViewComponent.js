@@ -4,8 +4,9 @@ import CrudService from "../../services/CrudService";
 import Constants from "../../utils/Constants";
 import ConsoleHelper from "../../utils/ConsoleHelper";
 import {TreeList} from "devextreme-react";
-import {FilterRow, HeaderFilter, LoadPanel, Paging, Scrolling, Selection, Sorting} from "devextreme-react/tree-list";
+import {Column, FilterRow, HeaderFilter, LoadPanel, Scrolling, Selection, Sorting} from "devextreme-react/tree-list";
 import BaseViewComponent from "../common/BaseViewComponent";
+import {RemoteOperations} from "devextreme-react/data-grid";
 //
 //    https://js.devexpress.com/Documentation/Guide/UI_Components/TreeList/Getting_Started_with_TreeList/
 //
@@ -27,7 +28,6 @@ class TreeViewComponent extends BaseViewComponent {
         //multiSelect dla podpowiedzi
         const multiSelect = this.props.parsedGridView?.gridOptions?.multiSelect;
         const multiSelection = (multiSelect === undefined || multiSelect === null || !!multiSelect);
-        const packageCount = (!!this.props.packageRows || this.props.packageRows === 0) ? Constants.DEFAULT_DATA_PACKAGE_COUNT : this.props.packageRows;
         const showSelection = this.waitForSuccess() ? false : this.props.showSelection;
         const showColumnHeaders = this.props.showColumnHeaders;
         const showColumnLines = this.props.showColumnLines;
@@ -79,6 +79,15 @@ class TreeViewComponent extends BaseViewComponent {
                 rootValue={0}
                 parentIdExpr="_ID_PARENT"
             >
+                <RemoteOperations
+                    filtering={false}
+                    summary={false}
+                    sorting={false}
+                    paging={false}
+                    grouping={false}
+                    groupPaging={false}
+                />
+
                 <FilterRow visible={showFilterRow} applyFilter={true}/>
 
                 <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'}/>
@@ -92,7 +101,6 @@ class TreeViewComponent extends BaseViewComponent {
                 />
 
                 <Scrolling mode="virtual" rowRenderingMode="virtual" preloadEnabled={false}/>
-                <Paging defaultPageSize={packageCount} pageSize={packageCount}/>
 
                 <LoadPanel enabled={true}
                            showIndicator={true}
@@ -102,6 +110,23 @@ class TreeViewComponent extends BaseViewComponent {
                 {this.preGenerateColumnsDefinition()}
             </TreeList>
         </React.Fragment>);
+    }
+
+    preGenerateColumnsDefinition() {
+        let columns = [];
+        this.props.gridViewColumns?.forEach((columnDefinition, INDEX_COLUMN) => {
+            let sortOrder;
+            if (!!columnDefinition?.sortIndex && columnDefinition?.sortIndex > 0 && !!columnDefinition?.sortOrder) {
+                sortOrder = columnDefinition?.sortOrder?.toLowerCase();
+            }
+            columns.push(<Column
+                key={INDEX_COLUMN}
+                dataField={columnDefinition.fieldName}
+                sortOrder={sortOrder}
+                sortIndex={columnDefinition?.sortIndex}
+            />);
+        })
+        return columns;
     }
 }
 
@@ -115,22 +140,17 @@ TreeViewComponent.defaultProps = {
     showColumnHeaders: true,
     showFilterRow: true,
     showSelection: true,
-    dataTreeStoreSuccess: true,
     allowSelectAll: true
 };
 
 TreeViewComponent.propTypes = {
     id: PropTypes.number.isRequired,
-    elementSubViewId: PropTypes.number,
-    elementRecordId: PropTypes.number,
-    elementKindView: PropTypes.string,
     parsedGridView: PropTypes.object.isRequired,
     parsedGridViewData: PropTypes.object.isRequired,
     gridViewColumns: PropTypes.object.isRequired,
     packageRows: PropTypes.number,
     handleOnDataTree: PropTypes.func.isRequired,
     handleOnInitialized: PropTypes.func,
-    handleShowEditPanel: PropTypes.func, //selection
     selectedRowKeys: PropTypes.object.isRequired,
     handleSelectedRowKeys: PropTypes.func,
     handleArchiveRow: PropTypes.func.isRequired,
@@ -148,9 +168,7 @@ TreeViewComponent.propTypes = {
     showFilterRow: PropTypes.bool,
     showSelection: PropTypes.bool,
     dataTreeHeight: PropTypes.number,
-    dataTreeStoreSuccess: PropTypes.bool,
     allowSelectAll: PropTypes.bool
 };
-
 
 export default TreeViewComponent;

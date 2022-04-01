@@ -24,6 +24,7 @@ import {GridViewUtils} from "./utils/GridViewUtils";
 import ActionButton from "./components/ActionButton";
 import {Toast} from "primereact/toast";
 import LocUtils from "./utils/LocUtils";
+import {EditSpecContainer} from "./containers/EditSpecContainer";
 
 class App extends Component {
     constructor() {
@@ -33,6 +34,7 @@ class App extends Component {
         this.historyBrowser = this.history;
         this.localizationService = new LocalizationService();
         this.viewContainer = React.createRef();
+        this.editSpecContainer = React.createRef();
         this.state = {
             loadedConfiguration: false,
             configUrl: null,
@@ -291,6 +293,21 @@ class App extends Component {
                                                                handleShortcutButtons={(shortcutButtons => {
                                                                    this.setState({shortcutButtons: shortcutButtons})
                                                                })}
+                                                               collapsed={this.state.collapsed}
+                                                           />
+                                                       </AuthComponent>
+                                                   )
+                                               }}/>
+                                        <Route path='/edit-spec/:id'
+                                               render={(props) => {
+                                                   return (
+                                                       <AuthComponent viewMode={'VIEW'}
+                                                                      historyBrowser={this.historyBrowser}
+                                                                      handleLogout={(forceByButton) => this.handleLogoutUser(forceByButton)}>
+                                                           <EditSpecContainer
+                                                               ref={this.editSpecContainer}
+                                                               id={props.match.params.id}
+                                                               labels={labels}
                                                                collapsed={this.state.collapsed}
                                                            />
                                                        </AuthComponent>

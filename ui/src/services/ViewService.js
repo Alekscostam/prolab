@@ -34,8 +34,8 @@ export default class ViewService extends BaseService {
         });
     }
 
-    getViewSpec(viewId, recordParentId) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/editspec/${recordParentId}?kindView=ViewSpec`, {
+    getViewSpec(viewId, parentId) {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/editspec/${parentId}`, {
             method: 'GET',
         }).catch((err) => {
             throw err;

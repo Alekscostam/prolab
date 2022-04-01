@@ -50,6 +50,16 @@
   min-width: 0;
   height: 26px;
   width: 30px;
+
+  &.normal {
+    background-color: $button-text-color;
+    color: $button-color;
+  }
+
+  &.inverse {
+    background-color: $button-color;
+    color: $button-text-color;
+  }
 }
 
 .button-with-menu-filter {

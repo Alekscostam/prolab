@@ -8,7 +8,7 @@ import ReactDOM from "react-dom";
 import OperationsButtons from "../../components/prolab/OperationsButtons";
 import {EntryResponseUtils} from "../../utils/EntryResponseUtils";
 import AppPrefixUtils from "../../utils/AppPrefixUtils";
-import {Column} from "devextreme-react/tree-list";
+import {Column} from "devextreme-react/data-grid";
 
 class BaseViewComponent extends React.Component {
 
@@ -75,7 +75,6 @@ class BaseViewComponent extends React.Component {
         let INDEX_COLUMN = 0;
         if (columns?.length > 0) {
             //when viewData respond a lot of data
-
             columns.filter((column) => column.visible === true)?.forEach((column) => {
                 if (column.name === '_ROWNUMBER') {
                     //rule -> hide row with autonumber

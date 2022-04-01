@@ -26,7 +26,6 @@ import ConsoleHelper from "../utils/ConsoleHelper";
 import LocUtils from "../utils/LocUtils";
 import DataCardStore from "./dao/DataCardStore";
 import {EntryResponseUtils} from "../utils/EntryResponseUtils";
-import TreeViewComponent from "./treeGrid/TreeViewComponent";
 import DataTreeStore from "./dao/DataTreeStore";
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -201,7 +200,7 @@ export class ViewContainer extends BaseContainer {
                             elementSubViewId: elementSubViewId,
                         }, () => {
                             this.props.handleSubView(subViewResponse);
-                            this.getViewById(elementSubViewId, recordId, filterId, parentId, viewType);
+                            this.getViewById(elementSubViewId, recordId, filterId, parentId, viewType, true);
                             this.unblockUi();
                         });
                     }
@@ -214,66 +213,27 @@ export class ViewContainer extends BaseContainer {
             ConsoleHelper(`ViewContainer::downloadData: viewId=${viewId}, recordId=${recordId}, filterId=${filterId}, parentId=${parentId}, viewType=${viewType},`);
             this.setState({subView: null}, () => {
                 this.props.handleSubView(null);
-                this.getViewById(viewId, recordId, filterId, parentId, viewType);
+                this.getViewById(viewId, recordId, filterId, parentId, viewType, false);
             });
         }
     }
 
-    getViewById(viewId, recordId, filterId, parentId, viewType) {
+    getViewById(viewId, recordId, filterId, parentId, viewType, isSubView) {
         this.setState({loading: true,}, () => {
-            switch (this.state.elementKindView) {
-                case "ViewSpec":
-                    this.viewService
-                        .getViewSpec(viewId, recordId)
-                        .then((responseView) => {
-                            let refactorResponseView = {
-                                ...responseView,
-                                viewInfo: {
-                                    id: responseView.editInfo.viewId,
-                                    name: responseView.editInfo.viewName,
-                                    parentId: responseView.editInfo.parentId,
-                                    type: 'gridView',
-                                    kindView: "ViewSpec"
-                                },
-                                gridColumns: [{
-                                    groupName: '',
-                                    freeze: '',
-                                    columns: responseView.listColumns,
-                                }],
-                                gridOptions: responseView.listOptions,
-                                editInfo: undefined,
-                                listColumns: undefined,
-                                listOptions: undefined
-                            }
-                            console.log('refactorResponseView')
-                            console.log(refactorResponseView)
-                            this.processViewResponse(refactorResponseView, parentId, recordId)
-                        }).catch((err) => {
-                        console.error('Error getView in GridView. Exception = ', err);
-                        this.setState({loading: false,}, () => {
-                            this.showGlobalErrorMessage(err); //'Nie udało się pobrać danych strony o id: ' + viewId);
-                        });
-                    });
-                    break;
-                default:
-                    this.viewService
-                        .getView(viewId, viewType, recordId, this.state.elementKindView)
-                        .then((responseView) => {
-                            console.log('responseView')
-                            console.log(responseView)
-                            this.processViewResponse(responseView, parentId, recordId)
-                        }).catch((err) => {
-                        console.error('Error getView in GridView. Exception = ', err);
-                        this.setState({loading: false,}, () => {
-                            this.showGlobalErrorMessage(err); //'Nie udało się pobrać danych strony o id: ' + viewId);
-                        });
-                    });
-                    break;
-            }
+            this.viewService
+                .getView(viewId, viewType, recordId, this.state.elementKindView)
+                .then((responseView) => {
+                    this.processViewResponse(responseView, parentId, recordId, isSubView)
+                }).catch((err) => {
+                console.error('Error getView in GridView. Exception = ', err);
+                this.setState({loading: false,}, () => {
+                    this.showGlobalErrorMessage(err); //'Nie udało się pobrać danych strony o id: ' + viewId);
+                });
+            });
         });
     }
 
-    processViewResponse(responseView, parentId, recordId) {
+    processViewResponse(responseView, parentId, recordId, isSubView) {
         if (this._isMounted) {
             ViewValidatorUtils.validation(responseView);
             let id = UrlUtils.getViewIdFromURL();
@@ -352,7 +312,7 @@ export class ViewContainer extends BaseContainer {
                 isSelectAll: false,
             }), () => {
                 this.props.handleRenderNoRefreshContent(true);
-                this.props.handleViewInfoName(this.state.parsedGridView?.viewInfo?.name);
+                this.props.handleViewInfoName(isSubView ? this.state.subView?.viewInfo?.name : this.state.parsedGridView?.viewInfo?.name);
                 this.props.handleOperations(this.state.parsedGridView?.operations);
                 this.props.handleShortcutButtons(this.state.parsedGridView?.shortcutButtons);
                 const initFilterId = responseView?.viewInfo?.filterdId;
@@ -385,33 +345,33 @@ export class ViewContainer extends BaseContainer {
                         }
                     });
                 }
-                // else if (this.isTreeView()) {
-                //     this.setState({loading: true}, () => {
-                //         let res = this.dataTreeStore.getDataTreeStore(viewIdArg, 'gridView', parentIdArg, filterIdArg, kindViewArg, () => {
-                //             // this.blockUi();
-                //             return {
-                //                 select: this.state.select, selectAll: this.state.selectAll
-                //             };
-                //         }, () => {
-                //             this.setState({
-                //                 select: false, selectAll: false, dataGridStoreSuccess: true,
-                //             }, () => {
-                //                 this.unblockUi();
-                //             });
-                //         }, (err) => {
-                //             this.setState({
-                //                 select: false, selectAll: false,
-                //             }, () => {
-                //                 this.unblockUi();
-                //                 this.showErrorMessages(err);
-                //             });
-                //         },);
-                //         if (!!res) {
-                //             this.setState({
-                //                 loading: false, parsedGridViewData: res
-                //             });
-                //         }
-                //     });
+                    // else if (this.isTreeView()) {
+                    //     this.setState({loading: true}, () => {
+                    //         let res = this.dataTreeStore.getDataTreeStore(viewIdArg, 'gridView', parentIdArg, filterIdArg, kindViewArg, () => {
+                    //             // this.blockUi();
+                    //             return {
+                    //                 select: this.state.select, selectAll: this.state.selectAll
+                    //             };
+                    //         }, () => {
+                    //             this.setState({
+                    //                 select: false, selectAll: false, dataGridStoreSuccess: true,
+                    //             }, () => {
+                    //                 this.unblockUi();
+                    //             });
+                    //         }, (err) => {
+                    //             this.setState({
+                    //                 select: false, selectAll: false,
+                    //             }, () => {
+                    //                 this.unblockUi();
+                    //                 this.showErrorMessages(err);
+                    //             });
+                    //         },);
+                    //         if (!!res) {
+                    //             this.setState({
+                    //                 loading: false, parsedGridViewData: res
+                    //             });
+                    //         }
+                    //     });
                 // }
                 else {
                     this.setState({loading: true}, () => {
@@ -838,132 +798,132 @@ export class ViewContainer extends BaseContainer {
         return (<React.Fragment>
             {this.state.loading ? null : (<React.Fragment>
                 {this.isGridView() ? (<React.Fragment>
-                    <GridViewComponent
-                        id={this.props.id}
-                        elementSubViewId={this.state.elementSubViewId}
-                        elementKindView={this.state.elementKindView}
-                        elementRecordId={this.state.elementRecordId}
-                        handleOnInitialized={this.onInitialize}
-                        handleOnDataGrid={(ref) => {
-                            this.refDataGrid = ref;
-                        }}
-                        parsedGridView={this.state.parsedGridView}
-                        parsedGridViewData={this.state.parsedGridViewData}
-                        gridViewColumns={this.state.gridViewColumns}
-                        handleBlockUi={() => {
-                            this.blockUi();
-                            return true;
-                        }}
-                        handleUnblockUi={() => this.unblockUi()}
-                        showErrorMessages={(err) => this.showErrorMessages(err)}
-                        packageRows={this.state.packageRows}
-                        handleShowEditPanel={(editDataResponse) => {
-                            this.handleShowEditPanel(editDataResponse)
-                        }}
-                        handleSelectAll={(selectionValue) => {
-                            this.blockUi();
-                            if (selectionValue === null) {
-                                this.setState({
-                                    selectAll: false, select: true
-                                });
-                                dataGrid.getSelectedRowsData().then((rowData) => {
+                        <GridViewComponent
+                            id={this.props.id}
+                            elementSubViewId={this.state.elementSubViewId}
+                            elementKindView={this.state.elementKindView}
+                            elementRecordId={this.state.elementRecordId}
+                            handleOnInitialized={this.onInitialize}
+                            handleOnDataGrid={(ref) => {
+                                this.refDataGrid = ref;
+                            }}
+                            parsedGridView={this.state.parsedGridView}
+                            parsedGridViewData={this.state.parsedGridViewData}
+                            gridViewColumns={this.state.gridViewColumns}
+                            handleBlockUi={() => {
+                                this.blockUi();
+                                return true;
+                            }}
+                            handleUnblockUi={() => this.unblockUi()}
+                            showErrorMessages={(err) => this.showErrorMessages(err)}
+                            packageRows={this.state.packageRows}
+                            handleShowEditPanel={(editDataResponse) => {
+                                this.handleShowEditPanel(editDataResponse)
+                            }}
+                            handleSelectAll={(selectionValue) => {
+                                this.blockUi();
+                                if (selectionValue === null) {
                                     this.setState({
-                                        selectedRowKeys: rowData, selectAll: false, select: false
-                                    }, () => {
-                                        this.unblockUi();
-                                    })
-                                });
-                            } else {
-                                if (selectionValue) {
-                                    this.selectAllDataGrid(selectionValue);
+                                        selectAll: false, select: true
+                                    });
+                                    dataGrid.getSelectedRowsData().then((rowData) => {
+                                        this.setState({
+                                            selectedRowKeys: rowData, selectAll: false, select: false
+                                        }, () => {
+                                            this.unblockUi();
+                                        })
+                                    });
                                 } else {
-                                    this.unselectAllDataGrid(selectionValue);
+                                    if (selectionValue) {
+                                        this.selectAllDataGrid(selectionValue);
+                                    } else {
+                                        this.unselectAllDataGrid(selectionValue);
+                                    }
                                 }
-                            }
-                        }}
-                        dataGridStoreSuccess={this.state.dataGridStoreSuccess}
-                        selectionDeferred={true}
-                        handleDeleteRow={(id) => this.delete(id)}
-                        handleRestoreRow={(id) => this.restore(id)}
-                        handleCopyRow={(id) => this.copy(id)}
-                        handleArchiveRow={(id) => this.archive(id)}
-                        handlePublishRow={(id) => this.publish(id)}
-                    />
-                </React.Fragment>)
-                //     : this.isTreeView() ?
-                //     (<React.Fragment>
-                //     <TreeViewComponent
-                //         id={this.props.id}
-                //         elementSubViewId={this.state.elementSubViewId}
-                //         elementKindView={this.state.elementKindView}
-                //         elementRecordId={this.state.elementRecordId}
-                //         handleOnDataTree={(ref) => this.refDataTree = ref}
-                //         parsedGridView={this.state.parsedGridView}
-                //         parsedGridViewData={this.state.parsedGridViewData}
-                //         gridViewColumns={this.state.gridViewColumns}
-                //         handleBlockUi={() => {
-                //             this.blockUi();
-                //             return true;
-                //         }}
-                //         handleUnblockUi={() => this.unblockUi()}
-                //         showErrorMessages={(err) => this.showErrorMessages(err)}
-                //         packageRows={this.state.packageRows}
-                //         handleShowEditPanel={(editDataResponse) => {
-                //             this.handleShowEditPanel(editDataResponse)
-                //         }}
-                //         selectedRowKeys={this.state.selectedRowKeys}
-                //         handleSelectedRowKeys={(e) => this.setState({selectedRowKeys: e})}
-                //         dataTreeStoreSuccess={this.state.dataGridStoreSuccess}
-                //         handleDeleteRow={(id) => this.delete(id)}
-                //         handleRestoreRow={(id) => this.restore(id)}
-                //         handleCopyRow={(id) => this.copy(id)}
-                //         handleArchiveRow={(id) => this.archive(id)}
-                //         handlePublishRow={(id) => this.publish(id)}
-                //     />
-                // </React.Fragment>)
-                        : this.isCardView() ? (<React.Fragment>
-                    <CardViewInfiniteComponent
-                        id={viewIdArg}
-                        ref={this.refCardGrid}
-                        elementSubViewId={this.state.elementSubViewId}
-                        elementKindView={this.state.elementKindView}
-                        handleOnInitialized={(ref) => this.cardGrid = ref}
-                        parsedCardView={this.state.parsedGridView}
-                        parsedCardViewData={this.state.parsedCardViewData}
-                        handleShowEditPanel={(editDataResponse) => {
-                            this.handleShowEditPanel(editDataResponse)
-                        }}
-                        showErrorMessages={(err) => this.showErrorMessages(err)}
-                        handleBlockUi={() => {
-                            this.blockUi();
-                            return true;
-                        }}
-                        selectedRowKeys={this.state.selectedRowKeys}
-                        handleSelectedRowKeys={(e) => this.setState({selectedRowKeys: e})}
-                        collapsed={this.props.collapsed}
-                        kindView={kindViewArg}
-                        parentId={parentIdArg}
-                        filterId={filterIdArg}
-                        handleDeleteRow={(id) => this.delete(id)}
-                        handleRestoreRow={(id) => this.restore(id)}
-                        handleCopyRow={(id) => this.copy(id)}
-                        handleArchiveRow={(id) => this.archive(id)}
-                        handlePublishRow={(id) => this.publish(id)}
-                    />
-                </React.Fragment>) : this.isDashboard() ? (<React.Fragment>
-                    {Breadcrumb.render(labels)}
-                    <DashboardContainer dashboard={this.state.subView}
-                                        handleRenderNoRefreshContent={(renderNoRefreshContent) => {
-                                            this.props.handleRenderNoRefreshContent(renderNoRefreshContent)
-                                        }}
-                                        labels={labels}
-                    />
-                </React.Fragment>) : null}
+                            }}
+                            dataGridStoreSuccess={this.state.dataGridStoreSuccess}
+                            selectionDeferred={true}
+                            handleDeleteRow={(id) => this.delete(id)}
+                            handleRestoreRow={(id) => this.restore(id)}
+                            handleCopyRow={(id) => this.copy(id)}
+                            handleArchiveRow={(id) => this.archive(id)}
+                            handlePublishRow={(id) => this.publish(id)}
+                        />
+                    </React.Fragment>)
+                    //     : this.isTreeView() ?
+                    //     (<React.Fragment>
+                    //     <TreeViewComponent
+                    //         id={this.props.id}
+                    //         elementSubViewId={this.state.elementSubViewId}
+                    //         elementKindView={this.state.elementKindView}
+                    //         elementRecordId={this.state.elementRecordId}
+                    //         handleOnDataTree={(ref) => this.refDataTree = ref}
+                    //         parsedGridView={this.state.parsedGridView}
+                    //         parsedGridViewData={this.state.parsedGridViewData}
+                    //         gridViewColumns={this.state.gridViewColumns}
+                    //         handleBlockUi={() => {
+                    //             this.blockUi();
+                    //             return true;
+                    //         }}
+                    //         handleUnblockUi={() => this.unblockUi()}
+                    //         showErrorMessages={(err) => this.showErrorMessages(err)}
+                    //         packageRows={this.state.packageRows}
+                    //         handleShowEditPanel={(editDataResponse) => {
+                    //             this.handleShowEditPanel(editDataResponse)
+                    //         }}
+                    //         selectedRowKeys={this.state.selectedRowKeys}
+                    //         handleSelectedRowKeys={(e) => this.setState({selectedRowKeys: e})}
+                    //         dataTreeStoreSuccess={this.state.dataGridStoreSuccess}
+                    //         handleDeleteRow={(id) => this.delete(id)}
+                    //         handleRestoreRow={(id) => this.restore(id)}
+                    //         handleCopyRow={(id) => this.copy(id)}
+                    //         handleArchiveRow={(id) => this.archive(id)}
+                    //         handlePublishRow={(id) => this.publish(id)}
+                    //     />
+                    // </React.Fragment>)
+                    : this.isCardView() ? (<React.Fragment>
+                        <CardViewInfiniteComponent
+                            id={viewIdArg}
+                            ref={this.refCardGrid}
+                            elementSubViewId={this.state.elementSubViewId}
+                            elementKindView={this.state.elementKindView}
+                            handleOnInitialized={(ref) => this.cardGrid = ref}
+                            parsedCardView={this.state.parsedGridView}
+                            parsedCardViewData={this.state.parsedCardViewData}
+                            handleShowEditPanel={(editDataResponse) => {
+                                this.handleShowEditPanel(editDataResponse)
+                            }}
+                            showErrorMessages={(err) => this.showErrorMessages(err)}
+                            handleBlockUi={() => {
+                                this.blockUi();
+                                return true;
+                            }}
+                            selectedRowKeys={this.state.selectedRowKeys}
+                            handleSelectedRowKeys={(e) => this.setState({selectedRowKeys: e})}
+                            collapsed={this.props.collapsed}
+                            kindView={kindViewArg}
+                            parentId={parentIdArg}
+                            filterId={filterIdArg}
+                            handleDeleteRow={(id) => this.delete(id)}
+                            handleRestoreRow={(id) => this.restore(id)}
+                            handleCopyRow={(id) => this.copy(id)}
+                            handleArchiveRow={(id) => this.archive(id)}
+                            handlePublishRow={(id) => this.publish(id)}
+                        />
+                    </React.Fragment>) : this.isDashboard() ? (<React.Fragment>
+                        {Breadcrumb.render(labels)}
+                        <DashboardContainer dashboard={this.state.subView}
+                                            handleRenderNoRefreshContent={(renderNoRefreshContent) => {
+                                                this.props.handleRenderNoRefreshContent(renderNoRefreshContent)
+                                            }}
+                                            labels={labels}
+                        />
+                    </React.Fragment>) : null}
             </React.Fragment>)}
         </React.Fragment>);
     }
 
-    getMessages(){
+    getMessages() {
         return this.messages;
     }
 
