@@ -53,7 +53,7 @@ export default class DataCardStore extends BaseService {
         });
     }
 
-    getDataCardStore(viewIdArg, loadOptions, recordParentIdArg, filterIdArg, kindViewArg, onStart, onSuccess, onError) {
+    getDataCardStore(viewIdArg, loadOptions, recordParentIdArg, filterIdArg, kindViewArg, onStartCallback, onSuccessCallback, onErrorCallback) {
         return new CustomStore({
             key: 'ID',
             keyExpr: 'ID',
@@ -112,14 +112,14 @@ export default class DataCardStore extends BaseService {
                         summary: response.summary || [],
                         groupCount: response.groupCount || 0
                     };
-                    if (onSuccess) {
-                        onSuccess();
+                    if (onSuccessCallback) {
+                        onSuccessCallback();
                     }
                     return this.cachedLastResponse;
                 }).catch((err) => {
                     ConsoleHelper('Error fetch data card store for view id={%s}. Error = ', viewIdArg, err);
-                    if (onError) {
-                        onError(err);
+                    if (onErrorCallback) {
+                        onErrorCallback(err);
                     }
                     return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0, selectAll: false});
                 });

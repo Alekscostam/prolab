@@ -282,6 +282,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                         })}
                         onError={(e) => this.showErrorMessage(e)}
                         labels={this.props.labels}
+                        showErrorMessages={(err) => this.showErrorMessages(err)}
                     />
                 </React.Fragment>
             </React.Fragment>);

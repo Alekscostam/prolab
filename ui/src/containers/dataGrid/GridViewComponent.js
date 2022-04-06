@@ -43,6 +43,12 @@ class GridViewComponent extends BaseViewComponent  {
         return value === 'true' || value === true;
     }
 
+    groupCellTemplate(element, data) {
+        var span = document.createElement("span");
+        span.innerHTML = data.column.caption + ": " + data.text;
+        element.append(span);
+    }
+
     preGenerateColumnsDefinition() {
         let columns = [];
         this.props.gridViewColumns?.forEach((columnDefinition, INDEX_COLUMN) => {
@@ -55,6 +61,7 @@ class GridViewComponent extends BaseViewComponent  {
                 dataField={columnDefinition.fieldName}
                 sortOrder={sortOrder}
                 sortIndex={columnDefinition?.sortIndex}
+                groupCellTemplate={this.groupCellTemplate}
             />);
         })
         return columns;
@@ -134,6 +141,14 @@ class GridViewComponent extends BaseViewComponent  {
                     onContentReady={(e) => {
                         //myczek na rozjezdzajace sie linie wierszy w dataGrid
                         // $(document).ready(function () {
+                        if (e.component.shouldSkipNextReady) {
+                            e.component.shouldSkipNextReady = false;
+                        }
+                        else {
+                            e.component.shouldSkipNextReady = true;
+                            e.component.columnOption("command:select", "width", 30);
+                            e.component.updateDimensions();
+                        }
                         e.component.resize();
                         // });
                     }}

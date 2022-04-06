@@ -87,6 +87,20 @@ class UrlUtils {
             return match[1];
         }
     }
+
+    static navigateToExternalUrl = (url) => {
+        window.open(url, "_blank");
+    }
+
+    static getShortUrlParams(paramName, paramValues) {
+        let joinResult = paramValues.join(',');
+        return paramName + '=' + joinResult;
+    }
+
+    static getUrlParams(paramName, paramValues) {
+        let joinResult = paramValues.join('&' + paramName + '=');
+        return paramName + '=' + joinResult;
+    }
 }
 
 export default UrlUtils;

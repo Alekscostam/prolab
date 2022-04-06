@@ -48,7 +48,8 @@ export class EditRowComponent extends BaseContainer {
             gridViewType: null,
             dataGridStoreSuccess: false,
             selectedRowData: [],
-            defaultSelectedRowKeys: []
+            defaultSelectedRowKeys: [],
+            preventSave: false
         };
 
         this.editListDataStore = new EditListDataStore();
@@ -65,11 +66,22 @@ export class EditRowComponent extends BaseContainer {
         this.sizeValues = ['8pt', '10pt', '12pt', '14pt', '18pt', '24pt', '36pt'];
         this.fontValues = ['Arial', 'Courier New', 'Georgia', 'Impact', 'Lucida Console', 'Tahoma', 'Times New Roman', 'Verdana'];
         this.headerValues = [false, 1, 2, 3, 4, 5];
-        this.preventSave = false;
         this.messages = React.createRef();
         this.handleAutoFill = this.handleAutoFill.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
         this.editListVisible = this.editListVisible.bind(this);
+        this.fieldsMandatoryLabel = LocUtils.loc(this.props.labels, 'Fields_Mandatory_Label', 'Wypełnij wszystkie wymagane pola');
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        const visibleEditPanelPrevious = prevProps.visibleEditPanel;
+        const visibleEditPanel = this.props.visibleEditPanel;
+        console.log('visibleEditPanelPrevious %s %visibleEditPanel', visibleEditPanelPrevious, visibleEditPanel)
+        //wykrycie eventu wysunięcia panelu z edycją
+        if (visibleEditPanelPrevious === false && visibleEditPanel === true) {
+            this.setState({preventSave: false});
+        }
+        super.componentDidUpdate();
     }
 
     handleSelectedRowData(selectedRowData) {
@@ -153,7 +165,7 @@ export class EditRowComponent extends BaseContainer {
                                 setFields,
                                 //onError
                                 (err) => {
-                                    this.showErrorMessages(err);
+                                    this.props.showErrorMessages(err);
                                 },
                                 //onSuccess
                                 () => {
@@ -178,7 +190,7 @@ export class EditRowComponent extends BaseContainer {
                     );
                 }).catch((err) => {
                 console.error('Error getEditList in EditRowComponent. Exception = ', err);
-                this.showErrorMessages(err);
+                this.props.showErrorMessages(err);
             });
         });
     }
@@ -188,8 +200,8 @@ export class EditRowComponent extends BaseContainer {
         const opSave = GridViewUtils.containsOperationsButton(operations, 'OP_SAVE');
         const opFill = GridViewUtils.containsOperationsButton(operations, 'OP_FILL');
         const opCancel = GridViewUtils.containsOperationsButton(operations, 'OP_CANCEL');
+        const visibleEditPanel = this.props.visibleEditPanel;
         let editData = this.props.editData;
-        let visibleEditPanel = this.props.visibleEditPanel;
         let editListVisible = this.state.editListVisible;
         return <React.Fragment>
             <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)}/>
@@ -210,7 +222,7 @@ export class EditRowComponent extends BaseContainer {
                                    editInfo.field = field;
                                    this.props.onEditList(editInfo, editListData);
                                }}
-                               showErrorMessages={(err) => this.showErrorMessages(err)}
+                               showErrorMessages={(err) => this.props.showErrorMessages(err)}
                                dataGridStoreSuccess={this.state.dataGridStoreSuccess}
                                selectedRowData={this.state.selectedRowData}
                                defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
@@ -256,9 +268,10 @@ export class EditRowComponent extends BaseContainer {
             >
                 <form onSubmit={this.handleFormSubmit} noValidate>
                     <div id="row-edit" className="row-edit-container">
-                        {this.preventSave ? <div id="validation-panel" className="validation-panel">
-                            {LocUtils.loc(this.props.labels, 'Fields_Mandatory_Label', 'Wypełnij wszystkie wymagane pola')}
-                        </div> : null}
+                        {this.state.preventSave ?
+                            <div id="validation-panel" className="validation-panel">
+                                {this.fieldsMandatoryLabel}
+                            </div> : null}
                         {editData?.editFields?.map((group, index) => {
                                 return this.renderGroup(group, index)
                             }
@@ -274,14 +287,18 @@ export class EditRowComponent extends BaseContainer {
             event.preventDefault();
         }
         if (this.validator.allValid()) {
-            this.preventSave = false;
-            this.blockUi(this.handleValidForm);
+            this.setState({preventSave: false},()=>{
+                this.blockUi(this.handleValidForm);
+            });
         } else {
-            this.validator.showMessages();
-            // rerender to show messages for the first time
-            this.scrollToError = true;
-            this.preventSave = true;
-            this.forceUpdate();
+            this.setState({preventSave: true},()=>{
+                this.validator.showMessages();
+                this.props.showErrorMessages(this.fieldsMandatoryLabel);
+                // rerender to show messages for the first time
+                this.scrollToError = true;
+                this.preventSave = true;
+                this.forceUpdate();
+            });
         }
     }
 
@@ -317,7 +334,7 @@ export class EditRowComponent extends BaseContainer {
     renderField(groupName, field, fieldIndex) {
         const {onChange} = this.props;
         const {onBlur} = this.props;
-        const required = field.requiredValue;
+        const required = field.requiredValue && field.visible && !field.hidden;
         let validationMsg = this.validator ? this.validator.message(`${EditRowUtils.getType(field.type)}${fieldIndex}`, field.label, field.value, required ? 'required' : 'not_required') : null;
         switch (field.type) {
             case 'D'://D – Data
@@ -356,7 +373,7 @@ export class EditRowComponent extends BaseContainer {
         field.edit = MockService.getFieldEnableDisableOrMock(field.edit, 'edit');
         field.autoFill = MockService.getFieldEnableDisableOrMock(field.autoFill, 'autoFill');
         field.autoFillOnlyEmpty = MockService.getFieldEnableDisableOrMock(field.autoFillOnlyEmpty, 'autoFillOnlyEmpty');
-        field.requiredValue = MockService.getFieldEnableDisableOrMock(field.requiredValue, 'requiredValue');
+        field.requiredValue = MockService.getFieldEnableDisableOrMock(required, 'requiredValue');
         field.refreshFieldVisibility = MockService.getFieldEnableDisableOrMock(field.refreshFieldVisibility, 'refreshFieldVisibility');
         field.selectionList = MockService.getFieldEnableDisableOrMock(field.selectionList, 'selectionList');
         field.visible = MockService.getFieldEnableDisableOrMock(field.visible, 'visible');
@@ -560,7 +577,7 @@ export class EditRowComponent extends BaseContainer {
                         onFocusOut={e => onBlur ? onBlur('EDITOR', e, groupName, info) : null}
                         validationMessageMode="always"
                         disabled={!field.edit}
-                        required={true}
+                        required={required}
                     >  {required ? <Validator>
                         <RequiredRule message={`Pole jest wymagane`}/>
                     </Validator> : null}
@@ -684,6 +701,7 @@ EditRowComponent.propTypes = {
     visibleEditPanel: PropTypes.bool.isRequired,
     editData: PropTypes.object.isRequired,
     kindView: PropTypes.string,
+    showErrorMessages: PropTypes.func.isRequired,
     onAfterStateChange: PropTypes.func,
     onChange: PropTypes.func.isRequired,
     onBlur: PropTypes.func,

@@ -70,8 +70,11 @@ export class EditSpecContainer extends BaseContainer {
         const parentId = UrlUtils.getURLParameter('parentId');
         const recordId = UrlUtils.getURLParameter('recordId');
         const filterId = UrlUtils.getURLParameter('filterId');
-        const updatePage = !GridViewUtils.equalNumbers(this.state.elementId, id) || (!GridViewUtils.equalNumbers(this.state.elementFilterId, filterId) || !GridViewUtils.equalNumbers(this.state.elementRecordId, recordId));
-        ConsoleHelper('EditSpecContainer::componentDidUpdate -> updatePage={%s id={%s} id={%s} type={%s} type={%s}', updatePage, prevProps.id, this.props.id);
+        const s1 = !GridViewUtils.equalNumbers(this.state.elementId, id);
+        const s2 = !GridViewUtils.equalNumbers(this.state.elementFilterId, filterId);
+        const s3 = !GridViewUtils.equalString(this.state.elementRecordId, recordId);
+        const updatePage = s1 || (s2 || s3);
+        ConsoleHelper('EditSpecContainer::componentDidUpdate -> updatePage={%s} id={%s} id={%s} s1={%s} s2={%s} s3={%s}', updatePage, prevProps.id, this.props.id, s1, s2, s3);
         if (updatePage) {
             this.setState({
                 elementId: id,
@@ -92,11 +95,11 @@ export class EditSpecContainer extends BaseContainer {
     }
 
     downloadData(viewId, parentId, recordId, filterId) {
-        ConsoleHelper(`EditSpecContainer::downloadData: viewId=${viewId}, parentId=${parentId}, recordId=${recordId}, filterId=${filterId}, `);
+        ConsoleHelper(`EditSpecContainer::downloadData: viewId=${viewId}, parentId=${parentId}, recordId=${recordId}, filterId=${filterId}`);
         this.getViewById(viewId, parentId, recordId, filterId);
     }
 
-    getViewById(viewId, parentId, recordId) {
+    getViewById(viewId, parentId, recordId, filterId) {
         this.setState({loading: true,}, () => {
             this.viewService
                 .getViewSpec(viewId, parentId)
@@ -317,23 +320,8 @@ export class EditSpecContainer extends BaseContainer {
 
     //override
     renderHeadPanel = () => {
-        if (this.isDashboard()) {
-            return <React.Fragment/>
-        }
         return (
             <React.Fragment>
-                <HeadPanel
-                    labels={this.props.labels}
-                    selectedRowKeys={this.state.selectedRowKeys}
-                    operations={this.state.parsedView?.operations}
-                    leftContent={this.leftHeadPanelContent()}
-                    rightContent={this.rightHeadPanelContent()}
-                    handleDelete={() => this.delete()}
-                    handleRestore={() => this.restore()}
-                    handleCopy={() => this.copy()}
-                    handleArchive={() => this.archive()}
-                    handlePublish={() => this.publish()}
-                />
             </React.Fragment>
         );
     }
@@ -372,7 +360,6 @@ export class EditSpecContainer extends BaseContainer {
                     }}
                     handleUnblockUi={() => this.unblockUi()}
                     showErrorMessages={(err) => this.showErrorMessages(err)}
-                    packageRows={this.state.packageRows}
                     handleShowEditPanel={(editDataResponse) => {
                         this.handleShowEditPanel(editDataResponse)
                     }}

@@ -34,13 +34,15 @@ export default class DataGridStore extends BaseService {
                 params += `${i}=${JSON.stringify(this.cachedLoadOptions[i])}&`;
             }
         });
+        if (!!viewTypeArg) {
+            params += "viewType=" + viewTypeArg;
+        }
         let eventSelectAll = true;
-        const viewTypeParam = !!viewTypeArg ? `&viewType=${viewTypeArg}` : '';
         const filterIdParam = !!filterIdArg ? `&filterId=${filterIdArg}` : '';
         const recordParentIdParam = !!recordParentIdArg ? `&parentId=${recordParentIdArg}` : '';
         const kindViewParam = !!kindViewArg && !!recordParentIdParam ? `&kindView=${kindViewArg}` : '';
         const selectAllParam = !!eventSelectAll ? `&selection=true` : '';
-        let url = `${this.domain}/${this.path}/${viewIdArg}${params}${viewTypeParam}${filterIdParam}${selectAllParam}${recordParentIdParam}${kindViewParam}`;
+        let url = `${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${recordParentIdParam}${kindViewParam}${selectAllParam}`;
         url = this.commonCorrectUrl(url);
         return this.fetch(
             url,
@@ -52,10 +54,10 @@ export default class DataGridStore extends BaseService {
         });
     }
 
-    getDataGridStore(viewIdArg, viewTypeArg, recordParentIdArg, filterIdArg, kindViewArg, onStart, onSuccess, onError) {
+    getDataGridStore(viewIdArg, viewTypeArg, recordParentIdArg, filterIdArg, kindViewArg, onStartCallback, onSuccessCallback, onErrorCallback) {
         if (!viewIdArg) {
-            if (onSuccess) {
-                onSuccess();
+            if (onSuccessCallback) {
+                onSuccessCallback();
             }
             return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0});
         }
@@ -87,25 +89,26 @@ export default class DataGridStore extends BaseService {
                         params += `${i}=${JSON.stringify(loadOptions[i])}&`;
                     }
                 });
-
+                if (!!viewTypeArg) {
+                    params += "viewType=" + viewTypeArg;
+                }
                 let addSelectAllParam = false;
-                if (!!onStart) {
-                    let result = onStart();
+                if (!!onStartCallback) {
+                    let result = onStartCallback();
                     if (result?.select || result?.selectAll) {
                         addSelectAllParam = true
                     }
                 }
-                const viewTypeParam = !!viewTypeArg ? `&viewType=${viewTypeArg}` : '';
                 const filterIdParam = !!filterIdArg ? `&filterId=${filterIdArg}` : '';
                 const recordParentIdParam = !!recordParentIdArg ? `&parentId=${recordParentIdArg}` : '';
                 const kindViewParam = !!kindViewArg && !!recordParentIdParam ? `&kindView=${kindViewArg}` : '';
                 const selectAllParam = !!addSelectAllParam ? `&selection=true` : '';
-                let url = `${this.domain}/${this.path}/${viewIdArg}${params}${viewTypeParam}${filterIdParam}${selectAllParam}${recordParentIdParam}${kindViewParam}`;
+                let url = `${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${recordParentIdParam}${kindViewParam}${selectAllParam}`;
                 url = this.commonCorrectUrl(url);
                 //blokuj dziwne strzały ze stora
-                if (url.split("&").length - 1 <= 2  && !!this.cachedLastResponse) {
-                    if (onSuccess) {
-                        onSuccess();
+                if (url.split("&").length - 1 <= 2 && !!this.cachedLastResponse) {
+                    if (onSuccessCallback) {
+                        onSuccessCallback();
                     }
                     ConsoleHelper('Prevent store fetch, url: ' + url)
                     return Promise.resolve(this.cachedLastResponse);
@@ -123,14 +126,14 @@ export default class DataGridStore extends BaseService {
                         summary: response.summary || [],
                         groupCount: response.groupCount || 0
                     };
-                    if (onSuccess) {
-                        onSuccess();
+                    if (onSuccessCallback) {
+                        onSuccessCallback();
                     }
                     return this.cachedLastResponse;
                 }).catch((err) => {
                     ConsoleHelper('Error fetch data grid store for view id={%s}. Error = ', viewIdArg, err);
-                    if (onError) {
-                        onError(err);
+                    if (onErrorCallback) {
+                        onErrorCallback(err);
                     }
                     return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0, selectAll: false});
                 });

@@ -9,6 +9,7 @@ import OperationsButtons from "../../components/prolab/OperationsButtons";
 import {EntryResponseUtils} from "../../utils/EntryResponseUtils";
 import AppPrefixUtils from "../../utils/AppPrefixUtils";
 import {Column} from "devextreme-react/data-grid";
+import UrlUtils from "../../utils/UrlUtils";
 
 class BaseViewComponent extends React.Component {
 
@@ -146,51 +147,73 @@ class BaseViewComponent extends React.Component {
                                                operationList={operationsRecordList}
                                                info={info}
                                                handleEdit={() => {
-                                                        let result = this.props.handleBlockUi();
-                                                        if (result) {
-                                                            this.crudService
-                                                                .editEntry(viewId, recordId, parentId, kindView, '')
-                                                                .then((entryResponse) => {
-                                                                    EntryResponseUtils.run(entryResponse, () => {
-                                                                        if (!!entryResponse.next) {
-                                                                            this.crudService
-                                                                                .edit(viewId, recordId, parentId, kindView)
-                                                                                .then((editDataResponse) => {
-                                                                                    this.setState({
-                                                                                        editData: editDataResponse
-                                                                                    }, () => {
-                                                                                        this.props.handleShowEditPanel(editDataResponse);
-                                                                                    });
-                                                                                })
-                                                                                .catch((err) => {
-                                                                                    this.props.showErrorMessages(err);
-                                                                                });
-                                                                        } else {
-                                                                            this.props.handleUnblockUi();
-                                                                        }
-                                                                    }, () => this.props.handleUnblockUi());
-                                                                }).catch((err) => {
-                                                                this.props.showErrorMessages(err);
-                                                            });
-                                                        }
-                                                    }}
+                                                   if (this.props.parsedGridView?.viewInfo?.kindView === 'ViewSpec') {
+                                                       let newUrl = AppPrefixUtils.locationHrefUrl(`/#/edit-spec/${viewId}?parentId=${parentId}&recordId=${recordId}${currentBreadcrumb}`);
+                                                       UrlUtils.navigateToExternalUrl(newUrl);
+                                                   } else {
+                                                       let result = this.props.handleBlockUi();
+                                                       if (result) {
+                                                           this.crudService
+                                                               .editEntry(viewId, recordId, parentId, kindView, '')
+                                                               .then((entryResponse) => {
+                                                                   EntryResponseUtils.run(entryResponse, () => {
+                                                                       if (!!entryResponse.next) {
+                                                                           this.crudService
+                                                                               .edit(viewId, recordId, parentId, kindView)
+                                                                               .then((editDataResponse) => {
+                                                                                   this.setState({
+                                                                                       editData: editDataResponse
+                                                                                   }, () => {
+                                                                                       this.props.handleShowEditPanel(editDataResponse);
+                                                                                   });
+                                                                               })
+                                                                               .catch((err) => {
+                                                                                   this.props.showErrorMessages(err);
+                                                                               });
+                                                                       } else {
+                                                                           this.props.handleUnblockUi();
+                                                                       }
+                                                                   }, () => this.props.handleUnblockUi());
+                                                               }).catch((err) => {
+                                                               this.props.showErrorMessages(err);
+                                                           });
+                                                       }
+                                                   }
+                                               }}
                                                hrefSubview={AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewId}?recordId=${recordId}${currentBreadcrumb}`)}
                                                handleHrefSubview={() => {
-                                                        let newUrl = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${!!currentBreadcrumb ? currentBreadcrumb : ``}`);
-                                                        window.location.assign(newUrl);
-                                                    }}
+                                                   let result = this.props.handleBlockUi();
+                                                   if (result) {
+                                                       let newUrl = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${!!currentBreadcrumb ? currentBreadcrumb : ``}`);
+                                                       window.location.assign(newUrl);
+                                                   }
+                                               }}
                                                handleArchive={() => {
-                                                        this.props.handleArchiveRow(recordId)
-                                                    }}
+                                                   this.props.handleArchiveRow(recordId)
+                                               }}
                                                handleCopy={() => {
-                                                        this.props.handleCopyRow(recordId)
-                                                    }}
+                                                   this.props.handleCopyRow(recordId)
+                                               }}
                                                handleDelete={() => {
-                                                        this.props.handleDeleteRow(recordId)
-                                                    }}
+                                                   this.props.handleDeleteRow(recordId)
+                                               }}
                                                handleRestore={() => {
-                                                        this.props.handleRestoreRow(recordId)
-                                                    }}/>
+                                                   this.props.handleRestoreRow(recordId)
+                                               }}
+                                               handleFormula={() => {
+                                                   alert('TODO')
+                                               }}
+                                               handleHistory={() => {
+                                                   alert('TODO')
+                                               }}
+                                               handleAttachments={() => {
+                                                   alert('TODO')
+                                               }}
+                                               handleBlockUi={() => {
+                                                   this.props.handleBlockUi();
+                                               }}
+                            />
+
                         </div>, element);
                     },
                 });

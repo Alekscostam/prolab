@@ -4,7 +4,16 @@ import CrudService from "../../services/CrudService";
 import Constants from "../../utils/Constants";
 import ConsoleHelper from "../../utils/ConsoleHelper";
 import {TreeList} from "devextreme-react";
-import {Column, FilterRow, HeaderFilter, LoadPanel, Scrolling, Selection, Sorting} from "devextreme-react/tree-list";
+import {
+    Column,
+    Editing,
+    FilterRow,
+    HeaderFilter,
+    LoadPanel,
+    Scrolling,
+    Selection,
+    Sorting
+} from "devextreme-react/tree-list";
 import BaseViewComponent from "../common/BaseViewComponent";
 import {RemoteOperations} from "devextreme-react/data-grid";
 //
@@ -88,6 +97,12 @@ class TreeViewComponent extends BaseViewComponent {
                     groupPaging={false}
                 />
 
+                <Editing
+                    allowAdding={true}
+                    allowUpdating={true}
+                    allowDeleting={true}
+                    mode="cell" />
+
                 <FilterRow visible={showFilterRow} applyFilter={true}/>
 
                 <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'}/>
@@ -133,7 +148,6 @@ class TreeViewComponent extends BaseViewComponent {
 TreeViewComponent.defaultProps = {
     parsedGridView: [],
     selectedRowKeys: [],
-    packageRows: Constants.DEFAULT_DATA_PACKAGE_COUNT,
     showColumnLines: true,
     showRowLines: true,
     showBorders: true,
@@ -148,7 +162,6 @@ TreeViewComponent.propTypes = {
     parsedGridView: PropTypes.object.isRequired,
     parsedGridViewData: PropTypes.object.isRequired,
     gridViewColumns: PropTypes.object.isRequired,
-    packageRows: PropTypes.number,
     handleOnDataTree: PropTypes.func.isRequired,
     handleOnInitialized: PropTypes.func,
     selectedRowKeys: PropTypes.object.isRequired,

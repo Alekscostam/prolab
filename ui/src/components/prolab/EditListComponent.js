@@ -46,7 +46,7 @@ export default class EditListComponent extends React.Component {
                                                     }
                                                 }
                                             })
-                                            field.fieldValue = values.join(separatorJoin);
+                                            field.fieldValue = values.join(separatorJoin) === undefined || null ? "" : values.join(separatorJoin);
                                         })
                                         this.props.handleOnChosen(setFields, this.props.field);
                                     }

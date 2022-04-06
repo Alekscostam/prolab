@@ -18,6 +18,7 @@ export const OperationsButtons = props => {
         if (!!operations && !!operations.type) {
             switch (operations.type?.toUpperCase()) {
                 case 'OP_EDIT':
+                case 'OP_EDIT_SPEC':
                     return (
                         <React.Fragment>
                             <ShortcutButton
@@ -27,21 +28,7 @@ export const OperationsButtons = props => {
                                 iconColor={`${inverseColor ? `white` : `blue`}`}
                                 buttonShadow={buttonShadow}
                                 title={operations.label}
-                                handleClick={(e) => props.handleEdit(e)}
-                            />
-                        </React.Fragment>);
-                case 'OP_EDIT_SPEC'://TODO
-                    return (
-                        <React.Fragment>
-                            <ShortcutButton
-                                id={`${info?.column.headerId}_menu_button`}
-                                className={`action-button-with-menu ${inverseColor ? `inverse` : `normal`} ${margin}`}
-                                iconName={operations?.iconCode || 'mdi-pencil'}
-                                iconColor={`${inverseColor ? `white` : `blue`}`}
-                                buttonShadow={buttonShadow}
-                                title={operations.label}
-                                handleClick={(e) => props.handleEdit(e)}
-                            />
+                                handleClick={(e) => props.handleEdit(e)}/>
                         </React.Fragment>);
                 case 'OP_SUBVIEWS':
                     return (
@@ -53,8 +40,8 @@ export const OperationsButtons = props => {
                                 iconColor={`${inverseColor ? `white` : `blue`}`}
                                 buttonShadow={buttonShadow}
                                 title={operations.label}
-                                href={props.hrefSubview}
-                            />
+                                handleClick={() => props.handleBlockUi()}
+                                href={props.hrefSubview}/>
                         </React.Fragment>);
                 case 'OP_DELETE':
                     return (
@@ -159,6 +146,7 @@ export const OperationsButtons = props => {
                 label: i.label, icon: `mdi ${i.iconCode}`, command: () => {
                     switch (i.type?.toUpperCase()) {
                         case 'OP_EDIT':
+                        case 'OP_EDIT_SPEC':
                             return props.handleEdit();
                         case 'OP_SUBVIEWS':
                             return props.handleHrefSubview();
@@ -172,6 +160,12 @@ export const OperationsButtons = props => {
                             return props.handleArchive();
                         case 'OP_PUBLISH':
                             return props.handlePublish();
+                        case 'OP_FORMULA':
+                            return props.handleFormula();
+                        case 'OP_HISTORY':
+                            return props.handleHistory();
+                        case 'OP_ATTACHMENTS':
+                            return props.handleAttachments();
                         default:
                             return null;
                     }
@@ -215,6 +209,12 @@ OperationsButtons.defaultProps = {
     },
     handlePublish: () => {
     },
+    handleFormula: () => {
+    },
+    handleHistory: () => {
+    },
+    handleAttachments: () => {
+    },
     inverseColor: false,
     buttonShadow: true,
     margin: Constants.DEFAULT_MARGIN_BETWEEN_BUTTONS
@@ -233,6 +233,10 @@ OperationsButtons.propTypes = {
     handleCopy: PropTypes.func.isRequired,
     handleArchive: PropTypes.func.isRequired,
     handlePublish: PropTypes.func.isRequired,
+    handleFormula: PropTypes.func.isRequired,
+    handleHistory: PropTypes.func.isRequired,
+    handleAttachments: PropTypes.func.isRequired,
+    handleBlockUi: PropTypes.func.isRequired,
     margin: PropTypes.string,
     inverseColor: PropTypes.bool,
     buttonShadow: PropTypes.bool,
