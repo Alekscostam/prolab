@@ -485,6 +485,11 @@ body main div.container-fluid {
         flex-basis: 0;
         flex-grow: 0;
         flex-shrink: 0;
+        justify-content: space-between;
+
+        .header-left {
+          width: 80%;
+        }
       }
 
       .base-container-head-panel {
@@ -555,7 +560,7 @@ iframe {
   visibility: hidden;
 }
 
-.p-datepicker{
+.p-datepicker {
   padding: 0.5rem 0.5rem 0rem 0.5rem;
 }
 
@@ -580,14 +585,17 @@ iframe {
 .p-datepicker .p-timepicker button {
   height: 0.5rem;
 }
-.p-datepicker-buttonbar button{
+
+.p-datepicker-buttonbar button {
   height: 25px;
 }
-.dx-tab.dx-state-focused::after{
+
+.dx-tab.dx-state-focused::after {
   border: 0 !important;
   -webkit-appearance: none !important;
   outline: none !important;
-  box-shadow : none;
+  box-shadow: none;
 }
 
+@import 'edit_spec_field';
 @import 'edit_row';

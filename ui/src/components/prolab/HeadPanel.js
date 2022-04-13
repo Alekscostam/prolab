@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import OperationsButtons from "./OperationsButtons";
 import AppPrefixUtils from "../../utils/AppPrefixUtils";
 import {Breadcrumb} from "../../utils/BreadcrumbUtils";
-import {GridViewUtils} from "../../utils/GridViewUtils";
+import {DataGridUtils} from "../../utils/component/DataGridUtils";
 import UrlUtils from "../../utils/UrlUtils";
 //Komponent wyświetlający górną ramkę i okalający wszystkie przyciski, filtry ....
 export const HeadPanel = props => {
@@ -14,7 +14,7 @@ export const HeadPanel = props => {
     const subViewId = props.elementSubViewId;
     const parentId = props.elementRecordId;
     let viewId = props.elementId;
-    viewId = GridViewUtils.getRealViewId(subViewId, viewId);
+    viewId = DataGridUtils.getRealViewId(subViewId, viewId);
     return (<React.Fragment>
         <div id="grid-selection-panel"
              className={props.selectedRowKeys?.length > 0 ? "d-flex flex-row grid-selection-panel grid-selection-panel-selection"

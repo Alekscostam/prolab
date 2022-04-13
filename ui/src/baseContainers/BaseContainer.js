@@ -17,7 +17,7 @@ import {localeOptions} from "primereact/api";
 import EditRowUtils from "../utils/EditRowUtils";
 import ConsoleHelper from "../utils/ConsoleHelper";
 import {LoadIndicator} from "devextreme-react";
-import {GridViewUtils} from "../utils/GridViewUtils";
+import {DataGridUtils} from "../utils/component/DataGridUtils";
 import {EntryResponseUtils} from "../utils/EntryResponseUtils";
 
 class BaseContainer extends React.Component {
@@ -959,10 +959,10 @@ class BaseContainer extends React.Component {
                         {this.renderGlobalTop()}
                         <DivContainer colClass='base-container-div'>
                             <DivContainer colClass='row base-container-header'>
-                                <DivContainer id='header-left' colClass='col-11'>
+                                <DivContainer id='header-left' colClass={""}>
                                     {this.renderHeaderLeft()}
                                 </DivContainer>
-                                <DivContainer id='header-right' colClass='col-1 to-right'>
+                                <DivContainer id='header-right' colClass={""}>
                                     {this.renderHeaderRight()}
                                 </DivContainer>
                                 <DivContainer id='header-content' colClass='col-12'>
@@ -1008,11 +1008,6 @@ class BaseContainer extends React.Component {
                 this.getRefCardGrid().current?.refresh(true);
             }
         }
-        // else if (this.isTreeView()) {
-        //     if (!!this.getRefGridTree()) {
-        //         this.getRefGridTree().instance.getDataSource().reload();
-        //     }
-        // }
         else {
             if (!!this.getRefGridView()) {
                 this.getRefGridView().instance.getDataSource().reload();
@@ -1025,10 +1020,6 @@ class BaseContainer extends React.Component {
             if (!!this.getRefGridView())
                 this.getRefGridView().instance.getDataSource().reload();
         }
-        // else if (this.isTreeView()) {
-        //     if (!!this.getRefGridTree())
-        //         this.getRefGridTree().instance.getDataSource().reload();
-        // }
     }
 
     repaintGridView() {
@@ -1477,7 +1468,7 @@ class BaseContainer extends React.Component {
     getRealViewId() {
         const {elementSubViewId} = this.state;
         const elementId = this.props.id;
-        return GridViewUtils.getRealViewId(elementSubViewId, elementId)
+        return DataGridUtils.getRealViewId(elementSubViewId, elementId)
     }
 
     isGridView() {

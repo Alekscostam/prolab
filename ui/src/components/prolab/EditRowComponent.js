@@ -8,7 +8,7 @@ import {InputText} from "primereact/inputtext";
 import BaseContainer from "../../baseContainers/BaseContainer";
 import {Panel} from "primereact/panel";
 import ShortcutButton from "./ShortcutButton";
-import {GridViewUtils} from "../../utils/GridViewUtils";
+import {DataGridUtils} from "../../utils/component/DataGridUtils";
 import {Dropdown} from "primereact/dropdown";
 import {Calendar} from "primereact/calendar";
 import SimpleReactValidator from "../validator";
@@ -197,9 +197,9 @@ export class EditRowComponent extends BaseContainer {
 
     render() {
         const operations = this.props.editData?.operations;
-        const opSave = GridViewUtils.containsOperationsButton(operations, 'OP_SAVE');
-        const opFill = GridViewUtils.containsOperationsButton(operations, 'OP_FILL');
-        const opCancel = GridViewUtils.containsOperationsButton(operations, 'OP_CANCEL');
+        const opSave = DataGridUtils.containsOperationsButton(operations, 'OP_SAVE');
+        const opFill = DataGridUtils.containsOperationsButton(operations, 'OP_FILL');
+        const opCancel = DataGridUtils.containsOperationsButton(operations, 'OP_CANCEL');
         const visibleEditPanel = this.props.visibleEditPanel;
         let editData = this.props.editData;
         let editListVisible = this.state.editListVisible;
@@ -468,7 +468,7 @@ export class EditRowComponent extends BaseContainer {
                                           this.props.onChange('CHECKBOX', e, groupName, info);
                                       }
                                   }}
-                                  checked={field.value === true || GridViewUtils.conditionForTrueValueForBoolType(field.value)}
+                                  checked={field.value === true || DataGridUtils.conditionForTrueValueForBoolType(field.value)}
                                   disabled={!field.edit}
                                   required={required}
                         />

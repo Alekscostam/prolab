@@ -20,7 +20,7 @@ import ConsoleHelper from "./utils/ConsoleHelper";
 import SubGridViewComponent from "./containers/dataGrid/SubGridViewComponent";
 import DivContainer from "./components/DivContainer";
 import {Breadcrumb} from "./utils/BreadcrumbUtils";
-import {GridViewUtils} from "./utils/GridViewUtils";
+import {DataGridUtils} from "./utils/component/DataGridUtils";
 import ActionButton from "./components/ActionButton";
 import {Toast} from "primereact/toast";
 import LocUtils from "./utils/LocUtils";
@@ -202,7 +202,7 @@ class App extends Component {
         const authService = this.authService;
         const {labels} = this.state;
         const loggedIn = authService.loggedIn();
-        let opADD = GridViewUtils.containsOperationsButton(this.state.operations, 'OP_ADD');
+        let opADD = DataGridUtils.containsOperationsButton(this.state.operations, 'OP_ADD');
         return (
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => this.messages = el}/>

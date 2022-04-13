@@ -1,6 +1,6 @@
 import React from 'react';
 import TileView from "devextreme-react/tile-view";
-import {GridViewUtils} from "../../utils/GridViewUtils";
+import {DataGridUtils} from "../../utils/component/DataGridUtils";
 import {Breadcrumb} from "../../utils/BreadcrumbUtils";
 import $ from "jquery";
 import {CardViewUtils} from "../../utils/CardViewUtils";
@@ -74,12 +74,12 @@ class DashboardCardViewComponent extends React.Component {I
                         });
                         showMenu = menuItems.length > 0;
                     }
-                    let oppEdit = GridViewUtils.containsOperationsButton(this.props.parsedGridView?.operations, 'OP_EDIT');
-                    let oppSubview = GridViewUtils.containsOperationsButton(this.props.parsedGridView?.operations, 'OP_SUBVIEWS');
+                    let oppEdit = DataGridUtils.containsOperationsButton(this.props.parsedGridView?.operations, 'OP_EDIT');
+                    let oppSubview = DataGridUtils.containsOperationsButton(this.props.parsedGridView?.operations, 'OP_SUBVIEWS');
                     const elementSubViewId = this.props.elementSubViewId;
                     const elementKindView = this.props.elementKindView;
                     const elementId = this.props.id;
-                    const viewId = GridViewUtils.getRealViewId(elementSubViewId, elementId);
+                    const viewId = DataGridUtils.getRealViewId(elementSubViewId, elementId);
                     const recordId = rowData.ID;
                     const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
                     const subviewId = elementSubViewId ? elementId : undefined;

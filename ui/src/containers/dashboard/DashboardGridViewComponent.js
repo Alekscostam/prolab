@@ -10,7 +10,7 @@ import ShortcutsButton from '../../components/prolab/ShortcutsButton';
 import CrudService from '../../services/CrudService';
 import ViewService from '../../services/ViewService';
 import AppPrefixUtils from '../../utils/AppPrefixUtils';
-import {GridViewUtils} from '../../utils/GridViewUtils';
+import {DataGridUtils} from '../../utils/component/DataGridUtils';
 import {ViewValidatorUtils} from '../../utils/parser/ViewValidatorUtils';
 import UrlUtils from '../../utils/UrlUtils';
 import DataGridStore from '../dao/DataGridStore';
@@ -164,7 +164,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                                 });
                             }
                             let viewInfoTypesTmp = [];
-                            let viewButton = GridViewUtils.containsOperationsButton(
+                            let viewButton = DataGridUtils.containsOperationsButton(
                                 responseView.operations,
                                 'OP_GRIDVIEW'
                             );
@@ -299,7 +299,7 @@ export class DashboardGridViewComponent extends BaseContainer {
 
     //override
     renderHeaderRight() {
-        let opADD = GridViewUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_ADD');
+        let opADD = DataGridUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_ADD');
         return (
             <React.Fragment>
                 <ActionButton rendered={opADD}
@@ -321,9 +321,9 @@ export class DashboardGridViewComponent extends BaseContainer {
 
     leftHeadPanelContent = () => {
         let centerElementStyle = 'mr-1 ';
-        let opBatches = GridViewUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_BATCH');
-        let opDocuments = GridViewUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_DOCUMENTS');
-        let opPlugins = GridViewUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_PLUGINS');
+        let opBatches = DataGridUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_BATCH');
+        let opDocuments = DataGridUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_DOCUMENTS');
+        let opPlugins = DataGridUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_PLUGINS');
         return (
             <React.Fragment>
                 <ButtonGroup

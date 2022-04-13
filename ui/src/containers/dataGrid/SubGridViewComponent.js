@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from "prop-types";
 import DataGrid, {Column} from "devextreme-react/data-grid";
-import {GridViewUtils} from "../../utils/GridViewUtils";
+import {DataGridUtils} from "../../utils/component/DataGridUtils";
 import ReactDOM from "react-dom";
 import ShortcutButton from "../../components/prolab/ShortcutButton";
 import ActionButtonWithMenu from "../../components/prolab/ActionButtonWithMenu";
@@ -98,9 +98,9 @@ class SubGridViewComponent extends React.Component {
                                                 <Column
                                                     allowFixing={true}
                                                     caption={c.label}
-                                                    dataType={GridViewUtils.specifyColumnType(c?.type)}
-                                                    format={GridViewUtils.specifyColumnFormat(c?.type)}
-                                                    cellTemplate={GridViewUtils.cellTemplate(c)}
+                                                    dataType={DataGridUtils.specifyColumnType(c?.type)}
+                                                    format={DataGridUtils.specifyColumnFormat(c?.type)}
+                                                    cellTemplate={DataGridUtils.cellTemplate(c)}
                                                     dataField={c.fieldName}
                                                 />
                                             );

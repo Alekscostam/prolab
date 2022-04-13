@@ -166,6 +166,13 @@ export const OperationsButtons = props => {
                             return props.handleHistory();
                         case 'OP_ATTACHMENTS':
                             return props.handleAttachments();
+                        //treeList
+                        case 'OP_ADD_LEVEL':
+                            return props.handleAddLevel();
+                        case 'OP_UP':
+                            return props.handleUp();
+                        case 'OP_DOWN':
+                            return props.handleDown();
                         default:
                             return null;
                     }
@@ -175,7 +182,6 @@ export const OperationsButtons = props => {
     )
 
     const showOperationList = props.operationList?.length > 0;
-
 
     return (<React.Fragment>
         {!!props.operations && props.operations?.map((operation, index) => {
@@ -237,6 +243,9 @@ OperationsButtons.propTypes = {
     handleHistory: PropTypes.func.isRequired,
     handleAttachments: PropTypes.func.isRequired,
     handleBlockUi: PropTypes.func.isRequired,
+    handleAddLevel: PropTypes.func.isRequired,
+    handleUp: PropTypes.func.isRequired,
+    handleDown: PropTypes.func.isRequired,
     margin: PropTypes.string,
     inverseColor: PropTypes.bool,
     buttonShadow: PropTypes.bool,

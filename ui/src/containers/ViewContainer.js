@@ -11,7 +11,7 @@ import CrudService from '../services/CrudService';
 import ViewService from '../services/ViewService';
 import AppPrefixUtils from '../utils/AppPrefixUtils';
 import {Breadcrumb} from '../utils/BreadcrumbUtils';
-import {GridViewUtils} from '../utils/GridViewUtils';
+import {DataGridUtils} from '../utils/component/DataGridUtils';
 import {ViewValidatorUtils} from '../utils/parser/ViewValidatorUtils';
 import UrlUtils from '../utils/UrlUtils';
 import DataGridStore from './dao/DataGridStore';
@@ -46,7 +46,6 @@ export class ViewContainer extends BaseContainer {
         this.dataTreeStore = new DataTreeStore();
         this.refDataGrid = React.createRef()
         this.refCardGrid = React.createRef();
-        this.refDataTree = React.createRef()
         this.messages = React.createRef();
         this.selectedDataGrid = null;
         this.state = {
@@ -128,7 +127,7 @@ export class ViewContainer extends BaseContainer {
         const kindView = UrlUtils.getURLParameter('kindView');
         const firstSubViewMode = !!recordId && !!id && !!!subViewId;
         const fromSubviewToFirstSubView = firstSubViewMode && this.state.elementSubViewId && this.state.subView && this.state.subView.subViews && this.state.subView.subViews.length > 0 && this.state.elementSubViewId !== this.state.subView.subViews[0].id;
-        const updatePage = !!force || !GridViewUtils.equalNumbers(this.state.elementId, id) || (!firstSubViewMode && !GridViewUtils.equalNumbers(this.state.elementSubViewId, subViewId)) || fromSubviewToFirstSubView || !GridViewUtils.equalNumbers(this.state.elementFilterId, filterId) || !GridViewUtils.equalNumbers(this.state.elementRecordId, recordId)
+        const updatePage = !!force || !DataGridUtils.equalNumbers(this.state.elementId, id) || (!firstSubViewMode && !DataGridUtils.equalNumbers(this.state.elementSubViewId, subViewId)) || fromSubviewToFirstSubView || !DataGridUtils.equalNumbers(this.state.elementFilterId, filterId) || !DataGridUtils.equalNumbers(this.state.elementRecordId, recordId)
         ConsoleHelper('ViewContainer::componentDidUpdate -> updatePage={%s id={%s} id={%s} type={%s} type={%s}', updatePage, prevProps.id, this.props.id, prevState.gridViewType, this.state.gridViewType);
         if (updatePage) {
             const newUrl = UrlUtils.deleteParameterFromURL(window.document.URL.toString(), 'force');
@@ -281,13 +280,13 @@ export class ViewContainer extends BaseContainer {
                 });
             }
             let viewInfoTypesTmp = [];
-            let cardButton = GridViewUtils.containsOperationsButton(responseView.operations, 'OP_CARDVIEW');
+            let cardButton = DataGridUtils.containsOperationsButton(responseView.operations, 'OP_CARDVIEW');
             if (cardButton) {
                 viewInfoTypesTmp.push({
                     icon: 'mediumiconslayout', type: 'cardView', hint: cardButton?.label,
                 });
             }
-            let viewButton = GridViewUtils.containsOperationsButton(responseView.operations, 'OP_GRIDVIEW');
+            let viewButton = DataGridUtils.containsOperationsButton(responseView.operations, 'OP_GRIDVIEW');
             if (viewButton) {
                 viewInfoTypesTmp.push({
                     icon: 'contentlayout', type: 'gridView', hint: viewButton?.label,
@@ -715,7 +714,7 @@ export class ViewContainer extends BaseContainer {
         const parentId = this.state.elementRecordId;
         const recordId = undefined;
         let viewId = this.props.id;
-        viewId = GridViewUtils.getRealViewId(subViewId, viewId);
+        viewId = DataGridUtils.getRealViewId(subViewId, viewId);
         this.crudService
             .addEntry(viewId, e.recordId, parentId, kindView)
             .then((entryResponse) => {
@@ -781,9 +780,7 @@ export class ViewContainer extends BaseContainer {
                             elementKindView={this.state.elementKindView}
                             elementRecordId={this.state.elementRecordId}
                             handleOnInitialized={this.onInitialize}
-                            handleOnDataGrid={(ref) => {
-                                this.refDataGrid = ref;
-                            }}
+                            handleOnDataGrid={(ref) => this.refDataGrid = ref}
                             parsedGridView={this.state.parsedGridView}
                             parsedGridViewData={this.state.parsedGridViewData}
                             gridViewColumns={this.state.gridViewColumns}

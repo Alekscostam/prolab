@@ -7,13 +7,18 @@ import ShortcutsButton from '../components/prolab/ShortcutsButton';
 import CrudService from '../services/CrudService';
 import ViewService from '../services/ViewService';
 import {Breadcrumb} from '../utils/BreadcrumbUtils';
-import {GridViewUtils} from '../utils/GridViewUtils';
+import {DataGridUtils} from '../utils/component/DataGridUtils';
 import {ViewValidatorUtils} from '../utils/parser/ViewValidatorUtils';
 import UrlUtils from '../utils/UrlUtils';
 import Constants from "../utils/Constants";
 import ConsoleHelper from "../utils/ConsoleHelper";
 import DataTreeStore from "./dao/DataTreeStore";
 import TreeViewComponent from "./treeGrid/TreeViewComponent";
+import {SelectBox} from "devextreme-react";
+import AppPrefixUtils from "../utils/AppPrefixUtils";
+import ActionButton from "../components/ActionButton";
+import DivContainer from "../components/DivContainer";
+import EditListUtils from "../utils/EditListUtils";
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -27,7 +32,7 @@ export class EditSpecContainer extends BaseContainer {
         this.viewService = new ViewService();
         this.crudService = new CrudService();
         this.dataTreeStore = new DataTreeStore();
-        this.refDataTree = React.createRef()
+        this.refTreeList = React.createRef();
         this.messages = React.createRef();
         this.state = {
             loading: true,
@@ -35,9 +40,9 @@ export class EditSpecContainer extends BaseContainer {
             elementRecordId: null,
             elementFilterId: null,
             parsedData: null,
-            columns:[],
+            columns: [],
             selectedRowKeys: [],
-
+            elementCrc: null
         };
         this.downloadData = this.downloadData.bind(this);
         this.getViewById = this.getViewById.bind(this);
@@ -70,22 +75,32 @@ export class EditSpecContainer extends BaseContainer {
         const parentId = UrlUtils.getURLParameter('parentId');
         const recordId = UrlUtils.getURLParameter('recordId');
         const filterId = UrlUtils.getURLParameter('filterId');
-        const s1 = !GridViewUtils.equalNumbers(this.state.elementId, id);
-        const s2 = !GridViewUtils.equalNumbers(this.state.elementFilterId, filterId);
-        const s3 = !GridViewUtils.equalString(this.state.elementRecordId, recordId);
-        const updatePage = s1 || (s2 || s3);
-        ConsoleHelper('EditSpecContainer::componentDidUpdate -> updatePage={%s} id={%s} id={%s} s1={%s} s2={%s} s3={%s}', updatePage, prevProps.id, this.props.id, s1, s2, s3);
-        if (updatePage) {
+        const s1 = !DataGridUtils.equalNumbers(this.state.elementId, id);
+        const s2 = !DataGridUtils.equalNumbers(this.state.elementFilterId, filterId);
+        const s3 = !DataGridUtils.equalString(this.state.elementRecordId, recordId);
+        const calcCrc = EditListUtils.calculateCRC(this.state.parsedData);
+        const updateData = !DataGridUtils.equalString(this.state.elementCrc, calcCrc);
+        const updatePage = s1 || s2 || s3;
+        ConsoleHelper('EditSpecContainer::componentDidUpdate -> updateData={%s} updatePage={%s} id={%s} id={%s} s1={%s} s2={%s} s3={%s}', updateData, updatePage, prevProps.id, this.props.id, s1, s2, s3);
+        if (updateData) {
+            console.log('this.state.parsedData')
+            console.log(this.state.parsedData)
+            this.setState({
+                elementCrc: calcCrc
+            }, () => {
+                this.refTreeList?.instance?.refresh(true);;
+            });
+        } else if (updatePage) {
             this.setState({
                 elementId: id,
                 elementParentId: parentId,
                 elementRecordId: recordId,
                 elementFilterId: filterId, //z dashboardu
+                elementCrc: calcCrc
             }, () => {
                 this.downloadData(id, this.state.elementParentId, this.state.elementRecordId, this.state.elementFilterId);
             });
         } else {
-            ConsoleHelper('EditSpecContainer::componentDidUpdate -> not updating !');
             return false;
         }
     }
@@ -197,33 +212,12 @@ export class EditSpecContainer extends BaseContainer {
                 this.dataTreeStore.getDataTreeStoreDirect(viewIdArg, parentIdArg, recordIdArg).then(res => {
                     this.setState({
                         loading: false,
-                        parsedData: res.data
+                        parsedData: res.data,
+                        elementCrc: EditListUtils.calculateCRC(res.data)
                     });
                 })
             });
         }
-    }
-
-    //override
-    renderGlobalTop() {
-        return (<React.Fragment>
-        </React.Fragment>);
-    }
-
-    //override
-    renderHeaderLeft() {
-        return <React.Fragment/>
-    }
-
-    //override
-    renderHeaderRight() {
-        return <React.Fragment/>
-    }
-
-    rightHeadPanelContent = () => {
-        return (<React.Fragment>
-            <ShortcutsButton items={this.state.parsedView?.shortcutButtons} maxShortcutButtons={5}/>
-        </React.Fragment>);
     }
 
     renderButton(operation, index) {
@@ -232,41 +226,31 @@ export class EditSpecContainer extends BaseContainer {
             switch (operation.type?.toUpperCase()) {
                 case 'OP_FILTER':
                     return (<React.Fragment>
-                        {/*{this.state.filtersList?.length > 0 ? (<SelectBox*/}
-                        {/*    className={`filter-combo ${margin}`}*/}
-                        {/*    wrapItemText={true}*/}
-                        {/*    id='combo_filters'*/}
-                        {/*    items={this.state.filtersList}*/}
-                        {/*    displayExpr='label'*/}
-                        {/*    valueExpr='id'*/}
-                        {/*    value={parseInt(this.state.elementFilterId || this.state.parsedView?.viewInfo?.filterdId)}*/}
-                        {/*    onValueChanged={(e) => {*/}
-                        {/*        ConsoleHelper('onValueChanged', e);*/}
-                        {/*        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();*/}
-                        {/*        if (!!e.value && e.value !== e.previousValue) {*/}
-                        {/*            const filterId = parseInt(e.value)*/}
-                        {/*            const subViewId = UrlUtils.getURLParameter('subview') || this.state.elementSubViewId;*/}
-                        {/*            const recordId = UrlUtils.getURLParameter('recordId') || this.state.elementRecordId;*/}
-                        {/*            const subviewMode = !!recordId && !!this.state.elementId;*/}
-                        {/*            const breadCrumbs = UrlUtils.getURLParameter('bc');*/}
-                        {/*            const viewType = UrlUtils.getURLParameter('viewType');*/}
-                        {/*            //myczek na błąd [FIX] Przełączanie między widokami a filtry*/}
-                        {/*            if (!breadCrumbs) {*/}
-                        {/*                return;*/}
-                        {/*            }*/}
-                        {/*            if (subviewMode) {*/}
-                        {/*                ConsoleHelper(`Redirect -> Id =  ${this.state.elementId} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`);*/}
-                        {/*                window.location.href = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${this.state.elementId}?recordId=${recordId}&subview=${subViewId}&filterId=${filterId}&viewType=${viewType}${currentBreadcrumb}`);*/}
-                        {/*            } else {*/}
-                        {/*                ConsoleHelper(`Redirect -> Id =  ${this.state.elementId} RecordId = ${recordId} FilterId = ${filterId}`);*/}
-                        {/*                if (filterId) {*/}
-                        {/*                    window.location.href = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${this.state.elementId}/?filterId=${filterId}&viewType=${viewType}${currentBreadcrumb}`);*/}
-                        {/*                }*/}
-                        {/*            }*/}
-                        {/*        }*/}
-                        {/*    }}*/}
-                        {/*    stylingMode='underlined'*/}
-                        {/*/>) : null}*/}
+                        {this.state.filtersList?.length > 0 ? (
+                            <SelectBox
+                                className={`filter-combo ${margin}`}
+                                wrapItemText={true}
+                                id='combo_filters'
+                                items={this.state.filtersList}
+                                displayExpr='label'
+                                valueExpr='id'
+                                value={parseInt(this.state.elementFilterId || this.state.parsedView?.viewInfo?.filterdId)}
+                                onValueChanged={(e) => {
+                                    const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+                                    if (!!e.value && e.value !== e.previousValue) {
+                                        const filterId = parseInt(e.value)
+                                        const parentId = UrlUtils.getURLParameter('parentId') || this.state.elementParentId;
+                                        const recordId = UrlUtils.getURLParameter('recordId') || this.state.elementRecordId;
+                                        const breadCrumbs = UrlUtils.getURLParameter('bc');
+                                        if (!breadCrumbs) return;
+                                        ConsoleHelper(`Redirect -> Id =  ${this.state.elementId} ParentId = ${parentId} RecordId = ${recordId} FilterId = ${filterId}`);
+                                        if (filterId) {
+                                            window.location.href = AppPrefixUtils.locationHrefUrl(`/#/edit-spec/${this.state.elementId}/?parentId=${parentId}&recordId=${recordId}&filterId=${filterId}${currentBreadcrumb}`);
+                                        }
+                                    }
+                                }}
+                                stylingMode='underlined'
+                            />) : null}
                     </React.Fragment>);
                 case 'OP_BATCH':
                     return (<React.Fragment>
@@ -310,74 +294,252 @@ export class EditSpecContainer extends BaseContainer {
         }
     }
 
-    leftHeadPanelContent = () => {
-        return (<React.Fragment>
-            {this.state.parsedView?.operations.map((operation, index) => {
-                return <div key={index}>{this.renderButton(operation, index)}</div>;
-            })}
-        </React.Fragment>);
+    //override
+    renderGlobalTop() {
+        return <React.Fragment/>;
+    }
+
+    //override
+    renderHeaderLeft() {
+        return <React.Fragment>
+            <DivContainer id='header-left'>
+                <div className='font-medium mb-4'>{this.state.parsedView?.viewInfo?.name}</div>
+            </DivContainer>
+        </React.Fragment>
+    }
+
+    //override
+    renderHeaderRight() {
+        //TODO let operations = this.state.operations;
+        //TODO mock
+        let operations = [];
+        operations.push({type: 'OP_SAVE', label: 'Zapisz'});
+        operations.push({type: 'OP_ADD', label: 'Dodaj'});
+        //TODO mock end
+        let opADD = DataGridUtils.containsOperationsButton(operations, 'OP_ADD');
+        let opSave = DataGridUtils.containsOperationsButton(operations, 'OP_SAVE');
+        return <React.Fragment>
+            <ActionButton rendered={opADD} label={opADD?.label}
+                          className="ml-2"
+                          handleClick={(e) => {
+                              let addData = this.state.parsedData;
+                              let addData1 = this.state.parsedData[0];
+                              addData.push(addData1);
+                              this.setState({parsedData: addData}, () => {
+                                  this.refreshTable();
+                              });
+                          }}/>
+            <ActionButton rendered={opSave} label={opSave?.label}
+                          className="ml-2"
+                          handleClick={(e) => {
+                              this.viewContainer?.current?.addView(e)
+                          }}/>
+        </React.Fragment>
+    }
+
+    //override
+    renderHeaderContent() {
     }
 
     //override
     renderHeadPanel = () => {
         return (
             <React.Fragment>
+                <HeadPanel
+                    elementId={this.state.elementId}
+                    elementRecordId={this.state.elementRecordId}
+                    elementSubViewId={null}
+                    elementKindView={this.state.elementKindView}
+                    selectedRowKeys={this.state.selectedRowKeys}
+                    operations={this.state.parsedView?.operations}
+                    labels={this.props.labels}
+                    leftContent={(<React.Fragment>
+                        {this.state.parsedView?.operations.map((operation, index) => {
+                            return <div key={index}>{this.renderButton(operation, index)}</div>;
+                        })}
+                    </React.Fragment>)}
+                    rightContent={<React.Fragment>
+                        <ShortcutsButton items={this.state.parsedView?.shortcutButtons} maxShortcutButtons={5}/>
+                    </React.Fragment>}
+                    handleDelete={() => this.delete()}
+                    handleAddLevel={() => this.publish()}
+                    handleUp={() => this.up()}
+                    handleDown={() => this.publish()}
+                    handleRestore={() => this.restore()}
+                    handleCopy={() => this.copy()}
+                    handleArchive={() => this.archive()}
+                    handlePublish={() => this.publish()}
+                />
             </React.Fragment>
         );
     }
 
     //override
-    renderHeaderContent() {
-
+    delete(id) {
+        let data = this.getData();
+        const index = data.findIndex(x => x.ID === id);
+        if (index !== undefined) {
+            data.splice(index, 1);
+            this.updateData(data, () => {
+                this.refreshTable();
+            });
+        }
     }
 
-    addView(e) {
-        this.blockUi();
-
+    up(id) {
+        let data = this.getData();
+        const index = data.findIndex(x => x.ID === id);
+        if (index !== undefined) {
+            this.move(data, index, index - 1);
+            this.updateData(data, () => {
+                this.refreshTable();
+            });
+        }
     }
 
-    //override
-    render() {
-        return (<React.Fragment>
-            {super.render()}
-        </React.Fragment>);
+    down(id) {
+        let data = this.getData();
+        const index = data.findIndex(x => x.ID === id);
+        if (index !== undefined) {
+            this.move(data, index, index + 1);
+            this.updateData(data, () => {
+                this.refreshTable();
+            });
+        }
+    }
+
+    updateData(dataToUpdate, callbackAction) {
+        this.setState({parsedData: dataToUpdate}, () => {
+            if (!!callbackAction) callbackAction();
+        });
+    }
+
+    getData() {
+        return this.state.parsedData;
+    }
+
+    refreshTable(callbackAction) {
+        this.refTreeList?.instance?.refresh();
+        if (!!callbackAction) callbackAction();
+    }
+
+    move(array, initialIndex, finalIndex) {
+        return array.splice(finalIndex, 0, array.splice(initialIndex, 1)[0]);
     }
 
     //override
     renderContent = () => {
         return (<React.Fragment>
             {this.state.loading ? null : (<React.Fragment>
-                <TreeViewComponent
-                    id={this.props.id}
-                    elementRecordId={this.state.elementRecordId}
-                    handleOnDataTree={(ref) => this.refDataTree = ref}
-                    parsedGridView={this.state.parsedView}
-                    parsedGridViewData={this.state.parsedData}
-                    gridViewColumns={this.state.columns}
-                    handleBlockUi={() => {
-                        this.blockUi();
-                        return true;
-                    }}
-                    handleUnblockUi={() => this.unblockUi()}
-                    showErrorMessages={(err) => this.showErrorMessages(err)}
-                    handleShowEditPanel={(editDataResponse) => {
-                        this.handleShowEditPanel(editDataResponse)
-                    }}
-                    selectedRowKeys={this.state.selectedRowKeys}
-                    handleSelectedRowKeys={(e) => this.setState(prevState => {
-                        return {
-                            ...prevState,
-                            selectedRowKeys: e
-                        }
-                    })}
-                    handleDeleteRow={(id) => this.delete(id)}
-                    handleRestoreRow={(id) => this.restore(id)}
-                    handleCopyRow={(id) => this.copy(id)}
-                    handleArchiveRow={(id) => this.archive(id)}
-                    handlePublishRow={(id) => this.publish(id)}
-                />
+                <form onSubmit={this.handleFormSubmit} noValidate>
+                    <div id="spec-edit" className="row-edit-container">
+                        <TreeViewComponent
+                            id={this.props.id}
+                            elementRecordId={this.state.elementRecordId}
+                            handleOnTreeList={(ref) => this.refTreeList = ref}
+                            parsedGridView={this.state.parsedView}
+                            parsedGridViewData={this.state.parsedData}
+                            gridViewColumns={this.state.columns}
+                            selectedRowKeys={this.state.selectedRowKeys}
+                            onChange={(type, e, rowId, info) => this.handleEditRowChange(type, e, rowId, info)}
+                            handleBlockUi={() => {
+                                this.blockUi();
+                                return true;
+                            }}
+                            handleUnblockUi={() => this.unblockUi()}
+                            handleShowEditPanel={(editDataResponse) => {
+                                this.handleShowEditPanel(editDataResponse)
+                            }}
+                            handleSelectedRowKeys={(e) =>
+                                this.setState(prevState => {
+                                    return {
+                                        ...prevState,
+                                        selectedRowKeys: e
+                                    }
+                                })}
+                            handleDeleteRow={(id) => this.delete(id)}
+                            handleAddLevel={(id) => {
+                                alert(id);
+                            }}
+                            handleUp={(id) => {
+                                this.up(id);
+                            }}
+                            handleDown={(id) => {
+                                this.down(id);
+                            }}
+                            handleRestoreRow={(id) => this.restore(id)}
+                            handleCopyRow={(id) => this.copy(id)}
+                            handleArchiveRow={(id) => this.archive(id)}
+                            handlePublishRow={(id) => this.publish(id)}
+                            showErrorMessages={(err) => this.showErrorMessages(err)}
+                        />
+                    </div>
+                </form>
             </React.Fragment>)}
         </React.Fragment>)
+    }
+
+    //override
+    handleEditRowChange(inputType, event, rowId, info) {
+        ConsoleHelper(`handleEditRowChange inputType=${inputType} rowId=${rowId}`);
+        let editData = this.state.parsedData;
+        let rowData = editData?.filter((obj) => {
+            return obj._ID === rowId;
+        });
+        let varName;
+        let varValue;
+        let refreshFieldVisibility = false;
+        if (event !== undefined) {
+            switch (inputType) {
+                case 'IMAGE64':
+                    varName = event == null ? null : event.fieldName;
+                    varValue = event == null ? '' : event.base64[0];
+                    break;
+                case 'MULTI_IMAGE64':
+                    varName = event == null ? null : event.fieldName;
+                    varValue = event == null ? '' : event.base64;
+                    break;
+                case 'CHECKBOX':
+                    varName = event.target.name;
+                    varValue = event.checked ? event.checked : false;
+                    refreshFieldVisibility = event.refreshFieldVisibility
+                    break;
+                case 'EDITOR':
+                    varName = event.name;
+                    varValue = event.value || event.value === '' ? event.value : undefined;
+                    break;
+                case 'TEXT':
+                case 'AREA':
+                    varName = event.target?.name;
+                    varValue = event.target?.value || event.target?.value === '' ? event.target.value : undefined;
+                    break;
+                case 'DATE':
+                case 'DATETIME':
+                case 'TIME':
+                    varName = event.target?.name;
+                    varValue = event.value || event.value === '' ? event.value : undefined;
+                    break;
+                default:
+                    varName = event.target?.name;
+                    varValue = event.target?.value || event.target?.value === '' ? event.target.value : undefined;
+                    break;
+            }
+            editData[0][varName] = varValue;
+            if (refreshFieldVisibility) {
+                this.refreshFieldVisibility(info);
+            }
+            console.log(editData[0][varName])
+            this.setState({parsedData: editData, modifyEditData: true}, () => {
+            });
+        } else {
+            ConsoleHelper('handleEditRowChange implementation error');
+        }
+    }
+
+    //override
+    handleEditRowBlur(inputType, event, groupName, viewInfo, field) {
+        ConsoleHelper(`handleEditRowBlur inputType=${inputType} groupName=${groupName}`);
+        this.handleEditRowChange(inputType, event, groupName, viewInfo, field);
     }
 
     getMessages() {

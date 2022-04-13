@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import {Dialog} from "primereact/dialog";
 import GridViewComponent from "../../containers/dataGrid/GridViewComponent";
 import {Button} from "primereact/button";
-import {GridViewUtils} from "../../utils/GridViewUtils";
+import {DataGridUtils} from "../../utils/component/DataGridUtils";
 import LocUtils from "../../utils/LocUtils";
 
 export default class EditListComponent extends React.Component {
@@ -20,7 +20,7 @@ export default class EditListComponent extends React.Component {
     render() {
         let width = this.props.parsedGridView?.info?.windowSize?.width || '50vw';
         let height = this.props.parsedGridView?.info?.windowSize?.height || undefined;
-        let opSelect = GridViewUtils.containsOperationsButton(this.props.parsedGridView?.operations, 'OP_SELECT');
+        let opSelect = DataGridUtils.containsOperationsButton(this.props.parsedGridView?.operations, 'OP_SELECT');
         return (
             <React.Fragment>
                 <Dialog id="editListDialog"

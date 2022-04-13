@@ -1,5 +1,5 @@
 import React from 'react';
-import {GridViewUtils} from "../../utils/GridViewUtils";
+import {DataGridUtils} from "../../utils/component/DataGridUtils";
 import {Breadcrumb} from "../../utils/BreadcrumbUtils";
 import $ from "jquery";
 import {CardViewUtils} from "../../utils/CardViewUtils";
@@ -192,7 +192,7 @@ class CardViewInfiniteComponent extends React.Component {
         const elementSubViewId = this.props.elementSubViewId;
         const elementKindView = this.props.elementKindView;
         const elementId = this.props.id;
-        const viewId = GridViewUtils.getRealViewId(elementSubViewId, elementId);
+        const viewId = DataGridUtils.getRealViewId(elementSubViewId, elementId);
         const recordId = rowData.ID;
         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
         const subviewId = elementSubViewId ? elementId : undefined;
