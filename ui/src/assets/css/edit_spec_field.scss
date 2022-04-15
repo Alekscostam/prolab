@@ -1,34 +1,6 @@
 /*Edycja*/
 
 
-#spec-edit .p-panel .p-panel-content {
-  padding: 0rem 0rem 1rem 0rem;
-}
-
-#spec-edit .p-float-label {
-  margin-bottom: 0.2rem;
-}
-
-#spec-edit .field {
-  margin-bottom: 0.6rem;
-}
-
-#spec-edit .editor {
-  margin-bottom: 0.6rem;
-}
-
-#spec-edit .p-float-label input:focus ~ label,
-#spec-edit .p-float-label input.p-filled ~ label,
-#spec-edit .p-float-label textarea:focus ~ label,
-#spec-edit .p-float-label textarea.p-filled ~ label,
-#spec-edit .p-float-label .p-inputwrapper-focus ~ label,
-#spec-edit .p-float-label .p-inputwrapper-filled ~ label {
-  top: -1rem !important;
-  background-color: #ffffff;
-  padding: 2px 4px;
-  margin-left: -1rem;
-  margin-top: 0;
-}
 
 #spec-edit .p-dropdown,
 #spec-edit .p-dropdown .p-dropdown-label {
@@ -288,9 +260,15 @@
 #spec-edit input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
+
 }
 
 /* Firefox */
 #spec-edit input[type=number] {
   -moz-appearance: textfield;
+}
+
+.padding-10{
+  padding-left: 10px;
+  padding-right: 10px;
 }
