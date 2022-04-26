@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from "prop-types";
 import CrudService from "../../services/CrudService";
 import ConsoleHelper from "../../utils/ConsoleHelper";
-import {Switch, TreeList, Validator} from "devextreme-react";
+import {TreeList} from "devextreme-react";
 import {
     Column,
     Editing,
@@ -20,21 +20,23 @@ import OperationsButtons from "../../components/prolab/OperationsButtons";
 import AppPrefixUtils from "../../utils/AppPrefixUtils";
 import UrlUtils from "../../utils/UrlUtils";
 import {EntryResponseUtils} from "../../utils/EntryResponseUtils";
-import {TreeListUtils} from "../../utils/component/TreeListUtils";
+import {
+    MemoizedBoolInput,
+    MemoizedChar,
+    MemoizedLogicInput,
+    MemoizedNumericInput,
+    MemoizedPasswordInput,
+    TreeListUtils
+} from "../../utils/component/TreeListUtils";
 import EditRowUtils from "../../utils/EditRowUtils";
 import {InputText} from "primereact/inputtext";
-import {Button} from "primereact/button";
-import {Password} from "primereact/password";
-import {Checkbox} from "primereact/checkbox";
-import {DataGridUtils} from "../../utils/component/DataGridUtils";
-import {Dropdown} from "primereact/dropdown";
-import {Calendar} from "primereact/calendar";
-import HtmlEditor, {Item, MediaResizing, Toolbar} from "devextreme-react/html-editor";
-import {RequiredRule} from "devextreme-react/validator";
 import UploadMultiImageFileBase64 from "../../components/prolab/UploadMultiImageFileBase64";
+import moment from "moment/moment";
 //
 //    https://js.devexpress.com/Documentation/Guide/UI_Components/TreeList/Getting_Started_with_TreeList/
 //
+
+
 class TreeViewComponent extends React.Component {
 
     constructor(props) {
@@ -72,9 +74,7 @@ class TreeViewComponent extends React.Component {
                 id='tree-container'
                 keyExpr='ID'
                 className={`tree-container${headerAutoHeight ? ' tree-header-auto-height' : ''}`}
-                ref={(ref) => {
-                    this.props.handleOnTreeList(ref)
-                }}
+                ref={(ref) => {  this.props.handleOnTreeList(ref)   }}
                 dataSource={this.props.parsedGridViewData}
                 customizeColumns={this.postCustomizeColumns}
                 wordWrapEnabled={rowAutoHeight}
@@ -107,10 +107,21 @@ class TreeViewComponent extends React.Component {
                 rootValue={0}
                 parentIdExpr="_ID_PARENT"
                 onEditingStart={(e) => {
-                    this.setState({value: e.data[e.column?.dataField]});
+                   let fieldValue = e.data[e.column?.dataField];
+                   switch (e.column.dataType){
+                       case "date":
+                           this.setState({value:new Date(moment(fieldValue).format("YYYY/MM/DD"))});
+                           break;
+                       case "datetime":
+                           this.setState({value:new Date(moment(fieldValue).format("YYYY/MM/DD"))});
+                           break;
+                       default:
+                           this.setState({value:fieldValue});
+                           break;
+                   }
                 }}
-            >
 
+            >
                 <Editing allowUpdating={true} mode="cell"  />
                 <RemoteOperations
                     filtering={false}
@@ -132,7 +143,7 @@ class TreeViewComponent extends React.Component {
                            showCheckBoxesMode='always'
                            allowSelectAll={allowSelectAll}/>
 
-                <Scrolling mode="virtual" rowRenderingMode="virtual" preloadEnabled={false}/>
+                <Scrolling mode="infinite" showScrollbar={true} />
 
                 <LoadPanel enabled={true}
                            showIndicator={true}
@@ -357,276 +368,83 @@ class TreeViewComponent extends React.Component {
         const refreshFieldVisibility = !!field?.refreshFieldVisibility;
         switch (field?.type) {
             case 'C':
-                return <React.Fragment>
-                    <div className={`padding-10 ${selectionList}`}>
-                        <InputText id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
-                                   name={field.fieldName}
-                                   className={` ${editable} ${autoFill} ${validate}`}
-                                   style={{width: '100%'}}
-                                   type="text"
-                                   value={this.state.value || cellInfo.value}
-                                   onChange={(e) => {
-                                       this.setState({value: e.target?.value});
-                                   }}
-                                   onBlur={(e) => {
-                                       cellInfo.setValue(this.state.value);
-                                   }}
-                                   onKeyPress={(e) => {
-                                       cellInfo.setValue(this.state.value);
-                                   }}
-                                   disabled={!field.edit}
-                                   required={required}
-                        />
-                        {!!selectionList ?
-                            <Button type="button" onClick={onClickEditListCallback} icon="pi pi-question-circle"
-                                    className="p-button-secondary"/> : null}
-                    </div>
-                </React.Fragment>
+                return <MemoizedChar field={field} inputValue={this.state.value} fieldIndex={fieldIndex} editable={editable} autoFill={autoFill} required={required} validate={validate}
+                                     selectionList={selectionList} onChangeCallback={(e) => { this.setState({value: e.target?.value}) }} onBlurCallback={() => {cellInfo.setValue(this.state.value) }}
+                                     onClickEditListCallback={onClickEditListCallback}/>
             case 'P'://P - hasło
-                return (<React.Fragment>
-                    <div className={`padding-10 ${selectionList}`}>
-                        <Password id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
-                                  name={field.fieldName}
-                                  className={`${autoFill} ${editable} ${validate}`}
-                                  style={{width: '100%'}}
-                                  type="text"
-                                  value={this.state.value || cellInfo.value}
-                                  onChange={(e) => {
-                                      this.setState({value: e.target?.value});
-                                  }}
-                                  onBlur={(e) => {
-                                      cellInfo.setValue(this.state.value);
-                                  }}
-                                  onKeyPress={(e) => {
-                                      cellInfo.setValue(this.state.value);
-                                  }}
-                                  disabled={!field.edit}
-                                  required={required}
-                                  feedback={false}
-                        />
-                        {!!selectionList ?
-                            <Button type="button" onClick={onClickEditListCallback} icon="pi pi-question-circle"
-                                    className="p-button-secondary"/> : null}
-                    </div>
-                </React.Fragment>);
+                return <MemoizedPasswordInput field={field} inputValue={this.state.value} fieldIndex={fieldIndex} editable={editable} autoFill={autoFill} required={required} validate={validate}
+                                             selectionList={selectionList} onChangeCallback={(e) => { this.setState({value: e.target?.value}) }} onBlurCallback={() => {cellInfo.setValue(this.state.value) }}
+                                             onClickEditListCallback={onClickEditListCallback}/>
             case "N"://N – Numeryczny/Liczbowy
-                return (<React.Fragment>
-                    <div className={`padding-10 ${selectionList}`}>
-                        <InputText id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
-                                   name={field.fieldName}
-                                   className={`${autoFill} ${editable} ${validate}`}
-                                   style={{width: '100%'}}
-                                   value={this.state.value || cellInfo.value}
-                                   type="number"
-                                   onChange={(e) => {
-                                       this.setState({value: e.target?.value});
-                                   }}
-                                   onBlur={(e) => {
-                                       cellInfo.setValue(this.state.value);
-                                   }}
-                                   onKeyPress={(e) => {
-                                       cellInfo.setValue(this.state.value);
-                                   }}
-                                   disabled={!field.edit}
-                                   required={required}
-                        />
-                        {!!selectionList ?
-                            <Button type="button" onClick={onClickEditListCallback} icon="pi pi-question-circle"
-                                    className="p-button-secondary"/> : null}
-                    </div>
-                </React.Fragment>);
+                return <MemoizedNumericInput field={field} inputValue={this.state.value} fieldIndex={fieldIndex} editable={editable} autoFill={autoFill} required={required} validate={validate}
+                                     selectionList={selectionList} onChangeCallback={(e) => { this.setState({value: e.target?.value}) }} onBlurCallback={() => {cellInfo.setValue(this.state.value) }}
+                                     onClickEditListCallback={onClickEditListCallback}/>
             case 'B'://B – Logiczny (0/1)
-                return (<React.Fragment>
-                    <div style={{display: 'inline-block'}}
-                         className={`${autoFillCheckbox} ${editable} ${validateCheckbox}`}>
-                        <Checkbox id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
-                                  name={field.fieldName}
-                                  onChange={(e) => {
-                                      if (this.props.onChange) {
-                                          e.refreshFieldVisibility = refreshFieldVisibility
-                                          // this.props.onChange('CHECKBOX', e, rowId, info);
-                                      }
-                                  }}
-                                  checked={field.value === true || DataGridUtils.conditionForTrueValueForBoolType(field.value)}
-                                  disabled={!field.edit}
-                                  required={required}
-                        />
-                    </div>
-                </React.Fragment>);
+                return <MemoizedBoolInput field={field} inputValue={this.state.value} fieldIndex={fieldIndex} editable={editable} autoFillCheckbox={autoFillCheckbox} required={required} validateCheckbox={validateCheckbox}
+                                          onChangeCallback={(e) => {
+                                              e.refreshFieldVisibility = refreshFieldVisibility;
+                                              this.setState({
+                                                  value: e.target?.checked ? "T" : "N"
+                                              }, () => {
+                                                  cellInfo.setValue(this.state.value);
+                                              });
+                                          }}
+                />
             case 'L'://L – Logiczny (T/N)
-                return (<React.Fragment>
-                    <Dropdown id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
-                              name={field.fieldName}
-                              className={`${autoFill} ${editable} ${validate}`}
-                              style={{width: '100%'}}
-                              value={field.value}
-                              options={this.yesNoTypes}
-                              onChange={(e) => {
-                                  this.setState({value: e.target?.value});
-                              }}
-                              onBlur={(e) => {
-                                  cellInfo.setValue(this.state.value);
-                              }}
-                              onKeyPress={(e) => {
-                                  cellInfo.setValue(this.state.value);
-                              }}
-                              appendTo="self"
-                              showClear
-                              optionLabel="name"
-                              optionValue="code"
-                              dataKey="code"
-                              disabled={!field.edit}
-                              required={required}/>
-                </React.Fragment>);
+                return <MemoizedLogicInput field={field} inputValue={this.state.value} fieldIndex={fieldIndex} editable={editable} autoFillCheckbox={autoFillCheckbox} required={required} validateCheckbox={validateCheckbox}
+                                    onChangeCallback={(e) => {
+                                        e.refreshFieldVisibility = refreshFieldVisibility;
+                                        this.setState({
+                                            value: e.target?.checked ? "T" : "N"
+                                        }, () => {
+                                            cellInfo.setValue(this.state.value);
+                                        });
+                                    }}
+                />
             case 'D'://D – Data
-                return (<React.Fragment>
-                    <Calendar id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
-                              name={field.fieldName}
-                              className={`${autoFill} ${editable} ${validate}`}
-                              style={{width: '100%'}}
-                              value={field.value}
-                              dateFormat="yy-mm-dd"
-                              onChange={(e) => {
-                                  this.setState({value: e.target?.value});
-                              }}
-                              onBlur={(e) => {
-                                  cellInfo.setValue(this.state.value);
-                              }}
-                              onKeyPress={(e) => {
-                                  cellInfo.setValue(this.state.value);
-                              }}
-                              appendTo={document.body}
-                              disabled={!field.edit}
-                              required={required}
-                              showButtonBar
-                              showIcon
-                              mask="9999-99-99">
-                    </Calendar>
-                </React.Fragment>);
+                return TreeListUtils.dateInput(field, this.state.value, fieldIndex, editable, autoFill, required, validate,
+                    (e) => {
+                        this.setState({
+                            value: e.target?.value
+                        },()=>{
+                            cellInfo.setValue(this.state.value);
+                        });
+                    },
+                    () => {
+                        cellInfo.setValue(this.state.value);
+                    });
             case 'E'://E – Data + czas
-                return (<React.Fragment>
-                    <Calendar id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
-                              showTime
-                              hourFormat="24"
-                              name={field.fieldName}
-                              className={`${autoFill} ${editable} ${validate}`}
-                              style={{width: '100%'}}
-                              value={field.value}
-                              dateFormat="yy-mm-dd"
-                              appendTo={document.body}
-                              onChange={(e) => {
-                                  this.setState({value: e.target?.value});
-                              }}
-                              onBlur={(e) => {
-                                  cellInfo.setValue(this.state.value);
-                              }}
-                              onKeyPress={(e) => {
-                                  cellInfo.setValue(this.state.value);
-                              }}
-                              disabled={!field.edit}
-                              required={required}
-                              showButtonBar
-                              showIcon
-                              mask="9999-99-99 99:99">
-                    </Calendar>
-                </React.Fragment>);
+                return TreeListUtils.dateTimeInput(field, this.state.value, fieldIndex, editable, autoFill, required, validate,
+                    (e) => {
+                        this.setState({
+                            value: e.target?.value
+                        },()=>{
+                            cellInfo.setValue(this.state.value);
+                        });
+                    },
+                    () => {
+                        cellInfo.setValue(this.state.value);
+                    });
             case 'T'://T – Czas
-                return (<React.Fragment>
-                    <Calendar id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
-                              timeOnly
-                              showTime
-                              hourFormat="24"
-                              name={field.fieldName}
-                              className={`${autoFill} ${editable} ${validate}`}
-                              style={{width: '100%'}}
-                              value={field.value}
-                              appendTo={document.body}
-                              onChange={(e) => {
-                                  this.setState({value: e.target?.value});
-                              }}
-                              onBlur={(e) => {
-                                  cellInfo.setValue(this.state.value);
-                              }}
-                              onKeyPress={(e) => {
-                                  cellInfo.setValue(this.state.value);
-                              }}
-                              disabled={!field.edit}
-                              required={required}
-                              showButtonBar
-                              showIcon
-                              mask="99:99">
-                    </Calendar>
-                </React.Fragment>);
+                return TreeListUtils.timeInput(field, this.state.value, fieldIndex, editable, autoFill, required, validate,
+                    (e) => {
+                        this.setState({
+                            value: e.target?.value
+                        },()=>{
+                            cellInfo.setValue(this.state.value);
+                        });
+                    },
+                    () => {
+                        cellInfo.setValue(this.state.value);
+                    });
             case 'O'://O – Opisowe
-                return (<React.Fragment>
-                    <HtmlEditor
-                        id={`editor_${fieldIndex}`}
-                        className={`editor ${autoFill} ${editable} ${validate}`}
-                        defaultValue={field.value}
-                        // onValueChange={e => {
-                        //     let event = {
-                        //         name: field.fieldName,
-                        //         value: e
-                        //     }
-                        //     onChangeCallback('EDITOR', event, rowId, info)
-                        // }}
-                        // onFocusOut={e => onBlurCallback ? onBlurCallback('EDITOR', e, rowId, info) : null}
-
-
-                        // onChange={(e) => {
-                        //     this.setState({value: e.target?.value});
-                        // }}
-                        // onBlur={(e) => {
-                        //     cellInfo.setValue(this.state.value);
-                        // }}
-                        // onKeyPress={(e) => {
-                        //     cellInfo.setValue(this.state.value);
-                        // }}
-
-                        validationMessageMode="always"
-                        disabled={!field.edit}
-                        required={required}
-                    >  {required ? <Validator>
-                        <RequiredRule message={`Pole jest wymagane`}/>
-                    </Validator> : null}
-                        <MediaResizing enabled={true}/>
-                        <Toolbar multiline={false}>
-                            <Item name="undo"/>
-                            <Item name="redo"/>
-                            <Item name="separator"/>
-                            <Item name="size" acceptedValues={this.sizeValues}/>
-                            <Item name="font" acceptedValues={this.fontValues}/>
-                            <Item name="header" acceptedValues={this.headerValues}/>
-                            <Item name="separator"/>
-                            <Item name="bold"/>
-                            <Item name="italic"/>
-                            <Item name="strike"/>
-                            <Item name="underline"/>
-                            <Item name="subscript"/>
-                            <Item name="superscript"/>
-                            <Item name="separator"/>
-                            <Item name="alignLeft"/>
-                            <Item name="alignCenter"/>
-                            <Item name="alignRight"/>
-                            <Item name="alignJustify"/>
-                            <Item name="separator"/>
-                            <Item name="orderedList"/>
-                            <Item name="bulletList"/>
-                            <Item name="separator"/>
-                            <Item name="color"/>
-                            <Item name="background"/>
-                            <Item name="separator"/>
-                            <Item name="insertTable"/>
-                            <Item name="deleteTable"/>
-                            <Item name="insertRowAbove"/>
-                            <Item name="insertRowBelow"/>
-                            <Item name="deleteRow"/>
-                            <Item name="insertColumnLeft"/>
-                            <Item name="insertColumnRight"/>
-                            <Item name="deleteColumn"/>
-                        </Toolbar>
-                    </HtmlEditor>
-                </React.Fragment>);
+                return TreeListUtils.editorDescription(field, this.state.value, fieldIndex, editable, autoFill, required, validate,
+                    (e) => {
+                        this.setState({value: e});
+                    },
+                    () => {
+                        cellInfo.setValue(this.state.value);
+                    });
             case 'I'://I – Obrazek
                 return (<React.Fragment>
                     <div className={`image-base ${autoFill} ${validate}`}>
@@ -679,37 +497,9 @@ class TreeViewComponent extends React.Component {
                         {field.label}
                     </a>
                 </React.Fragment>)
-            default:
-                // return ReactDOM.render(
-                //     <div
-                //         style={{
-                //             display: 'inline',
-                //             backgroundColor: bgColorFinal,
-                //             color: fontColorFinal,
-                //             borderRadius: '25px',
-                //             padding: '2px 6px 2px 6px',
-                //         }}
-                //         title={info.text}
-                //     >
-                //         {info.text}
-                //     </div>,
-                //     element
-                // );
+
         }
 
-        // return (
-        //     <React.Fragment>
-        //         <Switch
-        //             width={50}
-        //             switchedOnText="YES"
-        //             switchedOffText="NO"
-        //             defaultValue={cellInfo.value}
-        //             onValueChanged={setEditedValue}
-        //
-        //         />
-        //         <div>sadsad</div>
-        //     </React.Fragment>
-        // )
     }
 
     waitForSuccess() {

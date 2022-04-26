@@ -1,7 +1,4 @@
 /*Edycja*/
-
-
-
 #spec-edit .p-dropdown,
 #spec-edit .p-dropdown .p-dropdown-label {
   background-color: $text-bg;
@@ -157,7 +154,7 @@
 }
 
 #spec-edit .editable-border {
-  border: 3px solid $button-color !important;
+  border: 4px solid $button-color !important;
 }
 
 #spec-edit label {
@@ -266,6 +263,23 @@
 /* Firefox */
 #spec-edit input[type=number] {
   -moz-appearance: textfield;
+}
+
+#spec-edit .dx-editor-cell{
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.dx-treelist-rowsview .dx-data-row,
+.dx-treelist-rowsview .dx-data-row
+.dx-cell-modified.dx-cell-modified::after,
+.dx-treelist-rowsview .dx-data-row
+.dx-cell-modified.dx-treelist-invalid::after {
+  border: none;
+}
+
+.dx-treelist-focus-overlay {
+  border: 0 !important;
 }
 
 .padding-10{
