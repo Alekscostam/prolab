@@ -32,11 +32,11 @@ import EditRowUtils from "../../utils/EditRowUtils";
 import {InputText} from "primereact/inputtext";
 import UploadMultiImageFileBase64 from "../../components/prolab/UploadMultiImageFileBase64";
 import moment from "moment/moment";
+import {EditSpecUtils} from "../../utils/EditSpecUtils";
+import {compress} from "int-compress-string/src";
 //
 //    https://js.devexpress.com/Documentation/Guide/UI_Components/TreeList/Getting_Started_with_TreeList/
 //
-
-
 class TreeViewComponent extends React.Component {
 
     constructor(props) {
@@ -47,6 +47,10 @@ class TreeViewComponent extends React.Component {
         this.state = {
             value: '',
         }
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        return prevProps.id !== prevState.id && prevProps.elementRecordId !== prevState.elementRecordId;
     }
 
     render() {
@@ -120,9 +124,8 @@ class TreeViewComponent extends React.Component {
                            break;
                    }
                 }}
-
             >
-                <Editing allowUpdating={true} mode="cell"  />
+                <Editing allowUpdating={true} mode="cell"/>
                 <RemoteOperations
                     filtering={false}
                     summary={false}
@@ -142,8 +145,10 @@ class TreeViewComponent extends React.Component {
                            selectAllMode='allPages'
                            showCheckBoxesMode='always'
                            allowSelectAll={allowSelectAll}/>
-
-                <Scrolling mode="infinite" showScrollbar={true} />
+                {/*- virtual działa szybko ale wyżera heap przeglądarki
+                   - normal długo wczytuje ale heap jest stabilniejszy
+                 */}
+                <Scrolling showScrollbar={true} useNative={true} mode={'virtual'}/>
 
                 <LoadPanel enabled={true}
                            showIndicator={true}
@@ -168,8 +173,8 @@ class TreeViewComponent extends React.Component {
                 sortOrder={sortOrder}
                 sortIndex={columnDefinition?.sortIndex}
                 editCellRender={(cellInfo) => this.editCellRender(cellInfo, columnDefinition)}
-
-            />);
+            >
+            </Column>);
         })
         return columns;
     }
@@ -200,17 +205,11 @@ class TreeViewComponent extends React.Component {
                         column.allowSorting = columnDefinition?.isSort;
                         column.visibleIndex = columnDefinition?.columnOrder;
                         column.headerId = 'column_' + INDEX_COLUMN + '_' + columnDefinition?.fieldName?.toLowerCase();
-                        //TODO zmienić
                         column.width = columnDefinition?.width || 100;
                         column.name = columnDefinition?.fieldName;
                         column.caption = columnDefinition?.label;
                         column.dataType = TreeListUtils.specifyColumnType(columnDefinition?.type);
                         column.format = TreeListUtils.specifyColumnFormat(columnDefinition?.type);
-
-
-                        column.cellTemplate = TreeListUtils.cellTemplate(columnDefinition, );
-                        // column.cellTemplate = (cellInfo) => this.editCellRender(cellInfo, columnDefinition, () => { });
-
                         column.fixed = columnDefinition.freeze !== undefined && columnDefinition?.freeze !== null ? columnDefinition?.freeze?.toLowerCase() === 'left' || columnDefinition?.freeze?.toLowerCase() === 'right' : false;
                         column.fixedPosition = !!columnDefinition.freeze ? columnDefinition.freeze?.toLowerCase() : null;
                         if (!!columnDefinition.groupIndex && columnDefinition.groupIndex > 0) {
@@ -257,8 +256,8 @@ class TreeViewComponent extends React.Component {
                                                info={info}
                                                handleEdit={() => {
                                                    if (this.props.parsedGridView?.viewInfo?.kindView === 'ViewSpec') {
-                                                       let newUrl = AppPrefixUtils.locationHrefUrl(`/#/edit-spec/${viewId}?parentId=${parentId}&recordId=${recordId}${currentBreadcrumb}`);
-                                                       UrlUtils.navigateToExternalUrl(newUrl);
+                                                       const compressedRecordId = compress([recordId]);
+                                                       EditSpecUtils.navToEditSpec(viewId, parentId, compressedRecordId, currentBreadcrumb);
                                                    } else {
                                                        let result = this.props.handleBlockUi();
                                                        if (result) {
@@ -354,8 +353,9 @@ class TreeViewComponent extends React.Component {
     };
 
     editCellRender(cellInfo, columnDefinition, onClickEditListCallback) {
+        //mock
+        columnDefinition.edit = true;
         const field = columnDefinition;
-        // const rowId = cellInfo.data.ID;
         const fieldIndex = field.id;
         const editable = field?.edit ? 'editable-border' : '';
         const required = field.requiredValue && field.visible && !field.hidden;
@@ -368,7 +368,7 @@ class TreeViewComponent extends React.Component {
         const refreshFieldVisibility = !!field?.refreshFieldVisibility;
         switch (field?.type) {
             case 'C':
-                return <MemoizedChar field={field} inputValue={this.state.value} fieldIndex={fieldIndex} editable={editable} autoFill={autoFill} required={required} validate={validate}
+                return <MemoizedChar field={field} cellInfo={cellInfo} inputValue={cellInfo.value} fieldIndex={fieldIndex} editable={editable} autoFill={autoFill} required={required} validate={validate}
                                      selectionList={selectionList} onChangeCallback={(e) => { this.setState({value: e.target?.value}) }} onBlurCallback={() => {cellInfo.setValue(this.state.value) }}
                                      onClickEditListCallback={onClickEditListCallback}/>
             case 'P'://P - hasło
@@ -499,7 +499,6 @@ class TreeViewComponent extends React.Component {
                 </React.Fragment>)
 
         }
-
     }
 
     waitForSuccess() {

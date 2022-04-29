@@ -18,7 +18,8 @@ import {SelectBox} from "devextreme-react";
 import AppPrefixUtils from "../utils/AppPrefixUtils";
 import ActionButton from "../components/ActionButton";
 import DivContainer from "../components/DivContainer";
-import EditListUtils from "../utils/EditListUtils";
+import {EditSpecUtils} from "../utils/EditSpecUtils";
+import {decompress} from "int-compress-string/src";
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -42,10 +43,9 @@ export class EditSpecContainer extends BaseContainer {
             parsedData: null,
             columns: [],
             selectedRowKeys: [],
-            elementCrc: null
         };
-        this.downloadData = this.downloadData.bind(this);
         this.getViewById = this.getViewById.bind(this);
+        this.downloadData = this.downloadData.bind(this);
     }
 
     componentDidMount() {
@@ -55,15 +55,13 @@ export class EditSpecContainer extends BaseContainer {
             id = this.props.id;
         }
         const parentId = UrlUtils.getURLParameter('parentId');
-        const recordId = UrlUtils.getURLParameter('recordId');
+        const recordId = decompress(UrlUtils.getURLParameter('recordId'));
         const filterId = UrlUtils.getURLParameter('filterId');
         ConsoleHelper(`EditSpecContainer::componentDidMount -> id=${id}, parentId = ${parentId} recordId = ${recordId} filterId = ${filterId}`);
         this.setState({
             elementParentId: parentId,
             elementRecordId: recordId,
             elementFilterId: filterId,
-        }, () => {
-            this.downloadData(id, this.state.elementParentId, this.state.elementRecordId, this.state.elementFilterId);
         });
     }
 
@@ -73,30 +71,19 @@ export class EditSpecContainer extends BaseContainer {
             id = this.props.id;
         }
         const parentId = UrlUtils.getURLParameter('parentId');
-        const recordId = UrlUtils.getURLParameter('recordId');
+        const recordId = decompress(UrlUtils.getURLParameter('recordId'));
         const filterId = UrlUtils.getURLParameter('filterId');
         const s1 = !DataGridUtils.equalNumbers(this.state.elementId, id);
         const s2 = !DataGridUtils.equalNumbers(this.state.elementFilterId, filterId);
         const s3 = !DataGridUtils.equalString(this.state.elementRecordId, recordId);
-        const calcCrc = EditListUtils.calculateCRC(this.state.parsedData);
-        const updateData = !DataGridUtils.equalString(this.state.elementCrc, calcCrc);
         const updatePage = s1 || s2 || s3;
-        ConsoleHelper('EditSpecContainer::componentDidUpdate -> updateData={%s} updatePage={%s} id={%s} id={%s} s1={%s} s2={%s} s3={%s}', updateData, updatePage, prevProps.id, this.props.id, s1, s2, s3);
-        if (updateData) {
-            console.log('this.state.parsedData')
-            console.log(this.state.parsedData)
-            this.setState({
-                elementCrc: calcCrc
-            }, () => {
-                this.refTreeList?.instance?.refresh(true);;
-            });
-        } else if (updatePage) {
+        ConsoleHelper('EditSpecContainer::componentDidUpdate -> updateData={%s} updatePage={%s} id={%s} id={%s} s1={%s} s2={%s} s3={%s}', updatePage, prevProps.id, this.props.id, s1, s2, s3);
+        if (updatePage) {
             this.setState({
                 elementId: id,
                 elementParentId: parentId,
                 elementRecordId: recordId,
                 elementFilterId: filterId, //z dashboardu
-                elementCrc: calcCrc
             }, () => {
                 this.downloadData(id, this.state.elementParentId, this.state.elementRecordId, this.state.elementFilterId);
             });
@@ -212,8 +199,7 @@ export class EditSpecContainer extends BaseContainer {
                 this.dataTreeStore.getDataTreeStoreDirect(viewIdArg, parentIdArg, recordIdArg).then(res => {
                     this.setState({
                         loading: false,
-                        parsedData: res.data,
-                        elementCrc: EditListUtils.calculateCRC(res.data)
+                        parsedData: res.data
                     });
                 })
             });
@@ -228,10 +214,10 @@ export class EditSpecContainer extends BaseContainer {
                     return (<React.Fragment>
                         {this.state.filtersList?.length > 0 ? (
                             <SelectBox
+                                id={`combo_filters`+index}
+                                items={this.state.filtersList}
                                 className={`filter-combo ${margin}`}
                                 wrapItemText={true}
-                                id='combo_filters'
-                                items={this.state.filtersList}
                                 displayExpr='label'
                                 valueExpr='id'
                                 value={parseInt(this.state.elementFilterId || this.state.parsedView?.viewInfo?.filterdId)}
@@ -256,7 +242,7 @@ export class EditSpecContainer extends BaseContainer {
                     return (<React.Fragment>
                         {/*{this.state.batchesList?.length > 0 ? (*/}
                         <ActionButtonWithMenu
-                            id='button_batches'
+                            id={`button_batches_`+index}
                             className={`${margin}`}
                             iconName={operation?.iconCode || 'mdi-cogs'}
                             items={this.state.batchesList}
@@ -268,7 +254,7 @@ export class EditSpecContainer extends BaseContainer {
                     return (<React.Fragment>
                         {/*{this.state.documentsList?.length > 0 ? (*/}
                         <ActionButtonWithMenu
-                            id='button_documents'
+                            id={`button_documents`+index}
                             className={`${margin}`}
                             iconName={operation?.iconCode || 'mdi-file-document'}
                             items={this.state.documentsList}
@@ -280,7 +266,7 @@ export class EditSpecContainer extends BaseContainer {
                     return (<React.Fragment>
                         {/*{this.state.pluginsList?.length > 0 ? (*/}
                         <ActionButtonWithMenu
-                            id='button_plugins'
+                            id={`button_plugins`+index}
                             className={`${margin}`}
                             iconName={operation?.iconCode || 'mdi-puzzle'}
                             items={this.state.pluginsList}
@@ -376,6 +362,16 @@ export class EditSpecContainer extends BaseContainer {
 
     //override
     delete(id) {
+        if(!!id){
+           this.deleteSingleRow(id);
+        }else{
+            this.state.selectedRowKeys.forEach((id)=>{
+                this.deleteSingleRow(id);
+            });
+        }
+    }
+
+    deleteSingleRow(id){
         let data = this.getData();
         const index = data.findIndex(x => x.ID === id);
         if (index !== undefined) {
@@ -431,109 +427,54 @@ export class EditSpecContainer extends BaseContainer {
     renderContent = () => {
         return (<React.Fragment>
             {this.state.loading ? null : (<React.Fragment>
-                <form onSubmit={this.handleFormSubmit} noValidate>
-                    <div id="spec-edit" className="row-edit-container">
-                        <TreeViewComponent
-                            id={this.props.id}
-                            elementRecordId={this.state.elementRecordId}
-                            handleOnTreeList={(ref) => this.refTreeList = ref}
-                            parsedGridView={this.state.parsedView}
-                            parsedGridViewData={this.state.parsedData}
-                            gridViewColumns={this.state.columns}
-                            selectedRowKeys={this.state.selectedRowKeys}
-                            onChange={(type, e, rowId, info) => this.handleEditRowChange(type, e, rowId, info)}
-                            handleBlockUi={() => {
-                                this.blockUi();
-                                return true;
-                            }}
-                            handleUnblockUi={() => this.unblockUi()}
-                            handleShowEditPanel={(editDataResponse) => {
-                                this.handleShowEditPanel(editDataResponse)
-                            }}
-                            handleSelectedRowKeys={(e) =>
-                                this.setState(prevState => {
-                                    return {
-                                        ...prevState,
-                                        selectedRowKeys: e
-                                    }
-                                })}
-                            handleDeleteRow={(id) => this.delete(id)}
-                            handleAddLevel={(id) => {
-                                alert(id);
-                            }}
-                            handleUp={(id) => {
-                                this.up(id);
-                            }}
-                            handleDown={(id) => {
-                                this.down(id);
-                            }}
-                            handleRestoreRow={(id) => this.restore(id)}
-                            handleCopyRow={(id) => this.copy(id)}
-                            handleArchiveRow={(id) => this.archive(id)}
-                            handlePublishRow={(id) => this.publish(id)}
-                            showErrorMessages={(err) => this.showErrorMessages(err)}
-                        />
-                    </div>
-                </form>
+                <div id="spec-edit">
+                    <TreeViewComponent
+                        id={this.props.id}
+                        elementRecordId={this.state.elementRecordId}
+                        handleOnTreeList={(ref) => this.refTreeList = ref}
+                        parsedGridView={this.state.parsedView}
+                        parsedGridViewData={this.state.parsedData}
+                        gridViewColumns={this.state.columns}
+                        selectedRowKeys={this.state.selectedRowKeys}
+                        onChange={(type, e, rowId, info) => this.handleEditRowChange(type, e, rowId, info)}
+                        handleBlockUi={() => {
+                            this.blockUi();
+                            return true;
+                        }}
+                        handleUnblockUi={() => this.unblockUi()}
+                        handleShowEditPanel={(editDataResponse) => {
+                            this.handleShowEditPanel(editDataResponse)
+                        }}
+                        handleSelectedRowKeys={(e) =>
+                            this.setState(prevState => {
+                                return {
+                                    ...prevState,
+                                    selectedRowKeys: e
+                                }
+                            })}
+                        handleDeleteRow={(id) => this.delete(id)}
+                        handleAddLevel={(id) => {
+                            alert(id);
+                        }}
+                        handleUp={(id) => {
+                            this.up(id);
+                        }}
+                        handleDown={(id) => {
+                            this.down(id);
+                        }}
+                        handleRestoreRow={(id) => this.restore(id)}
+                        handleCopyRow={(id) => this.copy(id)}
+                        handleArchiveRow={(id) => this.archive(id)}
+                        handlePublishRow={(id) => this.publish(id)}
+                        showErrorMessages={(err) => this.showErrorMessages(err)}
+                    />
+                </div>
             </React.Fragment>)}
         </React.Fragment>)
     }
 
     //override
     handleEditRowChange(inputType, event, rowId, info) {
-        ConsoleHelper(`handleEditRowChange inputType=${inputType} rowId=${rowId}`);
-        let editData = this.state.parsedData;
-        let rowData = editData?.filter((obj) => {
-            return obj._ID === rowId;
-        });
-        let varName;
-        let varValue;
-        let refreshFieldVisibility = false;
-        if (event !== undefined) {
-            switch (inputType) {
-                case 'IMAGE64':
-                    varName = event == null ? null : event.fieldName;
-                    varValue = event == null ? '' : event.base64[0];
-                    break;
-                case 'MULTI_IMAGE64':
-                    varName = event == null ? null : event.fieldName;
-                    varValue = event == null ? '' : event.base64;
-                    break;
-                case 'CHECKBOX':
-                    varName = event.target.name;
-                    varValue = event.checked ? event.checked : false;
-                    refreshFieldVisibility = event.refreshFieldVisibility
-                    break;
-                case 'EDITOR':
-                    varName = event.name;
-                    varValue = event.value || event.value === '' ? event.value : undefined;
-                    break;
-                case 'TEXT':
-                case 'AREA':
-                    varName = event.target?.name;
-                    varValue = event.target?.value || event.target?.value === '' ? event.target.value : undefined;
-                    break;
-                case 'DATE':
-                case 'DATETIME':
-                case 'TIME':
-                    varName = event.target?.name;
-                    varValue = event.value || event.value === '' ? event.value : undefined;
-                    break;
-                default:
-                    varName = event.target?.name;
-                    varValue = event.target?.value || event.target?.value === '' ? event.target.value : undefined;
-                    break;
-            }
-            editData[0][varName] = varValue;
-            if (refreshFieldVisibility) {
-                this.refreshFieldVisibility(info);
-            }
-            console.log(editData[0][varName])
-            this.setState({parsedData: editData, modifyEditData: true}, () => {
-            });
-        } else {
-            ConsoleHelper('handleEditRowChange implementation error');
-        }
     }
 
     //override

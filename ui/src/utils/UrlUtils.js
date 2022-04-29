@@ -92,9 +92,9 @@ class UrlUtils {
         window.open(url, "_blank");
     }
 
-    static getShortUrlParams(paramName, paramValues) {
+    static getShortUrlParams(paramValues) {
         let joinResult = paramValues.join(',');
-        return paramName + '=' + joinResult;
+        return joinResult;
     }
 
     static getUrlParams(paramName, paramValues) {

@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import {ViewDataCompUtils} from "./ViewDataCompUtils";
 import {InputText} from "primereact/inputtext";
 import EditRowUtils from "../EditRowUtils";
@@ -9,30 +8,43 @@ import {Checkbox} from "primereact/checkbox";
 import {DataGridUtils} from "./DataGridUtils";
 import {Calendar} from "primereact/calendar";
 import HtmlEditor, {Item, MediaResizing, Toolbar} from "devextreme-react/html-editor";
-import {Validator} from "devextreme-react";
+import {TextBox, Validator} from "devextreme-react";
 import {RequiredRule} from "devextreme-react/validator";
-import UploadMultiImageFileBase64 from "../../components/prolab/UploadMultiImageFileBase64";
 
-export const MemoizedChar = React.memo(({field, inputValue, fieldIndex, editable, autoFill, required, validate, selectionList, onChangeCallback, onBlurCallback, onClickEditListCallback}) => {
-    return (<React.Fragment>
-        <div className={`${selectionList}`}>
-            <InputText id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
-                       name={field.fieldName}
-                       className={` ${editable} ${autoFill} ${validate}`}
-                       style={{width: '100%'}}
-                       type="text"
-                       value={inputValue}
-                       onChange={onChangeCallback ? onChangeCallback : null}
-                       onBlur={onBlurCallback ? onBlurCallback : null}
-                       onKeyPress={onBlurCallback ? onBlurCallback : null}
-                       disabled={!field.edit || onChangeCallback === undefined}
-                       required={required}
-            />
-            {!!selectionList ?
-                <Button type="button" onClick={onClickEditListCallback} icon="pi pi-question-circle"
-                        className="p-button-secondary"/> : null}
-        </div>
-    </React.Fragment>)});
+export const MemoizedChar = React.memo(({field, cellInfo, inputValue, fieldIndex, editable, autoFill, required, validate, selectionList, fontColorFinal, onChangeCallback, onBlurCallback, onClickEditListCallback}) => {
+        return (<React.Fragment>
+            <div className={`${selectionList}`}>
+                    <TextBox id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
+                             className={` ${editable} ${autoFill} ${validate}`}
+                             mode={'text'}
+                             defaultValue={inputValue}
+                             stylingMode={'outlined'}
+                             disabled={!field.edit}
+                             valueChangeEvent={'keyup'}
+                             onValueChanged={(e) => {
+                                 switch (required) {
+                                     case true:
+                                         if (e.value !== '') {
+                                             cellInfo.setValue(e.value)
+                                         }
+                                         break;
+                                     default:
+                                         cellInfo.setValue(e.value)
+                                         break;
+                                 }
+                             }}
+                    >
+                        {required ?
+                            <Validator>
+                                <RequiredRule/>
+                            </Validator> : null}
+                    </TextBox>
+                {!!selectionList ?
+                    <Button type="button" onClick={onClickEditListCallback} icon="pi pi-question-circle"
+                            className="p-button-secondary"/> : null}
+            </div>
+        </React.Fragment>)
+  });
 
 export const MemoizedPasswordInput = React.memo(({field, inputValue, fieldIndex, editable, autoFill, required, validate, selectionList, onChangeCallback, onBlurCallback, onClickEditListCallback}) => {
     return (<React.Fragment>
@@ -110,50 +122,6 @@ export const MemoizedLogicInput = React.memo(({field, inputValue, fieldIndex, ed
 
 
 export class TreeListUtils extends ViewDataCompUtils {
-
-    static cellTemplate(field, onChangeCallback, onBlurCallback) {
-
-        let _rowIndex = null;
-        let _bgColor = null;
-        let _fontcolor = null;
-
-        return function (element, info) {
-            let bgColorFinal = undefined;
-            let rowSelected = null;
-            if (_rowIndex !== info.row.dataIndex) {
-                rowSelected = info?.row?.cells?.filter((c) => c.column?.type === 'selection' && c.value === true).length > 0;
-                _rowIndex = info.row.dataIndex;
-                _bgColor = info.data['_BGCOLOR'];
-                _fontcolor = info.data['_FONTCOLOR'];
-            }
-            if (!!rowSelected) {
-                bgColorFinal = undefined;
-            } else {
-                const specialBgColor = info.data['_BGCOLOR_' + info.column?.dataField];
-                if (!!specialBgColor) {
-                    bgColorFinal = specialBgColor;
-                } else {
-                    if (_bgColor) {
-                        element.style.backgroundColor = _bgColor;
-                        bgColorFinal = undefined;
-                    }
-                }
-            }
-            let fontColorFinal = 'black';
-            const specialFontColor = info.data['_FONTCOLOR_' + info.column?.dataField];
-            if (!!specialFontColor) {
-                fontColorFinal = specialFontColor;
-            } else {
-                if (!!_fontcolor) {
-                    fontColorFinal = _fontcolor;
-                }
-            }
-            //TODO mock
-            field.edit = true;
-            //----------------
-            return TreeListUtils.editableCell(field, element, info, bgColorFinal, fontColorFinal, onChangeCallback, onBlurCallback);
-        };
-    }
 
     //D – Data
     static dateInput(field, value, fieldIndex, editable, autoFill, required, validate, onChangeCallback, onBlurCallback) {
@@ -283,6 +251,15 @@ export class TreeListUtils extends ViewDataCompUtils {
         </React.Fragment>)
     }
 
+    /*
+
+    static cellTemplate(field, onChangeCallback, onBlurCallback) {
+        field.edit = true;
+        //----------------
+        return TreeListUtils.editableCell(field, element, info, bgColorFinal, fontColorFinal, onChangeCallback, onBlurCallback);
+    };
+}
+
     static editableCell(field, element, info, bgColorFinal, fontColorFinal, onChangeCallback, onBlurCallback, onClickEditListCallback) {
         const rowId = info.data.ID;
         const fieldIndex = field.id;
@@ -296,10 +273,13 @@ export class TreeListUtils extends ViewDataCompUtils {
         const selectionList = field?.selectionList ? 'p-inputgroup' : null;
         const refreshFieldVisibility = !!field?.refreshFieldVisibility;
 
-
         switch (field?.type) {
             case 'C':
-                return ReactDOM.render(<MemoizedChar field={field} inputValue={info.value} fieldIndex={fieldIndex} editable={editable} autoFill={autoFill} required={required} validate={validate} selectionList={selectionList} />, element);
+                return ReactDOM.render(<MemoizedChar field={field} inputValue={info.value} f
+                                                     ieldIndex={fieldIndex} editable={editable}
+                                                     autoFill={autoFill} required={required}
+                                                     validate={validate} selectionList={selectionList}
+                                                     fontColorFinal={fontColorFinal}/>, element);
             case 'P'://P - Hasło
                 return ReactDOM.render(<MemoizedPasswordInput field={field} inputValue={info.value} fieldIndex={fieldIndex} editable={editable} autoFill={autoFill} required={required} validate={validate} selectionList={selectionList} />, element);
             case "N"://N – Numeryczny/Liczbowy
@@ -386,5 +366,8 @@ export class TreeListUtils extends ViewDataCompUtils {
                 );
         }
     }
+
+
+     */
 
 }

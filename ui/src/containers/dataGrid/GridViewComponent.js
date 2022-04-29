@@ -16,14 +16,14 @@ import DataGrid, {
 import Constants from "../../utils/Constants";
 import ConsoleHelper from "../../utils/ConsoleHelper";
 import CrudService from "../../services/CrudService";
-import moment from "moment";
 import {DataGridUtils} from "../../utils/component/DataGridUtils";
 import {Breadcrumb} from "../../utils/BreadcrumbUtils";
 import ReactDOM from "react-dom";
 import OperationsButtons from "../../components/prolab/OperationsButtons";
 import AppPrefixUtils from "../../utils/AppPrefixUtils";
-import UrlUtils from "../../utils/UrlUtils";
 import {EntryResponseUtils} from "../../utils/EntryResponseUtils";
+import {EditSpecUtils} from "../../utils/EditSpecUtils";
+import {compress} from "int-compress-string/src";
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -54,24 +54,6 @@ class GridViewComponent extends React.Component {
         var span = document.createElement("span");
         span.innerHTML = data.column.caption + ": " + data.text;
         element.append(span);
-    }
-
-    preGenerateColumnsDefinition() {
-        let columns = [];
-        this.props.gridViewColumns?.forEach((columnDefinition, INDEX_COLUMN) => {
-            let sortOrder;
-            if (!!columnDefinition?.sortIndex && columnDefinition?.sortIndex > 0 && !!columnDefinition?.sortOrder) {
-                sortOrder = columnDefinition?.sortOrder?.toLowerCase();
-            }
-            columns.push(<Column
-                key={INDEX_COLUMN}
-                dataField={columnDefinition.fieldName}
-                sortOrder={sortOrder}
-                sortIndex={columnDefinition?.sortIndex}
-                groupCellTemplate={this.groupCellTemplate}
-            />);
-        })
-        return columns;
     }
 
     waitForSuccess() {
@@ -273,8 +255,8 @@ class GridViewComponent extends React.Component {
                                                info={info}
                                                handleEdit={() => {
                                                    if (this.props.parsedGridView?.viewInfo?.kindView === 'ViewSpec') {
-                                                       let newUrl = AppPrefixUtils.locationHrefUrl(`/#/edit-spec/${viewId}?parentId=${parentId}&recordId=${recordId}${currentBreadcrumb}`);
-                                                       UrlUtils.navigateToExternalUrl(newUrl);
+                                                       const compressedRecordId = compress([recordId]);
+                                                       EditSpecUtils.navToEditSpec(viewId, parentId, compressedRecordId, currentBreadcrumb);
                                                    } else {
                                                        let result = this.props.handleBlockUi();
                                                        if (result) {

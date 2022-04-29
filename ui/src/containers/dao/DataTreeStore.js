@@ -1,7 +1,7 @@
 import 'devextreme/dist/css/dx.light.css';
 import 'whatwg-fetch';
 import BaseService from '../../services/BaseService';
-import UrlUtils from "../../utils/UrlUtils";
+import {decompress} from "int-compress-string/src";
 
 export default class DataTreeStore extends BaseService {
     constructor() {
@@ -9,16 +9,16 @@ export default class DataTreeStore extends BaseService {
         this.path = 'view';
     }
 
-    getDataTreeStoreDirect(viewIdArg, parentIdArg, recordIdArg) {
-        const recordArray = recordIdArg.split(',');
-        const recordIdParam = UrlUtils.getUrlParams('recordId', recordArray)
+    getDataTreeStoreDirect(viewIdArg, parentIdArg, listIdArray) {
+        // const recordIdParam = UrlUtils.getUrlParams('recordId', recordArray)
         // const filterIdParam = !!filterIdArg ? `&filterId=${filterIdArg}` : '';
-        let url = `${this.domain}/${this.path}/${viewIdArg}/editspec/${parentIdArg}/data?${recordIdParam}`;
+        let url = `${this.domain}/${this.path}/${viewIdArg}/editspec/${parentIdArg}/data`;
         url = this.commonCorrectUrl(url);
         return this.fetch(
             url,
             {
-                method: 'GET',
+                method: 'POST',
+                body: JSON.stringify({listId: decompress(listIdArray)}),
             }
         ).catch((err) => {
             throw err;

@@ -4,10 +4,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import OperationsButtons from "./OperationsButtons";
-import AppPrefixUtils from "../../utils/AppPrefixUtils";
 import {Breadcrumb} from "../../utils/BreadcrumbUtils";
 import {DataGridUtils} from "../../utils/component/DataGridUtils";
-import UrlUtils from "../../utils/UrlUtils";
+import {EditSpecUtils} from "../../utils/EditSpecUtils";
+import {compress} from "int-compress-string/src";
 //Komponent wyświetlający górną ramkę i okalający wszystkie przyciski, filtry ....
 export const HeadPanel = props => {
     const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
@@ -42,9 +42,8 @@ export const HeadPanel = props => {
                                                handleEdit={() => {
                                                    if (props.elementKindView === 'ViewSpec' && props.selectedRowKeys.length > 0) {
                                                        const idParams = props.selectedRowKeys.map((item) => item.ID);
-                                                       const recordParams = UrlUtils.getShortUrlParams('recordId', idParams)
-                                                       const newUrl = AppPrefixUtils.locationHrefUrl(`/#/edit-spec/${viewId}?parentId=${parentId}&${recordParams}${currentBreadcrumb}`);
-                                                       UrlUtils.navigateToExternalUrl(newUrl);
+                                                       const compressedIdParams = compress(idParams);
+                                                       EditSpecUtils.navToEditSpec(viewId, parentId, compressedIdParams, currentBreadcrumb);
                                                    }
                                                }}
                                                inverseColor={true}
