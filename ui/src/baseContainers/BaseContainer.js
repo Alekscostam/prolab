@@ -1025,8 +1025,6 @@ class BaseContainer extends React.Component {
     repaintGridView() {
         if (!!this.getRefGridView()) {
             this.getRefGridView().instance.repaint();
-        } else if (!!this.getRefGridTree()) {
-            this.getRefGridTree().instance.repaint();
         }
     }
 
@@ -1461,10 +1459,6 @@ class BaseContainer extends React.Component {
         return !!this.refCardGrid ? this.refCardGrid : null;
     }
 
-    getRefGridTree() {
-        return !!this.refDataTree ? this.refDataTree : null;
-    }
-
     getRealViewId() {
         const {elementSubViewId} = this.state;
         const elementId = this.props.id;
@@ -1475,9 +1469,9 @@ class BaseContainer extends React.Component {
         return this.state.gridViewType === 'gridView';
     }
 
-    // isTreeView() {
-    //     return this.state.gridViewType === 'gridView' && this.state.kindView === 'ViewSpec';
-    // }
+    isTreeView() {
+        return this.state.gridViewType === 'gridView' && this.state.kindView === 'ViewSpec';
+    }
 
     isCardView() {
         return this.state.gridViewType === 'cardView';

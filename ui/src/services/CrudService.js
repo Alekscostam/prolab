@@ -325,6 +325,39 @@ export default class CrudService extends BaseService {
         });
     }
 
+    saveSpecEntry(viewId, parentId, listId, filterId) {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Editspec/${parentId}/Entry`, {
+            method: 'POST',
+            body: {
+                listId: JSON.stringify(listId)
+            },
+        }).catch((err) => {
+            throw err;
+        });
+    }
+
+    saveSpec(viewId, parentId, elementToSave, confirmSave) {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Editspec/${parentId}/Save?confirmSave=${confirmSave}`, {
+            method: 'POST',
+            body: JSON.stringify({
+                data: elementToSave
+            }),
+        }).catch((err) => {
+            throw err;
+        });
+    }
+
+    cancelSpec(viewId, parentId, listId) {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/Editspec/${parentId}/Cancel`, {
+            method: 'POST',
+            body: {
+                listId: JSON.stringify(listId)
+            },
+        }).catch((err) => {
+            throw err;
+        });
+    }
+
     createObjectToSave(state) {
         let editData = state.editData;
         let arrayTmp = [];

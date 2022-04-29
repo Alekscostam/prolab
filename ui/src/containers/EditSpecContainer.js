@@ -18,8 +18,8 @@ import {SelectBox} from "devextreme-react";
 import AppPrefixUtils from "../utils/AppPrefixUtils";
 import ActionButton from "../components/ActionButton";
 import DivContainer from "../components/DivContainer";
-import {EditSpecUtils} from "../utils/EditSpecUtils";
-import {decompress} from "int-compress-string/src";
+import {confirmDialog} from "primereact/confirmdialog";
+import {localeOptions} from "primereact/api";
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -55,7 +55,7 @@ export class EditSpecContainer extends BaseContainer {
             id = this.props.id;
         }
         const parentId = UrlUtils.getURLParameter('parentId');
-        const recordId = decompress(UrlUtils.getURLParameter('recordId'));
+        const recordId = UrlUtils.getURLParameter('recordId');
         const filterId = UrlUtils.getURLParameter('filterId');
         ConsoleHelper(`EditSpecContainer::componentDidMount -> id=${id}, parentId = ${parentId} recordId = ${recordId} filterId = ${filterId}`);
         this.setState({
@@ -71,7 +71,7 @@ export class EditSpecContainer extends BaseContainer {
             id = this.props.id;
         }
         const parentId = UrlUtils.getURLParameter('parentId');
-        const recordId = decompress(UrlUtils.getURLParameter('recordId'));
+        const recordId = UrlUtils.getURLParameter('recordId');
         const filterId = UrlUtils.getURLParameter('filterId');
         const s1 = !DataGridUtils.equalNumbers(this.state.elementId, id);
         const s2 = !DataGridUtils.equalNumbers(this.state.elementFilterId, filterId);
@@ -302,10 +302,10 @@ export class EditSpecContainer extends BaseContainer {
         operations.push({type: 'OP_SAVE', label: 'Zapisz'});
         operations.push({type: 'OP_ADD', label: 'Dodaj'});
         //TODO mock end
-        let opADD = DataGridUtils.containsOperationsButton(operations, 'OP_ADD');
+        let opAdd = DataGridUtils.containsOperationsButton(operations, 'OP_ADD');
         let opSave = DataGridUtils.containsOperationsButton(operations, 'OP_SAVE');
         return <React.Fragment>
-            <ActionButton rendered={opADD} label={opADD?.label}
+            <ActionButton rendered={opAdd} label={opAdd?.label}
                           className="ml-2"
                           handleClick={(e) => {
                               let addData = this.state.parsedData;
@@ -318,9 +318,98 @@ export class EditSpecContainer extends BaseContainer {
             <ActionButton rendered={opSave} label={opSave?.label}
                           className="ml-2"
                           handleClick={(e) => {
-                              this.viewContainer?.current?.addView(e)
+                              const viewIdArg = this.state.elementId;
+                              const parentIdArg = this.state.elementParentId;
+                              this.handleEditSpecSave(viewIdArg, parentIdArg);
+                              alert('Not implement yet')
                           }}/>
         </React.Fragment>
+    }
+
+    handleEditSpecSave(viewId, parentId) {
+        ConsoleHelper(`handleEditSpecSave: viewId = ${viewId} parentId = ${parentId}`)
+        const saveElement = this.createObjectToSave(this.state.parsedData);
+        ConsoleHelper(`handleEditSpecSave: element to save = ${JSON.stringify(saveElement)}`)
+        this.specSave(viewId, parentId, saveElement, false);
+    }
+
+    //override
+    createObjectToSave(rowArray) {
+        let arrayTmp = [];
+        for (let row of rowArray) {
+            let rowArray = [];
+            for (let field in row) {
+                rowArray.push({'fieldName': field, 'value': row[field]});
+            }
+            arrayTmp.push(rowArray);
+        }
+        return arrayTmp;
+    }
+
+    //override
+    specSave = (viewId, parentId, saveElement, confirmSave) => {
+        this.blockUi();
+        this.crudService
+            .saveSpec(viewId, parentId, saveElement, confirmSave)
+            .then((saveResponse) => {
+                switch (saveResponse.status) {
+                    case 'OK':
+                        if (!!saveResponse.message) {
+                            confirmDialog({
+                                appendTo: document.body,
+                                message: saveResponse?.message?.text,
+                                header: saveResponse?.message?.title,
+                                icon: 'pi pi-info-circle',
+                                rejectClassName: 'hidden',
+                                acceptLabel: 'OK',
+                                rejectLabel: undefined,
+                                accept: () => {
+                                }
+                            })
+                        } else if (!!saveResponse.error) {
+                            this.showResponseErrorMessage(saveResponse);
+                        }
+                        break;
+                    case 'NOK':
+                        if (!!saveResponse.question) {
+                            confirmDialog({
+                                appendTo: document.body,
+                                message: saveResponse?.question?.text,
+                                header: saveResponse?.question?.title,
+                                icon: 'pi pi-question-circle',
+                                acceptLabel: localeOptions('accept'),
+                                rejectLabel: localeOptions('reject'),
+                                accept: () => this.specSave(viewId, parentId, saveElement, true),
+                                reject: () => undefined,
+                            })
+                        } else if (!!saveResponse.message) {
+                            confirmDialog({
+                                appendTo: document.body,
+                                message: saveResponse?.message?.text,
+                                header: saveResponse?.message?.title,
+                                icon: 'pi pi-info-circle',
+                                rejectClassName: 'hidden',
+                                acceptLabel: 'OK',
+                                rejectLabel: undefined,
+                                accept: () => undefined
+                            })
+                        } else if (!!saveResponse.error) {
+                            this.showResponseErrorMessage(saveResponse);
+                        }
+                        break;
+                    default:
+                        if (!!saveResponse.error) {
+                            this.showResponseErrorMessage(saveResponse);
+                        } else {
+                            this.showErrorMessages(saveResponse);
+                        }
+                        break;
+                }
+                // this.refreshView();
+                this.unblockUi();
+            }).catch((err) => {
+            this.showGlobalErrorMessage(err);
+        });
     }
 
     //override
@@ -427,48 +516,48 @@ export class EditSpecContainer extends BaseContainer {
     renderContent = () => {
         return (<React.Fragment>
             {this.state.loading ? null : (<React.Fragment>
-                <div id="spec-edit">
-                    <TreeViewComponent
-                        id={this.props.id}
-                        elementRecordId={this.state.elementRecordId}
-                        handleOnTreeList={(ref) => this.refTreeList = ref}
-                        parsedGridView={this.state.parsedView}
-                        parsedGridViewData={this.state.parsedData}
-                        gridViewColumns={this.state.columns}
-                        selectedRowKeys={this.state.selectedRowKeys}
-                        onChange={(type, e, rowId, info) => this.handleEditRowChange(type, e, rowId, info)}
-                        handleBlockUi={() => {
-                            this.blockUi();
-                            return true;
-                        }}
-                        handleUnblockUi={() => this.unblockUi()}
-                        handleShowEditPanel={(editDataResponse) => {
-                            this.handleShowEditPanel(editDataResponse)
-                        }}
-                        handleSelectedRowKeys={(e) =>
-                            this.setState(prevState => {
-                                return {
-                                    ...prevState,
-                                    selectedRowKeys: e
-                                }
-                            })}
-                        handleDeleteRow={(id) => this.delete(id)}
-                        handleAddLevel={(id) => {
-                            alert(id);
-                        }}
-                        handleUp={(id) => {
-                            this.up(id);
-                        }}
-                        handleDown={(id) => {
-                            this.down(id);
-                        }}
-                        handleRestoreRow={(id) => this.restore(id)}
-                        handleCopyRow={(id) => this.copy(id)}
-                        handleArchiveRow={(id) => this.archive(id)}
-                        handlePublishRow={(id) => this.publish(id)}
-                        showErrorMessages={(err) => this.showErrorMessages(err)}
-                    />
-                </div>
+                    <div id="spec-edit">
+                        <TreeViewComponent
+                            id={this.props.id}
+                            elementRecordId={this.state.elementRecordId}
+                            handleOnTreeList={(ref) => this.refTreeList = ref}
+                            parsedGridView={this.state.parsedView}
+                            parsedGridViewData={this.state.parsedData}
+                            gridViewColumns={this.state.columns}
+                            selectedRowKeys={this.state.selectedRowKeys}
+                            onChange={(type, e, rowId, info) => this.handleEditRowChange(type, e, rowId, info)}
+                            handleBlockUi={() => {
+                                this.blockUi();
+                                return true;
+                            }}
+                            handleUnblockUi={() => this.unblockUi()}
+                            handleShowEditPanel={(editDataResponse) => {
+                                this.handleShowEditPanel(editDataResponse)
+                            }}
+                            handleSelectedRowKeys={(e) =>
+                                this.setState(prevState => {
+                                    return {
+                                        ...prevState,
+                                        selectedRowKeys: e
+                                    }
+                                })}
+                            handleDeleteRow={(id) => this.delete(id)}
+                            handleAddLevel={(id) => {
+                                alert(id);
+                            }}
+                            handleUp={(id) => {
+                                this.up(id);
+                            }}
+                            handleDown={(id) => {
+                                this.down(id);
+                            }}
+                            handleRestoreRow={(id) => this.restore(id)}
+                            handleCopyRow={(id) => this.copy(id)}
+                            handleArchiveRow={(id) => this.archive(id)}
+                            handlePublishRow={(id) => this.publish(id)}
+                            showErrorMessages={(err) => this.showErrorMessages(err)}
+                        />
+                    </div>
             </React.Fragment>)}
         </React.Fragment>)
     }
