@@ -902,6 +902,9 @@ export class ViewContainer extends BaseContainer {
                                         });
                                     }
                             }}
+                            handleAddLevel={() => this.publish()}
+                            handleUp={() => this.up()}
+                            handleDown={() => this.publish()}
                             parsedGanttView={this.state.parsedGridView}
                             gridViewColumns={this.state.ganttViewColumns}
                             dataGanttStoreSuccess={this.state.dataGanttStoreSuccess}

@@ -58,7 +58,6 @@ class GanttViewComponent extends React.Component {
     
         this.repaint = () => {
             this.gantt.repaint();
-            // ...
         }
 
         /** Custom refresh, bo na gancie działa tylko .repaint() pomimo tego iż taka funkcja istnieje w dokumentacji dla tego komponentu */
@@ -66,12 +65,18 @@ class GanttViewComponent extends React.Component {
         this.refresh = () => {
             this.datasInitialization();
             this.generateColumns();
+            
         } 
+    }
+
+    componentDidUpdate(){
+        this.repaint();
     }
     
     componentDidMount() {   
         this.datasInitialization(); 
         this.generateColumns();
+       
     }
     
     isSelectionEnabled() {
@@ -80,7 +85,6 @@ class GanttViewComponent extends React.Component {
     get gantt() {
         return this.ganttRef.current.instance;
     }
-
     datasInitialization(){
         this.dataGanttStore
             .getDataForGantt(this.props.id, {
@@ -96,10 +100,10 @@ class GanttViewComponent extends React.Component {
                     },{
                         value:false
                     }]
+                    let rowNumber = res.data[index]._ROWNUMBER;
                     initialCheckBoxValues.push(false);
-                    rowElementsStorage.set(index,array)
+                    rowElementsStorage.set(res.data[index].ID,array)
                 }
-                
                 this.setState(state => ({
                     data:res.data,
                     tasks: res.data,
@@ -114,8 +118,6 @@ class GanttViewComponent extends React.Component {
     }
 
     datasRefreshSelector(store){
-
-
         this.setState({
             rowElementsStorage: store,
             tasks: this.state.tasks
@@ -123,30 +125,6 @@ class GanttViewComponent extends React.Component {
         this.repaint();
     }
 
-    preGegenerateColumns(){
-       let columns = [];
-        this.props.parsedGanttView?.ganttColumns?.forEach((columnDefinition, INDEX_COLUMN) => {
-            let sortOrder;
-            if (!!columnDefinition?.sortIndex && columnDefinition?.sortIndex > 0 && !!columnDefinition?.sortOrder) {
-                sortOrder = columnDefinition?.sortOrder?.toLowerCase();
-            }
-            columns.push(<Column
-                key={INDEX_COLUMN}
-                caption={columnDefinition.label}
-                filterId={INDEX_COLUMN}
-                allowFiltering={true}
-                sortOrder={sortOrder} 
-                sortIndex={columnDefinition.sortIndex}
-                type={columnDefinition.type}
-                visible={columnDefinition.visible}
-                width={columnDefinition.width}
-                dataField={columnDefinition.fieldName}
-     
-            />);
-        })
-
-        return columns;
-    }
 
     render() {
         const showRowLines = this.props.showRowLines;
@@ -181,7 +159,6 @@ class GanttViewComponent extends React.Component {
         const  keyResourceAssigment="ID";
         const  resourceIdResourceAssigment=this.props.parsedGanttView?.resourceAssignmentFields?.resourceId;
         const  taskIdResourceAssigment=this.props.parsedGanttView?.resourceAssignmentFields?.taskId;
-
         // const selectedRowKeys = this.props.selectedRowKeys;
         return ( 
             <React.Fragment>
@@ -196,9 +173,7 @@ class GanttViewComponent extends React.Component {
                     startDateRange={startDateRange}
                     endDateRange={endDateRange}
                     rowAlternationEnabled={false}
-                    // taskContentRender={(e)=> {debugger}}
                     hoverStateEnabled={true}
-                    // onContentReady
                     onSelectionChanged={this.onVisibleIndexChange}
                     // Jesli robimy checkboxy to allowSelection w tym miejscu musi byc false
                     allowSelection={false} 
@@ -275,6 +250,7 @@ class GanttViewComponent extends React.Component {
                     fixedPosition = {'left'}
                     cellTemplate = 
                     {(element, info) => {
+
                         let el = document.createElement('div');
                         el.id = `actions-${info.column.headerId}-${info.rowIndex}`;
                         element.append(el);
@@ -283,7 +259,7 @@ class GanttViewComponent extends React.Component {
                         <input  
                             key={"checkbox"+ recordId}
                             type="checkbox" 
-                            checked={this.state.rowElementsStorage.get(info.rowIndex)[1].value}
+                            checked={this.state.rowElementsStorage.get(recordId)[1].value}
                             className={_selectionClassName}
                             onChange={()=>this.selectSingleRow(selectedRowKeys,recordId)}
                         /> <span class="checkmark"></span></label>, element);
@@ -294,9 +270,8 @@ class GanttViewComponent extends React.Component {
 
     selectAll(e){
 
-            let selectedRowKeys =[];
-            let store = new Map();
-
+        let selectedRowKeys =[];
+        let store = this.state.rowElementsStorage;
             if(e.target.checked){
                 let ids =  this.state.tasks.map(task=> task.ID);
                 for (let index = 0; index < ids.length; index++) {
@@ -304,16 +279,17 @@ class GanttViewComponent extends React.Component {
                 }    
             }
 
-            for (let index = 0; index < this.state.rowElementsStorage.size; index++) {
-                let array=[{
-                    id:this.state.rowElementsStorage.get(index)[0].id
-                },{
-                    value:e.target.checked
-                }]
-                store.set(index,array)
+            for (const [key, value] of store.entries()) {
 
-            }   
-          
+                let array=[{
+                            id:key
+                        },{
+                            value:e.target.checked
+                        }]
+                store.set(key,array)
+              }
+       
+
             this.setState({
                 allElementsSelector: !this.state.allElementsSelector
             })
@@ -326,11 +302,20 @@ class GanttViewComponent extends React.Component {
 
     selectSingleRow(selectedRowKeys,recordId){
         selectedRowKeys = this.props.selectedRowKeys;
-        
-//         let result= this.state.rowElementsStorage;
-// debugger
-//         result.where(el=>{debugger})
-        
+        let store = this.state.rowElementsStorage;
+ 
+
+        for (const [key, value] of store.entries()) {
+            
+            if(recordId===key){
+                let array=[{
+                    id:key
+                },{
+                    value:!value[1].value
+                }]
+                store.set(key,array)
+            }
+          }
 
             var index = selectedRowKeys.findIndex(item => item.ID === recordId);
             if (index !== -1) {
@@ -338,7 +323,10 @@ class GanttViewComponent extends React.Component {
             } else {
                 selectedRowKeys.push({ID: recordId});
             }
+
             this.props.handleSelectedRowKeys(selectedRowKeys)
+            this.datasRefreshSelector(store);
+
     }
 
 
@@ -476,6 +464,16 @@ class GanttViewComponent extends React.Component {
                                                handleBlockUi={() => {
                                                    this.props.handleBlockUi();
                                                }}
+                                               
+                                                handleUp={() => {
+                                                    this.props.handleUp(recordId);
+                                                }}
+                                                handleDown={() => {
+                                                    this.props.handleDown(recordId);
+                                                }}
+                                                handleAddLevel={() => {
+                                                    this.props.handleBlockUi();
+                                                }}
                             />
     
                         </div>, element);
@@ -503,6 +501,8 @@ class GanttViewComponent extends React.Component {
        this.setState({
         columns: columns
        })
+
+       
     }
 }
 
