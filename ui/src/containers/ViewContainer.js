@@ -27,6 +27,9 @@ import LocUtils from "../utils/LocUtils";
 import DataCardStore from "./dao/DataCardStore";
 import {EntryResponseUtils} from "../utils/EntryResponseUtils";
 import DataTreeStore from "./dao/DataTreeStore";
+import GanttViewComponent from './gantView/GanttViewComponent';
+import DataGanttStore from './dao/DataGanttStore';
+
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -43,8 +46,10 @@ export class ViewContainer extends BaseContainer {
         this.crudService = new CrudService();
         this.dataGridStore = new DataGridStore();
         this.dataCardStore = new DataCardStore();
+        this.dataGanttStore = new DataGanttStore();
         this.dataTreeStore = new DataTreeStore();
         this.refDataGrid = React.createRef()
+        this.ganttRef = React.createRef()
         this.refCardGrid = React.createRef();
         this.messages = React.createRef();
         this.selectedDataGrid = null;
@@ -148,6 +153,7 @@ export class ViewContainer extends BaseContainer {
             ConsoleHelper('ViewContainer::componentDidUpdate -> not updating !');
         }
     }
+
 
     componentWillUnmount() {
         this._isMounted = false;
@@ -292,6 +298,7 @@ export class ViewContainer extends BaseContainer {
                     icon: 'contentlayout', type: 'gridView', hint: viewButton?.label,
                 });
             }
+            
             this.setState(() => ({
                 loading: false, //elementId: this.props.id,
                 gridViewType: responseView?.viewInfo?.type,
@@ -322,9 +329,11 @@ export class ViewContainer extends BaseContainer {
                     this.setState({loading: true}, () => {
                         const dataPackageSize = this.state.parsedGridView?.viewInfo?.dataPackageSize;
                         const packageCount = (!!dataPackageSize || dataPackageSize === 0) ? Constants.DEFAULT_DATA_PACKAGE_COUNT : dataPackageSize;
-                        let res = this.dataCardStore.getDataCardStore(viewIdArg, {
+                        let res = this.dataCardStore.getDataCardStore(viewIdArg, {    
                             skip: 0, take: packageCount
-                        }, parentIdArg, filterIdArg, kindViewArg, () => {
+                        }, 
+                        
+                        parentIdArg, filterIdArg, kindViewArg, () => {
                             return null;
                         }, () => {
                             this.setState({
@@ -343,7 +352,8 @@ export class ViewContainer extends BaseContainer {
                         }
                         this.unblockUi();
                     });
-                } else {
+                }
+                else{
                     this.setState({loading: true}, () => {
                         let res = this.dataGridStore.getDataGridStore(viewIdArg, 'gridView', parentIdArg, filterIdArg, kindViewArg, () => {
                             // this.blockUi();
@@ -423,6 +433,7 @@ export class ViewContainer extends BaseContainer {
     }
 
     rightHeadPanelContent = () => {
+        
         if (this.isDashboard()) {
             return <React.Fragment/>
         }
@@ -515,6 +526,7 @@ export class ViewContainer extends BaseContainer {
                     //condition for only one display
                     if (index > indexInArray) {
                         return (this.state.viewInfoTypes ? <React.Fragment>
+                            
                             <ButtonGroup
                                 className={`${margin}`}
                                 items={this.state.viewInfoTypes}
@@ -639,6 +651,9 @@ export class ViewContainer extends BaseContainer {
                 });
             });
         }
+        if(this.isGanttView()){
+
+        }
     }
 
     unselectAllDataGrid(selectionValue) {
@@ -657,8 +672,10 @@ export class ViewContainer extends BaseContainer {
             this.setState({
                 selectedRowKeys: []
             });
-        }
-    }
+        } 
+        
+    }    
+
 
     //override
     renderHeaderContent() {
@@ -760,6 +777,7 @@ export class ViewContainer extends BaseContainer {
     //override
     render() {
         return (<React.Fragment>
+            
             {super.render()}
         </React.Fragment>);
     }
@@ -853,7 +871,59 @@ export class ViewContainer extends BaseContainer {
                             handleArchiveRow={(id) => this.archive(id)}
                             handlePublishRow={(id) => this.publish(id)}
                         />
-                    </React.Fragment>) : this.isDashboard() ? (<React.Fragment>
+                    </React.Fragment>) :
+                    
+                    this.isGanttView() ? (<React.Fragment>
+                        <GanttViewComponent
+                            id={this.props.id}
+                            elementSubViewId={this.state.elementSubViewId}
+                            elementKindView={this.state.elementKindView}
+                            elementRecordId={this.state.elementRecordId}
+                            shortcutButtons={this.state.parsedGridView.shortcutButtons}
+                            selectedRowKeys={this.state.selectedRowKeys}
+                            handleBlockUi={() => {
+                                this.blockUi();
+                                return true;
+                            }}
+                            handleUnBlockUi={() => {
+                                this.unblockUi();
+                                return true;
+                            }}
+                            ref={this.ganttRef}
+                            handleSelectAll={(selectionValue,selectedRowKeys) => {
+                                this.state.selectedRowKeys.length = 0;
+                                    if (selectionValue) {
+                                        this.setState({
+                                            selectedRowKeys: selectedRowKeys
+                                        });
+                                    } else {
+                                        this.setState({
+                                            selectedRowKeys: this.state.selectedRowKeys
+                                        });
+                                    }
+                            }}
+                            parsedGanttView={this.state.parsedGridView}
+                            gridViewColumns={this.state.ganttViewColumns}
+                            dataGanttStoreSuccess={this.state.dataGanttStoreSuccess}
+                           
+                            handleUnblockUi={() => this.unblockUi()}
+                            showErrorMessages={(err) => this.showErrorMessages(err)}
+                            packageRows={this.state.packageRows}
+                            handleShowEditPanel={(editDataResponse) => {
+                                this.handleShowEditPanel(editDataResponse)
+                            }}
+                            handleSelectedRowKeys={(e)=> {this.setState({selectedRowKeys:e})}}
+                            dataGridStoreSuccess={this.state.dataGridStoreSuccess}
+                            selectionDeferred={true}
+                            handleDeleteRow={(id) => this.delete(id)}
+                            handleRestoreRow={(id) => this.restore(id)}
+                            handleCopyRow={(id) => this.copy(id)}
+                            handleArchiveRow={(id) => this.archive(id)}
+                            handlePublishRow={(id) => this.publish(id)}
+                        />
+                    </React.Fragment>):
+                    
+                    this.isDashboard() ? (<React.Fragment>
                         {Breadcrumb.render(labels)}
                         <DashboardContainer dashboard={this.state.subView}
                                             handleRenderNoRefreshContent={(renderNoRefreshContent) => {
