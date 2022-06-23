@@ -93,7 +93,6 @@ class GanttViewComponent extends React.Component {
   
     
     datasInitialization(res){
-        let initialCheckBoxValues=[];
         let rowElementsStorage = new Map()
         for (let index = 0; index < res.totalCount; index++) {
             
@@ -102,7 +101,6 @@ class GanttViewComponent extends React.Component {
             },{
                 value:false
             }]
-            initialCheckBoxValues.push(false);
             rowElementsStorage.set(res.data[index].ID,array)
         }
         this.setState(({
@@ -110,10 +108,9 @@ class GanttViewComponent extends React.Component {
             dependencies:res.dependenciesData,
             resources: res.resourcesData,
             resourceAssignments:res.resourcesAssigmentData,
-            checkBoxStore:initialCheckBoxValues,
             rowElementsStorage: rowElementsStorage,
             
-    }));
+        }));
     }
 
     datasRefreshSelector(store){
