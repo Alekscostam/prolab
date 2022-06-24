@@ -976,6 +976,7 @@ class BaseContainer extends React.Component {
                             </DivContainer>
                             <DivContainer colClass='row base-container-content'>
                                 <DivContainer id='content' colClass='col-12'>
+                           
                                     {this.renderContent()}
                                 </DivContainer>
                             </DivContainer>
@@ -1002,10 +1003,17 @@ class BaseContainer extends React.Component {
         this.rowSave(viewId, recordId, parentId, saveElement, false);
     }
 
+    
+
     refreshView() {
         if (this.isCardView()) {
             if (!!this.getRefCardGrid()) {
                 this.getRefCardGrid().current?.refresh(true);
+            }
+        }else if(this.isGanttView()){
+            if (!!this.getRefGanttView()) {
+                 this.getRefGanttView().current.refresh();  
+                     
             }
         }
         else {
@@ -1032,6 +1040,7 @@ class BaseContainer extends React.Component {
         this.blockUi();
         const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
         const kindOperation = this.state.editData.editInfo?.kindOperation ? this.state.editData.editInfo?.kindOperation : undefined;
+
         this.crudService
             .save(viewId, recordId, parentId, kindView, kindOperation, saveElement, confirmSave)
             .then((saveResponse) => {
@@ -1309,6 +1318,7 @@ class BaseContainer extends React.Component {
     }
 
     unselectAllDataGrid() {
+        
     }
 
     handleEditListRowChange(editInfo, editListData) {
@@ -1357,12 +1367,24 @@ class BaseContainer extends React.Component {
         this.rowCancel(viewId, recordId, parentId, cancelElement, false);
     }
 
+    /** Dla gantta ID_PARENT nie moze byc '' */
+    replaceEmptyValuesFromParent(editData){
+        editData?.editFields?.filter((obj) => {
+            return obj.fields.filter((field) => { 
+                if(field.fieldName==="ID_PARENT"){
+                    field.value = field.value==="" ? null : field.value
+            }
+            return field;
+            });
+        }); 
+    }
+
     handleEditRowChange(inputType, event, groupName, info) {
         ConsoleHelper(`handleEditRowChange inputType=${inputType} groupName=${groupName}`);
         let editData = this.state.editData;
         let groupData = editData?.editFields?.filter((obj) => {
             return obj.groupName === groupName;
-        });
+        }); 
         let varName;
         let varValue;
         let refreshFieldVisibility = false;
@@ -1411,6 +1433,9 @@ class BaseContainer extends React.Component {
             if (!!field && refreshFieldVisibility) {
                 this.refreshFieldVisibility(info);
             }
+            if(this.isGanttView()){
+                this.replaceEmptyValuesFromParent(editData);
+            }
             this.setState({editData: editData, modifyEditData: true});
         } else {
             ConsoleHelper('handleEditRowChange implementation error');
@@ -1454,6 +1479,9 @@ class BaseContainer extends React.Component {
     getRefGridView() {
         return !!this.refDataGrid ? this.refDataGrid : null;
     }
+    getRefGanttView() {
+        return !!this.ganttRef ? this.ganttRef : null;
+    }
 
     getRefCardGrid() {
         return !!this.refCardGrid ? this.refCardGrid : null;
@@ -1467,6 +1495,10 @@ class BaseContainer extends React.Component {
 
     isGridView() {
         return this.state.gridViewType === 'gridView';
+    }
+    
+    isGanttView() {
+        return this.state.gridViewType === 'gantt';
     }
 
     isTreeView() {

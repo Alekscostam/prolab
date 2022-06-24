@@ -3,7 +3,7 @@ import {ArrayModel, ObjectModel} from 'objectmodel';
 export const ViewInfo = ObjectModel({
     id: Number,
     name: String,
-    type: ['gridView', 'cardView', 'dashboard', 'TreeList'],
+    type: ['gridView', 'cardView', 'dashboard', 'TreeList','gantt'],
     kindView: ['View', 'ViewSpec', 'NULL', null],
 });
 
@@ -36,6 +36,12 @@ export const Column = ObjectModel({
 });
 
 export const GridColumns = ObjectModel({
+    groupName: [String],
+    freeze: [String],
+    columns: ArrayModel(Column),
+});
+
+export const GanttColumns = ObjectModel({
     groupName: [String],
     freeze: [String],
     columns: ArrayModel(Column),
