@@ -415,6 +415,7 @@ label {
   margin-left: 0;
 }
 
+
 //notifications & messages
 @import 'toast';
 /*------------------*/
@@ -444,6 +445,8 @@ label {
   padding: 0.5rem 0.75rem;
   min-width: 1rem;
 }
+
+
 
 .dx-datagrid-filter-panel .dx-datagrid-filter-panel-clear-filter,
 .dx-datagrid-filter-panel .dx-datagrid-filter-panel-text,
@@ -516,9 +519,17 @@ body main div.container-fluid {
   }
 }
 
+
 .p-toast-message-content .p-toast-message-icon {
   visibility: hidden;
 }
+
+
+
+
+
+
+
 
 .p-toast-message-icon.pi.pi-times {
   width: 20px;
@@ -596,6 +607,8 @@ iframe {
   outline: none !important;
   box-shadow: none;
 }
+
+
 
 @import 'edit_spec_field';
 @import 'edit_row';
