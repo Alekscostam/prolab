@@ -424,7 +424,7 @@ label {
 /*------------------*/
 
 //tree container
-@import 'tree_container';
+@import 'edit_spec_field';
 /*------------------*/
 
 //grid container
@@ -597,5 +597,4 @@ iframe {
   box-shadow: none;
 }
 
-@import 'edit_spec_field';
 @import 'edit_row';

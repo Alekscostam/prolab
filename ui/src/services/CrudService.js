@@ -90,6 +90,15 @@ export default class CrudService extends BaseService {
         });
     }
 
+    editSpecList(viewId, parentId , fieldId, element) {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/editspec/${parentId}/list/${fieldId}`, {
+            method: 'POST',
+            body: JSON.stringify(element),
+        }).catch((err) => {
+            throw err;
+        });
+    }
+
     refreshFieldVisibility(viewId, recordId, parentId, kindView, element) {
         return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}/RefreshFieldVisibility${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
             method: 'POST',

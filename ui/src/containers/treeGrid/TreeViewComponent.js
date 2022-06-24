@@ -21,18 +21,22 @@ import AppPrefixUtils from "../../utils/AppPrefixUtils";
 import {EntryResponseUtils} from "../../utils/EntryResponseUtils";
 import {
     MemoizedBoolInput,
-    MemoizedChar,
+    MemoizedDateInput,
+    MemoizedDateTimeInput,
+    MemoizedEditorDescription,
     MemoizedLogicInput,
     MemoizedNumericInput,
-    MemoizedPasswordInput,
+    MemoizedText,
+    MemoizedTimeInput,
     TreeListUtils
 } from "../../utils/component/TreeListUtils";
 import EditRowUtils from "../../utils/EditRowUtils";
-import {InputText} from "primereact/inputtext";
 import UploadMultiImageFileBase64 from "../../components/prolab/UploadMultiImageFileBase64";
-import moment from "moment/moment";
 import {EditSpecUtils} from "../../utils/EditSpecUtils";
 import {compress} from "int-compress-string/src";
+import EditListComponent from "../../components/prolab/EditListComponent";
+import EditListUtils from "../../utils/EditListUtils";
+import EditListDataStore from "../dao/EditListDataStore";
 //
 //    https://js.devexpress.com/Documentation/Guide/UI_Components/TreeList/Getting_Started_with_TreeList/
 //
@@ -42,9 +46,16 @@ class TreeViewComponent extends React.Component {
         super(props);
         this.labels = this.props;
         this.crudService = new CrudService();
+        this.editListDataStore = new EditListDataStore();
         ConsoleHelper('TreeViewComponent -> constructor');
         this.state = {
-            value: '',
+            editListField: {},
+            editListVisible: false,
+            parsedGridView: {},
+            parsedGridViewData: {},
+            gridViewColumns: [],
+            selectedRowData: [],
+            defaultSelectedRowKeys: [],
         }
     }
 
@@ -53,6 +64,121 @@ class TreeViewComponent extends React.Component {
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         return prevProps.id !== prevState.id && prevProps.elementRecordId !== prevState.elementRecordId;
+    }
+
+    handleSelectedRowData(selectedRowData) {
+        ConsoleHelper("TreeViewComponent::handleSelectedRowData obj=" + JSON.stringify(selectedRowData))
+        const setFields = this.state.parsedGridView.setFields;
+        let transformedRowsData = [];
+        let transformedRowsCRC = [];
+        for (let selectedRows in selectedRowData) {
+            let selectedRow = selectedRowData[selectedRows];
+            let transformedSingleRowData = EditListUtils.transformBySetFields(selectedRow, setFields)
+            let CALC_CRC = EditListUtils.calculateCRC(transformedSingleRowData)
+            ConsoleHelper("transformedRowsData = {} hash = {} ", transformedSingleRowData, CALC_CRC);
+            transformedRowsData.push(transformedSingleRowData);
+            transformedRowsCRC.push(CALC_CRC);
+        }
+        this.setState({selectedRowData: transformedRowsData, defaultSelectedRowKeys: transformedRowsCRC})
+    }
+
+    editListVisible(cellInfo, columnDefinition) {
+        ConsoleHelper('TreeViewComponent::editListVisible')
+        // let editInfo = this.props.editData?.editInfo;
+        // let kindView = this.props.kindView;
+        let editListObject = this.crudService.createObjectToEditList(this.props.parsedGridViewData[0])
+        this.setState({
+            loading: true,
+            dataGridStoreSuccess: false
+        }, () => {
+            console.log(cellInfo);
+            console.log(columnDefinition);
+            const viewId = this.props.id;
+            const parentId = this.props.elementParentId;
+            const recordId = cellInfo.row?.data?.ID;
+            const fieldId = columnDefinition.id;
+            this.crudService
+                .editSpecList(viewId, parentId, fieldId, editListObject)
+                .then((responseView) => {
+                    let selectedRowDataTmp = [];
+                    //CRC key
+                    let defaultSelectedRowKeysTmp = [];
+                    const editData = this.props.editData;
+                    const setFields = responseView.setFields;
+                    const separatorJoin = responseView.options?.separatorJoin || ',';
+                    let countSeparator = 0;
+                    // setFields.forEach((field) => {
+                    //     EditRowUtils.searchField(editData, field.fieldEdit, (foundFields) => {
+                    //         const fieldValue = ('' + foundFields.value).split(separatorJoin);
+                    //         if (fieldValue.length > countSeparator) {
+                    //             countSeparator = fieldValue.length;
+                    //         }
+                    //     });
+                    // });
+                    // for (let index = 0; index < countSeparator; index++) {
+                    //     let singleSelectedRowDataTmp = [];
+                    //     setFields.forEach((field) => {
+                    //         EditRowUtils.searchField(editData, field.fieldEdit, (foundFields) => {
+                    //             let fieldTmp = {};
+                    //             const fieldValue = ('' + foundFields.value).split(separatorJoin);
+                    //             fieldTmp[field.fieldList] = fieldValue[index];
+                    //             singleSelectedRowDataTmp.push(fieldTmp);
+                    //         });
+                    //     });
+                    //     selectedRowDataTmp.push(singleSelectedRowDataTmp);
+                    //     let CALC_CRC = EditListUtils.calculateCRC(singleSelectedRowDataTmp)
+                    //     defaultSelectedRowKeysTmp.push(CALC_CRC);
+                    // }
+                    ConsoleHelper("TreeViewComponent::ListVisible:: defaultSelectedRowKeys = %s hash = %s ", JSON.stringify(selectedRowDataTmp), JSON.stringify(defaultSelectedRowKeysTmp))
+                    let filtersListTmp = [];
+                    this.setState(() => ({
+                            gridViewType: responseView?.viewInfo?.type,
+                            parsedGridView: responseView,
+                            gridViewColumns: responseView.gridColumns,
+                            filtersList: filtersListTmp,
+                            packageRows: responseView?.viewInfo?.dataPackageSize
+                            // selectedRowData: selectedRowDataTmp,
+                            // defaultSelectedRowKeys: defaultSelectedRowKeysTmp
+                        }),
+                        () => {
+                            let res = this.editListDataStore.getEditListDataStore(
+                                viewId,
+                                'gridView',
+                                recordId,
+                                fieldId,
+                                parentId,
+                                null,
+                                null,
+                                editListObject,
+                                setFields,
+                                //onError
+                                (err) => {
+                                    this.props.showErrorMessages(err);
+                                },
+                                //onSuccess
+                                () => {
+                                    this.setState({
+                                        dataGridStoreSuccess: true
+                                    });
+                                },
+                                //onStart
+                                () => {
+                                    return {selectAll: this.state.selectAll};
+                                }
+                            );
+                            this.setState({
+                                loading: false,
+                                parsedGridViewData: res,
+                                editListField: cellInfo,
+                                editListVisible: true
+                            });
+                        }
+                    );
+                }).catch((err) => {
+                console.error('Error getEditList in TreeViewComponent. Exception = ', err);
+                this.props.showErrorMessages(err);
+            });
+        });
     }
 
     render() {
@@ -76,11 +202,38 @@ class TreeViewComponent extends React.Component {
         const allowSelectAll = (selectAll === undefined || selectAll === null || !!selectAll);
         const selectedRowKeys = this.props.selectedRowKeys;
         return (<React.Fragment>
+            <EditListComponent visible={this.state.editListVisible}
+                               field={this.state.editListField}
+                               parsedGridView={this.state.parsedGridView}
+                               parsedGridViewData={this.state.parsedGridViewData}
+                               gridViewColumns={this.state.gridViewColumns}
+                               onHide={() => this.setState({editListVisible: false})}
+                               handleBlockUi={() => {
+                                   this.handleBlockUi();
+                                   return true;
+                               }}
+                               handleUnblockUi={() => this.props.handleUnblockUi()}
+                               handleOnChosen={(editListData, field) => {
+                                   ConsoleHelper('EditRowComponent::handleOnChosen = ', JSON.stringify(editListData))
+                                   // let editInfo = this.props.editData?.editInfo;
+                                   // editInfo.field = field;
+                                   // this.props.onEditList(editInfo, editListData);
+                                   // cellInfo.setValue(e.value)
+                               }}
+                               showErrorMessages={(err) => this.props.showErrorMessages(err)}
+                               dataGridStoreSuccess={this.state.dataGridStoreSuccess}
+                               selectedRowData={this.state.selectedRowData}
+                               defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
+                               handleSelectedRowData={(e) => this.handleSelectedRowData(e)}
+                               labels={this.props.labels}
+            />
             <TreeList
-                id='tree-container'
+                id='spec-edit'
                 keyExpr='ID'
                 className={`tree-container${headerAutoHeight ? ' tree-header-auto-height' : ''}`}
-                ref={(ref) => {  this.props.handleOnTreeList(ref)   }}
+                ref={(ref) => {
+                    this.props.handleOnTreeList(ref)
+                }}
                 dataSource={this.props.parsedGridViewData}
                 customizeColumns={this.postCustomizeColumns}
                 wordWrapEnabled={rowAutoHeight}
@@ -101,31 +254,8 @@ class TreeViewComponent extends React.Component {
                 renderAsync={true}
                 selectAsync={false}
                 cacheEnabled={true}
-                onInitialized={(ref) => {
-                    // if (!!this.props.handleOnInitialized) this.props.handleOnInitialized(ref);
-                }}
-                onContentReady={(e) => {
-                    //myczek na rozjezdzajace sie linie wierszy w dataTree
-                    // $(document).ready(function () {
-                    // e.component.resize();
-                    // });
-                }}
                 rootValue={0}
                 parentIdExpr="_ID_PARENT"
-                onEditingStart={(e) => {
-                   let fieldValue = e.data[e.column?.dataField];
-                   switch (e.column.dataType){
-                       case "date":
-                           this.setState({value:new Date(moment(fieldValue).format("YYYY/MM/DD"))});
-                           break;
-                       case "datetime":
-                           this.setState({value:new Date(moment(fieldValue).format("YYYY/MM/DD"))});
-                           break;
-                       default:
-                           this.setState({value:fieldValue});
-                           break;
-                   }
-                }}
             >
                 <Editing allowUpdating={true} mode="cell"/>
                 <RemoteOperations
@@ -171,19 +301,18 @@ class TreeViewComponent extends React.Component {
             }
             columns.push(<Column
                 key={INDEX_COLUMN}
-                dataField={columnDefinition.fieldName}
                 sortOrder={sortOrder}
+                dataField={columnDefinition?.fieldName}
                 sortIndex={columnDefinition?.sortIndex}
-                editCellRender={(cellInfo) => this.editCellRender(cellInfo, columnDefinition)}
-            >
-            </Column>);
+                cssClass={columnDefinition?.edit ? 'editable-cell' : undefined}
+                allowEditing={columnDefinition?.edit}
+                cellRender={this.isSpecialCell(columnDefinition?.type) ? (cellInfo, columnDefinition) => this.cellRenderSpecial(cellInfo, columnDefinition) : undefined}
+                editCellRender={(cellInfo) => this.editCellRender(cellInfo, columnDefinition, () => {
+                    this.editListVisible(cellInfo, columnDefinition);
+                })}
+            />);
         })
         return columns;
-    }
-
-    matchColumnDefinitionByFieldName(columnDataField) {
-        let columnDefinitionArray = this.props.gridViewColumns?.filter((value) => value.fieldName?.toUpperCase() === columnDataField?.toUpperCase());
-        return columnDefinitionArray[0];
     }
 
     postCustomizeColumns = (columns) => {
@@ -214,14 +343,18 @@ class TreeViewComponent extends React.Component {
                         column.format = TreeListUtils.specifyColumnFormat(columnDefinition?.type);
                         column.fixed = columnDefinition.freeze !== undefined && columnDefinition?.freeze !== null ? columnDefinition?.freeze?.toLowerCase() === 'left' || columnDefinition?.freeze?.toLowerCase() === 'right' : false;
                         column.fixedPosition = !!columnDefinition.freeze ? columnDefinition.freeze?.toLowerCase() : null;
-                        if (!!columnDefinition.groupIndex && columnDefinition.groupIndex > 0) {
-                            column.groupIndex = columnDefinition.groupIndex;
-                        }
-                        if (columnDefinition?.type === 'D' || columnDefinition?.type === 'E') {
-                            column.calculateFilterExpression = (value, selectedFilterOperations, target) => this.calculateCustomFilterExpression(value, selectedFilterOperations, target, columnDefinition)
-                        }
-                        column.headerFilter = {groupInterval: null}
+                        // if (!!columnDefinition.groupIndex && columnDefinition.groupIndex > 0) {
+                        //     column.groupIndex = columnDefinition.groupIndex;
+                        // }
+                        // if (columnDefinition?.type === 'D' || columnDefinition?.type === 'E') {
+                        //     column.calculateFilterExpression = (value, selectedFilterOperations, target) => this.calculateCustomFilterExpression(value, selectedFilterOperations, target, columnDefinition)
+                        // }
+                        // column.headerFilter = {groupInterval: null}
                         column.renderAsync = false;
+                        //own properties
+                        column.ownType = columnDefinition?.type;
+                        column.ownFieldId = columnDefinition?.id;
+                        column.ownFieldName = columnDefinition?.fieldName;
                         INDEX_COLUMN++;
                     } else {
                         column.visible = false;
@@ -354,9 +487,99 @@ class TreeViewComponent extends React.Component {
         }
     };
 
+    isSpecialCell(type) {
+        try {
+            switch (type) {
+                case 'H':
+                case 'O':
+                case 'I':
+                case 'IM':
+                    return true;
+                default:
+                    return false;
+            }
+        } catch (ex) {
+        }
+        return false;
+    }
+
+    cellRenderSpecial(cellInfo, columnDefinition) {
+        try {
+            const _bgColor = cellInfo.data['_BGCOLOR'];
+            let bgColorFinal = 'white';
+            const specialBgColor = cellInfo.data['_BGCOLOR_' + cellInfo.column?.dataField];
+            if (!!specialBgColor) {
+                bgColorFinal = specialBgColor;
+            } else {
+                if (!!_bgColor) {
+                    bgColorFinal = _bgColor;
+                }
+            }
+            const _fontcolor = cellInfo.data['_FONTCOLOR'];
+            let fontColorFinal = 'black';
+            const specialFontColor = cellInfo.data['_FONTCOLOR_' + cellInfo.column?.dataField];
+            if (!!specialFontColor) {
+                fontColorFinal = specialFontColor;
+            } else {
+                if (!!_fontcolor) {
+                    fontColorFinal = _fontcolor;
+                }
+            }
+            switch (cellInfo.column.ownType) {
+                case 'H':
+                    try {
+                        return <a
+                            style={{
+                                display: 'contents',
+                                color: fontColorFinal,
+                                background: bgColorFinal
+                            }}
+                            href={cellInfo?.text}
+                            target='_blank'
+                            rel='noopener noreferrer'>
+                            {cellInfo?.text}
+                        </a>;
+                    } catch (err) {
+                        ConsoleHelper('Error render hyperlink. Exception=', err)
+                    }
+                case 'O':
+                    try {
+                        return <span
+                            style={{
+                                color: fontColorFinal,
+                                background: bgColorFinal
+                            }}
+                            dangerouslySetInnerHTML={{__html: cellInfo?.text}}
+                        />
+                    } catch (err) {
+                        ConsoleHelper('Error render htmloutput. Exception=', err)
+                    }
+                case 'IM':
+                    try {
+                        return !!cellInfo?.text ? <img height={100} src={`data:image/jpeg;base64,${cellInfo?.text}`}/> :
+                            <div/>
+                    } catch (err) {
+                        ConsoleHelper('Error render single-image. Exception=', err)
+                    }
+                case 'I':
+                    try {
+                        return !!cellInfo?.text ? cellInfo?.text?.split(',').map(img => {
+                            return <img height={100} src={`data:image/jpeg;base64,${img}`}/>
+                        }) : <div/>
+                    } catch (err) {
+                        ConsoleHelper('Error render multi-image. Exception=', err)
+                    }
+                default:
+                    return undefined;
+            }
+        } catch (err) {
+            ConsoleHelper('Error global cell render. Exception=', err)
+        }
+    }
+
     editCellRender(cellInfo, columnDefinition, onClickEditListCallback) {
         //mock
-        columnDefinition.edit = true;
+        //columnDefinition.edit = true;
         const field = columnDefinition;
         const fieldIndex = field.id;
         const editable = field?.edit ? 'editable-border' : '';
@@ -370,141 +593,86 @@ class TreeViewComponent extends React.Component {
         const refreshFieldVisibility = !!field?.refreshFieldVisibility;
         switch (field?.type) {
             case 'C':
-                return <MemoizedChar field={field} cellInfo={cellInfo} inputValue={cellInfo.value} fieldIndex={fieldIndex} editable={editable} autoFill={autoFill} required={required} validate={validate}
-                                     selectionList={selectionList} onChangeCallback={(e) => { this.setState({value: e.target?.value}) }} onBlurCallback={() => {cellInfo.setValue(this.state.value) }}
-                                     onClickEditListCallback={onClickEditListCallback}/>
+                return <MemoizedText field={field} cellInfo={cellInfo} inputValue={cellInfo.value}
+                                     fieldIndex={fieldIndex} mode={'text'} editable={editable} autoFill={autoFill}
+                                     required={required} validate={validate}
+                                     selectionList={selectionList} onClickEditListCallback={onClickEditListCallback}/>
             case 'P'://P - hasło
-                return <MemoizedPasswordInput field={field} inputValue={this.state.value} fieldIndex={fieldIndex} editable={editable} autoFill={autoFill} required={required} validate={validate}
-                                             selectionList={selectionList} onChangeCallback={(e) => { this.setState({value: e.target?.value}) }} onBlurCallback={() => {cellInfo.setValue(this.state.value) }}
-                                             onClickEditListCallback={onClickEditListCallback}/>
+                return <MemoizedText field={field} cellInfo={cellInfo} inputValue={cellInfo.value}
+                                     fieldIndex={fieldIndex} mode={'password'} editable={editable} autoFill={autoFill}
+                                     required={required} validate={validate}
+                                     selectionList={selectionList} onClickEditListCallback={onClickEditListCallback}/>
             case "N"://N – Numeryczny/Liczbowy
-                return <MemoizedNumericInput field={field} inputValue={this.state.value} fieldIndex={fieldIndex} editable={editable} autoFill={autoFill} required={required} validate={validate}
-                                     selectionList={selectionList} onChangeCallback={(e) => { this.setState({value: e.target?.value}) }} onBlurCallback={() => {cellInfo.setValue(this.state.value) }}
-                                     onClickEditListCallback={onClickEditListCallback}/>
+                return <MemoizedNumericInput field={field} cellInfo={cellInfo} inputValue={cellInfo.value}
+                                             fieldIndex={fieldIndex} editable={editable} autoFill={autoFill}
+                                             required={required} validate={validate}
+                                             selectionList={selectionList}
+                                             onClickEditListCallback={onClickEditListCallback}/>
             case 'B'://B – Logiczny (0/1)
-                return <MemoizedBoolInput field={field} inputValue={this.state.value} fieldIndex={fieldIndex} editable={editable} autoFillCheckbox={autoFillCheckbox} required={required} validateCheckbox={validateCheckbox}
-                                          onChangeCallback={(e) => {
-                                              e.refreshFieldVisibility = refreshFieldVisibility;
-                                              this.setState({
-                                                  value: e.target?.checked ? "T" : "N"
-                                              }, () => {
-                                                  cellInfo.setValue(this.state.value);
-                                              });
-                                          }}
-                />
+                return <MemoizedBoolInput field={field} cellInfo={cellInfo} inputValue={cellInfo.value}
+                                          fieldIndex={fieldIndex} editable={editable}
+                                          autoFillCheckbox={autoFillCheckbox} required={required}
+                                          validateCheckbox={validateCheckbox}/>
             case 'L'://L – Logiczny (T/N)
-                return <MemoizedLogicInput field={field} inputValue={this.state.value} fieldIndex={fieldIndex} editable={editable} autoFillCheckbox={autoFillCheckbox} required={required} validateCheckbox={validateCheckbox}
-                                    onChangeCallback={(e) => {
-                                        e.refreshFieldVisibility = refreshFieldVisibility;
-                                        this.setState({
-                                            value: e.target?.checked ? "T" : "N"
-                                        }, () => {
-                                            cellInfo.setValue(this.state.value);
-                                        });
-                                    }}
-                />
+                return <MemoizedLogicInput field={field} cellInfo={cellInfo} inputValue={cellInfo.value}
+                                           fieldIndex={fieldIndex} editable={editable}
+                                           autoFillCheckbox={autoFillCheckbox} required={required}
+                                           validateCheckbox={validateCheckbox}/>
             case 'D'://D – Data
-                return TreeListUtils.dateInput(field, this.state.value, fieldIndex, editable, autoFill, required, validate,
-                    (e) => {
-                        this.setState({
-                            value: e.target?.value
-                        },()=>{
-                            cellInfo.setValue(this.state.value);
-                        });
-                    },
-                    () => {
-                        cellInfo.setValue(this.state.value);
-                    });
+                return <MemoizedDateInput field={field} cellInfo={cellInfo} inputValue={cellInfo.value}
+                                          fieldIndex={fieldIndex} editable={editable} autoFill={autoFill}
+                                          required={required} validate={validate}/>
             case 'E'://E – Data + czas
-                return TreeListUtils.dateTimeInput(field, this.state.value, fieldIndex, editable, autoFill, required, validate,
-                    (e) => {
-                        this.setState({
-                            value: e.target?.value
-                        },()=>{
-                            cellInfo.setValue(this.state.value);
-                        });
-                    },
-                    () => {
-                        cellInfo.setValue(this.state.value);
-                    });
+                return <MemoizedDateTimeInput field={field} cellInfo={cellInfo} inputValue={cellInfo.value}
+                                              fieldIndex={fieldIndex} editable={editable} autoFill={autoFill}
+                                              required={required} validate={validate}/>
             case 'T'://T – Czas
-                return TreeListUtils.timeInput(field, this.state.value, fieldIndex, editable, autoFill, required, validate,
-                    (e) => {
-                        this.setState({
-                            value: e.target?.value
-                        },()=>{
-                            cellInfo.setValue(this.state.value);
-                        });
-                    },
-                    () => {
-                        cellInfo.setValue(this.state.value);
-                    });
+                return <MemoizedTimeInput field={field} cellInfo={cellInfo} inputValue={cellInfo.value}
+                                          fieldIndex={fieldIndex} editable={editable} autoFill={autoFill}
+                                          required={required} validate={validate}/>
             case 'O'://O – Opisowe
-                return TreeListUtils.editorDescription(field, this.state.value, fieldIndex, editable, autoFill, required, validate,
-                    (e) => {
-                        this.setState({value: e});
-                    },
-                    () => {
-                        cellInfo.setValue(this.state.value);
-                    });
-            case 'I'://I – Obrazek
+                return <MemoizedEditorDescription field={field} cellInfo={cellInfo} inputValue={cellInfo.value}
+                                                  fieldIndex={fieldIndex} editable={editable} autoFill={autoFill}
+                                                  required={required} validate={validate}/>
+            case 'IM'://I – Obrazek
                 return (<React.Fragment>
                     <div className={`image-base ${autoFill} ${validate}`}>
                         <UploadMultiImageFileBase64 multiple={false}
                                                     displayText={""}
-                                                    alt={field.label}
-                                                    initBase64={field.value}
-                                                    // onSuccessB64={(e) => onChangeCallback('IMAGE64', {
-                                                    //         fieldName: field.fieldName,
-                                                    //         base64: e
-                                                    //     },
-                                                    //     rowId,
-                                                    //     info)}
+                                                    initBase64={cellInfo.value}
+                                                    onSuccessB64={(e) => {
+                                                        cellInfo.setValue(e)
+                                                    }}
                                                     onError={(e) => this.props.onError(e)}/>
                     </div>
                 </React.Fragment>);
-            case 'IM'://IM – Obrazek multi
+            case 'I'://IM – Obrazek multi
                 return (<React.Fragment>
                     <div className={`image-base ${autoFill} ${validate}`}>
                         <UploadMultiImageFileBase64 multiple={true}
                                                     displayText={""}
-                                                    alt={field.label}
-                                                    initBase64={field.value}
-                                                    // onSuccessB64={(e) => onChangeCallback('MULTI_IMAGE64', {
-                                                    //         fieldName: field.fieldName,
-                                                    //         base64: e
-                                                    //     },
-                                                    //     rowId,
-                                                    //     info)}
+                                                    initBase64={cellInfo.value}
+                                                    onSuccessB64={(e) => {
+                                                        cellInfo.setValue(e)
+                                                    }}
                                                     onError={(e) => this.props.onError(e)}/>
                     </div>
                 </React.Fragment>);
             case 'H'://H - Hyperlink
-                return (<React.Fragment>
-                    <InputText id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
-                               name={field.fieldName}
-                               className={`${autoFill} ${editable} ${validate}`}
-                               style={{width: '100%'}}
-                               type="text"
-                               value={field.value}
-                               // onChange={e =>
-                               //     onChangeCallback ? onChangeCallback('TEXT', e, rowId, info) : null
-                               // }
-                               // onBlur={e => onBlurCallback ? onBlurCallback('TEXT', e, rowId, info) : null}
-                               disabled={!field.edit}
-                               required={required}
-                    />
-                    <a href={field.value} style={{float: 'right'}} rel="noreferrer"
-                       target='_blank'>
-                        {field.label}
-                    </a>
-                </React.Fragment>)
-
+                return <MemoizedText field={field} cellInfo={cellInfo} inputValue={cellInfo.value}
+                                     fieldIndex={fieldIndex} mode={'link'} editable={editable} autoFill={autoFill}
+                                     required={required} validate={validate}
+                                     selectionList={selectionList} onClickEditListCallback={onClickEditListCallback}/>
         }
     }
 
     waitForSuccess() {
         return this.props.dataTreeStoreSuccess === false || this.props.gridViewColumns?.length === 0;
+    }
+
+    matchColumnDefinitionByFieldName(columnDataField) {
+        let columnDefinitionArray = this.props.gridViewColumns?.filter((value) => value.fieldName?.toUpperCase() === columnDataField?.toUpperCase());
+        return columnDefinitionArray[0];
     }
 
 }
@@ -523,11 +691,14 @@ TreeViewComponent.defaultProps = {
 
 TreeViewComponent.propTypes = {
     id: PropTypes.number.isRequired,
+    elementParentId: PropTypes.number.isRequired,
+    elementRecordId: PropTypes.number.isRequired,
     parsedGridView: PropTypes.object.isRequired,
     parsedGridViewData: PropTypes.object.isRequired,
     gridViewColumns: PropTypes.object.isRequired,
     selectedRowKeys: PropTypes.object.isRequired,
     onChange: PropTypes.func.isRequired,
+    labels: PropTypes.object.isRequired,
     onBlur: PropTypes.func,
     handleOnTreeList: PropTypes.func.isRequired,
     handleOnInitialized: PropTypes.func,
@@ -550,7 +721,7 @@ TreeViewComponent.propTypes = {
     showFilterRow: PropTypes.bool,
     showSelection: PropTypes.bool,
     dataTreeHeight: PropTypes.number,
-    allowSelectAll: PropTypes.bool
+    allowSelectAll: PropTypes.bool,
 };
 
 export default TreeViewComponent;

@@ -214,7 +214,7 @@ export class EditSpecContainer extends BaseContainer {
                     return (<React.Fragment>
                         {this.state.filtersList?.length > 0 ? (
                             <SelectBox
-                                id={`combo_filters`+index}
+                                id={`combo_filters` + index}
                                 items={this.state.filtersList}
                                 className={`filter-combo ${margin}`}
                                 wrapItemText={true}
@@ -242,7 +242,7 @@ export class EditSpecContainer extends BaseContainer {
                     return (<React.Fragment>
                         {/*{this.state.batchesList?.length > 0 ? (*/}
                         <ActionButtonWithMenu
-                            id={`button_batches_`+index}
+                            id={`button_batches_` + index}
                             className={`${margin}`}
                             iconName={operation?.iconCode || 'mdi-cogs'}
                             items={this.state.batchesList}
@@ -254,7 +254,7 @@ export class EditSpecContainer extends BaseContainer {
                     return (<React.Fragment>
                         {/*{this.state.documentsList?.length > 0 ? (*/}
                         <ActionButtonWithMenu
-                            id={`button_documents`+index}
+                            id={`button_documents` + index}
                             className={`${margin}`}
                             iconName={operation?.iconCode || 'mdi-file-document'}
                             items={this.state.documentsList}
@@ -266,7 +266,7 @@ export class EditSpecContainer extends BaseContainer {
                     return (<React.Fragment>
                         {/*{this.state.pluginsList?.length > 0 ? (*/}
                         <ActionButtonWithMenu
-                            id={`button_plugins`+index}
+                            id={`button_plugins` + index}
                             className={`${margin}`}
                             iconName={operation?.iconCode || 'mdi-puzzle'}
                             items={this.state.pluginsList}
@@ -308,10 +308,19 @@ export class EditSpecContainer extends BaseContainer {
             <ActionButton rendered={opAdd} label={opAdd?.label}
                           className="ml-2"
                           handleClick={(e) => {
-                              let addData = this.state.parsedData;
-                              let addData1 = this.state.parsedData[0];
-                              addData.push(addData1);
-                              this.setState({parsedData: addData}, () => {
+                              let newElement = {};
+                              const listColumns = this.state.parsedView.gridColumns[0].columns;
+                              listColumns?.forEach(column => {
+                                  switch (column?.type) {
+                                      default:
+                                          newElement[column?.fieldName] = '';
+                                  }
+                              });
+                              //TODO generatorek ID
+                              newElement['ID'] = Math.random().toString(16).slice(2);
+                              let addParsedView = this.state.parsedData || [];
+                              addParsedView.push(newElement);
+                              this.setState({parsedData: addParsedView}, () => {
                                   this.refreshTable();
                               });
                           }}/>
@@ -321,7 +330,6 @@ export class EditSpecContainer extends BaseContainer {
                               const viewIdArg = this.state.elementId;
                               const parentIdArg = this.state.elementParentId;
                               this.handleEditSpecSave(viewIdArg, parentIdArg);
-                              alert('Not implement yet')
                           }}/>
         </React.Fragment>
     }
@@ -439,7 +447,7 @@ export class EditSpecContainer extends BaseContainer {
                     handleDelete={() => this.delete()}
                     handleAddLevel={() => this.publish()}
                     handleUp={() => this.up()}
-                    handleDown={() => this.publish()}
+                    handleDown={() => this.down()}
                     handleRestore={() => this.restore()}
                     handleCopy={() => this.copy()}
                     handleArchive={() => this.archive()}
@@ -451,16 +459,16 @@ export class EditSpecContainer extends BaseContainer {
 
     //override
     delete(id) {
-        if(!!id){
-           this.deleteSingleRow(id);
-        }else{
-            this.state.selectedRowKeys.forEach((id)=>{
+        if (!!id) {
+            this.deleteSingleRow(id);
+        } else {
+            this.state.selectedRowKeys.forEach((id) => {
                 this.deleteSingleRow(id);
             });
         }
     }
 
-    deleteSingleRow(id){
+    deleteSingleRow(id) {
         let data = this.getData();
         const index = data.findIndex(x => x.ID === id);
         if (index !== undefined) {
@@ -516,48 +524,50 @@ export class EditSpecContainer extends BaseContainer {
     renderContent = () => {
         return (<React.Fragment>
             {this.state.loading ? null : (<React.Fragment>
-                    <div id="spec-edit">
-                        <TreeViewComponent
-                            id={this.props.id}
-                            elementRecordId={this.state.elementRecordId}
-                            handleOnTreeList={(ref) => this.refTreeList = ref}
-                            parsedGridView={this.state.parsedView}
-                            parsedGridViewData={this.state.parsedData}
-                            gridViewColumns={this.state.columns}
-                            selectedRowKeys={this.state.selectedRowKeys}
-                            onChange={(type, e, rowId, info) => this.handleEditRowChange(type, e, rowId, info)}
-                            handleBlockUi={() => {
-                                this.blockUi();
-                                return true;
-                            }}
-                            handleUnblockUi={() => this.unblockUi()}
-                            handleShowEditPanel={(editDataResponse) => {
-                                this.handleShowEditPanel(editDataResponse)
-                            }}
-                            handleSelectedRowKeys={(e) =>
-                                this.setState(prevState => {
-                                    return {
-                                        ...prevState,
-                                        selectedRowKeys: e
-                                    }
-                                })}
-                            handleDeleteRow={(id) => this.delete(id)}
-                            handleAddLevel={(id) => {
-                                alert(id);
-                            }}
-                            handleUp={(id) => {
-                                this.up(id);
-                            }}
-                            handleDown={(id) => {
-                                this.down(id);
-                            }}
-                            handleRestoreRow={(id) => this.restore(id)}
-                            handleCopyRow={(id) => this.copy(id)}
-                            handleArchiveRow={(id) => this.archive(id)}
-                            handlePublishRow={(id) => this.publish(id)}
-                            showErrorMessages={(err) => this.showErrorMessages(err)}
-                        />
-                    </div>
+                <div id="spec-edit">
+                    <TreeViewComponent
+                        id={this.props.id}
+                        elementParentId={this.state.elementParentId}
+                        elementRecordId={this.state.elementRecordId}
+                        handleOnTreeList={(ref) => this.refTreeList = ref}
+                        parsedGridView={this.state.parsedView}
+                        parsedGridViewData={this.state.parsedData}
+                        gridViewColumns={this.state.columns}
+                        selectedRowKeys={this.state.selectedRowKeys}
+                        onChange={(type, e, rowId, info) => this.handleEditRowChange(type, e, rowId, info)}
+                        handleBlockUi={() => {
+                            this.blockUi();
+                            return true;
+                        }}
+                        handleUnblockUi={() => this.unblockUi()}
+                        handleShowEditPanel={(editDataResponse) => {
+                            this.handleShowEditPanel(editDataResponse)
+                        }}
+                        handleSelectedRowKeys={(e) =>
+                            this.setState(prevState => {
+                                return {
+                                    ...prevState,
+                                    selectedRowKeys: e
+                                }
+                            })}
+                        handleDeleteRow={(id) => this.delete(id)}
+                        handleAddLevel={(id) => {
+                            alert(id);
+                        }}
+                        handleUp={(id) => {
+                            this.up(id);
+                        }}
+                        handleDown={(id) => {
+                            this.down(id);
+                        }}
+                        handleRestoreRow={(id) => this.restore(id)}
+                        handleCopyRow={(id) => this.copy(id)}
+                        handleArchiveRow={(id) => this.archive(id)}
+                        handlePublishRow={(id) => this.publish(id)}
+                        showErrorMessages={(err) => this.showErrorMessages(err)}
+                        labels={this.props.labels}
+                    />
+                </div>
             </React.Fragment>)}
         </React.Fragment>)
     }

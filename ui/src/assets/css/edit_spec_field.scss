@@ -1,341 +1,97 @@
-/*Edycja*/
+/*Edycja specyfikacji*/
 
-#spec-edit{
+#spec-edit {
   width: 100%;
   height: 100%;
-}
 
-#spec-edit .p-dropdown,
-#spec-edit .p-dropdown .p-dropdown-label {
-  background-color: $text-bg;
-  color: $text-color;
-  font-weight: 500;
-  font-size: 16px;
-  letter-spacing: 0px;
-  text-align: left;
-  border: 1px solid rgba(0, 0, 0, 0.38);
-  border-radius: 6px;
-  box-shadow: none;
-  width: 100%;
-}
-
-#spec-edit .p-dropdown .p-dropdown-label {
-  border: 0;
-}
-
-#spec-edit .p-dropdown:hover {
-  border: 1px solid #707890;
-  color: #707890;
-}
-
-#spec-edit .p-dropdown.p-component.p-inputwrapper-focus {
-  border: 2px solid $button-color;
-  color: $button-color;
-}
-
-#spec-edit .p-calendar.p-component {
-  width: 100%;
-}
-
-#spec-edit .p-disabled,
-#spec-edit .p-component:disabled {
-  opacity: 1;
-}
-
-#spec-edit .p-invalid {
-  border: 1px solid $danger-color;
-  -webkit-box-shadow: none;
-  box-shadow: none;
-  background-color: #FDEBEB;
-}
-
-#spec-edit .dx-htmleditor {
-  border-radius: 6px;
-}
-
-#spec-edit .validation-msg.invalid > .dx-htmleditor {
-  border: 1px solid $danger-color;
-  -webkit-box-shadow: none;
-  box-shadow: none;
-  background-color: #FDEBEB;
-}
-
-#spec-edit .dx-htmleditor {
-  border-radius: 6px;
-}
-
-#spec-edit .validation-msg {
-  text-align: left;
-  font-size: 12px;
-  font-weight: normal;
-  letter-spacing: 0px;
-}
-
-#spec-edit .validation-msg.invalid {
-  color: $danger-color;
-}
-
-#spec-edit .dx-htmleditor.dx-htmleditor-outlined.dx-invalid {
-  border: 1px solid $danger-color !important;
-  -webkit-box-shadow: none;
-  box-shadow: none;
-}
-
-#spec-edit .p-calendar-w-btn .p-datepicker-trigger.p-button span {
-  color: $link-color;
-}
-
-#spec-edit .p-calendar-w-btn .p-datepicker-trigger,
-#spec-edit .p-calendar-w-btn .p-datepicker-trigger:hover {
-  background-color: rgba(0, 0, 0, 0.12) !important;
-}
-
-#spec-edit .p-datepicker-buttonbar > .p-button.p-component.p-button-text.p-button-secondary {
-  color: $button-text-color;
-  background-color: $link-color;
-}
-
-#spec-edit .p-calendar > .p-button {
-  width: 45px;
-}
-
-#spec-edit .dx-overlay-content.dx-invalid-message-content.dx-resizable {
-  visibility: hidden;
-}
-
-#spec-edit .dx-htmleditor.dx-state-focused {
-  -webkit-box-shadow: inset 0 0 0 1px $button-color;
-  box-shadow: inset 0 0 0 1px $button-color;
-}
-
-#spec-edit .p-panel {
-  margin-bottom: 10px !important;
-}
-
-#spec-edit .validation-msg.invalid .image-base {
-  border: 1px solid $danger-color;
-  -webkit-box-shadow: none;
-  box-shadow: none;
-  background-color: #FDEBEB;
-  border-radius: 4px;
-}
-
-#spec-edit .p-dropdown-trigger span {
-  color: $button-color;
-}
-
-#spec-edit .file-chooser::-webkit-file-upload-button {
-  box-shadow: 0px 3px 6px #00000029;
-  background-color: $button-color;
-  color: #ffffff;
-  font-size: 14px;
-  font-weight: bold;
-  border-color: transparent;
-  border-radius: 4px;
-  flex: auto;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem;
-  min-width: 0rem;
-  margin-top: 5px;
-  margin-bottom: 5px;
-}
-
-#spec-edit .validation-panel {
-  font-size: 14px;
-  font-weight: bold;
-  background: #FDEBEB 0% 0% no-repeat padding-box;
-  border-radius: 4px;
-  color: #CB0A2F;
-  margin-bottom: 0.5rem;
-  padding: 0.8rem;
-}
-
-#spec-edit input[type='file'] {
-  color: transparent;
-}
-
-#spec-edit .autofill-border {
-  outline: 3px solid yellow !important;
-}
-
-#spec-edit .editable-border {
-  border: 4px solid $button-color !important;
-}
-
-#spec-edit label {
-  margin-bottom: .1rem;
-}
-
-#spec-edit a {
-  color: $link-color;
-}
-
-#spec-edit .p-button p-component p-confirm-dialog-accept:focus,
-#spec-edit .p-button p-component p-confirm-dialog-accept:active,
-#spec-edit .p-button p-component p-confirm-dialog-accept:visited,
-#spec-edit .p-button p-component p-confirm-dialog-accept:hover {
-  background-color: $button-color !important;
-}
-
-.p-button:not(a):not(.p-disabled):focus,
-.p-button:not(a):not(.p-disabled):active,
-.p-button:not(a):not(.p-disabled):hover,
-.p-button:not(a):not(.p-disabled):visited, {
-  background: $button-color !important;
-}
-
-#spec-edit .p-checkbox-icon {
-  position: relative;
-  bottom: 5px;
-  right: 5px;
-}
-
-#spec-edit .p-checkbox .p-checkbox-box{
-  border-radius: 0px;
-}
-
-#spec-edit .p-checkbox-box.p-highlight {
-  border-color: $button-color !important;
-  background: $button-color !important;
-}
-
-
-#spec-edit .autofill-border-checkbox {
-  outline: 3px solid yellow !important;
-  border-radius: 2px !important;
-}
-
-#spec-edit .p-invalid-checkbox {
-  outline: 3px solid $danger-color !important;
-  border-radius: 2px !important;
-}
-
-#spec-edit .p-button.p-button-secondary {
-  color: $button-color;
-  background: rgba(0, 0, 0, 0.12) !important;
-}
-
-#spec-edit .p-button.p-button-secondary:hover {
-  background: rgba(0, 0, 0, 0.12) !important;
-  color: $button-color !important;
-}
-
-#spec-edit .p-inputgroup {
-  border: 1px solid rgba(0, 0, 0, 0.38);
-  border-radius: 4px;
-
-  &:hover {
-    border-color: rgba(0, 0, 0, 0.87);
+  .dx-overlay-content.dx-invalid-message-content.dx-resizable {
+    visibility: hidden;
   }
-}
 
-#spec-edit .p-inputgroup > .p-inputtext {
-  border: none;
-}
+  .autofill-border {
+    outline: 3px solid yellow !important;
+  }
 
-//TODO ograniczyc tylko do podpowiedzi
-#editListDialog .dx-datagrid .dx-error-row {
-  display: none;
-}
+  .editable-border {
+    border: 4px solid $button-color !important;
+  }
 
-#innerHTML p {
-  margin-top: revert;
-  margin-bottom: revert;
-}
+  /* Firefox */
+  input[type=number] {
+    -moz-appearance: textfield;
+  }
 
-#editListDialog .dx-datagrid-headers .dx-checkbox-container {
-  visibility: hidden;
-}
+  .dx-editor-cell {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
 
-#spec-edit .dx-button.dx-button-has-icon:not(.dx-button-has-text):not(.dx-shape-standard){
-  border-radius:0
-}
-#spec-edit .dx-dropdownmenu.dx-button-has-icon .dx-button-content{
-  padding: 4px;
-}
+  .dx-treelist-rowsview .dx-data-row,
+  .dx-treelist-rowsview .dx-data-row
+  .dx-cell-modified.dx-cell-modified::after,
+  .dx-treelist-rowsview .dx-data-row
+  .dx-cell-modified.dx-treelist-invalid::after {
+    border: none;
+  }
 
-#spec-edit .p-password input{
-  width: 100%;
-}
+  .dx-treelist-focus-overlay {
+    border: 0 !important;
+  }
 
-#spec-edit input::-webkit-outer-spin-button,
-#spec-edit input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+  .padding-10 {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
 
-}
+  .dx-treelist-rowsview .dx-invalid .dx-texteditor-input {
+    background-color: #FDEBEB;
+  }
 
-/* Firefox */
-#spec-edit input[type=number] {
-  -moz-appearance: textfield;
-}
+  .editable-cell {
+    border: 2px solid $button-color !important;
+  }
 
-#spec-edit .dx-editor-cell{
-  padding-left: 10px;
-  padding-right: 10px;
-}
+  button {
+    background: $button-color !important;
 
-.dx-treelist-rowsview .dx-data-row,
-.dx-treelist-rowsview .dx-data-row
-.dx-cell-modified.dx-cell-modified::after,
-.dx-treelist-rowsview .dx-data-row
-.dx-cell-modified.dx-treelist-invalid::after {
-  border: none;
-}
+    &.selectionList {
+      float: right;
+    }
+  }
 
-.dx-treelist-focus-overlay {
-  border: 0 !important;
-}
+  .dx-checkbox-checked .dx-checkbox-icon {
+    color: $button-text-color !important;
+    background-color: $button-color !important;
+  }
 
-.padding-10{
-  padding-left: 10px;
-  padding-right: 10px;
-}
+  table {
+    &.dx-treelist-table {
+      td {
+        height: 35px;
+        padding-left: 5px;
+        padding-right: 0px;
+        padding-top: 0px;
+        padding-bottom: 0px;
 
-#spec-edit .dx-texteditor-input-readonly {
-  font-family: "Helvetica Neue", "Segoe UI", helvetica, verdana, sans-serif;
-  line-height: 1.35715;
-  background-color: #ffffff;
-  background: #ffffff;
-  border: 4px solid #0e49eb !important;
-  color: #182d67;
-  font-weight: bold;
-  font-size: 16px;
-  letter-spacing: 0;
-  text-align: left;
-  box-sizing: border-box;
-  padding: 1rem 1rem;
-  appearance: none;
-  border-radius: 4px;
-  transition: background-color 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s, background-size 0.2s cubic-bezier(0.64, 0.09, 0.08, 1);
-  margin: 0;
-  text-rendering: optimizeLegibility;
-  overflow: hidden;
-  height: 62px;
-  width: 100%;
-}
+        button {
+          border-top-right-radius: 0px;
+          border-bottom-right-radius: 0px;
+        }
+      }
+    }
+  }
 
-#spec-edit .dx-treelist-rowsview .dx-texteditor-input{
-  font-family: "Helvetica Neue", "Segoe UI", helvetica, verdana, sans-serif;
-  line-height: 1.35715;
-  background-color: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.38);
-  color: #182d67;
-  font-weight: bold;
-  font-size: 16px;
-  letter-spacing: 0;
-  text-align: left;
-  box-sizing: border-box;
-  appearance: none;
-  border-radius: 4px;
-  transition: background-color 0.2s, border-color 0.2s, color 0.2s, box-shadow 0.2s, background-size 0.2s cubic-bezier(0.64, 0.09, 0.08, 1);
-  text-rendering: optimizeLegibility;
-  overflow: hidden;
-  height: 56px;
-  width: 100%;
-}
+  .dx-htmleditor.dx-htmleditor-outlined {
+    -webkit-box-shadow: none;
+    box-shadow: none;
+  }
 
-#spec-edit .dx-treelist-rowsview .dx-invalid .dx-texteditor-input {
-  background-color: #FDEBEB;
+  .dx-htmleditor {
+    border: none;
+  }
+
+  #drop-region {
+    border: none;
+  }
+
 }
