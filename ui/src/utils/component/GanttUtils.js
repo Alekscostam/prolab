@@ -79,14 +79,16 @@ export class GanttUtils extends ViewDataCompUtils{
     
 
     static cellTemplate(column) {
-
         return function (element, info) {
-        
+     
             if (_rowIndex !== info.row.dataIndex) {
                 _rowIndex = info.row.dataIndex;
                 _bgcolor = info.data['_BGCOLOR'];
                 _fontcolor = info.data['_FONTCOLOR'];
             }
+
+            if(_bgcolor)
+                element.style.backgroundColor = _bgcolor;
             
             let fontColorFinal = 'black';
             let bgColorFinal = '';

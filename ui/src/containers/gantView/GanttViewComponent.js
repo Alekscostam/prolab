@@ -26,6 +26,7 @@ import {compress} from "int-compress-string/src";
 import DataGanttStore from '../dao/DataGanttStore.js';
 import { GanttUtils } from '../../utils/component/GanttUtils.js';
 import "../../assets/css/gantt_container.scss";
+import ParentModel from '../../model/ParentModel';
 
 
 let _selectionClassName= "checkBoxSelection"
@@ -48,6 +49,7 @@ class GanttViewComponent extends React.Component {
             rowElementsStorage: new Map(),
             allElementsSelector: false,
             columns: [],
+            selectionColumnWidth: undefined,
             selectedRowKeys : [],
             tasks: [],
             dependencies: [],
@@ -68,19 +70,57 @@ class GanttViewComponent extends React.Component {
         } 
     }
 
+    /** Wylicza ilość parentów dla danych */
+    setSelectionWidth(data){
+        let allDatas = data.map(el=>new ParentModel(el.ID,el.ID_PARENT));
+        let parents = allDatas.filter(el=> el.idParent===null);
+        let childrens = allDatas.filter(el=> el.idParent!=null);
+        let resultLength = 0 ;
+
+        for (let index = 0; index < parents.length; index++) {
+            let duplicates = [];
+            let result = this.countingParents(parents[index],childrens,allDatas,duplicates);
+            result = new Set(result.map(el=>el.idParent));
+            if(result.size > resultLength){
+                resultLength = result.size
+            }
+        }
+        this.setState({
+            selectionColumnWidth :  ((resultLength + 1) * 21) 
+        })
+    }
+
+
+    countingParents(parent, childrens,allDatas,duplicates){
+        for (let index = 0; index < allDatas.length; index++) {
+            for (let index = 0; index < childrens.length; index++) {
+                if(childrens[index].idParent === parent.id){
+                    let save = childrens[index];
+                    childrens = childrens.filter(el=> el.id !== save.id)
+                    duplicates.push(save)
+                    this.countingParents(save,childrens,allDatas,duplicates)
+                }
+            }
+        }
+       return duplicates;
+    }
+
+
+
     componentDidMount() {
         if (typeof this.props.parsedGanttViewData === 'object' && typeof this.props.parsedGanttViewData.then === 'function') {
             this.props.parsedGanttViewData.then((value) => {
+                this.setSelectionWidth(value.data);
+                
                 this.setState({
                     data: value
                 })
+
                 this.datasInitialization(value) ;
                 this.repaint();
+                this.generateColumns();
             })
-            this.generateColumns();
-    
         }
-     
     }
    
     isSelectionEnabled() {
@@ -114,12 +154,10 @@ class GanttViewComponent extends React.Component {
     }
 
     datasRefreshSelector(store){
-        // this.handleBlockUi();
         this.setState({
             rowElementsStorage: store,
             tasks: this.state.tasks
         })
-        // this.handleUnblockUi();
         this.repaint();
     }
 
@@ -149,7 +187,7 @@ class GanttViewComponent extends React.Component {
         const  colorResource=this.props.parsedGanttView?.resourceFields?.color;
         const  textResource=this.props.parsedGanttView?.resourceFields?.text;
         // dependency
-        const  keyDependency="ID";
+        const keyDependency="ID";
         const predecessorIdDependency = this.props.parsedGanttView?.dependencyFields?.predecessorId;
         const successorIdDependency = this.props.parsedGanttView?.dependencyFields?.successorId;
         const typeDependency = this.props.parsedGanttView?.dependencyFields?.type;
@@ -157,8 +195,7 @@ class GanttViewComponent extends React.Component {
         const  keyResourceAssigment="ID";
         const  resourceIdResourceAssigment=this.props.parsedGanttView?.resourceAssignmentFields?.resourceId;
         const  taskIdResourceAssigment=this.props.parsedGanttView?.resourceAssignmentFields?.taskId;
-        // const selectedRowKeys = this.props.selectedRowKeys;
-        //  this.state.tasks
+
         return ( 
             <React.Fragment>
               <Gantt
@@ -173,18 +210,14 @@ class GanttViewComponent extends React.Component {
                     endDateRange={endDateRange}
                     rowAlternationEnabled={false}
                     hoverStateEnabled={true}
-                    // onConte
                     onSelectionChanged={this.onVisibleIndexChange}
-                    // onContentReady={this.repaint()}
                     // Jesli robimy checkboxy to allowSelection w tym miejscu musi byc false
                     allowSelection={false} 
                     editing={isEditing}
                     showColumnHeaders={showColumnHeaders}
                     showResources={isResources}
-                    // selectedRowKeys={selectedRowKeys}
                     showDependencies={isDependencies}
                     showRowLines={showRowLines}
-                    //     height={dataGridHeight ? (dataGridHeight + 'px') : '100%'}
                     height={"100%"}
                     rootValue={-1}>
                         <Tasks 
@@ -223,7 +256,6 @@ class GanttViewComponent extends React.Component {
                         <ContextMenu enabled={false}/>
                         {this.state.columns}
                     
-                        {/* {this.ddcomponentDidMount()} */}
                        <Editing enabled={isEditing}/>
                        <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'}/>
                 </Gantt> 
@@ -242,17 +274,15 @@ class GanttViewComponent extends React.Component {
                         <input 
                             type="checkbox" 
                             checked={this.state.allElementsSelector}
-                            className=" dx-datagrid-checkbox-size dx-show-invalid-badge dx-checkbox dx-widget "
-                            onChange={(e)=> {this.selectAll(e)}
-                        }
-                        /><span class="checkmark"></span> </label>, element);
+                            className="dx-datagrid-checkbox-size dx-show-invalid-badge dx-checkbox dx-widget"
+                            onChange={(e)=> {this.selectAll(e)}}
+                        /><span class="checkmark"></span></label>, element);
                     }}
                     fixed = {true}
-                    width = { 100 }
+                    width = {this.state.selectionColumnWidth}
                     fixedPosition = {'left'}
                     cellTemplate = 
                     {(element, info) => {
-
                         let el = document.createElement('div');
                         el.id = `actions-${info.column.headerId}-${info.rowIndex}`;
                         element.append(el);
