@@ -786,6 +786,7 @@ export class ViewContainer extends BaseContainer {
                 this.showGlobalErrorMessage(err);
             });
     }
+
     refreshGanttData(){
         const initFilterId = this.state.parsedGridView?.viewInfo?.filterdId;
         const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;

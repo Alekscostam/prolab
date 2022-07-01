@@ -44,7 +44,14 @@ export const HeadPanel = props => {
                                                        const idParams = props.selectedRowKeys.map((item) => item.ID);
                                                        const compressedIdParams = compress(idParams);
                                                        EditSpecUtils.navToEditSpec(viewId, parentId, compressedIdParams, currentBreadcrumb);
+                                                   } else {
+                                                       //TODO w przyszłości może trzeba będzie dodać normalną edycja wiersza, na razie nie jest wykorzystywana
                                                    }
+                                               }}
+                                               handleEditSpec={() => {
+                                                   const idParams = props.selectedRowKeys.map((item) => item.ID);
+                                                   const compressedIdParams = compress(idParams);
+                                                   EditSpecUtils.navToEditSpec(viewId, parentId, compressedIdParams, currentBreadcrumb);
                                                }}
                                                inverseColor={true}
                                                buttonShadow={false}/>

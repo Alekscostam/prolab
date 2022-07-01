@@ -18,7 +18,6 @@ export const OperationsButtons = props => {
         if (!!operations && !!operations.type) {
             switch (operations.type?.toUpperCase()) {
                 case 'OP_EDIT':
-                case 'OP_EDIT_SPEC':
                     return (
                         <React.Fragment>
                             <ShortcutButton
@@ -29,6 +28,18 @@ export const OperationsButtons = props => {
                                 buttonShadow={buttonShadow}
                                 title={operations.label}
                                 handleClick={(e) => props.handleEdit(e)}/>
+                        </React.Fragment>);
+                case 'OP_EDIT_SPEC':
+                    return (
+                        <React.Fragment>
+                            <ShortcutButton
+                                id={`${info?.column.headerId}_menu_button`}
+                                className={`action-button-with-menu ${inverseColor ? `inverse` : `normal`} ${margin}`}
+                                iconName={operations?.iconCode || 'mdi-pencil'}
+                                iconColor={`${inverseColor ? `white` : `blue`}`}
+                                buttonShadow={buttonShadow}
+                                title={operations.label}
+                                handleClick={(e) => props.handleEditSpec(e)}/>
                         </React.Fragment>);
                 case 'OP_SUBVIEWS':
                     return (
@@ -146,8 +157,9 @@ export const OperationsButtons = props => {
                 label: i.label, icon: `mdi ${i.iconCode}`, command: () => {
                     switch (i.type?.toUpperCase()) {
                         case 'OP_EDIT':
-                        case 'OP_EDIT_SPEC':
                             return props.handleEdit();
+                        case 'OP_EDIT_SPEC':
+                            return props.handleEditSpec();
                         case 'OP_SUBVIEWS':
                             return props.handleHrefSubview();
                         case 'OP_DELETE':
@@ -184,9 +196,11 @@ export const OperationsButtons = props => {
     const showOperationList = props.operationList?.length > 0;
 
     return (<React.Fragment>
+        {/*przyciski z ikonkami*/}
         {!!props.operations && props.operations?.map((operation, index) => {
             return <div key={index}>{renderOperationsButton(operation)}</div>;
         })}
+        {/*kropki, tj. lista rozwijalna*/}
         {showOperationList ?
             <ActionButtonWithMenu
                 id='more_shortcut'
@@ -204,6 +218,8 @@ OperationsButtons.defaultProps = {
     handleHrefSubview: () => {
     },
     handleEdit: () => {
+    },
+    handleEditSpec: () => {
     },
     handleDelete: () => {
     },
@@ -232,6 +248,7 @@ OperationsButtons.propTypes = {
     operationList: PropTypes.array.isRequired,
     info: PropTypes.object.isRequired,
     handleEdit: PropTypes.func.isRequired,
+    handleEditSpec: PropTypes.func.isRequired,
     hrefSubview: PropTypes.string.isRequired,
     handleHrefSubview: PropTypes.func.isRequired,
     handleDelete: PropTypes.func.isRequired,

@@ -8,7 +8,6 @@ export default class DataGridStore extends BaseService {
     constructor() {
         super();
         this.path = 'viewdata';
-        this.cachedLastResponse = null;
         this.cachedLoadOptions = null;
     }
 
@@ -97,22 +96,30 @@ export default class DataGridStore extends BaseService {
                     let result = onStartCallback();
                     if (result?.select || result?.selectAll) {
                         addSelectAllParam = true
+                        //TODO można tak przerobić, żeby select nie pukał w backend, ale trzeba jeszcze popracować nad selectAll
+                        // const filterIds = JSON.stringify(loadOptions['filter']);
+                        // const selectionIds = filterIds.match(/-?\d+/g).map(id => ({"'ID'": id}));
+                        // if (selectionIds instanceof Array && selectionIds.length > 0) {
+                        //     console.log(selectionIds);
+                        //     let selectionIdsResponse = {
+                        //         data: selectionIds,
+                        //         skip: 0,
+                        //         take: selectionIds.length,
+                        //         totalCount: selectionIds.length
+                        //     }
+                        //     console.log(selectionIdsResponse);
+                        //     return Promise.resolve(selectionIdsResponse);
+                        // }
                     }
                 }
+
                 const filterIdParam = !!filterIdArg ? `&filterId=${filterIdArg}` : '';
                 const recordParentIdParam = !!recordParentIdArg ? `&parentId=${recordParentIdArg}` : '';
                 const kindViewParam = !!kindViewArg && !!recordParentIdParam ? `&kindView=${kindViewArg}` : '';
                 const selectAllParam = !!addSelectAllParam ? `&selection=true` : '';
                 let url = `${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${recordParentIdParam}${kindViewParam}${selectAllParam}`;
                 url = this.commonCorrectUrl(url);
-                //blokuj dziwne strzały ze stora
-                if (url.split("&").length - 1 <= 2 && !!this.cachedLastResponse) {
-                    if (onSuccessCallback) {
-                        onSuccessCallback();
-                    }
-                    ConsoleHelper('Prevent store fetch, url: ' + url)
-                    return Promise.resolve(this.cachedLastResponse);
-                }
+                //blokuje niepotrzebne requesty do backendu o ID rekordów
                 return this.fetch(
                     url,
                     {
@@ -120,16 +127,15 @@ export default class DataGridStore extends BaseService {
                     }
                 ).then((response) => {
                     ConsoleHelper('DataGridStore -> fetch ');
-                    this.cachedLastResponse = {
+                    if (onSuccessCallback) {
+                        onSuccessCallback();
+                    }
+                    return {
                         data: response.data,
                         totalCount: response.totalCount,
                         summary: response.summary || [],
                         groupCount: response.groupCount || 0
                     };
-                    if (onSuccessCallback) {
-                        onSuccessCallback();
-                    }
-                    return this.cachedLastResponse;
                 }).catch((err) => {
                     ConsoleHelper('Error fetch data grid store for view id={%s}. Error = ', viewIdArg, err);
                     if (onErrorCallback) {

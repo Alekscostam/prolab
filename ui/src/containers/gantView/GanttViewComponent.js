@@ -464,6 +464,10 @@ class GanttViewComponent extends React.Component {
                                                        }
                                                    }
                                                }}
+                                               handleEditSpec={() => {
+                                                   const compressedRecordId = compress([recordId]);
+                                                   EditSpecUtils.navToEditSpec(viewId, parentId, compressedRecordId, currentBreadcrumb);
+                                               }}
                                                hrefSubview={AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewId}?recordId=${recordId}${currentBreadcrumb}`)}
                                                handleHrefSubview={() => {
                                                    let result = this.props.handleBlockUi();
