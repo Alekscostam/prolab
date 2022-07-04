@@ -60,6 +60,10 @@ class GridViewComponent extends React.Component {
         return this.props.dataGridStoreSuccess === false || this.props.gridViewColumns?.length === 0;
     }
 
+    isKindViewSpec() {
+        return this.props.parsedGridView?.viewInfo?.kindView === 'ViewSpec';
+    }
+
     render() {
         const showGroupPanel = this.props.parsedGridView?.gridOptions?.showGroupPanel || false;
         const groupExpandAll = this.props.parsedGridView?.gridOptions?.groupExpandAll || false;
@@ -254,7 +258,7 @@ class GridViewComponent extends React.Component {
                                                operationList={operationsRecordList}
                                                info={info}
                                                handleEdit={() => {
-                                                   if (this.props.parsedGridView?.viewInfo?.kindView === 'ViewSpec') {
+                                                   if (this.isKindViewSpec()) {
                                                        const compressedRecordId = compress([recordId]);
                                                        EditSpecUtils.navToEditSpec(viewId, parentId, compressedRecordId, currentBreadcrumb);
                                                    } else {
@@ -288,8 +292,15 @@ class GridViewComponent extends React.Component {
                                                    }
                                                }}
                                                handleEditSpec={() => {
-                                                   const compressedRecordId = compress([recordId]);
-                                                   EditSpecUtils.navToEditSpec(viewId, parentId, compressedRecordId, currentBreadcrumb);
+                                                   if (this.isKindViewSpec()) {
+                                                       //edycja pojedynczego rekordu
+                                                       const compressedRecordId = compress([recordId]);
+                                                       EditSpecUtils.navToEditSpec(viewId, parentId, compressedRecordId, currentBreadcrumb);
+                                                   } else {
+                                                       //edycja dla wszystkich rekordów, wywoływana krok wcześniej
+                                                       const compressedRecordId = compress([]);
+                                                       EditSpecUtils.navToEditSpec(viewId, recordId, compressedRecordId, currentBreadcrumb);
+                                                   }
                                                }}
                                                hrefSubview={AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewId}?recordId=${recordId}${currentBreadcrumb}`)}
                                                handleHrefSubview={() => {
@@ -359,6 +370,7 @@ class GridViewComponent extends React.Component {
                 dataField={columnDefinition.fieldName}
                 sortOrder={sortOrder}
                 sortIndex={columnDefinition?.sortIndex}
+                groupCellTemplate={this.groupCellTemplate}
             />);
         })
         return columns;
@@ -419,6 +431,5 @@ GridViewComponent.propTypes = {
     dataGridStoreSuccess: PropTypes.bool,
     allowSelectAll: PropTypes.bool
 };
-
 
 export default GridViewComponent;
