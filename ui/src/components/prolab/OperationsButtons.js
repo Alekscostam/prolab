@@ -164,6 +164,42 @@ export const OperationsButtons = props => {
                                 iconSide="left"
                                 title={operations?.label}/>
                         </React.Fragment>);
+                case 'OP_ADD_LEVEL':
+                    if (!!atLeastOneSelected)
+                        return (<React.Fragment>
+                            <ShortcutButton
+                                className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
+                                handleClick={(e) => props.handleAddLevel(e)}
+                                iconName={operations?.iconCode || 'mdi-plus-box-multiple-outline'}
+                                iconColor={`${inverseColor ? `white` : `blue`}`}
+                                buttonShadow={buttonShadow}
+                                iconSide="left"
+                                title={operations?.label}/>
+                        </React.Fragment>);
+                case 'OP_UP':
+                    if (!!atLeastOneSelected)
+                        return (<React.Fragment>
+                            <ShortcutButton
+                                className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
+                                handleClick={(e) => props.handleUp(e)}
+                                iconName={operations?.iconCode || 'mdi-arrow-up-thin'}
+                                iconColor={`${inverseColor ? `white` : `blue`}`}
+                                buttonShadow={buttonShadow}
+                                iconSide="left"
+                                title={operations?.label}/>
+                        </React.Fragment>);
+                case 'OP_DOWN':
+                    if (!!atLeastOneSelected)
+                        return (<React.Fragment>
+                            <ShortcutButton
+                                className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
+                                handleClick={(e) => props.handleDown(e)}
+                                iconName={operations?.iconCode || 'mdi-arrow-down-thin'}
+                                iconColor={`${inverseColor ? `white` : `blue`}`}
+                                buttonShadow={buttonShadow}
+                                iconSide="left"
+                                title={operations?.label}/>
+                        </React.Fragment>);
                 default:
                     return null;
             }
@@ -257,7 +293,8 @@ OperationsButtons.defaultProps = {
     },
     inverseColor: false,
     buttonShadow: true,
-    margin: Constants.DEFAULT_MARGIN_BETWEEN_BUTTONS
+    margin: Constants.DEFAULT_MARGIN_BETWEEN_BUTTONS,
+    atLeastOneSelected: true
 };
 
 OperationsButtons.propTypes = {
@@ -281,8 +318,8 @@ OperationsButtons.propTypes = {
     handleAddLevel: PropTypes.func.isRequired,
     handleUp: PropTypes.func.isRequired,
     handleDown: PropTypes.func.isRequired,
-    atLeastOneSelected: PropTypes.bool.isRequired,
     margin: PropTypes.string,
+    atLeastOneSelected: PropTypes.bool,
     inverseColor: PropTypes.bool,
     buttonShadow: PropTypes.bool,
 };

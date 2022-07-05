@@ -645,6 +645,8 @@ export class ViewContainer extends BaseContainer {
                     handleCopy={() => this.copy()}
                     handleArchive={() => this.archive()}
                     handlePublish={() => this.publish()}
+                    handleUnblockUi={() => this.unblockUi()}
+                    showErrorMessages={(err) => this.showErrorMessages(err)}
                 />
             </React.Fragment>
         );

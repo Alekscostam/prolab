@@ -27,6 +27,7 @@ import DataGanttStore from '../dao/DataGanttStore.js';
 import { GanttUtils } from '../../utils/component/GanttUtils.js';
 import "../../assets/css/gantt_container.scss";
 import ParentModel from '../../model/ParentModel';
+import {TreeListUtils} from "../../utils/component/TreeListUtils";
 
 
 let _selectionClassName= "checkBoxSelection"
@@ -422,6 +423,7 @@ class GanttViewComponent extends React.Component {
                         const kindView = this.props.elementKindView;
                         const recordId = info.row?.data?.ID;
                         const parentId = info.row?.data?.ID_PARENT;
+
                         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
                         let viewId = this.props.id;
                         viewId = GanttUtils.getRealViewId(subViewId, viewId);
@@ -431,9 +433,10 @@ class GanttViewComponent extends React.Component {
                                                operationList={operationsRecordList}
                                                info={info}
                                                handleEdit={() => {
-                                                   if (this.props.parsedGanttView?.viewInfo?.kindView === 'ViewSpec') {
-                                                       const compressedRecordId = compress([recordId]);
-                                                       EditSpecUtils.navToEditSpec(viewId, parentId, compressedRecordId, currentBreadcrumb);
+                                                   if (TreeListUtils.isKindViewSpec(this.props.parsedGanttView)) {
+                                                       TreeListUtils.openEditSpec(viewId, parentId, [recordId], currentBreadcrumb,
+                                                           () => this.props.handleUnblockUi(),
+                                                           (err) => this.props.showErrorMessages(err));
                                                    } else {
                                                        let result = this.props.handleBlockUi();
                                                        if (result) {
@@ -465,8 +468,9 @@ class GanttViewComponent extends React.Component {
                                                    }
                                                }}
                                                handleEditSpec={() => {
-                                                   const compressedRecordId = compress([recordId]);
-                                                   EditSpecUtils.navToEditSpec(viewId, parentId, compressedRecordId, currentBreadcrumb);
+                                                   TreeListUtils.openEditSpec(viewId, parentId, [recordId], currentBreadcrumb,
+                                                       () => this.props.handleUnblockUi(),
+                                                       (err) => this.props.showErrorMessages(err));
                                                }}
                                                hrefSubview={AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewId}?recordId=${recordId}${currentBreadcrumb}`)}
                                                handleHrefSubview={() => {

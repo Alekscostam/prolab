@@ -32,8 +32,6 @@ import {
 } from "../../utils/component/TreeListUtils";
 import EditRowUtils from "../../utils/EditRowUtils";
 import UploadMultiImageFileBase64 from "../../components/prolab/UploadMultiImageFileBase64";
-import {EditSpecUtils} from "../../utils/EditSpecUtils";
-import {compress} from "int-compress-string/src";
 import EditListComponent from "../../components/prolab/EditListComponent";
 import EditListUtils from "../../utils/EditListUtils";
 import EditListDataStore from "../dao/EditListDataStore";
@@ -343,13 +341,6 @@ class TreeViewComponent extends React.Component {
                         column.format = TreeListUtils.specifyColumnFormat(columnDefinition?.type);
                         column.fixed = columnDefinition.freeze !== undefined && columnDefinition?.freeze !== null ? columnDefinition?.freeze?.toLowerCase() === 'left' || columnDefinition?.freeze?.toLowerCase() === 'right' : false;
                         column.fixedPosition = !!columnDefinition.freeze ? columnDefinition.freeze?.toLowerCase() : null;
-                        // if (!!columnDefinition.groupIndex && columnDefinition.groupIndex > 0) {
-                        //     column.groupIndex = columnDefinition.groupIndex;
-                        // }
-                        // if (columnDefinition?.type === 'D' || columnDefinition?.type === 'E') {
-                        //     column.calculateFilterExpression = (value, selectedFilterOperations, target) => this.calculateCustomFilterExpression(value, selectedFilterOperations, target, columnDefinition)
-                        // }
-                        // column.headerFilter = {groupInterval: null}
                         column.renderAsync = false;
                         //own properties
                         column.ownType = columnDefinition?.type;
@@ -390,9 +381,10 @@ class TreeViewComponent extends React.Component {
                                                operationList={operationsRecordList}
                                                info={info}
                                                handleEdit={() => {
-                                                   if (this.props.parsedGridView?.viewInfo?.kindView === 'ViewSpec') {
-                                                       const compressedRecordId = compress([recordId]);
-                                                       EditSpecUtils.navToEditSpec(viewId, parentId, compressedRecordId, currentBreadcrumb);
+                                                   if (TreeListUtils.isKindViewSpec(this.props.parsedGridView)) {
+                                                       TreeListUtils.openEditSpec(viewId, parentId, [recordId], currentBreadcrumb,
+                                                           () => this.props.handleUnblockUi(),
+                                                           (err) => this.props.showErrorMessages(err));
                                                    } else {
                                                        let result = this.props.handleBlockUi();
                                                        if (result) {
@@ -424,8 +416,9 @@ class TreeViewComponent extends React.Component {
                                                    }
                                                }}
                                                handleEditSpec={() => {
-                                                   const compressedRecordId = compress([recordId]);
-                                                   EditSpecUtils.navToEditSpec(viewId, parentId, compressedRecordId, currentBreadcrumb);
+                                                   TreeListUtils.openEditSpec(viewId, parentId, [recordId], currentBreadcrumb,
+                                                       () => this.props.handleUnblockUi(),
+                                                       (err) => this.props.showErrorMessages(err));
                                                }}
                                                hrefSubview={AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewId}?recordId=${recordId}${currentBreadcrumb}`)}
                                                handleHrefSubview={() => {

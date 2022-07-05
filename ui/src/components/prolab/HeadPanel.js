@@ -6,8 +6,7 @@ import PropTypes from 'prop-types';
 import OperationsButtons from "./OperationsButtons";
 import {Breadcrumb} from "../../utils/BreadcrumbUtils";
 import {DataGridUtils} from "../../utils/component/DataGridUtils";
-import {EditSpecUtils} from "../../utils/EditSpecUtils";
-import {compress} from "int-compress-string/src";
+import {TreeListUtils} from "../../utils/component/TreeListUtils";
 //Komponent wyświetlający górną ramkę i okalający wszystkie przyciski, filtry ....
 export const HeadPanel = props => {
     const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
@@ -19,8 +18,9 @@ export const HeadPanel = props => {
     const handleEdit = (e, props, viewId, parentId, currentBreadcrumb) => {
         if (props.elementKindView === 'ViewSpec' && props.selectedRowKeys.length > 0) {
             const idParams = props.selectedRowKeys.map((item) => item.ID);
-            const compressedIdParams = compress(idParams);
-            EditSpecUtils.navToEditSpec(viewId, parentId, compressedIdParams, currentBreadcrumb);
+            TreeListUtils.openEditSpec(viewId, parentId, idParams, currentBreadcrumb,
+                () => props.handleUnblockUi(),
+                (err) => props.showErrorMessages(err));
         } else {
             //TODO w przyszłości może trzeba będzie dodać normalną edycja wiersza, na razie nie jest wykorzystywana
         }
@@ -31,8 +31,9 @@ export const HeadPanel = props => {
         if (!e.selectAll) {
             idParams = props.selectedRowKeys.map((item) => item.ID);
         }
-        const compressedIdParams = compress(idParams);
-        EditSpecUtils.navToEditSpec(viewId, parentId, compressedIdParams, currentBreadcrumb);
+        TreeListUtils.openEditSpec(viewId, parentId, idParams, currentBreadcrumb,
+            () => props.handleUnblockUi(),
+            (err) => props.showErrorMessages(err));
     }
 
     return (<React.Fragment>
@@ -109,6 +110,8 @@ HeadPanel.propTypes = {
     handleRestore: PropTypes.func.isRequired,
     handleCopy: PropTypes.func.isRequired,
     handleArchive: PropTypes.func.isRequired,
+    handleUnblockUi: PropTypes.func.isRequired,
+    showErrorMessages: PropTypes.func.isRequired,
     leftContent: PropTypes.any,
     rightContent: PropTypes.any
 };

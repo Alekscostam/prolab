@@ -24,6 +24,7 @@ import AppPrefixUtils from "../../utils/AppPrefixUtils";
 import {EntryResponseUtils} from "../../utils/EntryResponseUtils";
 import {EditSpecUtils} from "../../utils/EditSpecUtils";
 import {compress} from "int-compress-string/src";
+import {TreeListUtils} from "../../utils/component/TreeListUtils";
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -58,10 +59,6 @@ class GridViewComponent extends React.Component {
 
     waitForSuccess() {
         return this.props.dataGridStoreSuccess === false || this.props.gridViewColumns?.length === 0;
-    }
-
-    isKindViewSpec() {
-        return this.props.parsedGridView?.viewInfo?.kindView === 'ViewSpec';
     }
 
     render() {
@@ -258,9 +255,21 @@ class GridViewComponent extends React.Component {
                                                operationList={operationsRecordList}
                                                info={info}
                                                handleEdit={() => {
-                                                   if (this.isKindViewSpec()) {
-                                                       const compressedRecordId = compress([recordId]);
-                                                       EditSpecUtils.navToEditSpec(viewId, parentId, compressedRecordId, currentBreadcrumb);
+                                                   if (TreeListUtils.isKindViewSpec(this.props.parsedGridView)) {
+                                                       this.crudService
+                                                           .saveSpecEntry(viewId, parentId, [recordId], kindView, null)
+                                                           .then((entryResponse) => {
+                                                               EntryResponseUtils.run(entryResponse, () => {
+                                                                   if (!!entryResponse.next) {
+                                                                       const compressedRecordId = compress([recordId]);
+                                                                       EditSpecUtils.navToEditSpec(viewId, parentId, compressedRecordId, currentBreadcrumb);
+                                                                   } else {
+                                                                       this.props.handleUnblockUi();
+                                                                   }
+                                                               }, () => this.props.handleUnblockUi());
+                                                           }).catch((err) => {
+                                                           this.props.showErrorMessages(err);
+                                                       });
                                                    } else {
                                                        let result = this.props.handleBlockUi();
                                                        if (result) {
@@ -292,15 +301,15 @@ class GridViewComponent extends React.Component {
                                                    }
                                                }}
                                                handleEditSpec={() => {
-                                                   if (this.isKindViewSpec()) {
-                                                       //edycja pojedynczego rekordu
-                                                       const compressedRecordId = compress([recordId]);
-                                                       EditSpecUtils.navToEditSpec(viewId, parentId, compressedRecordId, currentBreadcrumb);
-                                                   } else {
-                                                       //edycja dla wszystkich rekordów, wywoływana krok wcześniej
-                                                       const compressedRecordId = compress([]);
-                                                       EditSpecUtils.navToEditSpec(viewId, recordId, compressedRecordId, currentBreadcrumb);
-                                                   }
+                                                   //edycja pojedynczego rekordu lub
+                                                   //edycja dla wszystkich rekordów, wywoływana krok wcześniej
+                                                   TreeListUtils.openEditSpec(viewId,
+                                                       TreeListUtils.isKindViewSpec(this.props.parsedGridView) ? parentId : recordId,
+                                                       TreeListUtils.isKindViewSpec(this.props.parsedGridView) ? [recordId] : [],
+                                                       currentBreadcrumb,
+                                                       () => this.props.handleUnblockUi(),
+                                                       (err) => this.props.showErrorMessages(err));
+
                                                }}
                                                hrefSubview={AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewId}?recordId=${recordId}${currentBreadcrumb}`)}
                                                handleHrefSubview={() => {
