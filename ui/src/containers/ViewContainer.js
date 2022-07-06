@@ -15,7 +15,7 @@ import {DataGridUtils} from '../utils/component/DataGridUtils';
 import {ViewValidatorUtils} from '../utils/parser/ViewValidatorUtils';
 import UrlUtils from '../utils/UrlUtils';
 import DataGridStore from './dao/DataGridStore';
-import {confirmDialog} from "primereact/confirmdialog";
+import {ConfirmDialog, confirmDialog} from "primereact/confirmdialog";
 import Constants from "../utils/Constants";
 import $ from 'jquery';
 import {localeOptions} from "primereact/api";
@@ -29,6 +29,9 @@ import {EntryResponseUtils} from "../utils/EntryResponseUtils";
 import DataTreeStore from "./dao/DataTreeStore";
 import GanttViewComponent from './gantView/GanttViewComponent';
 import DataGanttStore from './dao/DataGanttStore';
+import DataPluginStore from './dao/DataPluginStore';
+import PluginListComponent from '../components/prolab/PluginListComponent';
+import ActionButtonWithMenuUtils from '../utils/ActionButtonWithMenuUtils';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -48,9 +51,10 @@ export class ViewContainer extends BaseContainer {
         this.dataGridStore = new DataGridStore();
         this.dataCardStore = new DataCardStore();
         this.dataGanttStore = new DataGanttStore();
+        this.dataPluginStore = new DataPluginStore();
         this.dataTreeStore = new DataTreeStore();
-        this.refDataGrid = React.createRef()
-        this.ganttRef = React.createRef()
+        this.refDataGrid = React.createRef();
+        this.ganttRef = React.createRef();
         this.refCardGrid = React.createRef();
         this.messages = React.createRef();
         this.selectedDataGrid = null;
@@ -67,6 +71,9 @@ export class ViewContainer extends BaseContainer {
             parsedGridView: {},
             parsedGridViewData: {},
             gridViewColumns: [],
+            parsedPluginViewData: {},
+            pluginId:undefined,
+            parsedPluginView:{},
             selectedRowKeys: [],
             parsedCardViewData: {},
             parsedGanttViewData: {},
@@ -76,15 +83,21 @@ export class ViewContainer extends BaseContainer {
             subView: null,
             viewInfoTypes: [],
             visibleEditPanel: false,
+            visiblePluginPanel: false,
+            visibleMessagePluginPanel: false,
             modifyEditData: false,
             editData: null,
             select: false,
             selectAll: false,
             isSelectAll: false,
+            isPluginFirstStep: true,
             dataGridStoreSuccess: false,
+            dataPluginStoreSuccess: false,
         };
         this.onInitialize = this.onInitialize.bind(this);
         this.getViewById = this.getViewById.bind(this);
+        this.handleRightHeadPanelContent = this.handleRightHeadPanelContent.bind(this);
+        this.executePlugin = this.executePlugin.bind(this);
         this.downloadData = this.downloadData.bind(this);
         this.unselectAllDataGrid = this.unselectAllDataGrid.bind(this);
     }
@@ -372,7 +385,7 @@ export class ViewContainer extends BaseContainer {
                 else{
                     this.setState({loading: true}, () => {
                         let res = this.dataGridStore.getDataGridStore(viewIdArg, 'gridView', parentIdArg, filterIdArg, kindViewArg, () => {
-                            // this.blockUi();
+                            this.blockUi();
                             return {
                                 select: this.state.select, selectAll: this.state.selectAll
                             };
@@ -400,6 +413,104 @@ export class ViewContainer extends BaseContainer {
                 }
             });
         }
+    }
+
+    /** Wybrana akcja po kliknieciu dowolnego elementu z RightHeadPanelContent */
+    /** TODO: chwilowo tylko dla wtyczek - SK_PLUGIN oraz OP_PLUGINS */
+    handleRightHeadPanelContent(element){
+        const idRowKeys =  this.state.selectedRowKeys.map(el=>el.ID);
+        const listId = {"listId": idRowKeys}
+        const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
+        const pluginId = `${element.id}`;
+        const parentIdArg = this.state.subView == null ? UrlUtils.getURLParameter('parentId') : this.state.elementRecordId;
+        let visiblePluginPanel = false;
+        let visibleMessagePluginPanel = false;
+        
+        switch (element.type) {
+            case 'OP_PLUGINS' :
+            case 'SK_PLUGIN' :
+                this.crudService.getPluginColumnsDefnitions(viewIdArg,pluginId,listId)
+                    .then((res)=>{  
+                        if(res.info.kind==="GRID"){
+                            visiblePluginPanel = true;
+                            let datas = this.dataPluginStore.getPluginDataStore(
+                                viewIdArg,
+                                pluginId,
+                                listId,
+                                parentIdArg,
+                                (err) => {this.props.showErrorMessages(err);},
+                                () => {this.setState({dataPluginStoreSuccess: true});},
+                                () => {return {selectAll: this.state.selectAll};},
+                            )
+                            this.setState({
+                                parsedPluginViewData: datas,
+                            });
+                        }else{
+                            visibleMessagePluginPanel = true;
+                        }
+                        this.setState({
+                            parsedPluginView: res,
+                            visiblePluginPanel: visiblePluginPanel,
+                            visibleMessagePluginPanel: visibleMessagePluginPanel,
+                            isPluginFirstStep: true,
+                            pluginId: pluginId
+                        }) 
+                    }).catch((err)=>{
+                        this.showErrorMessages(err);
+                    })
+                    this.unblockUi();
+                break;
+            default:
+                return null;
+        
+            }
+    }
+
+    /** Metoda już typowo pod plugin. executePlugin wykonuje się w momencie przejscia z pierwszego do drugiego kroku */
+    executePlugin(pluginId,requestBody,refreshAll){
+        const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
+        const parentIdArg = this.state.subView == null ? UrlUtils.getURLParameter('parentId') : this.state.elementRecordId;
+
+        let visiblePluginPanel = false;
+        let visibleMessagePluginPanel = false;
+
+        this.crudService.getPluginExecuteColumnsDefinitions(viewIdArg,pluginId,requestBody)
+        .then((res)=>{ 
+            if(res.info.kind==="GRID"){
+                visiblePluginPanel = true;
+                let datas = this.dataPluginStore.getPluginExecuteDataStore(
+                    viewIdArg,
+                    pluginId,
+                    requestBody,
+                    parentIdArg,
+                    (err) => {this.props.showErrorMessages(err);},
+                    () => {this.setState({dataPluginStoreSuccess: true});},
+                    () => {return {selectAll: this.state.selectAll};},
+                )
+                
+                this.setState({
+                    parsedPluginViewData: datas,
+                    pluginId: pluginId
+                });
+            }else{
+                visibleMessagePluginPanel = true;
+            }
+            
+            this.setState({
+                parsedPluginView: res,
+                visiblePluginPanel: visiblePluginPanel,
+                visibleMessagePluginPanel: visibleMessagePluginPanel,
+                isPluginFirstStep:false
+            })
+            if(refreshAll){
+                this.refreshView();
+                this.unselectAllDataGrid(false);
+            }
+
+        }).catch((err)=>{
+            this.showErrorMessages(err);
+        })
+     
     }
 
     //override
@@ -435,8 +546,81 @@ export class ViewContainer extends BaseContainer {
                 labels={this.props.labels}
                 showErrorMessages={(err) => this.showErrorMessages(err)}
             />
+            
+            <PluginListComponent 
+                               visible={this.state.visiblePluginPanel}
+                               field={this.state.editListField}
+                               parsedPluginView={this.state.parsedPluginView}
+                               parsedPluginViewData={this.state.parsedPluginViewData}
+                               onHide={() => this.setState({visiblePluginPanel: false})}
+                               handleBlockUi={() => {
+                                   this.blockUi();
+                                   return true;
+                               }}
+                               pluginId={this.state.pluginId}
+                               isPluginFirstStep={this.state.isPluginFirstStep}
+                               executePlugin={this.executePlugin}
+                               selectedRowKeys={this.state.selectedRowKeys}
+                               handleUnblockUi={() => this.unblockUi}
+                               showErrorMessages={(err) => this.props.showErrorMessages(err)}
+                               dataGridStoreSuccess={this.state.dataPluginStoreSuccess}
+                               selectedRowData={this.state.selectedRowData}
+                               defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
+                               labels={this.props.labels}
+            />
+
+            
+            {this.state.visibleMessagePluginPanel ? 
+            /** #62bd73 @Maciej te tłumaczenia wpisałem np. Yes, Ok. Ale oni jeszcze nie mają tego w backendzie */
+            <ConfirmDialog
+                        acceptLabel={this.state.parsedPluginView.info.question ? 
+                            LocUtils.loc(this.props.labels, 'Yes', 'Tak')  :
+                            LocUtils.loc(this.props.labels, 'Ok', 'Ok')
+                        }
+                        rejectLabel={this.state.parsedPluginView.info.question ? 
+                            LocUtils.loc(this.props.labels, 'No', 'Nie') :
+                            LocUtils.loc(this.props.labels, 'Close', 'Zamknij')
+                        }
+                        /** Question jest nadrzedny tzn. jesli message i question !== null to bierze wartosci z question */
+                        /** #62bd74 @Maciej taki tekst to chyba bez sensu tłumaczyc?  */
+                        header={this.state.parsedPluginView.info.question  ? 
+                            LocUtils.loc(this.props.labels, '', this.state.parsedPluginView.info.question?.title) : 
+                            LocUtils.loc(this.props.labels, '', this.state.parsedPluginView.info.message?.title)  
+                        }
+                        visible={true}
+                        onHide={() => this.setState({visibleMessagePluginPanel:false})}
+                        /** #62bd75 @Maciej taki tekst to chyba bez sensu tłumaczyc?  */
+                        message={this.state.parsedPluginView.info.question  ? 
+                            LocUtils.loc(this.props.labels, '', this.state.parsedPluginView.info.question?.text) : 
+                            LocUtils.loc(this.props.labels, '', this.state.parsedPluginView.info.message?.text)  
+                        }
+                        icon="pi pi-exclamation-triangle"
+                        accept={() => {
+                            const refreshAll = this.state.parsedPluginView?.viewOptions?.refreshAll;
+                            if(this.state.isPluginFirstStep){
+                                const isThereNextStep = this.state.parsedPluginView?.info?.next;
+                                const idRowKeys =  this.state.selectedRowKeys.map(el=>el.ID);
+                                const listId = {"listId": idRowKeys}
+                                const pluginId = this.state.pluginId;
+                                if(isThereNextStep)
+                                    this.executePlugin(pluginId,listId,refreshAll);
+                                else
+                                    this.setState({visibleMessagePluginPanel:false});
+                            }
+                            if(refreshAll){
+                                this.refreshView();
+                                this.unselectAllDataGrid(false);
+                            }
+                            this.setState({visibleMessagePluginPanel:false});
+                        }}
+                        reject={() => this.setState({visibleMessagePluginPanel:false})}
+                    />
+                : null}
+
+
         </React.Fragment>);
     }
+
 
     //override
     renderHeaderLeft() {
@@ -454,7 +638,10 @@ export class ViewContainer extends BaseContainer {
             return <React.Fragment/>
         }
         return (<React.Fragment>
-            <ShortcutsButton items={this.state.parsedGridView?.shortcutButtons} maxShortcutButtons={5}/>
+            <ShortcutsButton 
+                handleClick={(e)=>this.handleRightHeadPanelContent(e)}
+                items={this.state.parsedGridView?.shortcutButtons} 
+                maxShortcutButtons={5}/>
         </React.Fragment>);
     }
 
@@ -526,15 +713,16 @@ export class ViewContainer extends BaseContainer {
                     </React.Fragment>)
                 case 'OP_PLUGINS':
                     return (<React.Fragment>
-                        {/*{this.state.pluginsList?.length > 0 ? (*/}
+                        {this.state.pluginsList?.length > 0 ? (
                         <ActionButtonWithMenu
                             id='button_plugins'
                             className={`${margin}`}
                             iconName={operation?.iconCode || 'mdi-puzzle'}
-                            items={this.state.pluginsList}
+                            items={ActionButtonWithMenuUtils.createItemsWithCommand(this.state.pluginsList,  undefined, this.handleRightHeadPanelContent, "OP_PLUGINS")}
                             title={operation?.label}
-                        />
-                        {/*) : null}*/}
+                            />         
+                        ) : null}
+                       
                     </React.Fragment>)
                 case 'OP_CARDVIEW':
                 case 'OP_GRIDVIEW':
@@ -805,7 +993,7 @@ export class ViewContainer extends BaseContainer {
     //override
     render() {
         return (<React.Fragment>
-            
+
             {super.render()}
         </React.Fragment>);
     }

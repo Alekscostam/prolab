@@ -20,6 +20,7 @@ import ActionButton from "../components/ActionButton";
 import DivContainer from "../components/DivContainer";
 import {confirmDialog} from "primereact/confirmdialog";
 import {localeOptions} from "primereact/api";
+import ActionButtonWithMenuUtils from '../utils/ActionButtonWithMenuUtils';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -264,15 +265,15 @@ export class EditSpecContainer extends BaseContainer {
                     </React.Fragment>)
                 case 'OP_PLUGINS':
                     return (<React.Fragment>
-                        {/*{this.state.pluginsList?.length > 0 ? (*/}
+                        {this.state.pluginsList?.length > 0 ? (
                         <ActionButtonWithMenu
                             id={`button_plugins` + index}
                             className={`${margin}`}
                             iconName={operation?.iconCode || 'mdi-puzzle'}
-                            items={this.state.pluginsList}
+                            items={ActionButtonWithMenuUtils.createItemsWithCommand(this.state.pluginsList,  undefined, this.handleRightHeadPanelContent, operation.type?.toUpperCase())}
                             title={operation?.label}
                         />
-                        {/*) : null}*/}
+                        ) : null}
                     </React.Fragment>)
                 default:
                     return null;

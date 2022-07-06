@@ -76,20 +76,26 @@ class GanttViewComponent extends React.Component {
         let parents = allDatas.filter(el=> el.idParent===null);
         let childrens = allDatas.filter(el=> el.idParent!=null);
         let resultLength = 0 ;
-
-        for (let index = 0; index < parents.length; index++) {
-            let duplicates = [];
-            let result = this.countingParents(parents[index],childrens,allDatas,duplicates);
-            result = new Set(result.map(el=>el.idParent));
-            if(result.size > resultLength){
-                resultLength = result.size
+        
+        if(parents.length===0){
+            /** Default 75 */
+            resultLength = 75;
+        }else{
+            for (let index = 0; index < parents.length; index++) {
+                let duplicates = [];
+                let result = this.countingParents(parents[index],childrens,allDatas,duplicates);
+                result = new Set(result.map(el=>el.idParent));
+                if(result.size > resultLength){
+                    resultLength = result.size
+                }
             }
+            resultLength = ((resultLength + 1) * 21) 
         }
+
         this.setState({
-            selectionColumnWidth :  ((resultLength + 1) * 21) 
+            selectionColumnWidth :  resultLength
         })
     }
-
 
     countingParents(parent, childrens,allDatas,duplicates){
         for (let index = 0; index < allDatas.length; index++) {
@@ -105,13 +111,11 @@ class GanttViewComponent extends React.Component {
        return duplicates;
     }
 
-
-
     componentDidMount() {
         if (typeof this.props.parsedGanttViewData === 'object' && typeof this.props.parsedGanttViewData.then === 'function') {
             this.props.parsedGanttViewData.then((value) => {
+    
                 this.setSelectionWidth(value.data);
-                
                 this.setState({
                     data: value
                 })
@@ -418,6 +422,7 @@ class GanttViewComponent extends React.Component {
                         let el = document.createElement('div');
                         el.id = `actions-${info.column.headerId}-${info.rowIndex}`;
                         element.append(el);
+                        element.style.backgroundColor = "white";
                         const subViewId = this.props.elementSubViewId;
                         const kindView = this.props.elementKindView;
                         const recordId = info.row?.data?.ID;
