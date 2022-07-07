@@ -429,7 +429,6 @@ export class ViewContainer extends BaseContainer {
         switch (element.type) {
             case 'OP_PLUGINS' :
             case 'SK_PLUGIN' :
-                this.blockUi()
                 this.crudService.getPluginColumnsDefnitions(viewIdArg,pluginId,listId)
                     .then((res)=>{  
                        
@@ -457,8 +456,6 @@ export class ViewContainer extends BaseContainer {
                             isPluginFirstStep: true,
                             pluginId: pluginId
                         }) 
-                        if(this.state.visiblePluginPanel)
-                            this.unblockUi();
                     }).catch((err)=>{
                         this.showErrorMessages(err);
                     })
@@ -477,10 +474,8 @@ export class ViewContainer extends BaseContainer {
 
         let visiblePluginPanel = false;
         let visibleMessagePluginPanel = false;
-        this.blockUi();
         this.crudService.getPluginExecuteColumnsDefinitions(viewIdArg,pluginId,requestBody)
         .then((res)=>{ 
-           
            let  parsedPluginViewData;
             if(res.info.kind==="GRID"){
                 visiblePluginPanel = true;
@@ -497,7 +492,6 @@ export class ViewContainer extends BaseContainer {
             }else{
                 visibleMessagePluginPanel = true;
             }
-            
             this.setState({
                 pluginId: pluginId,
                 parsedPluginViewData: parsedPluginViewData,
