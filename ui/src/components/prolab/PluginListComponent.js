@@ -7,10 +7,6 @@ import LocUtils from "../../utils/LocUtils";
 import { Toast } from 'primereact/toast';
 
 
-/**
- * @Maciej podobnie jak w EditListComponent (ten dialog od listy podpowiedzi) sorting i filter nie działają.  
- * Masz to juz gdzies rozwiązane czy po prostu tego w ogole jeszcze nie ma?
- * */ 
 export default class PluginListComponent extends React.Component {
     constructor(props) {
         super(props);

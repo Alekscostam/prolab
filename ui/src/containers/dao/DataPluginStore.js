@@ -19,12 +19,24 @@ export default class DataPluginStore extends BaseService {
         const _key = 'ID';
         return new CustomStore({
             key: _key,
+            keyExpr: 'ID',
             load: (loadOptions) => {
                 let params = '?';
                 [
-                    'parentId',
+                    'filter',
+                    'group',
+                    'groupSummary',
+                    'parentIds',
+                    'requireGroupCount',
+                    'requireTotalCount',
+                    'searchExpr',
+                    'searchOperation',
+                    'searchValue',
+                    'select',
+                    'sort',
                     'skip',
                     'take',
+                    'totalSummary',
                 ].forEach((i) => {
                     if (i in loadOptions && this.isNotEmpty(loadOptions[i])) {
                         params += `${i}=${JSON.stringify(loadOptions[i])}&`;
@@ -45,15 +57,19 @@ export default class DataPluginStore extends BaseService {
                         }
                     )
                         .then((response) => {
+                            
+                           
+                            this.cachedLastResponse = {
+                                data: response.data,
+                                totalCount: response.totalCount,
+                                summary: response.summary || [],
+                                groupCount: response.groupCount || 0
+                            }
                             ConsoleHelper('EditListDataStore -> fetch data');
                             if (onSuccess) {
                                 onSuccess();
                             }
-                            this.response = {
-                                data: response.data,
-                                totalCount: response.totalCount,
-                            }
-                            return this.response;
+                            return this.cachedLastResponse;
                         })
                         .catch((err) => {
                             ConsoleHelper('Error fetch data edit list data store for view id={%s}. Error = ', viewIdArg, err);
@@ -71,17 +87,27 @@ export default class DataPluginStore extends BaseService {
         if (!viewIdArg) {
             return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0});
         }
-
         const _key = 'ID';
         return new CustomStore({
             key: _key,
+            keyExpr: 'ID',
             load: (loadOptions) => {
                 let params = '?';
                 [
-                    'parentId',
+                    'filter',
+                    'group',
+                    'groupSummary',
+                    'parentIds',
+                    'requireGroupCount',
+                    'requireTotalCount',
+                    'searchExpr',
+                    'searchOperation',
+                    'searchValue',
+                    'select',
+                    'sort',
                     'skip',
                     'take',
-                    // 'userData',
+                    'totalSummary',
                 ].forEach((i) => {
                     if (i in loadOptions && this.isNotEmpty(loadOptions[i])) {
                         params += `${i}=${JSON.stringify(loadOptions[i])}&`;
