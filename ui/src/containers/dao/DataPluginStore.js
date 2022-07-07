@@ -128,15 +128,17 @@ export default class DataPluginStore extends BaseService {
                         }
                     )
                         .then((response) => {
+                            this.cachedLastResponse = {
+                                data: response.data,
+                                totalCount: response.totalCount,
+                                take:10
+                            }
+
                             ConsoleHelper('PluginListDataStore -> fetch data');
                             if (onSuccess) {
                                 onSuccess();
                             }
-                            this.response = {
-                                data: response.data,
-                                totalCount: response.totalCount,
-                            }
-                            return this.response;
+                            return this.cachedLastResponse;
                         })
                         .catch((err) => {
                             ConsoleHelper('Error fetch data plugin list data store for view id={%s}. Error = ', viewIdArg, err);

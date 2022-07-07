@@ -76,8 +76,7 @@ class GanttViewComponent extends React.Component {
         let parents = allDatas.filter(el=> el.idParent===null);
         let childrens = allDatas.filter(el=> el.idParent!=null);
         let resultLength = 0 ;
-        
-        if(parents.length===0){
+        if(childrens.length===0){
             /** Default 75 */
             resultLength = 75;
         }else{
@@ -407,7 +406,7 @@ class GanttViewComponent extends React.Component {
                     dataType = {GanttUtils.specifyColumnType(columnDefinition?.type)}
                     format ={GanttUtils.specifyColumnFormat(columnDefinition?.type)}
                     cellTemplate = {GanttUtils.cellTemplate(columnDefinition,this.state.singleRowElements)}
-                    
+
                 />);
             }
             )

@@ -86,6 +86,7 @@ export default class PluginListComponent extends React.Component {
               
                     <GridViewComponent
                         id={this.props.id}
+                        showRenderingViewMode={false}
                         elementSubViewId={null}
                         handleOnDataGrid={(ref) => this.refDataGrid = ref}
                         parsedGridView={convertedParsedView}

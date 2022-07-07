@@ -429,8 +429,11 @@ export class ViewContainer extends BaseContainer {
         switch (element.type) {
             case 'OP_PLUGINS' :
             case 'SK_PLUGIN' :
+                this.blockUi()
                 this.crudService.getPluginColumnsDefnitions(viewIdArg,pluginId,listId)
                     .then((res)=>{  
+                       
+                        let parsedPluginViewData ;
                         if(res.info.kind==="GRID"){
                             visiblePluginPanel = true;
                             let datas = this.dataPluginStore.getPluginDataStore(
@@ -440,25 +443,26 @@ export class ViewContainer extends BaseContainer {
                                 parentIdArg,
                                 (err) => {this.props.showErrorMessages(err);},
                                 () => {this.setState({dataPluginStoreSuccess: true});},
-                                () => {return {selectAll: this.state.selectAll};},
+                                
                             )
-                            this.setState({
-                                parsedPluginViewData: datas,
-                            });
+                            parsedPluginViewData = datas
                         }else{
                             visibleMessagePluginPanel = true;
                         }
                         this.setState({
                             parsedPluginView: res,
+                            parsedPluginViewData: parsedPluginViewData,
                             visiblePluginPanel: visiblePluginPanel,
                             visibleMessagePluginPanel: visibleMessagePluginPanel,
                             isPluginFirstStep: true,
                             pluginId: pluginId
                         }) 
+                        if(this.state.visiblePluginPanel)
+                            this.unblockUi();
                     }).catch((err)=>{
                         this.showErrorMessages(err);
                     })
-                    this.unblockUi();
+                    // this.unblockUi();
                 break;
             default:
                 return null;
@@ -473,9 +477,11 @@ export class ViewContainer extends BaseContainer {
 
         let visiblePluginPanel = false;
         let visibleMessagePluginPanel = false;
-
+        this.blockUi();
         this.crudService.getPluginExecuteColumnsDefinitions(viewIdArg,pluginId,requestBody)
         .then((res)=>{ 
+           
+           let  parsedPluginViewData;
             if(res.info.kind==="GRID"){
                 visiblePluginPanel = true;
                 let datas = this.dataPluginStore.getPluginExecuteDataStore(
@@ -487,21 +493,20 @@ export class ViewContainer extends BaseContainer {
                     () => {this.setState({dataPluginStoreSuccess: true});},
                     () => {return {selectAll: this.state.selectAll};},
                 )
-                
-                this.setState({
-                    parsedPluginViewData: datas,
-                    pluginId: pluginId
-                });
+                 parsedPluginViewData = datas
             }else{
                 visibleMessagePluginPanel = true;
             }
             
             this.setState({
+                pluginId: pluginId,
+                parsedPluginViewData: parsedPluginViewData,
                 parsedPluginView: res,
                 visiblePluginPanel: visiblePluginPanel,
                 visibleMessagePluginPanel: visibleMessagePluginPanel,
                 isPluginFirstStep:false
             })
+          
             if(refreshAll){
                 this.refreshView();
                 this.unselectAllDataGrid(false);
@@ -571,7 +576,6 @@ export class ViewContainer extends BaseContainer {
 
             
             {this.state.visibleMessagePluginPanel ? 
-            /** #62bd73 @Maciej te tłumaczenia wpisałem np. Yes, Ok. Ale oni jeszcze nie mają tego w backendzie */
             <ConfirmDialog
                         acceptLabel={this.state.parsedPluginView.info.question ? 
                             LocUtils.loc(this.props.labels, 'Yes', 'Tak')  :
@@ -582,14 +586,12 @@ export class ViewContainer extends BaseContainer {
                             LocUtils.loc(this.props.labels, 'Close', 'Zamknij')
                         }
                         /** Question jest nadrzedny tzn. jesli message i question !== null to bierze wartosci z question */
-                        /** #62bd74 @Maciej taki tekst to chyba bez sensu tłumaczyc?  */
                         header={this.state.parsedPluginView.info.question  ? 
                             LocUtils.loc(this.props.labels, '', this.state.parsedPluginView.info.question?.title) : 
                             LocUtils.loc(this.props.labels, '', this.state.parsedPluginView.info.message?.title)  
                         }
                         visible={true}
                         onHide={() => this.setState({visibleMessagePluginPanel:false})}
-                        /** #62bd75 @Maciej taki tekst to chyba bez sensu tłumaczyc?  */
                         message={this.state.parsedPluginView.info.question  ? 
                             LocUtils.loc(this.props.labels, '', this.state.parsedPluginView.info.question?.text) : 
                             LocUtils.loc(this.props.labels, '', this.state.parsedPluginView.info.message?.text)  
