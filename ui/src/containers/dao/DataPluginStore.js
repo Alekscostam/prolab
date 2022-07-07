@@ -65,14 +65,14 @@ export default class DataPluginStore extends BaseService {
                                 summary: response.summary || [],
                                 groupCount: response.groupCount || 0
                             }
-                            ConsoleHelper('EditListDataStore -> fetch data');
+                            ConsoleHelper('PluginListDataStore -> fetch data');
                             if (onSuccess) {
                                 onSuccess();
                             }
                             return this.cachedLastResponse;
                         })
                         .catch((err) => {
-                            ConsoleHelper('Error fetch data edit list data store for view id={%s}. Error = ', viewIdArg, err);
+                            ConsoleHelper('Error fetch data plugin list data store for view id={%s}. Error = ', viewIdArg, err);
                             if (onError) {
                                 onError(err);
                             }
@@ -128,7 +128,7 @@ export default class DataPluginStore extends BaseService {
                         }
                     )
                         .then((response) => {
-                            ConsoleHelper('EditListDataStore -> fetch data');
+                            ConsoleHelper('PluginListDataStore -> fetch data');
                             if (onSuccess) {
                                 onSuccess();
                             }
@@ -139,7 +139,7 @@ export default class DataPluginStore extends BaseService {
                             return this.response;
                         })
                         .catch((err) => {
-                            ConsoleHelper('Error fetch data edit list data store for view id={%s}. Error = ', viewIdArg, err);
+                            ConsoleHelper('Error fetch data plugin list data store for view id={%s}. Error = ', viewIdArg, err);
                             if (onError) {
                                 onError(err);
                             }
