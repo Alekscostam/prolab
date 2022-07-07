@@ -361,9 +361,9 @@ export default class CrudService extends BaseService {
     saveSpecEntry(viewId, parentId, listId, filterId) {
         return this.fetch(`${this.domain}/${this.path}/${viewId}/Editspec/${parentId}/Entry`, {
             method: 'POST',
-            body: {
-                listId: JSON.stringify(listId)
-            },
+            body: JSON.stringify({
+                listId: listId
+            }),
         }).catch((err) => {
             throw err;
         });

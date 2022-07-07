@@ -8,6 +8,10 @@ import {CheckBox, DateBox, NumberBox, TextBox, Validator} from "devextreme-react
 import {RequiredRule} from "devextreme-react/validator";
 import moment from "moment";
 import Constants from "../Constants";
+import {EntryResponseUtils} from "../EntryResponseUtils";
+import {compress} from "int-compress-string/src";
+import {EditSpecUtils} from "../EditSpecUtils";
+import CrudService from "../../services/CrudService";
 
 const sizeValues = ['8pt', '10pt', '12pt', '14pt', '18pt', '24pt', '36pt'];
 const fontValues = ['Arial', 'Courier New', 'Georgia', 'Impact', 'Lucida Console', 'Tahoma', 'Times New Roman', 'Verdana'];
@@ -326,6 +330,12 @@ export const MemoizedEditorDescription = React.memo(({
 
 export class TreeListUtils extends ViewDataCompUtils {
 
+    static crudService = new CrudService();
+
+    static getCrudService() {
+        return TreeListUtils.crudService;
+    }
+
     static cellTemplate(field, onChangeCallback, onBlurCallback) {
 
         let _rowIndex = null;
@@ -370,4 +380,27 @@ export class TreeListUtils extends ViewDataCompUtils {
         return field;
     }
 
+    static openEditSpec = (viewId, parentId, recordIds, currentBreadcrumb, handleUnblockUiCallback, showErrorMessagesCallback) => {
+        TreeListUtils.getCrudService()
+            .saveSpecEntry(viewId, parentId, recordIds, null)
+            .then((entryResponse) => {
+                EntryResponseUtils.run(entryResponse, () => {
+                    if (!!entryResponse.next) {
+                        const compressedRecordId = compress(recordIds);
+                        EditSpecUtils.navToEditSpec(viewId, parentId, compressedRecordId, currentBreadcrumb);
+                    } else {
+                        handleUnblockUiCallback();
+                    }
+                }, () => handleUnblockUiCallback());
+            }).catch((err) => {
+            showErrorMessagesCallback(err);
+        });
+    }
+
+    static isKindViewSpec(parsedGridView) {
+        return parsedGridView?.viewInfo?.kindView === 'ViewSpec';
+    }
+
 }
+
+

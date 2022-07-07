@@ -453,6 +453,8 @@ export class EditSpecContainer extends BaseContainer {
                     handleCopy={() => this.copy()}
                     handleArchive={() => this.archive()}
                     handlePublish={() => this.publish()}
+                    handleUnblockUi={() => this.unblockUi()}
+                    showErrorMessages={(err) => this.showErrorMessages(err)}
                 />
             </React.Fragment>
         );
@@ -460,6 +462,7 @@ export class EditSpecContainer extends BaseContainer {
 
     //override
     delete(id) {
+        this.refTreeList?.instance?.beginCustomLoading();
         if (!!id) {
             this.deleteSingleRow(id);
         } else {
@@ -467,8 +470,10 @@ export class EditSpecContainer extends BaseContainer {
                 this.deleteSingleRow(id);
             });
         }
+        this.refTreeList?.instance?.endCustomLoading()
     }
 
+    //usunięcie pojedyńczego rekordu
     deleteSingleRow(id) {
         let data = this.getData();
         const index = data.findIndex(x => x.ID === id);
@@ -480,26 +485,34 @@ export class EditSpecContainer extends BaseContainer {
         }
     }
 
+    //metoda przenosi rekord o poziom wyżej
     up(id) {
+        this.refTreeList?.instance?.beginCustomLoading();
         let data = this.getData();
         const index = data.findIndex(x => x.ID === id);
         if (index !== undefined) {
             this.move(data, index, index - 1);
             this.updateData(data, () => {
+                this.disableAllSort();
                 this.refreshTable();
             });
         }
+        this.refTreeList?.instance?.endCustomLoading()
     }
 
+    //metoda przenosi rekord o poziom niżej
     down(id) {
+        this.refTreeList?.instance?.beginCustomLoading();
         let data = this.getData();
         const index = data.findIndex(x => x.ID === id);
         if (index !== undefined) {
             this.move(data, index, index + 1);
             this.updateData(data, () => {
+                this.disableAllSort();
                 this.refreshTable();
             });
         }
+        this.refTreeList?.instance?.endCustomLoading()
     }
 
     updateData(dataToUpdate, callbackAction) {
@@ -508,6 +521,12 @@ export class EditSpecContainer extends BaseContainer {
         });
     }
 
+    //metoda usuwa wszytkie sortowania z kolumn
+    disableAllSort() {
+        this.refTreeList?.instance?.clearSorting();
+    }
+
+    //metoda pobiera aktualne stan danych komponentu
     getData() {
         return this.state.parsedData;
     }
@@ -525,6 +544,7 @@ export class EditSpecContainer extends BaseContainer {
     renderContent = () => {
         return (<React.Fragment>
             {this.state.loading ? null : (<React.Fragment>
+                {/*{this.state.parsedData.map((el) => el.ID).join(", ")}*/}
                 <div id="spec-edit">
                     <TreeViewComponent
                         id={this.props.id}
@@ -541,9 +561,7 @@ export class EditSpecContainer extends BaseContainer {
                             return true;
                         }}
                         handleUnblockUi={() => this.unblockUi()}
-                        handleShowEditPanel={(editDataResponse) => {
-                            this.handleShowEditPanel(editDataResponse)
-                        }}
+                        handleShowEditPanel={(editDataResponse) => this.handleShowEditPanel(editDataResponse)}
                         handleSelectedRowKeys={(e) =>
                             this.setState(prevState => {
                                 return {
@@ -552,15 +570,9 @@ export class EditSpecContainer extends BaseContainer {
                                 }
                             })}
                         handleDeleteRow={(id) => this.delete(id)}
-                        handleAddLevel={(id) => {
-                            alert(id);
-                        }}
-                        handleUp={(id) => {
-                            this.up(id);
-                        }}
-                        handleDown={(id) => {
-                            this.down(id);
-                        }}
+                        handleAddLevel={(id) => alert(id)}
+                        handleUp={(id) => this.up(id)}
+                        handleDown={(id) => this.down(id)}
                         handleRestoreRow={(id) => this.restore(id)}
                         handleCopyRow={(id) => this.copy(id)}
                         handleArchiveRow={(id) => this.archive(id)}

@@ -24,6 +24,7 @@ import AppPrefixUtils from "../../utils/AppPrefixUtils";
 import {EntryResponseUtils} from "../../utils/EntryResponseUtils";
 import {EditSpecUtils} from "../../utils/EditSpecUtils";
 import {compress} from "int-compress-string/src";
+import {TreeListUtils} from "../../utils/component/TreeListUtils";
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -241,101 +242,102 @@ class GridViewComponent extends React.Component {
                 operationsRecord.push(this.props.parsedGridView?.operationsRecord)
             }
             if(operationsRecord[0]){
-                if (operationsRecord instanceof Array && operationsRecord.length > 0) {
-                    columns?.push({
-                        caption: '',
-                        fixed: true,
-                        width: 10 + (33 * operationsRecord.length + (operationsRecordList?.length > 0 ? 33 : 0)),
-                        fixedPosition: 'right',
-                        cellTemplate: (element, info) => {
-                            let el = document.createElement('div');
-                            el.id = `actions-${info.column.headerId}-${info.rowIndex}`;
-                            element.append(el);
-                            const subViewId = this.props.elementSubViewId;
-                            const kindView = this.props.elementKindView;
-                            const recordId = info.row?.data?.ID;
-                            const parentId = this.props.elementRecordId;
-                            const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
-                            let viewId = this.props.id;
-                            viewId = DataGridUtils.getRealViewId(subViewId, viewId);
-                            ReactDOM.render(<div style={{textAlign: 'center', display: 'flex'}}>
-                                <OperationsButtons labels={this.labels}
-                                                   operations={operationsRecord}
-                                                   operationList={operationsRecordList}
-                                                   info={info}
-                                                   handleEdit={() => {
-                                                       if (this.props.parsedGridView?.viewInfo?.kindView === 'ViewSpec') {
-                                                           const compressedRecordId = compress([recordId]);
-                                                           EditSpecUtils.navToEditSpec(viewId, parentId, compressedRecordId, currentBreadcrumb);
-                                                       } else {
-                                                           let result = this.props.handleBlockUi();
-                                                           if (result) {
-                                                               this.crudService
-                                                                   .editEntry(viewId, recordId, parentId, kindView, '')
-                                                                   .then((entryResponse) => {
-                                                                       EntryResponseUtils.run(entryResponse, () => {
-                                                                           if (!!entryResponse.next) {
-                                                                               this.crudService
-                                                                                   .edit(viewId, recordId, parentId, kindView)
-                                                                                   .then((editDataResponse) => {
-                                                                                       this.setState({
-                                                                                           editData: editDataResponse
-                                                                                       }, () => {
-                                                                                           this.props.handleShowEditPanel(editDataResponse);
-                                                                                       });
-                                                                                   })
-                                                                                   .catch((err) => {
-                                                                                       this.props.showErrorMessages(err);
-                                                                                   });
-                                                                           } else {
-                                                                               this.props.handleUnblockUi();
-                                                                           }
-                                                                       }, () => this.props.handleUnblockUi());
-                                                                   }).catch((err) => {
-                                                                   this.props.showErrorMessages(err);
-                                                               });
-                                                           }
-                                                       }
-                                                   }}
-                                                   hrefSubview={AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewId}?recordId=${recordId}${currentBreadcrumb}`)}
-                                                   handleHrefSubview={() => {
+            if (operationsRecord instanceof Array && operationsRecord.length > 0) {
+                columns?.push({
+                    caption: '',
+                    fixed: true,
+                    width: 10 + (33 * operationsRecord.length + (operationsRecordList?.length > 0 ? 33 : 0)),
+                    fixedPosition: 'right',
+                    cellTemplate: (element, info) => {
+                        let el = document.createElement('div');
+                        el.id = `actions-${info.column.headerId}-${info.rowIndex}`;
+                        element.append(el);
+                        const subViewId = this.props.elementSubViewId;
+                        const kindView = this.props.elementKindView;
+                        const recordId = info.row?.data?.ID;
+                        const parentId = this.props.elementRecordId;
+                        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+                        let viewId = this.props.id;
+                        viewId = DataGridUtils.getRealViewId(subViewId, viewId);
+                        ReactDOM.render(<div style={{textAlign: 'center', display: 'flex'}}>
+                            <OperationsButtons labels={this.labels}
+                                               operations={operationsRecord}
+                                               operationList={operationsRecordList}
+                                               info={info}
+                                               handleEdit={() => {
+                                                   if (TreeListUtils.isKindViewSpec(this.props.parsedGridView)) {
+                                                       this.crudService
+                                                           .saveSpecEntry(viewId, parentId, [recordId], kindView, null)
+                                                           .then((entryResponse) => {
+                                                               EntryResponseUtils.run(entryResponse, () => {
+                                                                   if (!!entryResponse.next) {
+                                                                       const compressedRecordId = compress([recordId]);
+                                                                       EditSpecUtils.navToEditSpec(viewId, parentId, compressedRecordId, currentBreadcrumb);
+                                                                   } else {
+                                                                       this.props.handleUnblockUi();
+                                                                   }
+                                                               }, () => this.props.handleUnblockUi());
+                                                           }).catch((err) => {
+                                                           this.props.showErrorMessages(err);
+                                                       });
+                                                   } else {
                                                        let result = this.props.handleBlockUi();
                                                        if (result) {
                                                            let newUrl = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${!!currentBreadcrumb ? currentBreadcrumb : ``}`);
                                                            window.location.assign(newUrl);
                                                        }
-                                                   }}
-                                                   handleArchive={() => {
-                                                       this.props.handleArchiveRow(recordId)
-                                                   }}
-                                                   handleCopy={() => {
-                                                       this.props.handleCopyRow(recordId)
-                                                   }}
-                                                   handleDelete={() => {
-                                                       this.props.handleDeleteRow(recordId)
-                                                   }}
-                                                   handleRestore={() => {
-                                                       this.props.handleRestoreRow(recordId)
-                                                   }}
-                                                   handleFormula={() => {
-                                                       alert('TODO')
-                                                   }}
-                                                   handleHistory={() => {
-                                                       alert('TODO')
-                                                   }}
-                                                   handleAttachments={() => {
-                                                       alert('TODO')
-                                                   }}
-                                                   handleBlockUi={() => {
-                                                       this.props.handleBlockUi();
-                                                   }}
-                                />
-    
-                            </div>, element);
-                        },
-                    });
-                }
+                                                   }
+                                               }}
+                                               handleEditSpec={() => {
+                                                   //edycja pojedynczego rekordu lub
+                                                   //edycja dla wszystkich rekordów, wywoływana krok wcześniej
+                                                   TreeListUtils.openEditSpec(viewId,
+                                                       TreeListUtils.isKindViewSpec(this.props.parsedGridView) ? parentId : recordId,
+                                                       TreeListUtils.isKindViewSpec(this.props.parsedGridView) ? [recordId] : [],
+                                                       currentBreadcrumb,
+                                                       () => this.props.handleUnblockUi(),
+                                                       (err) => this.props.showErrorMessages(err));
+
+                                               }}
+                                               hrefSubview={AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewId}?recordId=${recordId}${currentBreadcrumb}`)}
+                                               handleHrefSubview={() => {
+                                                   let result = this.props.handleBlockUi();
+                                                   if (result) {
+                                                       let newUrl = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${!!currentBreadcrumb ? currentBreadcrumb : ``}`);
+                                                       window.location.assign(newUrl);
+                                                   }
+                                               }}
+                                               handleArchive={() => {
+                                                   this.props.handleArchiveRow(recordId)
+                                               }}
+                                               handleCopy={() => {
+                                                   this.props.handleCopyRow(recordId)
+                                               }}
+                                               handleDelete={() => {
+                                                   this.props.handleDeleteRow(recordId)
+                                               }}
+                                               handleRestore={() => {
+                                                   this.props.handleRestoreRow(recordId)
+                                               }}
+                                               handleFormula={() => {
+                                                   alert('TODO')
+                                               }}
+                                               handleHistory={() => {
+                                                   alert('TODO')
+                                               }}
+                                               handleAttachments={() => {
+                                                   alert('TODO')
+                                               }}
+                                               handleBlockUi={() => {
+                                                   this.props.handleBlockUi();
+                                               }}
+                            />
+
+                        </div>, element);
+                    },
+                });
             }
+        }
             
         } else {
             //when no data
@@ -367,6 +369,7 @@ class GridViewComponent extends React.Component {
                 dataField={columnDefinition.fieldName}
                 sortOrder={sortOrder}
                 sortIndex={columnDefinition?.sortIndex}
+                groupCellTemplate={this.groupCellTemplate}
             />);
         })
         return columns;
@@ -429,6 +432,5 @@ GridViewComponent.propTypes = {
     dataGridStoreSuccess: PropTypes.bool,
     allowSelectAll: PropTypes.bool
 };
-
 
 export default GridViewComponent;

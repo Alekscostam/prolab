@@ -6,8 +6,7 @@ import PropTypes from 'prop-types';
 import OperationsButtons from "./OperationsButtons";
 import {Breadcrumb} from "../../utils/BreadcrumbUtils";
 import {DataGridUtils} from "../../utils/component/DataGridUtils";
-import {EditSpecUtils} from "../../utils/EditSpecUtils";
-import {compress} from "int-compress-string/src";
+import {TreeListUtils} from "../../utils/component/TreeListUtils";
 //Komponent wyświetlający górną ramkę i okalający wszystkie przyciski, filtry ....
 export const HeadPanel = props => {
     const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
@@ -15,6 +14,28 @@ export const HeadPanel = props => {
     const parentId = props.elementRecordId;
     let viewId = props.elementId;
     viewId = DataGridUtils.getRealViewId(subViewId, viewId);
+
+    const handleEdit = (e, props, viewId, parentId, currentBreadcrumb) => {
+        if (props.elementKindView === 'ViewSpec' && props.selectedRowKeys.length > 0) {
+            const idParams = props.selectedRowKeys.map((item) => item.ID);
+            TreeListUtils.openEditSpec(viewId, parentId, idParams, currentBreadcrumb,
+                () => props.handleUnblockUi(),
+                (err) => props.showErrorMessages(err));
+        } else {
+            //TODO w przyszłości może trzeba będzie dodać normalną edycja wiersza, na razie nie jest wykorzystywana
+        }
+    }
+
+    const handleSpecEdit = (e, props, viewId, parentId, currentBreadcrumb) => {
+        let idParams = [];
+        if (!e.selectAll) {
+            idParams = props.selectedRowKeys.map((item) => item.ID);
+        }
+        TreeListUtils.openEditSpec(viewId, parentId, idParams, currentBreadcrumb,
+            () => props.handleUnblockUi(),
+            (err) => props.showErrorMessages(err));
+    }
+
     return (<React.Fragment>
         <div id="grid-selection-panel"
              className={props.selectedRowKeys?.length > 0 ? "d-flex flex-row grid-selection-panel grid-selection-panel-selection"
@@ -32,25 +53,39 @@ export const HeadPanel = props => {
                         <div id="grid-count-panel"
                              className="grid-count-fragment center-text-in-div">Pozycje: {props.selectedRowKeys.length | 0}</div>
                         <div id="grid-separator" className="p-1 grid-separator-fragment"/>
-                        <div id="grid-buttons-fragment" className="p-1 grid-buttons-fragment">
+                        <div id="grid-buttons-fragment" className="p-2 grid-buttons-fragment">
                             <OperationsButtons labels={props.labels}
                                                operations={props.operations}
+                                               atLeastOneSelected={true}
                                                handleRestore={(e) => props.handleRestore(e)}
                                                handleDelete={(e) => props.handleDelete(e)}
                                                handleCopy={(e) => props.handleCopy(e)}
                                                handleArchive={(e) => props.handleArchive(e)}
-                                               handleEdit={() => {
-                                                   if (props.elementKindView === 'ViewSpec' && props.selectedRowKeys.length > 0) {
-                                                       const idParams = props.selectedRowKeys.map((item) => item.ID);
-                                                       const compressedIdParams = compress(idParams);
-                                                       EditSpecUtils.navToEditSpec(viewId, parentId, compressedIdParams, currentBreadcrumb);
-                                                   }
-                                               }}
+                                               handleEdit={(e) => handleEdit(e, props, viewId, parentId, currentBreadcrumb)}
+                                               handleEditSpec={(e) => handleSpecEdit(e, props, viewId, parentId, currentBreadcrumb)}
                                                inverseColor={true}
                                                buttonShadow={false}/>
                         </div>
                     </div>
-                </React.Fragment> : null}
+                </React.Fragment>
+                :
+                <React.Fragment>
+                    <div id="grid-panel-selection" className="grid-panel-selection">
+                        <div id="grid-buttons-fragment" className="p-2 grid-buttons-fragment">
+                    <OperationsButtons labels={props.labels}
+                                       operations={props.operations}
+                                       atLeastOneSelected={false}
+                                       handleRestore={(e) => props.handleRestore(e)}
+                                       handleDelete={(e) => props.handleDelete(e)}
+                                       handleCopy={(e) => props.handleCopy(e)}
+                                       handleArchive={(e) => props.handleArchive(e)}
+                                       handleEdit={(e) => handleEdit(e, props, viewId, parentId, currentBreadcrumb)}
+                                       handleEditSpec={(e) => handleSpecEdit(e, props, viewId, parentId, currentBreadcrumb)}
+                                       inverseColor={false}
+                                       buttonShadow={true}/>
+                    </div>
+                    </div>
+                </React.Fragment>}
             {props.rightContent === undefined ? null :
                 <React.Fragment>
                     <div id="grid-panel-right" className="grid-panel-right pt-1 pb-1">
@@ -75,6 +110,8 @@ HeadPanel.propTypes = {
     handleRestore: PropTypes.func.isRequired,
     handleCopy: PropTypes.func.isRequired,
     handleArchive: PropTypes.func.isRequired,
+    handleUnblockUi: PropTypes.func.isRequired,
+    showErrorMessages: PropTypes.func.isRequired,
     leftContent: PropTypes.any,
     rightContent: PropTypes.any
 };
