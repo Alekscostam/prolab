@@ -131,7 +131,6 @@ export default class DataPluginStore extends BaseService {
                             this.cachedLastResponse = {
                                 data: response.data,
                                 totalCount: response.totalCount,
-                                take:10
                             }
 
                             ConsoleHelper('PluginListDataStore -> fetch data');
