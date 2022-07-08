@@ -166,7 +166,10 @@ class GridViewComponent extends React.Component {
                                deferred={this.props.selectionDeferred}
                     />
 
-                    <Scrolling mode="virtual" rowRenderingMode="virtual" preloadEnabled={false}/>
+                    <Scrolling mode="virtual"  
+                            rowRenderingMode = {this.props.showRenderingViewMode === true ? "virtual"  : "standard"} 
+                            preloadEnabled={false}/>
+
                     <Paging defaultPageSize={packageCount} pageSize={packageCount}/>
 
                     <LoadPanel enabled={true}
@@ -191,47 +194,54 @@ class GridViewComponent extends React.Component {
                 } else {
                     //match column after field name from view and viewData service
                     let columnDefinitionArray = this.props.gridViewColumns?.filter((value) => value.fieldName?.toUpperCase() === column.dataField?.toUpperCase());
-                    const columnDefinition = columnDefinitionArray[0];
-                    if (columnDefinition) {
-                        column.visible = columnDefinition?.visible;
-                        column.allowFiltering = columnDefinition?.isFilter;
-                        column.allowFixing = true;
-                        column.allowGrouping = columnDefinition?.isGroup;
-                        column.allowReordering = true;
-                        column.allowResizing = true;
-                        column.allowSorting = columnDefinition?.isSort;
-                        column.visibleIndex = columnDefinition?.columnOrder;
-                        column.headerId = 'column_' + INDEX_COLUMN + '_' + columnDefinition?.fieldName?.toLowerCase();
-                        //TODO zmienić
-                        column.width = columnDefinition?.width || 100;
-                        column.name = columnDefinition?.fieldName;
-                        column.caption = columnDefinition?.label;
-                        column.dataType = DataGridUtils.specifyColumnType(columnDefinition?.type);
-                        column.format = DataGridUtils.specifyColumnFormat(columnDefinition?.type);
-                        // column.editorOptions = DataGridUtils.specifyEditorOptions(columnDefinition?.type);
-                        column.cellTemplate = DataGridUtils.cellTemplate(columnDefinition);
-                        column.fixed = columnDefinition.freeze !== undefined && columnDefinition?.freeze !== null ? columnDefinition?.freeze?.toLowerCase() === 'left' || columnDefinition?.freeze?.toLowerCase() === 'right' : false;
-                        column.fixedPosition = !!columnDefinition.freeze ? columnDefinition.freeze?.toLowerCase() : null;
-                        if (!!columnDefinition.groupIndex && columnDefinition.groupIndex > 0) {
-                            column.groupIndex = columnDefinition.groupIndex;
+                    // sometimes columnDefinitionArray is undefined
+                    if(columnDefinitionArray){
+                        const columnDefinition = columnDefinitionArray[0];
+                        if (columnDefinition) {
+                            // column.visible = true;
+                            column.visible = columnDefinition?.visible;
+                            column.allowFiltering = columnDefinition?.isFilter;
+                            column.allowFixing = true;
+                            column.allowGrouping = columnDefinition?.isGroup;
+                            column.allowReordering = true;
+                            column.allowResizing = true;
+                            column.allowSorting = columnDefinition?.isSort;
+                            column.visibleIndex = columnDefinition?.columnOrder;
+                            column.headerId = 'column_' + INDEX_COLUMN + '_' + columnDefinition?.fieldName?.toLowerCase();
+                            //TODO zmienić
+                            column.width = columnDefinition?.width || 100;
+                            column.name = columnDefinition?.fieldName;
+                            column.caption = columnDefinition?.label;
+                            column.dataType = DataGridUtils.specifyColumnType(columnDefinition?.type);
+                            column.format = DataGridUtils.specifyColumnFormat(columnDefinition?.type);
+                            // column.editorOptions = DataGridUtils.specifyEditorOptions(columnDefinition?.type);
+                            column.cellTemplate = DataGridUtils.cellTemplate(columnDefinition);
+                            column.fixed = columnDefinition.freeze !== undefined && columnDefinition?.freeze !== null ? columnDefinition?.freeze?.toLowerCase() === 'left' || columnDefinition?.freeze?.toLowerCase() === 'right' : false;
+                            column.fixedPosition = !!columnDefinition.freeze ? columnDefinition.freeze?.toLowerCase() : null;
+                            if (!!columnDefinition.groupIndex && columnDefinition.groupIndex > 0) {
+                                column.groupIndex = columnDefinition.groupIndex;
+                            }
+                            if (columnDefinition?.type === 'D' || columnDefinition?.type === 'E') {
+                                column.calculateFilterExpression = (value, selectedFilterOperations, target) => DataGridUtils.calculateCustomFilterExpression(value, selectedFilterOperations, target, columnDefinition)
+                            }
+                            column.headerFilter = {groupInterval: null}
+                            column.renderAsync = true;
+                            INDEX_COLUMN++;
+                        } else {
+                            column.visible = false;
                         }
-                        if (columnDefinition?.type === 'D' || columnDefinition?.type === 'E') {
-                            column.calculateFilterExpression = (value, selectedFilterOperations, target) => DataGridUtils.calculateCustomFilterExpression(value, selectedFilterOperations, target, columnDefinition)
-                        }
-                        column.headerFilter = {groupInterval: null}
-                        column.renderAsync = true;
-                        INDEX_COLUMN++;
-                    } else {
-                        column.visible = false;
                     }
+                    
                 }
             });
             let operationsRecord = this.props.parsedGridView?.operationsRecord;
+            
             let operationsRecordList = this.props.parsedGridView?.operationsRecordList;
             if (!(operationsRecord instanceof Array)) {
                 operationsRecord = [];
                 operationsRecord.push(this.props.parsedGridView?.operationsRecord)
             }
+            if(operationsRecord[0]){
             if (operationsRecord instanceof Array && operationsRecord.length > 0) {
                 columns?.push({
                     caption: '',
@@ -273,30 +283,8 @@ class GridViewComponent extends React.Component {
                                                    } else {
                                                        let result = this.props.handleBlockUi();
                                                        if (result) {
-                                                           this.crudService
-                                                               .editEntry(viewId, recordId, parentId, kindView, '')
-                                                               .then((entryResponse) => {
-                                                                   EntryResponseUtils.run(entryResponse, () => {
-                                                                       if (!!entryResponse.next) {
-                                                                           this.crudService
-                                                                               .edit(viewId, recordId, parentId, kindView)
-                                                                               .then((editDataResponse) => {
-                                                                                   this.setState({
-                                                                                       editData: editDataResponse
-                                                                                   }, () => {
-                                                                                       this.props.handleShowEditPanel(editDataResponse);
-                                                                                   });
-                                                                               })
-                                                                               .catch((err) => {
-                                                                                   this.props.showErrorMessages(err);
-                                                                               });
-                                                                       } else {
-                                                                           this.props.handleUnblockUi();
-                                                                       }
-                                                                   }, () => this.props.handleUnblockUi());
-                                                               }).catch((err) => {
-                                                               this.props.showErrorMessages(err);
-                                                           });
+                                                           let newUrl = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${!!currentBreadcrumb ? currentBreadcrumb : ``}`);
+                                                           window.location.assign(newUrl);
                                                        }
                                                    }
                                                }}
@@ -349,6 +337,8 @@ class GridViewComponent extends React.Component {
                     },
                 });
             }
+        }
+            
         } else {
             //when no data
             this.props.gridViewColumns.forEach((columnDefinition) => {
@@ -398,6 +388,7 @@ GridViewComponent.defaultProps = {
     showFilterRow: true,
     showSelection: true,
     dataGridStoreSuccess: true,
+    showRenderingViewMode: true,
     allowSelectAll: true,
     selectionDeferred: false
 };
@@ -436,6 +427,7 @@ GridViewComponent.propTypes = {
     showBorders: PropTypes.bool,
     showFilterRow: PropTypes.bool,
     showSelection: PropTypes.bool,
+    showRenderingViewMode: PropTypes.bool,
     dataGridHeight: PropTypes.number,
     dataGridStoreSuccess: PropTypes.bool,
     allowSelectAll: PropTypes.bool

@@ -5,41 +5,34 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ShortcutButton from "./ShortcutButton";
 import ActionButtonWithMenu from "./ActionButtonWithMenu";
+import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils';
 
 export class ShortcutsButton extends React.Component {
 
     constructor(props) {
         super(props);
-        this.menuItems = [];
-        let index = 1;
-        for (let item in this.props.items) {
-            if (index > this.props.maxShortcutButtons) {
-                this.menuItems.push({
-                    id: this.props.items[item].id,
-                    label: this.props.items[item].label,
-                    /*
-                    command:(e) => {
-                        alert(e)
-                    }
-                    */
-                });
-            }
-            index++;
-        }
+        this.menuItems = ActionButtonWithMenuUtils.createItemsWithCommand(this.props.items, this.props.maxShortcutButtons,this.props.handleClick);
     }
 
     render() {
         return <React.Fragment>
             {this.props.items?.length > this.props.maxShortcutButtons ?
                 <div id="right-panel-buttons" className="float-right ml-2">
-                    <ActionButtonWithMenu id="more_shortcut"
+                    <ActionButtonWithMenu 
+                                            id="more_shortcut"
                                           iconName='mdi-dots-horizontal'
                                           items={this.menuItems}/>
                 </div> : null}
-            {this.props.items?.map((button, index) => {
+            {this.props.items?.map((info, index) => {
+                
                 if (index < this.props.maxShortcutButtons)
                     return <div className="float-right">
-                        <ShortcutButton className="ml-1 mb-1" label={button.label}/>
+                        <ShortcutButton 
+                            item = {info}
+                            handleClick = {() =>  {this.props.handleClick(info)}}
+                            className="ml-1 mb-1" 
+                            label={info.label}
+                        />
                     </div>
                 return null;
             })}

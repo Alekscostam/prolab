@@ -99,6 +99,30 @@ export default class CrudService extends BaseService {
         });
     }
 
+    getPluginColumnsDefnitions(viewId, pluginId,listId) {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/plugin/${pluginId}`, {
+            method: 'POST',
+            body: JSON.stringify(listId),
+        }).then(pluginResponse => {
+            return Promise.resolve(pluginResponse);
+        }).catch((err) => {
+            throw err;
+        });
+    } 
+    
+    getPluginExecuteColumnsDefinitions(viewId, pluginId, requestBody) {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/plugin/${pluginId}/execute`, {
+            method: 'POST',
+            body: JSON.stringify(requestBody),
+        }).then(pluginResponse => {
+            
+            return Promise.resolve(pluginResponse);
+        }).catch((err) => {
+            throw err;
+        });
+    }
+
+
     refreshFieldVisibility(viewId, recordId, parentId, kindView, element) {
         return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}/RefreshFieldVisibility${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
             method: 'POST',
