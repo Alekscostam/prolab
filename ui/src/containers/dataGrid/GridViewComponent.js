@@ -193,40 +193,41 @@ class GridViewComponent extends React.Component {
                 } else {
                     //match column after field name from view and viewData service
                     let columnDefinitionArray = this.props.gridViewColumns?.filter((value) => value.fieldName?.toUpperCase() === column.dataField?.toUpperCase());
-                    const columnDefinition = columnDefinitionArray[0];
-                    if (columnDefinition) {
-                        // column.visible = columnDefinition?.visible;
-                        column.visible = true;
-                        column.allowFiltering = columnDefinition?.isFilter;
-                        column.allowFixing = true;
-                        column.allowGrouping = columnDefinition?.isGroup;
-                        column.allowReordering = true;
-                        column.allowResizing = true;
-                        column.allowSorting = columnDefinition?.isSort;
-                        column.visibleIndex = columnDefinition?.columnOrder;
-                        column.headerId = 'column_' + INDEX_COLUMN + '_' + columnDefinition?.fieldName?.toLowerCase();
-                        //TODO zmienić
-                        column.width = columnDefinition?.width || 100;
-                        column.name = columnDefinition?.fieldName;
-                        column.caption = columnDefinition?.label;
-                        column.dataType = DataGridUtils.specifyColumnType(columnDefinition?.type);
-                        column.format = DataGridUtils.specifyColumnFormat(columnDefinition?.type);
-                        // column.editorOptions = DataGridUtils.specifyEditorOptions(columnDefinition?.type);
-                        column.cellTemplate = DataGridUtils.cellTemplate(columnDefinition);
-                        column.fixed = columnDefinition.freeze !== undefined && columnDefinition?.freeze !== null ? columnDefinition?.freeze?.toLowerCase() === 'left' || columnDefinition?.freeze?.toLowerCase() === 'right' : false;
-                        column.fixedPosition = !!columnDefinition.freeze ? columnDefinition.freeze?.toLowerCase() : null;
-                        if (!!columnDefinition.groupIndex && columnDefinition.groupIndex > 0) {
-                            column.groupIndex = columnDefinition.groupIndex;
+                    if(columnDefinitionArray){
+                        const columnDefinition = columnDefinitionArray[0];
+                        if (columnDefinition) {
+                            column.visible = columnDefinition?.visible;
+                            column.allowFiltering = columnDefinition?.isFilter;
+                            column.allowFixing = true;
+                            column.allowGrouping = columnDefinition?.isGroup;
+                            column.allowReordering = true;
+                            column.allowResizing = true;
+                            column.allowSorting = columnDefinition?.isSort;
+                            column.visibleIndex = columnDefinition?.columnOrder;
+                            column.headerId = 'column_' + INDEX_COLUMN + '_' + columnDefinition?.fieldName?.toLowerCase();
+                            //TODO zmienić
+                            column.width = columnDefinition?.width || 100;
+                            column.name = columnDefinition?.fieldName;
+                            column.caption = columnDefinition?.label;
+                            column.dataType = DataGridUtils.specifyColumnType(columnDefinition?.type);
+                            column.format = DataGridUtils.specifyColumnFormat(columnDefinition?.type);
+                            // column.editorOptions = DataGridUtils.specifyEditorOptions(columnDefinition?.type);
+                            column.cellTemplate = DataGridUtils.cellTemplate(columnDefinition);
+                            column.fixed = columnDefinition.freeze !== undefined && columnDefinition?.freeze !== null ? columnDefinition?.freeze?.toLowerCase() === 'left' || columnDefinition?.freeze?.toLowerCase() === 'right' : false;
+                            column.fixedPosition = !!columnDefinition.freeze ? columnDefinition.freeze?.toLowerCase() : null;
+                            if (!!columnDefinition.groupIndex && columnDefinition.groupIndex > 0) {
+                                column.groupIndex = columnDefinition.groupIndex;
+                            }
+                            if (columnDefinition?.type === 'D' || columnDefinition?.type === 'E') {
+                                column.calculateFilterExpression = (value, selectedFilterOperations, target) => DataGridUtils.calculateCustomFilterExpression(value, selectedFilterOperations, target, columnDefinition)
+                            }
+                            column.headerFilter = {groupInterval: null}
+                            column.renderAsync = true;
+                            INDEX_COLUMN++;
+                        } else {
+                            column.visible = false;
                         }
-                        if (columnDefinition?.type === 'D' || columnDefinition?.type === 'E') {
-                            column.calculateFilterExpression = (value, selectedFilterOperations, target) => DataGridUtils.calculateCustomFilterExpression(value, selectedFilterOperations, target, columnDefinition)
-                        }
-                        column.headerFilter = {groupInterval: null}
-                        column.renderAsync = true;
-                        INDEX_COLUMN++;
-                    } else {
-                        column.visible = false;
-                    }
+                }
                 }
             });
             let operationsRecord = this.props.parsedGridView?.operationsRecord;
@@ -235,6 +236,7 @@ class GridViewComponent extends React.Component {
                 operationsRecord = [];
                 operationsRecord.push(this.props.parsedGridView?.operationsRecord)
             }
+            if(operationsRecord[0]){
             if (operationsRecord instanceof Array && operationsRecord.length > 0) {
                 columns?.push({
                     caption: '',
@@ -351,7 +353,7 @@ class GridViewComponent extends React.Component {
                         </div>, element);
                     },
                 });
-            }
+            }}
         } else {
             //when no data
             this.props.gridViewColumns.forEach((columnDefinition) => {
