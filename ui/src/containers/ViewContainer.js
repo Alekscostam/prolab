@@ -330,6 +330,9 @@ export class ViewContainer extends BaseContainer {
                 select: false,
                 selectAll: false,
                 isSelectAll: false,
+                visibleEditPanel:false,
+                visiblePluginPanel: false,
+                visibleMessagePluginPanel: false,
             }), () => {
                 this.props.handleRenderNoRefreshContent(true);
                 this.props.handleViewInfoName(isSubView ? this.state.subView?.viewInfo?.name : this.state.parsedGridView?.viewInfo?.name);
@@ -416,7 +419,6 @@ export class ViewContainer extends BaseContainer {
     }
 
     /** Wybrana akcja po kliknieciu dowolnego elementu z RightHeadPanelContent */
-    /** TODO: chwilowo tylko dla wtyczek - SK_PLUGIN oraz OP_PLUGINS */
     handleRightHeadPanelContent(element){
         const idRowKeys =  this.state.selectedRowKeys.map(el=>el.ID);
         const listId = {"listId": idRowKeys}
@@ -431,7 +433,6 @@ export class ViewContainer extends BaseContainer {
             case 'SK_PLUGIN' :
                 this.crudService.getPluginColumnsDefnitions(viewIdArg,pluginId,listId)
                     .then((res)=>{  
-                       
                         let parsedPluginViewData ;
                         if(res.info.kind==="GRID"){
                             visiblePluginPanel = true;
@@ -442,7 +443,6 @@ export class ViewContainer extends BaseContainer {
                                 parentIdArg,
                                 (err) => {this.props.showErrorMessages(err);},
                                 () => {this.setState({dataPluginStoreSuccess: true});},
-                                
                             )
                             parsedPluginViewData = datas
                         }else{
@@ -459,7 +459,6 @@ export class ViewContainer extends BaseContainer {
                     }).catch((err)=>{
                         this.showErrorMessages(err);
                     })
-                    // this.unblockUi();
                 break;
             default:
                 return null;
@@ -476,7 +475,9 @@ export class ViewContainer extends BaseContainer {
         let visibleMessagePluginPanel = false;
         this.crudService.getPluginExecuteColumnsDefinitions(viewIdArg,pluginId,requestBody)
         .then((res)=>{ 
-           let  parsedPluginViewData;
+            let parsedPluginViewData;
+            let renderNextStep = true; 
+
             if(res.info.kind==="GRID"){
                 visiblePluginPanel = true;
                 let datas = this.dataPluginStore.getPluginExecuteDataStore(
@@ -490,8 +491,14 @@ export class ViewContainer extends BaseContainer {
                 )
                  parsedPluginViewData = datas
             }else{
-                visibleMessagePluginPanel = true;
+                if(res.info.message === null && res.info.question==null){
+                    renderNextStep = false;
+                }
+                else
+                    visibleMessagePluginPanel = true;
             }
+
+        if(renderNextStep){
             this.setState({
                 pluginId: pluginId,
                 parsedPluginViewData: parsedPluginViewData,
@@ -499,8 +506,9 @@ export class ViewContainer extends BaseContainer {
                 visiblePluginPanel: visiblePluginPanel,
                 visibleMessagePluginPanel: visibleMessagePluginPanel,
                 isPluginFirstStep:false
-            })
-          
+               })
+            }
+        
             if(refreshAll){
                 this.refreshView();
                 this.unselectAllDataGrid(false);
