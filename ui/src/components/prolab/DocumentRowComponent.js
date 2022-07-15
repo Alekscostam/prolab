@@ -49,11 +49,11 @@ export class DocumentRowComponent extends BaseContainer {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        const visibleEditPanelPrevious = prevProps.visibleEditPanel;
-        const visibleEditPanel = this.props.visibleEditPanel;
-        console.log('visibleEditPanelPrevious %s %visibleEditPanel', visibleEditPanelPrevious, visibleEditPanel)
+        const visibleDocumentPanelPrevious = prevProps.visibleDocumentPanel;
+        const visibleDocumentPanel = this.props.visibleDocumentPanel;
+        console.log('visibleDocumentPanelPrevious %s %visibleDocumentPanel', visibleDocumentPanelPrevious, visibleDocumentPanel)
         //wykrycie eventu wysunięcia panelu z edycją
-        if (visibleEditPanelPrevious === false && visibleEditPanel === true) {
+        if (visibleDocumentPanelPrevious === false && visibleDocumentPanel === true) {
             this.setState({preventSave: false});
         }
         super.componentDidUpdate();
@@ -71,7 +71,7 @@ export class DocumentRowComponent extends BaseContainer {
     }
 
     render() {
-        const visibleEditPanel = this.props.visibleEditPanel;
+        const visibleDocumentPanel = this.props.visibleDocumentPanel;
         let inputDataFields = this.props.documentInfo.inputDataFields; 
 
         return <React.Fragment>
@@ -79,7 +79,7 @@ export class DocumentRowComponent extends BaseContainer {
             
             <Sidebar
                 id='right-sidebar'
-                visible={visibleEditPanel}
+                visible={visibleDocumentPanel}
                 modal={true}
                 style={{width: '45%'}}
                 position='right'
@@ -533,7 +533,7 @@ export class DocumentRowComponent extends BaseContainer {
 DocumentRowComponent.defaultProps = {};
 
 DocumentRowComponent.propTypes = {
-    visibleEditPanel: PropTypes.bool.isRequired,
+    visibleDocumentPanel: PropTypes.bool.isRequired,
     editData: PropTypes.object.isRequired,
     kindView: PropTypes.string,
     showErrorMessages: PropTypes.func.isRequired,

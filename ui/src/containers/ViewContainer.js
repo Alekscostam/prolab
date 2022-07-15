@@ -617,10 +617,9 @@ export class ViewContainer extends BaseContainer {
                 labels={this.props.labels}
                 showErrorMessages={(err) => this.showErrorMessages(err)}
             /> 
-            {/* this.state.visibleDocumentPanel dla pewnosci, żeby przypadkowo nie renderowało*/}
             {this.state.visibleDocumentPanel ?
                     <DocumentRowComponent
-                        visibleEditPanel={this.state.visibleDocumentPanel}
+                        visibleDocumentPanel={this.state.visibleDocumentPanel}
                         editData={this.state.editData}
                         kindView={this.state.elementKindView}
                         documentInfo={this.state.documentInfo}
