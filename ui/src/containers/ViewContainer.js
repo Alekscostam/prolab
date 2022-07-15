@@ -32,6 +32,7 @@ import DataGanttStore from './dao/DataGanttStore';
 import DataPluginStore from './dao/DataPluginStore';
 import PluginListComponent from '../components/prolab/PluginListComponent';
 import ActionButtonWithMenuUtils from '../utils/ActionButtonWithMenuUtils';
+import { DocumentRowComponent } from '../components/prolab/DocumentRowComponent';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -69,6 +70,7 @@ export class ViewContainer extends BaseContainer {
             elementViewType: '',
             viewMode: props.viewMode,
             parsedGridView: {},
+            documentInfo: {},
             parsedGridViewData: {},
             gridViewColumns: [],
             parsedPluginViewData: {},
@@ -98,6 +100,8 @@ export class ViewContainer extends BaseContainer {
         this.getViewById = this.getViewById.bind(this);
         this.handleRightHeadPanelContent = this.handleRightHeadPanelContent.bind(this);
         this.executePlugin = this.executePlugin.bind(this);
+        this.refreshGanttData = this.refreshGanttData.bind(this);
+        this.executeDocument = this.executeDocument.bind(this);
         this.downloadData = this.downloadData.bind(this);
         this.unselectAllDataGrid = this.unselectAllDataGrid.bind(this);
     }
@@ -423,22 +427,22 @@ export class ViewContainer extends BaseContainer {
         const idRowKeys =  this.state.selectedRowKeys.map(el=>el.ID);
         const listId = {"listId": idRowKeys}
         const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
-        const pluginId = `${element.id}`;
+        const elementId = `${element.id}`;
         const parentIdArg = this.state.subView == null ? UrlUtils.getURLParameter('parentId') : this.state.elementRecordId;
         let visiblePluginPanel = false;
         let visibleMessagePluginPanel = false;
-        
+
         switch (element.type) {
             case 'OP_PLUGINS' :
             case 'SK_PLUGIN' :
-                this.crudService.getPluginColumnsDefnitions(viewIdArg,pluginId,listId)
+                this.crudService.getPluginColumnsDefnitions(viewIdArg,elementId,listId,parentIdArg)
                     .then((res)=>{  
                         let parsedPluginViewData ;
                         if(res.info.kind==="GRID"){
                             visiblePluginPanel = true;
                             let datas = this.dataPluginStore.getPluginDataStore(
                                 viewIdArg,
-                                pluginId,
+                                elementId,
                                 listId,
                                 parentIdArg,
                                 (err) => {this.props.showErrorMessages(err);},
@@ -454,18 +458,79 @@ export class ViewContainer extends BaseContainer {
                             visiblePluginPanel: visiblePluginPanel,
                             visibleMessagePluginPanel: visibleMessagePluginPanel,
                             isPluginFirstStep: true,
-                            pluginId: pluginId
+                            pluginId: elementId
                         }) 
                     }).catch((err)=>{
                         this.showErrorMessages(err);
                     })
                 break;
+            case 'OP_DOCUMENTS' :  
+            case 'SK_DOCUMENT' :
+                this.crudService.getDocumentDatasInfo(viewIdArg,elementId,listId,parentIdArg)
+                .then((res)=>{
+                    if(res.kind==="GE"){
+                        if(res.message){
+                            this.showSuccessMessage("TODO download");
+                            // TODO: jeszcze nie pelno bo nie maja downlaodu 
+                        }   
+                    }
+                    else{
+                        if(res.inputDataFields?.length){
+                            let documentInfo = {
+                                inputDataFields: res.inputDataFields,
+                                info:res.info
+                            }
+                            this.setState({
+                                visibleDocumentPanel: true,
+                                documentInfo : documentInfo
+                            });
+                            this.unblockUi();
+                        }else{
+                            this.executeDocument(null,viewIdArg,elementId,parentIdArg);
+                        }
+                    }
+                })
+            break;
+
             default:
                 return null;
         
             }
     }
 
+    executeDocument(data ,viewId, elementId,parentId){
+        const idRowKeys =  this.state.selectedRowKeys.map(el=>el.ID);
+        const requestBody = {
+            "listId": idRowKeys,
+            "data": data,
+        }
+
+        this.blockUi();
+        this.crudService.generateDocument(requestBody,viewId,elementId,parentId)
+        .then((res)=>{
+            if(!res.error){
+                 // TODO: jeszcze nie pelno bo nie maja downloadu 
+                 
+                 if(res?.info?.fileId){
+                    this.showSuccessMessage("TODO download");
+                }
+                else{
+                    this.showSuccessMessage(res.message.text, undefined, res.message.title);
+                }
+            }
+            else{
+                this.showErrorMessage(res.error.message);
+            }
+            this.unblockUi();
+        })
+        .then((res)=>{
+        })
+        .catch((err)=>{
+            this.unblockUi();
+            this.showErrorMessages(err);
+        })
+
+    }
     /** Metoda już typowo pod plugin. executePlugin wykonuje się w momencie przejscia z pierwszego do drugiego kroku */
     executePlugin(pluginId,requestBody,refreshAll){
         const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
@@ -473,7 +538,7 @@ export class ViewContainer extends BaseContainer {
 
         let visiblePluginPanel = false;
         let visibleMessagePluginPanel = false;
-        this.crudService.getPluginExecuteColumnsDefinitions(viewIdArg,pluginId,requestBody)
+        this.crudService.getPluginExecuteColumnsDefinitions(viewIdArg,pluginId,requestBody,parentIdArg)
         .then((res)=>{ 
             let parsedPluginViewData;
             let renderNextStep = true; 
@@ -552,8 +617,27 @@ export class ViewContainer extends BaseContainer {
                 onError={(e) => this.showErrorMessage(e)}
                 labels={this.props.labels}
                 showErrorMessages={(err) => this.showErrorMessages(err)}
-            />
-            
+            /> 
+            {this.state.visibleDocumentPanel ?
+                    <DocumentRowComponent
+                        visibleDocumentPanel={this.state.visibleDocumentPanel}
+                        editData={this.state.editData}
+                        kindView={this.state.elementKindView}
+                        documentInfo={this.state.documentInfo}
+                        onChange={this.handleChangeCriteria}
+                        onBlur={this.handleChangeCriteria}
+                        inputDataFields={this.state.inputDataFields}
+                        onSave={this.executeDocument}
+                        onAutoFill={this.handleAutoFillRowChange}
+                        onCancel={ () =>this.setState({visibleDocumentPanel: false})}
+                        validator={this.validator}
+                        onHide={() =>this.setState({visibleDocumentPanel: false})}
+                        onError={(e) => this.showErrorMessage(e)}
+                        labels={this.props.labels}
+                        showErrorMessages={(err) => this.showErrorMessages(err)}
+            /> 
+            :null} 
+           
             <PluginListComponent 
                                visible={this.state.visiblePluginPanel}
                                field={this.state.editListField}
@@ -705,15 +789,15 @@ export class ViewContainer extends BaseContainer {
                     </React.Fragment>)
                 case 'OP_DOCUMENTS':
                     return (<React.Fragment>
-                        {/*{this.state.documentsList?.length > 0 ? (*/}
+                        {this.state.documentsList?.length > 0 ? (
                         <ActionButtonWithMenu
                             id='button_documents'
                             className={`${margin}`}
                             iconName={operation?.iconCode || 'mdi-file-document'}
-                            items={this.state.documentsList}
+                            items={ActionButtonWithMenuUtils.createItemsWithCommand(this.state.documentsList,  undefined, this.handleRightHeadPanelContent, "OP_DOCUMENTS")}
                             title={operation?.label}
                         />
-                        {/*) : null}*/}
+                        ) : null}
                     </React.Fragment>)
                 case 'OP_PLUGINS':
                     return (<React.Fragment>
@@ -984,7 +1068,7 @@ export class ViewContainer extends BaseContainer {
     refreshGanttData(){
         const initFilterId = this.state.parsedGridView?.viewInfo?.filterdId;
         const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
-        const parentIdArg = this.state.subView == null ? null : this.state.elementRecordId;
+        const parentIdArg = this.state.subView == null ? UrlUtils.getURLParameter('parentId') : this.state.elementRecordId;
         const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId;
         const kindViewArg = this.state.kindView;   
         this.setState({loading: true}, () => {
@@ -1126,7 +1210,7 @@ export class ViewContainer extends BaseContainer {
                                         });
                                     }
                             }}
-                            handleRefreshData={()=> this.refreshGanttData()}
+                            handleRefreshData={this.refreshGanttData}
                             handleUp={() => this.up()}
                             handleDown={() => this.publish()}
                             parsedGanttView={this.state.parsedGridView}

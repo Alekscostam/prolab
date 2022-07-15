@@ -99,19 +99,22 @@ export default class CrudService extends BaseService {
         });
     }
 
-    getPluginColumnsDefnitions(viewId, pluginId,listId) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/plugin/${pluginId}`, {
+    getPluginColumnsDefnitions(viewId, pluginId, listId, parentId) {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/plugin/${pluginId}${parentId ? `?parentId=${parentId}` : ''}`, {
             method: 'POST',
             body: JSON.stringify(listId),
-        }).then(pluginResponse => {
-            return Promise.resolve(pluginResponse);
-        }).catch((err) => {
-            throw err;
-        });
-    } 
-    
-    getPluginExecuteColumnsDefinitions(viewId, pluginId, requestBody) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/plugin/${pluginId}/execute`, {
+        })
+            .then((pluginResponse) => {
+                return Promise.resolve(pluginResponse);
+            })
+            .catch((err) => {
+                throw err;
+            });
+    }
+
+
+    getPluginExecuteColumnsDefinitions(viewId, pluginId, requestBody,parentId) {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/plugin/${pluginId}/execute${parentId ? `?parentId=${parentId}` : ''}`, {
             method: 'POST',
             body: JSON.stringify(requestBody),
         }).then(pluginResponse => {
@@ -120,6 +123,37 @@ export default class CrudService extends BaseService {
         }).catch((err) => {
             throw err;
         });
+    } 
+
+    getDocumentDatasInfo(viewId, documentId, listId, parentId) {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/document/${documentId}${parentId ? `?parentId=${parentId}` : ''}
+        `, {
+            method: 'POST',
+            body: JSON.stringify(listId),
+        })
+            .then((pluginResponse) => {
+                return Promise.resolve(pluginResponse);
+            })
+            .catch((err) => {
+                throw err;
+            });
+    }
+
+    generateDocument(requestBody, viewId, documentId,  parentId) {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/document/${documentId}/execute${parentId ? `?parentId=${parentId}` : ''}`, {
+            method: 'POST',
+            body: JSON.stringify(requestBody),
+        })
+            .then((documentResponse) => {
+                return Promise.resolve(documentResponse);
+            })
+            .catch((err) => {
+                throw err;
+            });
+    }
+
+    downloadDocument(){
+        //  TODO: 
     }
 
 
