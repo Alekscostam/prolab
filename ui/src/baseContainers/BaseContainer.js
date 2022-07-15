@@ -53,6 +53,8 @@ class BaseContainer extends React.Component {
         this.handleEditListRowChange = this.handleEditListRowChange.bind(this);
         this.getRealViewId = this.getRealViewId.bind(this);
         this.unselectAllDataGrid = this.unselectAllDataGrid.bind(this);
+        this.setVariableFromEvent = this.setVariableFromEvent.bind(this);
+        this.handleChangeCriteria = this.handleChangeCriteria.bind(this);
         this.validator = new SimpleReactValidator();
         this._isMounted = false;
         this.jwtRefreshBlocked = false;
@@ -1379,50 +1381,33 @@ class BaseContainer extends React.Component {
         }); 
     }
 
+    handleChangeCriteria(inputType, event){
+        ConsoleHelper(`handleChangeCriteria inputType=${inputType}`);
+        let documentInfo = this.state.documentInfo;
+        if (event) {
+            let result = this.setVariableFromEvent(inputType,event);
+            let varName  = result.varName;
+            let varValue = result.varValue ;
+            let fieldArr = documentInfo.inputDataFields.find(field=> field.fieldName === varName);
+            fieldArr.value=varValue;
+
+            this.setState({documentdInfo: documentInfo, modifyEditData: true});
+        }
+    }
+
     handleEditRowChange(inputType, event, groupName, info) {
         ConsoleHelper(`handleEditRowChange inputType=${inputType} groupName=${groupName}`);
         let editData = this.state.editData;
         let groupData = editData?.editFields?.filter((obj) => {
             return obj.groupName === groupName;
         }); 
-        let varName;
-        let varValue;
-        let refreshFieldVisibility = false;
         if (event !== undefined) {
-            switch (inputType) {
-                case 'IMAGE64':
-                    varName = event == null ? null : event.fieldName;
-                    varValue = event == null ? '' : event.base64[0];
-                    break;
-                case 'MULTI_IMAGE64':
-                    varName = event == null ? null : event.fieldName;
-                    varValue = event == null ? '' : event.base64;
-                    break;
-                case 'CHECKBOX':
-                    varName = event.target.name;
-                    varValue = event.checked ? event.checked : false;
-                    refreshFieldVisibility = event.refreshFieldVisibility
-                    break;
-                case 'EDITOR':
-                    varName = event.name;
-                    varValue = event.value || event.value === '' ? event.value : undefined;
-                    break;
-                case 'TEXT':
-                case 'AREA':
-                    varName = event.target?.name;
-                    varValue = event.target?.value || event.target?.value === '' ? event.target.value : undefined;
-                    break;
-                case 'DATE':
-                case 'DATETIME':
-                case 'TIME':
-                    varName = event.target?.name;
-                    varValue = event.value || event.value === '' ? event.value : undefined;
-                    break;
-                default:
-                    varName = event.target?.name;
-                    varValue = event.target?.value || event.target?.value === '' ? event.target.value : undefined;
-                    break;
-            }
+
+           let result = this.setVariableFromEvent(inputType,event);
+           let varName  = result.varName;
+           let varValue = result.varValue ;
+           let refreshFieldVisibility =  result.refreshFieldVisibility;
+
             let fieldArr = groupData[0]?.fields?.filter((obj) => {
                 return obj.fieldName === varName;
             });
@@ -1440,6 +1425,52 @@ class BaseContainer extends React.Component {
         } else {
             ConsoleHelper('handleEditRowChange implementation error');
         }
+    }
+
+
+    setVariableFromEvent(inputType, event){
+        let varName;
+        let varValue;
+        let refreshFieldVisibility = false;
+        switch (inputType) {
+            case 'IMAGE64':
+                varName = event == null ? null : event.fieldName;
+                varValue = event == null ? '' : event.base64[0];
+                break;
+            case 'MULTI_IMAGE64':
+                varName = event == null ? null : event.fieldName;
+                varValue = event == null ? '' : event.base64;
+                break;
+            case 'CHECKBOX':
+                varName = event.target.name;
+                varValue = event.checked ? event.checked : false;
+                refreshFieldVisibility = event.refreshFieldVisibility
+                break;
+            case 'EDITOR':
+                varName = event.name;
+                varValue = event.value || event.value === '' ? event.value : undefined;
+                break;
+            case 'TEXT':
+            case 'AREA':
+                varName = event.target?.name;
+                varValue = event.target?.value || event.target?.value === '' ? event.target.value : undefined;
+                break;
+            case 'DATE':
+            case 'DATETIME':
+            case 'TIME':
+                varName = event.target?.name;
+                varValue = event.value || event.value === '' ? event.value : undefined;
+                break;
+            default:
+                varName = event.target?.name;
+                varValue = event.target?.value || event.target?.value === '' ? event.target.value : undefined;
+                break;
+        }
+        return {
+            "varName": varName,
+            "varValue": varValue,
+            "refreshFieldVisibility": refreshFieldVisibility,
+        };
     }
 
     handleEditRowBlur(inputType, event, groupName, viewInfo, field) {
