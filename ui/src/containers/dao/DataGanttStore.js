@@ -38,7 +38,7 @@ export default class DataGanttStore extends BaseService {
         });
         params += 'viewType=gantt';
         const filterIdParam = filterIdArg !== undefined && filterIdArg != null ? `&filterId=${filterIdArg}` : '';
-        const recordParentIdParam = recordParentIdArg !== undefined && recordParentIdArg != null ? `&parentId=${recordParentIdArg}` : '';
+        const recordParentIdParam = !!recordParentIdArg ? `&parentId=${recordParentIdArg}` : '';
         const kindViewParam = kindViewArg !== undefined && kindViewArg != null ? `&kindView=${kindViewArg}` : '';
         let url = `${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${recordParentIdParam}${kindViewParam}`;
         url = this.commonCorrectUrl(url);
