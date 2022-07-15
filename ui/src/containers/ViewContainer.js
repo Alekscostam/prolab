@@ -100,6 +100,7 @@ export class ViewContainer extends BaseContainer {
         this.getViewById = this.getViewById.bind(this);
         this.handleRightHeadPanelContent = this.handleRightHeadPanelContent.bind(this);
         this.executePlugin = this.executePlugin.bind(this);
+        this.refreshGanttData = this.refreshGanttData.bind(this);
         this.executeDocument = this.executeDocument.bind(this);
         this.downloadData = this.downloadData.bind(this);
         this.unselectAllDataGrid = this.unselectAllDataGrid.bind(this);
@@ -788,15 +789,15 @@ export class ViewContainer extends BaseContainer {
                     </React.Fragment>)
                 case 'OP_DOCUMENTS':
                     return (<React.Fragment>
-                        {/*{this.state.documentsList?.length > 0 ? (*/}
+                        {this.state.documentsList?.length > 0 ? (
                         <ActionButtonWithMenu
                             id='button_documents'
                             className={`${margin}`}
                             iconName={operation?.iconCode || 'mdi-file-document'}
-                            items={this.state.documentsList}
+                            items={ActionButtonWithMenuUtils.createItemsWithCommand(this.state.documentsList,  undefined, this.handleRightHeadPanelContent, "OP_DOCUMENTS")}
                             title={operation?.label}
                         />
-                        {/*) : null}*/}
+                        ) : null}
                     </React.Fragment>)
                 case 'OP_PLUGINS':
                     return (<React.Fragment>
@@ -1067,7 +1068,7 @@ export class ViewContainer extends BaseContainer {
     refreshGanttData(){
         const initFilterId = this.state.parsedGridView?.viewInfo?.filterdId;
         const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
-        const parentIdArg = this.state.subView == null ? null : this.state.elementRecordId;
+        const parentIdArg = this.state.subView == null ? UrlUtils.getURLParameter('parentId') : this.state.elementRecordId;
         const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId;
         const kindViewArg = this.state.kindView;   
         this.setState({loading: true}, () => {
@@ -1209,7 +1210,7 @@ export class ViewContainer extends BaseContainer {
                                         });
                                     }
                             }}
-                            handleRefreshData={()=> this.refreshGanttData()}
+                            handleRefreshData={this.refreshGanttData}
                             handleUp={() => this.up()}
                             handleDown={() => this.publish()}
                             parsedGanttView={this.state.parsedGridView}

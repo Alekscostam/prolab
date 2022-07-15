@@ -1388,7 +1388,7 @@ class BaseContainer extends React.Component {
             let result = this.setVariableFromEvent(inputType,event);
             let varName  = result.varName;
             let varValue = result.varValue ;
-            let fieldArr = documentInfo.inputDataFields.find(field=> field.fieldName === varName);
+            let fieldArr = documentInfo.inputDataFields.find(field=> field.fieldName.toUpperCase() === varName.toUpperCase());
             fieldArr.value=varValue;
 
             this.setState({documentdInfo: documentInfo, modifyEditData: true});

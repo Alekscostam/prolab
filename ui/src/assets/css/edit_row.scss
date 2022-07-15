@@ -329,7 +329,12 @@
 #row-edit input[type=number] {
   -moz-appearance: textfield;
 }
-.p-sidebar .p-sidebar-header + .p-sidebar-content {
-  padding-top: 0;
-  height: 100%;
+
+.p-sidebar {
+	.p-sidebar-header {
+		& + .p-sidebar-content {
+			padding-top: 0;
+			height: 100%;
+		}
+	}
 }
