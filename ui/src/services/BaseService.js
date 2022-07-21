@@ -8,7 +8,7 @@ export default class BaseService {
         if (domain !== null && domain !== undefined) {
             this.domain = domain;
         } else {
-            this.domain = this.reConfigureDomain(); // API server domain
+            this.reConfigureDomain(); // API server domain
         }
         this.fetch = this.fetch.bind(this);
         this.setUiMethods = this.setUiMethods.bind(this);
