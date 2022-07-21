@@ -200,6 +200,30 @@ export const OperationsButtons = props => {
                                 iconSide="left"
                                 title={operations?.label}/>
                         </React.Fragment>);
+                case "OP_DOCUMENTS":
+                    if (!!atLeastOneSelected)
+                        return (<React.Fragment>
+                            <ShortcutButton
+                                className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
+                                handleClick={(e) => props.handleDocuments(e)}
+                                iconName={operations?.iconCode || 'mdi-publish'}
+                                iconColor={`${inverseColor ? `white` : `blue`}`}
+                                buttonShadow={buttonShadow}
+                                iconSide="left"
+                                title={operations?.label}/>
+                        </React.Fragment>);  
+                        case "OP_PLUGINS":
+                    if (!!atLeastOneSelected)
+                        return (<React.Fragment>
+                            <ShortcutButton
+                                className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
+                                handleClick={(e) => props.handlePlugins(e)}
+                                iconName={operations?.iconCode || 'mdi-publish'}
+                                iconColor={`${inverseColor ? `white` : `blue`}`}
+                                buttonShadow={buttonShadow}
+                                iconSide="left"
+                                title={operations?.label}/>
+                        </React.Fragment>);
                 default:
                     return null;
             }
@@ -221,7 +245,11 @@ export const OperationsButtons = props => {
                         case 'OP_RESTORE':
                             return props.handleRestore();
                         case 'OP_COPY':
-                            return props.handleCopy();
+                            return props.handleCopy();  
+                        case 'SK_DOCUMENT':
+                            return props.handleDocuments(i);
+                        case 'SK_PLUGIN':
+                            return props.handlePlugins(i);
                         case 'OP_ARCHIVE':
                             return props.handleArchive();
                         case 'OP_PUBLISH':
@@ -288,6 +316,10 @@ OperationsButtons.defaultProps = {
     handleFormula: () => {
     },
     handleHistory: () => {
+    }, 
+    handleDocuments: () => {
+    }, 
+    handlePlugins: () => {
     },
     handleAttachments: () => {
     },
@@ -313,6 +345,8 @@ OperationsButtons.propTypes = {
     handlePublish: PropTypes.func.isRequired,
     handleFormula: PropTypes.func.isRequired,
     handleHistory: PropTypes.func.isRequired,
+    handleDocuments: PropTypes.func.isRequired,
+    handlePlugins: PropTypes.func.isRequired,
     handleAttachments: PropTypes.func.isRequired,
     handleBlockUi: PropTypes.func.isRequired,
     handleAddLevel: PropTypes.func.isRequired,

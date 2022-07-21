@@ -484,6 +484,12 @@ class GanttViewComponent extends React.Component {
                                                        window.location.assign(newUrl);
                                                    }
                                                }}
+                                               handleDocuments={(el) => {
+                                                this.props.handleDocumentRow(el.id)
+                                               }}
+                                               handlePlugins={(el) => {
+                                                this.props.handlePluginRow(el.id)
+                                               }} 
                                                handleArchive={() => {
                                                    this.props.handleArchiveRow(recordId)
                                                }}

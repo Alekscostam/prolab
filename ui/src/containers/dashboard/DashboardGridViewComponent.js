@@ -485,6 +485,8 @@ export class DashboardGridViewComponent extends BaseContainer {
                             dataGridHeight={this.props.dataGridHeight}
                             handleDeleteRow={(id) => this.delete(id)}
                             handleRestoreRow={(id) => this.restore(id)}
+                            handleDocumentRow={(id) => this.generate(id)}
+                            handlePluginRow={(id) => this.plugin(id)}
                             handleCopyRow={(id) => this.copy(id)}
                             handleArchiveRow={(id) => this.archive(id)}
                             handlePublishRow={(id) => this.publish(id)}

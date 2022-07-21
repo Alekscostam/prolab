@@ -424,79 +424,19 @@ export class ViewContainer extends BaseContainer {
 
     /** Wybrana akcja po kliknieciu dowolnego elementu z RightHeadPanelContent */
     handleRightHeadPanelContent(element){
-        const idRowKeys =  this.state.selectedRowKeys.map(el=>el.ID);
-        const listId = {"listId": idRowKeys}
-        const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
         const elementId = `${element.id}`;
-        const parentIdArg = this.state.subView == null ? UrlUtils.getURLParameter('parentId') : this.state.elementRecordId;
-        let visiblePluginPanel = false;
-        let visibleMessagePluginPanel = false;
-
         switch (element.type) {
             case 'OP_PLUGINS' :
             case 'SK_PLUGIN' :
-                this.crudService.getPluginColumnsDefnitions(viewIdArg,elementId,listId,parentIdArg)
-                    .then((res)=>{  
-                        let parsedPluginViewData ;
-                        if(res.info.kind==="GRID"){
-                            visiblePluginPanel = true;
-                            let datas = this.dataPluginStore.getPluginDataStore(
-                                viewIdArg,
-                                elementId,
-                                listId,
-                                parentIdArg,
-                                (err) => {this.props.showErrorMessages(err);},
-                                () => {this.setState({dataPluginStoreSuccess: true});},
-                            )
-                            parsedPluginViewData = datas
-                        }else{
-                            visibleMessagePluginPanel = true;
-                        }
-                        this.setState({
-                            parsedPluginView: res,
-                            parsedPluginViewData: parsedPluginViewData,
-                            visiblePluginPanel: visiblePluginPanel,
-                            visibleMessagePluginPanel: visibleMessagePluginPanel,
-                            isPluginFirstStep: true,
-                            pluginId: elementId
-                        }) 
-                    }).catch((err)=>{
-                        this.showErrorMessages(err);
-                    })
-                break;
-                case 'OP_DOCUMENTS':
-                case 'SK_DOCUMENT':
-                        this.crudService.getDocumentDatasInfo(viewIdArg, elementId, listId, parentIdArg).then((res) => {
-                            if (res.kind === 'GE') {
-                                if (res.info.next) {
-                                    if (res.message) {
-                                        this.showSuccessMessage(res.message.text, undefined, res.message.title);
-                                    } else {
-                                        this.executeDocument(null, viewIdArg, elementId, parentIdArg);
-                                    }
-                                }
-                            } else {
-                                if (res.inputDataFields?.length) {
-                                    let documentInfo = {
-                                        inputDataFields: res.inputDataFields,
-                                        info: res.info,
-                                    };
-                                    this.setState({
-                                        visibleDocumentPanel: true,
-                                        documentInfo: documentInfo,
-                                    });
-                                    this.unblockUi();
-                                } else {
-                                    this.executeDocument(null, viewIdArg, elementId, parentIdArg);
-                                }
-                            }
-                    });
-                break;
-
+                    this.plugin(elementId);
+            break;
+            case 'OP_DOCUMENTS':
+            case 'SK_DOCUMENT':
+                    this.generate(elementId);
+            break;
             default:
                 return null;
-        
-            }
+        }
     }
 
     async executeDocument(data, viewId, elementId, parentId) {
@@ -1150,6 +1090,8 @@ export class ViewContainer extends BaseContainer {
                                     }
                                 }
                             }}
+                            handlePluginRow={(id) => this.plugin(id)}
+                            handleDocumentRow={(id)=> {this.generate(id)}}
                             dataGridStoreSuccess={this.state.dataGridStoreSuccess}
                             selectionDeferred={true}
                             handleDeleteRow={(id) => this.delete(id)}
@@ -1182,6 +1124,8 @@ export class ViewContainer extends BaseContainer {
                             kindView={kindViewArg}
                             parentId={parentIdArg}
                             filterId={filterIdArg}
+                            handlePluginRow={(id) => this.plugin(id)}
+                            handleDocumentRow={(id)=> {this.generate(id)}}
                             handleDeleteRow={(id) => this.delete(id)}
                             handleRestoreRow={(id) => this.restore(id)}
                             handleCopyRow={(id) => this.copy(id)}
@@ -1235,6 +1179,8 @@ export class ViewContainer extends BaseContainer {
                             handleSelectedRowKeys={(e)=> {this.setState({selectedRowKeys:e})}}
                             dataGridStoreSuccess={this.state.dataGridStoreSuccess}
                             selectionDeferred={true}
+                            handlePluginRow={(id) => this.plugin(id)}
+                            handleDocumentRow={(id)=> {this.generate(id)}}
                             handleDeleteRow={(id) => this.delete(id)}
                             handleRestoreRow={(id) => this.restore(id)}
                             handleCopyRow={(id) => this.copy(id)}

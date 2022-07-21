@@ -330,6 +330,12 @@ class GridViewComponent extends React.Component {
                                                handleCopy={() => {
                                                    this.props.handleCopyRow(recordId)
                                                }}
+                                               handleDocuments={(el) => {
+                                                this.props.handleDocumentRow(el.id)
+                                               }}
+                                               handlePlugins={(el) => {
+                                                this.props.handlePluginRow(el.id)
+                                               }} 
                                                handleDelete={() => {
                                                    this.props.handleDeleteRow(recordId)
                                                }}
@@ -431,6 +437,8 @@ GridViewComponent.propTypes = {
     handleCopyRow: PropTypes.func.isRequired,
     handleDeleteRow: PropTypes.func.isRequired,
     handleRestoreRow: PropTypes.func.isRequired,
+    handleDocumentRow: PropTypes.func.isRequired,
+    handlePluginRow: PropTypes.func.isRequired,
     handlePublishRow: PropTypes.func.isRequired,
     //other
     handleBlockUi: PropTypes.func.isRequired,
