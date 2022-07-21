@@ -422,7 +422,6 @@ export class ViewContainer extends BaseContainer {
         }
     }
 
-    /** Wybrana akcja po kliknieciu dowolnego elementu z RightHeadPanelContent */
     handleRightHeadPanelContent(element){
         const elementId = `${element.id}`;
         switch (element.type) {
@@ -967,10 +966,10 @@ export class ViewContainer extends BaseContainer {
 
     addView(e) {
         this.blockUi();
-        const subViewId = this.state.elementSubViewId;
-        const kindView = this.state.elementKindView;
-        const parentId = this.state.elementRecordId;
-        const recordId = undefined;
+        const subViewId = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
+        const kindView = !!this.state.elementKindView ? this.state.elementKindView : UrlUtils.getURLParameter('kindView');
+        const parentId = this.state.subView == null ? UrlUtils.getURLParameter('parentId') : this.state.elementRecordId;
+        const recordId = undefined; 
         let viewId = this.props.id;
         viewId = DataGridUtils.getRealViewId(subViewId, viewId);
         this.crudService
@@ -1053,7 +1052,7 @@ export class ViewContainer extends BaseContainer {
                             id={this.props.id}
                             elementSubViewId={this.state.elementSubViewId}
                             elementKindView={this.state.elementKindView}
-                            elementRecordId={this.state.elementRecordId}
+                            elementRecordId={this.state.elementRecordId ? this.state.elementRecordId : parentIdArg}
                             handleOnInitialized={this.onInitialize}
                             handleOnDataGrid={(ref) => this.refDataGrid = ref}
                             parsedGridView={this.state.parsedGridView}

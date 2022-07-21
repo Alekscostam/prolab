@@ -1018,7 +1018,7 @@ class BaseContainer extends React.Component {
                      
             }
         }
-        else {
+        else if (this.isGridView()){
             if (!!this.getRefGridView()) {
                 this.getRefGridView().instance.getDataSource().reload();
             }

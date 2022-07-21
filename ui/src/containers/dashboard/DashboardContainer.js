@@ -164,7 +164,9 @@ class DashboardContainer extends BaseContainer {
 
     //override
     refreshView() {
-        this.initializeDashboard();
+        if(!(UrlUtils.getURLParameter('recordId'))){
+            this.initializeDashboard();
+        }
     }
 
     renderContent() {
