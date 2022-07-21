@@ -1,7 +1,7 @@
 import BaseService from "./BaseService";
 import moment from "moment";
 import EditRowUtils from "../utils/EditRowUtils";
-
+import {saveAs} from 'file-saver';
 /*
 Kontroler do edycji danych.
  */
@@ -152,8 +152,52 @@ export default class CrudService extends BaseService {
             });
     }
 
-    downloadDocument(){
-        //  TODO: 
+    downloadDocument(viewId, documentId, fileId, token, fileName) {
+        const headers = {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Sec-Fetch-Site': 'same-origin',
+            Pragma: 'no-cahce',
+        };
+        headers['Authorization'] = token;
+        const url = new URL(
+            `${this.domain}/${this.path}/${viewId}/document/${documentId}/download${fileId ? `?fileId=${fileId}` : ''}`
+        );
+
+        return this.fetch(
+            url,
+            {
+                method: 'GET',
+            },
+            headers
+        )
+            .then((res) => {
+                const reader = res.getReader();
+                return new ReadableStream({
+                    start(controller) {
+                        return pump();
+                        function pump() {
+                            return reader.read().then(({done, value}) => {
+                                if (done) {
+                                    controller.close();
+                                    return;
+                                }
+                                controller.enqueue(value);
+                                return pump();
+                            });
+                        }
+                    },
+                });
+            })
+            .then((stream) => new Response(stream))
+            .then((response) => {
+                return response.blob();
+            })
+            .then((blob) => {
+                saveAs(blob, fileName);
+            })
+            .catch((err) => {
+                throw err;
+            });
     }
 
 

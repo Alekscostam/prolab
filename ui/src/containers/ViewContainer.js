@@ -464,33 +464,34 @@ export class ViewContainer extends BaseContainer {
                         this.showErrorMessages(err);
                     })
                 break;
-            case 'OP_DOCUMENTS' :  
-            case 'SK_DOCUMENT' :
-                this.crudService.getDocumentDatasInfo(viewIdArg,elementId,listId,parentIdArg)
-                .then((res)=>{
-                    if(res.kind==="GE"){
-                        if(res.message){
-                            this.showSuccessMessage("TODO download");
-                            // TODO: jeszcze nie pelno bo nie maja downlaodu 
-                        }   
-                    }
-                    else{
-                        if(res.inputDataFields?.length){
-                            let documentInfo = {
-                                inputDataFields: res.inputDataFields,
-                                info:res.info
+                case 'OP_DOCUMENTS':
+                case 'SK_DOCUMENT':
+                        this.crudService.getDocumentDatasInfo(viewIdArg, elementId, listId, parentIdArg).then((res) => {
+                            if (res.kind === 'GE') {
+                                if (res.info.next) {
+                                    if (res.message) {
+                                        this.showSuccessMessage(res.message.text, undefined, res.message.title);
+                                    } else {
+                                        this.executeDocument(null, viewIdArg, elementId, parentIdArg);
+                                    }
+                                }
+                            } else {
+                                if (res.inputDataFields?.length) {
+                                    let documentInfo = {
+                                        inputDataFields: res.inputDataFields,
+                                        info: res.info,
+                                    };
+                                    this.setState({
+                                        visibleDocumentPanel: true,
+                                        documentInfo: documentInfo,
+                                    });
+                                    this.unblockUi();
+                                } else {
+                                    this.executeDocument(null, viewIdArg, elementId, parentIdArg);
+                                }
                             }
-                            this.setState({
-                                visibleDocumentPanel: true,
-                                documentInfo : documentInfo
-                            });
-                            this.unblockUi();
-                        }else{
-                            this.executeDocument(null,viewIdArg,elementId,parentIdArg);
-                        }
-                    }
-                })
-            break;
+                    });
+                break;
 
             default:
                 return null;
@@ -498,39 +499,48 @@ export class ViewContainer extends BaseContainer {
             }
     }
 
-    executeDocument(data ,viewId, elementId,parentId){
-        const idRowKeys =  this.state.selectedRowKeys.map(el=>el.ID);
+    async executeDocument(data, viewId, elementId, parentId) {
+        const idRowKeys = this.state.selectedRowKeys.map((el) => el.ID);
         const requestBody = {
-            "listId": idRowKeys,
-            "data": data,
-        }
+            listId: idRowKeys,
+            data: data,
+        };
+
+        let fileId;
+        let fileName;
 
         this.blockUi();
-        this.crudService.generateDocument(requestBody,viewId,elementId,parentId)
-        .then((res)=>{
-            if(!res.error){
-                 // TODO: jeszcze nie pelno bo nie maja downloadu 
-                 
-                 if(res?.info?.fileId){
-                    this.showSuccessMessage("TODO download");
+        await this.crudService
+            .generateDocument(requestBody, viewId, elementId, parentId)
+            .then((res) => {
+                if (res?.info?.fileId) {
+                    fileId = res?.info?.fileId;
+                    fileName = res?.info?.fileName;
+                } else {
+                    this.showErrorMessage(res.message.text, undefined, res.message.title);
                 }
-                else{
-                    this.showSuccessMessage(res.message.text, undefined, res.message.title);
-                }
-            }
-            else{
-                this.showErrorMessage(res.error.message);
-            }
-            this.unblockUi();
-        })
-        .then((res)=>{
-        })
-        .catch((err)=>{
-            this.unblockUi();
-            this.showErrorMessages(err);
-        })
+            })
+            .catch(() => {
+                this.showErrorMessage('Błąd generowania dokumentu');
+                this.unblockUi();
+            });
+        this.unblockUi();
 
+        if (fileId) {
+            this.crudService.downloadDocument(
+                viewId,
+                elementId,
+                fileId,
+                this.authService.getToken('id_token'),
+                fileName
+            );
+
+            this.setState({
+                visibleDocumentPanel: false,
+            });
+        }
     }
+
     /** Metoda już typowo pod plugin. executePlugin wykonuje się w momencie przejscia z pierwszego do drugiego kroku */
     executePlugin(pluginId,requestBody,refreshAll){
         const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
