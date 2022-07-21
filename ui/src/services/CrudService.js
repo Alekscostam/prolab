@@ -33,7 +33,7 @@ export default class CrudService extends BaseService {
     }
 
     addEntry(viewId, recordId, parentId, kindView) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Add${recordId ? `/${recordId}` : ''}/Entry${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Add${recordId ? `/${recordId}` : ''}/Entry${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
             method: 'POST',
         }).then(addDataEntryResponse => {
             return Promise.resolve(addDataEntryResponse);
@@ -43,7 +43,7 @@ export default class CrudService extends BaseService {
     }
 
     add(viewId, recordId, parentId, kindView) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Add${recordId ? `/${recordId}` : ''}${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Add${recordId ? `/${recordId}` : ''}${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
             method: 'POST',
         }).then(addDataResponse => {
             return Promise.resolve(EditRowUtils.convertEditResponse(addDataResponse));
@@ -53,7 +53,7 @@ export default class CrudService extends BaseService {
     }
 
     editEntry(viewId, recordId, parentId, kindView) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}/Entry${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Edit/${recordId}/Entry${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
             method: 'POST',
         }).then(editDataEntryResponse => {
             return Promise.resolve(editDataEntryResponse);
@@ -63,7 +63,7 @@ export default class CrudService extends BaseService {
     }
 
     edit(viewId, recordId, parentId, kindView) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Edit/${recordId}${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
             method: 'GET',
         }).then(editDataResponse => {
             return Promise.resolve(EditRowUtils.convertEditResponse(editDataResponse));
@@ -73,7 +73,7 @@ export default class CrudService extends BaseService {
     }
 
     editAutoFill(viewId, recordId, parentId, kindView, element) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}/AutoFill${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Edit/${recordId}/AutoFill${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
             method: 'POST',
             body: JSON.stringify(element),
         }).catch((err) => {
@@ -82,7 +82,7 @@ export default class CrudService extends BaseService {
     }
 
     editList(viewId, recordId, parentId, fieldId, kindView, element) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}/list/${fieldId}${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Edit/${recordId}/list/${fieldId}${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
             method: 'POST',
             body: JSON.stringify(element),
         }).catch((err) => {
@@ -91,7 +91,7 @@ export default class CrudService extends BaseService {
     }
 
     editSpecList(viewId, parentId , fieldId, element) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/editspec/${parentId}/list/${fieldId}`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/editspec/${parentId}/list/${fieldId}`, {
             method: 'POST',
             body: JSON.stringify(element),
         }).catch((err) => {
@@ -100,7 +100,7 @@ export default class CrudService extends BaseService {
     }
 
     getPluginColumnsDefnitions(viewId, pluginId, listId, parentId) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/plugin/${pluginId}${parentId ? `?parentId=${parentId}` : ''}`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/plugin/${pluginId}${parentId ? `?parentId=${parentId}` : ''}`, {
             method: 'POST',
             body: JSON.stringify(listId),
         })
@@ -114,7 +114,7 @@ export default class CrudService extends BaseService {
 
 
     getPluginExecuteColumnsDefinitions(viewId, pluginId, requestBody,parentId) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/plugin/${pluginId}/execute${parentId ? `?parentId=${parentId}` : ''}`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/plugin/${pluginId}/execute${parentId ? `?parentId=${parentId}` : ''}`, {
             method: 'POST',
             body: JSON.stringify(requestBody),
         }).then(pluginResponse => {
@@ -126,7 +126,7 @@ export default class CrudService extends BaseService {
     } 
 
     getDocumentDatasInfo(viewId, documentId, listId, parentId) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/document/${documentId}${parentId ? `?parentId=${parentId}` : ''}
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/document/${documentId}${parentId ? `?parentId=${parentId}` : ''}
         `, {
             method: 'POST',
             body: JSON.stringify(listId),
@@ -140,7 +140,7 @@ export default class CrudService extends BaseService {
     }
 
     generateDocument(requestBody, viewId, documentId,  parentId) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/document/${documentId}/execute${parentId ? `?parentId=${parentId}` : ''}`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/document/${documentId}/execute${parentId ? `?parentId=${parentId}` : ''}`, {
             method: 'POST',
             body: JSON.stringify(requestBody),
         })
@@ -158,7 +158,7 @@ export default class CrudService extends BaseService {
 
 
     refreshFieldVisibility(viewId, recordId, parentId, kindView, element) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}/RefreshFieldVisibility${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Edit/${recordId}/RefreshFieldVisibility${parentId ? `?parentId=${parentId}` : ''}${parentId && kindView ? `&kindView=${kindView}` : ''}`, {
             method: 'POST',
             body: JSON.stringify(element),
         }).catch((err) => {
@@ -173,7 +173,7 @@ export default class CrudService extends BaseService {
             kindView: parentId && kindView ? kindView : undefined,
             kindOperation: kindOperation
         });
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}/Save${queryString}`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Edit/${recordId}/Save${queryString}`, {
             method: 'POST',
             body: JSON.stringify(elementToSave),
         }).catch((err) => {
@@ -187,7 +187,7 @@ export default class CrudService extends BaseService {
             kindView: parentId && kindView ? kindView : undefined,
             kindOperation: kindOperation
         });
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Edit/${recordId}/Cancel${queryString}`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Edit/${recordId}/Cancel${queryString}`, {
             method: 'POST',
             body: JSON.stringify(elementToCancel),
         }).catch((err) => {
@@ -206,7 +206,7 @@ export default class CrudService extends BaseService {
         for (const id in selectedIds) {
             queryStringTmp.push(`recordID=${selectedIds[id]}`);
         }
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Delete/Entry?${queryStringTmp.join('&')}`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Delete/Entry?${queryStringTmp.join('&')}`, {
             method: 'POST',
         }).then(deleteResponse => {
             return Promise.resolve(deleteResponse);
@@ -226,7 +226,7 @@ export default class CrudService extends BaseService {
         for (const id in selectedIds) {
             queryStringTmp.push(`recordID=${selectedIds[id]}`);
         }
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Delete?${queryStringTmp.join('&')}`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Delete?${queryStringTmp.join('&')}`, {
             method: 'DELETE',
         }).catch((err) => {
             throw err;
@@ -244,7 +244,7 @@ export default class CrudService extends BaseService {
         for (const id in selectedIds) {
             queryStringTmp.push(`recordID=${selectedIds[id]}`);
         }
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Archive/Entry?${queryStringTmp.join('&')}`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Archive/Entry?${queryStringTmp.join('&')}`, {
             method: 'POST',
         }).catch((err) => {
             throw err;
@@ -262,7 +262,7 @@ export default class CrudService extends BaseService {
         for (const id in selectedIds) {
             queryStringTmp.push(`recordID=${selectedIds[id]}`);
         }
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Archive?${queryStringTmp.join('&')}`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Archive?${queryStringTmp.join('&')}`, {
             method: 'POST',
         }).catch((err) => {
             throw err;
@@ -287,7 +287,7 @@ export default class CrudService extends BaseService {
             specWithValuesCopy: specWithValuesCopy
         }) || [];
         queryStringTmp = queryStringTmp.concat(queryStringParams);
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Copy/Entry?${queryStringTmp.join('&')}`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Copy/Entry?${queryStringTmp.join('&')}`, {
             method: 'POST',
         }).catch((err) => {
             throw err;
@@ -312,7 +312,7 @@ export default class CrudService extends BaseService {
             specWithValuesCopy: specWithValuesCopy
         }) || [];
         queryStringTmp = queryStringTmp.concat(queryStringParams);
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Copy?${queryStringTmp.join('&')}`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Copy?${queryStringTmp.join('&')}`, {
             method: 'POST',
         }).catch((err) => {
             throw err;
@@ -330,7 +330,7 @@ export default class CrudService extends BaseService {
         for (const id in selectedIds) {
             queryStringTmp.push(`recordID=${selectedIds[id]}`);
         }
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Restore/Entry?${queryStringTmp.join('&')}`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Restore/Entry?${queryStringTmp.join('&')}`, {
             method: 'POST',
         }).catch((err) => {
             throw err;
@@ -348,7 +348,7 @@ export default class CrudService extends BaseService {
         for (const id in selectedIds) {
             queryStringTmp.push(`recordID=${selectedIds[id]}`);
         }
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Restore?${queryStringTmp.join('&')}`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Restore?${queryStringTmp.join('&')}`, {
             method: 'POST',
         }).catch((err) => {
             throw err;
@@ -366,7 +366,7 @@ export default class CrudService extends BaseService {
         for (const id in selectedIds) {
             queryStringTmp.push(`recordID=${selectedIds[id]}`);
         }
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Publish/Entry?${queryStringTmp.join('&')}`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Publish/Entry?${queryStringTmp.join('&')}`, {
             method: 'POST',
         }).catch((err) => {
             throw err;
@@ -385,7 +385,7 @@ export default class CrudService extends BaseService {
         for (const id in selectedIds) {
             queryStringTmp.push(`recordID=${selectedIds[id]}`);
         }
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Publish?${queryStringTmp.join('&')}`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Publish?${queryStringTmp.join('&')}`, {
             method: 'POST',
         }).catch((err) => {
             throw err;
@@ -393,7 +393,7 @@ export default class CrudService extends BaseService {
     }
 
     saveSpecEntry(viewId, parentId, listId, filterId) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Editspec/${parentId}/Entry`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Editspec/${parentId}/Entry`, {
             method: 'POST',
             body: JSON.stringify({
                 listId: listId
@@ -404,7 +404,7 @@ export default class CrudService extends BaseService {
     }
 
     saveSpec(viewId, parentId, elementToSave, confirmSave) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Editspec/${parentId}/Save?confirmSave=${confirmSave}`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Editspec/${parentId}/Save?confirmSave=${confirmSave}`, {
             method: 'POST',
             body: JSON.stringify({
                 data: elementToSave
@@ -415,7 +415,7 @@ export default class CrudService extends BaseService {
     }
 
     cancelSpec(viewId, parentId, listId) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/Editspec/${parentId}/Cancel`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Editspec/${parentId}/Cancel`, {
             method: 'POST',
             body: {
                 listId: JSON.stringify(listId)
