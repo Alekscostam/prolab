@@ -200,30 +200,6 @@ export const OperationsButtons = props => {
                                 iconSide="left"
                                 title={operations?.label}/>
                         </React.Fragment>);
-                case "OP_DOCUMENTS":
-                    if (!!atLeastOneSelected)
-                        return (<React.Fragment>
-                            <ShortcutButton
-                                className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
-                                handleClick={(e) => props.handleDocuments(e)}
-                                iconName={operations?.iconCode || 'mdi-publish'}
-                                iconColor={`${inverseColor ? `white` : `blue`}`}
-                                buttonShadow={buttonShadow}
-                                iconSide="left"
-                                title={operations?.label}/>
-                        </React.Fragment>);  
-                        case "OP_PLUGINS":
-                    if (!!atLeastOneSelected)
-                        return (<React.Fragment>
-                            <ShortcutButton
-                                className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
-                                handleClick={(e) => props.handlePlugins(e)}
-                                iconName={operations?.iconCode || 'mdi-publish'}
-                                iconColor={`${inverseColor ? `white` : `blue`}`}
-                                buttonShadow={buttonShadow}
-                                iconSide="left"
-                                title={operations?.label}/>
-                        </React.Fragment>);
                 default:
                     return null;
             }
