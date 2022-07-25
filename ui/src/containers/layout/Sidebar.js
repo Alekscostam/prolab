@@ -259,7 +259,7 @@ class Sidebar extends React.Component {
                         {items?.map((item) => {
                             const activeItem = containsViewId(item, this.state.viewId, item.id);
                             return item.type === 'View' ? (
-                                <li>
+                                <li key={`menu_item_g_key_${item.id}`}>
                                     <MenuItem
                                         id={`menu_item_id_${item.id}`}
                                         key={`menu_item_key_${item.id}`}
@@ -267,8 +267,7 @@ class Sidebar extends React.Component {
                                         icon={this.displayIcon(item)}
                                         onClick={() => {
                                             this.doNotUpdate = true;
-                                        }}
-                                    >
+                                        }}>
                                         <div className='menu_arrow_active'/>
                                         <a
                                             href={AppPrefixUtils.locationHrefUrl(
@@ -324,7 +323,7 @@ class Sidebar extends React.Component {
 
         const DynamicMenu = (data) => {
             return (
-                <SidebarContent id={'menu-content'} key='menu-content-key'>
+                <SidebarContent id={'menu-content'} key='menu-content-key-1'>
                     {renderDynamicMenu(data?.data)}
                 </SidebarContent>
             );
@@ -463,7 +462,7 @@ class Sidebar extends React.Component {
 }
 
 Sidebar.propTypes = {
-    labels: PropTypes.array.isRequired,
+    labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
     handleCollapseChange: PropTypes.func.isRequired,
     loggedUser: PropTypes.any,
     handleLogoutUser: PropTypes.any,

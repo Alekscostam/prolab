@@ -273,6 +273,9 @@ class CardViewInfiniteComponent extends React.Component {
                                                            handlePublish={() => {
                                                                     this.props.handlePublishRow(recordId)
                                                                 }}
+                                                           handleBlockUi={() => {
+                                                               this.props.handleBlockUi()
+                                                           }}
                                         />
                                     </div>
                             </div>

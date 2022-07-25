@@ -162,7 +162,7 @@ class SubGridViewComponent extends React.Component {
 SubGridViewComponent.defaultProps = {};
 SubGridViewComponent.propTypes = {
     subView: PropTypes.object.isRequired,
-    labels: PropTypes.object.isRequired,
+    labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
     handleOnInitialized: PropTypes.func.isRequired,
     handleOnEditClick: PropTypes.func,
 };

@@ -383,6 +383,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                     handlePublish={() => this.publish()}
                     handleUnblockUi={() => this.unblockUi()}
                     showErrorMessages={(err) => this.showErrorMessages(err)}
+                    handleBlockUi={() => this.blockUi()}
                 />
             </React.Fragment>
         );
@@ -527,7 +528,7 @@ export class DashboardGridViewComponent extends BaseContainer {
             handleUnBlockUi: PropTypes.func,
             handleShowErrorMessages: PropTypes.func,
             dataGridHeight: PropTypes.number,
-            labels: PropTypes.object.isRequired,
+            labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
         }
 }
 

@@ -78,6 +78,7 @@ export class CardViewUtils {
                             }}
                             className={className}
                             title={rowData[fieldDefinition.fieldName]}
+                            // eslint-disable-next-line
                             dangerouslySetInnerHTML={{__html: rowData[fieldDefinition.fieldName]}}
                         >
                         </span>
@@ -93,6 +94,7 @@ export class CardViewUtils {
                     }}
                     className={className}
                     title={rowData[fieldDefinition.fieldName]}
+                    // eslint-disable-next-line
                     dangerouslySetInnerHTML={{__html: rowData[fieldDefinition.fieldName]}}
                 >
                 </span>

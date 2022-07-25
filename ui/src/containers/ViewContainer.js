@@ -923,6 +923,7 @@ export class ViewContainer extends BaseContainer {
                     handlePublish={() => this.publish()}
                     handleUnblockUi={() => this.unblockUi()}
                     showErrorMessages={(err) => this.showErrorMessages(err)}
+                    handleBlockUi={() => this.blockUi()}
                 />
             </React.Fragment>
         );
@@ -1258,7 +1259,7 @@ ViewContainer.defaultProps = {
 
 ViewContainer.propTypes = {
     id: PropTypes.string.isRequired,
-    labels: PropTypes.object.isRequired,
+    labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
     handleRenderNoRefreshContent: PropTypes.bool.isRequired,
     handleViewInfoName: PropTypes.func.isRequired,
     handleSubView: PropTypes.func.isRequired,

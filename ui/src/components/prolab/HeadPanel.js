@@ -64,7 +64,8 @@ export const HeadPanel = props => {
                                                handleEdit={(e) => handleEdit(e, props, viewId, parentId, currentBreadcrumb)}
                                                handleEditSpec={(e) => handleSpecEdit(e, props, viewId, parentId, currentBreadcrumb)}
                                                inverseColor={true}
-                                               buttonShadow={false}/>
+                                               buttonShadow={false}
+                                               handleBlockUi={props.handleUnblockUi()}/>
                         </div>
                     </div>
                 </React.Fragment>
@@ -82,8 +83,11 @@ export const HeadPanel = props => {
                                        handleEdit={(e) => handleEdit(e, props, viewId, parentId, currentBreadcrumb)}
                                        handleEditSpec={(e) => handleSpecEdit(e, props, viewId, parentId, currentBreadcrumb)}
                                        inverseColor={false}
-                                       buttonShadow={true}/>
-                    </div>
+                                       buttonShadow={true}
+                                       handleBlockUi={() => {
+                                           props.handleBlockUi()
+                                       }}/>
+                        </div>
                     </div>
                 </React.Fragment>}
             {props.rightContent === undefined ? null :
@@ -100,18 +104,19 @@ HeadPanel.defaultProps = {};
 
 HeadPanel.propTypes = {
     elementId: PropTypes.string.isRequired,
-    elementSubViewId: PropTypes.string.isRequired,
     elementRecordId: PropTypes.string.isRequired,
-    elementKindView:PropTypes.string.isRequired,
-    labels: PropTypes.object.isRequired,
+    elementKindView:PropTypes.string,
+    labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
     selectedRowKeys: PropTypes.array.isRequired,
     operations: PropTypes.array.isRequired,
     handleDelete: PropTypes.func.isRequired,
     handleRestore: PropTypes.func.isRequired,
     handleCopy: PropTypes.func.isRequired,
     handleArchive: PropTypes.func.isRequired,
+    handleBlockUi: PropTypes.func.isRequired,
     handleUnblockUi: PropTypes.func.isRequired,
     showErrorMessages: PropTypes.func.isRequired,
+    elementSubViewId: PropTypes.string,
     leftContent: PropTypes.any,
     rightContent: PropTypes.any
 };

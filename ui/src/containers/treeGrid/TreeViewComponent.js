@@ -89,8 +89,6 @@ class TreeViewComponent extends React.Component {
             loading: true,
             dataGridStoreSuccess: false
         }, () => {
-            console.log(cellInfo);
-            console.log(columnDefinition);
             const viewId = this.props.id;
             const parentId = this.props.elementParentId;
             const recordId = cellInfo.row?.data?.ID;
@@ -99,12 +97,14 @@ class TreeViewComponent extends React.Component {
                 .editSpecList(viewId, parentId, fieldId, editListObject)
                 .then((responseView) => {
                     let selectedRowDataTmp = [];
-                    //CRC key
                     let defaultSelectedRowKeysTmp = [];
-                    const editData = this.props.editData;
-                    const setFields = responseView.setFields;
-                    const separatorJoin = responseView.options?.separatorJoin || ',';
-                    let countSeparator = 0;
+                    let setFields = [];
+                    // CRC key
+                    // let defaultSelectedRowKeysTmp = [];
+                    // const editData = this.props.editData;
+                    // const setFields = responseView.setFields;
+                    // const separatorJoin = responseView.options?.separatorJoin || ',';
+                    // let countSeparator = 0;
                     // setFields.forEach((field) => {
                     //     EditRowUtils.searchField(editData, field.fieldEdit, (foundFields) => {
                     //         const fieldValue = ('' + foundFields.value).split(separatorJoin);
@@ -134,9 +134,9 @@ class TreeViewComponent extends React.Component {
                             parsedGridView: responseView,
                             gridViewColumns: responseView.gridColumns,
                             filtersList: filtersListTmp,
-                            packageRows: responseView?.viewInfo?.dataPackageSize
-                            // selectedRowData: selectedRowDataTmp,
-                            // defaultSelectedRowKeys: defaultSelectedRowKeysTmp
+                            packageRows: responseView?.viewInfo?.dataPackageSize,
+                            selectedRowData: selectedRowDataTmp,
+                            defaultSelectedRowKeys: defaultSelectedRowKeysTmp
                         }),
                         () => {
                             let res = this.editListDataStore.getEditListDataStore(
@@ -213,10 +213,8 @@ class TreeViewComponent extends React.Component {
                                handleUnblockUi={() => this.props.handleUnblockUi()}
                                handleOnChosen={(editListData, field) => {
                                    ConsoleHelper('EditRowComponent::handleOnChosen = ', JSON.stringify(editListData))
-                                   // let editInfo = this.props.editData?.editInfo;
-                                   // editInfo.field = field;
-                                   // this.props.onEditList(editInfo, editListData);
-                                   // cellInfo.setValue(e.value)
+                                   this.state.editListField?.setValue(editListData[0].fieldValue);
+                                   this.ref?.instance?.refresh();
                                }}
                                showErrorMessages={(err) => this.props.showErrorMessages(err)}
                                dataGridStoreSuccess={this.state.dataGridStoreSuccess}
@@ -230,7 +228,8 @@ class TreeViewComponent extends React.Component {
                 keyExpr='ID'
                 className={`tree-container${headerAutoHeight ? ' tree-header-auto-height' : ''}`}
                 ref={(ref) => {
-                    this.props.handleOnTreeList(ref)
+                    this.ref = ref
+                    this.props.handleOnTreeList(this.ref)
                 }}
                 dataSource={this.props.parsedGridViewData}
                 customizeColumns={this.postCustomizeColumns}
@@ -450,7 +449,7 @@ class TreeViewComponent extends React.Component {
                                                    alert('TODO')
                                                }}
                                                handleBlockUi={() => {
-                                                   this.props.handleAddLevel(recordId);
+                                                   this.props.handleBlockUi();
                                                }}
                                                handleUp={() => {
                                                    this.props.handleUp(recordId);
@@ -546,6 +545,7 @@ class TreeViewComponent extends React.Component {
                                 color: fontColorFinal,
                                 background: bgColorFinal
                             }}
+                            // eslint-disable-next-line
                             dangerouslySetInnerHTML={{__html: cellInfo?.text}}
                         />
                     } catch (err) {
@@ -687,15 +687,15 @@ TreeViewComponent.defaultProps = {
 };
 
 TreeViewComponent.propTypes = {
-    id: PropTypes.number.isRequired,
-    elementParentId: PropTypes.number.isRequired,
-    elementRecordId: PropTypes.number.isRequired,
-    parsedGridView: PropTypes.object.isRequired,
-    parsedGridViewData: PropTypes.object.isRequired,
-    gridViewColumns: PropTypes.object.isRequired,
-    selectedRowKeys: PropTypes.object.isRequired,
+    id: PropTypes.oneOfType([PropTypes.number.isRequired, PropTypes.string.isRequired]),
+    elementParentId: PropTypes.oneOfType([PropTypes.number.isRequired, PropTypes.string.isRequired]),
+    elementRecordId: PropTypes.oneOfType([PropTypes.number.isRequired, PropTypes.string.isRequired]),
+    parsedGridView: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
+    parsedGridViewData: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
+    gridViewColumns: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
+    selectedRowKeys: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
     onChange: PropTypes.func.isRequired,
-    labels: PropTypes.object.isRequired,
+    labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
     onBlur: PropTypes.func,
     handleOnTreeList: PropTypes.func.isRequired,
     handleOnInitialized: PropTypes.func,
@@ -709,7 +709,6 @@ TreeViewComponent.propTypes = {
     handleDown: PropTypes.func.isRequired,
     handleBlockUi: PropTypes.func.isRequired,
     handleUnblockUi: PropTypes.func.isRequired,
-    showInfoMessages: PropTypes.func.isRequired,
     showErrorMessages: PropTypes.func.isRequired,
     showColumnHeaders: PropTypes.bool,
     showColumnLines: PropTypes.bool,
