@@ -65,7 +65,8 @@ export const HeadPanel = props => {
                                                handleEditSpec={(e) => handleSpecEdit(e, props, viewId, parentId, currentBreadcrumb)}
                                                inverseColor={true}
                                                buttonShadow={false}
-                                               handleBlockUi={props.handleUnblockUi()}/>
+                                               handleBlockUi={(e) =>props.handleUnblockUi()}
+                                               />
                         </div>
                     </div>
                 </React.Fragment>

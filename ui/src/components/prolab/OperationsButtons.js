@@ -221,7 +221,11 @@ export const OperationsButtons = props => {
                         case 'OP_RESTORE':
                             return props.handleRestore();
                         case 'OP_COPY':
-                            return props.handleCopy();
+                            return props.handleCopy();  
+                        case 'SK_DOCUMENT':
+                            return props.handleDocuments(i);
+                        case 'SK_PLUGIN':
+                            return props.handlePlugins(i);
                         case 'OP_ARCHIVE':
                             return props.handleArchive();
                         case 'OP_PUBLISH':
@@ -288,6 +292,10 @@ OperationsButtons.defaultProps = {
     handleFormula: () => {
     },
     handleHistory: () => {
+    }, 
+    handleDocuments: () => {
+    }, 
+    handlePlugins: () => {
     },
     handleAttachments: () => {
     },
@@ -312,6 +320,7 @@ OperationsButtons.propTypes = {
     handleCopy: PropTypes.func,
     handleArchive: PropTypes.func,
     handlePublish: PropTypes.func,
+    handleUnblockUi:PropTypes.func,
     handleFormula: PropTypes.func,
     handleHistory: PropTypes.func,
     handleAttachments: PropTypes.func,
@@ -323,5 +332,6 @@ OperationsButtons.propTypes = {
     inverseColor: PropTypes.bool,
     buttonShadow: PropTypes.bool,
 };
+
 
 export default OperationsButtons;

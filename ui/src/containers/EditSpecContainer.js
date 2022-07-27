@@ -258,7 +258,7 @@ export class EditSpecContainer extends BaseContainer {
                             id={`button_documents` + index}
                             className={`${margin}`}
                             iconName={operation?.iconCode || 'mdi-file-document'}
-                            items={this.state.documentsList}
+                            items={ActionButtonWithMenuUtils.createItemsWithCommand(this.state.documentsList,  undefined, this.handleRightHeadPanelContent, operation.type?.toUpperCase())}
                             title={operation?.label}
                         />
                         {/*) : null}*/}
@@ -576,6 +576,8 @@ export class EditSpecContainer extends BaseContainer {
                         handleDown={(id) => this.down(id)}
                         handleRestoreRow={(id) => this.restore(id)}
                         handleCopyRow={(id) => this.copy(id)}
+                        handleDocumentsRow={(id) => {this.generate(id)}}
+                        handlePluginsRow={(id) => {this.plugin(id)}}
                         handleArchiveRow={(id) => this.archive(id)}
                         handlePublishRow={(id) => this.publish(id)}
                         showErrorMessages={(err) => this.showErrorMessages(err)}

@@ -37,6 +37,10 @@ class DashboardContainer extends BaseContainer {
     componentDidMount() {
         super.componentDidMount();
         this.props.handleRenderNoRefreshContent(false);
+        this.refreshDashboard();
+    }
+    
+    refreshDashboard(){
         if (!!this.props.dashboard) {
             this.setState({
                 dashboard: this.props.dashboard,
@@ -164,7 +168,7 @@ class DashboardContainer extends BaseContainer {
 
     //override
     refreshView() {
-        this.initializeDashboard();
+            this.refreshDashboard();
     }
 
     renderContent() {

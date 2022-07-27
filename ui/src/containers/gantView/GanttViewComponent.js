@@ -21,8 +21,6 @@ import ReactDOM from "react-dom";
 import OperationsButtons from "../../components/prolab/OperationsButtons";
 import AppPrefixUtils from "../../utils/AppPrefixUtils";
 import {EntryResponseUtils} from "../../utils/EntryResponseUtils";
-import {EditSpecUtils} from "../../utils/EditSpecUtils";
-import {compress} from "int-compress-string/src";
 import DataGanttStore from '../dao/DataGanttStore.js';
 import { GanttUtils } from '../../utils/component/GanttUtils.js';
 import "../../assets/css/gantt_container.scss";
@@ -484,6 +482,12 @@ class GanttViewComponent extends React.Component {
                                                        window.location.assign(newUrl);
                                                    }
                                                }}
+                                               handleDocuments={(el) => {
+                                                this.props.handleDocumentRow(el.id)
+                                               }}
+                                               handlePlugins={(el) => {
+                                                this.props.handlePluginRow(el.id)
+                                               }} 
                                                handleArchive={() => {
                                                    this.props.handleArchiveRow(recordId)
                                                }}

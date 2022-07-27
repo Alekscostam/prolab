@@ -1018,7 +1018,7 @@ class BaseContainer extends React.Component {
                      
             }
         }
-        else {
+        else if (this.isGridView()){
             if (!!this.getRefGridView()) {
                 this.getRefGridView().instance.getDataSource().reload();
             }
@@ -1159,6 +1159,76 @@ class BaseContainer extends React.Component {
             }).catch((err) => {
             this.showGlobalErrorMessage(err);
         })
+    }
+    generate(id) {
+        ConsoleHelper('handleGenerate');
+        const viewId = this.getRealViewId();
+        const parentId = this.state.elementRecordId;
+        const idRowKeys =  this.state.selectedRowKeys.map(el=>el.ID);
+        const listId = {"listId": idRowKeys}
+        this.crudService.getDocumentDatasInfo(viewId, id, listId, parentId)
+                        .then((res) => {
+                            if (res.kind === 'GE') {
+                                if (res.info.next) {
+                                    if (res.message) {
+                                        this.showSuccessMessage(res.message.text, undefined, res.message.title);
+                                    } else {
+                                        this.executeDocument(null, viewId, id, parentId);
+                                    }
+                                }
+                            } else {
+                                if (res.inputDataFields?.length) {
+                                    let documentInfo = {
+                                        inputDataFields: res.inputDataFields,
+                                        info: res.info,
+                                    };
+                                    this.setState({
+                                        visibleDocumentPanel: true,
+                                        documentInfo: documentInfo,
+                                    });
+                            } else {
+                                    this.executeDocument(null, viewId, id, parentId);
+                            }
+                    }
+                });
+    } 
+    
+    plugin(id) {
+        ConsoleHelper('handlePlugin');
+        const viewId = this.getRealViewId();
+        const parentId = this.state.elementRecordId;
+        const idRowKeys =  this.state.selectedRowKeys.map(el=>el.ID);
+        const listId = {"listId": idRowKeys}
+        let visiblePluginPanel = false;
+        let visibleMessagePluginPanel = false;
+        this.crudService.getPluginColumnsDefnitions(viewId,id,listId,parentId)
+                    .then((res)=>{  
+                        let parsedPluginViewData ;
+                        if(res.info.kind==="GRID"){
+                            visiblePluginPanel = true;
+                            let datas = this.dataPluginStore.getPluginDataStore(
+                                viewId,
+                                id,
+                                listId,
+                                parentId,
+                                (err) => {this.props.showErrorMessages(err);},
+                                () => {this.setState({dataPluginStoreSuccess: true});},
+                            )
+                            parsedPluginViewData = datas
+                        }else{
+                            visibleMessagePluginPanel = true;
+                        }
+                        this.setState({
+                            parsedPluginView: res,
+                            parsedPluginViewData: parsedPluginViewData,
+                            visiblePluginPanel: visiblePluginPanel,
+                            visibleMessagePluginPanel: visibleMessagePluginPanel,
+                            isPluginFirstStep: true,
+                            pluginId: id
+                        }) 
+                    }).catch((err)=>{
+                        this.showErrorMessages(err);
+                    })
     }
 
     getSelectedRowKeysIds(id) {

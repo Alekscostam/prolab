@@ -439,6 +439,12 @@ class TreeViewComponent extends React.Component {
                                                handleRestore={() => {
                                                    this.props.handleRestoreRow(recordId)
                                                }}
+                                               handleDocuments={(el) => {
+                                                this.props.handleDocumentRow(el.id)
+                                               }}
+                                               handlePlugins={(el) => {
+                                                this.props.handlePluginRow(el.id)
+                                               }} 
                                                handleFormula={() => {
                                                    alert('TODO')
                                                }}
