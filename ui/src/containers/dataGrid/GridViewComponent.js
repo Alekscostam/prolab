@@ -415,35 +415,34 @@ GridViewComponent.defaultProps = {
 };
 
 GridViewComponent.propTypes = {
-    id: PropTypes.number.isRequired,
-    elementSubViewId: PropTypes.number,
-    elementRecordId: PropTypes.number,
-    elementKindView: PropTypes.string,
-    parsedGridView: PropTypes.object.isRequired,
-    parsedGridViewData: PropTypes.object.isRequired,
-    gridViewColumns: PropTypes.object.isRequired,
+    id: PropTypes.oneOfType([PropTypes.number.isRequired, PropTypes.string.isRequired, PropTypes.func.isRequired]),
+    elementSubViewId: PropTypes.oneOfType([PropTypes.number.isRequired, PropTypes.string.isRequired]),
+    elementRecordId: PropTypes.oneOfType([PropTypes.number.isRequired, PropTypes.string.isRequired]),
+    elementKindView: PropTypes.oneOfType([PropTypes.number.isRequired, PropTypes.string.isRequired]),
+    parsedGridView: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
+    parsedGridViewData: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
+    gridViewColumns: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
     packageRows: PropTypes.number,
     handleOnDataGrid: PropTypes.func.isRequired,
     handleOnInitialized: PropTypes.func,
     showRenderingViewMode: PropTypes.bool,
     handleShowEditPanel: PropTypes.func,
     //selection
-    selectedRowKeys: PropTypes.object.isRequired,
+    selectedRowKeys: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
     handleSelectedRowKeys: PropTypes.func,
     handleSelectAll: PropTypes.func,
     selectionDeferred: PropTypes.bool,
+    
     //buttons
-    handleArchiveRow: PropTypes.func.isRequired,
-    handleCopyRow: PropTypes.func.isRequired,
-    handleDeleteRow: PropTypes.func.isRequired,
-    handleRestoreRow: PropTypes.func.isRequired,
-    handleDocumentRow: PropTypes.func.isRequired,
-    handlePluginRow: PropTypes.func.isRequired,
-    handlePublishRow: PropTypes.func.isRequired,
+    handleArchiveRow: PropTypes.func,
+    handleDocumentRow: PropTypes.func,
+    handleCopyRow: PropTypes.func,
+    handleDeleteRow: PropTypes.func,
+    handleRestoreRow: PropTypes.func,
+    handlePublishRow: PropTypes.func,
     //other
     handleBlockUi: PropTypes.func.isRequired,
     handleUnblockUi: PropTypes.func.isRequired,
-    showInfoMessages: PropTypes.func.isRequired,
     showErrorMessages: PropTypes.func.isRequired,
     showColumnHeaders: PropTypes.bool,
     showColumnLines: PropTypes.bool,
@@ -452,7 +451,7 @@ GridViewComponent.propTypes = {
     showFilterRow: PropTypes.bool,
     showSelection: PropTypes.bool,
     dataGridHeight: PropTypes.number,
-    dataGridStoreSuccess: PropTypes.bool,
+    dataGridStoreSuccess: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
     allowSelectAll: PropTypes.bool
 };
 

@@ -500,8 +500,9 @@ class GanttViewComponent extends React.Component {
                                                handleRestore={() => {
                                                    this.props.handleRestoreRow(recordId)
                                                }}
-                                            
-                                               
+                                               handleBlockUi={() => {
+                                                   this.props.handleBlockUi()
+                                               }}
                             />
     
                         </div>, element);

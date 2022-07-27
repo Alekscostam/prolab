@@ -130,6 +130,6 @@ PluginListComponent.defaultProps = {
     dataPluginStoreSuccess: PropTypes.bool,
     selectedRowData: PropTypes.object.isRequired,
     handleSelectedRowData: PropTypes.func.isRequired,
-    labels: PropTypes.object.isRequired,
+    labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
 };
 

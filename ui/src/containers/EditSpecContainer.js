@@ -306,7 +306,7 @@ export class EditSpecContainer extends BaseContainer {
         let opAdd = DataGridUtils.containsOperationsButton(operations, 'OP_ADD');
         let opSave = DataGridUtils.containsOperationsButton(operations, 'OP_SAVE');
         return <React.Fragment>
-            <ActionButton rendered={opAdd} label={opAdd?.label}
+            <ActionButton rendered={!!opAdd} label={opAdd?.label}
                           className="ml-2"
                           handleClick={(e) => {
                               let newElement = {};
@@ -325,7 +325,7 @@ export class EditSpecContainer extends BaseContainer {
                                   this.refreshTable();
                               });
                           }}/>
-            <ActionButton rendered={opSave} label={opSave?.label}
+            <ActionButton rendered={!!opSave} label={opSave?.label}
                           className="ml-2"
                           handleClick={(e) => {
                               const viewIdArg = this.state.elementId;
@@ -455,6 +455,7 @@ export class EditSpecContainer extends BaseContainer {
                     handlePublish={() => this.publish()}
                     handleUnblockUi={() => this.unblockUi()}
                     showErrorMessages={(err) => this.showErrorMessages(err)}
+                    handleBlockUi={() => this.blockUi()}
                 />
             </React.Fragment>
         );
@@ -609,6 +610,6 @@ EditSpecContainer.defaultProps = {
 
 EditSpecContainer.propTypes = {
     id: PropTypes.string.isRequired,
-    labels: PropTypes.object.isRequired,
+    labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
     collapsed: PropTypes.bool.isRequired,
 }

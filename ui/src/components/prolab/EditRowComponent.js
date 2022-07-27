@@ -230,7 +230,7 @@ EditRowComponent.propTypes = {
     onHide: PropTypes.func.isRequired,
     validator: PropTypes.instanceOf(SimpleReactValidator).isRequired,
     onError: PropTypes.func,
-    labels: PropTypes.object.isRequired,
+    labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
 };
 
 export default EditRowComponent;

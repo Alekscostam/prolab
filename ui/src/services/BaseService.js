@@ -8,7 +8,7 @@ export default class BaseService {
         if (domain !== null && domain !== undefined) {
             this.domain = domain;
         } else {
-            this.domain = readObjFromCookieGlobal("REACT_APP_BACKEND_URL"); // API server domain
+            this.reConfigureDomain(); // API server domain
         }
         this.fetch = this.fetch.bind(this);
         this.setUiMethods = this.setUiMethods.bind(this);
@@ -22,6 +22,13 @@ export default class BaseService {
 
     reConfigureDomain() {
         this.domain = readObjFromCookieGlobal("REACT_APP_BACKEND_URL");
+    }
+
+    getDomain() {
+        if (!this.domain) {
+            this.reConfigureDomain();
+        }
+        return this.domain;
     }
 
     setUiMethods(blockUi, unblockUi) {

@@ -109,6 +109,6 @@ EditListComponent.defaultProps = {
     selectedRowData: PropTypes.object.isRequired,
     defaultSelectedRowKeys: PropTypes.object.isRequired,
     handleSelectedRowData: PropTypes.func.isRequired,
-    labels: PropTypes.object.isRequired,
+    labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
 };
 
