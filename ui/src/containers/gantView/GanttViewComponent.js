@@ -313,7 +313,7 @@ class GanttViewComponent extends React.Component {
                 }    
             }
 
-            for (const [key, value] of store.entries()) {
+            for (const [key] of store.entries()) {
 
                 let array=[{
                             id:key

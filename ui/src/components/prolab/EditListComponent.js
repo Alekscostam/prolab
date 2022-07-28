@@ -41,7 +41,8 @@ export default class EditListComponent extends React.Component {
                                                     const object = row[item]
                                                     const firstObjKey = Object.keys(object)[0];
                                                     if (firstObjKey === fieldKey) {
-                                                        values.push('' + object[firstObjKey]);
+                                                        const foundValue = object[firstObjKey];
+                                                        values.push(foundValue === 'null' ? "" : ("" + foundValue));
                                                         break;
                                                     }
                                                 }
@@ -97,7 +98,6 @@ EditListComponent.defaultProps = {
     id: PropTypes.number.isRequired,
     visible: PropTypes.bool.isRequired,
     onHide: PropTypes.func.isRequired,
-    field: PropTypes.object.isRequired,
     parsedGridView: PropTypes.object.isRequired,
     parsedGridViewData: PropTypes.object.isRequired,
     gridViewColumns: PropTypes.object.isRequired,
@@ -105,10 +105,11 @@ EditListComponent.defaultProps = {
     handleBlockUi: PropTypes.func.isRequired,
     handleUnblockUi: PropTypes.func.isRequired,
     showErrorMessages: PropTypes.func.isRequired,
-    dataGridStoreSuccess: PropTypes.bool,
     selectedRowData: PropTypes.object.isRequired,
     defaultSelectedRowKeys: PropTypes.object.isRequired,
     handleSelectedRowData: PropTypes.func.isRequired,
     labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
+    field: PropTypes.object,
+    dataGridStoreSuccess: PropTypes.bool,
 };
 
