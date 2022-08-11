@@ -378,7 +378,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                     rightContent={this.rightHeadPanelContent()}
                     handleDelete={() => this.delete()}
                     handleRestore={() => this.restore()}
-                    handleCopy={() => this.copy()}
+                    handleCopy={() => this.copyEntry()}
                     handleArchive={() => this.archive()}
                     handlePublish={() => this.publish()}
                     handleUnblockUi={() => this.unblockUi()}
@@ -488,7 +488,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                             handleRestoreRow={(id) => this.restore(id)}
                             handleDocumentRow={(id) => this.generate(id)}
                             handlePluginRow={(id) => this.plugin(id)}
-                            handleCopyRow={(id) => this.copy(id)}
+                            handleCopyRow={(id) => this.copyEntry(id)}
                             handleArchiveRow={(id) => this.archive(id)}
                             handlePublishRow={(id) => this.publish(id)}
                         />

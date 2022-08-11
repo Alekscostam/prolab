@@ -53,6 +53,7 @@ class BaseContainer extends React.Component {
         this.handleEditListRowChange = this.handleEditListRowChange.bind(this);
         this.getRealViewId = this.getRealViewId.bind(this);
         this.unselectAllDataGrid = this.unselectAllDataGrid.bind(this);
+        this.copyAfterSave = this.copyAfterSave.bind(this);
         this.setVariableFromEvent = this.setVariableFromEvent.bind(this);
         this.handleChangeCriteria = this.handleChangeCriteria.bind(this);
         this.validator = new SimpleReactValidator();
@@ -1102,11 +1103,53 @@ class BaseContainer extends React.Component {
                         }
                         break;
                 }
+                if(kindOperation === "Copy"){
+                   this.copyAfterSave(saveResponse,kindView);
+                }
                 this.refreshView();
                 this.unblockUi();
             }).catch((err) => {
             this.showGlobalErrorMessage(err);
         });
+    }
+
+    copyAfterSave = (saveResponse, kindView) => {
+        let copyOptions =this.state.copyOptions;
+        let editData = this.state.editData;
+        if(copyOptions.numberOfCopy!==1){
+            copyOptions.numberOfCopy = copyOptions.numberOfCopy -1;
+            let copyCounter = this.state.counterOfCopies?.copyCounter + 1
+
+            if(copyOptions.copyLastModifiedObject){
+                editData.editInfo.recordId =  saveResponse.recordId;
+            }
+            this.setState(
+                (prevState) => ({
+                    ...prevState,
+                    copyOptions: copyOptions,
+                    editData: editData,
+                    visibleEditPanel:true,
+                    kindView: kindView,
+                    counterOfCopies: {
+                        ...prevState.counterOfCopies,
+                        copyCounter:copyCounter
+                    }
+                }),
+            )
+        }else{
+            let selectedRowKeys  = this.state.selectedRowKeys.filter(el=>el.ID !== this.state.currentSelectedRowKeyId);
+            if(selectedRowKeys.length!==0){
+                this.setState({
+                    selectedRowKeys:selectedRowKeys
+                })
+                this.copyEntry(selectedRowKeys[0].ID)
+            }else{
+                this.unselectAllDataGrid();
+                this.setState({
+                    currentSelectedRowKeyId:undefined
+                })
+            }
+        }
     }
 
     rowCancel = (viewId, recordId, parentId, saveElement) => {
@@ -1237,33 +1280,26 @@ class BaseContainer extends React.Component {
         }) : [id];
     }
 
-    copy(id) {
-        ConsoleHelper('handleCopy');
+  
+
+    copyEntry(id) {
+        ConsoleHelper('handleEntryCopy');
         this.blockUi();
         const viewId = this.getRealViewId();
         const parentId = this.state.elementRecordId;
-        const selectedRowKeysIds = this.getSelectedRowKeysIds(id)
+        const selectedRowKeys = this.getSelectedRowKeysIds(id)
         const kindView = this.state.elementKindView;
-        this.crudService.copyEntry(viewId, parentId, kindView, selectedRowKeysIds)
+        this.crudService.copyEntry(viewId, parentId, kindView, selectedRowKeys[0])
             .then((entryResponse) => {
                 EntryResponseUtils.run(
                     entryResponse,
                     () => {
                         if (!!entryResponse.next) {
-                            this.crudService.copy(viewId, parentId, kindView, selectedRowKeysIds)
-                                .then((copyResponse) => {
-                                    this.unselectAllDataGrid();
-                                    this.refreshView();
-                                    const msg = copyResponse.message;
-                                    if (!!msg) {
-                                        this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
-                                    } else if (!!copyResponse.error) {
-                                        this.showResponseErrorMessage(copyResponse);
-                                    }
-                                    this.unblockUi();
-                                }).catch((err) => {
-                                this.showGlobalErrorMessage(err);
+                            this.setState({
+                                copyDialog:true,
+                                currentSelectedRowKeyId: selectedRowKeys[0],
                             })
+                            this.unblockUi()
                         } else {
                             this.unblockUi()
                         }
@@ -1273,6 +1309,36 @@ class BaseContainer extends React.Component {
             }).catch((err) => {
             this.showGlobalErrorMessage(err);
         })
+    }
+    
+    copy(element) {
+        let copyOptions = {"copyOptions" : element.copyOptions}
+        ConsoleHelper('handleCopy');
+        this.blockUi();
+        const viewId = this.getRealViewId();
+        const parentId = this.state.elementRecordId;
+        const selectedRowKeysIds = this.state.currentSelectedRowKeyId;
+        const kindView = this.state.elementKindView;
+                this.crudService.copy(viewId, parentId, kindView, selectedRowKeysIds, copyOptions)
+                .then((copyResponse) => {
+                    this.refreshView();
+                    const msg = copyResponse.message;
+                    if (!!msg) {
+                        this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
+                    } else if (!!copyResponse.error) {
+                        this.showResponseErrorMessage(copyResponse);
+                    }
+                    this.setState( {
+                        visibleEditPanel:true,
+                        editData: copyResponse,
+                        kindView: kindView,
+                        copyOptions:element.copyOptions,
+                        counterOfCopies:element.counterOfCopies
+                    })
+                    this.unblockUi();
+                }).catch((err) => {
+                this.showGlobalErrorMessage(err);
+            })
     }
 
     restore(id) {
