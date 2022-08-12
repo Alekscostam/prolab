@@ -336,50 +336,6 @@ export class TreeListUtils extends ViewDataCompUtils {
         return TreeListUtils.crudService;
     }
 
-    static cellTemplate(field, onChangeCallback, onBlurCallback) {
-
-        let _rowIndex = null;
-        let _bgColor = null;
-        let _fontcolor = null;
-
-        return function (element, info, e1, e2, e3) {
-            let bgColorFinal = undefined;
-            let rowSelected = null;
-            if (_rowIndex !== info.row.dataIndex) {
-                rowSelected = info?.row?.cells?.filter((c) => c.column?.type === 'selection' && c.value === true).length > 0;
-                _rowIndex = info.row.dataIndex;
-                _bgColor = info.data['_BGCOLOR'];
-                _fontcolor = info.data['_FONTCOLOR'];
-            }
-            if (!!rowSelected) {
-                bgColorFinal = undefined;
-            } else {
-                const specialBgColor = info.data['_BGCOLOR_' + info.column?.dataField];
-                if (!!specialBgColor) {
-                    bgColorFinal = specialBgColor;
-                } else {
-                    if (_bgColor) {
-                        element.style.backgroundColor = _bgColor;
-                        bgColorFinal = undefined;
-                    }
-                }
-            }
-            let fontColorFinal = 'black';
-            const specialFontColor = info.data['_FONTCOLOR_' + info.column?.dataField];
-            if (!!specialFontColor) {
-                fontColorFinal = specialFontColor;
-            } else {
-                if (!!_fontcolor) {
-                    fontColorFinal = _fontcolor;
-                }
-            }
-            console.log(field);
-            // field.cellElement.style.color ="green";
-            return info;
-        };
-        return field;
-    }
-
     static openEditSpec = (viewId, parentId, recordIds, currentBreadcrumb, handleUnblockUiCallback, showErrorMessagesCallback) => {
         TreeListUtils.getCrudService()
             .saveSpecEntry(viewId, parentId, recordIds, null)
@@ -399,6 +355,26 @@ export class TreeListUtils extends ViewDataCompUtils {
 
     static isKindViewSpec(parsedGridView) {
         return parsedGridView?.viewInfo?.kindView === 'ViewSpec';
+    }
+
+    //utworzenie request body dla listy podpowiedzi
+    static createBodyToEditList(editData) {
+        let arrayTmp = [];
+        for (const item in editData) {
+            const elementTmp = {
+                fieldName: item,
+                value: editData[item]
+            }
+            arrayTmp.push(elementTmp);
+        }
+        return {data: arrayTmp};
+    }
+
+    //wyszukanie w wybranym wierszu specyfikacji
+    //poprzez zwrócenie obiektu callbacka wartości pola o nazwie :searchFieldName
+    static searchField(editData, searchFieldName, callback) {
+        callback({value: editData[searchFieldName]});
+        return;
     }
 
 }

@@ -30,6 +30,7 @@ export const OperationsButtons = props => {
                                 title={operations.label}
                                 handleClick={(e) => props.handleEdit(e)}/>
                         </React.Fragment>);
+                    break;
                 case 'OP_EDIT_SPEC':
                     if (!!atLeastOneSelected || (!atLeastOneSelected && !!operations.showAlways)) {
                         return (
@@ -62,6 +63,7 @@ export const OperationsButtons = props => {
                                     handleClick={() => props.handleBlockUi()}
                                     href={props.hrefSubview}/>
                             </React.Fragment>);
+                    break;
                 case 'OP_DELETE':
                     if (!!atLeastOneSelected)
                         return (
@@ -76,6 +78,7 @@ export const OperationsButtons = props => {
                                     title={operations?.label}
                                 />
                             </React.Fragment>);
+                    break;
                 case 'OP_RESTORE':
                     if (!!atLeastOneSelected)
                         return (
@@ -90,6 +93,7 @@ export const OperationsButtons = props => {
                                     title={operations?.label}
                                 />
                             </React.Fragment>);
+                    break;
                 case 'OP_COPY':
                     if (!!atLeastOneSelected)
                         return (
@@ -104,6 +108,7 @@ export const OperationsButtons = props => {
                                     title={operations?.label}
                                 />
                             </React.Fragment>);
+                    break;
                 case 'OP_ARCHIVE':
                     if (!!atLeastOneSelected)
                         return (<React.Fragment>
@@ -116,6 +121,7 @@ export const OperationsButtons = props => {
                                 iconSide="left"
                                 title={operations?.label}/>
                         </React.Fragment>);
+                    break;
                 case 'OP_PUBLISH':
                     if (!!atLeastOneSelected)
                         return (<React.Fragment>
@@ -128,6 +134,7 @@ export const OperationsButtons = props => {
                                 iconSide="left"
                                 title={operations?.label}/>
                         </React.Fragment>);
+                    break;
                 case 'OP_FORMULA':
                     if (!!atLeastOneSelected)
                         return (<React.Fragment>
@@ -140,6 +147,7 @@ export const OperationsButtons = props => {
                                 iconSide="left"
                                 title={operations?.label}/>
                         </React.Fragment>);
+                    break;
                 case 'OP_HISTORY':
                     if (!!atLeastOneSelected)
                         return (<React.Fragment>
@@ -152,6 +160,7 @@ export const OperationsButtons = props => {
                                 iconSide="left"
                                 title={operations?.label}/>
                         </React.Fragment>);
+                    break;
                 case 'OP_ATTACHMENTS':
                     if (!!atLeastOneSelected)
                         return (<React.Fragment>
@@ -164,6 +173,7 @@ export const OperationsButtons = props => {
                                 iconSide="left"
                                 title={operations?.label}/>
                         </React.Fragment>);
+                    break;
                 case 'OP_ADD_LEVEL':
                     if (!!atLeastOneSelected)
                         return (<React.Fragment>
@@ -176,6 +186,7 @@ export const OperationsButtons = props => {
                                 iconSide="left"
                                 title={operations?.label}/>
                         </React.Fragment>);
+                    break;
                 case 'OP_UP':
                     if (!!atLeastOneSelected)
                         return (<React.Fragment>
@@ -188,6 +199,7 @@ export const OperationsButtons = props => {
                                 iconSide="left"
                                 title={operations?.label}/>
                         </React.Fragment>);
+                    break;
                 case 'OP_DOWN':
                     if (!!atLeastOneSelected)
                         return (<React.Fragment>
@@ -200,6 +212,7 @@ export const OperationsButtons = props => {
                                 iconSide="left"
                                 title={operations?.label}/>
                         </React.Fragment>);
+                    break;
                 default:
                     return null;
             }

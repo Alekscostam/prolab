@@ -47,6 +47,7 @@ export class EditSpecContainer extends BaseContainer {
         };
         this.getViewById = this.getViewById.bind(this);
         this.downloadData = this.downloadData.bind(this);
+        this.blockUi();
     }
 
     componentDidMount() {
@@ -132,6 +133,8 @@ export class EditSpecContainer extends BaseContainer {
                 this.setState({loading: false,}, () => {
                     this.showGlobalErrorMessage(err); //'Nie udało się pobrać danych strony o id: ' + viewId);
                 });
+            }).finally(() => {
+                this.unblockUi();
             });
         });
     }
@@ -258,7 +261,7 @@ export class EditSpecContainer extends BaseContainer {
                             id={`button_documents` + index}
                             className={`${margin}`}
                             iconName={operation?.iconCode || 'mdi-file-document'}
-                            items={ActionButtonWithMenuUtils.createItemsWithCommand(this.state.documentsList,  undefined, this.handleRightHeadPanelContent, operation.type?.toUpperCase())}
+                            items={ActionButtonWithMenuUtils.createItemsWithCommand(this.state.documentsList, undefined, this.handleRightHeadPanelContent, operation.type?.toUpperCase())}
                             title={operation?.label}
                         />
                         {/*) : null}*/}
@@ -266,13 +269,13 @@ export class EditSpecContainer extends BaseContainer {
                 case 'OP_PLUGINS':
                     return (<React.Fragment>
                         {this.state.pluginsList?.length > 0 ? (
-                        <ActionButtonWithMenu
-                            id={`button_plugins` + index}
-                            className={`${margin}`}
-                            iconName={operation?.iconCode || 'mdi-puzzle'}
-                            items={ActionButtonWithMenuUtils.createItemsWithCommand(this.state.pluginsList,  undefined, this.handleRightHeadPanelContent, operation.type?.toUpperCase())}
-                            title={operation?.label}
-                        />
+                            <ActionButtonWithMenu
+                                id={`button_plugins` + index}
+                                className={`${margin}`}
+                                iconName={operation?.iconCode || 'mdi-puzzle'}
+                                items={ActionButtonWithMenuUtils.createItemsWithCommand(this.state.pluginsList, undefined, this.handleRightHeadPanelContent, operation.type?.toUpperCase())}
+                                title={operation?.label}
+                            />
                         ) : null}
                     </React.Fragment>)
                 default:
@@ -450,7 +453,7 @@ export class EditSpecContainer extends BaseContainer {
                     handleUp={() => this.up()}
                     handleDown={() => this.down()}
                     handleRestore={() => this.restore()}
-                    handleCopy={() => this.copy()}
+                    handleCopy={() => this.copyEntry()}
                     handleArchive={() => this.archive()}
                     handlePublish={() => this.publish()}
                     handleUnblockUi={() => this.unblockUi()}
@@ -575,9 +578,13 @@ export class EditSpecContainer extends BaseContainer {
                         handleUp={(id) => this.up(id)}
                         handleDown={(id) => this.down(id)}
                         handleRestoreRow={(id) => this.restore(id)}
-                        handleCopyRow={(id) => this.copy(id)}
-                        handleDocumentsRow={(id) => {this.generate(id)}}
-                        handlePluginsRow={(id) => {this.plugin(id)}}
+                        handleCopyRow={(id) => this.copyEntry(id)}
+                        handleDocumentsRow={(id) => {
+                            this.generate(id)
+                        }}
+                        handlePluginsRow={(id) => {
+                            this.plugin(id)
+                        }}
                         handleArchiveRow={(id) => this.archive(id)}
                         handlePublishRow={(id) => this.publish(id)}
                         showErrorMessages={(err) => this.showErrorMessages(err)}
