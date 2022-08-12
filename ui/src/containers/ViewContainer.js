@@ -33,6 +33,7 @@ import DataPluginStore from './dao/DataPluginStore';
 import PluginListComponent from '../components/prolab/PluginListComponent';
 import ActionButtonWithMenuUtils from '../utils/ActionButtonWithMenuUtils';
 import { DocumentRowComponent } from '../components/prolab/DocumentRowComponent';
+import CopyDialogComponent from '../components/prolab/CopyDialogComponent';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -79,6 +80,7 @@ export class ViewContainer extends BaseContainer {
             selectedRowKeys: [],
             parsedCardViewData: {},
             parsedGanttViewData: {},
+            counterOfCopies: undefined,
             batchesList: [],
             gridViewType: null,
             gridViewTypes: [],
@@ -86,6 +88,7 @@ export class ViewContainer extends BaseContainer {
             viewInfoTypes: [],
             visibleEditPanel: false,
             visiblePluginPanel: false,
+            copyDialog: false,
             visibleMessagePluginPanel: false,
             modifyEditData: false,
             editData: null,
@@ -336,6 +339,7 @@ export class ViewContainer extends BaseContainer {
                 isSelectAll: false,
                 visibleEditPanel:false,
                 visiblePluginPanel: false,
+                copyDialog: false,
                 visibleMessagePluginPanel: false,
             }), () => {
                 this.props.handleRenderNoRefreshContent(true);
@@ -543,6 +547,7 @@ export class ViewContainer extends BaseContainer {
                 kindView={this.state.elementKindView}
                 onChange={this.handleEditRowChange}
                 onBlur={this.handleEditRowBlur}
+                counterOfCopies={this.state.counterOfCopies}
                 onSave={this.handleEditRowSave}
                 onAutoFill={this.handleAutoFillRowChange}
                 onEditList={this.handleEditListRowChange}
@@ -586,7 +591,31 @@ export class ViewContainer extends BaseContainer {
                         showErrorMessages={(err) => this.showErrorMessages(err)}
             /> 
             :null} 
-           
+            {this.state.copyDialog ?
+                <CopyDialogComponent 
+                                visible={this.state.copyDialog}
+                                field={this.state.editListField}
+                                parsedPluginView={this.state.parsedPluginView}
+                                parsedPluginViewData={this.state.parsedPluginViewData}
+                                onHide={() => this.setState({copyDialog: false})}
+                                handleBlockUi={() => {
+                                    this.blockUi();
+                                    return true;
+                                }}
+                                handleUnselectAllData={this.unselectAllDataGrid}
+                                handleCopy={(e) => this.copy(e)}
+                                pluginId={this.state.pluginId}
+                                isPluginFirstStep={this.state.isPluginFirstStep}
+                                executePlugin={this.executePlugin}
+                                selectedRowKeys={this.state.selectedRowKeys}
+                                handleUnblockUi={() => this.unblockUi}
+                                showErrorMessages={(err) => this.props.showErrorMessages(err)}
+                                dataGridStoreSuccess={this.state.dataPluginStoreSuccess}
+                                selectedRowData={this.state.selectedRowData}
+                                defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
+                                labels={this.props.labels}
+                />
+           :null}
             <PluginListComponent 
                                visible={this.state.visiblePluginPanel}
                                field={this.state.editListField}
@@ -867,7 +896,7 @@ export class ViewContainer extends BaseContainer {
                     rightContent={this.rightHeadPanelContent()}
                     handleDelete={() => this.delete()}
                     handleRestore={() => this.restore()}
-                    handleCopy={() => this.copy()}
+                    handleCopy={() => this.copyEntry()}
                     handleArchive={() => this.archive()}
                     handlePublish={() => this.publish()}
                     handleUnblockUi={() => this.unblockUi()}
@@ -1096,7 +1125,7 @@ export class ViewContainer extends BaseContainer {
                             selectionDeferred={true}
                             handleDeleteRow={(id) => this.delete(id)}
                             handleRestoreRow={(id) => this.restore(id)}
-                            handleCopyRow={(id) => this.copy(id)}
+                            handleCopyRow={(id) => this.copyEntry(id)}
                             handleArchiveRow={(id) => this.archive(id)}
                             handlePublishRow={(id) => this.publish(id)}
                         />
@@ -1128,7 +1157,7 @@ export class ViewContainer extends BaseContainer {
                             handleDocumentRow={(id)=> {this.generate(id)}}
                             handleDeleteRow={(id) => this.delete(id)}
                             handleRestoreRow={(id) => this.restore(id)}
-                            handleCopyRow={(id) => this.copy(id)}
+                            handleCopyRow={(id) => this.copyEntry(id)}
                             handleArchiveRow={(id) => this.archive(id)}
                             handlePublishRow={(id) => this.publish(id)}
                         />
@@ -1183,7 +1212,7 @@ export class ViewContainer extends BaseContainer {
                             handleDocumentRow={(id)=> {this.generate(id)}}
                             handleDeleteRow={(id) => this.delete(id)}
                             handleRestoreRow={(id) => this.restore(id)}
-                            handleCopyRow={(id) => this.copy(id)}
+                            handleCopyRow={(id) => this.copyEntry(id)}
                             handleArchiveRow={(id) => this.archive(id)}
                             handlePublishRow={(id) => this.publish(id)}
                         />

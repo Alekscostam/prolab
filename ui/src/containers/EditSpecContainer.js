@@ -453,7 +453,7 @@ export class EditSpecContainer extends BaseContainer {
                     handleUp={() => this.up()}
                     handleDown={() => this.down()}
                     handleRestore={() => this.restore()}
-                    handleCopy={() => this.copy()}
+                    handleCopy={() => this.copyEntry()}
                     handleArchive={() => this.archive()}
                     handlePublish={() => this.publish()}
                     handleUnblockUi={() => this.unblockUi()}
@@ -578,7 +578,7 @@ export class EditSpecContainer extends BaseContainer {
                         handleUp={(id) => this.up(id)}
                         handleDown={(id) => this.down(id)}
                         handleRestoreRow={(id) => this.restore(id)}
-                        handleCopyRow={(id) => this.copy(id)}
+                        handleCopyRow={(id) => this.copyEntry(id)}
                         handleDocumentsRow={(id) => {
                             this.generate(id)
                         }}

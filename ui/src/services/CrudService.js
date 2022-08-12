@@ -313,17 +313,15 @@ export default class CrudService extends BaseService {
         });
     }
 
-    copyEntry(viewId, parentId, kindView, selectedIds, numberOfCopies, headerCopy, specCopy, specWithValuesCopy) {
-        let queryStringTmp = []
+    copyEntry(viewId, parentId, kindView, recordId, numberOfCopies, headerCopy, specCopy, specWithValuesCopy) {
+        let queryStringTmp = [];
         if (!!parentId) {
             queryStringTmp.push(`parentId=${parentId}`);
         }
         if (!!parentId && !!kindView) {
             queryStringTmp.push(`kindView=${kindView}`);
         }
-        for (const id in selectedIds) {
-            queryStringTmp.push(`recordID=${selectedIds[id]}`);
-        }
+
         let queryStringParams = this.objToQueryString({
             numberOfCopies: numberOfCopies,
             headerCopy: headerCopy,
@@ -331,14 +329,15 @@ export default class CrudService extends BaseService {
             specWithValuesCopy: specWithValuesCopy
         }) || [];
         queryStringTmp = queryStringTmp.concat(queryStringParams);
-        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Copy/Entry?${queryStringTmp.join('&')}`, {
+      
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Copy/${recordId}/Entry?${queryStringTmp.join('&')}`, {
             method: 'POST',
         }).catch((err) => {
             throw err;
         });
     }
 
-    copy(viewId, parentId, kindView, selectedIds, numberOfCopies, headerCopy, specCopy, specWithValuesCopy) {
+    copy(viewId, parentId, kindView, recordId, body) {
         let queryStringTmp = []
         if (!!parentId) {
             queryStringTmp.push(`parentId=${parentId}`);
@@ -346,18 +345,9 @@ export default class CrudService extends BaseService {
         if (!!parentId && !!kindView) {
             queryStringTmp.push(`kindView=${kindView}`);
         }
-        for (const id in selectedIds) {
-            queryStringTmp.push(`recordID=${selectedIds[id]}`);
-        }
-        let queryStringParams = this.objToQueryString({
-            numberOfCopies: numberOfCopies,
-            headerCopy: headerCopy,
-            specCopy: specCopy,
-            specWithValuesCopy: specWithValuesCopy
-        }) || [];
-        queryStringTmp = queryStringTmp.concat(queryStringParams);
-        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Copy?${queryStringTmp.join('&')}`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Copy/${recordId}?${queryStringTmp.join('&')}`, {
             method: 'POST',
+            body: JSON.stringify(body),
         }).catch((err) => {
             throw err;
         });

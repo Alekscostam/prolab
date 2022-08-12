@@ -22,7 +22,6 @@ export class EditRowComponent extends BaseRowComponent {
     constructor(props) {
         super(props);
         this.service = new CrudService();
-
         this.state = {
             loading: true,
             editListField: {},
@@ -77,6 +76,7 @@ export class EditRowComponent extends BaseRowComponent {
 
     render() {
         const operations = this.props.editData?.operations;
+        const kindOperation = this.props.editData?.editInfo?.kindOperation ;
         const opSave = DataGridUtils.containsOperationsButton(operations, 'OP_SAVE');
         const opFill = DataGridUtils.containsOperationsButton(operations, 'OP_FILL');
         const opCancel = DataGridUtils.containsOperationsButton(operations, 'OP_CANCEL');
@@ -121,8 +121,12 @@ export class EditRowComponent extends BaseRowComponent {
                 }}
                 icons={() => (
                     <React.Fragment>
-                        <div id='label' className="label"
-                             style={{flex: 'auto'}}>{editData?.editInfo?.viewName}</div>
+                        <div className='row ' style={{flex: 'auto'}}>
+                            <div id='label' className="label col-lg-12" 
+                                >{editData?.editInfo?.viewName}</div> 
+                                {kindOperation  === "Copy" ?  <div id='label' className="label col-lg-12" style={{fontSize:"1em"}}>Kopiowanie {this.props.counterOfCopies?.copyCounter} z {this.props.counterOfCopies?.numberOfCopy}  </div> :null } 
+                        </div>
+                            
                         <div id='buttons' style={{textAlign: 'right'}}>
                             <ShortcutButton id={'opSave'}
                                             className={`grid-button-panel inverse mt-1 mb-1 mr-1`}
