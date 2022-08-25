@@ -92,6 +92,7 @@ export class ViewContainer extends BaseContainer {
             visibleMessagePluginPanel: false,
             modifyEditData: false,
             editData: null,
+            copyData: null,
             select: false,
             selectAll: false,
             isSelectAll: false,
@@ -105,6 +106,7 @@ export class ViewContainer extends BaseContainer {
         this.executePlugin = this.executePlugin.bind(this);
         this.refreshGanttData = this.refreshGanttData.bind(this);
         this.executeDocument = this.executeDocument.bind(this);
+        this.showCopyView = this.showCopyView.bind(this);
         this.downloadData = this.downloadData.bind(this);
         this.unselectAllDataGrid = this.unselectAllDataGrid.bind(this);
     }
@@ -380,7 +382,6 @@ export class ViewContainer extends BaseContainer {
                     });
                 }
                 else if(this.isGanttView()){
-                   
                     this.setState({loading: true}, () => {
                         let res = this.dataGanttStore.getDataForGantt(viewIdArg, {skip: 0, take: this.integerJavaMaxValue}, parentIdArg, filterIdArg, kindViewArg);
                         if (!!res) {
@@ -390,8 +391,6 @@ export class ViewContainer extends BaseContainer {
                         }
                         this.unblockUi();
                     });
-                    
-
                 }
                 else{
                     this.setState({loading: true}, () => {
@@ -503,7 +502,7 @@ export class ViewContainer extends BaseContainer {
                     pluginId,
                     requestBody,
                     parentIdArg,
-                    (err) => {this.props.showErrorMessages(err);},
+                    (err) => {this.showErrorMessages(err);},
                     () => {this.setState({dataPluginStoreSuccess: true});},
                     () => {return {selectAll: this.state.selectAll};},
                 )
@@ -547,7 +546,7 @@ export class ViewContainer extends BaseContainer {
                 kindView={this.state.elementKindView}
                 onChange={this.handleEditRowChange}
                 onBlur={this.handleEditRowBlur}
-                counterOfCopies={this.state.counterOfCopies}
+                copyData={this.state.copyData}
                 onSave={this.handleEditRowSave}
                 onAutoFill={this.handleAutoFillRowChange}
                 onEditList={this.handleEditListRowChange}
@@ -594,25 +593,20 @@ export class ViewContainer extends BaseContainer {
             {this.state.copyDialog ?
                 <CopyDialogComponent 
                                 visible={this.state.copyDialog}
-                                field={this.state.editListField}
-                                parsedPluginView={this.state.parsedPluginView}
-                                parsedPluginViewData={this.state.parsedPluginViewData}
                                 onHide={() => this.setState({copyDialog: false})}
                                 handleBlockUi={() => {
                                     this.blockUi();
                                     return true;
                                 }}
+                                isSpecification={this.state.parsedGridView.viewInfo.isSpecification}
                                 handleUnselectAllData={this.unselectAllDataGrid}
-                                handleCopy={(e) => this.copy(e)}
-                                pluginId={this.state.pluginId}
-                                isPluginFirstStep={this.state.isPluginFirstStep}
-                                executePlugin={this.executePlugin}
-                                selectedRowKeys={this.state.selectedRowKeys}
+                                handleCopy={(datas) => {
+                                    this.setState({
+                                        copyData:datas,
+                                    })
+                                    this.copyEntry();
+                                }}
                                 handleUnblockUi={() => this.unblockUi}
-                                showErrorMessages={(err) => this.props.showErrorMessages(err)}
-                                dataGridStoreSuccess={this.state.dataPluginStoreSuccess}
-                                selectedRowData={this.state.selectedRowData}
-                                defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
                                 labels={this.props.labels}
                 />
            :null}
@@ -631,7 +625,7 @@ export class ViewContainer extends BaseContainer {
                                executePlugin={this.executePlugin}
                                selectedRowKeys={this.state.selectedRowKeys}
                                handleUnblockUi={() => this.unblockUi}
-                               showErrorMessages={(err) => this.props.showErrorMessages(err)}
+                               showErrorMessages={(err) => this.showErrorMessages(err)}
                                dataGridStoreSuccess={this.state.dataPluginStoreSuccess}
                                selectedRowData={this.state.selectedRowData}
                                defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
@@ -896,7 +890,7 @@ export class ViewContainer extends BaseContainer {
                     rightContent={this.rightHeadPanelContent()}
                     handleDelete={() => this.delete()}
                     handleRestore={() => this.restore()}
-                    handleCopy={() => this.copyEntry()}
+                    handleCopy={() => this.showCopyView()}
                     handleArchive={() => this.archive()}
                     handlePublish={() => this.publish()}
                     handleUnblockUi={() => this.unblockUi()}
@@ -1027,6 +1021,12 @@ export class ViewContainer extends BaseContainer {
         });
     }
 
+    showCopyView(){
+        this.setState({
+            copyDialog:true,
+        })
+    }
+
     editSubView(e) {
         this.blockUi();
         const parentId = this.state.elementRecordId;
@@ -1125,7 +1125,7 @@ export class ViewContainer extends BaseContainer {
                             selectionDeferred={true}
                             handleDeleteRow={(id) => this.delete(id)}
                             handleRestoreRow={(id) => this.restore(id)}
-                            handleCopyRow={(id) => this.copyEntry(id)}
+                            handleCopyRow={(id) => this.showCopyView(id)}
                             handleArchiveRow={(id) => this.archive(id)}
                             handlePublishRow={(id) => this.publish(id)}
                         />
@@ -1157,7 +1157,7 @@ export class ViewContainer extends BaseContainer {
                             handleDocumentRow={(id)=> {this.generate(id)}}
                             handleDeleteRow={(id) => this.delete(id)}
                             handleRestoreRow={(id) => this.restore(id)}
-                            handleCopyRow={(id) => this.copyEntry(id)}
+                            handleCopyRow={(id) => this.showCopyView(id)}
                             handleArchiveRow={(id) => this.archive(id)}
                             handlePublishRow={(id) => this.publish(id)}
                         />
@@ -1212,7 +1212,7 @@ export class ViewContainer extends BaseContainer {
                             handleDocumentRow={(id)=> {this.generate(id)}}
                             handleDeleteRow={(id) => this.delete(id)}
                             handleRestoreRow={(id) => this.restore(id)}
-                            handleCopyRow={(id) => this.copyEntry(id)}
+                            handleCopyRow={(id) => this.showCopyView(id)}
                             handleArchiveRow={(id) => this.archive(id)}
                             handlePublishRow={(id) => this.publish(id)}
                         />

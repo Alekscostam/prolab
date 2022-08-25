@@ -313,23 +313,18 @@ export default class CrudService extends BaseService {
         });
     }
 
-    copyEntry(viewId, parentId, kindView, recordId, numberOfCopies, headerCopy, specCopy, specWithValuesCopy) {
+    
+    copyEntry(viewId, parentId, kindView, recordId) {
         let queryStringTmp = [];
         if (!!parentId) {
             queryStringTmp.push(`parentId=${parentId}`);
         }
+        if(Array.isArray(recordId)){
+            recordId = recordId[0];
+        }
         if (!!parentId && !!kindView) {
             queryStringTmp.push(`kindView=${kindView}`);
         }
-
-        let queryStringParams = this.objToQueryString({
-            numberOfCopies: numberOfCopies,
-            headerCopy: headerCopy,
-            specCopy: specCopy,
-            specWithValuesCopy: specWithValuesCopy
-        }) || [];
-        queryStringTmp = queryStringTmp.concat(queryStringParams);
-      
         return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Copy/${recordId}/Entry?${queryStringTmp.join('&')}`, {
             method: 'POST',
         }).catch((err) => {
