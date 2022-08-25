@@ -1307,14 +1307,12 @@ class BaseContainer extends React.Component {
                                     this.setState( {
                                         visibleEditPanel:true,
                                         editData: copyResponse,
-                                        kindView: kindView,
                                     })
                                     this.unblockUi();
                                 }).catch((err) => {
                                 this.showGlobalErrorMessage(err);
                             })
                             this.setState({
-                                // copyDialog:true,
                                 currentSelectedRowKeyId: selectedRowKeys[0],
                             })
                             this.unblockUi()
@@ -1406,12 +1404,59 @@ class BaseContainer extends React.Component {
         });
     }
 
-    publish(id) {
+    publish(id,body) {
         ConsoleHelper('publish');
         this.blockUi();
         const viewId = this.getRealViewId();
         const parentId = this.state.elementRecordId;
-        const selectedRowKeysIds = this.getSelectedRowKeysIds(id)
+        const selectedRowKeysIds = this.getSelectedRowKeysIds(id);
+        const kindView = this.state.elementKindView;
+        const publishOptions  = {publishOptions:body};
+        this.crudService.publish(viewId, parentId, kindView, selectedRowKeysIds, publishOptions)
+        .then((publishResponse) => {
+
+            let visiblePublishSummaryDialog = false;
+
+            const msg = publishResponse.message;
+            if (!!msg) {
+                this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
+            } else if (!!publishResponse.error) {
+                this.showResponseErrorMessage(publishResponse);
+            }
+            if(id && this.state.selectedRowKeys.length===0){
+                visiblePublishSummaryDialog=true;
+                this.refreshView();
+                this.unselectAllDataGrid();
+            }else{
+              const currentSelectedRowKeyId  = this.state.currentSelectedRowKeyId
+              let selectedRowKeys = this.state.selectedRowKeys.filter(el=>el.ID!==currentSelectedRowKeyId); 
+              this.setState({selectedRowKeys:selectedRowKeys});
+              if(selectedRowKeys.length===0){
+                visiblePublishSummaryDialog = true;
+                this.refreshView();
+                this.unselectAllDataGrid();
+              }else{
+                  this.publishEntry(selectedRowKeys[0].ID);
+              }
+            }
+            let  publishSummary   = this.state.publishSummary;
+            publishSummary.publishedIds.push(selectedRowKeysIds[0])
+            this.setState({
+                publishSummary,
+                visiblePublishSummaryDialog
+            })
+            this.unblockUi();
+        }).catch((err) => {
+        this.showGlobalErrorMessage(err);
+    })
+    }
+
+    publishEntry(id) {
+        ConsoleHelper('publishEntry');
+        this.blockUi();
+        const viewId = this.getRealViewId();
+        const parentId = this.state.elementRecordId;
+        const selectedRowKeysIds = this.getSelectedRowKeysIds(id);
         const kindView = this.state.elementKindView;
         this.crudService.publishEntry(viewId, parentId, kindView, selectedRowKeysIds)
             .then((entryResponse) => {
@@ -1419,26 +1464,43 @@ class BaseContainer extends React.Component {
                     entryResponse,
                     () => {
                         if (!!entryResponse.next) {
-                            this.crudService.publish(viewId, parentId, kindView, selectedRowKeysIds)
-                                .then((publishResponse) => {
+                            let isInitializePublish = this.state?.isInitializePublish;
+                            
+                            if(this.state?.isInitializePublish === undefined){
+                                isInitializePublish = true;
+                            }
+                            if(this.state?.isInitializePublish){
+                                isInitializePublish = false;
+                            }
+                            if(isInitializePublish && id){
+                                this.unselectAllDataGrid();
+                            }
+                            if(entryResponse.publishOptions ===null){
+                                  this.publish(id,null);
+                            }else{
+                                this.setState({
+                                    publishValues: entryResponse.publishValues,
+                                    visiblePublishDialog: true,
+                                    currentSelectedRowKeyId: id,
+                                    isInitializePublish: isInitializePublish,
+                                });
+                                if(id && this.state.selectedRowKeys.length===0){
                                     this.unselectAllDataGrid();
-                                    this.refreshView();
-                                    const msg = publishResponse.message;
-                                    if (!!msg) {
-                                        this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
-                                    } else if (!!publishResponse.error) {
-                                        this.showResponseErrorMessage(publishResponse);
-                                    }
-                                    this.unblockUi();
-                                }).catch((err) => {
-                                this.showGlobalErrorMessage(err);
-                            })
+                                }
+                            }
+                            if(id===undefined){
+                                this.setState({
+                                    currentSelectedRowKeyId: selectedRowKeysIds[0],
+                                })
+                            }
+                            
                         } else {
                             this.unblockUi()
                         }
                     },
                     () => this.unblockUi()
                 );
+               
             }).catch((err) => {
             this.showGlobalErrorMessage(err);
         })

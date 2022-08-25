@@ -159,14 +159,11 @@ export default class CopyDialogComponent extends React.Component {
 
 CopyDialogComponent.defaultProps = {
     visible: true,
-    dataPluginStoreSuccess: true,
 };
 
 CopyDialogComponent.defaultProps = {
     id: PropTypes.number.isRequired,
     visible: PropTypes.bool.isRequired,
     onHide: PropTypes.func.isRequired,
-    handleBlockUi: PropTypes.func.isRequired,
-    handleUnblockUi: PropTypes.func.isRequired,
     labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
 };

@@ -380,7 +380,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                     handleRestore={() => this.restore()}
                     handleCopy={() => this.copyEntry()}
                     handleArchive={() => this.archive()}
-                    handlePublish={() => this.publish()}
+                    handlePublish={() => this.publishEntry()}
                     handleUnblockUi={() => this.unblockUi()}
                     showErrorMessages={(err) => this.showErrorMessages(err)}
                     handleBlockUi={() => this.blockUi()}
@@ -490,7 +490,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                             handlePluginRow={(id) => this.plugin(id)}
                             handleCopyRow={(id) => this.copyEntry(id)}
                             handleArchiveRow={(id) => this.archive(id)}
-                            handlePublishRow={(id) => this.publish(id)}
+                            handlePublishRow={(id) => this.publishEntry(id)}
                         />
                     </React.Fragment>
                 )}

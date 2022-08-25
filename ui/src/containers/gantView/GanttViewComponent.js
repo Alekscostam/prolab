@@ -491,6 +491,9 @@ class GanttViewComponent extends React.Component {
                                                handleArchive={() => {
                                                    this.props.handleArchiveRow(recordId)
                                                }}
+                                               handlePublish={() => {
+                                                this.props.handlePublish(recordId)
+                                                }}
                                                handleCopy={() => {
                                                    this.props.handleCopyRow(recordId)
                                                }}

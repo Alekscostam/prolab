@@ -59,6 +59,7 @@ export const HeadPanel = props => {
                                                atLeastOneSelected={true}
                                                handleRestore={(e) => props.handleRestore(e)}
                                                handleDelete={(e) => props.handleDelete(e)}
+                                               handlePublish={(e) => props.handlePublish(e)}
                                                handleCopy={(e) => props.handleCopy(e)}
                                                handleArchive={(e) => props.handleArchive(e)}
                                                handleEdit={(e) => handleEdit(e, props, viewId, parentId, currentBreadcrumb)}
@@ -80,6 +81,7 @@ export const HeadPanel = props => {
                                        handleRestore={(e) => props.handleRestore(e)}
                                        handleDelete={(e) => props.handleDelete(e)}
                                        handleCopy={(e) => props.handleCopy(e)}
+                                       handlePublish={(e) => props.handlePublish(e)}
                                        handleArchive={(e) => props.handleArchive(e)}
                                        handleEdit={(e) => handleEdit(e, props, viewId, parentId, currentBreadcrumb)}
                                        handleEditSpec={(e) => handleSpecEdit(e, props, viewId, parentId, currentBreadcrumb)}

@@ -384,7 +384,7 @@ export default class CrudService extends BaseService {
         });
     }
 
-    publishEntry(viewId, parentId, kindView, selectedIds) {
+    publishEntry(viewId, parentId, kindView, recordId) {
         let queryStringTmp = []
         if (!!parentId) {
             queryStringTmp.push(`parentId=${parentId}`);
@@ -392,10 +392,12 @@ export default class CrudService extends BaseService {
         if (!!parentId && !!kindView) {
             queryStringTmp.push(`kindView=${kindView}`);
         }
-        for (const id in selectedIds) {
-            queryStringTmp.push(`recordID=${selectedIds[id]}`);
+
+        if(Array.isArray(recordId)){
+            recordId = recordId[0];
         }
-        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Publish/Entry?${queryStringTmp.join('&')}`, {
+
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Publish/${recordId}/Entry?${queryStringTmp.join('&')}`, {
             method: 'POST',
         }).catch((err) => {
             throw err;
@@ -403,7 +405,7 @@ export default class CrudService extends BaseService {
     }
 
 
-    publish(viewId, parentId, kindView, selectedIds) {
+    publish(viewId, parentId, kindView, selectedIds,body) {
         let queryStringTmp = []
         if (!!parentId) {
             queryStringTmp.push(`parentId=${parentId}`);
@@ -411,11 +413,18 @@ export default class CrudService extends BaseService {
         if (!!parentId && !!kindView) {
             queryStringTmp.push(`kindView=${kindView}`);
         }
+        let recordId = selectedIds;
+
+        if(Array.isArray(selectedIds)){
+            recordId = selectedIds[0];
+        }
+
         for (const id in selectedIds) {
             queryStringTmp.push(`recordID=${selectedIds[id]}`);
         }
-        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Publish?${queryStringTmp.join('&')}`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Publish/${recordId}?${queryStringTmp.join('&')}`, {
             method: 'POST',
+            body: JSON.stringify(body),
         }).catch((err) => {
             throw err;
         });

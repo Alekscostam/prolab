@@ -34,6 +34,9 @@ import PluginListComponent from '../components/prolab/PluginListComponent';
 import ActionButtonWithMenuUtils from '../utils/ActionButtonWithMenuUtils';
 import { DocumentRowComponent } from '../components/prolab/DocumentRowComponent';
 import CopyDialogComponent from '../components/prolab/CopyDialogComponent';
+import PublishDialogComponent from '../components/prolab/PublishDialogComponent';
+import PublishDialogSummaryComponent from '../components/prolab/PublishSummaryDialogComponent';
+import PublishSummaryDialogComponent from '../components/prolab/PublishSummaryDialogComponent';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -80,6 +83,12 @@ export class ViewContainer extends BaseContainer {
             selectedRowKeys: [],
             parsedCardViewData: {},
             parsedGanttViewData: {},
+            publishValues: {},
+            publishOptions: {},
+            publishSummary: {
+                publishedIds:[],
+                unpublishedIds:[]
+            },
             counterOfCopies: undefined,
             batchesList: [],
             gridViewType: null,
@@ -88,7 +97,9 @@ export class ViewContainer extends BaseContainer {
             viewInfoTypes: [],
             visibleEditPanel: false,
             visiblePluginPanel: false,
-            copyDialog: false,
+            visibleCopyDialog: false,
+            visiblePublishDialog: false,
+            visiblePublishSummaryDialog: false,
             visibleMessagePluginPanel: false,
             modifyEditData: false,
             editData: null,
@@ -341,7 +352,9 @@ export class ViewContainer extends BaseContainer {
                 isSelectAll: false,
                 visibleEditPanel:false,
                 visiblePluginPanel: false,
-                copyDialog: false,
+                visibleCopyDialog: false,
+                visiblePublishDialog: false,
+                visiblePublishSummaryDialog: false,
                 visibleMessagePluginPanel: false,
             }), () => {
                 this.props.handleRenderNoRefreshContent(true);
@@ -426,7 +439,7 @@ export class ViewContainer extends BaseContainer {
     }
 
     handleRightHeadPanelContent(element){
-        const elementId = `${element.id}`;
+        const elementId = `${element?.id}`;
         switch (element.type) {
             case 'OP_PLUGINS' :
             case 'SK_PLUGIN' :
@@ -435,6 +448,10 @@ export class ViewContainer extends BaseContainer {
             case 'OP_DOCUMENTS':
             case 'SK_DOCUMENT':
                     this.generate(elementId);
+            break; 
+            case 'OP_PUBLISH':
+            case 'SK_PUBLISH':
+                    this.publishEntry();
             break;
             default:
                 return null;
@@ -525,7 +542,6 @@ export class ViewContainer extends BaseContainer {
                 isPluginFirstStep:false
                })
             }
-        
             if(refreshAll){
                 this.refreshView();
                 this.unselectAllDataGrid(false);
@@ -534,7 +550,6 @@ export class ViewContainer extends BaseContainer {
         }).catch((err)=>{
             this.showErrorMessages(err);
         })
-     
     }
 
     //override
@@ -590,14 +605,10 @@ export class ViewContainer extends BaseContainer {
                         showErrorMessages={(err) => this.showErrorMessages(err)}
             /> 
             :null} 
-            {this.state.copyDialog ?
+            {this.state.visibleCopyDialog ?
                 <CopyDialogComponent 
-                                visible={this.state.copyDialog}
-                                onHide={() => this.setState({copyDialog: false})}
-                                handleBlockUi={() => {
-                                    this.blockUi();
-                                    return true;
-                                }}
+                                visible={this.state.visibleCopyDialog}
+                                onHide={() => this.setState({visibleCopyDialog: false})}
                                 isSpecification={this.state.parsedGridView.viewInfo.isSpecification}
                                 handleUnselectAllData={this.unselectAllDataGrid}
                                 handleCopy={(datas) => {
@@ -606,10 +617,60 @@ export class ViewContainer extends BaseContainer {
                                     })
                                     this.copyEntry();
                                 }}
-                                handleUnblockUi={() => this.unblockUi}
+                                labels={this.props.labels}
+                />
+           :null}  
+           {this.state.visiblePublishDialog ?
+                <PublishDialogComponent 
+                                visible={this.state.visiblePublishDialog}
+                                onHide={(id) => {
+                                let visiblePublishDialog = false
+                                let visiblePublishSummaryDialog = false
+                                let publishSummary = this.state.publishSummary;
+                                const currentSelectedRowKeyId = this.state?.currentSelectedRowKeyId;
+                                publishSummary.unpublishedIds.push(currentSelectedRowKeyId);
+                                    if(this.state.selectedRowKeys.length===0){
+                                        visiblePublishSummaryDialog=true;
+                                    }else{
+                                        let selectedRowKeys = this.state.selectedRowKeys.filter(rowKey => rowKey.ID !== currentSelectedRowKeyId);
+                                        if(selectedRowKeys.length === 0){
+                                            visiblePublishSummaryDialog=true;
+                                        }else{
+                                            this.publishEntry(selectedRowKeys[0].ID);                                            
+                                        }
+                                        this.setState({
+                                            selectedRowKeys
+                                        })
+                                    }
+                                    this.unblockUi();
+                                    this.setState({
+                                        visiblePublishDialog,
+                                        visiblePublishSummaryDialog,
+                                        publishSummary
+                                    })}
+                                }
+                                close={() =>  this.setState({visiblePublishDialog: false})}
+                                handleUnselectAllData={this.unselectAllDataGrid}
+                                publishValues = {this.state.publishValues}
+                                handlePublish={(el) => {this.publish(this.state?.currentSelectedRowKeyId,el)}}
+                                labels={this.props.labels}
+                />
+           :null}  
+           {this.state.visiblePublishSummaryDialog ?
+                <PublishSummaryDialogComponent 
+                                publishSummary={this.state.publishSummary}
+                                visible={this.state.visiblePublishSummaryDialog}
+                                onHide={() =>  this.setState({visiblePublishSummaryDialog: false, 
+                                    publishSummary:{
+                                        publishedIds:[],
+                                        unpublishedIds:[] 
+                                    }
+                                })}
+                                handleUnselectAllData={this.unselectAllDataGrid}
                                 labels={this.props.labels}
                 />
            :null}
+
             <PluginListComponent 
                                visible={this.state.visiblePluginPanel}
                                field={this.state.editListField}
@@ -784,6 +845,7 @@ export class ViewContainer extends BaseContainer {
                         ) : null}
                        
                     </React.Fragment>)
+             
                 case 'OP_CARDVIEW':
                 case 'OP_GRIDVIEW':
                     let indexInArray = this.state.parsedGridView?.operations?.findIndex(o => o?.type?.toUpperCase() === 'OP_CARDVIEW' || o?.type?.toUpperCase() === 'OP_GRIDVIEW');
@@ -892,7 +954,7 @@ export class ViewContainer extends BaseContainer {
                     handleRestore={() => this.restore()}
                     handleCopy={() => this.showCopyView()}
                     handleArchive={() => this.archive()}
-                    handlePublish={() => this.publish()}
+                    handlePublish={() => this.publishEntry()}
                     handleUnblockUi={() => this.unblockUi()}
                     showErrorMessages={(err) => this.showErrorMessages(err)}
                     handleBlockUi={() => this.blockUi()}
@@ -1023,7 +1085,7 @@ export class ViewContainer extends BaseContainer {
 
     showCopyView(){
         this.setState({
-            copyDialog:true,
+            visibleCopyDialog:true,
         })
     }
 
@@ -1127,7 +1189,7 @@ export class ViewContainer extends BaseContainer {
                             handleRestoreRow={(id) => this.restore(id)}
                             handleCopyRow={(id) => this.showCopyView(id)}
                             handleArchiveRow={(id) => this.archive(id)}
-                            handlePublishRow={(id) => this.publish(id)}
+                            handlePublishRow={(id) => this.publishEntry(id)}
                         />
                     </React.Fragment>)
                     : this.isCardView() ? (<React.Fragment>
@@ -1159,7 +1221,7 @@ export class ViewContainer extends BaseContainer {
                             handleRestoreRow={(id) => this.restore(id)}
                             handleCopyRow={(id) => this.showCopyView(id)}
                             handleArchiveRow={(id) => this.archive(id)}
-                            handlePublishRow={(id) => this.publish(id)}
+                            handlePublishRow={(id) => this.publishEntry(id)}
                         />
                     </React.Fragment>) :
                     
@@ -1195,7 +1257,7 @@ export class ViewContainer extends BaseContainer {
                             }}
                             handleRefreshData={this.refreshGanttData}
                             handleUp={() => this.up()}
-                            handleDown={() => this.publish()}
+                            handleDown={() => this.publishEntry()}
                             parsedGanttView={this.state.parsedGridView}
                             gridViewColumns={this.state.ganttViewColumns}
                             dataGanttStoreSuccess={this.state.dataGanttStoreSuccess}
@@ -1214,7 +1276,7 @@ export class ViewContainer extends BaseContainer {
                             handleRestoreRow={(id) => this.restore(id)}
                             handleCopyRow={(id) => this.showCopyView(id)}
                             handleArchiveRow={(id) => this.archive(id)}
-                            handlePublishRow={(id) => this.publish(id)}
+                            handlePublishRow={(id) => this.publishEntry(id)}
                         />
                     </React.Fragment>):
                     
