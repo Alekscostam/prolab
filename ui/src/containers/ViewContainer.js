@@ -34,6 +34,9 @@ import PluginListComponent from '../components/prolab/PluginListComponent';
 import ActionButtonWithMenuUtils from '../utils/ActionButtonWithMenuUtils';
 import { DocumentRowComponent } from '../components/prolab/DocumentRowComponent';
 import CopyDialogComponent from '../components/prolab/CopyDialogComponent';
+import PublishDialogComponent from '../components/prolab/PublishDialogComponent';
+import PublishDialogSummaryComponent from '../components/prolab/PublishSummaryDialogComponent';
+import PublishSummaryDialogComponent from '../components/prolab/PublishSummaryDialogComponent';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -80,6 +83,12 @@ export class ViewContainer extends BaseContainer {
             selectedRowKeys: [],
             parsedCardViewData: {},
             parsedGanttViewData: {},
+            publishValues: {},
+            publishOptions: {},
+            publishSummary: {
+                publishedIds:[],
+                unpublishedIds:[]
+            },
             counterOfCopies: undefined,
             batchesList: [],
             gridViewType: null,
@@ -88,10 +97,13 @@ export class ViewContainer extends BaseContainer {
             viewInfoTypes: [],
             visibleEditPanel: false,
             visiblePluginPanel: false,
-            copyDialog: false,
+            visibleCopyDialog: false,
+            visiblePublishDialog: false,
+            visiblePublishSummaryDialog: false,
             visibleMessagePluginPanel: false,
             modifyEditData: false,
             editData: null,
+            copyData: null,
             select: false,
             selectAll: false,
             isSelectAll: false,
@@ -105,6 +117,7 @@ export class ViewContainer extends BaseContainer {
         this.executePlugin = this.executePlugin.bind(this);
         this.refreshGanttData = this.refreshGanttData.bind(this);
         this.executeDocument = this.executeDocument.bind(this);
+        this.showCopyView = this.showCopyView.bind(this);
         this.downloadData = this.downloadData.bind(this);
         this.unselectAllDataGrid = this.unselectAllDataGrid.bind(this);
     }
@@ -339,7 +352,9 @@ export class ViewContainer extends BaseContainer {
                 isSelectAll: false,
                 visibleEditPanel:false,
                 visiblePluginPanel: false,
-                copyDialog: false,
+                visibleCopyDialog: false,
+                visiblePublishDialog: false,
+                visiblePublishSummaryDialog: false,
                 visibleMessagePluginPanel: false,
             }), () => {
                 this.props.handleRenderNoRefreshContent(true);
@@ -380,7 +395,6 @@ export class ViewContainer extends BaseContainer {
                     });
                 }
                 else if(this.isGanttView()){
-                   
                     this.setState({loading: true}, () => {
                         let res = this.dataGanttStore.getDataForGantt(viewIdArg, {skip: 0, take: this.integerJavaMaxValue}, parentIdArg, filterIdArg, kindViewArg);
                         if (!!res) {
@@ -390,8 +404,6 @@ export class ViewContainer extends BaseContainer {
                         }
                         this.unblockUi();
                     });
-                    
-
                 }
                 else{
                     this.setState({loading: true}, () => {
@@ -427,7 +439,7 @@ export class ViewContainer extends BaseContainer {
     }
 
     handleRightHeadPanelContent(element){
-        const elementId = `${element.id}`;
+        const elementId = `${element?.id}`;
         switch (element.type) {
             case 'OP_PLUGINS' :
             case 'SK_PLUGIN' :
@@ -436,6 +448,10 @@ export class ViewContainer extends BaseContainer {
             case 'OP_DOCUMENTS':
             case 'SK_DOCUMENT':
                     this.generate(elementId);
+            break; 
+            case 'OP_PUBLISH':
+            case 'SK_PUBLISH':
+                    this.publishEntry();
             break;
             default:
                 return null;
@@ -503,7 +519,7 @@ export class ViewContainer extends BaseContainer {
                     pluginId,
                     requestBody,
                     parentIdArg,
-                    (err) => {this.props.showErrorMessages(err);},
+                    (err) => {this.showErrorMessages(err);},
                     () => {this.setState({dataPluginStoreSuccess: true});},
                     () => {return {selectAll: this.state.selectAll};},
                 )
@@ -526,7 +542,6 @@ export class ViewContainer extends BaseContainer {
                 isPluginFirstStep:false
                })
             }
-        
             if(refreshAll){
                 this.refreshView();
                 this.unselectAllDataGrid(false);
@@ -535,7 +550,6 @@ export class ViewContainer extends BaseContainer {
         }).catch((err)=>{
             this.showErrorMessages(err);
         })
-     
     }
 
     //override
@@ -547,7 +561,7 @@ export class ViewContainer extends BaseContainer {
                 kindView={this.state.elementKindView}
                 onChange={this.handleEditRowChange}
                 onBlur={this.handleEditRowBlur}
-                counterOfCopies={this.state.counterOfCopies}
+                copyData={this.state.copyData}
                 onSave={this.handleEditRowSave}
                 onAutoFill={this.handleAutoFillRowChange}
                 onEditList={this.handleEditListRowChange}
@@ -591,31 +605,72 @@ export class ViewContainer extends BaseContainer {
                         showErrorMessages={(err) => this.showErrorMessages(err)}
             /> 
             :null} 
-            {this.state.copyDialog ?
+            {this.state.visibleCopyDialog ?
                 <CopyDialogComponent 
-                                visible={this.state.copyDialog}
-                                field={this.state.editListField}
-                                parsedPluginView={this.state.parsedPluginView}
-                                parsedPluginViewData={this.state.parsedPluginViewData}
-                                onHide={() => this.setState({copyDialog: false})}
-                                handleBlockUi={() => {
-                                    this.blockUi();
-                                    return true;
-                                }}
+                                visible={this.state.visibleCopyDialog}
+                                onHide={() => this.setState({visibleCopyDialog: false})}
+                                isSpecification={this.state.parsedGridView.viewInfo.isSpecification}
                                 handleUnselectAllData={this.unselectAllDataGrid}
-                                handleCopy={(e) => this.copy(e)}
-                                pluginId={this.state.pluginId}
-                                isPluginFirstStep={this.state.isPluginFirstStep}
-                                executePlugin={this.executePlugin}
-                                selectedRowKeys={this.state.selectedRowKeys}
-                                handleUnblockUi={() => this.unblockUi}
-                                showErrorMessages={(err) => this.props.showErrorMessages(err)}
-                                dataGridStoreSuccess={this.state.dataPluginStoreSuccess}
-                                selectedRowData={this.state.selectedRowData}
-                                defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
+                                handleCopy={(datas) => {
+                                    this.setState({
+                                        copyData:datas,
+                                    })
+                                    this.copyEntry();
+                                }}
+                                labels={this.props.labels}
+                />
+           :null}  
+           {this.state.visiblePublishDialog ?
+                <PublishDialogComponent 
+                                visible={this.state.visiblePublishDialog}
+                                onHide={(id) => {
+                                let visiblePublishDialog = false
+                                let visiblePublishSummaryDialog = false
+                                let publishSummary = this.state.publishSummary;
+                                const currentSelectedRowKeyId = this.state?.currentSelectedRowKeyId;
+                                publishSummary.unpublishedIds.push(currentSelectedRowKeyId);
+                                    if(this.state.selectedRowKeys.length===0){
+                                        visiblePublishSummaryDialog=true;
+                                    }else{
+                                        let selectedRowKeys = this.state.selectedRowKeys.filter(rowKey => rowKey.ID !== currentSelectedRowKeyId);
+                                        if(selectedRowKeys.length === 0){
+                                            visiblePublishSummaryDialog=true;
+                                        }else{
+                                            this.publishEntry(selectedRowKeys[0].ID);                                            
+                                        }
+                                        this.setState({
+                                            selectedRowKeys
+                                        })
+                                    }
+                                    this.unblockUi();
+                                    this.setState({
+                                        visiblePublishDialog,
+                                        visiblePublishSummaryDialog,
+                                        publishSummary
+                                    })}
+                                }
+                                close={() =>  this.setState({visiblePublishDialog: false})}
+                                handleUnselectAllData={this.unselectAllDataGrid}
+                                publishValues = {this.state.publishValues}
+                                handlePublish={(el) => {this.publish(this.state?.currentSelectedRowKeyId,el)}}
+                                labels={this.props.labels}
+                />
+           :null}  
+           {this.state.visiblePublishSummaryDialog ?
+                <PublishSummaryDialogComponent 
+                                publishSummary={this.state.publishSummary}
+                                visible={this.state.visiblePublishSummaryDialog}
+                                onHide={() =>  this.setState({visiblePublishSummaryDialog: false, 
+                                    publishSummary:{
+                                        publishedIds:[],
+                                        unpublishedIds:[] 
+                                    }
+                                })}
+                                handleUnselectAllData={this.unselectAllDataGrid}
                                 labels={this.props.labels}
                 />
            :null}
+
             <PluginListComponent 
                                visible={this.state.visiblePluginPanel}
                                field={this.state.editListField}
@@ -631,7 +686,7 @@ export class ViewContainer extends BaseContainer {
                                executePlugin={this.executePlugin}
                                selectedRowKeys={this.state.selectedRowKeys}
                                handleUnblockUi={() => this.unblockUi}
-                               showErrorMessages={(err) => this.props.showErrorMessages(err)}
+                               showErrorMessages={(err) => this.showErrorMessages(err)}
                                dataGridStoreSuccess={this.state.dataPluginStoreSuccess}
                                selectedRowData={this.state.selectedRowData}
                                defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
@@ -790,6 +845,7 @@ export class ViewContainer extends BaseContainer {
                         ) : null}
                        
                     </React.Fragment>)
+             
                 case 'OP_CARDVIEW':
                 case 'OP_GRIDVIEW':
                     let indexInArray = this.state.parsedGridView?.operations?.findIndex(o => o?.type?.toUpperCase() === 'OP_CARDVIEW' || o?.type?.toUpperCase() === 'OP_GRIDVIEW');
@@ -896,9 +952,9 @@ export class ViewContainer extends BaseContainer {
                     rightContent={this.rightHeadPanelContent()}
                     handleDelete={() => this.delete()}
                     handleRestore={() => this.restore()}
-                    handleCopy={() => this.copyEntry()}
+                    handleCopy={() => this.showCopyView()}
                     handleArchive={() => this.archive()}
-                    handlePublish={() => this.publish()}
+                    handlePublish={() => this.publishEntry()}
                     handleUnblockUi={() => this.unblockUi()}
                     showErrorMessages={(err) => this.showErrorMessages(err)}
                     handleBlockUi={() => this.blockUi()}
@@ -1027,6 +1083,12 @@ export class ViewContainer extends BaseContainer {
         });
     }
 
+    showCopyView(){
+        this.setState({
+            visibleCopyDialog:true,
+        })
+    }
+
     editSubView(e) {
         this.blockUi();
         const parentId = this.state.elementRecordId;
@@ -1125,9 +1187,9 @@ export class ViewContainer extends BaseContainer {
                             selectionDeferred={true}
                             handleDeleteRow={(id) => this.delete(id)}
                             handleRestoreRow={(id) => this.restore(id)}
-                            handleCopyRow={(id) => this.copyEntry(id)}
+                            handleCopyRow={(id) => this.showCopyView(id)}
                             handleArchiveRow={(id) => this.archive(id)}
-                            handlePublishRow={(id) => this.publish(id)}
+                            handlePublishRow={(id) => this.publishEntry(id)}
                         />
                     </React.Fragment>)
                     : this.isCardView() ? (<React.Fragment>
@@ -1157,9 +1219,9 @@ export class ViewContainer extends BaseContainer {
                             handleDocumentRow={(id)=> {this.generate(id)}}
                             handleDeleteRow={(id) => this.delete(id)}
                             handleRestoreRow={(id) => this.restore(id)}
-                            handleCopyRow={(id) => this.copyEntry(id)}
+                            handleCopyRow={(id) => this.showCopyView(id)}
                             handleArchiveRow={(id) => this.archive(id)}
-                            handlePublishRow={(id) => this.publish(id)}
+                            handlePublishRow={(id) => this.publishEntry(id)}
                         />
                     </React.Fragment>) :
                     
@@ -1195,7 +1257,7 @@ export class ViewContainer extends BaseContainer {
                             }}
                             handleRefreshData={this.refreshGanttData}
                             handleUp={() => this.up()}
-                            handleDown={() => this.publish()}
+                            handleDown={() => this.publishEntry()}
                             parsedGanttView={this.state.parsedGridView}
                             gridViewColumns={this.state.ganttViewColumns}
                             dataGanttStoreSuccess={this.state.dataGanttStoreSuccess}
@@ -1212,9 +1274,9 @@ export class ViewContainer extends BaseContainer {
                             handleDocumentRow={(id)=> {this.generate(id)}}
                             handleDeleteRow={(id) => this.delete(id)}
                             handleRestoreRow={(id) => this.restore(id)}
-                            handleCopyRow={(id) => this.copyEntry(id)}
+                            handleCopyRow={(id) => this.showCopyView(id)}
                             handleArchiveRow={(id) => this.archive(id)}
-                            handlePublishRow={(id) => this.publish(id)}
+                            handlePublishRow={(id) => this.publishEntry(id)}
                         />
                     </React.Fragment>):
                     

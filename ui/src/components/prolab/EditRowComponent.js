@@ -124,7 +124,7 @@ export class EditRowComponent extends BaseRowComponent {
                         <div className='row ' style={{flex: 'auto'}}>
                             <div id='label' className="label col-lg-12" 
                                 >{editData?.editInfo?.viewName}</div> 
-                                {kindOperation  === "Copy" ?  <div id='label' className="label col-lg-12" style={{fontSize:"1em"}}>Kopiowanie {this.props.counterOfCopies?.copyCounter} z {this.props.counterOfCopies?.numberOfCopy}  </div> :null } 
+                                {kindOperation?.toUpperCase()  === "COPY" ?  <div id='label' className="label col-lg-12" style={{fontSize:"1em"}}>Kopiowanie {this.props.copyData?.copyCounter.counter} z {this.props.copyData?.copyOptions.numberOfCopy}  </div> :null } 
                         </div>
                             
                         <div id='buttons' style={{textAlign: 'right'}}>

@@ -10,20 +10,19 @@ import {InputNumber} from 'primereact/inputnumber';
 export default class CopyDialogComponent extends React.Component {
     constructor(props) {
         super(props);
-        
         this.refDataGrid = {};
         this.state = {
-            copyOptions:{
-                headerCopy: false,
-                specCopy: false,
+            copyOptions: {
+                headerCopy: true,
+                specCopy: this.props.isSpecification ? true : undefined,
+                specResultsCopy: this.props.isSpecification ? false : undefined,
                 copyLastModifiedObject: false,
-                specResultsCopy: false,
                 numberOfCopy: 1,
             },
-            counterOfCopies:{
-                numberOfCopy: 1,
-                copyCounter: 1,
-            }
+            copyCounter: {
+                reInitializeCounter: 1,
+                counter: 1,
+            },
         };
         this.onHide = this.onHide.bind(this);
         this.handleChangeCopyOptions = this.handleChangeCopyOptions.bind(this);
@@ -36,28 +35,28 @@ export default class CopyDialogComponent extends React.Component {
 
     handleChangeCopyOptions(e) {
         this.setState((prevState) => ({
-                copyOptions: {
-                    ...prevState.copyOptions,
-                    [e.target.id]: e.checked,
-                },
+            copyOptions: {
+                ...prevState.copyOptions,
+                [e.target.id]: e.checked,
+            },
         }));
     }
 
     render() {
-        let width =  '25vw';
-        let height = undefined;
         return (
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
                 <Dialog
                     id='copyDialog'
-                    header={'Kopiowanie'}
+                    header={LocUtils.loc(this.props.labels, 'Copy_header', 'Kopiowanie')}
                     footer={
                         <React.Fragment>
                             <div>
                                 <Button
                                     type='button'
-                                    onClick={() => {this.onHide();}}
+                                    onClick={() => {
+                                        this.onHide();
+                                    }}
                                     label={LocUtils.loc(this.props.labels, 'Cancle_button', 'Anuluj')}
                                 />
                                 <Button
@@ -74,10 +73,10 @@ export default class CopyDialogComponent extends React.Component {
                     visible={this.props.visible}
                     resizable={false}
                     breakpoints={{'860px': '75vw', '640px': '100vw'}}
-                    style={{width: width, height: height, minWidth: width, minHeight: height}}
-                    onHide={() => this.onHide()}>
+                    onHide={() => this.onHide()}
+                >
                     <div>
-                        <div className='row mt-3  col-lg-12' >
+                        <div className='row col-lg-12'>
                             <Checkbox
                                 id='headerCopy'
                                 name='headerCopy'
@@ -85,31 +84,43 @@ export default class CopyDialogComponent extends React.Component {
                                 checked={this.state.copyOptions.headerCopy}
                                 onChange={this.handleChangeCopyOptions}
                             />
-                            <label style={{color:"#000"}} > {LocUtils.loc(this.props.labels, 'copy_header', 'Kopiowanie nagłówka')}</label>
+                            <label style={{color: '#000'}}>
+                                {LocUtils.loc(this.props.labels, 'copy_header', 'Kopiowanie nagłówka')}
+                            </label>
                         </div>
-                        <div className='row mt-2 col-lg-12'>
-                            <Checkbox
-                                id='specCopy'
-                                name='specCopy'
-                                className=' mr-2'
-                                checked={this.state.copyOptions.specCopy}
-                                onChange={this.handleChangeCopyOptions}
-                            />
-                            <label style={{color:"#000"}} > {LocUtils.loc(this.props.labels, 'copy_spec', 'Kopiowanie specyfikacji')}</label>
-                        </div>
-                        <div className='row mt-2  col-lg-12'>
-                            <Checkbox
-                                id='specResultsCopy'
-                                name='specResultsCopy'
-                                className='ml-5 mr-2 '
-                                checked={this.state.copyOptions.specResultsCopy}
-                                onChange={this.handleChangeCopyOptions}
-                            />
-                            <label style={{color:"#000"}} > {LocUtils.loc(this.props.labels, 'copy_spec_result', 'z wynikami')}</label>
-                        </div>
-                        
-                        <label style={{color:"#000"}} className='mt-3'> {LocUtils.loc(this.props.labels, 'number_of_copy', 'Liczba kopii')}</label>
-                        <div className='row' >
+                        {this.props.isSpecification ? (
+                            <React.Fragment>
+                                <div className='row mt-2 col-lg-12'>
+                                    <Checkbox
+                                        id='specCopy'
+                                        name='specCopy'
+                                        className=' mr-2'
+                                        checked={this.state.copyOptions.specCopy}
+                                        onChange={this.handleChangeCopyOptions}
+                                    />
+                                    <label style={{color: '#000'}}>
+                                        {LocUtils.loc(this.props.labels, 'copy_spec', 'Kopiowanie specyfikacji')}
+                                    </label>
+                                </div>
+                                <div className='row mt-2  col-lg-12'>
+                                    <Checkbox
+                                        id='specResultsCopy'
+                                        name='specResultsCopy'
+                                        className='ml-5 mr-2 '
+                                        checked={this.state.copyOptions.specResultsCopy}
+                                        onChange={this.handleChangeCopyOptions}
+                                    />
+                                    <label style={{color: '#000'}}>
+                                        {LocUtils.loc(this.props.labels, 'copy_spec_result', 'z wynikami')}
+                                    </label>
+                                </div>
+                            </React.Fragment>
+                        ) : null}
+
+                        <label style={{color: '#000'}} className='mt-2'>
+                            {LocUtils.loc(this.props.labels, 'number_of_copy', 'Liczba kopii')}
+                        </label>
+                        <div className='row'>
                             <InputNumber
                                 id='numberOfCopy'
                                 name='numberOfCopy'
@@ -118,14 +129,10 @@ export default class CopyDialogComponent extends React.Component {
                                 value={this.state.copyOptions.numberOfCopy}
                                 onValueChange={(e) => {
                                     this.setState((prevState) => ({
-                                            copyOptions: {
-                                                ...prevState.copyOptions,
-                                                [e.target.id]: e.value,
-                                            },
-                                            counterOfCopies: {
-                                                ...prevState.counterOfCopies,
-                                                numberOfCopy:e.value
-                                            }
+                                        copyOptions: {
+                                            ...prevState.copyOptions,
+                                            [e.target.id]: e.value,
+                                        },
                                     }));
                                 }}
                                 showButtons
@@ -135,14 +142,15 @@ export default class CopyDialogComponent extends React.Component {
                             <Checkbox
                                 id='copyLastModifiedObject'
                                 name='copyLastModifiedObject'
-                                className='ml-5 mr-2'
+                                className='ml-3 mr-2'
                                 checked={this.state.copyOptions.copyLastModifiedObject}
                                 onChange={this.handleChangeCopyOptions}
                             />
-                            <label style={{color:"#000"}}  > {LocUtils.loc(this.props.labels, 'copy_last_modified', 'Kopiuj ostatni zmodyfikowany')}</label>
+                            <label style={{color: '#000'}}>
+                                {LocUtils.loc(this.props.labels, 'copy_last_modified', 'Kopiuj ostatni zmodyfikowany')}
+                            </label>
                         </div>
                     </div>
-
                 </Dialog>
             </React.Fragment>
         );
@@ -151,19 +159,11 @@ export default class CopyDialogComponent extends React.Component {
 
 CopyDialogComponent.defaultProps = {
     visible: true,
-    dataPluginStoreSuccess: true,
 };
 
 CopyDialogComponent.defaultProps = {
     id: PropTypes.number.isRequired,
     visible: PropTypes.bool.isRequired,
     onHide: PropTypes.func.isRequired,
-    parsedPluginView: PropTypes.object.isRequired,
-    parsedPluginViewData: PropTypes.object.isRequired,
-    handleBlockUi: PropTypes.func.isRequired,
-    handleUnblockUi: PropTypes.func.isRequired,
-    showErrorMessages: PropTypes.func.isRequired,
-    dataPluginStoreSuccess: PropTypes.bool,
-    selectedRowData: PropTypes.object.isRequired,
     labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
 };

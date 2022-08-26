@@ -455,7 +455,7 @@ export class EditSpecContainer extends BaseContainer {
                     handleRestore={() => this.restore()}
                     handleCopy={() => this.copyEntry()}
                     handleArchive={() => this.archive()}
-                    handlePublish={() => this.publish()}
+                    handlePublish={() => this.publishEntry()}
                     handleUnblockUi={() => this.unblockUi()}
                     showErrorMessages={(err) => this.showErrorMessages(err)}
                     handleBlockUi={() => this.blockUi()}
@@ -586,7 +586,7 @@ export class EditSpecContainer extends BaseContainer {
                             this.plugin(id)
                         }}
                         handleArchiveRow={(id) => this.archive(id)}
-                        handlePublishRow={(id) => this.publish(id)}
+                        handlePublishRow={(id) => this.publishEntry(id)}
                         showErrorMessages={(err) => this.showErrorMessages(err)}
                         labels={this.props.labels}
                     />

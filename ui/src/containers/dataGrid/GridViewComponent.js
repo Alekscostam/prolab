@@ -326,6 +326,9 @@ class GridViewComponent extends React.Component {
                                                }}
                                                handleArchive={() => {
                                                    this.props.handleArchiveRow(recordId)
+                                               }} 
+                                               handlePublish={() => {
+                                                   this.props.handlePublishRow(recordId)
                                                }}
                                                handleCopy={() => {
                                                    this.props.handleCopyRow(recordId)

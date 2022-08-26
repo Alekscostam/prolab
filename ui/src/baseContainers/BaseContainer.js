@@ -53,7 +53,6 @@ class BaseContainer extends React.Component {
         this.handleEditListRowChange = this.handleEditListRowChange.bind(this);
         this.getRealViewId = this.getRealViewId.bind(this);
         this.unselectAllDataGrid = this.unselectAllDataGrid.bind(this);
-        this.copyAfterSave = this.copyAfterSave.bind(this);
         this.setVariableFromEvent = this.setVariableFromEvent.bind(this);
         this.handleChangeCriteria = this.handleChangeCriteria.bind(this);
         this.validator = new SimpleReactValidator();
@@ -1043,7 +1042,6 @@ class BaseContainer extends React.Component {
         this.blockUi();
         const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
         const kindOperation = this.state.editData.editInfo?.kindOperation ? this.state.editData.editInfo?.kindOperation : undefined;
-
         this.crudService
             .save(viewId, recordId, parentId, kindView, kindOperation, saveElement, confirmSave)
             .then((saveResponse) => {
@@ -1103,8 +1101,8 @@ class BaseContainer extends React.Component {
                         }
                         break;
                 }
-                if(kindOperation === "Copy"){
-                   this.copyAfterSave(saveResponse,kindView);
+                if(kindOperation.toUpperCase() === "COPY"){
+                   this.copyAfterSave(saveResponse);
                 }
                 this.refreshView();
                 this.unblockUi();
@@ -1113,43 +1111,45 @@ class BaseContainer extends React.Component {
         });
     }
 
-    copyAfterSave = (saveResponse, kindView) => {
-        let copyOptions =this.state.copyOptions;
-        let editData = this.state.editData;
-        if(copyOptions.numberOfCopy!==1){
-            copyOptions.numberOfCopy = copyOptions.numberOfCopy -1;
-            let copyCounter = this.state.counterOfCopies?.copyCounter + 1
-
+    copyAfterSave = (saveResponse) => {
+        let {copyOptions,copyCounter} = this.state.copyData;
+        let selectedRowKeys = this.state.selectedRowKeys; 
+        let currentSelectedRowKeyId =  this.state.currentSelectedRowKeyId;
+        if(copyOptions.numberOfCopy!==copyCounter.counter){
+            copyCounter.counter = copyCounter.counter + 1
             if(copyOptions.copyLastModifiedObject){
-                editData.editInfo.recordId =  saveResponse.recordId;
+                 selectedRowKeys = selectedRowKeys.filter(rowKey => rowKey.ID !== currentSelectedRowKeyId)
+                 currentSelectedRowKeyId =  saveResponse.recordId;
+                 this.setState({
+                    currentSelectedRowKeyId:currentSelectedRowKeyId
+                 })
             }
-            this.setState(
-                (prevState) => ({
-                    ...prevState,
-                    copyOptions: copyOptions,
-                    editData: editData,
-                    visibleEditPanel:true,
-                    kindView: kindView,
-                    counterOfCopies: {
-                        ...prevState.counterOfCopies,
-                        copyCounter:copyCounter
-                    }
-                }),
-            )
+          this.copyEntry(currentSelectedRowKeyId);
         }else{
-            let selectedRowKeys  = this.state.selectedRowKeys.filter(el=>el.ID !== this.state.currentSelectedRowKeyId);
-            if(selectedRowKeys.length!==0){
-                this.setState({
-                    selectedRowKeys:selectedRowKeys
-                })
-                this.copyEntry(selectedRowKeys[0].ID)
+            selectedRowKeys = selectedRowKeys.filter(rowKey => rowKey.ID !== currentSelectedRowKeyId);
+            this.setState({
+                   currentSelectedRowKeyId:undefined,
+                   selectedRowKeys:selectedRowKeys
+               })
+            if(selectedRowKeys.length !==0){
+                copyCounter.counter = copyCounter.reInitializeCounter;  
+                this.copyEntry();
             }else{
-                this.unselectAllDataGrid();
                 this.setState({
-                    currentSelectedRowKeyId:undefined
+                    copyData:undefined,
                 })
+                this.refreshView();
+                this.unselectAllDataGrid();
+                return;
             }
         }
+        this.setState(
+            (prevState) => ({
+                ...prevState,
+                copyCounter: copyCounter,
+                selectedRowKeys: selectedRowKeys
+            }),
+        )
     }
 
     rowCancel = (viewId, recordId, parentId, saveElement) => {
@@ -1281,22 +1281,38 @@ class BaseContainer extends React.Component {
     }
 
   
-
     copyEntry(id) {
         ConsoleHelper('handleEntryCopy');
         this.blockUi();
         const viewId = this.getRealViewId();
         const parentId = this.state.elementRecordId;
-        const selectedRowKeys = this.getSelectedRowKeysIds(id)
+        const selectedRowKeys = this.getSelectedRowKeysIds(id);
         const kindView = this.state.elementKindView;
-        this.crudService.copyEntry(viewId, parentId, kindView, selectedRowKeys[0])
+        this.crudService.copyEntry(viewId, parentId, kindView,  selectedRowKeys)
             .then((entryResponse) => {
                 EntryResponseUtils.run(
                     entryResponse,
                     () => {
                         if (!!entryResponse.next) {
+                        const copyData =    this.state.copyData;
+                        let copyOptions = {"copyOptions" : copyData.copyOptions}
+                        this.crudService.copy(viewId, parentId, kindView, selectedRowKeys[0], copyOptions)
+                                .then((copyResponse) => {
+                                    const msg = copyResponse.message;
+                                    if (!!msg) {
+                                        this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
+                                    } else if (!!copyResponse.error) {
+                                        this.showResponseErrorMessage(copyResponse);
+                                    }
+                                    this.setState( {
+                                        visibleEditPanel:true,
+                                        editData: copyResponse,
+                                    })
+                                    this.unblockUi();
+                                }).catch((err) => {
+                                this.showGlobalErrorMessage(err);
+                            })
                             this.setState({
-                                copyDialog:true,
                                 currentSelectedRowKeyId: selectedRowKeys[0],
                             })
                             this.unblockUi()
@@ -1311,35 +1327,6 @@ class BaseContainer extends React.Component {
         })
     }
     
-    copy(element) {
-        let copyOptions = {"copyOptions" : element.copyOptions}
-        ConsoleHelper('handleCopy');
-        this.blockUi();
-        const viewId = this.getRealViewId();
-        const parentId = this.state.elementRecordId;
-        const selectedRowKeysIds = this.state.currentSelectedRowKeyId;
-        const kindView = this.state.elementKindView;
-                this.crudService.copy(viewId, parentId, kindView, selectedRowKeysIds, copyOptions)
-                .then((copyResponse) => {
-                    this.refreshView();
-                    const msg = copyResponse.message;
-                    if (!!msg) {
-                        this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
-                    } else if (!!copyResponse.error) {
-                        this.showResponseErrorMessage(copyResponse);
-                    }
-                    this.setState( {
-                        visibleEditPanel:true,
-                        editData: copyResponse,
-                        kindView: kindView,
-                        copyOptions:element.copyOptions,
-                        counterOfCopies:element.counterOfCopies
-                    })
-                    this.unblockUi();
-                }).catch((err) => {
-                this.showGlobalErrorMessage(err);
-            })
-    }
 
     restore(id) {
         ConsoleHelper('handleRestore');
@@ -1417,12 +1404,59 @@ class BaseContainer extends React.Component {
         });
     }
 
-    publish(id) {
+    publish(id,body) {
         ConsoleHelper('publish');
         this.blockUi();
         const viewId = this.getRealViewId();
         const parentId = this.state.elementRecordId;
-        const selectedRowKeysIds = this.getSelectedRowKeysIds(id)
+        const selectedRowKeysIds = this.getSelectedRowKeysIds(id);
+        const kindView = this.state.elementKindView;
+        const publishOptions  = {publishOptions:body};
+        this.crudService.publish(viewId, parentId, kindView, selectedRowKeysIds, publishOptions)
+        .then((publishResponse) => {
+
+            let visiblePublishSummaryDialog = false;
+
+            const msg = publishResponse.message;
+            if (!!msg) {
+                this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
+            } else if (!!publishResponse.error) {
+                this.showResponseErrorMessage(publishResponse);
+            }
+            if(id && this.state.selectedRowKeys.length===0){
+                visiblePublishSummaryDialog=true;
+                this.refreshView();
+                this.unselectAllDataGrid();
+            }else{
+              const currentSelectedRowKeyId  = this.state.currentSelectedRowKeyId
+              let selectedRowKeys = this.state.selectedRowKeys.filter(el=>el.ID!==currentSelectedRowKeyId); 
+              this.setState({selectedRowKeys:selectedRowKeys});
+              if(selectedRowKeys.length===0){
+                visiblePublishSummaryDialog = true;
+                this.refreshView();
+                this.unselectAllDataGrid();
+              }else{
+                  this.publishEntry(selectedRowKeys[0].ID);
+              }
+            }
+            let  publishSummary   = this.state.publishSummary;
+            publishSummary.publishedIds.push(selectedRowKeysIds[0])
+            this.setState({
+                publishSummary,
+                visiblePublishSummaryDialog
+            })
+            this.unblockUi();
+        }).catch((err) => {
+        this.showGlobalErrorMessage(err);
+    })
+    }
+
+    publishEntry(id) {
+        ConsoleHelper('publishEntry');
+        this.blockUi();
+        const viewId = this.getRealViewId();
+        const parentId = this.state.elementRecordId;
+        const selectedRowKeysIds = this.getSelectedRowKeysIds(id);
         const kindView = this.state.elementKindView;
         this.crudService.publishEntry(viewId, parentId, kindView, selectedRowKeysIds)
             .then((entryResponse) => {
@@ -1430,26 +1464,43 @@ class BaseContainer extends React.Component {
                     entryResponse,
                     () => {
                         if (!!entryResponse.next) {
-                            this.crudService.publish(viewId, parentId, kindView, selectedRowKeysIds)
-                                .then((publishResponse) => {
+                            let isInitializePublish = this.state?.isInitializePublish;
+                            
+                            if(this.state?.isInitializePublish === undefined){
+                                isInitializePublish = true;
+                            }
+                            if(this.state?.isInitializePublish){
+                                isInitializePublish = false;
+                            }
+                            if(isInitializePublish && id){
+                                this.unselectAllDataGrid();
+                            }
+                            if(entryResponse.publishOptions ===null){
+                                  this.publish(id,null);
+                            }else{
+                                this.setState({
+                                    publishValues: entryResponse.publishValues,
+                                    visiblePublishDialog: true,
+                                    currentSelectedRowKeyId: id,
+                                    isInitializePublish: isInitializePublish,
+                                });
+                                if(id && this.state.selectedRowKeys.length===0){
                                     this.unselectAllDataGrid();
-                                    this.refreshView();
-                                    const msg = publishResponse.message;
-                                    if (!!msg) {
-                                        this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
-                                    } else if (!!publishResponse.error) {
-                                        this.showResponseErrorMessage(publishResponse);
-                                    }
-                                    this.unblockUi();
-                                }).catch((err) => {
-                                this.showGlobalErrorMessage(err);
-                            })
+                                }
+                            }
+                            if(id===undefined){
+                                this.setState({
+                                    currentSelectedRowKeyId: selectedRowKeysIds[0],
+                                })
+                            }
+                            
                         } else {
                             this.unblockUi()
                         }
                     },
                     () => this.unblockUi()
                 );
+               
             }).catch((err) => {
             this.showGlobalErrorMessage(err);
         })
