@@ -794,7 +794,7 @@ export class ViewContainer extends BaseContainer {
                                                     UrlUtils.getURLParameter('recordId') || this.state.elementRecordId;
                                                 const subviewMode = !!recordId && !!this.state.elementId;
                                                 const breadCrumbs = UrlUtils.getURLParameter('bc');
-                                                const viewType = UrlUtils.getURLParameter('viewType') ;
+                                                const viewType = UrlUtils.getURLParameter('viewType') || this.state.gridViewType;
                                                 if (!breadCrumbs) {
                                                     return;
                                                 }
