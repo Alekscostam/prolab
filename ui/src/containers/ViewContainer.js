@@ -771,105 +771,149 @@ export class ViewContainer extends BaseContainer {
         if (!!operation.type) {
             switch (operation.type?.toUpperCase()) {
                 case 'OP_FILTER':
-                    return (<React.Fragment>
-                        {this.state.filtersList?.length > 0 ? (<SelectBox
-                            className={`filter-combo ${margin}`}
-                            wrapItemText={true}
-                            id='combo_filters'
-                            items={this.state.filtersList}
-                            displayExpr='label'
-                            valueExpr='id'
-                            defaultValue={parseInt( this.state.elementFilterId || this.state.parsedGridView?.viewInfo?.filterdId)}
-                            onValueChanged={(e) => {
-                                ConsoleHelper('onValueChanged', e);
-                                if(e.event){
-                                    const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
-                                    if (!!e.value && e.value !== e.previousValue) {
-                                        const filterId = parseInt(e.value)
-                                        const subViewId = UrlUtils.getURLParameter('subview') || this.state.elementSubViewId;
-                                        const recordId = UrlUtils.getURLParameter('recordId') || this.state.elementRecordId;
-                                        const subviewMode = !!recordId && !!this.state.elementId;
-                                        const breadCrumbs = UrlUtils.getURLParameter('bc');
-                                        const viewType = UrlUtils.getURLParameter('viewType');
-                                        //myczek na błąd [FIX] Przełączanie między widokami a filtry
-                                        if (!breadCrumbs) {
-                                            return;
-                                        }
-                                        if (subviewMode) {
-                                            ConsoleHelper(`Redirect -> Id =  ${this.state.elementId} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`);
-                                            window.location.href = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${this.state.elementId}?recordId=${recordId}&subview=${subViewId}&filterId=${filterId}&viewType=${viewType}${currentBreadcrumb}`);
-                                        } else {
-                                            ConsoleHelper(`Redirect -> Id =  ${this.state.elementId} RecordId = ${recordId} FilterId = ${filterId}`);
-                                            if (filterId) {
-                                                window.location.href = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${this.state.elementId}/?filterId=${filterId}&viewType=${viewType}${currentBreadcrumb}`);
+                    return (
+                        <React.Fragment>
+                            {this.state.filtersList?.length > 0 ? (
+                                <SelectBox
+                                    className={`filter-combo ${margin}`}
+                                    wrapItemText={true}
+                                    id='combo_filters'
+                                    items={this.state.filtersList}
+                                    defaultValue={parseInt(this.state.elementFilterId ||  this.state.parsedGridView?.viewInfo?.filterdId)}
+                                    displayExpr='label'
+                                    valueExpr='id'
+                                    onValueChanged={(e) => {
+                                        ConsoleHelper('onValueChanged:', e);
+                                            
+                                            const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+                                            if (!!e.value && e.value !== e.previousValue) {
+                                                const filterId = parseInt(e.value);
+                                                const subViewId =
+                                                    UrlUtils.getURLParameter('subview') || this.state.elementSubViewId;
+                                                const recordId =
+                                                    UrlUtils.getURLParameter('recordId') || this.state.elementRecordId;
+                                                const subviewMode = !!recordId && !!this.state.elementId;
+                                                const breadCrumbs = UrlUtils.getURLParameter('bc');
+                                                const viewType = UrlUtils.getURLParameter('viewType') ;
+                                                if (!breadCrumbs) {
+                                                    return;
+                                                }
+                                                if (subviewMode) {
+                                                    ConsoleHelper(
+                                                        `Redirect -> Id =  ${this.state.elementId} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`
+                                                    );
+                                                    window.location.href = AppPrefixUtils.locationHrefUrl(
+                                                        `/#/grid-view/${this.state.elementId}?recordId=${recordId}&subview=${subViewId}&filterId=${filterId}&viewType=${viewType}${currentBreadcrumb}`
+                                                    );
+                                                } else {
+                                                    ConsoleHelper(
+                                                        `Redirect -> Id =  ${this.state.elementId} RecordId = ${recordId} FilterId = ${filterId}`
+                                                    );
+                                                    if (filterId) {
+                                                        window.location.href = AppPrefixUtils.locationHrefUrl(
+                                                            `/#/grid-view/${this.state.elementId}/?filterId=${filterId}&viewType=${viewType}${currentBreadcrumb}`
+                                                        );
+                                                    }
+                                                }
                                             }
-                                        }
-                                    }
-                                }
-                            }}
-                            stylingMode='underlined'
-                        />) : null}
-                    </React.Fragment>);
+                                    }}
+                                    stylingMode='underlined'
+                                />
+                            ) : null}
+                        </React.Fragment>
+                    );
                 case 'OP_BATCH':
-                    return (<React.Fragment>
-                        {/*{this.state.batchesList?.length > 0 ? (*/}
-                        <ActionButtonWithMenu
-                            id='button_batches'
-                            className={`${margin}`}
-                            iconName={operation?.iconCode || 'mdi-cogs'}
-                            items={this.state.batchesList}
-                            title={operation?.label}
-                        />
-                        {/*) : null}*/}
-                    </React.Fragment>)
+                    return (
+                        <React.Fragment>
+                            {/*{this.state.batchesList?.length > 0 ? (*/}
+                            <ActionButtonWithMenu
+                                id='button_batches'
+                                className={`${margin}`}
+                                iconName={operation?.iconCode || 'mdi-cogs'}
+                                items={this.state.batchesList}
+                                title={operation?.label}
+                            />
+                            {/*) : null}*/}
+                        </React.Fragment>
+                    );
                 case 'OP_DOCUMENTS':
-                    return (<React.Fragment>
-                        {this.state.documentsList?.length > 0 ? (
-                        <ActionButtonWithMenu
-                            id='button_documents'
-                            className={`${margin}`}
-                            iconName={operation?.iconCode || 'mdi-file-document'}
-                            items={ActionButtonWithMenuUtils.createItemsWithCommand(this.state.documentsList,  undefined, this.handleRightHeadPanelContent, "OP_DOCUMENTS")}
-                            title={operation?.label}
-                        />
-                        ) : null}
-                    </React.Fragment>)
+                    return (
+                        <React.Fragment>
+                            {this.state.documentsList?.length > 0 ? (
+                                <ActionButtonWithMenu
+                                    id='button_documents'
+                                    className={`${margin}`}
+                                    iconName={operation?.iconCode || 'mdi-file-document'}
+                                    items={ActionButtonWithMenuUtils.createItemsWithCommand(
+                                        this.state.documentsList,
+                                        undefined,
+                                        this.handleRightHeadPanelContent,
+                                        'OP_DOCUMENTS'
+                                    )}
+                                    title={operation?.label}
+                                />
+                            ) : null}
+                        </React.Fragment>
+                    );
                 case 'OP_PLUGINS':
-                    return (<React.Fragment>
-                        {this.state.pluginsList?.length > 0 ? (
-                        <ActionButtonWithMenu
-                            id='button_plugins'
-                            className={`${margin}`}
-                            iconName={operation?.iconCode || 'mdi-puzzle'}
-                            items={ActionButtonWithMenuUtils.createItemsWithCommand(this.state.pluginsList,  undefined, this.handleRightHeadPanelContent, "OP_PLUGINS")}
-                            title={operation?.label}
-                            />         
-                        ) : null}
-                       
-                    </React.Fragment>)
-             
+                    return (
+                        <React.Fragment>
+                            {this.state.pluginsList?.length > 0 ? (
+                                <ActionButtonWithMenu
+                                    id='button_plugins'
+                                    className={`${margin}`}
+                                    iconName={operation?.iconCode || 'mdi-puzzle'}
+                                    items={ActionButtonWithMenuUtils.createItemsWithCommand(
+                                        this.state.pluginsList,
+                                        undefined,
+                                        this.handleRightHeadPanelContent,
+                                        'OP_PLUGINS'
+                                    )}
+                                    title={operation?.label}
+                                />
+                            ) : null}
+                        </React.Fragment>
+                    );
+
                 case 'OP_CARDVIEW':
                 case 'OP_GRIDVIEW':
-                    let indexInArray = this.state.parsedGridView?.operations?.findIndex(o => o?.type?.toUpperCase() === 'OP_CARDVIEW' || o?.type?.toUpperCase() === 'OP_GRIDVIEW');
+                    let indexInArray = this.state.parsedGridView?.operations?.findIndex(
+                        (o) => o?.type?.toUpperCase() === 'OP_CARDVIEW' || o?.type?.toUpperCase() === 'OP_GRIDVIEW'
+                    );
                     //condition for only one display
                     if (index > indexInArray) {
-                        return (this.state.viewInfoTypes ? <React.Fragment>
-                            
-                            <ButtonGroup
-                                className={`${margin}`}
-                                items={this.state.viewInfoTypes}
-                                keyExpr='type'
-                                stylingMode='outlined'
-                                selectedItemKeys={this.state.gridViewType}
-                                onItemClick={(e) => {
-                                    let newUrl = UrlUtils.addParameterToURL(window.document.URL.toString(), 'viewType', e.itemData.type);
-                                    window.history.replaceState('', '', newUrl);
-                                    this.setState({gridViewType: e.itemData.type, dataGridStoreSuccess: false}, () => {
-                                        this.downloadData(this.state.elementId, this.state.elementRecordId, this.state.elementSubViewId, this.state.elementFilterId, this.state.elementParentId, this.state.gridViewType);
-                                    });
-                                }}
-                            />
-                        </React.Fragment> : null);
+                        return this.state.viewInfoTypes ? (
+                            <React.Fragment>
+                                <ButtonGroup
+                                    className={`${margin}`}
+                                    items={this.state.viewInfoTypes}
+                                    keyExpr='type'
+                                    stylingMode='outlined'
+                                    selectedItemKeys={this.state.gridViewType}
+                                    onItemClick={(e) => {
+                                        let newUrl = UrlUtils.addParameterToURL(
+                                            window.document.URL.toString(),
+                                            'viewType',
+                                            e.itemData.type
+                                        );
+                                        window.history.replaceState('', '', newUrl);
+                                        this.setState(
+                                            {gridViewType: e.itemData.type, dataGridStoreSuccess: false},
+                                            () => {
+                                                this.downloadData(
+                                                    this.state.elementId,
+                                                    this.state.elementRecordId,
+                                                    this.state.elementSubViewId,
+                                                    this.state.elementFilterId,
+                                                    this.state.elementParentId,
+                                                    this.state.gridViewType
+                                                );
+                                            }
+                                        );
+                                    }}
+                                />
+                            </React.Fragment>
+                        ) : null;
                     } else {
                         return null;
                     }
@@ -878,6 +922,7 @@ export class ViewContainer extends BaseContainer {
             }
         }
     }
+
 
     leftHeadPanelContent = () => {
         if (this.isDashboard()) {
