@@ -779,7 +779,7 @@ export class ViewContainer extends BaseContainer {
                             items={this.state.filtersList}
                             displayExpr='label'
                             valueExpr='id'
-                            value={parseInt(this.state.elementFilterId || this.state.parsedGridView?.viewInfo?.filterdId)}
+                            defaultValue={parseInt( this.state.elementFilterId || this.state.parsedGridView?.viewInfo?.filterdId)}
                             onValueChanged={(e) => {
                                 ConsoleHelper('onValueChanged', e);
                                 if(e.event){
