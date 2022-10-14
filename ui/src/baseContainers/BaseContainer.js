@@ -1131,12 +1131,13 @@ class BaseContainer extends React.Component {
                    currentSelectedRowKeyId:undefined,
                    selectedRowKeys:selectedRowKeys
                })
-            if(selectedRowKeys.length !==0){
-                copyCounter.counter = copyCounter.reInitializeCounter;  
-                this.copyEntry();
+            if(selectedRowKeys.length !==0 && !this.state.copyId){
+                    copyCounter.counter = copyCounter.reInitializeCounter;  
+                    this.copyEntry();
             }else{
                 this.setState({
                     copyData:undefined,
+                    copyId:undefined
                 })
                 this.refreshView();
                 this.unselectAllDataGrid();

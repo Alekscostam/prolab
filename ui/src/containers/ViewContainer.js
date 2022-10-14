@@ -35,7 +35,6 @@ import ActionButtonWithMenuUtils from '../utils/ActionButtonWithMenuUtils';
 import { DocumentRowComponent } from '../components/prolab/DocumentRowComponent';
 import CopyDialogComponent from '../components/prolab/CopyDialogComponent';
 import PublishDialogComponent from '../components/prolab/PublishDialogComponent';
-import PublishDialogSummaryComponent from '../components/prolab/PublishSummaryDialogComponent';
 import PublishSummaryDialogComponent from '../components/prolab/PublishSummaryDialogComponent';
 
 //
@@ -79,6 +78,7 @@ export class ViewContainer extends BaseContainer {
             gridViewColumns: [],
             parsedPluginViewData: {},
             pluginId:undefined,
+            copyId:undefined,
             parsedPluginView:{},
             selectedRowKeys: [],
             parsedCardViewData: {},
@@ -615,7 +615,7 @@ export class ViewContainer extends BaseContainer {
                                     this.setState({
                                         copyData:datas,
                                     })
-                                    this.copyEntry();
+                                    this.copyEntry(this.state.copyId);
                                 }}
                                 labels={this.props.labels}
                 />
@@ -623,7 +623,7 @@ export class ViewContainer extends BaseContainer {
            {this.state.visiblePublishDialog ?
                 <PublishDialogComponent 
                                 visible={this.state.visiblePublishDialog}
-                                onHide={(id) => {
+                                onHide={() => {
                                 let visiblePublishDialog = false
                                 let visiblePublishSummaryDialog = false
                                 let publishSummary = this.state.publishSummary;
@@ -782,25 +782,27 @@ export class ViewContainer extends BaseContainer {
                             value={parseInt(this.state.elementFilterId || this.state.parsedGridView?.viewInfo?.filterdId)}
                             onValueChanged={(e) => {
                                 ConsoleHelper('onValueChanged', e);
-                                const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
-                                if (!!e.value && e.value !== e.previousValue) {
-                                    const filterId = parseInt(e.value)
-                                    const subViewId = UrlUtils.getURLParameter('subview') || this.state.elementSubViewId;
-                                    const recordId = UrlUtils.getURLParameter('recordId') || this.state.elementRecordId;
-                                    const subviewMode = !!recordId && !!this.state.elementId;
-                                    const breadCrumbs = UrlUtils.getURLParameter('bc');
-                                    const viewType = UrlUtils.getURLParameter('viewType');
-                                    //myczek na błąd [FIX] Przełączanie między widokami a filtry
-                                    if (!breadCrumbs) {
-                                        return;
-                                    }
-                                    if (subviewMode) {
-                                        ConsoleHelper(`Redirect -> Id =  ${this.state.elementId} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`);
-                                        window.location.href = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${this.state.elementId}?recordId=${recordId}&subview=${subViewId}&filterId=${filterId}&viewType=${viewType}${currentBreadcrumb}`);
-                                    } else {
-                                        ConsoleHelper(`Redirect -> Id =  ${this.state.elementId} RecordId = ${recordId} FilterId = ${filterId}`);
-                                        if (filterId) {
-                                            window.location.href = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${this.state.elementId}/?filterId=${filterId}&viewType=${viewType}${currentBreadcrumb}`);
+                                if(e.event){
+                                    const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+                                    if (!!e.value && e.value !== e.previousValue) {
+                                        const filterId = parseInt(e.value)
+                                        const subViewId = UrlUtils.getURLParameter('subview') || this.state.elementSubViewId;
+                                        const recordId = UrlUtils.getURLParameter('recordId') || this.state.elementRecordId;
+                                        const subviewMode = !!recordId && !!this.state.elementId;
+                                        const breadCrumbs = UrlUtils.getURLParameter('bc');
+                                        const viewType = UrlUtils.getURLParameter('viewType');
+                                        //myczek na błąd [FIX] Przełączanie między widokami a filtry
+                                        if (!breadCrumbs) {
+                                            return;
+                                        }
+                                        if (subviewMode) {
+                                            ConsoleHelper(`Redirect -> Id =  ${this.state.elementId} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`);
+                                            window.location.href = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${this.state.elementId}?recordId=${recordId}&subview=${subViewId}&filterId=${filterId}&viewType=${viewType}${currentBreadcrumb}`);
+                                        } else {
+                                            ConsoleHelper(`Redirect -> Id =  ${this.state.elementId} RecordId = ${recordId} FilterId = ${filterId}`);
+                                            if (filterId) {
+                                                window.location.href = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${this.state.elementId}/?filterId=${filterId}&viewType=${viewType}${currentBreadcrumb}`);
+                                            }
                                         }
                                     }
                                 }
@@ -1083,9 +1085,10 @@ export class ViewContainer extends BaseContainer {
         });
     }
 
-    showCopyView(){
+    showCopyView(id){   
         this.setState({
             visibleCopyDialog:true,
+            copyId:id,
         })
     }
 
