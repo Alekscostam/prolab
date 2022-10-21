@@ -17,7 +17,7 @@ export default class PublishDialogComponent extends React.Component {
         this.state = {
             visibleDialogPublish: this.props.visible,
             publishOptions: {
-                version: this.props.publishValues.version,
+                version: this.props.publishValues?.version,
                 date: new Date(),
                 user: JSON.parse(localStorage.getItem('logged_user')).name,
             },

@@ -14,12 +14,12 @@ import {DataGridUtils} from '../../utils/component/DataGridUtils';
 import {ViewValidatorUtils} from '../../utils/parser/ViewValidatorUtils';
 import UrlUtils from '../../utils/UrlUtils';
 import DataGridStore from '../dao/DataGridStore';
-import {confirmDialog} from "primereact/confirmdialog";
-import {localeOptions} from "primereact/api";
-import GridViewComponent from "../dataGrid/GridViewComponent";
-import ConsoleHelper from "../../utils/ConsoleHelper";
-import LocUtils from "../../utils/LocUtils";
-import {Toast} from "primereact/toast";
+import {confirmDialog} from 'primereact/confirmdialog';
+import {localeOptions} from 'primereact/api';
+import GridViewComponent from '../dataGrid/GridViewComponent';
+import ConsoleHelper from '../../utils/ConsoleHelper';
+import LocUtils from '../../utils/LocUtils';
+import {Toast} from 'primereact/toast';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -51,7 +51,7 @@ export class DashboardGridViewComponent extends BaseContainer {
             visibleEditPanel: false,
             modifyEditData: false,
             editData: null,
-            kindView: 'View'
+            kindView: 'View',
         };
         this.viewTypeChange = this.viewTypeChange.bind(this);
         this.getViewById = this.getViewById.bind(this);
@@ -67,8 +67,11 @@ export class DashboardGridViewComponent extends BaseContainer {
         const recordId = this.props.recordId;
         const filterId = this.props.filterId;
         const viewType = this.props.viewType;
-        ConsoleHelper(`GridGridViewContainer::componentDidMount -> id=${id}, subViewId = ${subViewId}, recordId = ${recordId}, filterId = ${filterId}, viewType=${viewType}`);
-        this.setState({
+        ConsoleHelper(
+            `GridGridViewContainer::componentDidMount -> id=${id}, subViewId = ${subViewId}, recordId = ${recordId}, filterId = ${filterId}, viewType=${viewType}`
+        );
+        this.setState(
+            {
                 elementSubViewId: subViewId,
                 elementRecordId: recordId,
                 elementFilterId: filterId,
@@ -87,8 +90,7 @@ export class DashboardGridViewComponent extends BaseContainer {
     }
 
     //@override
-    componentDidUpdate(prevProps, prevState, snapshot) {
-    }
+    componentDidUpdate(prevProps, prevState, snapshot) {}
 
     componentWillUnmount() {
         this._isMounted = false;
@@ -103,136 +105,127 @@ export class DashboardGridViewComponent extends BaseContainer {
 
     //@override
     getViewById(viewId, recordId, filterId, viewType, subviewMode) {
-        this.setState({loading: true,},
-            () => {
-                this.viewService
-                    .getView(viewId, viewType)
-                    .then((responseView) => {
-                        if (this._isMounted) {
-                            ViewValidatorUtils.validation(responseView);
-                            let gridViewColumnsTmp = [];
-                            let pluginsListTmp = [];
-                            let documentsListTmp = [];
-                            let batchesListTmp = [];
-                            let filtersListTmp = [];
-                            let columnOrderCounter = 0;
-                            new Array(responseView.gridColumns).forEach((gridColumns) => {
-                                gridColumns?.forEach((group) => {
-                                    group.columns?.forEach((column) => {
-                                        column.groupName = group.groupName;
-                                        column.freeze = group.freeze;
-                                        column.columnOrder = columnOrderCounter++;
-                                        gridViewColumnsTmp.push(column);
-                                    });
+        this.setState({loading: true}, () => {
+            this.viewService
+                .getView(viewId, viewType)
+                .then((responseView) => {
+                    if (this._isMounted) {
+                        ViewValidatorUtils.validation(responseView);
+                        let gridViewColumnsTmp = [];
+                        let pluginsListTmp = [];
+                        let documentsListTmp = [];
+                        let batchesListTmp = [];
+                        let filtersListTmp = [];
+                        let columnOrderCounter = 0;
+                        new Array(responseView.gridColumns).forEach((gridColumns) => {
+                            gridColumns?.forEach((group) => {
+                                group.columns?.forEach((column) => {
+                                    column.groupName = group.groupName;
+                                    column.freeze = group.freeze;
+                                    column.columnOrder = columnOrderCounter++;
+                                    gridViewColumnsTmp.push(column);
                                 });
                             });
-                            for (let plugin in responseView?.pluginsList) {
-                                pluginsListTmp.push({
-                                    id: responseView?.pluginsList[plugin].id,
-                                    label: responseView?.pluginsList[plugin].label,
-                                });
-                            }
-                            for (let document in responseView?.documentsList) {
-                                documentsListTmp.push({
-                                    id: responseView?.documentsList[document].id,
-                                    label: responseView?.documentsList[document].label,
-                                });
-                            }
-                            for (let batch in responseView?.batchesList) {
-                                batchesListTmp.push({
-                                    id: responseView?.batchesList[batch].id,
-                                    label: responseView?.batchesList[batch].label,
-                                });
-                            }
-                            for (let filter in responseView?.filtersList) {
-                                filtersListTmp.push({
-                                    id: responseView?.filtersList[filter].id,
-                                    label: responseView?.filtersList[filter].label,
-                                    command: (e) => {
-                                        let recordId = UrlUtils.getURLParameter('recordId');
-                                        ConsoleHelper(
-                                            `Redirect -> Id =  ${this.state.elementId} RecordId = ${recordId} FilterId = ${e.item?.id}`
-                                        );
-                                        if (!!e.item?.id) {
-                                            const filterId = parseInt(e.item?.id)
-                                            window.location.href = AppPrefixUtils.locationHrefUrl(
-                                                `/#/grid-view/${this.state.elementId}/?filterId=${filterId}`
-                                            );
-                                        }
-
-                                    },
-                                });
-                            }
-                            let viewInfoTypesTmp = [];
-                            let viewButton = DataGridUtils.containsOperationsButton(
-                                responseView.operations,
-                                'OP_GRIDVIEW'
-                            );
-                            if (viewButton) {
-                                viewInfoTypesTmp.push({
-                                    icon: 'contentlayout',
-                                    type: 'gridView',
-                                    hint: viewButton?.label,
-                                });
-                            }
-                            this.setState(
-                                () => ({
-                                    loading: false,
-                                    //elementId: this.props.id,
-                                    viewType: responseView?.viewInfo?.type,
-                                    parsedGridView: responseView,
-                                    gridViewColumns: gridViewColumnsTmp,
-                                    pluginsList: pluginsListTmp,
-                                    documentsList: documentsListTmp,
-                                    batchesList: batchesListTmp,
-                                    filtersList: filtersListTmp,
-                                    selectedRowKeys: [],
-                                    viewInfoTypes: viewInfoTypesTmp,
-                                    packageRows: responseView?.viewInfo?.dataPackageSize,
-                                }),
-                                () => {
-                                    const initFilterId = responseView?.viewInfo?.filterdId;
-                                    this.setState({loading: true}, () => {
-                                        let res = this.dataGridStore.getDataGridStore(
-                                            this.state.subView == null
-                                                ? this.state.elementId
-                                                : this.state.elementSubViewId,
-                                            this.state.viewType,
-                                            this.state.subView == null ? recordId : this.state.elementRecordId,
-                                            !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId,
-                                            this.state.kindView,
-                                            () => {
-                                                this.setState({
-                                                    blocking: true,
-                                                });
-                                            },
-                                            () => {
-                                                this.setState({
-                                                    blocking: false,
-                                                });
-                                            },
-                                            (err) => {
-                                                this.showErrorMessages(err);
-                                            },
-                                        );
-                                        this.setState({
-                                            loading: false,
-                                            parsedGridViewData: res
-                                        });
-                                    });
-                                }
-                            );
+                        });
+                        for (let plugin in responseView?.pluginsList) {
+                            pluginsListTmp.push({
+                                id: responseView?.pluginsList[plugin].id,
+                                label: responseView?.pluginsList[plugin].label,
+                            });
                         }
-                    })
-                    .catch((err) => {
-                        console.error('Error getView in GridView. Exception = ', err);
-                        this.setState({loading: false,}, () => {
-                                this.showGlobalErrorMessage(err);
+                        for (let document in responseView?.documentsList) {
+                            documentsListTmp.push({
+                                id: responseView?.documentsList[document].id,
+                                label: responseView?.documentsList[document].label,
+                            });
+                        }
+                        for (let batch in responseView?.batchesList) {
+                            batchesListTmp.push({
+                                id: responseView?.batchesList[batch].id,
+                                label: responseView?.batchesList[batch].label,
+                            });
+                        }
+                        for (let filter in responseView?.filtersList) {
+                            filtersListTmp.push({
+                                id: responseView?.filtersList[filter].id,
+                                label: responseView?.filtersList[filter].label,
+                                command: (e) => {
+                                    let recordId = UrlUtils.getURLParameter('recordId');
+                                    ConsoleHelper(
+                                        `Redirect -> Id =  ${this.state.elementId} RecordId = ${recordId} FilterId = ${e.item?.id}`
+                                    );
+                                    if (!!e.item?.id) {
+                                        const filterId = parseInt(e.item?.id);
+                                        window.location.href = AppPrefixUtils.locationHrefUrl(
+                                            `/#/grid-view/${this.state.elementId}/?filterId=${filterId}`
+                                        );
+                                    }
+                                },
+                            });
+                        }
+                        let viewInfoTypesTmp = [];
+                        let viewButton = DataGridUtils.containsOperationsButton(responseView.operations, 'OP_GRIDVIEW');
+                        if (viewButton) {
+                            viewInfoTypesTmp.push({
+                                icon: 'contentlayout',
+                                type: 'gridView',
+                                hint: viewButton?.label,
+                            });
+                        }
+                        this.setState(
+                            () => ({
+                                loading: false,
+                                //elementId: this.props.id,
+                                viewType: responseView?.viewInfo?.type,
+                                parsedGridView: responseView,
+                                gridViewColumns: gridViewColumnsTmp,
+                                pluginsList: pluginsListTmp,
+                                documentsList: documentsListTmp,
+                                batchesList: batchesListTmp,
+                                filtersList: filtersListTmp,
+                                selectedRowKeys: [],
+                                viewInfoTypes: viewInfoTypesTmp,
+                                packageRows: responseView?.viewInfo?.dataPackageSize,
+                            }),
+                            () => {
+                                const initFilterId = responseView?.viewInfo?.filterdId;
+                                this.setState({loading: true}, () => {
+                                    let res = this.dataGridStore.getDataGridStore(
+                                        this.state.subView == null ? this.state.elementId : this.state.elementSubViewId,
+                                        this.state.viewType,
+                                        this.state.subView == null ? recordId : this.state.elementRecordId,
+                                        !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId,
+                                        this.state.kindView,
+                                        () => {
+                                            this.setState({
+                                                blocking: true,
+                                            });
+                                        },
+                                        () => {
+                                            this.setState({
+                                                blocking: false,
+                                            });
+                                        },
+                                        (err) => {
+                                            this.showErrorMessages(err);
+                                        }
+                                    );
+                                    this.setState({
+                                        loading: false,
+                                        parsedGridViewData: res,
+                                    });
+                                });
                             }
                         );
+                    }
+                })
+                .catch((err) => {
+                    console.error('Error getView in GridView. Exception = ', err);
+                    this.setState({loading: false}, () => {
+                        this.showGlobalErrorMessage(err);
                     });
-            }
-        );
+                });
+        });
     }
 
     //override
@@ -265,34 +258,43 @@ export class DashboardGridViewComponent extends BaseContainer {
                         onEditList={this.handleEditListRowChange}
                         onCancel={this.handleCancelRowChange}
                         validator={this.validator}
-                        onHide={(e, viewId, recordId, parentId) => !!this.state.modifyEditData ? confirmDialog({
-                            appendTo: document.body,
-                            message: LocUtils.loc(this.props.labels, 'Question_Close_Edit', 'Czy na pewno chcesz zamknąć edycję?'),
-                            header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
-                            icon: 'pi pi-exclamation-triangle',
-                            acceptLabel: localeOptions('accept'),
-                            rejectLabel: localeOptions('reject'),
-                            accept: () => {
-                                this.handleCancelRowChange(viewId, recordId, parentId);
-                                this.setState({visibleEditPanel: e});
-                            },
-                            reject: () => undefined,
-                        }) : this.setState({visibleEditPanel: e}, () => {
-                            this.handleCancelRowChange(viewId, recordId, parentId);
-                        })}
+                        onHide={(e, viewId, recordId, parentId) =>
+                            !!this.state.modifyEditData
+                                ? confirmDialog({
+                                      appendTo: document.body,
+                                      message: LocUtils.loc(
+                                          this.props.labels,
+                                          'Question_Close_Edit',
+                                          'Czy na pewno chcesz zamknąć edycję?'
+                                      ),
+                                      header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
+                                      icon: 'pi pi-exclamation-triangle',
+                                      acceptLabel: localeOptions('accept'),
+                                      rejectLabel: localeOptions('reject'),
+                                      accept: () => {
+                                          this.handleCancelRowChange(viewId, recordId, parentId);
+                                          this.setState({visibleEditPanel: e});
+                                      },
+                                      reject: () => undefined,
+                                  })
+                                : this.setState({visibleEditPanel: e}, () => {
+                                      this.handleCancelRowChange(viewId, recordId, parentId);
+                                  })
+                        }
                         onError={(e) => this.showErrorMessage(e)}
                         labels={this.props.labels}
                         showErrorMessages={(err) => this.showErrorMessages(err)}
                     />
                 </React.Fragment>
-            </React.Fragment>);
+            </React.Fragment>
+        );
     }
 
     //override
     renderHeaderLeft() {
         return (
             <React.Fragment>
-                <div id='left-header-panel' className='float-left pt-2'/>
+                <div id='left-header-panel' className='float-left pt-2' />
             </React.Fragment>
         );
     }
@@ -302,10 +304,7 @@ export class DashboardGridViewComponent extends BaseContainer {
         let opADD = DataGridUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_ADD');
         return (
             <React.Fragment>
-                <ActionButton rendered={opADD}
-                              label={opADD?.label}
-                              handleClick={() => {
-                              }}/>
+                <ActionButton rendered={opADD} label={opADD?.label} handleClick={() => {}} />
             </React.Fragment>
         );
     }
@@ -314,16 +313,18 @@ export class DashboardGridViewComponent extends BaseContainer {
     rightHeadPanelContent = () => {
         return (
             <React.Fragment>
-                <ShortcutsButton items={this.state.parsedGridView?.shortcutButtons} maxShortcutButtons={5}/>
+                <ShortcutsButton items={this.state.parsedGridView?.shortcutButtons} maxShortcutButtons={5} />
             </React.Fragment>
         );
-    }
+    };
 
     leftHeadPanelContent = () => {
         let centerElementStyle = 'mr-1 ';
         let opBatches = DataGridUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_BATCH');
         let opDocuments = DataGridUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_DOCUMENTS');
         let opPlugins = DataGridUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_PLUGINS');
+        // TODO:
+        let opDownload = DataGridUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_DOWNLOAD');
         return (
             <React.Fragment>
                 <ButtonGroup
@@ -364,7 +365,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                 </div>
             </React.Fragment>
         );
-    }
+    };
 
     //override
     renderHeadPanel = () => {
@@ -387,19 +388,19 @@ export class DashboardGridViewComponent extends BaseContainer {
                 />
             </React.Fragment>
         );
-    }
+    };
 
     unselectedDataGrid() {
         this.getRefGridView().instance.deselectAll();
         this.setState({
-            selectedRowKeys: {}
+            selectedRowKeys: {},
         });
     }
 
     //override
     renderHeaderContent() {
         if (this.state.gridViewType === 'dashboard') {
-            return <React.Fragment/>
+            return <React.Fragment />;
         }
     }
 
@@ -407,7 +408,7 @@ export class DashboardGridViewComponent extends BaseContainer {
     render() {
         return (
             <React.Fragment>
-                <Toast id='toast-messages' position='top-center' ref={(el) => this.messages = el}/>
+                <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
                 {this.renderGlobalTop()}
                 {this.renderContent()}
             </React.Fragment>
@@ -439,7 +440,7 @@ export class DashboardGridViewComponent extends BaseContainer {
         if (!!this.props.handleShowErrorMessages(err)) {
             return this.props.handleShowErrorMessages(err);
         } else {
-            this.showErrorMessages(err)
+            this.showErrorMessages(err);
             return true;
         }
     }
@@ -453,7 +454,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                         <GridViewComponent
                             id={this.props.id}
                             elementSubViewId={this.state.elementSubViewId}
-                            handleOnDataGrid={(ref) => this.refDataGrid = ref}
+                            handleOnDataGrid={(ref) => (this.refDataGrid = ref)}
                             parsedGridView={this.state.parsedGridView}
                             parsedGridViewData={this.state.parsedGridViewData}
                             gridViewColumns={this.state.gridViewColumns}
@@ -465,14 +466,14 @@ export class DashboardGridViewComponent extends BaseContainer {
                                 return this.unblockUi();
                             }}
                             showErrorMessages={(err) => {
-                                return this.showErrorMessages(err)
+                                return this.showErrorMessages(err);
                             }}
                             packageRows={this.state.packageRows}
                             handleShowEditPanel={(editDataResponse) => {
                                 this.setState({
                                     visibleEditPanel: true,
                                     modifyEditData: false,
-                                    editData: editDataResponse
+                                    editData: editDataResponse,
                                 });
                                 this.unblockUi();
                             }}
@@ -496,41 +497,38 @@ export class DashboardGridViewComponent extends BaseContainer {
                 )}
             </React.Fragment>
         );
-    }
+    };
 
-    getMessages(){
+    getMessages() {
         return this.messages;
     }
 
-    static defaultProps =
-        {
-            viewMode: 'VIEW',
-            showColumnLines: true,
-            showRowLines: true,
-            showBorders: true,
-            showColumnHeaders: true,
-            showFilterRow: true,
-            showSelection: true,
-        }
+    static defaultProps = {
+        viewMode: 'VIEW',
+        showColumnLines: true,
+        showRowLines: true,
+        showBorders: true,
+        showColumnHeaders: true,
+        showFilterRow: true,
+        showSelection: true,
+    };
 
-    static propTypes =
-        {
-            id: PropTypes.number.isRequired,
-            subViewId: PropTypes.number.isRequired,
-            recordId: PropTypes.number.isRequired,
-            filterId: PropTypes.number.isRequired,
-            viewType: PropTypes.number.isRequired,
-            showColumnLines: PropTypes.bool,
-            showRowLines: PropTypes.bool,
-            showBorders: PropTypes.bool,
-            showColumnHeaders: PropTypes.bool,
-            showFilterRow: PropTypes.bool,
-            showSelection: PropTypes.bool,
-            handleBlockUi: PropTypes.func,
-            handleUnBlockUi: PropTypes.func,
-            handleShowErrorMessages: PropTypes.func,
-            dataGridHeight: PropTypes.number,
-            labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
-        }
+    static propTypes = {
+        id: PropTypes.number.isRequired,
+        subViewId: PropTypes.number.isRequired,
+        recordId: PropTypes.number.isRequired,
+        filterId: PropTypes.number.isRequired,
+        viewType: PropTypes.number.isRequired,
+        showColumnLines: PropTypes.bool,
+        showRowLines: PropTypes.bool,
+        showBorders: PropTypes.bool,
+        showColumnHeaders: PropTypes.bool,
+        showFilterRow: PropTypes.bool,
+        showSelection: PropTypes.bool,
+        handleBlockUi: PropTypes.func,
+        handleUnBlockUi: PropTypes.func,
+        handleShowErrorMessages: PropTypes.func,
+        dataGridHeight: PropTypes.number,
+        labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
+    };
 }
-

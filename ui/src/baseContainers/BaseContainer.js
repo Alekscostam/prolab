@@ -11,14 +11,14 @@ import Constants from '../utils/Constants';
 import BlockUi from '../components/waitPanel/BlockUi';
 import {Toast} from 'primereact/toast';
 import {Message} from 'primereact/message';
-import AppPrefixUtils from "../utils/AppPrefixUtils";
-import {confirmDialog} from "primereact/confirmdialog";
-import {localeOptions} from "primereact/api";
-import EditRowUtils from "../utils/EditRowUtils";
-import ConsoleHelper from "../utils/ConsoleHelper";
-import {LoadIndicator} from "devextreme-react";
-import {DataGridUtils} from "../utils/component/DataGridUtils";
-import {EntryResponseUtils} from "../utils/EntryResponseUtils";
+import AppPrefixUtils from '../utils/AppPrefixUtils';
+import {confirmDialog} from 'primereact/confirmdialog';
+import {localeOptions} from 'primereact/api';
+import EditRowUtils from '../utils/EditRowUtils';
+import ConsoleHelper from '../utils/ConsoleHelper';
+import {LoadIndicator} from 'devextreme-react';
+import {DataGridUtils} from '../utils/component/DataGridUtils';
+import {EntryResponseUtils} from '../utils/EntryResponseUtils';
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -61,12 +61,10 @@ class BaseContainer extends React.Component {
         this.scrollToError = false;
     }
 
-    getMessages() {
-    }
+    getMessages() {}
 
     componentDidMount() {
-        window.addEventListener('beforeunload', function () {
-        });
+        window.addEventListener('beforeunload', function () {});
         this._isMounted = true;
         if (!this.jwtRefreshBlocked && this.authService.loggedIn()) {
             this.jwtRefreshBlocked = true;
@@ -119,7 +117,7 @@ class BaseContainer extends React.Component {
             summary: summary,
             content: (
                 <div className='p-flex p-flex-column' style={{flex: '1'}}>
-                    <Message severity={'info'} content={detail}/>
+                    <Message severity={'info'} content={detail} />
                 </div>
             ),
         });
@@ -132,7 +130,7 @@ class BaseContainer extends React.Component {
             summary: summary,
             content: (
                 <div className='p-flex p-flex-column' style={{flex: '1'}}>
-                    <Message severity={'warn'} content={detail}/>
+                    <Message severity={'warn'} content={detail} />
                 </div>
             ),
         });
@@ -149,7 +147,7 @@ class BaseContainer extends React.Component {
     }
 
     showResponseErrorMessage(errorResponse) {
-        let title = "Błąd";
+        let title = 'Błąd';
         let message;
         if (!!errorResponse?.error) {
             message = errorResponse.error?.message;
@@ -168,7 +166,7 @@ class BaseContainer extends React.Component {
     }
 
     showGlobalErrorMessage(err) {
-        console.error(err)
+        console.error(err);
         if (!!err.error) {
             this.showResponseErrorMessage(err);
         } else {
@@ -193,7 +191,6 @@ class BaseContainer extends React.Component {
         let messages = [];
         if (typeof err === 'string') {
             message = err;
-
         } else if (err) {
             message = err.Message;
             title = err.title;
@@ -206,16 +203,16 @@ class BaseContainer extends React.Component {
                         const values = err.errors[key];
                         if (values) {
                             if (Array.isArray(values)) {
-                                values.forEach(v => {
+                                values.forEach((v) => {
                                     item += '' + v;
-                                })
+                                });
                             } else if (typeof values === 'string') {
                                 item += values;
                             }
                         }
-                        item += (idx === keys.length - 1) ? '' : '; ';
+                        item += idx === keys.length - 1 ? '' : '; ';
                         messages.push(item);
-                    })
+                    });
                 }
             }
         }
@@ -236,14 +233,12 @@ class BaseContainer extends React.Component {
             summary: title,
             content: (
                 <React.Fragment>
-                    <div className="p-flex p-flex-column" style={{flex: '1 1 0%'}}>
-                        <span className="p-toast-message-icon pi"/>
-                        <div className="p-toast-message-text">
-                            <span className="p-toast-summary">{title}</span>
-                            {messages.map(msg => {
-                                return (
-                                    <div className="p-toast-detail">{msg}</div>
-                                )
+                    <div className='p-flex p-flex-column' style={{flex: '1 1 0%'}}>
+                        <span className='p-toast-message-icon pi' />
+                        <div className='p-toast-message-text'>
+                            <span className='p-toast-summary'>{title}</span>
+                            {messages.map((msg) => {
+                                return <div className='p-toast-detail'>{msg}</div>;
                             })}
                         </div>
                     </div>
@@ -688,8 +683,7 @@ class BaseContainer extends React.Component {
         }
     }
 
-    handleValidForm() {
-    }
+    handleValidForm() {}
 
     handleFormSubmit(event) {
         if (event !== undefined) {
@@ -735,18 +729,18 @@ class BaseContainer extends React.Component {
             <DivContainer colClass='p-card-header-minheight'>
                 {leftItems && leftItems.length > 0
                     ? leftItems.map((item, index) =>
-                        item.customRenderFunction instanceof Function
-                            ? item.customRenderFunction()
-                            : this.renderItem(item, index)
-                    )
+                          item.customRenderFunction instanceof Function
+                              ? item.customRenderFunction()
+                              : this.renderItem(item, index)
+                      )
                     : null}
                 <DivContainer colClass='float-right'>
                     {rightItems && rightItems.length > 0
                         ? rightItems.map((item, index) =>
-                            item.customRenderFunction instanceof Function
-                                ? item.customRenderFunction()
-                                : this.renderItem(item, index)
-                        )
+                              item.customRenderFunction instanceof Function
+                                  ? item.customRenderFunction()
+                                  : this.renderItem(item, index)
+                          )
                         : null}
                 </DivContainer>
             </DivContainer>
@@ -793,17 +787,18 @@ class BaseContainer extends React.Component {
                 />
             );
         } else if (item.type === 'SUBMIT') {
-            return (item.rendered ?
-                    <button
-                        value={item.label}
-                        // eslint-disable-next-line max-len
-                        className={`p-button p-component p-button-text-only header-item ${item.className} ${item.variant} ${item.size}`}
-                        type='submit'
-                        disabled={item.disabled}
-                        key={item.label + index}>
-                        <span className='p-button-text p-c'>{item.label}</span>
-                    </button> : null
-            );
+            return item.rendered ? (
+                <button
+                    value={item.label}
+                    // eslint-disable-next-line max-len
+                    className={`p-button p-component p-button-text-only header-item ${item.className} ${item.variant} ${item.size}`}
+                    type='submit'
+                    disabled={item.disabled}
+                    key={item.label + index}
+                >
+                    <span className='p-button-text p-c'>{item.label}</span>
+                </button>
+            ) : null;
         } else {
             return (
                 <ActionButton
@@ -846,20 +841,20 @@ class BaseContainer extends React.Component {
                         <DivContainer colClass='col-12'>
                             {leftItems && leftItems.length > 0
                                 ? leftItems.map((item, index) =>
-                                    item.customRenderFunction instanceof Function
-                                        ? item.customRenderFunction()
-                                        : this.renderItem(item, index)
-                                )
+                                      item.customRenderFunction instanceof Function
+                                          ? item.customRenderFunction()
+                                          : this.renderItem(item, index)
+                                  )
                                 : null}
                         </DivContainer>
                         <DivContainer colClass='col-12'>
                             <DivContainer colClass='float-right'>
                                 {rightItems && rightItems.length > 0
                                     ? rightItems.map((item, index) =>
-                                        item.customRenderFunction instanceof Function
-                                            ? item.customRenderFunction()
-                                            : this.renderItem(item, index)
-                                    )
+                                          item.customRenderFunction instanceof Function
+                                              ? item.customRenderFunction()
+                                              : this.renderItem(item, index)
+                                      )
                                     : null}
                             </DivContainer>
                         </DivContainer>
@@ -873,7 +868,7 @@ class BaseContainer extends React.Component {
         return (
             <div className={`row ${pt}`}>
                 <div className='col'>
-                    <div className='ade-border-bottom ade-separator'/>
+                    <div className='ade-border-bottom ade-separator' />
                 </div>
             </div>
         );
@@ -915,11 +910,7 @@ class BaseContainer extends React.Component {
         }
         return (
             <div id='cover-spin-container'>
-                <LoadIndicator
-                    visible={true}
-                    height={40}
-                    width={40}
-                />
+                <LoadIndicator visible={true} height={40} width={40} />
                 <div id='cover-spin-text'>
                     <p>{label}</p>
                 </div>
@@ -928,62 +919,68 @@ class BaseContainer extends React.Component {
     }
 
     renderContent() {
-        return <React.Fragment/>;
+        return <React.Fragment />;
     }
 
     renderHeaderRight() {
-        return <React.Fragment/>;
+        return <React.Fragment />;
     }
 
     renderHeaderLeft() {
-        return <React.Fragment/>;
+        return <React.Fragment />;
     }
 
     renderHeaderContent() {
-        return <React.Fragment/>;
+        return <React.Fragment />;
     }
 
     renderHeadPanel() {
-        return <React.Fragment/>;
+        return <React.Fragment />;
     }
 
     renderGlobalTop() {
-        return <React.Fragment/>;
+        return <React.Fragment />;
     }
 
     render() {
         return (
             <React.Fragment>
-                <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)}/>
-                <BlockUi tag='div' className='block-ui-div' blocking={this.state.blocking || this.state.loading}
-                         loader={this.loader} renderBlockUi={this.state.gridViewType !== 'dashboard'}>
-                    {this.state.loading === false ? <React.Fragment>
-                        {this.renderGlobalTop()}
-                        <DivContainer colClass='base-container-div'>
-                            <DivContainer colClass='row base-container-header'>
-                                <DivContainer id='header-left' colClass={""}>
-                                    {this.renderHeaderLeft()}
+                <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
+                <BlockUi
+                    tag='div'
+                    className='block-ui-div'
+                    blocking={this.state.blocking || this.state.loading}
+                    loader={this.loader}
+                    renderBlockUi={this.state.gridViewType !== 'dashboard'}
+                >
+                    {this.state.loading === false ? (
+                        <React.Fragment>
+                            {this.renderGlobalTop()}
+                            <DivContainer colClass='base-container-div'>
+                                <DivContainer colClass='row base-container-header'>
+                                    <DivContainer id='header-left' colClass={''}>
+                                        {this.renderHeaderLeft()}
+                                    </DivContainer>
+                                    <DivContainer id='header-right' colClass={''}>
+                                        {this.renderHeaderRight()}
+                                    </DivContainer>
+                                    <DivContainer id='header-content' colClass='col-12'>
+                                        {this.renderHeaderContent()}
+                                    </DivContainer>
                                 </DivContainer>
-                                <DivContainer id='header-right' colClass={""}>
-                                    {this.renderHeaderRight()}
+                                <DivContainer colClass='row base-container-head-panel'>
+                                    <DivContainer id='header-panel' colClass='col-12'>
+                                        {this.renderHeadPanel()}
+                                    </DivContainer>
                                 </DivContainer>
-                                <DivContainer id='header-content' colClass='col-12'>
-                                    {this.renderHeaderContent()}
+                                <DivContainer colClass='row base-container-content'>
+                                    <DivContainer id='content' colClass='col-12'>
+                                        {this.renderContent()}
+                                    </DivContainer>
                                 </DivContainer>
                             </DivContainer>
-                            <DivContainer colClass='row base-container-head-panel'>
-                                <DivContainer id='header-panel' colClass='col-12'>
-                                    {this.renderHeadPanel()}
-                                </DivContainer>
-                            </DivContainer>
-                            <DivContainer colClass='row base-container-content'>
-                                <DivContainer id='content' colClass='col-12'>
-                           
-                                    {this.renderContent()}
-                                </DivContainer>
-                            </DivContainer>
-                        </DivContainer>
-                    </React.Fragment> : null}
+                        </React.Fragment>
+                    ) : null}
                 </BlockUi>
             </React.Fragment>
         );
@@ -999,26 +996,22 @@ class BaseContainer extends React.Component {
     }
 
     handleEditRowSave(viewId, recordId, parentId) {
-        ConsoleHelper(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
+        ConsoleHelper(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`);
         const saveElement = this.crudService.createObjectToSave(this.state);
-        ConsoleHelper(`handleEditRowSave: element to save = ${JSON.stringify(saveElement)}`)
+        ConsoleHelper(`handleEditRowSave: element to save = ${JSON.stringify(saveElement)}`);
         this.rowSave(viewId, recordId, parentId, saveElement, false);
     }
-
-    
 
     refreshView() {
         if (this.isCardView()) {
             if (!!this.getRefCardGrid()) {
                 this.getRefCardGrid().current?.refresh(true);
             }
-        }else if(this.isGanttView()){
+        } else if (this.isGanttView()) {
             if (!!this.getRefGanttView()) {
-                 this.getRefGanttView().current.refresh();  
-                     
+                this.getRefGanttView().current.refresh();
             }
-        }
-        else if (this.isGridView()){
+        } else if (this.isGridView()) {
             if (!!this.getRefGridView()) {
                 this.getRefGridView().instance.getDataSource().reload();
             }
@@ -1027,8 +1020,7 @@ class BaseContainer extends React.Component {
 
     reloadOnlyDataGrid() {
         if (this.isGridView()) {
-            if (!!this.getRefGridView())
-                this.getRefGridView().instance.getDataSource().reload();
+            if (!!this.getRefGridView()) this.getRefGridView().instance.getDataSource().reload();
         }
     }
 
@@ -1041,7 +1033,9 @@ class BaseContainer extends React.Component {
     rowSave = (viewId, recordId, parentId, saveElement, confirmSave) => {
         this.blockUi();
         const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
-        const kindOperation = this.state.editData.editInfo?.kindOperation ? this.state.editData.editInfo?.kindOperation : undefined;
+        const kindOperation = this.state.editData.editInfo?.kindOperation
+            ? this.state.editData.editInfo?.kindOperation
+            : undefined;
         this.crudService
             .save(viewId, recordId, parentId, kindView, kindOperation, saveElement, confirmSave)
             .then((saveResponse) => {
@@ -1058,8 +1052,8 @@ class BaseContainer extends React.Component {
                                 rejectLabel: undefined,
                                 accept: () => {
                                     this.setState({visibleEditPanel: false});
-                                }
-                            })
+                                },
+                            });
                         } else if (!!saveResponse.error) {
                             this.showResponseErrorMessage(saveResponse);
                         } else {
@@ -1077,7 +1071,7 @@ class BaseContainer extends React.Component {
                                 rejectLabel: localeOptions('reject'),
                                 accept: () => this.rowSave(viewId, recordId, parentId, saveElement, true),
                                 reject: () => undefined,
-                            })
+                            });
                         } else if (!!saveResponse.message) {
                             confirmDialog({
                                 appendTo: document.body,
@@ -1087,8 +1081,8 @@ class BaseContainer extends React.Component {
                                 rejectClassName: 'hidden',
                                 acceptLabel: 'OK',
                                 rejectLabel: undefined,
-                                accept: () => undefined
-                            })
+                                accept: () => undefined,
+                            });
                         } else if (!!saveResponse.error) {
                             this.showResponseErrorMessage(saveResponse);
                         }
@@ -1101,187 +1095,283 @@ class BaseContainer extends React.Component {
                         }
                         break;
                 }
-                if(kindOperation.toUpperCase() === "COPY"){
-                   this.copyAfterSave(saveResponse);
+                if (kindOperation.toUpperCase() === 'COPY') {
+                    this.copyAfterSave(saveResponse);
+                }
+                if (this.state.attachmentFiles?.length !== 0) {
+                    this.uploadAttachemnt(this.state.parsedGridView, this.state.attachmentFiles[0]);
                 }
                 this.refreshView();
                 this.unblockUi();
-            }).catch((err) => {
-            this.showGlobalErrorMessage(err);
-        });
-    }
+            })
+            .catch((err) => {
+                this.showGlobalErrorMessage(err);
+            });
+    };
 
     copyAfterSave = (saveResponse) => {
-        let {copyOptions,copyCounter} = this.state.copyData;
-        let selectedRowKeys = this.state.selectedRowKeys; 
-        let currentSelectedRowKeyId =  this.state.currentSelectedRowKeyId;
-        if(copyOptions.numberOfCopy!==copyCounter.counter){
-            copyCounter.counter = copyCounter.counter + 1
-            if(copyOptions.copyLastModifiedObject){
-                 selectedRowKeys = selectedRowKeys.filter(rowKey => rowKey.ID !== currentSelectedRowKeyId)
-                 currentSelectedRowKeyId =  saveResponse.recordId;
-                 this.setState({
-                    currentSelectedRowKeyId:currentSelectedRowKeyId
-                 })
-            }
-          this.copyEntry(currentSelectedRowKeyId);
-        }else{
-            selectedRowKeys = selectedRowKeys.filter(rowKey => rowKey.ID !== currentSelectedRowKeyId);
-            this.setState({
-                   currentSelectedRowKeyId:undefined,
-                   selectedRowKeys:selectedRowKeys
-               })
-            if(selectedRowKeys.length !==0 && !this.state.copyId){
-                    copyCounter.counter = copyCounter.reInitializeCounter;  
-                    this.copyEntry();
-            }else{
+        let {copyOptions, copyCounter} = this.state.copyData;
+        let selectedRowKeys = this.state.selectedRowKeys;
+        let currentSelectedRowKeyId = this.state.currentSelectedRowKeyId;
+        if (copyOptions.numberOfCopy !== copyCounter.counter) {
+            copyCounter.counter = copyCounter.counter + 1;
+            if (copyOptions.copyLastModifiedObject) {
+                selectedRowKeys = selectedRowKeys.filter((rowKey) => rowKey.ID !== currentSelectedRowKeyId);
+                currentSelectedRowKeyId = saveResponse.recordId;
                 this.setState({
-                    copyData:undefined,
-                    copyId:undefined
-                })
+                    currentSelectedRowKeyId: currentSelectedRowKeyId,
+                });
+            }
+            this.copyEntry(currentSelectedRowKeyId);
+        } else {
+            selectedRowKeys = selectedRowKeys.filter((rowKey) => rowKey.ID !== currentSelectedRowKeyId);
+            this.setState({
+                currentSelectedRowKeyId: undefined,
+                selectedRowKeys: selectedRowKeys,
+            });
+            if (selectedRowKeys.length !== 0 && !this.state.copyId) {
+                copyCounter.counter = copyCounter.reInitializeCounter;
+                this.copyEntry();
+            } else {
+                this.setState({
+                    copyData: undefined,
+                    copyId: undefined,
+                });
                 this.refreshView();
                 this.unselectAllDataGrid();
                 return;
             }
         }
-        this.setState(
-            (prevState) => ({
-                ...prevState,
-                copyCounter: copyCounter,
-                selectedRowKeys: selectedRowKeys
-            }),
-        )
-    }
+        this.setState((prevState) => ({
+            ...prevState,
+            copyCounter: copyCounter,
+            selectedRowKeys: selectedRowKeys,
+        }));
+    };
 
     rowCancel = (viewId, recordId, parentId, saveElement) => {
         this.blockUi();
         const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
-        const kindOperation = this.state.editData.editInfo?.kindOperation ? this.state.editData.editInfo?.kindOperation : undefined;
+        const kindOperation = this.state.editData.editInfo?.kindOperation
+            ? this.state.editData.editInfo?.kindOperation
+            : undefined;
         this.crudService
             .cancel(viewId, recordId, parentId, kindView, kindOperation, saveElement)
             .then(() => {
                 this.refreshView();
                 this.unblockUi();
-            }).catch((err) => {
-            this.showGlobalErrorMessage(err);
-        });
-    }
+            })
+            .catch((err) => {
+                this.showGlobalErrorMessage(err);
+            });
+    };
 
     delete(id) {
         ConsoleHelper('handleDelete');
         this.blockUi();
         const viewId = this.getRealViewId();
         const parentId = this.state.elementRecordId;
-        const selectedRowKeysIds = this.getSelectedRowKeysIds(id)
+        const selectedRowKeysIds = this.getSelectedRowKeysIds(id);
         const kindView = this.state.elementKindView;
-        this.crudService.deleteEntry(viewId, parentId, kindView, selectedRowKeysIds)
+        this.crudService
+            .deleteEntry(viewId, parentId, kindView, selectedRowKeysIds)
             .then((entryResponse) => {
                 EntryResponseUtils.run(
                     entryResponse,
                     () => {
                         if (!!entryResponse.next) {
-                            this.crudService.delete(viewId, parentId, kindView, selectedRowKeysIds)
+                            this.crudService
+                                .delete(viewId, parentId, kindView, selectedRowKeysIds)
                                 .then((deleteResponse) => {
                                     this.unselectAllDataGrid();
                                     this.refreshView();
                                     const msg = deleteResponse.message;
                                     if (!!msg) {
-                                        this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
+                                        this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title);
                                     } else if (!!deleteResponse.error) {
                                         this.showResponseErrorMessage(deleteResponse);
                                     }
                                     this.unblockUi();
-                                }).catch((err) => {
-                                this.showGlobalErrorMessage(err);
-                            })
+                                })
+                                .catch((err) => {
+                                    this.showGlobalErrorMessage(err);
+                                });
                         } else {
-                            this.unblockUi()
+                            this.unblockUi();
                         }
                     },
                     () => this.unblockUi()
                 );
-            }).catch((err) => {
-            this.showGlobalErrorMessage(err);
-        })
+            })
+            .catch((err) => {
+                this.showGlobalErrorMessage(err);
+            });
     }
+
     generate(id) {
         ConsoleHelper('handleGenerate');
         const viewId = this.getRealViewId();
         const parentId = this.state.elementRecordId;
-        const idRowKeys =  this.state.selectedRowKeys.map(el=>el.ID);
-        const listId = {"listId": idRowKeys}
-        this.crudService.getDocumentDatasInfo(viewId, id, listId, parentId)
-                        .then((res) => {
-                            if (res.kind === 'GE') {
-                                if (res.info.next) {
-                                    if (res.message) {
-                                        this.showSuccessMessage(res.message.text, undefined, res.message.title);
-                                    } else {
-                                        this.executeDocument(null, viewId, id, parentId);
-                                    }
-                                }
-                            } else {
-                                if (res.inputDataFields?.length) {
-                                    let documentInfo = {
-                                        inputDataFields: res.inputDataFields,
-                                        info: res.info,
-                                    };
-                                    this.setState({
-                                        visibleDocumentPanel: true,
-                                        documentInfo: documentInfo,
-                                    });
-                            } else {
-                                    this.executeDocument(null, viewId, id, parentId);
-                            }
+        const idRowKeys = this.state.selectedRowKeys.map((el) => el.ID);
+        const listId = {listId: idRowKeys};
+        this.crudService.getDocumentDatasInfo(viewId, id, listId, parentId).then((res) => {
+            if (res.kind === 'GE') {
+                if (res.info.next) {
+                    if (res.message) {
+                        this.showSuccessMessage(res.message.text, undefined, res.message.title);
+                    } else {
+                        this.executeDocument(null, viewId, id, parentId);
                     }
-                });
-    } 
-    
+                }
+            } else {
+                if (res.inputDataFields?.length) {
+                    let documentInfo = {
+                        inputDataFields: res.inputDataFields,
+                        info: res.info,
+                    };
+                    this.setState({
+                        visibleDocumentPanel: true,
+                        documentInfo: documentInfo,
+                    });
+                } else {
+                    this.executeDocument(null, viewId, id, parentId);
+                }
+            }
+        });
+    }
+
     plugin(id) {
         ConsoleHelper('handlePlugin');
         const viewId = this.getRealViewId();
         const parentId = this.state.elementRecordId;
-        const idRowKeys =  this.state.selectedRowKeys.map(el=>el.ID);
-        const listId = {"listId": idRowKeys}
+        const idRowKeys = this.state.selectedRowKeys.map((el) => el.ID);
+        const listId = {listId: idRowKeys};
         let visiblePluginPanel = false;
         let visibleMessagePluginPanel = false;
-        this.crudService.getPluginColumnsDefnitions(viewId,id,listId,parentId)
-                    .then((res)=>{  
-                        let parsedPluginViewData ;
-                        if(res.info.kind==="GRID"){
-                            visiblePluginPanel = true;
-                            let datas = this.dataPluginStore.getPluginDataStore(
-                                viewId,
-                                id,
-                                listId,
-                                parentId,
-                                (err) => {this.props.showErrorMessages(err);},
-                                () => {this.setState({dataPluginStoreSuccess: true});},
-                            )
-                            parsedPluginViewData = datas
-                        }else{
-                            visibleMessagePluginPanel = true;
+        this.crudService
+            .getPluginColumnsDefnitions(viewId, id, listId, parentId)
+            .then((res) => {
+                let parsedPluginViewData;
+                if (res.info.kind === 'GRID') {
+                    visiblePluginPanel = true;
+                    let datas = this.dataPluginStore.getPluginDataStore(
+                        viewId,
+                        id,
+                        listId,
+                        parentId,
+                        (err) => {
+                            this.props.showErrorMessages(err);
+                        },
+                        () => {
+                            this.setState({dataPluginStoreSuccess: true});
                         }
-                        this.setState({
-                            parsedPluginView: res,
-                            parsedPluginViewData: parsedPluginViewData,
-                            visiblePluginPanel: visiblePluginPanel,
-                            visibleMessagePluginPanel: visibleMessagePluginPanel,
-                            isPluginFirstStep: true,
-                            pluginId: id
-                        }) 
-                    }).catch((err)=>{
-                        this.showErrorMessages(err);
-                    })
+                    );
+                    parsedPluginViewData = datas;
+                } else {
+                    visibleMessagePluginPanel = true;
+                }
+                this.setState({
+                    parsedPluginView: res,
+                    parsedPluginViewData: parsedPluginViewData,
+                    visiblePluginPanel: visiblePluginPanel,
+                    visibleMessagePluginPanel: visibleMessagePluginPanel,
+                    isPluginFirstStep: true,
+                    pluginId: id,
+                });
+            })
+            .catch((err) => {
+                this.showErrorMessages(err);
+            });
     }
 
     getSelectedRowKeysIds(id) {
-        return (id === undefined || id === null || id === '') ? this.state.selectedRowKeys.map((e) => {
-            return e.ID === undefined ? e : e.ID;
-        }) : [id];
+        return id === undefined || id === null || id === ''
+            ? this.state.selectedRowKeys.map((e) => {
+                  return e.ID === undefined ? e : e.ID;
+              })
+            : [id];
     }
 
-  
+    // gridView przekazywany ręcznie dla załaczników
+    uploadAttachemnt(gridView, attachmentFile) {
+        ConsoleHelper('handleUploadAttachemnt');
+        this.blockUi();
+        const viewInfo = gridView.viewInfo;
+        const viewId = viewInfo.id;
+        const parentId = viewInfo.parentId;
+        const parentViewId = viewInfo.parentViewId;
+        this.crudService
+            .uploadAttachemnt(viewId, parentId, parentViewId, attachmentFile)
+            .then((uploadResponse) => {
+                EntryResponseUtils.run(
+                    uploadResponse,
+                    () => {
+                        if (uploadResponse?.status === 'OK') {
+                            this.crudService
+                                .edit(viewId, uploadResponse.recordId, parentId, 'View')
+                                .then((editDataResponse) => {
+                                    const renderEditData = gridView.options.addFilesAddForm;
+                                    if (renderEditData) {
+                                        let attachmentFiles = this.state.attachmentFiles;
+                                        attachmentFiles.shift();
+                                        this.setState(
+                                            {
+                                                attachmentFiles: attachmentFiles,
+                                                editData: editDataResponse,
+                                            },
+                                            () => {
+                                                this.handleShowEditPanel(editDataResponse);
+                                            }
+                                        );
+                                    } else {
+                                        this.unblockUi();
+                                    }
+                                })
+                                .catch((err) => {
+                                    this.showErrorMessages(err);
+                                });
+                        } else {
+                            if (!!uploadResponse.error) {
+                                this.showResponseErrorMessage(uploadResponse);
+                            } else {
+                                this.showErrorMessages(uploadResponse);
+                            }
+                        }
+                    },
+                    () => this.unblockUi()
+                );
+            })
+            .catch((err) => {
+                this.showErrorMessages(err);
+            });
+    }
+
+    downloadAttachment(id) {
+        const viewId = this.getRealViewId();
+        let recordId = this.getSelectedRowKeysIds(id);
+
+        if (Array.isArray(recordId)) {
+            recordId = recordId[0];
+        }
+
+        this.crudService
+            .downloadAttachment(viewId, recordId)
+            .then(() => {
+                const selectedRowKeys = this.state.selectedRowKeys.filter((el) => el.ID !== recordId);
+                if (selectedRowKeys.length !== 0) {
+                    this.downloadAttachment(selectedRowKeys[0].ID);
+                } else {
+                    this.unselectAllDataGrid();
+                }
+                this.setState({
+                    selectedRowKeys,
+                });
+            })
+            .catch((err) => {
+                this.showErrorMessages(err);
+            });
+    }
+
     copyEntry(id) {
         ConsoleHelper('handleEntryCopy');
         this.blockUi();
@@ -1289,82 +1379,89 @@ class BaseContainer extends React.Component {
         const parentId = this.state.elementRecordId;
         const selectedRowKeys = this.getSelectedRowKeysIds(id);
         const kindView = this.state.elementKindView;
-        this.crudService.copyEntry(viewId, parentId, kindView,  selectedRowKeys)
+        this.crudService
+            .copyEntry(viewId, parentId, kindView, selectedRowKeys)
             .then((entryResponse) => {
                 EntryResponseUtils.run(
                     entryResponse,
                     () => {
                         if (!!entryResponse.next) {
-                        const copyData =    this.state.copyData;
-                        let copyOptions = {"copyOptions" : copyData.copyOptions}
-                        this.crudService.copy(viewId, parentId, kindView, selectedRowKeys[0], copyOptions)
+                            const copyData = this.state.copyData;
+                            let copyOptions = {copyOptions: copyData.copyOptions};
+                            this.crudService
+                                .copy(viewId, parentId, kindView, selectedRowKeys[0], copyOptions)
                                 .then((copyResponse) => {
                                     const msg = copyResponse.message;
                                     if (!!msg) {
-                                        this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
+                                        this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title);
                                     } else if (!!copyResponse.error) {
                                         this.showResponseErrorMessage(copyResponse);
                                     }
-                                    this.setState( {
-                                        visibleEditPanel:true,
+                                    this.setState({
+                                        visibleEditPanel: true,
                                         editData: copyResponse,
-                                    })
+                                    });
                                     this.unblockUi();
-                                }).catch((err) => {
-                                this.showGlobalErrorMessage(err);
-                            })
+                                })
+                                .catch((err) => {
+                                    this.showGlobalErrorMessage(err);
+                                });
                             this.setState({
                                 currentSelectedRowKeyId: selectedRowKeys[0],
-                            })
-                            this.unblockUi()
+                            });
+                            this.unblockUi();
                         } else {
-                            this.unblockUi()
+                            this.unblockUi();
                         }
                     },
                     () => this.unblockUi()
                 );
-            }).catch((err) => {
-            this.showGlobalErrorMessage(err);
-        })
+            })
+            .catch((err) => {
+                this.showGlobalErrorMessage(err);
+            });
     }
-    
 
     restore(id) {
         ConsoleHelper('handleRestore');
         this.blockUi();
         const viewId = this.getRealViewId();
         const parentId = this.state.elementRecordId;
-        const selectedRowKeysIds = this.getSelectedRowKeysIds(id)
+        const selectedRowKeysIds = this.getSelectedRowKeysIds(id);
         const kindView = this.state.elementKindView;
-        this.crudService.restoreEntry(viewId, parentId, kindView, selectedRowKeysIds)
+        this.crudService
+            .restoreEntry(viewId, parentId, kindView, selectedRowKeysIds)
             .then((entryResponse) => {
                 EntryResponseUtils.run(
                     entryResponse,
                     () => {
                         if (!!entryResponse.next) {
-                            this.crudService.restore(viewId, parentId, kindView, selectedRowKeysIds)
+                            this.crudService
+                                .restore(viewId, parentId, kindView, selectedRowKeysIds)
                                 .then((restoreResponse) => {
                                     this.unselectAllDataGrid();
                                     this.refreshView();
                                     const msg = restoreResponse.message;
                                     if (!!msg) {
-                                        this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
+                                        this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title);
                                     } else if (!!restoreResponse.error) {
                                         this.showResponseErrorMessage(restoreResponse);
                                     }
                                     this.unblockUi();
-                                }).catch((err) => {
-                                this.showGlobalErrorMessage(err);
-                            })
+                                })
+                                .catch((err) => {
+                                    this.showGlobalErrorMessage(err);
+                                });
                         } else {
-                            this.unblockUi()
+                            this.unblockUi();
                         }
                     },
                     () => this.unblockUi()
                 );
-            }).catch((err) => {
-            this.showGlobalErrorMessage(err);
-        });
+            })
+            .catch((err) => {
+                this.showGlobalErrorMessage(err);
+            });
     }
 
     archive(id) {
@@ -1372,84 +1469,89 @@ class BaseContainer extends React.Component {
         this.blockUi();
         const viewId = this.getRealViewId();
         const parentId = this.state.elementRecordId;
-        const selectedRowKeysIds = this.getSelectedRowKeysIds(id)
+        const selectedRowKeysIds = this.getSelectedRowKeysIds(id);
         const kindView = this.state.elementKindView;
-        this.crudService.archiveEntry(viewId, parentId, kindView, selectedRowKeysIds)
+        this.crudService
+            .archiveEntry(viewId, parentId, kindView, selectedRowKeysIds)
             .then((entryResponse) => {
                 EntryResponseUtils.run(
                     entryResponse,
                     () => {
                         if (!!entryResponse.next) {
-                            this.crudService.archive(viewId, parentId, kindView, selectedRowKeysIds)
+                            this.crudService
+                                .archive(viewId, parentId, kindView, selectedRowKeysIds)
                                 .then((archiveResponse) => {
                                     this.unselectAllDataGrid();
                                     this.refreshView();
                                     const msg = archiveResponse.message;
                                     if (!!msg) {
-                                        this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
+                                        this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title);
                                     } else if (!!archiveResponse.error) {
                                         this.showResponseErrorMessage(archiveResponse);
                                     }
                                     this.unblockUi();
-                                }).catch((err) => {
-                                this.showGlobalErrorMessage(err);
-                            })
+                                })
+                                .catch((err) => {
+                                    this.showGlobalErrorMessage(err);
+                                });
                         } else {
-                            this.unblockUi()
+                            this.unblockUi();
                         }
                     },
                     () => this.unblockUi()
                 );
-            }).catch((err) => {
-            this.showGlobalErrorMessage(err);
-        });
+            })
+            .catch((err) => {
+                this.showGlobalErrorMessage(err);
+            });
     }
 
-    publish(id,body) {
+    publish(id, body) {
         ConsoleHelper('publish');
         this.blockUi();
         const viewId = this.getRealViewId();
         const parentId = this.state.elementRecordId;
         const selectedRowKeysIds = this.getSelectedRowKeysIds(id);
         const kindView = this.state.elementKindView;
-        const publishOptions  = {publishOptions:body};
-        this.crudService.publish(viewId, parentId, kindView, selectedRowKeysIds, publishOptions)
-        .then((publishResponse) => {
+        const publishOptions = {publishOptions: body};
+        this.crudService
+            .publish(viewId, parentId, kindView, selectedRowKeysIds, publishOptions)
+            .then((publishResponse) => {
+                let visiblePublishSummaryDialog = false;
 
-            let visiblePublishSummaryDialog = false;
-
-            const msg = publishResponse.message;
-            if (!!msg) {
-                this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title)
-            } else if (!!publishResponse.error) {
-                this.showResponseErrorMessage(publishResponse);
-            }
-            if(id && this.state.selectedRowKeys.length===0){
-                visiblePublishSummaryDialog=true;
-                this.refreshView();
-                this.unselectAllDataGrid();
-            }else{
-              const currentSelectedRowKeyId  = this.state.currentSelectedRowKeyId
-              let selectedRowKeys = this.state.selectedRowKeys.filter(el=>el.ID!==currentSelectedRowKeyId); 
-              this.setState({selectedRowKeys:selectedRowKeys});
-              if(selectedRowKeys.length===0){
-                visiblePublishSummaryDialog = true;
-                this.refreshView();
-                this.unselectAllDataGrid();
-              }else{
-                  this.publishEntry(selectedRowKeys[0].ID);
-              }
-            }
-            let  publishSummary   = this.state.publishSummary;
-            publishSummary.publishedIds.push(selectedRowKeysIds[0])
-            this.setState({
-                publishSummary,
-                visiblePublishSummaryDialog
+                const msg = publishResponse.message;
+                if (!!msg) {
+                    this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title);
+                } else if (!!publishResponse.error) {
+                    this.showResponseErrorMessage(publishResponse);
+                }
+                if (id && this.state.selectedRowKeys.length === 0) {
+                    visiblePublishSummaryDialog = true;
+                    this.refreshView();
+                    this.unselectAllDataGrid();
+                } else {
+                    const currentSelectedRowKeyId = this.state.currentSelectedRowKeyId;
+                    let selectedRowKeys = this.state.selectedRowKeys.filter((el) => el.ID !== currentSelectedRowKeyId);
+                    this.setState({selectedRowKeys: selectedRowKeys});
+                    if (selectedRowKeys.length === 0) {
+                        visiblePublishSummaryDialog = true;
+                        this.refreshView();
+                        this.unselectAllDataGrid();
+                    } else {
+                        this.publishEntry(selectedRowKeys[0].ID);
+                    }
+                }
+                let publishSummary = this.state.publishSummary;
+                publishSummary.publishedIds.push(selectedRowKeysIds[0]);
+                this.setState({
+                    publishSummary,
+                    visiblePublishSummaryDialog,
+                });
+                this.unblockUi();
             })
-            this.unblockUi();
-        }).catch((err) => {
-        this.showGlobalErrorMessage(err);
-    })
+            .catch((err) => {
+                this.showGlobalErrorMessage(err);
+            });
     }
 
     publishEntry(id) {
@@ -1459,66 +1561,64 @@ class BaseContainer extends React.Component {
         const parentId = this.state.elementRecordId;
         const selectedRowKeysIds = this.getSelectedRowKeysIds(id);
         const kindView = this.state.elementKindView;
-        this.crudService.publishEntry(viewId, parentId, kindView, selectedRowKeysIds)
+        this.crudService
+            .publishEntry(viewId, parentId, kindView, selectedRowKeysIds)
             .then((entryResponse) => {
                 EntryResponseUtils.run(
                     entryResponse,
                     () => {
                         if (!!entryResponse.next) {
                             let isInitializePublish = this.state?.isInitializePublish;
-                            
-                            if(this.state?.isInitializePublish === undefined){
+
+                            if (this.state?.isInitializePublish === undefined) {
                                 isInitializePublish = true;
                             }
-                            if(this.state?.isInitializePublish){
+                            if (this.state?.isInitializePublish) {
                                 isInitializePublish = false;
                             }
-                            if(isInitializePublish && id){
+                            if (isInitializePublish && id) {
                                 this.unselectAllDataGrid();
                             }
-                            if(entryResponse.publishOptions ===null){
-                                  this.publish(id,null);
-                            }else{
+                            if (entryResponse.publishOptions === null) {
+                                this.publish(id, null);
+                            } else {
                                 this.setState({
                                     publishValues: entryResponse.publishValues,
                                     visiblePublishDialog: true,
                                     currentSelectedRowKeyId: id,
                                     isInitializePublish: isInitializePublish,
                                 });
-                                if(id && this.state.selectedRowKeys.length===0){
+                                if (id && this.state.selectedRowKeys.length === 0) {
                                     this.unselectAllDataGrid();
                                 }
                             }
-                            if(id===undefined){
+                            if (id === undefined) {
                                 this.setState({
                                     currentSelectedRowKeyId: selectedRowKeysIds[0],
-                                })
+                                });
                             }
-                            
                         } else {
-                            this.unblockUi()
+                            this.unblockUi();
                         }
                     },
                     () => this.unblockUi()
                 );
-               
-            }).catch((err) => {
-            this.showGlobalErrorMessage(err);
-        })
+            })
+            .catch((err) => {
+                this.showGlobalErrorMessage(err);
+            });
     }
 
-    unselectAllDataGrid() {
-        
-    }
+    unselectAllDataGrid() {}
 
     handleEditListRowChange(editInfo, editListData) {
-        ConsoleHelper(`handleEditListRowChange = `, JSON.stringify(editListData))
+        ConsoleHelper(`handleEditListRowChange = `, JSON.stringify(editListData));
         try {
             this.blockUi();
             let editData = this.state.editData;
             editListData.forEach((element) => {
                 EditRowUtils.searchAndAutoFill(editData, element.fieldEdit, element.fieldValue);
-            })
+            });
             this.setState({editData: editData, modifyEditData: true});
             if (editInfo?.field?.refreshFieldVisibility) {
                 this.refreshFieldVisibility(editInfo);
@@ -1531,7 +1631,9 @@ class BaseContainer extends React.Component {
     }
 
     handleAutoFillRowChange(viewId, recordId, parentId, kindView) {
-        ConsoleHelper(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId} parentId = ${kindView}`)
+        ConsoleHelper(
+            `handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId} parentId = ${kindView}`
+        );
         this.blockUi();
         const autofillBodyRequest = this.crudService.createObjectToAutoFill(this.state);
         this.crudService
@@ -1541,7 +1643,7 @@ class BaseContainer extends React.Component {
                 let editData = this.state.editData;
                 arrayTmp.forEach((element) => {
                     EditRowUtils.searchAndAutoFill(editData, element.fieldName, element.value);
-                })
+                });
                 this.setState({editData: editData, modifyEditData: true});
                 this.unblockUi();
             })
@@ -1551,33 +1653,35 @@ class BaseContainer extends React.Component {
     }
 
     handleCancelRowChange(viewId, recordId, parentId) {
-        ConsoleHelper(`handleCancelRowChange: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`)
+        ConsoleHelper(`handleCancelRowChange: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`);
         const cancelElement = this.crudService.createObjectToSave(this.state);
-        ConsoleHelper(`handleCancelRowChange: element to cancel = ${JSON.stringify(cancelElement)}`)
+        ConsoleHelper(`handleCancelRowChange: element to cancel = ${JSON.stringify(cancelElement)}`);
         this.rowCancel(viewId, recordId, parentId, cancelElement, false);
     }
 
     /** Dla gantta ID_PARENT nie moze byc '' */
-    replaceEmptyValuesFromParent(editData){
+    replaceEmptyValuesFromParent(editData) {
         editData?.editFields?.filter((obj) => {
-            return obj.fields.filter((field) => { 
-                if(field.fieldName==="ID_PARENT"){
-                    field.value = field.value==="" ? null : field.value
-            }
-            return field;
+            return obj.fields.filter((field) => {
+                if (field.fieldName === 'ID_PARENT') {
+                    field.value = field.value === '' ? null : field.value;
+                }
+                return field;
             });
-        }); 
+        });
     }
 
-    handleChangeCriteria(inputType, event){
+    handleChangeCriteria(inputType, event) {
         ConsoleHelper(`handleChangeCriteria inputType=${inputType}`);
         let documentInfo = this.state.documentInfo;
         if (event) {
-            let result = this.setVariableFromEvent(inputType,event);
-            let varName  = result.varName;
-            let varValue = result.varValue ;
-            let fieldArr = documentInfo.inputDataFields.find(field=> field.fieldName.toUpperCase() === varName.toUpperCase());
-            fieldArr.value=varValue;
+            let result = this.setVariableFromEvent(inputType, event);
+            let varName = result.varName;
+            let varValue = result.varValue;
+            let fieldArr = documentInfo.inputDataFields.find(
+                (field) => field.fieldName.toUpperCase() === varName.toUpperCase()
+            );
+            fieldArr.value = varValue;
 
             this.setState({documentdInfo: documentInfo, modifyEditData: true});
         }
@@ -1588,13 +1692,12 @@ class BaseContainer extends React.Component {
         let editData = this.state.editData;
         let groupData = editData?.editFields?.filter((obj) => {
             return obj.groupName === groupName;
-        }); 
+        });
         if (event !== undefined) {
-
-           let result = this.setVariableFromEvent(inputType,event);
-           let varName  = result.varName;
-           let varValue = result.varValue ;
-           let refreshFieldVisibility =  result.refreshFieldVisibility;
+            let result = this.setVariableFromEvent(inputType, event);
+            let varName = result.varName;
+            let varValue = result.varValue;
+            let refreshFieldVisibility = result.refreshFieldVisibility;
 
             let fieldArr = groupData[0]?.fields?.filter((obj) => {
                 return obj.fieldName === varName;
@@ -1606,7 +1709,7 @@ class BaseContainer extends React.Component {
             if (!!field && refreshFieldVisibility) {
                 this.refreshFieldVisibility(info);
             }
-            if(this.isGanttView()){
+            if (this.isGanttView()) {
                 this.replaceEmptyValuesFromParent(editData);
             }
             this.setState({editData: editData, modifyEditData: true});
@@ -1615,8 +1718,7 @@ class BaseContainer extends React.Component {
         }
     }
 
-
-    setVariableFromEvent(inputType, event){
+    setVariableFromEvent(inputType, event) {
         let varName;
         let varValue;
         let refreshFieldVisibility = false;
@@ -1632,7 +1734,7 @@ class BaseContainer extends React.Component {
             case 'CHECKBOX':
                 varName = event.target.name;
                 varValue = event.checked ? event.checked : false;
-                refreshFieldVisibility = event.refreshFieldVisibility
+                refreshFieldVisibility = event.refreshFieldVisibility;
                 break;
             case 'EDITOR':
                 varName = event.name;
@@ -1655,9 +1757,9 @@ class BaseContainer extends React.Component {
                 break;
         }
         return {
-            "varName": varName,
-            "varValue": varValue,
-            "refreshFieldVisibility": refreshFieldVisibility,
+            varName: varName,
+            varValue: varValue,
+            refreshFieldVisibility: refreshFieldVisibility,
         };
     }
 
@@ -1668,7 +1770,7 @@ class BaseContainer extends React.Component {
 
     refreshFieldVisibility(info) {
         this.blockUi();
-        const refreshObject = this.crudService.createObjectToRefresh(this.state)
+        const refreshObject = this.crudService.createObjectToRefresh(this.state);
         const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
         this.crudService
             .refreshFieldVisibility(info.viewId, info.recordId, info.parentId, kindView, refreshObject)
@@ -1677,20 +1779,22 @@ class BaseContainer extends React.Component {
                 let editData = this.state.editData;
                 arrayTmp.forEach((element) => {
                     EditRowUtils.searchAndRefreshVisibility(editData, element.fieldName, element.hidden);
-                })
+                });
                 this.setState({editData: editData});
-            }).catch((err) => {
-            this.showGlobalErrorMessage(err);
-        }).finally(() => {
-            this.unblockUi();
-        });
+            })
+            .catch((err) => {
+                this.showGlobalErrorMessage(err);
+            })
+            .finally(() => {
+                this.unblockUi();
+            });
     }
 
     handleShowEditPanel(editDataResponse) {
         this.setState({
             visibleEditPanel: true,
             modifyEditData: false,
-            editData: editDataResponse
+            editData: editDataResponse,
         });
         this.unblockUi();
     }
@@ -1709,13 +1813,13 @@ class BaseContainer extends React.Component {
     getRealViewId() {
         const {elementSubViewId} = this.state;
         const elementId = this.props.id;
-        return DataGridUtils.getRealViewId(elementSubViewId, elementId)
+        return DataGridUtils.getRealViewId(elementSubViewId, elementId);
     }
 
     isGridView() {
         return this.state.gridViewType === 'gridView';
     }
-    
+
     isGanttView() {
         return this.state.gridViewType === 'gantt';
     }
@@ -1731,7 +1835,6 @@ class BaseContainer extends React.Component {
     isDashboard() {
         return this.state.gridViewType === 'dashboard';
     }
-
 }
 
 BaseContainer.defaultProps = {
