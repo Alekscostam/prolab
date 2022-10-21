@@ -1292,7 +1292,7 @@ class BaseContainer extends React.Component {
             : [id];
     }
 
-    // gridView przekazywany ręcznie dla załaczników
+    // gridView przekazywany dla załaczników
     uploadAttachemnt(gridView, attachmentFile) {
         ConsoleHelper('handleUploadAttachemnt');
         this.blockUi();
@@ -1300,6 +1300,7 @@ class BaseContainer extends React.Component {
         const viewId = viewInfo.id;
         const parentId = viewInfo.parentId;
         const parentViewId = viewInfo.parentViewId;
+
         this.crudService
             .uploadAttachemnt(viewId, parentId, parentViewId, attachmentFile)
             .then((uploadResponse) => {
@@ -1359,6 +1360,7 @@ class BaseContainer extends React.Component {
             .then(() => {
                 const selectedRowKeys = this.state.selectedRowKeys.filter((el) => el.ID !== recordId);
                 if (selectedRowKeys.length !== 0) {
+                    // rekurencyjnie
                     this.downloadAttachment(selectedRowKeys[0].ID);
                 } else {
                     this.unselectAllDataGrid();
@@ -1452,6 +1454,36 @@ class BaseContainer extends React.Component {
                                 .catch((err) => {
                                     this.showGlobalErrorMessage(err);
                                 });
+                        } else {
+                            this.unblockUi();
+                        }
+                    },
+                    () => this.unblockUi()
+                );
+            })
+            .catch((err) => {
+                this.showGlobalErrorMessage(err);
+            });
+    }
+
+    attachment(id) {
+        ConsoleHelper('handleAsttachment');
+        this.blockUi();
+        const viewId = this.getRealViewId();
+        let recordId = this.getSelectedRowKeysIds(id);
+        if (Array.isArray(recordId)) {
+            recordId = recordId[0];
+        }
+        this.crudService
+            .attachmentEntry(viewId, recordId)
+            .then((attachmentResponse) => {
+                EntryResponseUtils.run(
+                    attachmentResponse,
+                    () => {
+                        if (!!attachmentResponse.next) {
+                            this.unselectAllDataGrid();
+                            this.showAttachmentDialog(viewId, recordId);
+                            this.unblockUi();
                         } else {
                             this.unblockUi();
                         }

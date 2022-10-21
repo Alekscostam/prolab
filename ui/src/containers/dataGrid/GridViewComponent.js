@@ -415,7 +415,7 @@ class GridViewComponent extends React.Component {
                                             alert('TODO');
                                         }}
                                         handleAttachments={() => {
-                                            alert('TODO');
+                                            this.props.handleAttachmentRow(recordId);
                                         }}
                                         handleBlockUi={() => {
                                             this.props.handleBlockUi();

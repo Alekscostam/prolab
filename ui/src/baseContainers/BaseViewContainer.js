@@ -1,4 +1,4 @@
-import {Button, SelectBox, Tabs} from 'devextreme-react';
+import {Button, SelectBox, Tabs, Toast} from 'devextreme-react';
 import ButtonGroup from 'devextreme-react/button-group';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -14,22 +14,14 @@ import {Breadcrumb} from '../utils/BreadcrumbUtils';
 import {DataGridUtils} from '../utils/component/DataGridUtils';
 import {ViewValidatorUtils} from '../utils/parser/ViewValidatorUtils';
 import UrlUtils from '../utils/UrlUtils';
-import DataGridStore from './dao/DataGridStore';
 import {ConfirmDialog, confirmDialog} from 'primereact/confirmdialog';
 import Constants from '../utils/Constants';
 import $ from 'jquery';
 import {localeOptions} from 'primereact/api';
-import CardViewInfiniteComponent from './cardView/CardViewInfiniteComponent';
-import GridViewComponent from './dataGrid/GridViewComponent';
-import DashboardContainer from './dashboard/DashboardContainer';
 import ConsoleHelper from '../utils/ConsoleHelper';
 import LocUtils from '../utils/LocUtils';
-import DataCardStore from './dao/DataCardStore';
 import {EntryResponseUtils} from '../utils/EntryResponseUtils';
-import DataTreeStore from './dao/DataTreeStore';
-import GanttViewComponent from './gantView/GanttViewComponent';
-import DataGanttStore from './dao/DataGanttStore';
-import DataPluginStore from './dao/DataPluginStore';
+import GanttViewComponent from '../containers/gantView/GanttViewComponent';
 import PluginListComponent from '../components/prolab/PluginListComponent';
 import ActionButtonWithMenuUtils from '../utils/ActionButtonWithMenuUtils';
 import {DocumentRowComponent} from '../components/prolab/DocumentRowComponent';
@@ -39,20 +31,27 @@ import PublishSummaryDialogComponent from '../components/prolab/PublishSummaryDi
 import UploadFileDialog from '../components/prolab/UploadFileDialog';
 import ActionButton from '../components/ActionButton';
 import DivContainer from '../components/DivContainer';
-import {AttachmentViewDialog} from './attachmentView/AttachmentViewDialog';
+import CardViewInfiniteComponent from '../containers/cardView/CardViewInfiniteComponent';
+import DataGridStore from '../containers/dao/DataGridStore';
+import DataGanttStore from '../containers/dao/DataGanttStore';
+import DataPluginStore from '../containers/dao/DataPluginStore';
+import DataTreeStore from '../containers/dao/DataTreeStore';
+import DashboardContainer from '../containers/dashboard/DashboardContainer';
+import GridViewComponent from '../containers/dataGrid/GridViewComponent';
+import DataCardStore from '../containers/dao/DataCardStore';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
 let dataGrid;
 
-export class ViewContainer extends BaseContainer {
+export class BaseViewContainer extends BaseContainer {
     _isMounted = false;
     defaultKindView = 'View';
     integerJavaMaxValue = 2147483647;
 
     constructor(props) {
-        ConsoleHelper('ViewContainer -> constructor');
+        ConsoleHelper('BaseViewContainer -> constructor');
         super(props);
         this.viewService = new ViewService();
         this.crudService = new CrudService();
@@ -99,12 +98,11 @@ export class ViewContainer extends BaseContainer {
             gridViewType: null,
             gridViewTypes: [],
             subView: null,
-            attachmentInfo: null,
+            attachmentViewInfo: null,
             viewInfoTypes: [],
             visibleEditPanel: false,
             visibleUploadFile: false,
             visiblePluginPanel: false,
-            visibleAttachmentDialog: false,
             visibleCopyDialog: false,
             visiblePublishDialog: false,
             visiblePublishSummaryDialog: false,
@@ -126,7 +124,6 @@ export class ViewContainer extends BaseContainer {
         this.refreshGanttData = this.refreshGanttData.bind(this);
         this.executeDocument = this.executeDocument.bind(this);
         this.showCopyView = this.showCopyView.bind(this);
-        this.showAttachmentDialog = this.showAttachmentDialog.bind(this);
         this.downloadData = this.downloadData.bind(this);
         this.unselectAllDataGrid = this.unselectAllDataGrid.bind(this);
     }
@@ -134,7 +131,7 @@ export class ViewContainer extends BaseContainer {
     componentDidMount() {
         this._isMounted = true;
         const subViewId = UrlUtils.getURLParameter('subview');
-        const recordId = UrlUtils.getURLParameter('recordId');
+        const recordId = this.props.recordId || UrlUtils.getURLParameter('recordId');
         const filterId = UrlUtils.getURLParameter('filterId');
         const viewType = UrlUtils.getURLParameter('viewType');
         const parentId = UrlUtils.getURLParameter('parentId');
@@ -144,7 +141,7 @@ export class ViewContainer extends BaseContainer {
             id = this.props.id;
         }
         ConsoleHelper(
-            `ViewContainer::componentDidMount -> id=${id}, subViewId = ${subViewId}, recordId = ${recordId}, filterId = ${filterId}, viewType=${viewType}`
+            `BaseViewContainer::componentDidMount -> id=${id}, subViewId = ${subViewId}, recordId = ${recordId}, filterId = ${filterId}, viewType=${viewType}`
         );
         const newUrl = UrlUtils.deleteParameterFromURL(window.document.URL.toString(), 'force');
         window.history.replaceState('', '', newUrl);
@@ -180,7 +177,7 @@ export class ViewContainer extends BaseContainer {
             id = this.props.id;
         }
         const subViewId = UrlUtils.getURLParameter('subview');
-        const recordId = UrlUtils.getURLParameter('recordId');
+        const recordId = this.props.recordId || UrlUtils.getURLParameter('recordId');
         const filterId = UrlUtils.getURLParameter('filterId');
         const viewType = UrlUtils.getURLParameter('viewType');
         const force = UrlUtils.getURLParameter('force');
@@ -202,7 +199,7 @@ export class ViewContainer extends BaseContainer {
             !DataGridUtils.equalNumbers(this.state.elementFilterId, filterId) ||
             !DataGridUtils.equalNumbers(this.state.elementRecordId, recordId);
         ConsoleHelper(
-            'ViewContainer::componentDidUpdate -> updatePage={%s id={%s} id={%s} type={%s} type={%s}',
+            'BaseViewContainer::componentDidUpdate -> updatePage={%s id={%s} id={%s} type={%s} type={%s}',
             updatePage,
             prevProps.id,
             this.props.id,
@@ -235,7 +232,7 @@ export class ViewContainer extends BaseContainer {
                 }
             );
         } else {
-            ConsoleHelper('ViewContainer::componentDidUpdate -> not updating !');
+            ConsoleHelper('BaseViewContainer::componentDidUpdate -> not updating !');
         }
     }
 
@@ -253,7 +250,7 @@ export class ViewContainer extends BaseContainer {
                     if (subViewResponse.viewInfo?.type === 'dashboard') {
                         const kindView = subViewResponse.viewInfo.kindView;
                         ConsoleHelper(
-                            `ViewContainer::downloadDashboardData: viewId=${viewId}, recordId=${recordId},  parentId=${parentId}, viewType=${viewType}, kindView=${kindView}`
+                            `BaseViewContainer::downloadDashboardData: viewId=${viewId}, recordId=${recordId},  parentId=${parentId}, viewType=${viewType}, kindView=${kindView}`
                         );
                         this.setState(
                             {
@@ -269,7 +266,7 @@ export class ViewContainer extends BaseContainer {
                         );
                     } else {
                         ConsoleHelper(
-                            `ViewContainer::downloadSubViewData: viewId=${viewId}, subviewId=${subviewId}, recordId=${recordId}, filterId=${filterId}, parentId=${parentId}, viewType=${viewType},`
+                            `BaseViewContainer::downloadSubViewData: viewId=${viewId}, subviewId=${subviewId}, recordId=${recordId}, filterId=${filterId}, parentId=${parentId}, viewType=${viewType},`
                         );
                         const elementSubViewId = subviewId ? subviewId : subViewResponse.subViews[0]?.id;
                         if (!subViewResponse.subViews || subViewResponse.subViews.length === 0) {
@@ -320,7 +317,7 @@ export class ViewContainer extends BaseContainer {
                 });
         } else {
             ConsoleHelper(
-                `ViewContainer::downloadData: viewId=${viewId}, recordId=${recordId}, filterId=${filterId}, parentId=${parentId}, viewType=${viewType},`
+                `BaseViewContainer::downloadData: viewId=${viewId}, recordId=${recordId}, filterId=${filterId}, parentId=${parentId}, viewType=${viewType},`
             );
             this.setState({subView: null}, () => {
                 this.props.handleSubView(null);
@@ -429,7 +426,6 @@ export class ViewContainer extends BaseContainer {
                     select: false,
                     selectAll: false,
                     isSelectAll: false,
-                    attachmentInfo: null,
                     visibleEditPanel: false,
                     visibleUploadFile: false,
                     visiblePluginPanel: false,
@@ -682,45 +678,47 @@ export class ViewContainer extends BaseContainer {
     renderGlobalTop() {
         return (
             <React.Fragment>
-                <EditRowComponent
-                    visibleEditPanel={this.state.visibleEditPanel}
-                    editData={this.state.editData}
-                    kindView={this.state.elementKindView}
-                    onChange={this.handleEditRowChange}
-                    onBlur={this.handleEditRowBlur}
-                    copyData={this.state.copyData}
-                    onSave={this.handleEditRowSave}
-                    onAutoFill={this.handleAutoFillRowChange}
-                    onEditList={this.handleEditListRowChange}
-                    onCancel={this.handleCancelRowChange}
-                    validator={this.validator}
-                    onHide={(e, viewId, recordId, parentId) =>
-                        !!this.state.modifyEditData
-                            ? confirmDialog({
-                                  appendTo: document.body,
-                                  message: LocUtils.loc(
-                                      this.props.labels,
-                                      'Question_Close_Edit',
-                                      'Czy na pewno chcesz zamknąć edycję?'
-                                  ),
-                                  header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
-                                  icon: 'pi pi-exclamation-triangle',
-                                  acceptLabel: localeOptions('accept'),
-                                  rejectLabel: localeOptions('reject'),
-                                  accept: () => {
+                {this.state.visibleEditPanel ? (
+                    <EditRowComponent
+                        visibleEditPanel={this.state.visibleEditPanel}
+                        editData={this.state.editData}
+                        kindView={this.state.elementKindView}
+                        onChange={this.handleEditRowChange}
+                        onBlur={this.handleEditRowBlur}
+                        copyData={this.state.copyData}
+                        onSave={this.handleEditRowSave}
+                        onAutoFill={this.handleAutoFillRowChange}
+                        onEditList={this.handleEditListRowChange}
+                        onCancel={this.handleCancelRowChange}
+                        validator={this.validator}
+                        onHide={(e, viewId, recordId, parentId) =>
+                            !!this.state.modifyEditData
+                                ? confirmDialog({
+                                      appendTo: document.body,
+                                      message: LocUtils.loc(
+                                          this.props.labels,
+                                          'Question_Close_Edit',
+                                          'Czy na pewno chcesz zamknąć edycję?'
+                                      ),
+                                      header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
+                                      icon: 'pi pi-exclamation-triangle',
+                                      acceptLabel: localeOptions('accept'),
+                                      rejectLabel: localeOptions('reject'),
+                                      accept: () => {
+                                          this.handleCancelRowChange(viewId, recordId, parentId);
+                                          this.setState({visibleEditPanel: e});
+                                      },
+                                      reject: () => undefined,
+                                  })
+                                : this.setState({visibleEditPanel: e}, () => {
                                       this.handleCancelRowChange(viewId, recordId, parentId);
-                                      this.setState({visibleEditPanel: e});
-                                  },
-                                  reject: () => undefined,
-                              })
-                            : this.setState({visibleEditPanel: e}, () => {
-                                  this.handleCancelRowChange(viewId, recordId, parentId);
-                              })
-                    }
-                    onError={(e) => this.showErrorMessage(e)}
-                    labels={this.props.labels}
-                    showErrorMessages={(err) => this.showErrorMessages(err)}
-                />
+                                  })
+                        }
+                        onError={(e) => this.showErrorMessage(e)}
+                        labels={this.props.labels}
+                        showErrorMessages={(err) => this.showErrorMessages(err)}
+                    />
+                ) : null}
                 {this.state.visibleDocumentPanel ? (
                     <DocumentRowComponent
                         visibleDocumentPanel={this.state.visibleDocumentPanel}
@@ -835,38 +833,6 @@ export class ViewContainer extends BaseContainer {
                         }
                         handleUnselectAllData={this.unselectAllDataGrid}
                         labels={this.props.labels}
-                    />
-                ) : null}
-
-                {this.state.attachmentInfo ? (
-                    <AttachmentViewDialog
-                        ref={this.viewContainer}
-                        recordId={this.state.attachmentInfo.recordId}
-                        id={this.state.attachmentInfo.viewId}
-                        handleRenderNoRefreshContent={(renderNoRefreshContent) => {
-                            this.setState({renderNoRefreshContent: renderNoRefreshContent});
-                        }}
-                        handleShowEditPanel={(editDataResponse) => {
-                            this.handleShowEditPanel(editDataResponse);
-                        }}
-                        onHide={() =>
-                            this.setState({
-                                attachmentInfo: undefined,
-                            })
-                        }
-                        handleViewInfoName={(viewInfoName) => {
-                            this.setState({viewInfoName: viewInfoName});
-                        }}
-                        handleSubView={(subView) => {
-                            this.setState({subView: subView});
-                        }}
-                        handleOperations={(operations) => {
-                            this.setState({operations: operations});
-                        }}
-                        handleShortcutButtons={(shortcutButtons) => {
-                            this.setState({shortcutButtons: shortcutButtons});
-                        }}
-                        collapsed={this.state.collapsed}
                     />
                 ) : null}
 
@@ -1416,15 +1382,6 @@ export class ViewContainer extends BaseContainer {
         });
     }
 
-    showAttachmentDialog(viewId, recordId) {
-        this.setState({
-            attachmentInfo: {
-                viewId,
-                recordId,
-            },
-        });
-    }
-
     editSubView(e) {
         this.blockUi();
         const parentId = this.state.elementRecordId;
@@ -1563,12 +1520,12 @@ export class ViewContainer extends BaseContainer {
                                     }}
                                     dataGridStoreSuccess={this.state.dataGridStoreSuccess}
                                     selectionDeferred={true}
-                                    handleAttachmentRow={(id) => this.attachment(id)}
                                     handlePluginRow={(id) => this.plugin(id)}
                                     handleDocumentRow={(id) => this.generate(id)}
                                     handleDeleteRow={(id) => this.delete(id)}
                                     handleRestoreRow={(id) => this.restore(id)}
                                     handleDownloadRow={(id) => this.downloadAttachment(id)}
+                                    handleAttachmentRow={(id) => this.attachment(id)}
                                     handleCopyRow={(id) => this.showCopyView(id)}
                                     handleArchiveRow={(id) => this.archive(id)}
                                     handlePublishRow={(id) => this.publishEntry(id)}
@@ -1689,11 +1646,11 @@ export class ViewContainer extends BaseContainer {
     }
 }
 
-ViewContainer.defaultProps = {
+BaseViewContainer.defaultProps = {
     viewMode: 'VIEW',
 };
 
-ViewContainer.propTypes = {
+BaseViewContainer.propTypes = {
     id: PropTypes.string.isRequired,
     labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
     handleRenderNoRefreshContent: PropTypes.bool.isRequired,

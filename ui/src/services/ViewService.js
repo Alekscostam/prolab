@@ -1,6 +1,6 @@
 import BaseService from './BaseService';
 import moment from 'moment';
-import ConsoleHelper from "../utils/ConsoleHelper";
+import ConsoleHelper from '../utils/ConsoleHelper';
 
 /*
 GET zwracający dane potrzebne do wyrenderowania widoku: informacje ogólne o widoku, opcje
@@ -18,13 +18,13 @@ export default class ViewService extends BaseService {
     getView(viewId, viewType, recordParentId, kindView) {
         let paramArrays = [];
         if (!!viewType) {
-            paramArrays.push(`viewType=${viewType}`)
+            paramArrays.push(`viewType=${viewType}`);
         }
         if (!!recordParentId) {
-            paramArrays.push(`parentId=${recordParentId}`)
+            paramArrays.push(`parentId=${recordParentId}`);
         }
         if (!!recordParentId && !!kindView) {
-            paramArrays.push(`kindView=${kindView}`)
+            paramArrays.push(`kindView=${kindView}`);
         }
         const parameters = paramArrays.length > 0 ? '?' + paramArrays.join('&') : '';
         return this.fetch(`${this.domain}/${this.path}/${viewId}${parameters}`, {
@@ -32,6 +32,22 @@ export default class ViewService extends BaseService {
         }).catch((err) => {
             throw err;
         });
+    }
+
+    getAttachemntView(viewId, recordId) {
+        if (Array.isArray(recordId)) {
+            recordId = recordId[0];
+        }
+
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/attachment/${recordId}`, {
+            method: 'GET',
+        })
+            .then((attachmentResponse) => {
+                return Promise.resolve(attachmentResponse);
+            })
+            .catch((err) => {
+                throw err;
+            });
     }
 
     getViewSpec(viewId, parentId) {
@@ -74,7 +90,7 @@ export default class ViewService extends BaseService {
                 const cacheValue = {
                     expDate: moment().add(5, 'seconds'),
                     data: result,
-                }
+                };
                 ConsoleHelper('getSubView: setting data to cache');
                 sessionStorage.setItem(cacheKey, JSON.stringify(cacheValue));
                 return Promise.resolve(result);

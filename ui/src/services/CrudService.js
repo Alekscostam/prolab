@@ -206,6 +206,18 @@ export default class CrudService extends BaseService {
             });
     }
 
+    attachmentEntry(viewId, recordId) {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/attachment/${recordId}/Entry`, {
+            method: 'POST',
+        })
+            .then((attachmentEntryResponse) => {
+                return Promise.resolve(attachmentEntryResponse);
+            })
+            .catch((err) => {
+                throw err;
+            });
+    }
+
     uploadAttachemnt(viewId, parentId, parentViewId, formData) {
         const headers = {
             Accept: 'application/json',
