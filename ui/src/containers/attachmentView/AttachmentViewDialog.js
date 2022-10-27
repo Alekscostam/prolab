@@ -1,10 +1,7 @@
 import {Toast} from 'devextreme-react';
 import PropTypes from 'prop-types';
 import React from 'react';
-import {Breadcrumb} from '../../utils/BreadcrumbUtils';
 import {DataGridUtils} from '../../utils/component/DataGridUtils';
-import {ViewValidatorUtils} from '../../utils/parser/ViewValidatorUtils';
-import UrlUtils from '../../utils/UrlUtils';
 import ConsoleHelper from '../../utils/ConsoleHelper';
 import LocUtils from '../../utils/LocUtils';
 import DivContainer from '../../components/DivContainer';
@@ -35,6 +32,9 @@ export class AttachmentViewDialog extends BaseViewContainer {
     }
 
     getViewById(viewId, recordId, filterId, parentId, viewType, isSubView) {
+        ConsoleHelper(
+            `AttachmentViewDialog::getViewById: viewId=${viewId}, isSubView=${isSubView} recordId=${recordId}, filterId=${filterId}, parentId=${parentId}, viewType=${viewType},`
+        );
         this.setState({loading: true}, () => {
             this.viewService
                 .getAttachemntView(viewId, recordId)
@@ -53,168 +53,64 @@ export class AttachmentViewDialog extends BaseViewContainer {
         });
     }
 
-    processViewResponse(responseView, parentId, recordId, isSubView) {
-        ConsoleHelper(`AttachmentViewDialog: oldParentId=${parentId}, newParentId=${responseView.viewInfo.parentId}`);
+    // @override
+    getDataByViewResponse(responseView) {
+        const viewInfo = responseView.viewInfo;
+        const initFilterId = viewInfo?.filterdId;
+        const viewIdArg = viewInfo.id;
+        const parentIdArg = viewInfo.parentId;
+        const parentViewIdArg = viewInfo.parentViewId;
+        const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId;
+        const kindViewArg = 'View';
 
-        if (this._isMounted) {
-            ViewValidatorUtils.validation(responseView);
-            let id = UrlUtils.getViewIdFromURL();
-            if (id === undefined) {
-                id = this.props.id;
-            }
-            Breadcrumb.updateView(responseView.viewInfo, id, recordId);
-            let gridViewColumnsTmp = [];
-            let pluginsListTmp = [];
-            let documentsListTmp = [];
-            let batchesListTmp = [];
-            let filtersListTmp = [];
-            let columnOrderCounter = 0;
-            new Array(responseView.gridColumns).forEach((gridColumns) => {
-                gridColumns?.forEach((group) => {
-                    group.columns?.forEach((column) => {
-                        column.groupName = group.groupName;
-                        column.freeze = group.freeze;
-                        column.columnOrder = columnOrderCounter++;
-                        gridViewColumnsTmp.push(column);
-                    });
-                });
-            });
-            for (let plugin in responseView?.pluginsList) {
-                pluginsListTmp.push({
-                    id: responseView?.pluginsList[plugin].id,
-                    label: responseView?.pluginsList[plugin].label,
-                });
-            }
-            for (let document in responseView?.documentsList) {
-                documentsListTmp.push({
-                    id: responseView?.documentsList[document].id,
-                    label: responseView?.documentsList[document].label,
-                });
-            }
-            for (let batch in responseView?.batchesList) {
-                batchesListTmp.push({
-                    id: responseView?.batchesList[batch].id,
-                    label: responseView?.batchesList[batch].label,
-                });
-            }
-            Breadcrumb.currentBreadcrumbAsUrlParam();
-            for (let filter in responseView?.filtersList) {
-                filtersListTmp.push({
-                    id: responseView?.filtersList[filter].id,
-                    label: responseView?.filtersList[filter].label,
-                });
-            }
-            let viewInfoTypesTmp = [];
-            let cardButton = DataGridUtils.containsOperationsButton(responseView.operations, 'OP_CARDVIEW');
-            if (cardButton) {
-                viewInfoTypesTmp.push({
-                    icon: 'mediumiconslayout',
-                    type: 'cardView',
-                    hint: cardButton?.label,
-                });
-            }
-            let viewButton = DataGridUtils.containsOperationsButton(responseView.operations, 'OP_GRIDVIEW');
-            if (viewButton) {
-                viewInfoTypesTmp.push({
-                    icon: 'contentlayout',
-                    type: 'gridView',
-                    hint: viewButton?.label,
-                });
-            }
-
-            this.setState(
-                () => ({
-                    loading: false, //elementId: this.props.id,
-                    gridViewType: responseView?.viewInfo?.type,
-                    kindView: responseView?.viewInfo?.kindView,
-                    parsedGridView: responseView,
-                    gridViewColumns: gridViewColumnsTmp,
-                    pluginsList: pluginsListTmp,
-                    documentsList: documentsListTmp,
-                    batchesList: batchesListTmp,
-                    filtersList: filtersListTmp,
-                    selectedRowKeys: [],
-                    viewInfoTypes: viewInfoTypesTmp,
-                    packageRows: responseView?.viewInfo?.dataPackageSize,
-                    select: false,
-                    selectAll: false,
-                    isSelectAll: false,
-                    visibleEditPanel: false,
-                    visibleUploadFile: false,
-                    visiblePluginPanel: false,
-                    visibleCopyDialog: false,
-                    visiblePublishDialog: false,
-                    visiblePublishSummaryDialog: false,
-                    visibleMessagePluginPanel: false,
-                }),
+        this.setState({loading: true}, () => {
+            let res = this.dataGridStore.getDataGridStore(
+                viewIdArg,
+                'gridView',
+                parentIdArg,
+                filterIdArg,
+                kindViewArg,
                 () => {
-                    this.props.handleRenderNoRefreshContent(true);
-                    this.props.handleViewInfoName(
-                        isSubView ? this.state.subView?.viewInfo?.name : this.state.parsedGridView?.viewInfo?.name
-                    );
-                    this.props.handleOperations(this.state.parsedGridView?.operations);
-                    this.props.handleShortcutButtons(this.state.parsedGridView?.shortcutButtons);
-                    const initFilterId = responseView?.viewInfo?.filterdId;
-
-                    const viewInfo = responseView.viewInfo;
-
-                    const viewIdArg = viewInfo.id;
-                    const parentIdArg = viewInfo.parentId;
-                    const parentViewIdArg = viewInfo.parentViewId;
-                    const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId;
-                    const kindViewArg = 'View';
-
-                    this.setState({loading: true}, () => {
-                        let res = this.dataGridStore.getDataGridStore(
-                            viewIdArg,
-                            'gridView',
-                            parentIdArg,
-                            filterIdArg,
-                            kindViewArg,
-                            () => {
-                                this.blockUi();
-                                return {
-                                    select: this.state.select,
-                                    selectAll: this.state.selectAll,
-                                };
-                            },
-                            () => {
-                                this.setState(
-                                    {
-                                        select: false,
-                                        selectAll: false,
-                                        dataGridStoreSuccess: true,
-                                    },
-                                    () => {
-                                        this.unblockUi();
-                                    }
-                                );
-                            },
-                            (err) => {
-                                this.setState(
-                                    {
-                                        select: false,
-                                        selectAll: false,
-                                    },
-                                    () => {
-                                        this.showErrorMessages(err);
-                                        this.unblockUi();
-                                    }
-                                );
-                            },
-                            parentViewIdArg
-                        );
-                        if (!!res) {
-                            this.setState({
-                                loading: false,
-                                parsedGridViewData: res,
-                            });
+                    this.blockUi();
+                    return {
+                        select: this.state.select,
+                        selectAll: this.state.selectAll,
+                    };
+                },
+                () => {
+                    this.setState(
+                        {
+                            select: false,
+                            selectAll: false,
+                            dataGridStoreSuccess: true,
+                        },
+                        () => {
+                            this.unblockUi();
                         }
-                        this.unblockUi();
-                    });
-                }
+                    );
+                },
+                (err) => {
+                    this.setState(
+                        {
+                            select: false,
+                            selectAll: false,
+                        },
+                        () => {
+                            this.showErrorMessages(err);
+                            this.unblockUi();
+                        }
+                    );
+                },
+                parentViewIdArg
             );
-        }
+            if (!!res) {
+                this.setState({
+                    loading: false,
+                    parsedGridViewData: res,
+                });
+            }
+            this.unblockUi();
+        });
     }
 
     render() {

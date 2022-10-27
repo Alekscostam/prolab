@@ -1,17 +1,17 @@
 import React from 'react';
-import TileView from "devextreme-react/tile-view";
-import {DataGridUtils} from "../../utils/component/DataGridUtils";
-import {Breadcrumb} from "../../utils/BreadcrumbUtils";
-import $ from "jquery";
-import {CardViewUtils} from "../../utils/CardViewUtils";
-import ShortcutButton from "../../components/prolab/ShortcutButton";
-import ActionButtonWithMenu from "../../components/prolab/ActionButtonWithMenu";
-import AppPrefixUtils from "../../utils/AppPrefixUtils";
-import PropTypes from "prop-types";
-import CrudService from "../../services/CrudService";
-import ConsoleHelper from "../../utils/ConsoleHelper";
+import TileView from 'devextreme-react/tile-view';
+import {DataGridUtils} from '../../utils/component/DataGridUtils';
+import {Breadcrumb} from '../../utils/BreadcrumbUtils';
+import $ from 'jquery';
+import {CardViewUtils} from '../../utils/CardViewUtils';
+import ShortcutButton from '../../components/prolab/ShortcutButton';
+import ActionButtonWithMenu from '../../components/prolab/ActionButtonWithMenu';
+import AppPrefixUtils from '../../utils/AppPrefixUtils';
+import PropTypes from 'prop-types';
+import CrudService from '../../services/CrudService';
+import ConsoleHelper from '../../utils/ConsoleHelper';
 
-class DashboardCardViewComponent extends React.Component {I
+class DashboardCardViewComponent extends React.Component {
     constructor(props) {
         super(props);
         this.crudService = new CrudService();
@@ -24,7 +24,7 @@ class DashboardCardViewComponent extends React.Component {I
     }
 
     isDashboard() {
-        return this.props.mode === 'dashboard'
+        return this.props.mode === 'dashboard';
     }
 
     styleTile(rowData, cardBgColor1, cardBgColor2, fontColor, width, height) {
@@ -34,7 +34,7 @@ class DashboardCardViewComponent extends React.Component {I
                 backgroundImage: `linear-gradient(to bottom right, ${cardBgColor1}, ${cardBgColor2})`,
                 color: fontColor,
                 width: width,
-                height: height
+                height: height,
             };
         } else {
             styleTile = {backgroundColor: rowData._BGCOLOR, color: rowData._FONT_COLOR, width: width, height: height};
@@ -51,7 +51,7 @@ class DashboardCardViewComponent extends React.Component {I
         let fontColor = this.props.parsedGridView?.cardOptions?.fontColor;
         return (
             <TileView
-                onInitialized={(e) => (this.props.handleOnInitialized(e.component))}
+                onInitialized={(e) => this.props.handleOnInitialized(e.component)}
                 className='card-grid'
                 items={this.props.parsedCardViewData}
                 itemRender={(rowData) => {
@@ -74,8 +74,14 @@ class DashboardCardViewComponent extends React.Component {I
                         });
                         showMenu = menuItems.length > 0;
                     }
-                    let oppEdit = DataGridUtils.containsOperationsButton(this.props.parsedGridView?.operations, 'OP_EDIT');
-                    let oppSubview = DataGridUtils.containsOperationsButton(this.props.parsedGridView?.operations, 'OP_SUBVIEWS');
+                    let oppEdit = DataGridUtils.containsOperationsButton(
+                        this.props.parsedGridView?.operations,
+                        'OP_EDIT'
+                    );
+                    let oppSubview = DataGridUtils.containsOperationsButton(
+                        this.props.parsedGridView?.operations,
+                        'OP_SUBVIEWS'
+                    );
                     const elementSubViewId = this.props.elementSubViewId;
                     const elementKindView = this.props.elementKindView;
                     const elementId = this.props.id;
@@ -96,15 +102,31 @@ class DashboardCardViewComponent extends React.Component {I
                     return (
                         <div
                             id={recordId}
-                            className={`dx-tile-image ${this.isSelectionEnabled() ? (
-                                this.props.selectedRowKeys.includes(recordId) ? 'card-grid-selected' : '') : ''
+                            className={`dx-tile-image ${
+                                this.isSelectionEnabled()
+                                    ? this.props.selectedRowKeys.includes(recordId)
+                                        ? 'card-grid-selected'
+                                        : ''
+                                    : ''
                             }`}
-                            style={this.styleTile(rowData, cardBgColor1, cardBgColor2, fontColor, cardWidth, cardHeight)}
+                            style={this.styleTile(
+                                rowData,
+                                cardBgColor1,
+                                cardBgColor2,
+                                fontColor,
+                                cardWidth,
+                                cardHeight
+                            )}
                         >
                             <div className='row'>
                                 <div className='card-grid-header'>
                                     {cardHeader?.visible
-                                        ? CardViewUtils.cellTemplate(cardHeader, rowData, 'card-grid-header-title', 'HEADER')
+                                        ? CardViewUtils.cellTemplate(
+                                              cardHeader,
+                                              rowData,
+                                              'card-grid-header-title',
+                                              'HEADER'
+                                          )
                                         : null}
                                     {showEditButton || showMenu || showSubviewButton ? (
                                         <div className='card-grid-header-buttons'>
@@ -120,11 +142,16 @@ class DashboardCardViewComponent extends React.Component {I
                                                         this.crudService
                                                             .edit(viewId, recordId, subviewId, elementKindView)
                                                             .then((editDataResponse) => {
-                                                                this.setState({
-                                                                    editData: editDataResponse
-                                                                },()=>{
-                                                                    this.props.handleShowEditPanel(editDataResponse);
-                                                                });
+                                                                this.setState(
+                                                                    {
+                                                                        editData: editDataResponse,
+                                                                    },
+                                                                    () => {
+                                                                        this.props.handleShowEditPanel(
+                                                                            editDataResponse
+                                                                        );
+                                                                    }
+                                                                );
                                                             })
                                                             .catch((err) => {
                                                                 this.props.showErrorMessages(err);
@@ -140,7 +167,9 @@ class DashboardCardViewComponent extends React.Component {I
                                                 title={oppSubview?.label}
                                                 rendered={oppSubview}
                                                 href={AppPrefixUtils.locationHrefUrl(
-                                                    `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${!!currentBreadcrumb ? currentBreadcrumb : ``}`
+                                                    `/#/grid-view/${viewId}${
+                                                        !!recordId ? `?recordId=${recordId}` : ``
+                                                    }${!!currentBreadcrumb ? currentBreadcrumb : ``}`
                                                 )}
                                             />
                                             <ActionButtonWithMenu
@@ -157,26 +186,33 @@ class DashboardCardViewComponent extends React.Component {I
                                     {/* <div className='row'> */}
                                     {cardImage?.visible && cardImage?.fieldName && rowData[cardImage?.fieldName]
                                         ? // <div className={cardBody?.visible ? 'col-3' : 'col-12'}>
-                                        CardViewUtils.cellTemplate(cardImage, rowData, 'card-grid-body-image', 'IMG')
+                                          CardViewUtils.cellTemplate(cardImage, rowData, 'card-grid-body-image', 'IMG')
                                         : // </div>
-                                        null}
+                                          null}
                                     {cardBody?.visible
                                         ? // <div className={cardImage?.visible ? 'col-9' : 'col-12'}>
-                                        CardViewUtils.cellTemplate(
-                                            cardBody,
-                                            rowData,
-                                            'card-grid-body-content',
-                                            cardImage?.visible && cardImage?.fieldName && rowData[cardImage?.fieldName]
-                                                ? 'BODY_WITH_IMG'
-                                                : 'BODY'
-                                        )
+                                          CardViewUtils.cellTemplate(
+                                              cardBody,
+                                              rowData,
+                                              'card-grid-body-content',
+                                              cardImage?.visible &&
+                                                  cardImage?.fieldName &&
+                                                  rowData[cardImage?.fieldName]
+                                                  ? 'BODY_WITH_IMG'
+                                                  : 'BODY'
+                                          )
                                         : // </div>
-                                        null}
+                                          null}
                                     {/* </div> */}
                                 </div>
                                 <div className='card-grid-footer'>
                                     {cardFooter?.visible
-                                        ? CardViewUtils.cellTemplate(cardFooter, rowData, 'card-grid-footer-content', 'FOOTER')
+                                        ? CardViewUtils.cellTemplate(
+                                              cardFooter,
+                                              rowData,
+                                              'card-grid-footer-content',
+                                              'FOOTER'
+                                          )
                                         : null}
                                 </div>
                             </div>
@@ -198,7 +234,7 @@ class DashboardCardViewComponent extends React.Component {I
                         } else {
                             selectedRowKeys.push(item.itemData.ID);
                         }
-                        this.props.handleSelectedRowKeys(selectedRowKeys)
+                        this.props.handleSelectedRowKeys(selectedRowKeys);
                     }
                 }}
             />
@@ -211,7 +247,7 @@ DashboardCardViewComponent.defaultProps = {
     parsedCardViewData: false,
     selectedRowKeys: [],
     cardGrid: null,
-    mode: 'view'
+    mode: 'view',
 };
 
 DashboardCardViewComponent.propTypes = {

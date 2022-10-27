@@ -323,8 +323,6 @@ export class DashboardGridViewComponent extends BaseContainer {
         let opBatches = DataGridUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_BATCH');
         let opDocuments = DataGridUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_DOCUMENTS');
         let opPlugins = DataGridUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_PLUGINS');
-        // TODO:
-        let opDownload = DataGridUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_DOWNLOAD');
         return (
             <React.Fragment>
                 <ButtonGroup

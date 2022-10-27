@@ -1,4 +1,4 @@
-import {Button, SelectBox, Tabs, Toast} from 'devextreme-react';
+import {SelectBox, Tabs} from 'devextreme-react';
 import ButtonGroup from 'devextreme-react/button-group';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -29,8 +29,6 @@ import CopyDialogComponent from '../components/prolab/CopyDialogComponent';
 import PublishDialogComponent from '../components/prolab/PublishDialogComponent';
 import PublishSummaryDialogComponent from '../components/prolab/PublishSummaryDialogComponent';
 import UploadFileDialog from '../components/prolab/UploadFileDialog';
-import ActionButton from '../components/ActionButton';
-import DivContainer from '../components/DivContainer';
 import CardViewInfiniteComponent from '../containers/cardView/CardViewInfiniteComponent';
 import DataGridStore from '../containers/dao/DataGridStore';
 import DataGanttStore from '../containers/dao/DataGanttStore';
@@ -39,6 +37,8 @@ import DataTreeStore from '../containers/dao/DataTreeStore';
 import DashboardContainer from '../containers/dashboard/DashboardContainer';
 import GridViewComponent from '../containers/dataGrid/GridViewComponent';
 import DataCardStore from '../containers/dao/DataCardStore';
+import DivContainer from '../components/DivContainer';
+import ActionButton from '../components/ActionButton';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -118,6 +118,7 @@ export class BaseViewContainer extends BaseContainer {
             dataPluginStoreSuccess: false,
         };
         this.onInitialize = this.onInitialize.bind(this);
+        this.getDataByViewResponse = this.getDataByViewResponse.bind(this);
         this.getViewById = this.getViewById.bind(this);
         this.handleRightHeadPanelContent = this.handleRightHeadPanelContent.bind(this);
         this.executePlugin = this.executePlugin.bind(this);
@@ -240,109 +241,23 @@ export class BaseViewContainer extends BaseContainer {
         this._isMounted = false;
     }
 
+    getDataByViewResponse(responseView) {
+        // to overide
+    }
+
     downloadData(viewId, recordId, subviewId, filterId, parentId, viewType) {
-        let subviewMode = !!recordId && !!viewId;
-        if (subviewMode) {
-            this.viewService
-                .getSubView(viewId, recordId)
-                .then((subViewResponse) => {
-                    Breadcrumb.updateSubView(subViewResponse, recordId);
-                    if (subViewResponse.viewInfo?.type === 'dashboard') {
-                        const kindView = subViewResponse.viewInfo.kindView;
-                        ConsoleHelper(
-                            `BaseViewContainer::downloadDashboardData: viewId=${viewId}, recordId=${recordId},  parentId=${parentId}, viewType=${viewType}, kindView=${kindView}`
-                        );
-                        this.setState(
-                            {
-                                subView: subViewResponse,
-                                gridViewType: 'dashboard',
-                                elementKindView: kindView,
-                                loading: false,
-                            },
-                            () => {
-                                this.props.handleSubView(subViewResponse);
-                                this.unblockUi();
-                            }
-                        );
-                    } else {
-                        ConsoleHelper(
-                            `BaseViewContainer::downloadSubViewData: viewId=${viewId}, subviewId=${subviewId}, recordId=${recordId}, filterId=${filterId}, parentId=${parentId}, viewType=${viewType},`
-                        );
-                        const elementSubViewId = subviewId ? subviewId : subViewResponse.subViews[0]?.id;
-                        if (!subViewResponse.subViews || subViewResponse.subViews.length === 0) {
-                            this.showErrorMessages(
-                                LocUtils.loc(
-                                    this.props.labels,
-                                    'No_Subview',
-                                    'Brak podwidoków - niepoprawna konfiguracja!'
-                                )
-                            );
-                            window.history.back();
-                            this.unblockUi();
-                            return;
-                        } else {
-                            let subViewsTabs = [];
-                            subViewResponse.subViews.forEach((subView, i) => {
-                                subViewsTabs.push({
-                                    id: subView.id,
-                                    text: subView.label,
-                                    icon: subView.icon,
-                                    kindView: subView.kindView,
-                                });
-                                if (subView.id === parseInt(elementSubViewId)) {
-                                    this.setState({subViewTabIndex: i});
-                                }
-                            });
-                            subViewResponse.subViewsTabs = subViewsTabs;
-                        }
-                        const currentSubView = subViewResponse.subViewsTabs?.filter(
-                            (i) => i.id === parseInt(elementSubViewId)
-                        );
-                        this.setState(
-                            {
-                                subView: subViewResponse,
-                                elementKindView: !!currentSubView ? currentSubView[0].kindView : this.defaultKindView,
-                                elementSubViewId: elementSubViewId,
-                            },
-                            () => {
-                                this.props.handleSubView(subViewResponse);
-                                this.getViewById(elementSubViewId, recordId, filterId, parentId, viewType, true);
-                            }
-                        );
-                    }
-                })
-                .catch((err) => {
-                    this.showGlobalErrorMessage(err);
-                    window.history.back();
-                });
-        } else {
-            ConsoleHelper(
-                `BaseViewContainer::downloadData: viewId=${viewId}, recordId=${recordId}, filterId=${filterId}, parentId=${parentId}, viewType=${viewType},`
-            );
-            this.setState({subView: null}, () => {
-                this.props.handleSubView(null);
-                this.getViewById(viewId, recordId, filterId, parentId, viewType, false);
-            });
-        }
+        // to overide
     }
 
     getViewById(viewId, recordId, filterId, parentId, viewType, isSubView) {
-        this.setState({loading: true}, () => {
-            this.viewService
-                .getView(viewId, viewType, recordId, this.state.elementKindView)
-                .then((responseView) => {
-                    this.processViewResponse(responseView, parentId, recordId, isSubView);
-                })
-                .catch((err) => {
-                    console.error('Error getView in GridView. Exception = ', err);
-                    this.setState({loading: false}, () => {
-                        this.showGlobalErrorMessage(err); //'Nie udało się pobrać danych strony o id: ' + viewId);
-                    });
-                });
-        });
+        // to overide
     }
 
     processViewResponse(responseView, parentId, recordId, isSubView) {
+        ConsoleHelper(
+            `BaseViewContainer::processViewResponse: viewId=${isSubView}, recordId=${recordId}, parentId=${parentId},`
+        );
+
         if (this._isMounted) {
             ViewValidatorUtils.validation(responseView);
             let id = UrlUtils.getViewIdFromURL();
@@ -441,120 +356,8 @@ export class BaseViewContainer extends BaseContainer {
                     );
                     this.props.handleOperations(this.state.parsedGridView?.operations);
                     this.props.handleShortcutButtons(this.state.parsedGridView?.shortcutButtons);
-                    const initFilterId = responseView?.viewInfo?.filterdId;
-                    const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
-                    const parentIdArg = this.state.subView == null ? parentId : this.state.elementRecordId;
-                    const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId;
-                    const kindViewArg = this.state.kindView;
-                    if (this.isCardView()) {
-                        this.setState({loading: true}, () => {
-                            const dataPackageSize = this.state.parsedGridView?.viewInfo?.dataPackageSize;
-                            const packageCount =
-                                !!dataPackageSize || dataPackageSize === 0
-                                    ? Constants.DEFAULT_DATA_PACKAGE_COUNT
-                                    : dataPackageSize;
-                            let res = this.dataCardStore.getDataCardStore(
-                                viewIdArg,
-                                {
-                                    skip: 0,
-                                    take: packageCount,
-                                },
 
-                                parentIdArg,
-                                filterIdArg,
-                                kindViewArg,
-                                () => {
-                                    return null;
-                                },
-                                () => {
-                                    this.setState(
-                                        {
-                                            dataGridStoreSuccess: true,
-                                        },
-                                        () => {
-                                            this.unblockUi();
-                                        }
-                                    );
-                                },
-                                (err) => {
-                                    this.unblockUi();
-                                    this.showErrorMessages(err);
-                                }
-                            );
-                            if (!!res) {
-                                this.setState({
-                                    loading: false,
-                                    parsedCardViewData: res,
-                                });
-                            }
-                            this.unblockUi();
-                        });
-                    } else if (this.isGanttView()) {
-                        this.setState({loading: true}, () => {
-                            let res = this.dataGanttStore.getDataForGantt(
-                                viewIdArg,
-                                {skip: 0, take: this.integerJavaMaxValue},
-                                parentIdArg,
-                                filterIdArg,
-                                kindViewArg
-                            );
-                            if (!!res) {
-                                this.setState({
-                                    loading: false,
-                                    parsedGanttViewData: res,
-                                });
-                            }
-                            this.unblockUi();
-                        });
-                    } else {
-                        this.setState({loading: true}, () => {
-                            let res = this.dataGridStore.getDataGridStore(
-                                viewIdArg,
-                                'gridView',
-                                parentIdArg,
-                                filterIdArg,
-                                kindViewArg,
-                                () => {
-                                    this.blockUi();
-                                    return {
-                                        select: this.state.select,
-                                        selectAll: this.state.selectAll,
-                                    };
-                                },
-                                () => {
-                                    this.setState(
-                                        {
-                                            select: false,
-                                            selectAll: false,
-                                            dataGridStoreSuccess: true,
-                                        },
-                                        () => {
-                                            this.unblockUi();
-                                        }
-                                    );
-                                },
-                                (err) => {
-                                    this.setState(
-                                        {
-                                            select: false,
-                                            selectAll: false,
-                                        },
-                                        () => {
-                                            this.showErrorMessages(err);
-                                            this.unblockUi();
-                                        }
-                                    );
-                                }
-                            );
-                            if (!!res) {
-                                this.setState({
-                                    loading: false,
-                                    parsedGridViewData: res,
-                                });
-                            }
-                            this.unblockUi();
-                        });
-                    }
+                    this.getDataByViewResponse(responseView, parentId);
                 }
             );
         }
@@ -676,8 +479,26 @@ export class BaseViewContainer extends BaseContainer {
 
     //override
     renderGlobalTop() {
+        let operations = this.state.parsedGridView?.operations;
+        let opADDFile = DataGridUtils.containsOperationsButton(operations, 'OP_ADD_FILE');
+
         return (
             <React.Fragment>
+                {opADDFile && (
+                    <DivContainer id='header-right' colClass='to-right'>
+                        <ActionButton
+                            type='default'
+                            stylingMode='contained'
+                            rendered={true}
+                            label={opADDFile.label}
+                            handleClick={() => {
+                                this.setState({
+                                    visibleUploadFile: true,
+                                });
+                            }}
+                        />
+                    </DivContainer>
+                )}
                 {this.state.visibleEditPanel ? (
                     <EditRowComponent
                         visibleEditPanel={this.state.visibleEditPanel}
@@ -1423,32 +1244,6 @@ export class BaseViewContainer extends BaseContainer {
             }
             this.unblockUi();
         });
-    }
-    //override
-    render() {
-        let operations = this.state.parsedGridView?.operations;
-        // TODO: to będzie do usuniecia w tym miejscu. Narazie tak żeby mogli testowac
-        let opADDFile = DataGridUtils.containsOperationsButton(operations, 'OP_ADD_FILE');
-        return (
-            <React.Fragment>
-                {opADDFile && (
-                    <DivContainer id='header-right' colClass='to-right'>
-                        <ActionButton
-                            type='default'
-                            stylingMode='contained'
-                            rendered={true}
-                            label={opADDFile.label}
-                            handleClick={() => {
-                                this.setState({
-                                    visibleUploadFile: true,
-                                });
-                            }}
-                        />
-                    </DivContainer>
-                )}
-                {super.render()}
-            </React.Fragment>
-        );
     }
 
     //override
