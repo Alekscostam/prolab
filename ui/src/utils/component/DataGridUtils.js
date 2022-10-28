@@ -1,21 +1,21 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Image from '../../components/Image';
-import {ViewDataCompUtils} from "./ViewDataCompUtils";
+import {StringUtils} from '../StringUtils';
+import {ViewDataCompUtils} from './ViewDataCompUtils';
 
 let _rowIndex = null;
 let _bgColor = null;
 let _fontcolor = null;
 
-export class DataGridUtils extends ViewDataCompUtils{
-
+export class DataGridUtils extends ViewDataCompUtils {
     static cellTemplate(column) {
         return function (element, info) {
-
             let bgColorFinal = undefined;
             let rowSelected = null;
             if (_rowIndex !== info.row.dataIndex) {
-                rowSelected = info?.row?.cells?.filter((c) => c.column?.type === 'selection' && c.value === true).length > 0;
+                rowSelected =
+                    info?.row?.cells?.filter((c) => c.column?.type === 'selection' && c.value === true).length > 0;
                 _rowIndex = info.row.dataIndex;
                 _bgColor = info.data['_BGCOLOR'];
                 _fontcolor = info.data['_FONTCOLOR'];
@@ -44,7 +44,7 @@ export class DataGridUtils extends ViewDataCompUtils{
             }
             switch (column?.type) {
                 case 'C':
-                case "N":
+                case 'N':
                 case 'D':
                 case 'E':
                 case 'T':
@@ -65,14 +65,24 @@ export class DataGridUtils extends ViewDataCompUtils{
                         element
                     );
                 case 'O':
-                    element.innerHTML
-                        = '<div id="innerHTML" style="' +
-                        // 'display: inline; ' +
+                    element.innerHTML =
+                        '<div className="limited-text" id="innerHTML" ' +
+                        'title="' +
+                        StringUtils.textFromHtmlString(info.text) +
+                        '"  ' +
+                        'style=' +
                         'border-radius: 25px; ' +
                         'padding: 2px 6px 2px 6px; ' +
-                        'background-color: ' + bgColorFinal + '; ' +
-                        'color: ' + fontColorFinal + ';">' + info.text + '' +
-                        '</div>'
+                        'background-color: ' +
+                        bgColorFinal +
+                        '; ' +
+                        'color: ' +
+                        fontColorFinal +
+                        ';">' +
+                        '<p style="" >' +
+                        info.text +
+                        '</p>' +
+                        '</div>';
                     break;
                 case 'B':
                     return ReactDOM.render(
@@ -86,8 +96,11 @@ export class DataGridUtils extends ViewDataCompUtils{
                             }}
                             title={info.text}
                         >
-                            <input type="checkbox" readOnly={true}
-                                   checked={DataGridUtils.conditionForTrueValueForBoolType(info.text)}/>
+                            <input
+                                type='checkbox'
+                                readOnly={true}
+                                checked={DataGridUtils.conditionForTrueValueForBoolType(info.text)}
+                            />
                         </div>,
                         element
                     );
@@ -103,8 +116,11 @@ export class DataGridUtils extends ViewDataCompUtils{
                             }}
                             title={info.text}
                         >
-                            <input type="checkbox" readOnly={true}
-                                   checked={DataGridUtils.conditionForTrueValueForLogicType(info.text)}/>
+                            <input
+                                type='checkbox'
+                                readOnly={true}
+                                checked={DataGridUtils.conditionForTrueValueForLogicType(info.text)}
+                            />
                         </div>,
                         element
                     );
@@ -122,7 +138,7 @@ export class DataGridUtils extends ViewDataCompUtils{
                                 }}
                             >
                                 {info.text?.map((i, index) => {
-                                    return <Image style={{maxWidth: '100%'}} key={index} base64={info.text}/>;
+                                    return <Image style={{maxWidth: '100%'}} key={index} base64={info.text} />;
                                 })}
                             </div>,
                             element
@@ -138,7 +154,7 @@ export class DataGridUtils extends ViewDataCompUtils{
                                     padding: '2px 0px 2px 0px',
                                 }}
                             >
-                                <Image style={{maxHeight: '26px'}} base64={info.text}/>
+                                <Image style={{maxHeight: '26px'}} base64={info.text} />
                             </div>,
                             element
                         );
@@ -162,5 +178,4 @@ export class DataGridUtils extends ViewDataCompUtils{
             }
         };
     }
-
 }

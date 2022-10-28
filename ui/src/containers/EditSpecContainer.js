@@ -523,6 +523,7 @@ export class EditSpecContainer extends BaseContainer {
                     handleRestore={() => this.restore()}
                     handleCopy={() => this.copyEntry()}
                     handleArchive={() => this.archive()}
+                    handleAttachments={() => this.attachment()}
                     handlePublish={() => this.publishEntry()}
                     handleUnblockUi={() => this.unblockUi()}
                     showErrorMessages={(err) => this.showErrorMessages(err)}
@@ -645,6 +646,12 @@ export class EditSpecContainer extends BaseContainer {
                                     })
                                 }
                                 handleDeleteRow={(id) => this.delete(id)}
+                                handleDownload={(id) => {
+                                    this.props.handleDownloadRow(id);
+                                }}
+                                handleAttachments={(id) => {
+                                    this.props.handleAttachmentRow(id);
+                                }}
                                 handleAddLevel={(id) => alert(id)}
                                 handleUp={(id) => this.up(id)}
                                 handleDown={(id) => this.down(id)}
@@ -656,6 +663,8 @@ export class EditSpecContainer extends BaseContainer {
                                 handlePluginsRow={(id) => {
                                     this.plugin(id);
                                 }}
+                                handleDownloadRow={(id) => this.downloadAttachment(id)}
+                                handleAttachmentRow={(id) => this.attachment(id)}
                                 handleArchiveRow={(id) => this.archive(id)}
                                 handlePublishRow={(id) => this.publishEntry(id)}
                                 showErrorMessages={(err) => this.showErrorMessages(err)}

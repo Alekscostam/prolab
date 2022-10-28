@@ -14,7 +14,6 @@ import {Breadcrumb} from '../utils/BreadcrumbUtils';
 import {DataGridUtils} from '../utils/component/DataGridUtils';
 import {ViewValidatorUtils} from '../utils/parser/ViewValidatorUtils';
 import UrlUtils from '../utils/UrlUtils';
-import {ConfirmDialog, confirmDialog} from 'primereact/confirmdialog';
 import Constants from '../utils/Constants';
 import $ from 'jquery';
 import {localeOptions} from 'primereact/api';
@@ -39,6 +38,7 @@ import GridViewComponent from '../containers/dataGrid/GridViewComponent';
 import DataCardStore from '../containers/dao/DataCardStore';
 import DivContainer from '../components/DivContainer';
 import ActionButton from '../components/ActionButton';
+import {ConfirmDialog, confirmDialog} from 'primereact/confirmdialog';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -123,6 +123,7 @@ export class BaseViewContainer extends BaseContainer {
         this.handleRightHeadPanelContent = this.handleRightHeadPanelContent.bind(this);
         this.executePlugin = this.executePlugin.bind(this);
         this.refreshGanttData = this.refreshGanttData.bind(this);
+        this.additionalTopComponents = this.additionalTopComponents.bind(this);
         this.executeDocument = this.executeDocument.bind(this);
         this.showCopyView = this.showCopyView.bind(this);
         this.downloadData = this.downloadData.bind(this);
@@ -342,6 +343,7 @@ export class BaseViewContainer extends BaseContainer {
                     selectAll: false,
                     isSelectAll: false,
                     visibleEditPanel: false,
+                    attachmentInfo: null,
                     visibleUploadFile: false,
                     visiblePluginPanel: false,
                     visibleCopyDialog: false,
@@ -383,101 +385,6 @@ export class BaseViewContainer extends BaseContainer {
         }
     }
 
-    async executeDocument(data, viewId, elementId, parentId) {
-        const idRowKeys = this.state.selectedRowKeys.map((el) => el.ID);
-        const requestBody = {
-            listId: idRowKeys,
-            data: data,
-        };
-
-        let fileId;
-        let fileName;
-
-        this.blockUi();
-        await this.crudService
-            .generateDocument(requestBody, viewId, elementId, parentId)
-            .then((res) => {
-                if (res?.info?.fileId) {
-                    fileId = res?.info?.fileId;
-                    fileName = res?.info?.fileName;
-                } else {
-                    this.showErrorMessage(res.message.text, undefined, res.message.title);
-                }
-            })
-            .catch(() => {
-                this.showErrorMessage('Błąd generowania dokumentu');
-                this.unblockUi();
-            });
-        this.unblockUi();
-
-        if (fileId) {
-            this.crudService.downloadDocument(viewId, elementId, fileId, fileName);
-
-            this.setState({
-                visibleDocumentPanel: false,
-            });
-        }
-    }
-
-    /** Metoda już typowo pod plugin. executePlugin wykonuje się w momencie przejscia z pierwszego do drugiego kroku */
-    executePlugin(pluginId, requestBody, refreshAll) {
-        const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
-        const parentIdArg =
-            this.state.subView == null ? UrlUtils.getURLParameter('parentId') : this.state.elementRecordId;
-
-        let visiblePluginPanel = false;
-        let visibleMessagePluginPanel = false;
-        this.crudService
-            .getPluginExecuteColumnsDefinitions(viewIdArg, pluginId, requestBody, parentIdArg)
-            .then((res) => {
-                let parsedPluginViewData;
-                let renderNextStep = true;
-
-                if (res.info.kind === 'GRID') {
-                    visiblePluginPanel = true;
-                    let datas = this.dataPluginStore.getPluginExecuteDataStore(
-                        viewIdArg,
-                        pluginId,
-                        requestBody,
-                        parentIdArg,
-                        (err) => {
-                            this.showErrorMessages(err);
-                        },
-                        () => {
-                            this.setState({dataPluginStoreSuccess: true});
-                        },
-                        () => {
-                            return {selectAll: this.state.selectAll};
-                        }
-                    );
-                    parsedPluginViewData = datas;
-                } else {
-                    if (res.info.message === null && res.info.question == null) {
-                        renderNextStep = false;
-                    } else visibleMessagePluginPanel = true;
-                }
-
-                if (renderNextStep) {
-                    this.setState({
-                        pluginId: pluginId,
-                        parsedPluginViewData: parsedPluginViewData,
-                        parsedPluginView: res,
-                        visiblePluginPanel: visiblePluginPanel,
-                        visibleMessagePluginPanel: visibleMessagePluginPanel,
-                        isPluginFirstStep: false,
-                    });
-                }
-                if (refreshAll) {
-                    this.refreshView();
-                    this.unselectAllDataGrid(false);
-                }
-            })
-            .catch((err) => {
-                this.showErrorMessages(err);
-            });
-    }
-
-    //override
     renderGlobalTop() {
         let operations = this.state.parsedGridView?.operations;
         let opADDFile = DataGridUtils.containsOperationsButton(operations, 'OP_ADD_FILE');
@@ -512,7 +419,7 @@ export class BaseViewContainer extends BaseContainer {
                         onEditList={this.handleEditListRowChange}
                         onCancel={this.handleCancelRowChange}
                         validator={this.validator}
-                        onHide={(e, viewId, recordId, parentId) =>
+                        onHide={(e, viewId, recordId, parentId) => {
                             !!this.state.modifyEditData
                                 ? confirmDialog({
                                       appendTo: document.body,
@@ -533,8 +440,8 @@ export class BaseViewContainer extends BaseContainer {
                                   })
                                 : this.setState({visibleEditPanel: e}, () => {
                                       this.handleCancelRowChange(viewId, recordId, parentId);
-                                  })
-                        }
+                                  });
+                        }}
                         onError={(e) => this.showErrorMessage(e)}
                         labels={this.props.labels}
                         showErrorMessages={(err) => this.showErrorMessages(err)}
@@ -559,6 +466,7 @@ export class BaseViewContainer extends BaseContainer {
                         showErrorMessages={(err) => this.showErrorMessages(err)}
                     />
                 ) : null}
+
                 {this.state.visibleCopyDialog ? (
                     <CopyDialogComponent
                         visible={this.state.visibleCopyDialog}
@@ -724,9 +632,111 @@ export class BaseViewContainer extends BaseContainer {
                         reject={() => this.setState({visibleMessagePluginPanel: false})}
                     />
                 ) : null}
+
+                {this.additionalTopComponents()}
             </React.Fragment>
         );
     }
+
+    additionalTopComponents() {
+        // to overide
+    }
+
+    async executeDocument(data, viewId, elementId, parentId) {
+        const idRowKeys = this.state.selectedRowKeys.map((el) => el.ID);
+        const requestBody = {
+            listId: idRowKeys,
+            data: data,
+        };
+
+        let fileId;
+        let fileName;
+
+        this.blockUi();
+        await this.crudService
+            .generateDocument(requestBody, viewId, elementId, parentId)
+            .then((res) => {
+                if (res?.info?.fileId) {
+                    fileId = res?.info?.fileId;
+                    fileName = res?.info?.fileName;
+                } else {
+                    this.showErrorMessage(res.message.text, undefined, res.message.title);
+                }
+            })
+            .catch(() => {
+                this.showErrorMessage('Błąd generowania dokumentu');
+                this.unblockUi();
+            });
+        this.unblockUi();
+
+        if (fileId) {
+            this.crudService.downloadDocument(viewId, elementId, fileId, fileName);
+
+            this.setState({
+                visibleDocumentPanel: false,
+            });
+        }
+    }
+
+    /** Metoda już typowo pod plugin. executePlugin wykonuje się w momencie przejscia z pierwszego do drugiego kroku */
+    executePlugin(pluginId, requestBody, refreshAll) {
+        const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
+        const parentIdArg =
+            this.state.subView == null ? UrlUtils.getURLParameter('parentId') : this.state.elementRecordId;
+
+        let visiblePluginPanel = false;
+        let visibleMessagePluginPanel = false;
+        this.crudService
+            .getPluginExecuteColumnsDefinitions(viewIdArg, pluginId, requestBody, parentIdArg)
+            .then((res) => {
+                let parsedPluginViewData;
+                let renderNextStep = true;
+
+                if (res.info.kind === 'GRID') {
+                    visiblePluginPanel = true;
+                    let datas = this.dataPluginStore.getPluginExecuteDataStore(
+                        viewIdArg,
+                        pluginId,
+                        requestBody,
+                        parentIdArg,
+                        (err) => {
+                            this.showErrorMessages(err);
+                        },
+                        () => {
+                            this.setState({dataPluginStoreSuccess: true});
+                        },
+                        () => {
+                            return {selectAll: this.state.selectAll};
+                        }
+                    );
+                    parsedPluginViewData = datas;
+                } else {
+                    if (res.info.message === null && res.info.question == null) {
+                        renderNextStep = false;
+                    } else visibleMessagePluginPanel = true;
+                }
+
+                if (renderNextStep) {
+                    this.setState({
+                        pluginId: pluginId,
+                        parsedPluginViewData: parsedPluginViewData,
+                        parsedPluginView: res,
+                        visiblePluginPanel: visiblePluginPanel,
+                        visibleMessagePluginPanel: visibleMessagePluginPanel,
+                        isPluginFirstStep: false,
+                    });
+                }
+                if (refreshAll) {
+                    this.refreshView();
+                    this.unselectAllDataGrid(false);
+                }
+            })
+            .catch((err) => {
+                this.showErrorMessages(err);
+            });
+    }
+
+    //override
 
     //override
     renderHeaderLeft() {
@@ -920,7 +930,7 @@ export class BaseViewContainer extends BaseContainer {
         }
         return (
             <React.Fragment>
-                {this.state.parsedGridView?.operations.map((operation, index) => {
+                {this.state.parsedGridView?.operations?.map((operation, index) => {
                     return <div key={index}>{this.renderButton(operation, index)}</div>;
                 })}
             </React.Fragment>
@@ -1353,6 +1363,7 @@ export class BaseViewContainer extends BaseContainer {
                                     handlePluginRow={(id) => this.plugin(id)}
                                     handleDocumentRow={(id) => this.generate(id)}
                                     handleDeleteRow={(id) => this.delete(id)}
+                                    handleAttachmentRow={(id) => this.attachment(id)}
                                     handleDownloadRow={(id) => this.downloadAttachment(id)}
                                     handleRestoreRow={(id) => this.restore(id)}
                                     handleCopyRow={(id) => this.showCopyView(id)}
@@ -1412,6 +1423,7 @@ export class BaseViewContainer extends BaseContainer {
                                     handleDocumentRow={(id) => this.generate(id)}
                                     handleDeleteRow={(id) => this.delete(id)}
                                     handleDownloadRow={(id) => this.downloadAttachment(id)}
+                                    handleAttachmentRow={(id) => this.attachment(id)}
                                     handleRestoreRow={(id) => this.restore(id)}
                                     handleCopyRow={(id) => this.showCopyView(id)}
                                     handleArchiveRow={(id) => this.archive(id)}
@@ -1435,7 +1447,6 @@ export class BaseViewContainer extends BaseContainer {
             </React.Fragment>
         );
     };
-
     getMessages() {
         return this.messages;
     }

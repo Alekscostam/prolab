@@ -13,6 +13,7 @@ export default class ViewService extends BaseService {
         this.path = 'view';
         this.getView = this.getView.bind(this);
         this.getSubView = this.getSubView.bind(this);
+        this.getAttachemntView = this.getAttachemntView.bind(this);
     }
 
     getView(viewId, viewType, recordParentId, kindView) {
@@ -35,10 +36,10 @@ export default class ViewService extends BaseService {
     }
 
     getAttachemntView(viewId, recordId) {
+
         if (Array.isArray(recordId)) {
             recordId = recordId[0];
         }
-
         return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/attachment/${recordId}`, {
             method: 'GET',
         })

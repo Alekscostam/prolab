@@ -19,7 +19,7 @@ import VersionService from '../../services/VersionService';
 import AppPrefixUtils from '../../utils/AppPrefixUtils';
 import UrlUtils from '../../utils/UrlUtils';
 import Avatar from '../../components/prolab/Avatar';
-import ConsoleHelper from "../../utils/ConsoleHelper";
+import ConsoleHelper from '../../utils/ConsoleHelper';
 
 class Sidebar extends React.Component {
     constructor(props) {
@@ -87,17 +87,16 @@ class Sidebar extends React.Component {
                     {
                         versionAPI: data.VersionAPI,
                     },
-                    () => {
-                    }
+                    () => {}
                 );
             })
-            .catch(() => {
-            });
+            .catch(() => {});
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         const viewId = UrlUtils.getViewIdFromURL();
         ConsoleHelper('sidebar => componentDidUpdate', viewId, prevState.viewId);
+
         if (prevState.viewId !== viewId) {
             this.setState({viewId}, () => {
                 if (!!viewId) {
@@ -109,7 +108,7 @@ class Sidebar extends React.Component {
                         if (!menuItem.find('.pro-inner-item').hasClass('active')) {
                             menuItem.find('.pro-inner-item').addClass('active');
                         }
-                        ConsoleHelper('sidebar => menuItem', menuItem)
+                        ConsoleHelper('sidebar => menuItem', menuItem);
                         const subMenuItem = menuItem.closest('div').parent();
                         subMenuItem.removeClass('closed');
                         // subMenuItem.height('fit-content');
@@ -127,21 +126,37 @@ class Sidebar extends React.Component {
         // if (!!window.performance && !!performance.navigation && performance.navigation.type === 1) {
         //     return true;
         // }
-        const currentUrl = window.location.href
-        if (this.doNotUpdate === true
-            || (this.state.filterValue === nextState.filterValue
-                && this.state.collapsed === nextState.collapsed
-                && this.state.toggled === nextState.toggled
-                && this.state.viewId === nextState.viewId
-                && (!!this.state.viewId && nextState.viewId === this.state.viewId))
-            || currentUrl.includes('force=')) {
+        const currentUrl = window.location.href;
+        if (
+            this.doNotUpdate === true ||
+            (this.state.filterValue === nextState.filterValue &&
+                this.state.collapsed === nextState.collapsed &&
+                this.state.toggled === nextState.toggled &&
+                this.state.viewId === nextState.viewId &&
+                !!this.state.viewId &&
+                nextState.viewId === this.state.viewId) ||
+            currentUrl.includes('force=')
+        ) {
             this.doNotUpdate = false;
-            ConsoleHelper('sidebar => shouldComponentUpdate=%s prev_view_id=%s next_view_id=%s url=%s', false, this.state.viewId, nextState.viewId, window.location.href);
+            ConsoleHelper(
+                'sidebar => shouldComponentUpdate=%s prev_view_id=%s next_view_id=%s url=%s',
+                false,
+                this.state.viewId,
+                nextState.viewId,
+                window.location.href
+            );
             return false;
         } else {
             const history = this.props.history;
-            const result = history.action !== 'PUSH' || (history.action !== 'PUSH' && nextProps.location.pathname === '/start');
-            ConsoleHelper('sidebar => shouldComponentUpdate=%s prev_view_id=%s next_view_id=%s url=%s', result, this.state.viewId, nextState.viewId, window.location.href);
+            const result =
+                history.action !== 'PUSH' || (history.action !== 'PUSH' && nextProps.location.pathname === '/start');
+            ConsoleHelper(
+                'sidebar => shouldComponentUpdate=%s prev_view_id=%s next_view_id=%s url=%s',
+                result,
+                this.state.viewId,
+                nextState.viewId,
+                window.location.href
+            );
             return result;
         }
     }
@@ -215,18 +230,18 @@ class Sidebar extends React.Component {
     }
 
     displayIcon(item) {
-        if (item.iconCode !== undefined && item.iconCode !== null && item.iconCode !== "") {
+        if (item.iconCode !== undefined && item.iconCode !== null && item.iconCode !== '') {
             if (item.iconCode.indexOf('F') === 0) {
-                return <i className={`mdi-styles`}>{String.fromCodePoint(parseInt(item.iconCode, 16))}</i>
+                return <i className={`mdi-styles`}>{String.fromCodePoint(parseInt(item.iconCode, 16))}</i>;
             } else {
-                return <i className={`icon mdi ${item.iconCode}`}/>
+                return <i className={`icon mdi ${item.iconCode}`} />;
             }
-        } else if (item.icon !== undefined && item.icon !== null && item.icon !== "" && typeof item.icon === 'symbol') {
-            return <Image alt={item.name} base64={item.icon}/>
-        } else if (item.iconText !== undefined && item.iconText !== null && item.iconText !== "") {
-            return this.displayIcon(item.iconText)
+        } else if (item.icon !== undefined && item.icon !== null && item.icon !== '' && typeof item.icon === 'symbol') {
+            return <Image alt={item.name} base64={item.icon} />;
+        } else if (item.iconText !== undefined && item.iconText !== null && item.iconText !== '') {
+            return this.displayIcon(item.iconText);
         } else {
-            return <FaAngleRight/>
+            return <FaAngleRight />;
         }
     }
 
@@ -253,52 +268,52 @@ class Sidebar extends React.Component {
         const dynamicMenuJSON = !loggedIn ? [] : this.state.filteredMenu;
         const renderDynamicMenu = (items) => {
             const timestamp = Date.now();
-            return (
-                loggedIn ? (
-                    <Menu key='menu' iconShape='circle' popperArrow='false'>
-                        {items?.map((item) => {
-                            const activeItem = containsViewId(item, this.state.viewId, item.id);
-                            return item.type === 'View' ? (
-                                <li key={`menu_item_g_key_${item.id}`}>
-                                    <MenuItem
-                                        id={`menu_item_id_${item.id}`}
-                                        key={`menu_item_key_${item.id}`}
-                                        className={activeItem ? 'active' : ''}
-                                        icon={this.displayIcon(item)}
-                                        onClick={() => {
-                                            this.doNotUpdate = true;
-                                        }}>
-                                        <div className='menu_arrow_active'/>
-                                        <a
-                                            href={AppPrefixUtils.locationHrefUrl(
-                                                `/#/grid-view/${item.id}?force=${timestamp}`
-                                            )}
-                                            className='title'
-                                            style={{fontSize: '14px', fontWeight: 'normal'}}
-                                            onClick={(e) => {
-                                                let href = e.target.href;
-                                                e.target.href = UrlUtils.addParameterToURL(href, 'force', Date.now());
-                                            }}
-                                        >
-                                            <div className='title'>{item?.name}</div>
-                                        </a>
-                                    </MenuItem>
-                                    {item?.sub && renderDynamicMenu(item?.sub)}
-                                </li>
-                            ) : (
-                                <SubMenu
-                                    key={`menu_sub_${item.id}`}
-                                    icon={this.displayIcon(item)}
+            return loggedIn ? (
+                <Menu key='menu' iconShape='circle' popperArrow='false'>
+                    {items?.map((item) => {
+                        const activeItem = containsViewId(item, this.state.viewId, item.id);
+                        return item.type === 'View' ? (
+                            <li key={`menu_item_g_key_${item.id}`}>
+                                <MenuItem
+                                    id={`menu_item_id_${item.id}`}
+                                    key={`menu_item_key_${item.id}`}
                                     className={activeItem ? 'active' : ''}
-                                    defaultOpen={activeItem}
-                                    title={item?.name}
+                                    icon={this.displayIcon(item)}
+                                    onClick={() => {
+                                        this.doNotUpdate = true;
+                                    }}
                                 >
-                                    {item?.sub && renderDynamicMenu(item?.sub)}
-                                </SubMenu>
-                            );
-                        })}
-                    </Menu>
-                ) : null);
+                                    <div className='menu_arrow_active' />
+                                    <a
+                                        href={AppPrefixUtils.locationHrefUrl(
+                                            `/#/grid-view/${item.id}?force=${timestamp}`
+                                        )}
+                                        className='title'
+                                        style={{fontSize: '14px', fontWeight: 'normal'}}
+                                        onClick={(e) => {
+                                            let href = e.target.href;
+                                            e.target.href = UrlUtils.addParameterToURL(href, 'force', Date.now());
+                                        }}
+                                    >
+                                        <div className='title'>{item?.name}</div>
+                                    </a>
+                                </MenuItem>
+                                {item?.sub && renderDynamicMenu(item?.sub)}
+                            </li>
+                        ) : (
+                            <SubMenu
+                                key={`menu_sub_${item.id}`}
+                                icon={this.displayIcon(item)}
+                                className={activeItem ? 'active' : ''}
+                                defaultOpen={activeItem}
+                                title={item?.name}
+                            >
+                                {item?.sub && renderDynamicMenu(item?.sub)}
+                            </SubMenu>
+                        );
+                    })}
+                </Menu>
+            ) : null;
         };
 
         const containsViewId = (item, viewId, currId, type) => {
@@ -336,7 +351,7 @@ class Sidebar extends React.Component {
         return (
             <React.Fragment>
                 <div className='btn-toggle' onClick={() => this.handleToggleSidebar()}>
-                    <FaBars/>
+                    <FaBars />
                 </div>
                 <ProSidebar
                     collapsed={this.state.collapsed}
@@ -380,34 +395,34 @@ class Sidebar extends React.Component {
                             </div>
                             <div className='row mb-2' style={collapsed ? {display: 'none'} : {}}>
                                 <div className='col-md-12'>
-                                        <span id='menu-search-span' className='p-input-icon-left p-input-icon-right'>
-                                            <i className='pi pi-search'/>
-                                            <InputText
-                                                ariaLabel={labels['Menu_Search']}
-                                                className='p-inputtext-sm'
-                                                key='filterValue'
-                                                id='filterValue'
-                                                name='filterValue'
-                                                style={{width: '100%'}}
-                                                type='text'
-                                                placeholder={labels['Menu_Search']}
-                                                value={filterValue}
-                                                onChange={(e) => {
-                                                    e.preventDefault();
-                                                    this.handleFilter(e.target.value);
-                                                }}
-                                            />
-                                            <i
-                                                style={filterValue === '' ? {display: 'none'} : {}}
-                                                className='pi mdi mdi-close'
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    if (filterValue !== '') {
-                                                        this.handleFilter('');
-                                                    }
-                                                }}
-                                            />
-                                        </span>
+                                    <span id='menu-search-span' className='p-input-icon-left p-input-icon-right'>
+                                        <i className='pi pi-search' />
+                                        <InputText
+                                            ariaLabel={labels['Menu_Search']}
+                                            className='p-inputtext-sm'
+                                            key='filterValue'
+                                            id='filterValue'
+                                            name='filterValue'
+                                            style={{width: '100%'}}
+                                            type='text'
+                                            placeholder={labels['Menu_Search']}
+                                            value={filterValue}
+                                            onChange={(e) => {
+                                                e.preventDefault();
+                                                this.handleFilter(e.target.value);
+                                            }}
+                                        />
+                                        <i
+                                            style={filterValue === '' ? {display: 'none'} : {}}
+                                            className='pi mdi mdi-close'
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                if (filterValue !== '') {
+                                                    this.handleFilter('');
+                                                }
+                                            }}
+                                        />
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -429,12 +444,12 @@ class Sidebar extends React.Component {
                         ) : null}
                     </SidebarHeader>
 
-                    <DynamicMenu id='dynamic-menu' key='dynamic-menu-key' data={dynamicMenuJSON}/>
+                    <DynamicMenu id='dynamic-menu' key='dynamic-menu-key' data={dynamicMenuJSON} />
 
                     <SidebarFooter id={'menu-footer'} style={{textAlign: 'center'}}>
                         <div id={'user-credentials'} className={'col-12'}>
                             <div className='row mt-3 mb-2'>
-                                <Avatar base64={avatar} userName={userName} collapsed={collapsed}/>
+                                <Avatar base64={avatar} userName={userName} collapsed={collapsed} />
                             </div>
                         </div>
                         <div id={'logout_button'} className='sidebar-btn-wrapper' style={{padding: '5px 24px'}}>
@@ -444,7 +459,7 @@ class Sidebar extends React.Component {
                                 rel='noopener noreferrer'
                                 style={{textAlign: 'center'}}
                             >
-                                <FaSignOutAlt/>
+                                <FaSignOutAlt />
                                 <span>{labels['Menu_Logout']}</span>
                             </div>
                         </div>
@@ -453,7 +468,8 @@ class Sidebar extends React.Component {
                                 id={'version'}
                                 className={'to-right'}
                                 style={{marginRight: '5px'}}
-                            >{`ver: ${packageJson.version}_${this.state.uiVersion?.buildNumber} api: ${this.state.versionAPI}`}</div>) : null}
+                            >{`ver: ${packageJson.version}_${this.state.uiVersion?.buildNumber} api: ${this.state.versionAPI}`}</div>
+                        ) : null}
                     </SidebarFooter>
                 </ProSidebar>
             </React.Fragment>

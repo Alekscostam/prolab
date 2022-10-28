@@ -82,6 +82,7 @@ export const HeadPanel = (props) => {
                                     handlePublish={(e) => props.handlePublish(e)}
                                     handleCopy={(e) => props.handleCopy(e)}
                                     handleArchive={(e) => props.handleArchive(e)}
+                                    handleAttachments={(e) => props.handleAttachments(e)}
                                     handleEdit={(e) => handleEdit(e, props, viewId, parentId, currentBreadcrumb)}
                                     handleEditSpec={(e) =>
                                         handleSpecEdit(e, props, viewId, parentId, currentBreadcrumb)
@@ -107,6 +108,7 @@ export const HeadPanel = (props) => {
                                     handleDownload={(e) => props.handleDownload(e)}
                                     handlePublish={(e) => props.handlePublish(e)}
                                     handleArchive={(e) => props.handleArchive(e)}
+                                    handleAttachments={(e) => props.handleAttachments(e)}
                                     handleEdit={(e) => handleEdit(e, props, viewId, parentId, currentBreadcrumb)}
                                     handleEditSpec={(e) =>
                                         handleSpecEdit(e, props, viewId, parentId, currentBreadcrumb)
@@ -146,6 +148,7 @@ HeadPanel.propTypes = {
     handleRestore: PropTypes.func.isRequired,
     handleCopy: PropTypes.func.isRequired,
     handleArchive: PropTypes.func.isRequired,
+    handleAttachments: PropTypes.func.isRequired,
     handleBlockUi: PropTypes.func.isRequired,
     handleUnblockUi: PropTypes.func.isRequired,
     showErrorMessages: PropTypes.func.isRequired,

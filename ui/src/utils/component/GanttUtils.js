@@ -2,15 +2,14 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Image from '../../components/Image';
 import Constants from '../Constants';
-import {ViewDataCompUtils} from "./ViewDataCompUtils";
+import {StringUtils} from '../StringUtils';
+import {ViewDataCompUtils} from './ViewDataCompUtils';
 
 let _rowIndex = null;
-let _bgcolor = null;    
+let _bgcolor = null;
 let _fontcolor = null;
 
-export class GanttUtils extends ViewDataCompUtils{
-
-
+export class GanttUtils extends ViewDataCompUtils {
     static specifyColumnType(type) {
         if (type) {
             switch (type) {
@@ -38,7 +37,6 @@ export class GanttUtils extends ViewDataCompUtils{
         return undefined;
     }
 
-
     static specifyColumnFormat(format) {
         if (format) {
             switch (format) {
@@ -56,15 +54,14 @@ export class GanttUtils extends ViewDataCompUtils{
     }
 
     static cellTemplateAfterSelected() {
-        
         return function (element, info) {
-            element.style.backgroundColor = "#dde6ff";
+            element.style.backgroundColor = '#dde6ff';
             // element.style.color="red"
             return ReactDOM.render(
                 <div
                     style={{
                         display: 'inline',
-                        color: "black",
+                        color: 'black',
                         borderRadius: '25px',
                         padding: '2px 6px 2px 6px',
                     }}
@@ -75,34 +72,31 @@ export class GanttUtils extends ViewDataCompUtils{
                 element
             );
         };
-    } 
-    
+    }
 
     static cellTemplate(column) {
         return function (element, info) {
-     
             if (_rowIndex !== info.row.dataIndex) {
                 _rowIndex = info.row.dataIndex;
                 _bgcolor = info.data['_BGCOLOR'];
                 _fontcolor = info.data['_FONTCOLOR'];
             }
 
-            if(_bgcolor)
-                element.style.backgroundColor = _bgcolor;
-            
+            if (_bgcolor) element.style.backgroundColor = _bgcolor;
+
             let fontColorFinal = 'black';
             let bgColorFinal = '';
-          
+
             if (!!_fontcolor) {
-                    fontColorFinal = _fontcolor;
+                fontColorFinal = _fontcolor;
             }
             if (!!_bgcolor) {
                 bgColorFinal = _bgcolor;
             }
-           
+
             switch (column?.type) {
                 case 'C':
-                case "N":
+                case 'N':
                     return ReactDOM.render(
                         <div
                             style={{
@@ -126,7 +120,7 @@ export class GanttUtils extends ViewDataCompUtils{
                         <div
                             style={{
                                 display: 'inline',
-                                color: fontColorFinal,                                
+                                color: fontColorFinal,
                                 backgroundColor: bgColorFinal,
                                 borderRadius: '25px',
                                 padding: '2px 6px 2px 6px',
@@ -138,13 +132,24 @@ export class GanttUtils extends ViewDataCompUtils{
                         element
                     );
                 case 'O':
-                    element.innerHTML
-                        = '<div id="innerHTML" style="' +
-                        // 'display: inline; ' +
+                    element.innerHTML =
+                        '<div className="limited-text" id="innerHTML" ' +
+                        'title="' +
+                        StringUtils.textFromHtmlString(info.text) +
+                        '"  ' +
+                        'style=' +
                         'border-radius: 25px; ' +
                         'padding: 2px 6px 2px 6px; ' +
-                        'color: ' + fontColorFinal + ';">' + info.text + '' +
-                        '</div>'
+                        'background-color: ' +
+                        bgColorFinal +
+                        '; ' +
+                        'color: ' +
+                        fontColorFinal +
+                        ';">' +
+                        '<p style="" >' +
+                        info.text +
+                        '</p>' +
+                        '</div>';
                     break;
                 case 'B':
                     return ReactDOM.render(
@@ -158,8 +163,11 @@ export class GanttUtils extends ViewDataCompUtils{
                             }}
                             title={info.text}
                         >
-                            <input type="checkbox" readOnly={true}
-                                   checked={GanttUtils.conditionForTrueValueForBoolType(info.text)}/>
+                            <input
+                                type='checkbox'
+                                readOnly={true}
+                                checked={GanttUtils.conditionForTrueValueForBoolType(info.text)}
+                            />
                         </div>,
                         element
                     );
@@ -175,8 +183,11 @@ export class GanttUtils extends ViewDataCompUtils{
                             }}
                             title={info.text}
                         >
-                            <input type="checkbox" readOnly={true}
-                                   checked={GanttUtils.conditionForTrueValueForLogicType(info.text)}/>
+                            <input
+                                type='checkbox'
+                                readOnly={true}
+                                checked={GanttUtils.conditionForTrueValueForLogicType(info.text)}
+                            />
                         </div>,
                         element
                     );
@@ -194,7 +205,7 @@ export class GanttUtils extends ViewDataCompUtils{
                                 }}
                             >
                                 {info.text?.map((i, index) => {
-                                    return <Image style={{maxWidth: '100%'}} key={index} base64={info.text}/>;
+                                    return <Image style={{maxWidth: '100%'}} key={index} base64={info.text} />;
                                 })}
                             </div>,
                             element
@@ -210,7 +221,7 @@ export class GanttUtils extends ViewDataCompUtils{
                                     padding: '2px 0px 2px 0px',
                                 }}
                             >
-                                <Image style={{maxHeight: '26px'}} base64={info.text}/>
+                                <Image style={{maxHeight: '26px'}} base64={info.text} />
                             </div>,
                             element
                         );
@@ -234,6 +245,4 @@ export class GanttUtils extends ViewDataCompUtils{
             }
         };
     }
-
-
 }

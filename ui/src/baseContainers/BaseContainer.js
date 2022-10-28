@@ -953,35 +953,39 @@ class BaseContainer extends React.Component {
                     loader={this.loader}
                     renderBlockUi={this.state.gridViewType !== 'dashboard'}
                 >
-                    {this.state.loading === false ? (
-                        <React.Fragment>
-                            {this.renderGlobalTop()}
-                            <DivContainer colClass='base-container-div'>
-                                <DivContainer colClass='row base-container-header'>
-                                    <DivContainer id='header-left' colClass={''}>
-                                        {this.renderHeaderLeft()}
-                                    </DivContainer>
-                                    <DivContainer id='header-right' colClass={''}>
-                                        {this.renderHeaderRight()}
-                                    </DivContainer>
-                                    <DivContainer id='header-content' colClass='col-12'>
-                                        {this.renderHeaderContent()}
-                                    </DivContainer>
-                                </DivContainer>
-                                <DivContainer colClass='row base-container-head-panel'>
-                                    <DivContainer id='header-panel' colClass='col-12'>
-                                        {this.renderHeadPanel()}
-                                    </DivContainer>
-                                </DivContainer>
-                                <DivContainer colClass='row base-container-content'>
-                                    <DivContainer id='content' colClass='col-12'>
-                                        {this.renderContent()}
-                                    </DivContainer>
-                                </DivContainer>
-                            </DivContainer>
-                        </React.Fragment>
-                    ) : null}
+                    {this.state.loading === false ? this.renderView() : null}
                 </BlockUi>
+            </React.Fragment>
+        );
+    }
+
+    renderView() {
+        return (
+            <React.Fragment>
+                {this.renderGlobalTop()}
+                <DivContainer colClass='base-container-div'>
+                    <DivContainer colClass='row base-container-header'>
+                        <DivContainer id='header-left' colClass={''}>
+                            {this.renderHeaderLeft()}
+                        </DivContainer>
+                        <DivContainer id='header-right' colClass={''}>
+                            {this.renderHeaderRight()}
+                        </DivContainer>
+                        <DivContainer id='header-content' colClass='col-12'>
+                            {this.renderHeaderContent()}
+                        </DivContainer>
+                    </DivContainer>
+                    <DivContainer colClass='row base-container-head-panel'>
+                        <DivContainer id='header-panel' colClass='col-12'>
+                            {this.renderHeadPanel()}
+                        </DivContainer>
+                    </DivContainer>
+                    <DivContainer colClass='row base-container-content'>
+                        <DivContainer id='content' colClass='col-12'>
+                            {this.renderContent()}
+                        </DivContainer>
+                    </DivContainer>
+                </DivContainer>
             </React.Fragment>
         );
     }
@@ -1098,7 +1102,7 @@ class BaseContainer extends React.Component {
                 if (kindOperation.toUpperCase() === 'COPY') {
                     this.copyAfterSave(saveResponse);
                 }
-                if (this.state.attachmentFiles?.length !== 0) {
+                if (this.state?.attachmentFiles?.length) {
                     this.uploadAttachemnt(this.state.parsedGridView, this.state.attachmentFiles[0]);
                 }
                 this.refreshView();
@@ -1467,13 +1471,14 @@ class BaseContainer extends React.Component {
     }
 
     attachment(id) {
-        ConsoleHelper('handleAsttachment');
+        ConsoleHelper('handleAttachment');
         this.blockUi();
         const viewId = this.getRealViewId();
         let recordId = this.getSelectedRowKeysIds(id);
         if (Array.isArray(recordId)) {
             recordId = recordId[0];
         }
+
         this.crudService
             .attachmentEntry(viewId, recordId)
             .then((attachmentResponse) => {

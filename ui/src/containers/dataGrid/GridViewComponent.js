@@ -101,7 +101,7 @@ class GridViewComponent extends React.Component {
                         this.props.handleOnDataGrid(ref);
                     }}
                     dataSource={this.props.parsedGridViewData}
-                    customizeColumns={this.postCustomizeColumns}
+                    customizeColumns={this?.postCustomizeColumns}
                     wordWrapEnabled={rowAutoHeight}
                     columnAutoWidth={columnAutoWidth}
                     columnResizingMode='widget'
@@ -171,11 +171,16 @@ class GridViewComponent extends React.Component {
                         allowSelectAll={allowSelectAll}
                         deferred={this.props.selectionDeferred}
                     />
+
+                    {/*  byc moze moze byc sam standard mode bo i tak jest tutaj paginacja */}
+                    {/* 
                     <Scrolling
                         mode='virtual'
                         rowRenderingMode={this.props.showRenderingViewMode === true ? 'virtual' : 'standard'}
                         preloadEnabled={false}
                     />
+                     */}
+                    <Scrolling mode='virtual' rowRenderingMode={'standard'} preloadEnabled={false} />
 
                     <Paging defaultPageSize={packageCount} pageSize={packageCount} />
 
@@ -402,6 +407,9 @@ class GridViewComponent extends React.Component {
                                         handleDownload={() => {
                                             this.props.handleDownloadRow(recordId);
                                         }}
+                                        handleAttachments={() => {
+                                            this.props.handleAttachmentRow(recordId);
+                                        }}
                                         handleDelete={() => {
                                             this.props.handleDeleteRow(recordId);
                                         }}
@@ -413,9 +421,6 @@ class GridViewComponent extends React.Component {
                                         }}
                                         handleHistory={() => {
                                             alert('TODO');
-                                        }}
-                                        handleAttachments={() => {
-                                            this.props.handleAttachmentRow(recordId);
                                         }}
                                         handleBlockUi={() => {
                                             this.props.handleBlockUi();
@@ -430,7 +435,7 @@ class GridViewComponent extends React.Component {
             }
         } else {
             //when no data
-            this.props.gridViewColumns.forEach((columnDefinition) => {
+            this.props.gridViewColumns?.forEach((columnDefinition) => {
                 if (columnDefinition.visible === true) {
                     let column = {};
                     column.allowFiltering = false;
@@ -504,9 +509,11 @@ GridViewComponent.propTypes = {
 
     //buttons
     handleArchiveRow: PropTypes.func,
+    handleAttachmentRow: PropTypes.func,
     handleDocumentRow: PropTypes.func,
     handleCopyRow: PropTypes.func,
     handleDeleteRow: PropTypes.func,
+    handleDownloadRow: PropTypes.func,
     handleRestoreRow: PropTypes.func,
     handlePublishRow: PropTypes.func,
     //other

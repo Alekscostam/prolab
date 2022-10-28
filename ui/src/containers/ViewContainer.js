@@ -4,6 +4,7 @@ import {Breadcrumb} from '../utils/BreadcrumbUtils';
 import Constants from '../utils/Constants';
 import ConsoleHelper from '../utils/ConsoleHelper';
 import LocUtils from '../utils/LocUtils';
+import {AttachmentViewDialog} from './attachmentView/AttachmentViewDialog';
 import {BaseViewContainer} from '../baseContainers/BaseViewContainer';
 
 //
@@ -14,10 +15,13 @@ export class ViewContainer extends BaseViewContainer {
     constructor(props) {
         ConsoleHelper('ViewContainer -> constructor');
         super(props);
-        this.getViewById = this.getViewById.bind(this);
         this.downloadData = this.downloadData.bind(this);
+        this.getViewById = this.getViewById.bind(this);
+        this.getDataByViewResponse = this.getDataByViewResponse.bind(this);
+        this.showAttachmentDialog = this.showAttachmentDialog.bind(this);
     }
 
+    // overide
     downloadData(viewId, recordId, subviewId, filterId, parentId, viewType) {
         let subviewMode = !!recordId && !!viewId;
         if (subviewMode) {
@@ -103,7 +107,16 @@ export class ViewContainer extends BaseViewContainer {
             });
         }
     }
+    showAttachmentDialog(viewId, recordId) {
+        this.setState({
+            attachmentInfo: {
+                viewId,
+                recordId,
+            },
+        });
+    }
 
+    // overide
     getViewById(viewId, recordId, filterId, parentId, viewType, isSubView) {
         this.setState({loading: true}, () => {
             this.viewService
@@ -120,6 +133,7 @@ export class ViewContainer extends BaseViewContainer {
         });
     }
 
+    // overide
     getDataByViewResponse(responseView, parentId) {
         const initFilterId = responseView?.viewInfo?.filterdId;
         const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
@@ -234,7 +248,51 @@ export class ViewContainer extends BaseViewContainer {
             });
         }
     }
-
+    //override
+    additionalTopComponents() {
+        ConsoleHelper('ViewContainer::additionalTopComponents');
+        return this.state.attachmentInfo ? (
+            <AttachmentViewDialog
+                ref={this.viewContainer}
+                recordId={this.state.attachmentInfo.recordId}
+                id={this.state.attachmentInfo.viewId}
+                handleRenderNoRefreshContent={(renderNoRefreshContent) => {
+                    this.setState({renderNoRefreshContent: renderNoRefreshContent});
+                }}
+                handleShowGlobalErrorMessage={(err) => {
+                    this.setState({
+                        attachmentInfo: undefined,
+                    });
+                    this.showGlobalErrorMessage(err);
+                }}
+                handleShowErrorMessages={(err) => {
+                    this.showErrorMessage(err);
+                }}
+                handleShowEditPanel={(editDataResponse) => {
+                    this.handleShowEditPanel(editDataResponse);
+                }}
+                onHide={() =>
+                    this.setState({
+                        attachmentInfo: undefined,
+                    })
+                }
+                handleViewInfoName={(viewInfoName) => {
+                    this.setState({viewInfoName: viewInfoName});
+                }}
+                handleSubView={(subView) => {
+                    this.setState({subView: subView});
+                }}
+                handleOperations={(operations) => {
+                    this.setState({operations: operations});
+                }}
+                handleShortcutButtons={(shortcutButtons) => {
+                    this.setState({shortcutButtons: shortcutButtons});
+                }}
+                collapsed={this.state.collapsed}
+            />
+        ) : null;
+    }
+    //override
     render() {
         return <React.Fragment>{super.render()}</React.Fragment>;
     }

@@ -42,8 +42,6 @@ class GanttViewComponent extends React.Component {
 
         this.state = {
             data: {},
-            /**  zastosowany rowElementsStorage, bo expand click wymusza clearowanie pól checkbox. Dodatkowo onExpand - nie działa*/
-            /** być może podbicie wersji mogłoby pomóc */
             rowElementsStorage: new Map(),
             allElementsSelector: false,
             columns: [],
@@ -166,6 +164,7 @@ class GanttViewComponent extends React.Component {
     render() {
         const showRowLines = this.props.showRowLines;
         const showColumnHeaders = this.props.showColumnHeaders;
+
         // options
         const endDateRange = this.props?.parsedGanttView?.ganttOptions?.endDateRange;
         const startDateRange = this.props?.parsedGanttView?.ganttOptions?.startDateRange;
@@ -211,6 +210,7 @@ class GanttViewComponent extends React.Component {
                     endDateRange={endDateRange}
                     rowAlternationEnabled={false}
                     hoverStateEnabled={true}
+                    width={'100%'}
                     onSelectionChanged={this.onVisibleIndexChange}
                     // Jesli robimy checkboxy to allowSelection w tym miejscu musi byc false
                     allowSelection={false}
@@ -530,11 +530,14 @@ class GanttViewComponent extends React.Component {
                                         handleArchive={() => {
                                             this.props.handleArchiveRow(recordId);
                                         }}
-                                        handlePublish={() => {
-                                            this.props.handlePublish(recordId);
-                                        }}
                                         handleDownload={() => {
                                             this.props.handleDownloadRow(recordId);
+                                        }}
+                                        handleAttachments={() => {
+                                            this.props.handleAttachmentRow(recordId);
+                                        }}
+                                        handlePublish={() => {
+                                            this.props.handlePublish(recordId);
                                         }}
                                         handleCopy={() => {
                                             this.props.handleCopyRow(recordId);
@@ -611,6 +614,8 @@ GanttViewComponent.propTypes = {
     //buttons
     handleArchiveRow: PropTypes.func.isRequired,
     handleCopyRow: PropTypes.func.isRequired,
+    handleDownloadRow: PropTypes.func.isRequired,
+    handleAttachmentRow: PropTypes.func.isRequired,
     handleDeleteRow: PropTypes.func.isRequired,
     handleRestoreRow: PropTypes.func.isRequired,
     handlePublishRow: PropTypes.func.isRequired,

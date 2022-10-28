@@ -25,6 +25,7 @@ export default class CrudService extends BaseService {
         this.copyEntry = this.copyEntry.bind(this);
         this.copy = this.copy.bind(this);
         this.restoreEntry = this.restoreEntry.bind(this);
+        this.attachmentEntry = this.attachmentEntry.bind(this);
         this.restore = this.restore.bind(this);
         this.createObjectToSave = this.createObjectToSave.bind(this);
         this.createObjectToAutoFill = this.createObjectToAutoFill.bind(this);

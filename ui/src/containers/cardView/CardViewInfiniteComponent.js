@@ -326,14 +326,17 @@ class CardViewInfiniteComponent extends React.Component {
                                             handleArchive={() => {
                                                 this.props.handleArchiveRow(recordId);
                                             }}
+                                            handleDownload={() => {
+                                                this.props.handleDownloadRow(recordId);
+                                            }}
+                                            handleAttachments={() => {
+                                                this.props.handleAttachmentRow(recordId);
+                                            }}
                                             handleCopy={() => {
                                                 this.props.handleCopyRow(recordId);
                                             }}
                                             handleDelete={() => {
                                                 this.props.handleDeleteRow(recordId);
-                                            }}
-                                            handleDownload={() => {
-                                                this.props.handleDownloadRow(recordId);
                                             }}
                                             handleRestore={() => {
                                                 this.props.handleRestoreRow(recordId);
@@ -411,6 +414,8 @@ CardViewInfiniteComponent.propTypes = {
     selectedRowKeys: PropTypes.object,
     handleSelectedRowKeys: PropTypes.func, //buttons
     handleArchiveRow: PropTypes.func.isRequired,
+    handleDownload: PropTypes.func.isRequired,
+    handleAttachmentRow: PropTypes.func.isRequired,
     handleCopyRow: PropTypes.func.isRequired,
     handleDeleteRow: PropTypes.func.isRequired,
     handleRestoreRow: PropTypes.func.isRequired,
