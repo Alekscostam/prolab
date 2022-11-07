@@ -19,6 +19,8 @@ import ConsoleHelper from '../utils/ConsoleHelper';
 import {LoadIndicator} from 'devextreme-react';
 import {DataGridUtils} from '../utils/component/DataGridUtils';
 import {EntryResponseUtils} from '../utils/EntryResponseUtils';
+import CrudService from '../services/CrudService';
+import UrlUtils from '../utils/UrlUtils';
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -26,6 +28,7 @@ class BaseContainer extends React.Component {
         this.refDataGrid = null;
         this.service = service;
         this.authService = new AuthService(this.props.backendUrl);
+        this.crudService = new CrudService();
         this.scrollToFirstError = this.scrollToFirstError.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleFormSubmit = this.handleFormSubmit.bind(this);
@@ -49,6 +52,7 @@ class BaseContainer extends React.Component {
         this.handleEditRowSave = this.handleEditRowSave.bind(this);
         this.handleEditRowBlur = this.handleEditRowBlur.bind(this);
         this.handleAutoFillRowChange = this.handleAutoFillRowChange.bind(this);
+        this.handleRightHeadPanelContent = this.handleRightHeadPanelContent.bind(this);
         this.handleCancelRowChange = this.handleCancelRowChange.bind(this);
         this.handleEditListRowChange = this.handleEditListRowChange.bind(this);
         this.getRealViewId = this.getRealViewId.bind(this);
@@ -1020,6 +1024,17 @@ class BaseContainer extends React.Component {
                 this.getRefGridView().instance.getDataSource().reload();
             }
         }
+        if (!!this.getSelectedDataGridRef()) {
+            let id = UrlUtils.getViewIdFromURL();
+            this.downloadData(
+                id,
+                this.state.elementRecordId,
+                this.state.elementSubViewId,
+                this.state.elementFilterId,
+                this.state.elementParentId,
+                this.state.elementViewType
+            );
+        }
     }
 
     reloadOnlyDataGrid() {
@@ -1288,6 +1303,29 @@ class BaseContainer extends React.Component {
             });
     }
 
+    handleRightHeadPanelContent(element) {
+        const elementId = `${element?.id}`;
+        switch (element.type) {
+            case 'OP_PLUGINS':
+            case 'SK_PLUGIN':
+                this.plugin(elementId);
+                break;
+            case 'OP_ATTACHMENTS':
+                this.attachment(elementId);
+                break;
+            case 'OP_DOCUMENTS':
+            case 'SK_DOCUMENT':
+                this.generate(elementId);
+                break;
+            case 'OP_PUBLISH':
+            case 'SK_PUBLISH':
+                this.publishEntry();
+                break;
+            default:
+                return null;
+        }
+    }
+
     getSelectedRowKeysIds(id) {
         return id === undefined || id === null || id === ''
             ? this.state.selectedRowKeys.map((e) => {
@@ -1478,7 +1516,6 @@ class BaseContainer extends React.Component {
         if (Array.isArray(recordId)) {
             recordId = recordId[0];
         }
-
         this.crudService
             .attachmentEntry(viewId, recordId)
             .then((attachmentResponse) => {
@@ -1487,7 +1524,12 @@ class BaseContainer extends React.Component {
                     () => {
                         if (!!attachmentResponse.next) {
                             this.unselectAllDataGrid();
-                            this.showAttachmentDialog(viewId, recordId);
+                            this.setState({
+                                attachmentViewInfo: {
+                                    viewId,
+                                    recordId,
+                                },
+                            });
                             this.unblockUi();
                         } else {
                             this.unblockUi();
@@ -1845,6 +1887,14 @@ class BaseContainer extends React.Component {
 
     getRefCardGrid() {
         return !!this.refCardGrid ? this.refCardGrid : null;
+    }
+
+    getSelectedDataGridRef() {
+        return !!this.selectedDataGrid ? this.selectedDataGrid : null;
+    }
+
+    setSelectedDataGridRef(ref) {
+        this.selectedDataGrid = ref;
     }
 
     getRealViewId() {

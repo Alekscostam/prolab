@@ -1,4 +1,3 @@
-import {Toast} from 'devextreme-react';
 import PropTypes from 'prop-types';
 import React from 'react';
 import ConsoleHelper from '../../utils/ConsoleHelper';
@@ -6,7 +5,6 @@ import LocUtils from '../../utils/LocUtils';
 import DivContainer from '../../components/DivContainer';
 import {BaseViewContainer} from '../../baseContainers/BaseViewContainer';
 import {Dialog} from 'primereact/dialog';
-import BlockUi from '../../components/waitPanel/BlockUi';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -17,9 +15,6 @@ export class AttachmentViewDialog extends BaseViewContainer {
         super(props);
         this.getViewById = this.getViewById.bind(this);
         this.downloadData = this.downloadData.bind(this);
-        this.state = {
-            loading: undefined,
-        };
     }
 
     downloadData(viewId, recordId, subviewId, filterId, parentId, viewType) {
@@ -36,24 +31,22 @@ export class AttachmentViewDialog extends BaseViewContainer {
         ConsoleHelper(
             `AttachmentViewDialog::getViewById: viewId=${viewId}, isSubView=${isSubView} recordId=${recordId}, filterId=${filterId}, parentId=${parentId}, viewType=${viewType},`
         );
-        if (this.state.loading === undefined) {
-            this.setState({loading: true}, () => {
-                this.viewService
-                    .getAttachemntView(viewId, recordId)
-                    .then((responseView) => {
-                        this.setState({
-                            elementSubViewId: responseView.viewInfo.id,
-                        });
-                        this.processViewResponse(responseView, parentId, recordId, isSubView);
-                    })
-                    .catch((err) => {
-                        console.error('Error getView in GridView. Exception = ', err);
-                        this.setState({loading: false}, () => {
-                            this.props.handleShowGlobalErrorMessage(err); //'Nie udało się pobrać danych strony o id: ' + viewId);
-                        });
+        this.setState({loading: true}, () => {
+            this.viewService
+                .getAttachemntView(viewId, recordId)
+                .then((responseView) => {
+                    this.setState({
+                        elementSubViewId: responseView.viewInfo.id,
                     });
-            });
-        }
+                    this.processViewResponse(responseView, parentId, recordId, isSubView);
+                })
+                .catch((err) => {
+                    console.error('Error getView in GridView. Exception = ', err);
+                    this.setState({loading: false}, () => {
+                        this.props.handleShowGlobalErrorMessage(err); //'Nie udało się pobrać danych strony o id: ' + viewId);
+                    });
+                });
+        });
     }
 
     // @override
@@ -99,7 +92,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
                             selectAll: false,
                         },
                         () => {
-                            this.props.showErrorMessages(err);
+                            this.props.handleShowErrorMessages(err.error.message);
                             this.unblockUi();
                         }
                     );

@@ -20,6 +20,7 @@ import GridViewComponent from '../dataGrid/GridViewComponent';
 import ConsoleHelper from '../../utils/ConsoleHelper';
 import LocUtils from '../../utils/LocUtils';
 import {Toast} from 'primereact/toast';
+import {AttachmentViewDialog} from '../attachmentView/AttachmentViewDialog';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -248,43 +249,85 @@ export class DashboardGridViewComponent extends BaseContainer {
         return (
             <React.Fragment>
                 <React.Fragment>
-                    <EditRowComponent
-                        visibleEditPanel={this.state.visibleEditPanel}
-                        editData={this.state.editData}
-                        onChange={this.handleEditRowChange}
-                        onBlur={this.handleEditRowBlur}
-                        onSave={this.handleEditRowSave}
-                        onAutoFill={this.handleAutoFillRowChange}
-                        onEditList={this.handleEditListRowChange}
-                        onCancel={this.handleCancelRowChange}
-                        validator={this.validator}
-                        onHide={(e, viewId, recordId, parentId) =>
-                            !!this.state.modifyEditData
-                                ? confirmDialog({
-                                      appendTo: document.body,
-                                      message: LocUtils.loc(
-                                          this.props.labels,
-                                          'Question_Close_Edit',
-                                          'Czy na pewno chcesz zamknąć edycję?'
-                                      ),
-                                      header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
-                                      icon: 'pi pi-exclamation-triangle',
-                                      acceptLabel: localeOptions('accept'),
-                                      rejectLabel: localeOptions('reject'),
-                                      accept: () => {
+                    {this.state.visibleEditPanel ? (
+                        <EditRowComponent
+                            visibleEditPanel={this.state.visibleEditPanel}
+                            editData={this.state.editData}
+                            onChange={this.handleEditRowChange}
+                            onBlur={this.handleEditRowBlur}
+                            onSave={this.handleEditRowSave}
+                            onAutoFill={this.handleAutoFillRowChange}
+                            onEditList={this.handleEditListRowChange}
+                            onCancel={this.handleCancelRowChange}
+                            validator={this.validator}
+                            onHide={(e, viewId, recordId, parentId) =>
+                                !!this.state.modifyEditData
+                                    ? confirmDialog({
+                                          appendTo: document.body,
+                                          message: LocUtils.loc(
+                                              this.props.labels,
+                                              'Question_Close_Edit',
+                                              'Czy na pewno chcesz zamknąć edycję?'
+                                          ),
+                                          header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
+                                          icon: 'pi pi-exclamation-triangle',
+                                          acceptLabel: localeOptions('accept'),
+                                          rejectLabel: localeOptions('reject'),
+                                          accept: () => {
+                                              this.handleCancelRowChange(viewId, recordId, parentId);
+                                              this.setState({visibleEditPanel: e});
+                                          },
+                                          reject: () => undefined,
+                                      })
+                                    : this.setState({visibleEditPanel: e}, () => {
                                           this.handleCancelRowChange(viewId, recordId, parentId);
-                                          this.setState({visibleEditPanel: e});
-                                      },
-                                      reject: () => undefined,
-                                  })
-                                : this.setState({visibleEditPanel: e}, () => {
-                                      this.handleCancelRowChange(viewId, recordId, parentId);
-                                  })
-                        }
-                        onError={(e) => this.showErrorMessage(e)}
-                        labels={this.props.labels}
-                        showErrorMessages={(err) => this.showErrorMessages(err)}
-                    />
+                                      })
+                            }
+                            onError={(e) => this.showErrorMessage(e)}
+                            labels={this.props.labels}
+                            showErrorMessages={(err) => this.showErrorMessages(err)}
+                        />
+                    ) : null}
+                    {this.state.attachmentViewInfo ? (
+                        <AttachmentViewDialog
+                            ref={this.viewContainer}
+                            recordId={this.state.attachmentViewInfo.recordId}
+                            id={this.state.attachmentViewInfo.viewId}
+                            handleRenderNoRefreshContent={(renderNoRefreshContent) => {
+                                this.setState({renderNoRefreshContent: renderNoRefreshContent});
+                            }}
+                            handleShowGlobalErrorMessage={(err) => {
+                                this.setState({
+                                    attachmentViewInfo: undefined,
+                                });
+                                this.showGlobalErrorMessage(err);
+                            }}
+                            handleShowErrorMessages={(err) => {
+                                this.showErrorMessage(err);
+                            }}
+                            handleShowEditPanel={(editDataResponse) => {
+                                this.handleShowEditPanel(editDataResponse);
+                            }}
+                            onHide={() =>
+                                this.setState({
+                                    attachmentViewInfo: undefined,
+                                })
+                            }
+                            handleViewInfoName={(viewInfoName) => {
+                                this.setState({viewInfoName: viewInfoName});
+                            }}
+                            handleSubView={(subView) => {
+                                this.setState({subView: subView});
+                            }}
+                            handleOperations={(operations) => {
+                                this.setState({operations: operations});
+                            }}
+                            handleShortcutButtons={(shortcutButtons) => {
+                                this.setState({shortcutButtons: shortcutButtons});
+                            }}
+                            collapsed={this.state.collapsed}
+                        />
+                    ) : null}
                 </React.Fragment>
             </React.Fragment>
         );

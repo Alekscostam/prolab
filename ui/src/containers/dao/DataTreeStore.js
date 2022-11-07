@@ -1,7 +1,7 @@
 import 'devextreme/dist/css/dx.light.css';
 import 'whatwg-fetch';
 import BaseService from '../../services/BaseService';
-import {decompress} from "int-compress-string/src";
+import {decompress} from 'int-compress-string/src';
 
 export default class DataTreeStore extends BaseService {
     constructor() {
@@ -14,13 +14,22 @@ export default class DataTreeStore extends BaseService {
         // const filterIdParam = !!filterIdArg ? `&filterId=${filterIdArg}` : '';
         let url = `${this.domain}/${this.path}/${viewIdArg}/editspec/${parentIdArg}/data`;
         url = this.commonCorrectUrl(url);
-        return this.fetch(
-            url,
-            {
-                method: 'POST',
-                body: JSON.stringify({listId: decompress(listIdArray)}),
-            }
-        ).catch((err) => {
+        return this.fetch(url, {
+            method: 'POST',
+            body: JSON.stringify({listId: decompress(listIdArray)}),
+        }).catch((err) => {
+            throw err;
+        });
+    }
+
+    getAddSpecDataTreeStoreDirect(viewIdArg, parentIdArg) {
+        // const recordIdParam = UrlUtils.getUrlParams('recordId', recordArray)
+        // const filterIdParam = !!filterIdArg ? `&filterId=${filterIdArg}` : '';
+        let url = `${this.domain}/${this.path}/${viewIdArg}/addspec/${parentIdArg}/data`;
+        url = this.commonCorrectUrl(url);
+        return this.fetch(url, {
+            method: 'GET',
+        }).catch((err) => {
             throw err;
         });
     }
@@ -33,5 +42,4 @@ export default class DataTreeStore extends BaseService {
         }
         return correctUrl;
     }
-
 }

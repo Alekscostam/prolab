@@ -1,22 +1,22 @@
 import React from 'react';
-import PropTypes from "prop-types";
-import DataGrid, {Column} from "devextreme-react/data-grid";
-import {DataGridUtils} from "../../utils/component/DataGridUtils";
-import ReactDOM from "react-dom";
-import ShortcutButton from "../../components/prolab/ShortcutButton";
-import ActionButtonWithMenu from "../../components/prolab/ActionButtonWithMenu";
-import ConsoleHelper from "../../utils/ConsoleHelper";
-import GridViewMinimizeComponent from "./GridViewMinimizeComponent";
-import {readObjFromCookieGlobal, saveObjToCookieGlobal} from "../../utils/Cookie";
+import PropTypes from 'prop-types';
+import DataGrid, {Column} from 'devextreme-react/data-grid';
+import {DataGridUtils} from '../../utils/component/DataGridUtils';
+import ReactDOM from 'react-dom';
+import ShortcutButton from '../../components/prolab/ShortcutButton';
+import ActionButtonWithMenu from '../../components/prolab/ActionButtonWithMenu';
+import ConsoleHelper from '../../utils/ConsoleHelper';
+import GridViewMinimizeComponent from './GridViewMinimizeComponent';
+import {readObjFromCookieGlobal, saveObjToCookieGlobal} from '../../utils/Cookie';
+import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils';
 
 class SubGridViewComponent extends React.Component {
-
     constructor(props) {
         super(props);
         ConsoleHelper('subGridViewComponent::constructor');
-        let minimizeCache = readObjFromCookieGlobal("SUB_GRID_VIEW_MINIMIZE");
+        let minimizeCache = readObjFromCookieGlobal('SUB_GRID_VIEW_MINIMIZE');
         this.state = {
-            minimize: minimizeCache === true
+            minimize: minimizeCache === true,
         };
     }
 
@@ -29,14 +29,15 @@ class SubGridViewComponent extends React.Component {
         }
         const viewId = this.props.subView?.viewInfo?.id;
         const nextViewId = nextProps.subView?.viewInfo?.id;
-        const currentUrl = window.location.href
+        const currentUrl = window.location.href;
         if (viewId === nextViewId || currentUrl.includes('force=')) {
-            ConsoleHelper('subGridViewComponent::shouldComponentUpdate update=false')
+            ConsoleHelper('subGridViewComponent::shouldComponentUpdate update=false');
             return false;
         }
-        ConsoleHelper('subGridViewComponent::shouldComponentUpdate update=true')
+        ConsoleHelper('subGridViewComponent::shouldComponentUpdate update=true');
         return true;
     }
+    componentDidUpdate() {}
 
     render() {
         //TODO jak będzie potrzeba przepiąć guziki na OperationsRecordButtons
@@ -53,6 +54,7 @@ class SubGridViewComponent extends React.Component {
                 menuItems.push(operation);
             }
         });
+
         let showMenu = menuItems.length > 0;
         let widthTmp = 0;
         if (showMenu) {
@@ -66,20 +68,26 @@ class SubGridViewComponent extends React.Component {
         const subViewMode = !!this.props.subView;
         const viewId = this.props.subView?.viewInfo?.id;
         const recordId = this.props.subView?.headerData[0]?.ID;
-        this.props.subView?.headerColumns?.filter((c) => c.visible === true).map((c) => {
-            return c
-        });
+        this.props.subView?.headerColumns
+            ?.filter((c) => c.visible === true)
+            .map((c) => {
+                return c;
+            });
         return (
             <React.Fragment>
                 {subViewMode ? (
                     <div id='selection-row' className='float-left width-100'>
-                        {this.state.minimize ?
-                            <GridViewMinimizeComponent subView={this.props.subView} onClick={() => {
-                                this.setState({minimize: false}, () => {
-                                    saveObjToCookieGlobal("SUB_GRID_VIEW_MINIMIZE", false);
-                                    this.forceUpdate();
-                                });
-                            }}/> :
+                        {this.state.minimize ? (
+                            <GridViewMinimizeComponent
+                                subView={this.props.subView}
+                                onClick={() => {
+                                    this.setState({minimize: false}, () => {
+                                        saveObjToCookieGlobal('SUB_GRID_VIEW_MINIMIZE', false);
+                                        this.forceUpdate();
+                                    });
+                                }}
+                            />
+                        ) : (
                             <div className='maximalized-sub-view'>
                                 <DataGrid
                                     id='selection-data-grid'
@@ -122,7 +130,7 @@ class SubGridViewComponent extends React.Component {
                                                             handleClick={(e) => {
                                                                 e.viewId = viewId;
                                                                 e.recordId = recordId;
-                                                                this.props.handleOnEditClick(e)
+                                                                this.props.handleOnEditClick(e);
                                                             }}
                                                             label={''}
                                                             rendered={showEditButton}
@@ -131,7 +139,12 @@ class SubGridViewComponent extends React.Component {
                                                             id='more_shortcut'
                                                             iconName='mdi-dots-vertical'
                                                             className={``}
-                                                            items={menuItems}
+                                                            items={ActionButtonWithMenuUtils.createItemsWithCommand(
+                                                                menuItems,
+                                                                undefined,
+                                                                this.props.handleRightHeadPanelContent,
+                                                                undefined
+                                                            )}
                                                             rendered={showMenu}
                                                             title={labels['View_AdditionalOptions']}
                                                         />
@@ -142,16 +155,22 @@ class SubGridViewComponent extends React.Component {
                                         />
                                     ) : null}
                                 </DataGrid>
-                                <div className="arrow-open" onClick={() => {
-                                    this.setState({
-                                        minimize: true
-                                    }, () => {
-                                        saveObjToCookieGlobal("SUB_GRID_VIEW_MINIMIZE", true);
-                                        this.forceUpdate();
-                                    });
-                                }}/>
+                                <div
+                                    className='arrow-open'
+                                    onClick={() => {
+                                        this.setState(
+                                            {
+                                                minimize: true,
+                                            },
+                                            () => {
+                                                saveObjToCookieGlobal('SUB_GRID_VIEW_MINIMIZE', true);
+                                                this.forceUpdate();
+                                            }
+                                        );
+                                    }}
+                                />
                             </div>
-                        }
+                        )}
                     </div>
                 ) : null}
             </React.Fragment>

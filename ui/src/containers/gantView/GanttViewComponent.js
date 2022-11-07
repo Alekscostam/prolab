@@ -29,16 +29,16 @@ import {TreeListUtils} from '../../utils/component/TreeListUtils';
 
 let _selectionClassName = 'checkBoxSelection';
 
+const UNCOLLAPSED_CUT_SIZE = 327;
+const COLLAPSED_CUT_SIZE = 140;
+
 class GanttViewComponent extends React.Component {
     constructor(props) {
         super(props);
         this.crudService = new CrudService();
         this.ganttRef = React.createRef();
-        this.dataGantt = null;
         this.dataGanttStore = new DataGanttStore();
         this.labels = this.props;
-        this.pinterestRef = React.createRef();
-        this.pinterestRef.current = [];
 
         this.state = {
             data: {},
@@ -133,7 +133,7 @@ class GanttViewComponent extends React.Component {
 
     datasInitialization(res) {
         let rowElementsStorage = new Map();
-        for (let index = 0; index < res.totalCount; index++) {
+        for (let index = 0; index < res.data.length; index++) {
             let array = [
                 {
                     id: res.data[index].ID,
@@ -165,7 +165,9 @@ class GanttViewComponent extends React.Component {
         const showRowLines = this.props.showRowLines;
         const showColumnHeaders = this.props.showColumnHeaders;
 
-        // options
+        const brawserWidth = document.body.offsetWidth;
+        const width = this.props.collapsed ? brawserWidth - COLLAPSED_CUT_SIZE : brawserWidth - UNCOLLAPSED_CUT_SIZE;
+
         const endDateRange = this.props?.parsedGanttView?.ganttOptions?.endDateRange;
         const startDateRange = this.props?.parsedGanttView?.ganttOptions?.startDateRange;
         const isDependencies = this.props?.parsedGanttView?.ganttOptions?.isDependencies;
@@ -210,7 +212,7 @@ class GanttViewComponent extends React.Component {
                     endDateRange={endDateRange}
                     rowAlternationEnabled={false}
                     hoverStateEnabled={true}
-                    width={'100%'}
+                    width={width}
                     onSelectionChanged={this.onVisibleIndexChange}
                     // Jesli robimy checkboxy to allowSelection w tym miejscu musi byc false
                     allowSelection={false}

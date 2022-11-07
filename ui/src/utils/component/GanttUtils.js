@@ -132,25 +132,25 @@ export class GanttUtils extends ViewDataCompUtils {
                         element
                     );
                 case 'O':
-                    element.innerHTML =
-                        '<div className="limited-text" id="innerHTML" ' +
-                        'title="' +
-                        StringUtils.textFromHtmlString(info.text) +
-                        '"  ' +
-                        'style=' +
-                        'border-radius: 25px; ' +
-                        'padding: 2px 6px 2px 6px; ' +
-                        'background-color: ' +
-                        bgColorFinal +
-                        '; ' +
-                        'color: ' +
-                        fontColorFinal +
-                        ';">' +
-                        '<p style="" >' +
-                        info.text +
-                        '</p>' +
-                        '</div>';
-                    break;
+                    return ReactDOM.render(
+                        <div
+                            style={{
+                                // display: 'inline',
+                                whiteSpace: 'nowrap',
+                                maxWidth: column.width + 'px',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                backgroundColor: bgColorFinal,
+                                color: fontColorFinal,
+                                borderRadius: '25px',
+                                padding: '2px 6px 2px 6px',
+                            }}
+                            title={StringUtils.textFromHtmlString(info.text)}
+                        >
+                            {StringUtils.textFromHtmlString(info.text)}
+                        </div>,
+                        element
+                    );
                 case 'B':
                     return ReactDOM.render(
                         <div

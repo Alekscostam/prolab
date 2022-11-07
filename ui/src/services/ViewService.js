@@ -36,7 +36,6 @@ export default class ViewService extends BaseService {
     }
 
     getAttachemntView(viewId, recordId) {
-
         if (Array.isArray(recordId)) {
             recordId = recordId[0];
         }
@@ -53,6 +52,14 @@ export default class ViewService extends BaseService {
 
     getViewSpec(viewId, parentId) {
         return this.fetch(`${this.domain}/${this.path}/${viewId}/editspec/${parentId}`, {
+            method: 'GET',
+        }).catch((err) => {
+            throw err;
+        });
+    }
+
+    getViewAddSpec(viewId, parentId) {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/addspec/${parentId}`, {
             method: 'GET',
         }).catch((err) => {
             throw err;

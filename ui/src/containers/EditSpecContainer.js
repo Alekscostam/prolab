@@ -21,6 +21,7 @@ import DivContainer from '../components/DivContainer';
 import {confirmDialog} from 'primereact/confirmdialog';
 import {localeOptions} from 'primereact/api';
 import ActionButtonWithMenuUtils from '../utils/ActionButtonWithMenuUtils';
+import {AddSpecContainer} from './AddSpecContainer';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -38,6 +39,8 @@ export class EditSpecContainer extends BaseContainer {
         this.messages = React.createRef();
         this.state = {
             loading: true,
+            levelId: undefined,
+            visibleAddSpec: false,
             elementParentId: null,
             elementRecordId: null,
             elementFilterId: null,
@@ -46,7 +49,9 @@ export class EditSpecContainer extends BaseContainer {
             selectedRowKeys: [],
         };
         this.getViewById = this.getViewById.bind(this);
+        this.showAddSpecDialog = this.showAddSpecDialog.bind(this);
         this.downloadData = this.downloadData.bind(this);
+        this.getMaxViewid = this.getMaxViewid.bind(this);
         this.blockUi();
     }
 
@@ -130,6 +135,7 @@ export class EditSpecContainer extends BaseContainer {
                 .then((responseView) => {
                     let refactorResponseView = {
                         ...responseView,
+
                         viewInfo: {
                             id: responseView.editInfo.viewId,
                             name: responseView.editInfo.viewName,
@@ -372,21 +378,7 @@ export class EditSpecContainer extends BaseContainer {
                     label={opAdd?.label}
                     className='ml-2'
                     handleClick={(e) => {
-                        let newElement = {};
-                        const listColumns = this.state.parsedView.gridColumns[0].columns;
-                        listColumns?.forEach((column) => {
-                            switch (column?.type) {
-                                default:
-                                    newElement[column?.fieldName] = '';
-                            }
-                        });
-                        //TODO generatorek ID
-                        newElement['ID'] = Math.random().toString(16).slice(2);
-                        let addParsedView = this.state.parsedData || [];
-                        addParsedView.push(newElement);
-                        this.setState({parsedData: addParsedView}, () => {
-                            this.refreshTable();
-                        });
+                        this.showAddSpecDialog();
                     }}
                 />
                 <ActionButton
@@ -401,6 +393,17 @@ export class EditSpecContainer extends BaseContainer {
                 />
             </React.Fragment>
         );
+    }
+
+    handleAddElements(elements) {
+        let addParsedView = (this.state.parsedData || []).concat(elements);
+        this.setState({parsedData: addParsedView}, () => {
+            this.refreshTable();
+        });
+    }
+
+    showAddSpecDialog(recordId) {
+        this.setState({visibleAddSpec: true, levelId: recordId});
     }
 
     handleEditSpecSave(viewId, parentId) {
@@ -425,6 +428,14 @@ export class EditSpecContainer extends BaseContainer {
 
     //override
     specSave = (viewId, parentId, saveElement, confirmSave) => {
+        saveElement.forEach((array) => {
+            array.forEach((el) => {
+                if (el.fieldName === '_STATUS' && el.value === 'inserted') {
+                    let idRow = array[0];
+                    idRow.value = 0;
+                }
+            });
+        });
         this.blockUi();
         this.crudService
             .saveSpec(viewId, parentId, saveElement, confirmSave)
@@ -549,13 +560,19 @@ export class EditSpecContainer extends BaseContainer {
     //usunięcie pojedyńczego rekordu
     deleteSingleRow(id) {
         let data = this.getData();
-        const index = data.findIndex((x) => x.ID === id);
-        if (index !== undefined) {
-            data.splice(index, 1);
-            this.updateData(data, () => {
-                this.refreshTable();
-            });
+        let el = data.find((x) => x.ID === id);
+
+        if (el._STATUS === 'inserted') {
+            const index = data.findIndex((x) => x.ID === id);
+            if (index !== undefined) {
+                data.splice(index, 1);
+            }
+        } else {
+            el._STATUS = 'deleted';
         }
+        this.updateData(data, () => {
+            this.refreshTable();
+        });
     }
 
     //metoda przenosi rekord o poziom wyżej
@@ -594,6 +611,8 @@ export class EditSpecContainer extends BaseContainer {
         });
     }
 
+    getMaxViewid() {}
+
     //metoda usuwa wszytkie sortowania z kolumn
     disableAllSort() {
         this.refTreeList?.instance?.clearSorting();
@@ -602,6 +621,10 @@ export class EditSpecContainer extends BaseContainer {
     //metoda pobiera aktualne stan danych komponentu
     getData() {
         return this.state.parsedData;
+    }
+
+    getLastId() {
+        return Math.max(...this.state.parsedData.map((el) => el._ID));
     }
 
     refreshTable(callbackAction) {
@@ -615,6 +638,7 @@ export class EditSpecContainer extends BaseContainer {
 
     //override
     renderContent = () => {
+        const parsedData = this.state.parsedData.filter((el) => el._STATUS !== 'deleted');
         return (
             <React.Fragment>
                 {this.state.loading ? null : (
@@ -627,7 +651,7 @@ export class EditSpecContainer extends BaseContainer {
                                 elementRecordId={this.state.elementRecordId}
                                 handleOnTreeList={(ref) => (this.refTreeList = ref)}
                                 parsedGridView={this.state.parsedView}
-                                parsedGridViewData={this.state.parsedData}
+                                parsedGridViewData={parsedData}
                                 gridViewColumns={this.state.columns}
                                 selectedRowKeys={this.state.selectedRowKeys}
                                 onChange={(type, e, rowId, info) => this.handleEditRowChange(type, e, rowId, info)}
@@ -652,7 +676,9 @@ export class EditSpecContainer extends BaseContainer {
                                 handleAttachments={(id) => {
                                     this.props.handleAttachmentRow(id);
                                 }}
-                                handleAddLevel={(id) => alert(id)}
+                                handleAddLevel={(id) => {
+                                    this.showAddSpecDialog(id);
+                                }}
                                 handleUp={(id) => this.up(id)}
                                 handleDown={(id) => this.down(id)}
                                 handleRestoreRow={(id) => this.restore(id)}
@@ -671,6 +697,21 @@ export class EditSpecContainer extends BaseContainer {
                                 labels={this.props.labels}
                             />
                         </div>
+                        {this.state.visibleAddSpec ? (
+                            <AddSpecContainer
+                                ref={this.addSpecContainer}
+                                lastId={this.getLastId()}
+                                id={this.props.id}
+                                levelId={this.state.levelId}
+                                handleAddElements={(el) => this.handleAddElements(el)}
+                                onHide={() =>
+                                    this.setState({
+                                        visibleAddSpec: false,
+                                    })
+                                }
+                                collapsed={this.props.collapsed}
+                            />
+                        ) : null}
                     </React.Fragment>
                 )}
             </React.Fragment>

@@ -1,14 +1,15 @@
-import Constants from "../Constants";
-import moment from "moment";
-import ConsoleHelper from "../ConsoleHelper";
+import Constants from '../Constants';
+import moment from 'moment';
+import ConsoleHelper from '../ConsoleHelper';
 
 export class ViewDataCompUtils {
-
     static containsOperationsButton(operations, type) {
         for (let button in operations) {
-            if (operations[button]
-                && operations[button].type
-                && operations[button].type.toUpperCase() === type.toUpperCase()) {
+            if (
+                operations[button] &&
+                operations[button].type &&
+                operations[button].type.toUpperCase() === type.toUpperCase()
+            ) {
                 return operations[button];
             }
         }
@@ -109,7 +110,7 @@ export class ViewDataCompUtils {
         if (format) {
             switch (format) {
                 case 'T':
-                    return {type: "time"};
+                    return {type: 'time'};
                 default:
                     return undefined;
             }
@@ -118,11 +119,11 @@ export class ViewDataCompUtils {
     }
 
     static conditionForTrueValueForLogicType(text) {
-        return text === "T" || text === "t";
+        return text === 'T' || text === 't';
     }
 
     static conditionForTrueValueForBoolType(text) {
-        return text === "1" || text === 1;
+        return text === '1' || text === 1;
     }
 
     static equalString(s1, s2) {
@@ -158,7 +159,7 @@ export class ViewDataCompUtils {
     }
 
     static notEqualNumbers(n1, n2) {
-        return !ViewDataCompUtils.equalNumbers(n1, n2)
+        return !ViewDataCompUtils.equalNumbers(n1, n2);
     }
 
     static getDefaultSortOrder(value) {
@@ -176,17 +177,26 @@ export class ViewDataCompUtils {
     }
 
     static getRealViewId(elementSubViewId, elementId) {
-        return elementSubViewId ? elementSubViewId : elementId
+        return elementSubViewId ? elementSubViewId : elementId;
     }
 
     static calculateCustomFilterExpression(value, operations, target, columnDefinition) {
-        ConsoleHelper('calculateFilterExpression:: value: %s operations: %s target: %s columnDefinition: %s', value, operations, target, JSON.stringify(columnDefinition))
+        ConsoleHelper(
+            'calculateFilterExpression:: value: %s operations: %s target: %s columnDefinition: %s',
+            value,
+            operations,
+            target,
+            JSON.stringify(columnDefinition)
+        );
         try {
             if (!!columnDefinition) {
-                if (operations === "between") {
+                if (operations === 'between') {
                     let dateFormatted1 = this.formatDateFilterExpression(columnDefinition.type, value[0]);
                     let dateFormatted2 = this.formatDateFilterExpression(columnDefinition.type, value[1]);
-                    return this.customFilterExpression(operations, columnDefinition.fieldName, [dateFormatted1, dateFormatted2]);
+                    return this.customFilterExpression(operations, columnDefinition.fieldName, [
+                        dateFormatted1,
+                        dateFormatted2,
+                    ]);
                 } else {
                     const dateFormatted = this.formatDateFilterExpression(columnDefinition.type, value);
                     return this.customFilterExpression(operations, columnDefinition.fieldName, dateFormatted);
@@ -199,10 +209,10 @@ export class ViewDataCompUtils {
 
     static formatDateFilterExpression(type, value) {
         const dateMoment = moment(value);
-        if (type === "D") {
-            return dateMoment.format(Constants.DATE_FORMAT.DATE_FORMAT_MOMENT)
-        } else if (type === "E") {
-            return dateMoment.format(Constants.DATE_FORMAT.DATE_TIME_FORMAT_MOMENT)
+        if (type === 'D') {
+            return dateMoment.format(Constants.DATE_FORMAT.DATE_FORMAT_MOMENT);
+        } else if (type === 'E') {
+            return dateMoment.format(Constants.DATE_FORMAT.DATE_TIME_FORMAT_MOMENT);
         } else {
             throw new Error('BAD_TYPE');
         }
@@ -237,6 +247,4 @@ export class ViewDataCompUtils {
         }
         return widthTmp;
     }
-
-
 }

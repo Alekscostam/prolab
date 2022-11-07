@@ -45,6 +45,7 @@ import {ConfirmDialog, confirmDialog} from 'primereact/confirmdialog';
 //
 let dataGrid;
 
+// BaseViewContainer dla ViewContainer i AttachmentViewDialog
 export class BaseViewContainer extends BaseContainer {
     _isMounted = false;
     defaultKindView = 'View';
@@ -179,6 +180,7 @@ export class BaseViewContainer extends BaseContainer {
             id = this.props.id;
         }
         const subViewId = UrlUtils.getURLParameter('subview');
+
         const recordId = this.props.recordId || UrlUtils.getURLParameter('recordId');
         const filterId = UrlUtils.getURLParameter('filterId');
         const viewType = UrlUtils.getURLParameter('viewType');
@@ -343,7 +345,7 @@ export class BaseViewContainer extends BaseContainer {
                     selectAll: false,
                     isSelectAll: false,
                     visibleEditPanel: false,
-                    attachmentInfo: null,
+                    attachmentViewInfo: null,
                     visibleUploadFile: false,
                     visiblePluginPanel: false,
                     visibleCopyDialog: false,
@@ -375,6 +377,9 @@ export class BaseViewContainer extends BaseContainer {
             case 'OP_DOCUMENTS':
             case 'SK_DOCUMENT':
                 this.generate(elementId);
+                break;
+            case 'OP_ATTACHMENTS':
+                this.attachment(elementId);
                 break;
             case 'OP_PUBLISH':
             case 'SK_PUBLISH':
@@ -1375,6 +1380,7 @@ export class BaseViewContainer extends BaseContainer {
                             <React.Fragment>
                                 <GanttViewComponent
                                     id={this.props.id}
+                                    collapsed={this.props.collapsed}
                                     elementSubViewId={this.state.elementSubViewId}
                                     elementKindView={this.state.elementKindView}
                                     elementRecordId={this.state.elementRecordId}

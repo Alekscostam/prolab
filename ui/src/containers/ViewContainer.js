@@ -18,7 +18,7 @@ export class ViewContainer extends BaseViewContainer {
         this.downloadData = this.downloadData.bind(this);
         this.getViewById = this.getViewById.bind(this);
         this.getDataByViewResponse = this.getDataByViewResponse.bind(this);
-        this.showAttachmentDialog = this.showAttachmentDialog.bind(this);
+        this.additionalTopComponents = this.additionalTopComponents.bind(this);
     }
 
     // overide
@@ -107,14 +107,6 @@ export class ViewContainer extends BaseViewContainer {
             });
         }
     }
-    showAttachmentDialog(viewId, recordId) {
-        this.setState({
-            attachmentInfo: {
-                viewId,
-                recordId,
-            },
-        });
-    }
 
     // overide
     getViewById(viewId, recordId, filterId, parentId, viewType, isSubView) {
@@ -140,11 +132,11 @@ export class ViewContainer extends BaseViewContainer {
         const parentIdArg = this.state.subView == null ? parentId : this.state.elementRecordId;
         const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId;
         const kindViewArg = this.state.kindView;
+        const dataPackageSize = this.state.parsedGridView?.viewInfo?.dataPackageSize;
+        const packageCount =
+            !!dataPackageSize || dataPackageSize === 0 ? Constants.DEFAULT_DATA_PACKAGE_COUNT : dataPackageSize;
         if (this.isCardView()) {
             this.setState({loading: true}, () => {
-                const dataPackageSize = this.state.parsedGridView?.viewInfo?.dataPackageSize;
-                const packageCount =
-                    !!dataPackageSize || dataPackageSize === 0 ? Constants.DEFAULT_DATA_PACKAGE_COUNT : dataPackageSize;
                 let res = this.dataCardStore.getDataCardStore(
                     viewIdArg,
                     {
@@ -251,17 +243,17 @@ export class ViewContainer extends BaseViewContainer {
     //override
     additionalTopComponents() {
         ConsoleHelper('ViewContainer::additionalTopComponents');
-        return this.state.attachmentInfo ? (
+        return this.state.attachmentViewInfo ? (
             <AttachmentViewDialog
                 ref={this.viewContainer}
-                recordId={this.state.attachmentInfo.recordId}
-                id={this.state.attachmentInfo.viewId}
+                recordId={this.state.attachmentViewInfo.recordId}
+                id={this.state.attachmentViewInfo.viewId}
                 handleRenderNoRefreshContent={(renderNoRefreshContent) => {
                     this.setState({renderNoRefreshContent: renderNoRefreshContent});
                 }}
                 handleShowGlobalErrorMessage={(err) => {
                     this.setState({
-                        attachmentInfo: undefined,
+                        attachmentViewInfo: undefined,
                     });
                     this.showGlobalErrorMessage(err);
                 }}
@@ -273,7 +265,7 @@ export class ViewContainer extends BaseViewContainer {
                 }}
                 onHide={() =>
                     this.setState({
-                        attachmentInfo: undefined,
+                        attachmentViewInfo: undefined,
                     })
                 }
                 handleViewInfoName={(viewInfoName) => {
