@@ -9,6 +9,7 @@ import ConsoleHelper from '../../utils/ConsoleHelper';
 import GridViewMinimizeComponent from './GridViewMinimizeComponent';
 import {readObjFromCookieGlobal, saveObjToCookieGlobal} from '../../utils/Cookie';
 import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils';
+import UrlUtils from '../../utils/UrlUtils';
 
 class SubGridViewComponent extends React.Component {
     constructor(props) {
@@ -130,11 +131,12 @@ class SubGridViewComponent extends React.Component {
                                                             handleClick={(e) => {
                                                                 e.viewId = viewId;
                                                                 e.recordId = recordId;
+                                                                e.parentId = UrlUtils.getURLParameter('parentId');
                                                                 this.props.handleOnEditClick(e);
                                                             }}
-                                                            label={''}
                                                             rendered={showEditButton}
                                                         />
+
                                                         <ActionButtonWithMenu
                                                             id='more_shortcut'
                                                             iconName='mdi-dots-vertical'

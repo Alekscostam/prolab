@@ -268,6 +268,7 @@ class DashboardContainer extends BaseContainer {
                     id={item.id}
                     key={item.id}
                     subViewId={undefined}
+                    parentId={cardViewId}
                     recordId={recordId}
                     filterId={undefined}
                     viewType={'dashboard'}

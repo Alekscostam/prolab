@@ -267,6 +267,7 @@ export class BaseViewContainer extends BaseContainer {
             if (id === undefined) {
                 id = this.props.id;
             }
+
             Breadcrumb.updateView(responseView.viewInfo, id, recordId);
             let gridViewColumnsTmp = [];
             let pluginsListTmp = [];
@@ -1133,6 +1134,7 @@ export class BaseViewContainer extends BaseContainer {
                                             }
                                         });
                                         const subViewId = args.value.id;
+                                        const parentId = UrlUtils.getURLParameter('parentId');
                                         const viewInfoId = this.state.subView.viewInfo.id;
                                         const recordId = this.state.elementRecordId;
                                         const kindView = !!this.state.subView.viewInfo?.kindView
@@ -1140,7 +1142,7 @@ export class BaseViewContainer extends BaseContainer {
                                             : this.defaultKindView;
                                         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
                                         window.location.href = AppPrefixUtils.locationHrefUrl(
-                                            `/#/grid-view/${viewInfoId}?recordId=${recordId}&subview=${subViewId}&kindView=${kindView}${currentBreadcrumb}`
+                                            `/#/grid-view/${viewInfoId}?recordId=${recordId}&parentId=${parentId}&subview=${subViewId}&kindView=${kindView}${currentBreadcrumb}`
                                         );
                                     }
                                 }
@@ -1150,11 +1152,12 @@ export class BaseViewContainer extends BaseContainer {
                                 const viewInfoId = this.state.subView.viewInfo?.id;
                                 const subViewId = itemData.id;
                                 const recordId = this.state.elementRecordId;
+                                const parentId = UrlUtils.getURLParameter('parentId');
                                 const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
                                 return (
                                     <a
                                         href={AppPrefixUtils.locationHrefUrl(
-                                            `/#/grid-view/${viewInfoId}/?recordId=${recordId}&subview=${subViewId}${currentBreadcrumb}`
+                                            `/#/grid-view/${viewInfoId}?recordId=${recordId}&parentId=${parentId}&subview=${subViewId}${currentBreadcrumb}`
                                         )}
                                         className='subview-tab-item-href'
                                     >
@@ -1220,7 +1223,7 @@ export class BaseViewContainer extends BaseContainer {
 
     editSubView(e) {
         this.blockUi();
-        const parentId = this.state.elementRecordId;
+        const parentId = e.parentId || this.state.elementRecordId;
         const kindView = this.state.elementKindView;
         this.crudService
             .edit(e.viewId, e.recordId, parentId, kindView)

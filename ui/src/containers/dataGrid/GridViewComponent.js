@@ -25,6 +25,7 @@ import {EntryResponseUtils} from '../../utils/EntryResponseUtils';
 import {EditSpecUtils} from '../../utils/EditSpecUtils';
 import {compress} from 'int-compress-string/src';
 import {TreeListUtils} from '../../utils/component/TreeListUtils';
+import {StringUtils} from '../../utils/StringUtils';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -376,7 +377,7 @@ class GridViewComponent extends React.Component {
                                             );
                                         }}
                                         hrefSubview={AppPrefixUtils.locationHrefUrl(
-                                            `/#/grid-view/${viewId}?recordId=${recordId}${currentBreadcrumb}`
+                                            this.subViewHref(viewId, recordId, parentId, currentBreadcrumb)
                                         )}
                                         handleHrefSubview={() => {
                                             let result = this.props.handleBlockUi();
@@ -450,6 +451,11 @@ class GridViewComponent extends React.Component {
             });
         }
     };
+
+    subViewHref(viewId, recordId, parentId, currentBreadcrumb) {
+        parentId = StringUtils.isBlank(parentId) ? 0 : parentId;
+        return `/#/grid-view/${viewId}?recordId=${recordId}&parentId=${parentId}${currentBreadcrumb}`;
+    }
 
     preGenerateColumnsDefinition() {
         let columns = [];

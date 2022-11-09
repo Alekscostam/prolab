@@ -385,7 +385,7 @@ export class EditSpecContainer extends BaseContainer {
                     rendered={!!opSave}
                     label={opSave?.label}
                     className='ml-2'
-                    handleClick={(e) => {
+                    handleClick={() => {
                         const viewIdArg = this.state.elementId;
                         const parentIdArg = this.state.elementParentId;
                         this.handleEditSpecSave(viewIdArg, parentIdArg);
@@ -428,6 +428,8 @@ export class EditSpecContainer extends BaseContainer {
 
     //override
     specSave = (viewId, parentId, saveElement, confirmSave) => {
+        this.blockUi();
+
         saveElement.forEach((array) => {
             array.forEach((el) => {
                 if (el.fieldName === '_STATUS' && el.value === 'inserted') {
@@ -436,7 +438,7 @@ export class EditSpecContainer extends BaseContainer {
                 }
             });
         });
-        this.blockUi();
+
         this.crudService
             .saveSpec(viewId, parentId, saveElement, confirmSave)
             .then((saveResponse) => {

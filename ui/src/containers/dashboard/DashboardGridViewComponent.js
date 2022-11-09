@@ -500,6 +500,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                             parsedGridView={this.state.parsedGridView}
                             parsedGridViewData={this.state.parsedGridViewData}
                             gridViewColumns={this.state.gridViewColumns}
+                            elementRecordId={this.props.parentId}
                             selectedRowKeys={this.state.selectedRowKeys}
                             handleBlockUi={() => {
                                 return this.blockUi();
