@@ -13,7 +13,8 @@ $label-color: #717a93;
 $button-color: #0e49eb;
 $button-text-color: #ffffff;
 $shadow-color: #0000004e;
-$menu-bg-light: transparent linear-gradient(90deg, #edf2fb 0, #fbfbfd 26%, #ffffff 53%, #fafbfd 77%, #ecf2fb 100%) 0 0 no-repeat padding-box;
+$menu-bg-light: transparent linear-gradient(90deg, #edf2fb 0, #fbfbfd 26%, #ffffff 53%, #fafbfd 77%, #ecf2fb 100%) 0 0
+    no-repeat padding-box;
 $menu-bg-dark: transparent linear-gradient(270deg, #1246d3 0, #0b3cc1 100%) 0 0 no-repeat padding-box;
 $success-color: #2bb22a;
 $info-color: #25a9b4;
@@ -37,159 +38,159 @@ $breakpoint-xl: 1200px !default;
 html,
 body,
 html * {
-  font-family: 'Roboto', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
+    font-family: 'Roboto', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
 }
 
 html {
-  height: 100%;
+    height: 100%;
 }
 
 body {
-  height: 100%;
-  background-attachment: fixed;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
+    height: 100%;
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
 #root {
-  height: 100%;
-  width: 100%;
+    height: 100%;
+    width: 100%;
 }
 
 //menu
 @import 'menu';
 
 .app {
-  height: 100%;
-  display: flex;
-  position: relative;
-
-  .btn-toggle {
-    position: fixed;
-    cursor: pointer;
-    width: 35px;
-    height: 35px;
-    background: #353535;
-    color: #fff;
-    text-align: center;
-    border-radius: 50%;
-    //display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 21px;
-    display: none;
-    margin-bottom: 5px;
-    z-index: 1;
-  }
-
-  .sidebar-btn-wrapper {
+    height: 100%;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    position: relative;
 
-    .sidebar-btn {
-      padding: 1px 15px;
-      border-radius: 40px;
-      background: rgba(255, 255, 255, 0.05);
-      color: #adadad;
-      text-decoration: none;
-      margin: 0 auto;
-      height: 35px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-overflow: ellipsis;
-      overflow: hidden;
-      cursor: pointer;
-
-      span {
-        margin-left: 5px;
-        font-size: 13px;
-      }
-
-      &:hover {
-        color: $highlight-color;
-      }
+    .btn-toggle {
+        position: fixed;
+        cursor: pointer;
+        width: 35px;
+        height: 35px;
+        background: #353535;
+        color: #fff;
+        text-align: center;
+        border-radius: 50%;
+        //display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 21px;
+        display: none;
+        margin-bottom: 5px;
+        z-index: 1;
     }
-  }
 
-  .collapsed {
-    .sidebar-btn {
-      display: inline-block;
-      border-radius: 50%;
-      width: 35px;
-      height: 35px;
-      line-height: 40px;
-      padding: 0;
-    }
-  }
-
-  main {
-    padding: 6px;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-
-    header {
-      margin-bottom: 40px;
-      border-bottom: 1px solid #efefef;
-
-      h1 {
+    .sidebar-btn-wrapper {
         display: flex;
         align-items: center;
-        transform: translateX(-20px);
-      }
+        justify-content: center;
+
+        .sidebar-btn {
+            padding: 1px 15px;
+            border-radius: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #adadad;
+            text-decoration: none;
+            margin: 0 auto;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            cursor: pointer;
+
+            span {
+                margin-left: 5px;
+                font-size: 13px;
+            }
+
+            &:hover {
+                color: $highlight-color;
+            }
+        }
     }
 
-    footer {
-      margin-top: 5px;
-      text-align: center;
-      opacity: 0.95;
-      height: 60px;
+    .collapsed {
+        .sidebar-btn {
+            display: inline-block;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            line-height: 40px;
+            padding: 0;
+        }
     }
-  }
 
-  .block {
-    display: flex;
-    margin-bottom: 24px;
-    font-size: 14px;
-    color: #545454;
+    main {
+        padding: 6px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
 
-    > span {
-      margin-left: 10px;
-    }
-  }
+        header {
+            margin-bottom: 40px;
+            border-bottom: 1px solid #efefef;
 
-  @media (max-width: 767.98px) {
-    overflow-x: hidden;
-    header {
-      h1 {
-        font-size: 24px;
-      }
+            h1 {
+                display: flex;
+                align-items: center;
+                transform: translateX(-20px);
+            }
+        }
+
+        footer {
+            margin-top: 5px;
+            text-align: center;
+            opacity: 0.95;
+            height: 60px;
+        }
     }
-  }
-  @media (max-width: $breakpoint-md) {
-    .btn-toggle {
-      display: flex;
+
+    .block {
+        display: flex;
+        margin-bottom: 24px;
+        font-size: 14px;
+        color: #545454;
+
+        > span {
+            margin-left: 10px;
+        }
     }
-  }
+
+    @media (max-width: 767.98px) {
+        overflow-x: hidden;
+        header {
+            h1 {
+                font-size: 24px;
+            }
+        }
+    }
+    @media (max-width: $breakpoint-md) {
+        .btn-toggle {
+            display: flex;
+        }
+    }
 }
 
 .p-button.p-button-text {
-  color: $text-bg;
+    color: $text-bg;
 }
 
 .p-button.p-button-text:hover {
-  color: $text-bg;
+    color: $text-bg;
 }
 
 .p-button.p-button-text:not(a):not(.p-disabled):hover {
-  color: $text-color-highlighted;
+    color: $text-color-highlighted;
 }
 
 /*------------------*/
@@ -197,140 +198,137 @@ body {
 /*Okienko logowania*/
 .login,
 .image {
-  min-height: 92vh;
+    min-height: 92vh;
 }
 
 .login .bg-color {
-  background: #1246d3 0 0 no-repeat padding-box;
+    background: #1246d3 0 0 no-repeat padding-box;
 }
 
 .login-left-bg {
-  height: 100vh;
-  object-fit: cover;
-  width: 100%;
+    height: 100vh;
+    object-fit: cover;
+    width: 100%;
 }
 
 .login div#password input {
-  width: 100%;
+    width: 100%;
 }
 
 .login-icon {
-  position: absolute;
-  top: 35px;
-  left: 54px;
-  width: 275px;
-  height: 70px;
+    position: absolute;
+    top: 35px;
+    left: 54px;
+    width: 275px;
+    height: 70px;
 }
 
 .login a.login-button {
-  bottom: 0;
-  width: 100%;
-  text-align: center;
-  display: table;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    display: table;
 }
 
 .bg-light {
-  background: transparent linear-gradient(87deg, #f7f9fd 20%, #c5dbfc 100%) 0 0 no-repeat padding-box;
+    background: transparent linear-gradient(87deg, #f7f9fd 20%, #c5dbfc 100%) 0 0 no-repeat padding-box;
 }
 
 /*------------------*/
 
 /*Common*/
 .font-big {
-  color: $text-color;
-  font-size: 35px;
-  font-weight: bold;
-  letter-spacing: 0;
-  text-align: left;
+    color: $text-color;
+    font-size: 35px;
+    font-weight: bold;
+    letter-spacing: 0;
+    text-align: left;
 }
 
 .font-medium {
-  color: $text-color;
-  font-size: 25px;
-  font-weight: bold;
-  letter-spacing: 0;
-  text-align: left;
+    color: $text-color;
+    font-size: 25px;
+    font-weight: bold;
+    letter-spacing: 0;
+    text-align: left;
 }
 
 .font-normal,
 .p-inputtext,
 a {
-  color: $text-color;
-  font-weight: bold;
-  font-size: 16px;
-  letter-spacing: 0;
-  text-align: left;
+    color: $text-color;
+    font-weight: bold;
+    font-size: 16px;
+    letter-spacing: 0;
+    text-align: left;
 }
 
 a {
-  color: $link-color;
+    color: $link-color;
 }
 
 .p-inputtext {
-  background-color: $text-bg;
+    background-color: $text-bg;
 }
-
 
 .p-float-label > label {
-  font-weight: 500;
-  font-size: 16px;
-  letter-spacing: 0;
+    font-weight: 500;
+    font-size: 16px;
+    letter-spacing: 0;
 }
-
 
 .font-label,
 label {
-  color: $label-color;
-  font-weight: normal;
-  font-size: 12px;
-  letter-spacing: 0;
-  text-align: left;
+    color: $label-color;
+    font-weight: normal;
+    font-size: 12px;
+    letter-spacing: 0;
+    text-align: left;
 }
 
 .font-button,
 .p-button {
-  text-align: center;
-  font-weight: normal;
-  letter-spacing: 0;
-  background-color: $button-color;
-  color: $button-text-color;
+    text-align: center;
+    font-weight: normal;
+    letter-spacing: 0;
+    background-color: $button-color;
+    color: $button-text-color;
 }
 
 .p-dropdown,
 .p-dropdown .p-dropdown-label {
-  background-color: $text-bg;
-  color: $text-color;
-  font-weight: 500;
-  font-size: 16px;
-  letter-spacing: 0;
-  text-align: left;
-  border: 1px solid #D5D5D5;
-  border-radius: 6px;
-  box-shadow: none;
+    background-color: $text-bg;
+    color: $text-color;
+    font-weight: 500;
+    font-size: 16px;
+    letter-spacing: 0;
+    text-align: left;
+    border: 1px solid #d5d5d5;
+    border-radius: 6px;
+    box-shadow: none;
 }
 
 .p-dropdown .p-dropdown-label,
 .p-dropdown-label .p-inputtext {
-  border: 0;
+    border: 0;
 }
 
 .p-dropdown:hover {
-  border: 1px solid #707890;
-  color: #707890;
+    border: 1px solid #707890;
+    color: #707890;
 }
 
 .p-dropdown.p-component.p-inputwrapper.p-dropdown-clearable.p-inputwrapper-focus {
-  border: 2px solid #1750E7;
-  color: #1750E7;
+    border: 2px solid #1750e7;
+    color: #1750e7;
 }
-
 
 /*------------------*/
 
 /*- breadcrumb-final -*/
 .breadcrumb-final.p-link {
-  font-size: 12px;
-  visibility: hidden;
+    font-size: 12px;
+    visibility: hidden;
 }
 
 /*------------------*/
@@ -338,83 +336,82 @@ label {
 /*----   Cards   ----*/
 
 .card {
-  box-shadow: 0 0 6px #00000029;
-  border: none;
-  border-radius: 0.5rem;
+    box-shadow: 0 0 6px #00000029;
+    border: none;
+    border-radius: 0.5rem;
 }
 
 .card-header {
-  color: $text-color;
-  font-weight: 600;
-  font-size: 14px;
-  letter-spacing: 0;
-  text-align: left;
-  background-color: white;
-  border-bottom: none;
-  padding: 5px 0 0 20px;
+    color: $text-color;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0;
+    text-align: left;
+    background-color: white;
+    border-bottom: none;
+    padding: 5px 0 0 20px;
 }
 
 .card-title {
-  color: $text-color;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0;
-  text-align: left;
+    color: $text-color;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-align: left;
 }
 
 .card-text {
-  color: $text-color;
-  font-size: 25px;
-  font-weight: bold;
-  letter-spacing: 0;
-  text-align: left;
+    color: $text-color;
+    font-size: 25px;
+    font-weight: bold;
+    letter-spacing: 0;
+    text-align: left;
 }
 
 .card-text:hover {
-  color: $link-color;
+    color: $link-color;
 }
 
 .prolab-logo {
-  filter: blur(0.4px);
+    filter: blur(0.4px);
 }
 
 .pro-sidebar ::-webkit-scrollbar-thumb {
-  background: $link-color-highlighted;
+    background: $link-color-highlighted;
 }
 
 .pro-sidebar .pro-menu .pro-menu-item.active > .pro-inner-item span {
-  color: #30dbce;
+    color: #30dbce;
 }
 
 .breadcrumb-link a {
-  font-size: 12px;
-  color: $link-color;
+    font-size: 12px;
+    color: $link-color;
 }
 
 .breadcrumb-link span {
-  font-size: 12px;
-  font-weight: bold;
-  color: $link-color;
+    font-size: 12px;
+    font-weight: bold;
+    color: $link-color;
 }
 
 .breadcrumb-final.p-link {
-  font-size: 12px;
+    font-size: 12px;
 }
 
 .breadcrumb-final.p-link {
-  font-size: 12px;
-  margin-left: 5px;
+    font-size: 12px;
+    margin-left: 5px;
 }
 
 .p-button.p-component.p-button-text-only {
-  color: $button-text-color;
+    color: $button-text-color;
 }
 
 .grid-view-header .font-medium {
-  margin: auto;
-  margin-left: 0;
+    margin: auto;
+    margin-left: 0;
 }
-
 
 //notifications & messages
 @import 'toast';
@@ -430,6 +427,9 @@ label {
 
 //grid container
 @import 'grid_container';
+
+//tree container
+@import 'tree_container';
 /*------------------*/
 
 //dashboard
@@ -437,177 +437,166 @@ label {
 /*------------------*/
 
 #mini-search-panel {
-  padding: 0.4rem;
-  text-align: center;
+    padding: 0.4rem;
+    text-align: center;
 }
 
 #mini-search-button {
-  padding: 0.5rem 0.75rem;
-  min-width: 1rem;
+    padding: 0.5rem 0.75rem;
+    min-width: 1rem;
 }
-
-
 
 .dx-datagrid-filter-panel .dx-datagrid-filter-panel-clear-filter,
 .dx-datagrid-filter-panel .dx-datagrid-filter-panel-text,
 .dx-datagrid-filter-panel .dx-icon-filter {
-  color: $link-color !important;
+    color: $link-color !important;
 }
 
 body main div.container-fluid {
-  height: 100%;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-
-  .breadcrumb-panel {
-    // height: 20px;
-    flex-basis: 0;
+    height: 100%;
     width: 100%;
-    flex-grow: 0;
-    flex-shrink: 0;
-  }
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
 
-  .block-ui-div {
-    overflow-y: hidden;
-    flex-basis: 0;
-    width: 100%;
-    flex-grow: 1;
-    flex-shrink: 1;
-
-    .base-container-div {
-      height: 100%;
-      display: flex;
-      width: 100%;
-      flex-direction: column;
-      overflow-y: hidden;
-
-      .base-container-header {
-        width: 100%;
+    .breadcrumb-panel {
+        // height: 20px;
         flex-basis: 0;
+        width: 100%;
         flex-grow: 0;
         flex-shrink: 0;
-        justify-content: space-between;
+    }
 
-        .header-left {
-          width: 80%;
-        }
-      }
-
-      .base-container-head-panel {
-        width: 100%;
+    .block-ui-div {
+        overflow-y: hidden;
         flex-basis: 0;
-        flex-grow: 0;
-        flex-shrink: 0;
-      }
-
-      .base-container-content {
         width: 100%;
-        flex-basis: 0;
         flex-grow: 1;
         flex-shrink: 1;
-        overflow-y: hidden;
 
-        #content {
-          width: 100%;
-          height: 100%;
-          overflow-y: unset;
+        .base-container-div {
+            height: 100%;
+            display: flex;
+            width: 100%;
+            flex-direction: column;
+            overflow-y: hidden;
+
+            .base-container-header {
+                width: 100%;
+                flex-basis: 0;
+                flex-grow: 0;
+                flex-shrink: 0;
+                justify-content: space-between;
+
+                .header-left {
+                    width: 80%;
+                }
+            }
+
+            .base-container-head-panel {
+                width: 100%;
+                flex-basis: 0;
+                flex-grow: 0;
+                flex-shrink: 0;
+            }
+
+            .base-container-content {
+                width: 100%;
+                flex-basis: 0;
+                flex-grow: 1;
+                flex-shrink: 1;
+                overflow-y: hidden;
+
+                #content {
+                    width: 100%;
+                    height: 100%;
+                    overflow-y: unset;
+                }
+            }
         }
-      }
     }
-  }
 }
-
 
 .p-toast-message-content .p-toast-message-icon {
-  visibility: hidden;
+    visibility: hidden;
 }
 
-
-
-
-
-
-
-
 .p-toast-message-icon.pi.pi-times {
-  width: 20px;
+    width: 20px;
 }
 
 .p-toast .p-toast-message .p-toast-message-content .p-toast-message-text {
-  margin: 0;
+    margin: 0;
 }
 
 .p-dialog-title {
-  white-space: pre-line;
+    white-space: pre-line;
 }
 
 .p-confirm-dialog-message {
-  white-space: pre-line;
+    white-space: pre-line;
 }
 
 .dx-empty-message {
-  margin-left: 16px;
+    margin-left: 16px;
 }
 
 .p-button.p-component.p-confirm-dialog-reject.p-button-text {
-  box-shadow: 0 2px 8px 3px rgba(0, 0, 0, 0.1) !important;
-  color: $button-color !important;
+    box-shadow: 0 2px 8px 3px rgba(0, 0, 0, 0.1) !important;
+    color: $button-color !important;
 }
 
 .p-button.p-component.p-confirm-dialog-reject.p-button-text:hover {
-  box-shadow: 0 2px 8px 3px rgba(0, 0, 0, 0.1) !important;
-  color: $button-text-color !important;
+    box-shadow: 0 2px 8px 3px rgba(0, 0, 0, 0.1) !important;
+    color: $button-text-color !important;
 }
 
 .dx-show-clear-button .dx-icon-clear {
-  background-color: transparent;
-  top: 35% !important;
+    background-color: transparent;
+    top: 35% !important;
 }
 
 //fix dla blędu na node14
 iframe {
-  visibility: hidden;
+    visibility: hidden;
 }
 
 .p-datepicker {
-  padding: 0.5rem 0.5rem 0rem 0.5rem;
+    padding: 0.5rem 0.5rem 0rem 0.5rem;
 }
 
 .p-datepicker table td,
 .p-datepicker .p-datepicker-header {
-  padding: 0;
+    padding: 0;
 }
 
 .p-datepicker-calendar,
 .p-datepicker table {
-  margin: 0;
+    margin: 0;
 }
 
 .p-datepicker table td > span {
-  height: 1.8rem;
+    height: 1.8rem;
 }
 
 .p-datepicker .p-datepicker-buttonbar {
-  padding: 0.4rem 0;
+    padding: 0.4rem 0;
 }
 
 .p-datepicker .p-timepicker button {
-  height: 0.5rem;
+    height: 0.5rem;
 }
 
 .p-datepicker-buttonbar button {
-  height: 25px;
+    height: 25px;
 }
 
 .dx-tab.dx-state-focused::after {
-  border: 0 !important;
-  -webkit-appearance: none !important;
-  outline: none !important;
-  box-shadow: none;
+    border: 0 !important;
+    -webkit-appearance: none !important;
+    outline: none !important;
+    box-shadow: none;
 }
-
 
 @import 'edit_spec_field';
 @import 'edit_row';

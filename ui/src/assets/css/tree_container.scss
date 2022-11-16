@@ -16,6 +16,15 @@ $table-selection: #dde6ff;
     font-weight: 500;
 }
 
+::ng-deep .dx-row.dx-data-row.dx-column-lines.dx-state-hover td {
+    background: red !important;
+}
+
+.klej {
+    background-color: #dde6ff !important;
+    color: red !important;
+}
+
 .dx-datagrid-rowsview tr > td {
     color: $data-label;
     text-align: left;
@@ -36,14 +45,10 @@ $table-selection: #dde6ff;
     border-bottom: 1px solid $table-border;
 }
 
-.round {
-    background-color: var(--background);
-}
-
-.dx-datagrid-rowsview .dx-selection > td,
-.dx-datagrid-rowsview .dx-selection > tr > td,
-.dx-datagrid-rowsview .dx-selection > td,
-.dx-datagrid-rowsview .dx-selection > tr > td {
+.dx-treelist-rowsview .dx-selection > td,
+.dx-treelist-rowsview .dx-selection > tr > td,
+.dx-treelist-rowsview .dx-selection > td,
+.dx-treelist-rowsview .dx-selection > tr > td {
     background-color: $table-selection !important;
     color: $data-label;
     text-align: left;
@@ -348,9 +353,18 @@ $table-selection: #dde6ff;
     }
 }
 
-.grid-container .shortcut.p-button,
+.tree-container .shortcut.p-button,
 .card-grid-header .shortcut.p-button {
-    box-shadow: none;
+    box-shadow: none !important;
+}
+
+.dx-treelist-content .dx-treelist-table [class*='column'] + [class*='column']:last-child {
+    float: none;
+    background-color: white;
+}
+
+.disabled-background {
+    background-color: whitesmoke;
 }
 
 body #subviews-panel .dx-tabs {
@@ -621,43 +635,6 @@ body .grid-container {
 }
 
 //fix z uciekającymi bordersami tabelek
-.dx-row.dx-column-lines.dx-datagrid-filter-row {
-    height: 37px;
-}
-
-.minimize-sub-view {
-    box-shadow: 0 2px 8px 3px rgba(0, 0, 0, 0.1);
-    font-size: 12px;
-    font-weight: bold;
-    background: #ffffff;
-    padding: 0.35rem 0.5rem;
-    width: auto;
-    display: inline-block;
-    position: relative;
-}
-
-.arrow-open {
-    width: 0;
-    height: 0;
-    border-bottom: 10px solid transparent;
-    border-left: 10px solid blue;
-    display: inline-block;
-    position: absolute;
-    right: 3px;
-    bottom: 5px;
-    cursor: pointer;
-}
-
-.arrow-close {
-    width: 0;
-    height: 0;
-    border-top: 10px solid transparent;
-    border-right: 10px solid blue;
-    position: absolute;
-    bottom: 3px;
-    right: 5px;
-    cursor: pointer;
-}
 
 .maximalized-sub-view {
     box-shadow: 0 2px 8px 3px rgba(0, 0, 0, 0.1);

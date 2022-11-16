@@ -10,8 +10,6 @@ export default class DataTreeStore extends BaseService {
     }
 
     getDataTreeStoreDirect(viewIdArg, parentIdArg, listIdArray) {
-        // const recordIdParam = UrlUtils.getUrlParams('recordId', recordArray)
-        // const filterIdParam = !!filterIdArg ? `&filterId=${filterIdArg}` : '';
         let url = `${this.domain}/${this.path}/${viewIdArg}/editspec/${parentIdArg}/data`;
         url = this.commonCorrectUrl(url);
         return this.fetch(url, {
@@ -23,8 +21,6 @@ export default class DataTreeStore extends BaseService {
     }
 
     getAddSpecDataTreeStoreDirect(viewIdArg, parentIdArg) {
-        // const recordIdParam = UrlUtils.getUrlParams('recordId', recordArray)
-        // const filterIdParam = !!filterIdArg ? `&filterId=${filterIdArg}` : '';
         let url = `${this.domain}/${this.path}/${viewIdArg}/addspec/${parentIdArg}/data`;
         url = this.commonCorrectUrl(url);
         return this.fetch(url, {

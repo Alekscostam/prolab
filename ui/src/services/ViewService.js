@@ -58,8 +58,12 @@ export default class ViewService extends BaseService {
         });
     }
 
-    getViewAddSpec(viewId, parentId) {
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/addspec/${parentId}`, {
+    getViewAddSpec(viewId, parentId, type, header, headerId) {
+        let url = `${this.domain}/${this.path}/${viewId}/addspec/${parentId}`;
+        if (type) {
+            url += `?type=${type}&header=${header}&headerId=${headerId}`;
+        }
+        return this.fetch(url, {
             method: 'GET',
         }).catch((err) => {
             throw err;

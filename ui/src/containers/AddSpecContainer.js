@@ -16,6 +16,7 @@ import ActionButton from '../components/ActionButton';
 import DivContainer from '../components/DivContainer';
 import {Dialog} from 'primereact/dialog';
 import LocUtils from '../utils/LocUtils';
+import {Tabs} from 'devextreme-react';
 import {InputNumber} from 'primereact/inputnumber';
 
 //
@@ -35,6 +36,8 @@ export class AddSpecContainer extends BaseContainer {
         this.state = {
             lastElementId: this.props.lastId,
             // loading: true,
+            selectedIndex: 0,
+            tabs: 0,
             visibleAddSpec: false,
             arrayToAdd: [],
             elementParentId: null,
@@ -126,11 +129,12 @@ export class AddSpecContainer extends BaseContainer {
         return <React.Fragment>{super.render()}</React.Fragment>;
     }
     renderView() {
+        const title = this.state.parsedView?.info?.title;
         return (
             <React.Fragment>
                 <Dialog
                     id='addSpecDialog'
-                    header={LocUtils.loc(this.props.labels, 'add_spec_parameters', 'Dodawanie parametrów')}
+                    header={LocUtils.loc(this.props.labels, 'add_spec_parameters', title)}
                     footer={<React.Fragment>{/* {this.unblockUi()} */}</React.Fragment>}
                     visible={true}
                     resizable={false}
@@ -165,40 +169,44 @@ export class AddSpecContainer extends BaseContainer {
 
     getViewById(viewId, parentId, recordId, filterId) {
         this.setState({loading: true}, () => {
-            this.viewService
-                .getViewAddSpec(viewId, parentId)
-                .then((responseView) => {
-                    responseView.viewOptions.multiSelect = true;
-                    let refactorResponseView = {
-                        ...responseView,
-                        viewInfo: {
-                            id: responseView.info.viewId,
-                            name: '',
-                            parentId: responseView.info.parentId,
-                            type: 'gridView',
-                            kindView: 'ViewSpec',
-                        },
-                        gridColumns: [
-                            {
-                                groupName: '',
-                                freeze: '',
-                                columns: responseView.viewColumns,
-                            },
-                        ],
-                        gridOptions: responseView.viewOptions,
-                    };
-                    this.processingViewResponse(refactorResponseView, parentId, recordId);
-                })
-                .catch((err) => {
-                    console.error('Error getViewSpec in EditSpec. Exception = ', err);
-                    this.setState({loading: false}, () => {
-                        this.showGlobalErrorMessage(err); //'Nie udało się pobrać danych strony o id: ' + viewId);
-                    });
-                })
-                .finally(() => {
-                    this.unblockUi();
-                });
+            this.getViewAddSpec(viewId, parentId, recordId);
         });
+    }
+
+    getViewAddSpec(viewId, parentId, recordId, type, header, headerId) {
+        this.viewService
+            .getViewAddSpec(viewId, parentId, type, header, headerId)
+            .then((responseView) => {
+                responseView.viewOptions.multiSelect = true;
+                let refactorResponseView = {
+                    ...responseView,
+                    viewInfo: {
+                        id: responseView.info.viewId,
+                        name: '',
+                        parentId: responseView.info.parentId,
+                        type: 'gridView',
+                        kindView: 'ViewSpec',
+                    },
+                    gridColumns: [
+                        {
+                            groupName: '',
+                            freeze: '',
+                            columns: responseView.viewColumns,
+                        },
+                    ],
+                    gridOptions: responseView.viewOptions,
+                };
+                this.processingViewResponse(refactorResponseView, parentId, recordId);
+            })
+            .catch((err) => {
+                console.error('Error getViewSpec in EditSpec. Exception = ', err);
+                this.setState({loading: false}, () => {
+                    this.showGlobalErrorMessage(err); //'Nie udało się pobrać danych strony o id: ' + viewId);
+                });
+            })
+            .finally(() => {
+                this.unblockUi();
+            });
     }
 
     processingViewResponse(responseView, parentId, recordId) {
@@ -258,6 +266,7 @@ export class AddSpecContainer extends BaseContainer {
                     documentsList: documentsListTmp,
                     batchesList: batchesListTmp,
                     filtersList: filtersListTmp,
+                    tabs: this.createValidTabs(responseView.tabs),
                 }),
                 () => {
                     //const initFilterId = responseView?.viewInfo?.filterdId;
@@ -274,6 +283,16 @@ export class AddSpecContainer extends BaseContainer {
             );
         }
     }
+    createValidTabs(tabs) {
+        const res = tabs?.map((el) => {
+            return {
+                text: el?.title ? el.title : el.text,
+                header: el.header,
+                type: el.type,
+            };
+        });
+        return res;
+    }
 
     //override
     renderGlobalTop() {
@@ -285,25 +304,41 @@ export class AddSpecContainer extends BaseContainer {
         return (
             <React.Fragment>
                 <DivContainer id='header-left '>
-                    {/* <div className='font-medium '>{this.state.parsedView?.viewInfo?.name}</div> */}
-                    <div className='ml-3'>
-                        {LocUtils.loc(this.props.labels, 'number_of_copy', 'Liczba kopii:')}
-                        <div className='row '>
-                            <InputNumber
-                                id='numberOfCopy'
-                                name='numberOfCopy'
-                                className='p-inputtext-sm col-lg-6'
-                                min={1}
-                                style={{maxWidth: '20px'}}
-                                value={this.state.numberOfCopies}
-                                onValueChange={(e) => {
-                                    this.setState(() => ({
-                                        numberOfCopies: e.value,
-                                    }));
+                    <div id='subviews-panel'>
+                        {this.state.tabs?.length > 0 ? (
+                            <Tabs
+                                dataSource={this.state.tabs}
+                                selectedIndex={this.state.selectedIndex}
+                                onOptionChanged={(args, e, b, d) => {
+                                    if (args.name === 'selectedIndex') {
+                                        if (args.value !== -1) {
+                                            let id = UrlUtils.getViewIdFromURL();
+                                            if (id === undefined) {
+                                                id = this.props.id;
+                                            }
+
+                                            const elementId = this.state.elementId;
+                                            const elementParentId = this.state.elementParentId;
+                                            const elementRecordId = this.state.elementRecordId;
+                                            const tabs = this.state.tabs[args.value];
+                                            this.getViewAddSpec(
+                                                elementId,
+                                                elementParentId,
+                                                elementRecordId,
+                                                tabs.type,
+                                                tabs.header,
+                                                0
+                                            );
+                                            this.setState({
+                                                selectedIndex: args.value,
+                                            });
+                                        }
+                                    }
                                 }}
-                                showButtons
+                                scrollByContent={true}
+                                showNavButtons={true}
                             />
-                        </div>
+                        ) : null}
                     </div>
                 </DivContainer>
             </React.Fragment>
@@ -314,30 +349,45 @@ export class AddSpecContainer extends BaseContainer {
     renderHeaderRight() {
         //TODO let operations = this.state.operations;
         //TODO mock
-        let operations = [];
-        operations.push({type: 'OP_ACCEPTED', label: 'Zatwierdź'});
+        const operations = this.state.parsedView.operations;
         //TODO mock end
-        let opAccept = DataGridUtils.containsOperationsButton(operations, 'OP_ACCEPTED');
+        let opAdd = DataGridUtils.containsOperationsButton(operations, 'OP_ADDSPEC_ADD');
+        let opCount = DataGridUtils.containsOperationsButton(operations, 'OP_ADDSPEC_COUNT');
         return (
             <React.Fragment>
-                <ActionButton
-                    label={'Anuluj'}
-                    className='ml-2'
-                    handleClick={() => {
-                        this.props.onHide();
-                    }}
-                />
-
-                <ActionButton
-                    rendered={!!opAccept}
-                    label={opAccept?.label}
-                    className='ml-2'
-                    handleClick={(e) => {
-                        const viewIdArg = this.state.elementId;
-                        const parentIdArg = this.state.elementParentId;
-                        this.handleExecSpec(viewIdArg, parentIdArg);
-                    }}
-                />
+                <DivContainer>
+                    <DivContainer>
+                        {!!opCount ? (
+                            <React.Fragment>
+                                {LocUtils.loc(this.props.labels, 'number_of_copy', opCount.label + ' ')}
+                                <InputNumber
+                                    id='numberOsfCopy'
+                                    name='numberOfCopy'
+                                    className='p-inputtext-sm mr-2'
+                                    min={1}
+                                    style={{maxHeight: '40px'}}
+                                    value={this.state.numberOfCopies}
+                                    onValueChange={(e) => {
+                                        this.setState(() => ({
+                                            numberOfCopies: e.value,
+                                        }));
+                                    }}
+                                    showButtons
+                                />
+                            </React.Fragment>
+                        ) : undefined}
+                        <ActionButton
+                            rendered={!!opAdd}
+                            label={opAdd?.label}
+                            className=''
+                            handleClick={(e) => {
+                                const viewIdArg = this.state.elementId;
+                                const parentIdArg = this.state.elementParentId;
+                                this.handleExecSpec(viewIdArg, parentIdArg);
+                            }}
+                        />
+                    </DivContainer>
+                </DivContainer>
             </React.Fragment>
         );
     }

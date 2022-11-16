@@ -229,16 +229,23 @@ export class EditSpecContainer extends BaseContainer {
                 }),
                 () => {
                     //const initFilterId = responseView?.viewInfo?.filterdId;
+                    const dataPackageSize = responseView.viewInfo?.packageCount;
                     const viewIdArg = this.state.elementId;
                     const parentIdArg = this.state.elementParentId;
                     const recordIdArg = this.state.elementRecordId;
+                    const packageCount =
+                        !!dataPackageSize || dataPackageSize === 0
+                            ? Constants.DEFAULT_DATA_PACKAGE_COUNT
+                            : dataPackageSize;
                     //const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId;
-                    this.dataTreeStore.getDataTreeStoreDirect(viewIdArg, parentIdArg, recordIdArg).then((res) => {
-                        this.setState({
-                            loading: false,
-                            parsedData: res.data,
+                    this.dataTreeStore
+                        .getDataTreeStoreDirect(viewIdArg, parentIdArg, recordIdArg, packageCount)
+                        .then((res) => {
+                            this.setState({
+                                loading: false,
+                                parsedData: res.data,
+                            });
                         });
-                    });
                 }
             );
         }
@@ -663,14 +670,20 @@ export class EditSpecContainer extends BaseContainer {
                                 }}
                                 handleUnblockUi={() => this.unblockUi()}
                                 handleShowEditPanel={(editDataResponse) => this.handleShowEditPanel(editDataResponse)}
-                                handleSelectedRowKeys={(e) =>
-                                    this.setState((prevState) => {
-                                        return {
-                                            ...prevState,
-                                            selectedRowKeys: e,
-                                        };
-                                    })
-                                }
+                                handleSelectedRowKeys={(e) => {
+                                    this.blockUi();
+                                    this.setState(
+                                        (prevState) => {
+                                            return {
+                                                ...prevState,
+                                                selectedRowKeys: e,
+                                            };
+                                        },
+                                        () => {
+                                            this.unblockUi();
+                                        }
+                                    );
+                                }}
                                 handleDeleteRow={(id) => this.delete(id)}
                                 handleDownload={(id) => {
                                     this.props.handleDownloadRow(id);

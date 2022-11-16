@@ -9,6 +9,7 @@ import {
     FilterRow,
     HeaderFilter,
     LoadPanel,
+    Paging,
     Scrolling,
     Selection,
     Sorting,
@@ -53,6 +54,7 @@ class TreeViewComponent extends React.Component {
             gridViewColumns: [],
             selectedRowData: [],
             defaultSelectedRowKeys: [],
+            preInitializedColumns: [],
         };
     }
 
@@ -83,6 +85,21 @@ class TreeViewComponent extends React.Component {
             return item.ID === recordId;
         });
         return editData[0];
+    }
+
+    isSpecialCell(type) {
+        try {
+            switch (type) {
+                case 'H':
+                case 'O':
+                case 'I':
+                case 'IM':
+                    return true;
+                default:
+                    return false;
+            }
+        } catch (ex) {}
+        return false;
     }
 
     editListVisible(recordId, fieldId) {
@@ -263,6 +280,8 @@ class TreeViewComponent extends React.Component {
                         this.ref = ref;
                         this.props.handleOnTreeList(this.ref);
                     }}
+                    focusedRowEnabled={true}
+                    hoverStateEnabled={true}
                     dataSource={this.props.parsedGridViewData}
                     customizeColumns={this.postCustomizeColumns}
                     wordWrapEnabled={rowAutoHeight}
@@ -278,6 +297,16 @@ class TreeViewComponent extends React.Component {
                     height={dataTreeHeight ? dataTreeHeight + 'px' : '100%'}
                     width={columnAutoWidth ? '100%' : undefined}
                     rowAlternationEnabled={false}
+                    onCellPrepared={(e) => {
+                        if (e.rowType === 'data') {
+                            let preInitializedColumns = this.state.preInitializedColumns.find(
+                                (el) => el.columnIndex === e.columnIndex && el.editable === false
+                            );
+                            if (preInitializedColumns) {
+                                e.cellElement.classList.add('disabled-background');
+                            }
+                        }
+                    }}
                     selectedRowKeys={selectedRowKeys}
                     onSelectionChanged={(e) => {
                         this.props.handleSelectedRowKeys(e.selectedRowKeys);
@@ -303,7 +332,7 @@ class TreeViewComponent extends React.Component {
                         grouping={false}
                         groupPaging={false}
                     />
-
+                    <Paging enabled={true} defaultPageSize={15} defaultPageIndex={1} />
                     <FilterRow visible={showFilterRow} applyFilter={true} />
 
                     <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'} />
@@ -321,6 +350,14 @@ class TreeViewComponent extends React.Component {
                  */}
                     <Scrolling showScrollbar={true} useNative={true} mode={'virtual'} />
 
+                    <Selection
+                        mode={'multiple'}
+                        selectAllMode='allPages'
+                        showCheckBoxesMode='always'
+                        allowSelectAll={allowSelectAll}
+                        deferred={this.props.selectionDeferred}
+                    />
+
                     <LoadPanel
                         enabled={true}
                         showIndicator={true}
@@ -334,6 +371,23 @@ class TreeViewComponent extends React.Component {
         );
     }
 
+    preColumnDefinition(editable, INDEX_COLUMN) {
+        if (INDEX_COLUMN !== 0) {
+            let preInitializedColumns = this.state.preInitializedColumns;
+            let foundedelement = preInitializedColumns.find((el) => el.columnIndex === INDEX_COLUMN);
+            if (!foundedelement) {
+                let column = {
+                    columnIndex: INDEX_COLUMN,
+                    editable: editable,
+                };
+                preInitializedColumns.push(column);
+                this.setState({
+                    preInitializedColumns,
+                });
+            }
+        }
+    }
+
     preGenerateColumnsDefinition() {
         let columns = [];
         this.props.gridViewColumns?.forEach((columnDefinition, INDEX_COLUMN) => {
@@ -341,6 +395,8 @@ class TreeViewComponent extends React.Component {
             if (!!columnDefinition?.sortIndex && columnDefinition?.sortIndex > 0 && !!columnDefinition?.sortOrder) {
                 sortOrder = columnDefinition?.sortOrder?.toLowerCase();
             }
+            const editable = columnDefinition?.edit;
+            this.preColumnDefinition(editable, INDEX_COLUMN);
 
             columns.push(
                 <Column
@@ -348,15 +404,6 @@ class TreeViewComponent extends React.Component {
                     sortOrder={sortOrder}
                     dataField={columnDefinition?.fieldName}
                     sortIndex={columnDefinition?.sortIndex}
-                    cssClass={
-                        !this.props.isAddSpec
-                            ? columnDefinition?.edit || columnDefinition?.selectionList
-                                ? undefined
-                                : INDEX_COLUMN
-                                ? 'editable-cell'
-                                : undefined
-                            : undefined
-                    }
                     allowEditing={columnDefinition?.edit || columnDefinition?.selectionList}
                     cellRender={
                         this.isSpecialCell(columnDefinition?.type)
@@ -388,6 +435,8 @@ class TreeViewComponent extends React.Component {
                         //match column by field name from view and viewData service
                         const columnDefinition = this.matchColumnDefinitionByFieldName(column.dataField);
                         if (columnDefinition) {
+                            // editable-cell
+
                             column.visible = columnDefinition?.visible;
                             column.allowFiltering = columnDefinition?.isFilter;
                             column.allowFixing = true;
@@ -603,22 +652,7 @@ class TreeViewComponent extends React.Component {
         }
     };
 
-    isSpecialCell(type) {
-        try {
-            switch (type) {
-                case 'H':
-                case 'O':
-                case 'I':
-                case 'IM':
-                    return true;
-                default:
-                    return false;
-            }
-        } catch (ex) {}
-        return false;
-    }
-
-    cellRenderSpecial(cellInfo, columnDefinition) {
+    cellRenderSpecial(cellInfo) {
         try {
             const _bgColor = cellInfo.data['_BGCOLOR'];
             let bgColorFinal = 'white';
@@ -667,7 +701,39 @@ class TreeViewComponent extends React.Component {
                             <span
                                 style={{
                                     color: fontColorFinal,
-                                    background: bgColorFinal,
+                                    // background: bgColorFinal,
+                                }}
+                                // eslint-disable-next-line
+                                dangerouslySetInnerHTML={{__html: cellInfo?.text}}
+                            />
+                        );
+                    } catch (err) {
+                        ConsoleHelper('Error render htmloutput. Exception=', err);
+                    }
+                    break;
+                case 'C':
+                    try {
+                        return (
+                            <span
+                                style={{
+                                    color: fontColorFinal,
+                                    // background: bgColorFinal,
+                                }}
+                                // eslint-disable-next-line
+                                dangerouslySetInnerHTML={{__html: cellInfo?.text}}
+                            />
+                        );
+                    } catch (err) {
+                        ConsoleHelper('Error render htmloutput. Exception=', err);
+                    }
+                    break;
+                case 'N':
+                    try {
+                        return (
+                            <span
+                                style={{
+                                    color: fontColorFinal,
+                                    // background: bgColorFinal,
                                 }}
                                 // eslint-disable-next-line
                                 dangerouslySetInnerHTML={{__html: cellInfo?.text}}
