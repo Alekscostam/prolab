@@ -138,8 +138,14 @@ export default class CrudService extends BaseService {
         });
     }
 
-    executeSpec(viewId, parentId, listId, count) {
-        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/addspec/${parentId}/execute?count=${count}`, {
+    executeSpec(viewId, parentId, listId, type, headerId, header, count) {
+        let url = `${this.getDomain()}/${this.path}/${viewId}/addspec/${parentId}/execute?count=${count}`;
+
+        if (type !== 'DEF') {
+            url += `&type=${type}&header=${header}&headerId=${headerId}`;
+        }
+
+        return this.fetch(url, {
             method: 'POST',
             body: JSON.stringify(listId),
         }).catch((err) => {

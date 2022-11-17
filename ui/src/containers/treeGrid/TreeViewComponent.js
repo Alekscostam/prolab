@@ -348,7 +348,13 @@ class TreeViewComponent extends React.Component {
                     {/*- virtual działa szybko ale wyżera heap przeglądarki
                    - normal długo wczytuje ale heap jest stabilniejszy
                  */}
-                    <Scrolling showScrollbar={true} useNative={true} mode={'virtual'} />
+
+                    <Scrolling
+                        showScrollbar={true}
+                        mode='virtual'
+                        rowRenderingMode={'standard'}
+                        preloadEnabled={false}
+                    />
 
                     <Selection
                         mode={'multiple'}
@@ -435,8 +441,6 @@ class TreeViewComponent extends React.Component {
                         //match column by field name from view and viewData service
                         const columnDefinition = this.matchColumnDefinitionByFieldName(column.dataField);
                         if (columnDefinition) {
-                            // editable-cell
-
                             column.visible = columnDefinition?.visible;
                             column.allowFiltering = columnDefinition?.isFilter;
                             column.allowFixing = true;
@@ -580,6 +584,9 @@ class TreeViewComponent extends React.Component {
                                                 );
                                                 window.location.assign(newUrl);
                                             }
+                                        }}
+                                        handleAddSpecSpec={() => {
+                                            this.props.handleAddSpecSpec(recordId);
                                         }}
                                         handleArchive={() => {
                                             this.props.handleArchiveRow(recordId);
@@ -1027,6 +1034,7 @@ TreeViewComponent.propTypes = {
     handleDown: PropTypes.func.isRequired,
     handleBlockUi: PropTypes.func.isRequired,
     handleUnblockUi: PropTypes.func.isRequired,
+    handleAddSpecSpec: PropTypes.func,
     showErrorMessages: PropTypes.func.isRequired,
     showColumnHeaders: PropTypes.bool,
     showColumnLines: PropTypes.bool,

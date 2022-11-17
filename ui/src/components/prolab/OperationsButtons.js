@@ -57,6 +57,28 @@ export const OperationsButtons = (props) => {
                         );
                     }
                     break;
+                case 'OP_ADDSPEC_SPEC':
+                    if (!!atLeastOneSelected || (!atLeastOneSelected && !!operations.showAlways)) {
+                        return (
+                            <React.Fragment>
+                                <ShortcutButton
+                                    id={`${info?.column.headerId}_menu_button`}
+                                    className={`action-button-with-menu ${
+                                        inverseColor ? `inverse` : `normal`
+                                    } ${margin}`}
+                                    iconName={operations?.iconCode || 'mdi-pencil'}
+                                    iconColor={`${inverseColor ? `white` : `blue`}`}
+                                    buttonShadow={buttonShadow}
+                                    title={operations.label}
+                                    handleClick={(e) => {
+                                        e.selectAll = !atLeastOneSelected && !!operations.showAlways;
+                                        return props.handleAddSpecSpec(e);
+                                    }}
+                                />
+                            </React.Fragment>
+                        );
+                    }
+                    break;
                 case 'OP_SUBVIEWS':
                     if (!!atLeastOneSelected)
                         return (
@@ -285,6 +307,8 @@ export const OperationsButtons = (props) => {
                         return props.handleEdit();
                     case 'OP_EDIT_SPEC':
                         return props.handleEditSpec();
+                    case 'OP_ADDSPEC_SPEC':
+                        return props.handleAddSpecSpec();
                     case 'OP_SUBVIEWS':
                         return props.handleHrefSubview();
                     case 'OP_DELETE':
@@ -353,6 +377,7 @@ OperationsButtons.defaultProps = {
     handleHrefSubview: () => {},
     handleEdit: () => {},
     handleEditSpec: () => {},
+    handleAddSpecSpec: () => {},
     handleDelete: () => {},
     handleRestore: () => {},
     handleCopy: () => {},
@@ -380,6 +405,7 @@ OperationsButtons.propTypes = {
     handleEditSpec: PropTypes.func,
     hrefSubview: PropTypes.string,
     handleHrefSubview: PropTypes.func,
+    handleAddSpecSpec: PropTypes.func,
     handleDelete: PropTypes.func,
     handleRestore: PropTypes.func,
     handleCopy: PropTypes.func,

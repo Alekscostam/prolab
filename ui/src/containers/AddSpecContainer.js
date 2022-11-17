@@ -168,8 +168,9 @@ export class AddSpecContainer extends BaseContainer {
     }
 
     getViewById(viewId, parentId, recordId, filterId) {
+        const defaultTypeArg = 'DEF';
         this.setState({loading: true}, () => {
-            this.getViewAddSpec(viewId, parentId, recordId);
+            this.getViewAddSpec(viewId, parentId, recordId, defaultTypeArg);
         });
     }
 
@@ -184,6 +185,7 @@ export class AddSpecContainer extends BaseContainer {
                         id: responseView.info.viewId,
                         name: '',
                         parentId: responseView.info.parentId,
+                        headerId: responseView.info.headerId,
                         type: 'gridView',
                         kindView: 'ViewSpec',
                     },
@@ -272,13 +274,18 @@ export class AddSpecContainer extends BaseContainer {
                     //const initFilterId = responseView?.viewInfo?.filterdId;
                     const viewIdArg = this.state.elementId;
                     const parentIdArg = this.state.elementParentId;
+                    const type = responseView.info.type;
+                    const headerId = responseView.info.headerId;
+                    const header = responseView.info.header;
                     //const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId;
-                    this.dataTreeStore.getAddSpecDataTreeStoreDirect(viewIdArg, parentIdArg).then((res) => {
-                        this.setState({
-                            loading: false,
-                            parsedData: res.data,
+                    this.dataTreeStore
+                        .getAddSpecDataTreeStoreDirect(viewIdArg, parentIdArg, type, headerId, header)
+                        .then((res) => {
+                            this.setState({
+                                loading: false,
+                                parsedData: res.data,
+                            });
                         });
-                    });
                 }
             );
         }
@@ -304,7 +311,7 @@ export class AddSpecContainer extends BaseContainer {
         return (
             <React.Fragment>
                 <DivContainer id='header-left '>
-                    <div id='subviews-panel'>
+                    <div id='subviews-panel' className='ml-4'>
                         {this.state.tabs?.length > 0 ? (
                             <Tabs
                                 dataSource={this.state.tabs}
@@ -320,6 +327,7 @@ export class AddSpecContainer extends BaseContainer {
                                             const elementId = this.state.elementId;
                                             const elementParentId = this.state.elementParentId;
                                             const elementRecordId = this.state.elementRecordId;
+                                            const headerId = this.state.parsedView?.info?.headerId;
                                             const tabs = this.state.tabs[args.value];
                                             this.getViewAddSpec(
                                                 elementId,
@@ -327,7 +335,7 @@ export class AddSpecContainer extends BaseContainer {
                                                 elementRecordId,
                                                 tabs.type,
                                                 tabs.header,
-                                                0
+                                                headerId
                                             );
                                             this.setState({
                                                 selectedIndex: args.value,
@@ -347,15 +355,14 @@ export class AddSpecContainer extends BaseContainer {
 
     //override
     renderHeaderRight() {
-        //TODO let operations = this.state.operations;
-        //TODO mock
         const operations = this.state.parsedView.operations;
-        //TODO mock end
+
         let opAdd = DataGridUtils.containsOperationsButton(operations, 'OP_ADDSPEC_ADD');
         let opCount = DataGridUtils.containsOperationsButton(operations, 'OP_ADDSPEC_COUNT');
+
         return (
             <React.Fragment>
-                <DivContainer>
+                <div className='mt-2 ml-4'>
                     <DivContainer>
                         {!!opCount ? (
                             <React.Fragment>
@@ -365,7 +372,7 @@ export class AddSpecContainer extends BaseContainer {
                                     name='numberOfCopy'
                                     className='p-inputtext-sm mr-2'
                                     min={1}
-                                    style={{maxHeight: '40px'}}
+                                    style={{maxHeight: '43px'}}
                                     value={this.state.numberOfCopies}
                                     onValueChange={(e) => {
                                         this.setState(() => ({
@@ -380,30 +387,36 @@ export class AddSpecContainer extends BaseContainer {
                             rendered={!!opAdd}
                             label={opAdd?.label}
                             className=''
-                            handleClick={(e) => {
+                            handleClick={() => {
                                 const viewIdArg = this.state.elementId;
                                 const parentIdArg = this.state.elementParentId;
-                                this.handleExecSpec(viewIdArg, parentIdArg);
+                                const parsedView = this.state.parsedView;
+                                const type = parsedView.info?.type;
+                                const headerId = parsedView.info?.headerId;
+                                const header = parsedView.info?.header;
+                                this.handleExecSpec(viewIdArg, parentIdArg, type, headerId, header);
                             }}
                         />
                     </DivContainer>
-                </DivContainer>
+                </div>
             </React.Fragment>
         );
     }
 
-    handleExecSpec(viewId, parentId) {
-        ConsoleHelper(`handleExecSpec: viewId = ${viewId} parentId = ${parentId}`);
+    handleExecSpec(viewId, parentId, type, headerId, header) {
+        ConsoleHelper(
+            `handleExecSpec: viewId = ${viewId} parentId = ${parentId}  parentId = ${type}  parentId = ${headerId}  parentId = ${header}`
+        );
         const saveElement = {listId: this.state.selectedRowKeys};
         ConsoleHelper(`handleExecSpec: element to save = ${JSON.stringify(saveElement)}`);
-        this.specExec(viewId, parentId, saveElement);
+        this.specExec(viewId, parentId, saveElement, type, headerId, header);
     }
 
     //override
-    specExec = (viewId, parentId, saveElement) => {
+    specExec = (viewId, parentId, saveElement, type, headerId, header) => {
         this.blockUi();
         this.crudService
-            .executeSpec(viewId, parentId, saveElement, this.state.numberOfCopies)
+            .executeSpec(viewId, parentId, saveElement, type, headerId, header, this.state.numberOfCopies)
             .then((saveResponse) => {
                 let validArray = this.createValidArray(saveResponse.data);
                 let res = this.setFakeIds(validArray);
@@ -511,6 +524,15 @@ export class AddSpecContainer extends BaseContainer {
                                 parsedGridView={this.state.parsedView}
                                 parsedGridViewData={this.state.parsedData}
                                 gridViewColumns={this.state.columns}
+                                handleAddSpecSpec={(id) => {
+                                    const viewId = this.state.elementId;
+                                    const parentId = this.state.elementParentId;
+                                    const recordId = this.state.elementRecordId;
+                                    const parsedView = this.state.parsedView;
+                                    const type = parsedView.info?.type;
+                                    const header = parsedView.info?.header;
+                                    this.getViewAddSpec(viewId, parentId, recordId, type, header, id);
+                                }}
                                 selectedRowKeys={this.state.selectedRowKeys}
                                 onChange={(type, e, rowId, info) => this.handleEditRowChange(type, e, rowId, info)}
                                 handleBlockUi={() => {

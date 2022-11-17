@@ -26,7 +26,7 @@ export class ViewContainer extends BaseViewContainer {
         let subviewMode = !!recordId && !!viewId;
         if (subviewMode) {
             this.viewService
-                .getSubView(viewId, recordId)
+                .getSubView(viewId, recordId, parentId)
                 .then((subViewResponse) => {
                     Breadcrumb.updateSubView(subViewResponse, recordId);
                     if (subViewResponse.viewInfo?.type === 'dashboard') {

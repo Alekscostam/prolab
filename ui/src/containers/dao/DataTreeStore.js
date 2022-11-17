@@ -2,6 +2,7 @@ import 'devextreme/dist/css/dx.light.css';
 import 'whatwg-fetch';
 import BaseService from '../../services/BaseService';
 import {decompress} from 'int-compress-string/src';
+import {StringUtils} from '../../utils/StringUtils';
 
 export default class DataTreeStore extends BaseService {
     constructor() {
@@ -20,8 +21,13 @@ export default class DataTreeStore extends BaseService {
         });
     }
 
-    getAddSpecDataTreeStoreDirect(viewIdArg, parentIdArg) {
+    getAddSpecDataTreeStoreDirect(viewIdArg, parentIdArg, type, headerId, header) {
         let url = `${this.domain}/${this.path}/${viewIdArg}/addspec/${parentIdArg}/data`;
+
+        if (!StringUtils.isBlank(type) || type !== 'DEF') {
+            url += `?type=${type}&header=${header}&headerId=${headerId}`;
+        }
+
         url = this.commonCorrectUrl(url);
         return this.fetch(url, {
             method: 'GET',

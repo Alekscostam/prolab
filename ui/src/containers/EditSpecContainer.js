@@ -51,6 +51,7 @@ export class EditSpecContainer extends BaseContainer {
         this.getViewById = this.getViewById.bind(this);
         this.showAddSpecDialog = this.showAddSpecDialog.bind(this);
         this.downloadData = this.downloadData.bind(this);
+        this.unselectAllDataGrid = this.unselectAllDataGrid.bind(this);
         this.getMaxViewid = this.getMaxViewid.bind(this);
         this.blockUi();
     }
@@ -433,6 +434,15 @@ export class EditSpecContainer extends BaseContainer {
         return arrayTmp;
     }
 
+    unselectAllDataGrid() {
+        this.refTreeList?.instance.deselectAll();
+        this.setState({
+            selectAll: false,
+            select: false,
+            selectedRowKeys: [],
+        });
+        this.unblockUi();
+    }
     //override
     specSave = (viewId, parentId, saveElement, confirmSave) => {
         this.blockUi();
@@ -501,8 +511,8 @@ export class EditSpecContainer extends BaseContainer {
                         }
                         break;
                 }
-                // this.refreshView();
-                this.unblockUi();
+
+                this.unselectAllDataGrid();
             })
             .catch((err) => {
                 this.showGlobalErrorMessage(err);

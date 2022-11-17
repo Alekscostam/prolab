@@ -353,6 +353,13 @@ $table-selection: #dde6ff;
     box-shadow: none;
 }
 
+.dx-datagrid-rowsview .dx-row-focused > td,
+.dx-datagrid-rowsview .dx-row-focused:hover > td,
+.dx-datagrid-rowsview .dx-row-focused > tr > td,
+.dx-datagrid-rowsview .dx-row-focused:hover > tr > td {
+    background-color: #0e49eb !important;
+}
+
 body #subviews-panel .dx-tabs {
     width: auto;
     max-width: 100%;

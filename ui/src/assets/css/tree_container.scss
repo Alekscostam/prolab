@@ -363,10 +363,17 @@ $table-selection: #dde6ff;
     background-color: white;
 }
 
-.disabled-background {
-    background-color: whitesmoke;
+.dx-treelist-rowsview .dx-row-focused > td,
+.dx-treelist-rowsview .dx-row-focused:hover > td,
+.dx-treelist-rowsview .dx-row-focused > tr > td,
+.dx-treelist-rowsview .dx-row-focused:hover > tr > td {
+    background-color: #0e49eb !important;
 }
 
+.disabled-background {
+    background-color: whitesmoke !important;
+}
+// dx-row dx-data-row dx-row-lines dx-column-lines dx-selection
 body #subviews-panel .dx-tabs {
     width: auto;
     max-width: 100%;

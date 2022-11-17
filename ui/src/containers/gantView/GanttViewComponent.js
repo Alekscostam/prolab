@@ -211,7 +211,6 @@ class GanttViewComponent extends React.Component {
                     startDateRange={startDateRange}
                     endDateRange={endDateRange}
                     rowAlternationEnabled={false}
-                    hoverStateEnabled={true}
                     width={width}
                     onSelectionChanged={this.onVisibleIndexChange}
                     // Jesli robimy checkboxy to allowSelection w tym miejscu musi byc false

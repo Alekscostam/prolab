@@ -60,7 +60,7 @@ export default class ViewService extends BaseService {
 
     getViewAddSpec(viewId, parentId, type, header, headerId) {
         let url = `${this.domain}/${this.path}/${viewId}/addspec/${parentId}`;
-        if (type) {
+        if (type !== 'DEF') {
             url += `?type=${type}&header=${header}&headerId=${headerId}`;
         }
         return this.fetch(url, {
@@ -70,7 +70,7 @@ export default class ViewService extends BaseService {
         });
     }
 
-    getSubView(viewId, recordId) {
+    getSubView(viewId, recordId, parentId) {
         // czasem na jednym widoku, lub przy przejściu między widokami idzie kilka takich samych zapytań, jedno po drugim;
         // dlatego wyniki zapytań są zapamiętywane lokalnie na 5 sekund
         const cacheKey = JSON.stringify({viewId: parseInt(viewId), recordId: parseInt(recordId)});
@@ -95,7 +95,7 @@ export default class ViewService extends BaseService {
             ConsoleHelper('getSubView: invalid format of cache value', err);
             sessionStorage.removeItem(cacheKey);
         }
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/subView/${recordId}`, {
+        return this.fetch(`${this.domain}/${this.path}/${viewId}/subView/${recordId}?parentId=${parentId}`, {
             method: 'GET',
         })
             .then((result) => {
