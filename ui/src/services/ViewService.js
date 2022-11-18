@@ -70,10 +70,28 @@ export default class ViewService extends BaseService {
         });
     }
 
+    subViewEntry(viewId, recordId, parentId) {
+        let queryStringTmp = [];
+
+        if (!!parentId) {
+            queryStringTmp.push(`parentId=${parentId}`);
+        }
+        if (Array.isArray(recordId)) {
+            recordId = recordId[0];
+        }
+        return this.fetch(
+            `${this.getDomain()}/${this.path}/${viewId}/subview/${recordId}/Entry?${queryStringTmp.join('&')}`,
+            {
+                method: 'POST',
+            }
+        ).catch((err) => {
+            throw err;
+        });
+    }
+
     getSubView(viewId, recordId, parentId) {
-        // czasem na jednym widoku, lub przy przejściu między widokami idzie kilka takich samych zapytań, jedno po drugim;
-        // dlatego wyniki zapytań są zapamiętywane lokalnie na 5 sekund
         const cacheKey = JSON.stringify({viewId: parseInt(viewId), recordId: parseInt(recordId)});
+
         ConsoleHelper('getSubView: cacheKey=' + cacheKey);
         try {
             let cacheValue = JSON.parse(sessionStorage.getItem(cacheKey));
@@ -95,6 +113,7 @@ export default class ViewService extends BaseService {
             ConsoleHelper('getSubView: invalid format of cache value', err);
             sessionStorage.removeItem(cacheKey);
         }
+
         return this.fetch(`${this.domain}/${this.path}/${viewId}/subView/${recordId}?parentId=${parentId}`, {
             method: 'GET',
         })

@@ -318,23 +318,26 @@ export class AddSpecContainer extends BaseContainer {
                                 selectedIndex={this.state.selectedIndex}
                                 onOptionChanged={(args, e, b, d) => {
                                     if (args.name === 'selectedIndex') {
-                                        if (args.value !== -1) {
+                                        if (args.value !== -1 && args.previousValue !== -1) {
                                             let id = UrlUtils.getViewIdFromURL();
                                             if (id === undefined) {
                                                 id = this.props.id;
                                             }
-
                                             const elementId = this.state.elementId;
                                             const elementParentId = this.state.elementParentId;
                                             const elementRecordId = this.state.elementRecordId;
                                             const headerId = this.state.parsedView?.info?.headerId;
-                                            const tabs = this.state.tabs[args.value];
+                                            const tab = this.state.tabs[args.value];
+                                            let header = tab.header;
+                                            if (tab.type === 'METHODS' || tab.type === 'TEMPLATES') {
+                                                header = false;
+                                            }
                                             this.getViewAddSpec(
                                                 elementId,
                                                 elementParentId,
                                                 elementRecordId,
-                                                tabs.type,
-                                                tabs.header,
+                                                tab.type,
+                                                header,
                                                 headerId
                                             );
                                             this.setState({
