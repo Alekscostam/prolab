@@ -105,8 +105,8 @@ class GridViewComponent extends React.Component {
                     customizeColumns={this?.postCustomizeColumns}
                     wordWrapEnabled={rowAutoHeight}
                     columnAutoWidth={columnAutoWidth}
-                    focusedRowEnabled={true}
-                    hoverStateEnabled={true}
+                    focusedRowEnabled={this.props.focusedRowEnabled}
+                    hoverStateEnabled={this.props.hoverStateEnabled}
                     columnResizingMode='widget'
                     allowColumnReordering={true}
                     allowColumnResizing={true}
@@ -492,6 +492,8 @@ GridViewComponent.defaultProps = {
     showFilterRow: true,
     showSelection: true,
     dataGridStoreSuccess: true,
+    focusedRowEnabled: true,
+    hoverStateEnabled: true,
     allowSelectAll: true,
     selectionDeferred: false,
 };
@@ -509,6 +511,7 @@ GridViewComponent.propTypes = {
     handleOnInitialized: PropTypes.func,
     showRenderingViewMode: PropTypes.bool,
     handleShowEditPanel: PropTypes.func,
+
     //selection
     selectedRowKeys: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
     handleSelectedRowKeys: PropTypes.func,
