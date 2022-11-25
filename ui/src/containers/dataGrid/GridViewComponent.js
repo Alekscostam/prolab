@@ -492,8 +492,8 @@ GridViewComponent.defaultProps = {
     showFilterRow: true,
     showSelection: true,
     dataGridStoreSuccess: true,
-    focusedRowEnabled: true,
-    hoverStateEnabled: true,
+    focusedRowEnabled: false,
+    hoverStateEnabled: false,
     allowSelectAll: true,
     selectionDeferred: false,
 };

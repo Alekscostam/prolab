@@ -74,8 +74,6 @@ export default class EditListComponent extends React.Component {
                         parsedGridView={this.props.parsedGridView}
                         parsedGridViewData={this.props.parsedGridViewData}
                         gridViewColumns={this.props.gridViewColumns}
-                        focusedRowEnabled={false}
-                        hoverStateEnabled={false}
                         packageRows={this.props.parsedGridView?.info?.dataPackageSize}
                         handleBlockUi={() => {
                             this.props.handleBlockUi();

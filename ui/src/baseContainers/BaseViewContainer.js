@@ -1289,6 +1289,8 @@ export class BaseViewContainer extends BaseContainer {
                                     elementRecordId={
                                         this.state.elementRecordId ? this.state.elementRecordId : parentIdArg
                                     }
+                                    focusedRowEnabled={true}
+                                    hoverStateEnabled={true}
                                     handleOnInitialized={this.onInitialize}
                                     handleOnDataGrid={(ref) => (this.refDataGrid = ref)}
                                     parsedGridView={this.state.parsedGridView}
