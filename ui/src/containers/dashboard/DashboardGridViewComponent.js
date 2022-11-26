@@ -58,6 +58,7 @@ export class DashboardGridViewComponent extends BaseContainer {
         this.getViewById = this.getViewById.bind(this);
         this.downloadData = this.downloadData.bind(this);
         this.messages = React.createRef();
+        this.refDataGrid = React.createRef();
     }
 
     componentDidMount() {
@@ -177,6 +178,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                             () => ({
                                 loading: false,
                                 //elementId: this.props.id,
+                                gridViewType: responseView?.viewInfo?.type,
                                 viewType: responseView?.viewInfo?.type,
                                 parsedGridView: responseView,
                                 gridViewColumns: gridViewColumnsTmp,

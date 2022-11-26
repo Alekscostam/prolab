@@ -1023,6 +1023,8 @@ class BaseContainer extends React.Component {
             if (!!this.getRefGridView()) {
                 this.getRefGridView().instance.getDataSource().reload();
             }
+        } else if (this.isDashboard()) {
+            this.getRefGridView().instance.getDataSource().reload();
         }
         if (!!this.getSelectedDataGridRef()) {
             let id = UrlUtils.getViewIdFromURL();
