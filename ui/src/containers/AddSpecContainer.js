@@ -330,7 +330,7 @@ export class AddSpecContainer extends BaseContainer {
                                             const tab = this.state.tabs[args.value];
                                             let header = tab.header;
                                             if (tab.type === 'METHODS' || tab.type === 'TEMPLATES') {
-                                                header = false;
+                                                header = true;
                                             }
                                             this.getViewAddSpec(
                                                 elementId,
@@ -533,7 +533,10 @@ export class AddSpecContainer extends BaseContainer {
                                     const recordId = this.state.elementRecordId;
                                     const parsedView = this.state.parsedView;
                                     const type = parsedView.info?.type;
-                                    const header = parsedView.info?.header;
+                                    let header = parsedView.info?.header;
+                                    if (type === 'METHODS' || type === 'TEMPLATES') {
+                                        header = false;
+                                    }
                                     this.getViewAddSpec(viewId, parentId, recordId, type, header, id);
                                 }}
                                 selectedRowKeys={this.state.selectedRowKeys}

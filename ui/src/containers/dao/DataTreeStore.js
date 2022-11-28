@@ -3,6 +3,9 @@ import 'whatwg-fetch';
 import BaseService from '../../services/BaseService';
 import {decompress} from 'int-compress-string/src';
 import {StringUtils} from '../../utils/StringUtils';
+import Constants from '../../utils/Constants';
+
+const pramas = `skip=0&take=${Constants.INTEGER_MAX_VALUE}`;
 
 export default class DataTreeStore extends BaseService {
     constructor() {
@@ -11,7 +14,7 @@ export default class DataTreeStore extends BaseService {
     }
 
     getDataTreeStoreDirect(viewIdArg, parentIdArg, listIdArray) {
-        let url = `${this.domain}/${this.path}/${viewIdArg}/editspec/${parentIdArg}/data`;
+        let url = `${this.domain}/${this.path}/${viewIdArg}/editspec/${parentIdArg}/data?${pramas}`;
         url = this.commonCorrectUrl(url);
         return this.fetch(url, {
             method: 'POST',
@@ -22,10 +25,10 @@ export default class DataTreeStore extends BaseService {
     }
 
     getAddSpecDataTreeStoreDirect(viewIdArg, parentIdArg, type, headerId, header) {
-        let url = `${this.domain}/${this.path}/${viewIdArg}/addspec/${parentIdArg}/data`;
+        let url = `${this.domain}/${this.path}/${viewIdArg}/addspec/${parentIdArg}/data?${pramas}`;
 
         if (!StringUtils.isBlank(type) || type !== 'DEF') {
-            url += `?type=${type}&header=${header}&headerId=${headerId}`;
+            url += `&type=${type}&header=${header}&headerId=${headerId}`;
         }
 
         url = this.commonCorrectUrl(url);

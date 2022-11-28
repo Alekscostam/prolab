@@ -49,7 +49,6 @@ let dataGrid;
 export class BaseViewContainer extends BaseContainer {
     _isMounted = false;
     defaultKindView = 'View';
-    integerJavaMaxValue = 2147483647;
 
     constructor(props) {
         ConsoleHelper('BaseViewContainer -> constructor');
@@ -1249,7 +1248,7 @@ export class BaseViewContainer extends BaseContainer {
         this.setState({loading: true}, () => {
             let res = this.dataGanttStore.getDataForGantt(
                 viewIdArg,
-                {skip: 0, take: this.integerJavaMaxValue},
+                {skip: 0, take: Constants.INTEGER_MAX_VALUE},
                 parentIdArg,
                 filterIdArg,
                 kindViewArg

@@ -280,8 +280,8 @@ class TreeViewComponent extends React.Component {
                         this.ref = ref;
                         this.props.handleOnTreeList(this.ref);
                     }}
-                    focusedRowEnabled={true}
-                    hoverStateEnabled={true}
+                    focusedRowEnabled={this.props.focusedRowEnabled}
+                    hoverStateEnabled={this.props.hoverStateEnabled}
                     dataSource={this.props.parsedGridViewData}
                     customizeColumns={this.postCustomizeColumns}
                     wordWrapEnabled={rowAutoHeight}
@@ -323,7 +323,7 @@ class TreeViewComponent extends React.Component {
                         }
                     }}
                 >
-                    <Editing allowUpdating={true} mode='cell' />
+                    <Editing allowUpdating={this.props.allowUpdating} mode='cell' />
                     <RemoteOperations
                         filtering={false}
                         summary={false}
@@ -332,7 +332,7 @@ class TreeViewComponent extends React.Component {
                         grouping={false}
                         groupPaging={false}
                     />
-                    <Paging enabled={true} defaultPageSize={15} defaultPageIndex={1} />
+                    <Paging enabled={true} defaultPageSize={25} defaultPageIndex={1} />
                     <FilterRow visible={showFilterRow} applyFilter={true} />
 
                     <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'} />
@@ -352,7 +352,7 @@ class TreeViewComponent extends React.Component {
                     <Scrolling
                         showScrollbar={true}
                         mode='virtual'
-                        rowRenderingMode={'standard'}
+                        rowRenderingMode={'virtual'}
                         preloadEnabled={false}
                     />
 
@@ -1001,9 +1001,12 @@ TreeViewComponent.defaultProps = {
     showRowLines: true,
     showBorders: true,
     showColumnHeaders: true,
+    focusedRowEnabled: false,
+    hoverStateEnabled: false,
     showFilterRow: true,
     showSelection: true,
     isAddSpec: false,
+    allowUpdating: false,
     allowSelectAll: true,
 };
 
@@ -1045,6 +1048,7 @@ TreeViewComponent.propTypes = {
     isAddSpec: PropTypes.bool,
     dataTreeHeight: PropTypes.number,
     allowSelectAll: PropTypes.bool,
+    allowUpdating: PropTypes.bool,
 };
 
 export default TreeViewComponent;

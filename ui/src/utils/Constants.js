@@ -12,14 +12,13 @@ export const Constants = {
             {value: true, label: 'Tak'},
             {value: false, label: 'Nie'},
         ],
-        BOOLEAN_OPTIONS_ONLY_TRUE: [
-            {value: true, label: 'Tak'}
-        ],
+        BOOLEAN_OPTIONS_ONLY_TRUE: [{value: true, label: 'Tak'}],
     },
     SUCCESS_MSG_LIFE: 7500,
     ERROR_MSG_LIFE: 7500,
     DEFAULT_DATA_PACKAGE_COUNT: 30,
-    DEFAULT_MARGIN_BETWEEN_BUTTONS: 'mr-1'
+    DEFAULT_MARGIN_BETWEEN_BUTTONS: 'mr-1',
+    INTEGER_MAX_VALUE: 2147483647,
 };
 
 export default Constants;

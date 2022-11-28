@@ -450,8 +450,10 @@ export class EditSpecContainer extends BaseContainer {
         saveElement.forEach((array) => {
             array.forEach((el) => {
                 if (el.fieldName === '_STATUS' && el.value === 'inserted') {
-                    let idRow = array[0];
-                    idRow.value = 0;
+                    let ID = array.find((arr) => arr.fieldName === 'ID');
+                    let _ID = array.find((arr) => arr.fieldName === '_ID');
+                    ID.value = null;
+                    _ID.value = null;
                 }
             });
         });
@@ -670,7 +672,10 @@ export class EditSpecContainer extends BaseContainer {
                                 elementRecordId={this.state.elementRecordId}
                                 handleOnTreeList={(ref) => (this.refTreeList = ref)}
                                 parsedGridView={this.state.parsedView}
+                                focusedRowEnabled={true}
+                                hoverStateEnabled={true}
                                 parsedGridViewData={parsedData}
+                                allowUpdating={true}
                                 gridViewColumns={this.state.columns}
                                 selectedRowKeys={this.state.selectedRowKeys}
                                 onChange={(type, e, rowId, info) => this.handleEditRowChange(type, e, rowId, info)}
