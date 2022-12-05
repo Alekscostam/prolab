@@ -105,8 +105,9 @@ class GridViewComponent extends React.Component {
                     customizeColumns={this?.postCustomizeColumns}
                     wordWrapEnabled={rowAutoHeight}
                     columnAutoWidth={columnAutoWidth}
-                    focusedRowEnabled={false}
-                    hoverStateEnabled={false}
+                    focusedRowEnabled={this.props.focusedRowEnabled}
+                    hoverStateEnabled={this.props.hoverStateEnabled}
+                    autoNavigateToFocusedRow={false}
                     columnResizingMode='widget'
                     allowColumnReordering={true}
                     allowColumnResizing={true}
@@ -225,6 +226,7 @@ class GridViewComponent extends React.Component {
                                 column.allowReordering = true;
                                 column.allowResizing = true;
                                 column.allowSorting = columnDefinition?.isSort;
+                                column.allowWrapping = this.props.parsedGridView?.gridOptions?.rowAutoHeight || false;
                                 column.visibleIndex = columnDefinition?.columnOrder;
                                 column.headerId =
                                     'column_' + INDEX_COLUMN + '_' + columnDefinition?.fieldName?.toLowerCase();

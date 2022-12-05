@@ -282,6 +282,7 @@ class TreeViewComponent extends React.Component {
                     }}
                     focusedRowEnabled={this.props.focusedRowEnabled}
                     hoverStateEnabled={this.props.hoverStateEnabled}
+                    autoNavigateToFocusedRow={false}
                     dataSource={this.props.parsedGridViewData}
                     customizeColumns={this.postCustomizeColumns}
                     wordWrapEnabled={rowAutoHeight}

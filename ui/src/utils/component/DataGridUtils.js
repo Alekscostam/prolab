@@ -69,13 +69,13 @@ export class DataGridUtils extends ViewDataCompUtils {
                         <div
                             style={{
                                 // display: 'inline',
-                                whiteSpace: 'nowrap',
+                                whiteSpace: info.column.allowWrapping ? 'wrap' : 'nowrap',
                                 maxWidth: column.width + 'px',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
                                 backgroundColor: bgColorFinal,
                                 color: fontColorFinal,
-                                borderRadius: '25px',
+                                borderRadius: info.column.allowWrapping ? '18px' : '25px',
                                 padding: '2px 6px 2px 6px',
                             }}
                             title={StringUtils.textFromHtmlString(info.text)}

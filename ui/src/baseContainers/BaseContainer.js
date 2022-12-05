@@ -1342,7 +1342,7 @@ class BaseContainer extends React.Component {
         this.blockUi();
         const viewInfo = gridView.viewInfo;
         const viewId = viewInfo.id;
-        const parentId = viewInfo.parentId;
+        const parentId = viewInfo.parentId ? viewInfo.parentId : UrlUtils.getURLParameter('parentId');
         const parentViewId = viewInfo.parentViewId;
 
         this.crudService
@@ -1359,6 +1359,7 @@ class BaseContainer extends React.Component {
                                     if (renderEditData) {
                                         let attachmentFiles = this.state.attachmentFiles;
                                         attachmentFiles.shift();
+                                        // editDataResponse.parentId = parentId;
                                         this.setState(
                                             {
                                                 attachmentFiles: attachmentFiles,
@@ -1381,6 +1382,7 @@ class BaseContainer extends React.Component {
                             } else {
                                 this.showErrorMessages(uploadResponse);
                             }
+                            this.unblockUi();
                         }
                     },
                     () => this.unblockUi()

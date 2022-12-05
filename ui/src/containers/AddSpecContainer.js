@@ -39,6 +39,7 @@ export class AddSpecContainer extends BaseContainer {
             selectedIndex: 0,
             tabs: 0,
             visibleAddSpec: false,
+            isSubView: false,
             arrayToAdd: [],
             elementParentId: null,
             elementRecordId: null,
@@ -318,6 +319,9 @@ export class AddSpecContainer extends BaseContainer {
                                 selectedIndex={this.state.selectedIndex}
                                 onOptionChanged={(args, e, b, d) => {
                                     if (args.name === 'selectedIndex') {
+                                        if (this.state.isSubView) {
+                                            this.setState({isSubView: false, selectedIndex: 6});
+                                        }
                                         if (args.value !== -1 && args.previousValue !== -1) {
                                             let id = UrlUtils.getViewIdFromURL();
                                             if (id === undefined) {
@@ -340,6 +344,7 @@ export class AddSpecContainer extends BaseContainer {
                                                 header,
                                                 headerId
                                             );
+
                                             this.setState({
                                                 selectedIndex: args.value,
                                             });
@@ -536,6 +541,9 @@ export class AddSpecContainer extends BaseContainer {
                                     let header = parsedView.info?.header;
                                     if (type === 'METHODS' || type === 'TEMPLATES') {
                                         header = false;
+                                        this.setState({
+                                            isSubView: true,
+                                        });
                                     }
                                     this.getViewAddSpec(viewId, parentId, recordId, type, header, id);
                                 }}
