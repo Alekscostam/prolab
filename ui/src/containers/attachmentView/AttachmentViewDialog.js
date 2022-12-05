@@ -58,7 +58,6 @@ export class AttachmentViewDialog extends BaseViewContainer {
         const parentViewIdArg = viewInfo.parentViewId;
         const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId;
         const kindViewArg = 'View';
-
         this.setState({loading: true}, () => {
             let res = this.dataGridStore.getDataGridStore(
                 viewIdArg,

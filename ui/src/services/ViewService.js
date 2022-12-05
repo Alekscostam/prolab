@@ -114,7 +114,12 @@ export default class ViewService extends BaseService {
             sessionStorage.removeItem(cacheKey);
         }
 
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/subView/${recordId}?parentId=${parentId}`, {
+        let url = `${this.domain}/${this.path}/${viewId}/subView/${recordId}`;
+        if (parentId != null) {
+            url += `?parentId=${parentId}`;
+        }
+
+        return this.fetch(url, {
             method: 'GET',
         })
             .then((result) => {

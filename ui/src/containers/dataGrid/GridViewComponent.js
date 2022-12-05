@@ -105,8 +105,8 @@ class GridViewComponent extends React.Component {
                     customizeColumns={this?.postCustomizeColumns}
                     wordWrapEnabled={rowAutoHeight}
                     columnAutoWidth={columnAutoWidth}
-                    focusedRowEnabled={this.props.focusedRowEnabled}
-                    hoverStateEnabled={this.props.hoverStateEnabled}
+                    focusedRowEnabled={false}
+                    hoverStateEnabled={false}
                     columnResizingMode='widget'
                     allowColumnReordering={true}
                     allowColumnResizing={true}

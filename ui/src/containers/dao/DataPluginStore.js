@@ -1,7 +1,7 @@
 import 'devextreme/dist/css/dx.light.css';
 import 'whatwg-fetch';
 import BaseService from '../../services/BaseService';
-import ConsoleHelper from "../../utils/ConsoleHelper";
+import ConsoleHelper from '../../utils/ConsoleHelper';
 import CustomStore from 'devextreme/data/custom_store';
 
 export default class DataPluginStore extends BaseService {
@@ -10,8 +10,7 @@ export default class DataPluginStore extends BaseService {
         this.path = 'view';
     }
 
-  
-    getPluginExecuteDataStore(viewIdArg, pluginId, elementArg,parentIdArg, onError, onSuccess) {
+    getPluginExecuteDataStore(viewIdArg, pluginId, elementArg, parentIdArg, onError, onSuccess) {
         if (!viewIdArg) {
             return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0});
         }
@@ -43,28 +42,26 @@ export default class DataPluginStore extends BaseService {
                     }
                 });
 
-                const parentIdParam = parentIdArg !== undefined && parentIdArg != null ? `&parentId=${parentIdArg}` : '';
+                const parentIdParam =
+                    parentIdArg !== undefined && parentIdArg != null ? `&parentId=${parentIdArg}` : '';
 
                 const url = `${this.domain}/${this.path}/${viewIdArg}/plugin/${pluginId}/execute/data/${params}${parentIdParam}`;
+
                 if (url.indexOf(_key) > 0) {
                     //myk blokujący nadmiarowo generowane requesty przez store odnośnie selection
-                    return Promise.reject('')
+                    return Promise.reject('');
                 } else {
-                    return this.fetch(url,
-                        {
-                            method: 'POST',
-                            body: JSON.stringify(elementArg),
-                        }
-                    )
+                    return this.fetch(url, {
+                        method: 'POST',
+                        body: JSON.stringify(elementArg),
+                    })
                         .then((response) => {
-                            
-                           
                             this.cachedLastResponse = {
                                 data: response.data,
                                 totalCount: response.totalCount,
                                 summary: response.summary || [],
-                                groupCount: response.groupCount || 0
-                            }
+                                groupCount: response.groupCount || 0,
+                            };
                             ConsoleHelper('PluginListDataStore -> fetch data');
                             if (onSuccess) {
                                 onSuccess();
@@ -72,18 +69,22 @@ export default class DataPluginStore extends BaseService {
                             return this.cachedLastResponse;
                         })
                         .catch((err) => {
-                            ConsoleHelper('Error fetch data plugin list data store for view id={%s}. Error = ', viewIdArg, err);
+                            ConsoleHelper(
+                                'Error fetch data plugin list data store for view id={%s}. Error = ',
+                                viewIdArg,
+                                err
+                            );
                             if (onError) {
                                 onError(err);
                             }
                             return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0});
                         });
                 }
-            }
+            },
         });
     }
 
-    getPluginDataStore(viewIdArg, pluginId, elementArg,parentIdArg, onError, onSuccess) {
+    getPluginDataStore(viewIdArg, pluginId, elementArg, parentIdArg, onError, onSuccess) {
         if (!viewIdArg) {
             return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0});
         }
@@ -114,24 +115,23 @@ export default class DataPluginStore extends BaseService {
                     }
                 });
 
-                const parentIdParam = parentIdArg !== undefined && parentIdArg != null ? `&parentId=${parentIdArg}` : '';
+                const parentIdParam =
+                    parentIdArg !== undefined && parentIdArg != null ? `&parentId=${parentIdArg}` : '';
 
                 const url = `${this.domain}/${this.path}/${viewIdArg}/plugin/${pluginId}/data/${params}${parentIdParam}`;
                 if (url.indexOf(_key) > 0) {
                     //myk blokujący nadmiarowo generowane requesty przez store odnośnie selection
-                    return Promise.reject('')
+                    return Promise.reject('');
                 } else {
-                    return this.fetch(url,
-                        {
-                            method: 'POST',
-                            body: JSON.stringify(elementArg),
-                        }
-                    )
+                    return this.fetch(url, {
+                        method: 'POST',
+                        body: JSON.stringify(elementArg),
+                    })
                         .then((response) => {
                             this.cachedLastResponse = {
                                 data: response.data,
                                 totalCount: response.totalCount,
-                            }
+                            };
 
                             ConsoleHelper('PluginListDataStore -> fetch data');
                             if (onSuccess) {
@@ -140,14 +140,18 @@ export default class DataPluginStore extends BaseService {
                             return this.cachedLastResponse;
                         })
                         .catch((err) => {
-                            ConsoleHelper('Error fetch data plugin list data store for view id={%s}. Error = ', viewIdArg, err);
+                            ConsoleHelper(
+                                'Error fetch data plugin list data store for view id={%s}. Error = ',
+                                viewIdArg,
+                                err
+                            );
                             if (onError) {
                                 onError(err);
                             }
                             return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0});
                         });
                 }
-            }
+            },
         });
     }
 }

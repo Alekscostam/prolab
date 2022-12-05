@@ -696,7 +696,6 @@ export class BaseViewContainer extends BaseContainer {
             .then((res) => {
                 let parsedPluginViewData;
                 let renderNextStep = true;
-
                 if (res.info.kind === 'GRID') {
                     visiblePluginPanel = true;
                     let datas = this.dataPluginStore.getPluginExecuteDataStore(
@@ -731,9 +730,9 @@ export class BaseViewContainer extends BaseContainer {
                         isPluginFirstStep: false,
                     });
                 }
-                if (refreshAll) {
-                    this.refreshView();
+                if (res.viewOptions?.refreshAll) {
                     this.unselectAllDataGrid(false);
+                    this.refreshView();
                 }
             })
             .catch((err) => {
