@@ -464,6 +464,7 @@ export class BaseRowComponent extends BaseContainer {
                                 name={field.fieldName}
                                 onChange={(e) => {
                                     if (this.props.onChange) {
+                                        e.refreshFieldVisibility = field.refreshFieldVisibility;
                                         this.props.onChange('CHECKBOX', e, groupName, info);
                                     }
                                 }}
