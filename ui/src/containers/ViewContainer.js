@@ -203,22 +203,7 @@ export class ViewContainer extends BaseViewContainer {
                 this.unblockUi();
             });
         } else if (this.isGanttView()) {
-            this.setState({loading: true}, () => {
-                let res = this.dataGanttStore.getDataForGantt(
-                    viewIdArg,
-                    {skip: 0, take: this.integerJavaMaxValue},
-                    parentIdArg,
-                    filterIdArg,
-                    kindViewArg
-                );
-                if (!!res) {
-                    this.setState({
-                        loading: false,
-                        parsedGanttViewData: res,
-                    });
-                }
-                this.unblockUi();
-            });
+            this.loadGanttData(viewIdArg, parentIdArg, filterIdArg, kindViewArg);
         } else {
             this.setState({loading: true}, () => {
                 let res = this.dataGridStore.getDataGridStore(

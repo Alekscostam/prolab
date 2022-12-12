@@ -36,7 +36,7 @@ export default class BaseService {
         this.unblockUi = unblockUi;
     }
 
-    fetch(url, options, headers) {
+    fetch(url, options, headers, token) {
         const method = options !== undefined ? options.method : undefined;
         // performs api calls sending the required authentication headers
         if (headers === null || headers === undefined) {
@@ -49,6 +49,9 @@ export default class BaseService {
         }
         if (this.auth.loggedIn()) {
             headers['Authorization'] = 'Bearer ' + this.auth.getToken();
+        }
+        if (token) {
+            headers['Authorization'] = 'Bearer ' + token;
         }
         if (method === 'POST' || method === 'PUT') {
             this.counter += 1;

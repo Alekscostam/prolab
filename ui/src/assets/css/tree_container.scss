@@ -20,11 +20,6 @@ $table-selection: #dde6ff;
     background: red !important;
 }
 
-.klej {
-    background-color: #dde6ff !important;
-    color: red !important;
-}
-
 .dx-datagrid-rowsview tr > td {
     color: $data-label;
     text-align: left;
@@ -58,6 +53,20 @@ $table-selection: #dde6ff;
     font-style: normal;
     font-variant: normal;
     font-weight: 500;
+}
+
+.dx-treelist-rowsview .dx-row-focused > td,
+.dx-treelist-rowsview .dx-row-focused:hover > td,
+.dx-treelist-rowsview .dx-row-focused > tr > td,
+.dx-treelist-rowsview .dx-row-focused:hover > tr > td {
+    background-color: #0e49eb !important;
+}
+
+.dx-treelist-rowsview .dx-state-hover > td,
+.dx-treelist-rowsview .dx-state-hover:hover > td,
+.dx-treelist-rowsview .dx-state-hover > tr > td,
+.dx-treelist-rowsview .dx-state-hover:hover > tr > td {
+    background-color: WhiteSmoke !important;
 }
 
 .dx-command-select .dx-checkbox-checked .dx-checkbox-icon {

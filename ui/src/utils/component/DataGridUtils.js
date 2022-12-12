@@ -48,22 +48,6 @@ export class DataGridUtils extends ViewDataCompUtils {
                 case 'D':
                 case 'E':
                 case 'T':
-                case 'H':
-                    return ReactDOM.render(
-                        <div
-                            style={{
-                                display: 'inline',
-                                backgroundColor: bgColorFinal,
-                                color: fontColorFinal,
-                                borderRadius: '25px',
-                                padding: '2px 6px 2px 6px',
-                            }}
-                            title={info.text}
-                        >
-                            {info.text}
-                        </div>,
-                        element
-                    );
                 case 'O':
                     return ReactDOM.render(
                         <div
@@ -84,6 +68,23 @@ export class DataGridUtils extends ViewDataCompUtils {
                         </div>,
                         element
                     );
+                case 'H':
+                    return ReactDOM.render(
+                        <div
+                            style={{
+                                display: 'inline',
+                                backgroundColor: bgColorFinal,
+                                color: fontColorFinal,
+                                borderRadius: '25px',
+                                padding: '2px 6px 2px 6px',
+                            }}
+                            title={info.text}
+                        >
+                            <a href={info.value}>{info.text} </a>
+                        </div>,
+                        element
+                    );
+
                 case 'B':
                     return ReactDOM.render(
                         <div

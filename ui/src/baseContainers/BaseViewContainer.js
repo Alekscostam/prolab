@@ -668,8 +668,8 @@ export class BaseViewContainer extends BaseContainer {
                     this.showErrorMessage(res.message.text, undefined, res.message.title);
                 }
             })
-            .catch(() => {
-                this.showErrorMessage('Błąd generowania dokumentu');
+            .catch((ex) => {
+                this.showErrorMessage(ex.message.text, undefined, ex.message.title);
                 this.unblockUi();
             });
         this.unblockUi();
@@ -1244,6 +1244,10 @@ export class BaseViewContainer extends BaseContainer {
             this.state.subView == null ? UrlUtils.getURLParameter('parentId') : this.state.elementRecordId;
         const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId;
         const kindViewArg = this.state.kindView;
+        this.loadGanttData(viewIdArg, parentIdArg, filterIdArg, kindViewArg);
+    }
+
+    loadGanttData(viewIdArg, parentIdArg, filterIdArg, kindViewArg) {
         this.setState({loading: true}, () => {
             let res = this.dataGanttStore.getDataForGantt(
                 viewIdArg,

@@ -307,17 +307,22 @@ export default class CrudService extends BaseService {
         });
     }
 
-    save(viewId, recordId, parentId, kindView, kindOperation, elementToSave, confirmSave) {
+    save(viewId, recordId, parentId, kindView, kindOperation, elementToSave, confirmSave, token) {
         const queryString = this.objToQueryString({
             parentId: parentId,
             confirmSave: confirmSave,
             kindView: parentId && kindView ? kindView : undefined,
             kindOperation: kindOperation,
         });
-        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Edit/${recordId}/Save${queryString}`, {
-            method: 'POST',
-            body: JSON.stringify(elementToSave),
-        }).catch((err) => {
+        return this.fetch(
+            `${this.getDomain()}/${this.path}/${viewId}/Edit/${recordId}/Save${queryString}`,
+            {
+                method: 'POST',
+                body: JSON.stringify(elementToSave),
+            },
+            undefined,
+            token
+        ).catch((err) => {
             throw err;
         });
     }

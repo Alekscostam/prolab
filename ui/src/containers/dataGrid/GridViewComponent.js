@@ -94,109 +94,111 @@ class GridViewComponent extends React.Component {
         const selectedRowKeys = this.props.selectedRowKeys;
         return (
             <React.Fragment>
-                <DataGrid
-                    id='grid-container'
-                    keyExpr='ID'
-                    className={`grid-container${headerAutoHeight ? ' grid-header-auto-height' : ''}`}
-                    ref={(ref) => {
-                        this.props.handleOnDataGrid(ref);
-                    }}
-                    dataSource={this.props.parsedGridViewData}
-                    customizeColumns={this?.postCustomizeColumns}
-                    wordWrapEnabled={rowAutoHeight}
-                    columnAutoWidth={columnAutoWidth}
-                    focusedRowEnabled={this.props.focusedRowEnabled}
-                    hoverStateEnabled={this.props.hoverStateEnabled}
-                    autoNavigateToFocusedRow={false}
-                    columnResizingMode='widget'
-                    allowColumnReordering={true}
-                    allowColumnResizing={true}
-                    showColumnLines={showColumnLines}
-                    showRowLines={showRowLines}
-                    showBorders={showBorders}
-                    showColumnHeaders={showColumnHeaders}
-                    columnHidingEnabled={false}
-                    height={dataGridHeight ? dataGridHeight + 'px' : '100%'}
-                    width={columnAutoWidth ? '100%' : undefined}
-                    rowAlternationEnabled={false}
-                    selectedRowKeys={defaultSelectedRowKeys || selectedRowKeys}
-                    onSelectionChanged={this.props.handleSelectedRowKeys}
-                    renderAsync={true}
-                    selectAsync={false}
-                    cacheEnabled={false}
-                    onCellClick={(e) => {
-                        if (!!this.props.handleSelectAll) {
-                            if (this.ifSelectAllEvent(e)) {
-                                let event = this.selectAllEvent(e);
-                                this.props.handleSelectAll(event);
-                            } else if (this.ifSelectEvent(e)) {
-                                this.props.handleSelectAll(null);
+                <div className='dx-container'>
+                    <DataGrid
+                        id='grid-container'
+                        keyExpr='ID'
+                        className={`grid-container${headerAutoHeight ? ' grid-header-auto-height' : ''}`}
+                        ref={(ref) => {
+                            this.props.handleOnDataGrid(ref);
+                        }}
+                        dataSource={this.props.parsedGridViewData}
+                        customizeColumns={this?.postCustomizeColumns}
+                        wordWrapEnabled={rowAutoHeight}
+                        columnAutoWidth={columnAutoWidth}
+                        focusedRowEnabled={this.props.focusedRowEnabled}
+                        hoverStateEnabled={this.props.hoverStateEnabled}
+                        autoNavigateToFocusedRow={false}
+                        columnResizingMode='widget'
+                        allowColumnReordering={true}
+                        allowColumnResizing={true}
+                        showColumnLines={showColumnLines}
+                        showRowLines={showRowLines}
+                        showBorders={showBorders}
+                        showColumnHeaders={showColumnHeaders}
+                        columnHidingEnabled={false}
+                        height={dataGridHeight ? dataGridHeight + 'px' : '100%'}
+                        width={columnAutoWidth ? '100%' : undefined}
+                        rowAlternationEnabled={false}
+                        selectedRowKeys={defaultSelectedRowKeys || selectedRowKeys}
+                        onSelectionChanged={this.props.handleSelectedRowKeys}
+                        renderAsync={true}
+                        selectAsync={false}
+                        cacheEnabled={false}
+                        onCellClick={(e) => {
+                            if (!!this.props.handleSelectAll) {
+                                if (this.ifSelectAllEvent(e)) {
+                                    let event = this.selectAllEvent(e);
+                                    this.props.handleSelectAll(event);
+                                } else if (this.ifSelectEvent(e)) {
+                                    this.props.handleSelectAll(null);
+                                }
                             }
-                        }
-                    }}
-                    onInitialized={(ref) => {
-                        if (!!this.props.handleOnInitialized) this.props.handleOnInitialized(ref);
-                    }}
-                    onContentReady={(e) => {
-                        //myczek na rozjezdzajace sie linie wierszy w dataGrid
-                        // $(document).ready(function () {
-                        if (e.component.shouldSkipNextReady) {
-                            e.component.shouldSkipNextReady = false;
-                        } else {
-                            e.component.shouldSkipNextReady = true;
-                            e.component.columnOption('command:select', 'width', 30);
-                            e.component.updateDimensions();
-                        }
-                        e.component.resize();
-                        // });
-                    }}
-                >
-                    <RemoteOperations
-                        filtering={true}
-                        summary={true}
-                        sorting={true}
-                        paging={true}
-                        grouping={true}
-                        groupPaging={true}
-                    />
+                        }}
+                        onInitialized={(ref) => {
+                            if (!!this.props.handleOnInitialized) this.props.handleOnInitialized(ref);
+                        }}
+                        onContentReady={(e) => {
+                            //myczek na rozjezdzajace sie linie wierszy w dataGrid
+                            // $(document).ready(function () {
+                            if (e.component.shouldSkipNextReady) {
+                                e.component.shouldSkipNextReady = false;
+                            } else {
+                                e.component.shouldSkipNextReady = true;
+                                e.component.columnOption('command:select', 'width', 30);
+                                e.component.updateDimensions();
+                            }
+                            e.component.resize();
+                            // });
+                        }}
+                    >
+                        <RemoteOperations
+                            filtering={true}
+                            summary={true}
+                            sorting={true}
+                            paging={true}
+                            grouping={true}
+                            groupPaging={true}
+                        />
 
-                    <FilterRow visible={showFilterRow} applyFilter={true} />
-                    <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'} />
+                        <FilterRow visible={showFilterRow} applyFilter={true} />
+                        <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'} />
 
-                    <Grouping autoExpandAll={groupExpandAll} allowCollapsing={true} contextMenuEnabled={true} />
-                    <GroupPanel visible={showGroupPanel} />
+                        <Grouping autoExpandAll={groupExpandAll} allowCollapsing={true} contextMenuEnabled={true} />
+                        <GroupPanel visible={showGroupPanel} />
 
-                    <Sorting mode='multiple' />
+                        <Sorting mode='multiple' />
 
-                    <Selection
-                        mode={showSelection ? (multiSelection ? 'multiple' : 'single') : 'none'}
-                        selectAllMode='allPages'
-                        showCheckBoxesMode='always'
-                        allowSelectAll={allowSelectAll}
-                        deferred={this.props.selectionDeferred}
-                    />
+                        <Selection
+                            mode={showSelection ? (multiSelection ? 'multiple' : 'single') : 'none'}
+                            selectAllMode='allPages'
+                            showCheckBoxesMode='always'
+                            allowSelectAll={allowSelectAll}
+                            deferred={this.props.selectionDeferred}
+                        />
 
-                    {/*  byc moze moze byc sam standard mode bo i tak jest tutaj paginacja */}
-                    {/* 
+                        {/*  byc moze moze byc sam standard mode bo i tak jest tutaj paginacja */}
+                        {/* 
                     <Scrolling
                         mode='virtual'
                         rowRenderingMode={this.props.showRenderingViewMode === true ? 'virtual' : 'standard'}
                         preloadEnabled={false}
                     />
                      */}
-                    <Scrolling mode='virtual' rowRenderingMode={'standard'} preloadEnabled={false} />
+                        <Scrolling mode='virtual' rowRenderingMode={'standard'} preloadEnabled={false} />
 
-                    <Paging defaultPageSize={packageCount} pageSize={packageCount} />
+                        <Paging defaultPageSize={packageCount} pageSize={packageCount} />
 
-                    <LoadPanel
-                        enabled={true}
-                        showIndicator={true}
-                        shadingColor='rgba(0,0,0,0.4)'
-                        showPane={false}
-                        position='absolute'
-                    />
-                    {this.preGenerateColumnsDefinition()}
-                </DataGrid>
+                        <LoadPanel
+                            enabled={true}
+                            showIndicator={true}
+                            shadingColor='rgba(0,0,0,0.4)'
+                            showPane={false}
+                            position='absolute'
+                        />
+                        {this.preGenerateColumnsDefinition()}
+                    </DataGrid>
+                </div>
             </React.Fragment>
         );
     }

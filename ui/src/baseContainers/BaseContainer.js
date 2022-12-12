@@ -1003,11 +1003,11 @@ class BaseContainer extends React.Component {
         }
     }
 
-    handleEditRowSave(viewId, recordId, parentId) {
+    handleEditRowSave(viewId, recordId, parentId, token) {
         ConsoleHelper(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`);
         const saveElement = this.crudService.createObjectToSave(this.state);
         ConsoleHelper(`handleEditRowSave: element to save = ${JSON.stringify(saveElement)}`);
-        this.rowSave(viewId, recordId, parentId, saveElement, false);
+        this.rowSave(viewId, recordId, parentId, saveElement, false, token);
     }
 
     refreshView() {
@@ -1051,14 +1051,14 @@ class BaseContainer extends React.Component {
         }
     }
 
-    rowSave = (viewId, recordId, parentId, saveElement, confirmSave) => {
+    rowSave = (viewId, recordId, parentId, saveElement, confirmSave, token) => {
         this.blockUi();
         const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
         const kindOperation = this.state.editData.editInfo?.kindOperation
             ? this.state.editData.editInfo?.kindOperation
             : undefined;
         this.crudService
-            .save(viewId, recordId, parentId, kindView, kindOperation, saveElement, confirmSave)
+            .save(viewId, recordId, parentId, kindView, kindOperation, saveElement, confirmSave, token)
             .then((saveResponse) => {
                 switch (saveResponse.status) {
                     case 'OK':
@@ -1342,9 +1342,11 @@ class BaseContainer extends React.Component {
         this.blockUi();
         const viewInfo = gridView.viewInfo;
         const viewId = viewInfo.id;
-        const parentId = viewInfo.parentId ? viewInfo.parentId : UrlUtils.getURLParameter('parentId');
+        let parentId = viewInfo.parentId ? viewInfo.parentId : UrlUtils.getURLParameter('parentId');
         const parentViewId = viewInfo.parentViewId;
-
+        if (parentId == null) {
+            parentId = 0;
+        }
         this.crudService
             .uploadAttachemnt(viewId, parentId, parentViewId, attachmentFile)
             .then((uploadResponse) => {
