@@ -353,21 +353,21 @@ $table-selection: #dde6ff;
     box-shadow: none;
 }
 
-.dx-container {
-    .dx-datagrid-rowsview .dx-row-focused > td,
-    .dx-datagrid-rowsview .dx-row-focused:hover > td,
-    .dx-datagrid-rowsview .dx-row-focused > tr > td,
-    .dx-datagrid-rowsview .dx-row-focused:hover > tr > td {
-        background-color: #0e49eb !important;
-    }
+// .dx-container {
+.dx-datagrid-rowsview .dx-row-focused > td,
+.dx-datagrid-rowsview .dx-row-focused:hover > td,
+.dx-datagrid-rowsview .dx-row-focused > tr > td,
+.dx-datagrid-rowsview .dx-row-focused:hover > tr > td {
+    background-color: #0e49eb !important;
 }
+// }
 
-.dx-datagrid-rowsview .dx-state-hover > td,
-.dx-datagrid-rowsview .dx-state-hover:hover > td,
-.dx-datagrid-rowsview .dx-state-hover > tr > td,
-.dx-datagrid-rowsview .dx-state-hover:hover > tr > td {
-    background-color: #f9f9f9 !important;
-}
+// .dx-datagrid-rowsview .dx-state-hover > td,
+// .dx-datagrid-rowsview .dx-state-hover:hover > td,
+// .dx-datagrid-rowsview .dx-state-hover > tr > td,
+// .dx-datagrid-rowsview .dx-state-hover:hover > tr > td {
+//     background-color: #f9f9f9 !important;
+// }
 
 body #subviews-panel .dx-tabs {
     width: auto;

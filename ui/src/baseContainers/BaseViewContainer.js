@@ -669,7 +669,7 @@ export class BaseViewContainer extends BaseContainer {
                 }
             })
             .catch((ex) => {
-                this.showErrorMessage(ex.message.text, undefined, ex.message.title);
+                this.showErrorMessage(ex.error.message);
                 this.unblockUi();
             });
         this.unblockUi();
@@ -681,6 +681,7 @@ export class BaseViewContainer extends BaseContainer {
                 visibleDocumentPanel: false,
             });
         }
+        this.unblockUi();
     }
 
     /** Metoda już typowo pod plugin. executePlugin wykonuje się w momencie przejscia z pierwszego do drugiego kroku */
