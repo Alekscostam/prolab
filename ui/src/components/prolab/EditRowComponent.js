@@ -89,7 +89,9 @@ export class EditRowComponent extends BaseRowComponent {
                     parsedGridView={this.state.parsedGridView}
                     parsedGridViewData={this.state.parsedGridViewData}
                     gridViewColumns={this.state.gridViewColumns}
-                    onHide={() => this.setState({editListVisible: false})}
+                    onHide={() => {
+                        this.setState({editListVisible: false});
+                    }}
                     handleBlockUi={() => {
                         this.blockUi();
                         return true;
@@ -201,6 +203,7 @@ export class EditRowComponent extends BaseRowComponent {
     handleValidForm() {
         let editInfo = this.props.editData?.editInfo;
         this.props.onSave(editInfo.viewId, editInfo.recordId, editInfo.parentId);
+        this.refreshView();
     }
 
     handleAutoFill() {

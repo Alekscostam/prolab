@@ -53,6 +53,7 @@ export class BaseRowComponent extends BaseContainer {
         this.messages = React.createRef();
         this.selectionListValuesToJson = this.selectionListValuesToJson.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
+        this.validateDate = this.validateDate.bind(this);
         this.editListVisible = this.editListVisible.bind(this);
         this.fieldsMandatoryLabel = LocUtils.loc(
             this.props.labels,
@@ -263,6 +264,16 @@ export class BaseRowComponent extends BaseContainer {
                     });
             }
         );
+    }
+    validateDate(field) {
+        let date = field.value;
+        if (Object.prototype.toString.call(date) === '[object Date]') {
+            if (date instanceof Date && !isNaN(date)) {
+                return date;
+            } else {
+                return null;
+            }
+        }
     }
 
     renderInputComponent(field, fieldIndex, onChange, onBlur, groupName, required, validatorMsgs, onClickEditList) {
@@ -552,7 +563,7 @@ export class BaseRowComponent extends BaseContainer {
                             name={field.fieldName}
                             className={`${autoFill} ${editable} ${validate}`}
                             style={{width: '100%'}}
-                            value={field.value}
+                            value={this.validateDate(field)}
                             dateFormat='yy-mm-dd'
                             appendTo={document.body}
                             onChange={(e) => (onChange ? onChange('DATETIME', e, groupName, info) : null)}

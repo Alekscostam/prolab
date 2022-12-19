@@ -411,6 +411,7 @@ export class EditSpecContainer extends BaseContainer {
     }
 
     showAddSpecDialog(recordId) {
+        this.unselectAllDataGrid();
         this.setState({visibleAddSpec: true, levelId: recordId});
     }
 
@@ -451,9 +452,7 @@ export class EditSpecContainer extends BaseContainer {
             array.forEach((el) => {
                 if (el.fieldName === '_STATUS' && el.value === 'inserted') {
                     let ID = array.find((arr) => arr.fieldName === 'ID');
-                    let _ID = array.find((arr) => arr.fieldName === '_ID');
                     ID.value = null;
-                    _ID.value = null;
                 }
             });
         });
@@ -582,7 +581,6 @@ export class EditSpecContainer extends BaseContainer {
     deleteSingleRow(id) {
         let data = this.getData();
         let el = data.find((x) => x.ID === id);
-
         if (el._STATUS === 'inserted') {
             const index = data.findIndex((x) => x.ID === id);
             if (index !== undefined) {
@@ -591,9 +589,17 @@ export class EditSpecContainer extends BaseContainer {
         } else {
             el._STATUS = 'deleted';
         }
-        this.updateData(data, () => {
-            this.refreshTable();
+        let elements = data.filter((x) => x._ID_PARENT === el.ID);
+
+        elements.forEach((e) => {
+            this.delete(e.ID);
         });
+
+        if (elements.length === 0) {
+            this.updateData(data, () => {
+                this.refreshTable();
+            });
+        }
     }
 
     //metoda przenosi rekord o poziom wyżej

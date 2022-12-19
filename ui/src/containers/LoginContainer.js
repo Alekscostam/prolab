@@ -356,10 +356,10 @@ class LoginContainer extends BaseContainer {
                                                             />
                                                             <div className='mt-4'>
                                                                 <p className='font-normal text-center'>
-                                                                    Nie masz swojego konta?&nbsp;
+                                                                {labels['Login_Signup_Info']}&nbsp;
                                                                     <ActionLink
                                                                         handleClick={this.registration}
-                                                                        label={'Stwórz profil'}
+                                                                        label={labels['Login_Signup']}
                                                                     />
                                                                 </p>
                                                             </div>

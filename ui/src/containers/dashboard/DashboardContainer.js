@@ -146,6 +146,7 @@ class DashboardContainer extends BaseContainer {
                     onChange={this.handleEditRowChange}
                     onBlur={this.handleEditRowBlur}
                     onSave={this.handleEditRowSave}
+                    onEditList={this.handleEditListRowChange}
                     onAutoFill={this.handleAutoFillRowChange}
                     onCancel={this.handleCancelRowChange}
                     validator={this.validator}

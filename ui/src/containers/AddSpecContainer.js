@@ -135,8 +135,9 @@ export class AddSpecContainer extends BaseContainer {
             <React.Fragment>
                 <Dialog
                     id='addSpecDialog'
-                    header={LocUtils.loc(this.props.labels, 'add_spec_parameters', title)}
-                    footer={<React.Fragment>{/* {this.unblockUi()} */}</React.Fragment>}
+                    header={
+                        <React.Fragment>{LocUtils.loc(this.props.labels, 'add_spec_parameters', title)}</React.Fragment>
+                    }
                     visible={true}
                     resizable={false}
                     breakpoints={{'960px': '75vw'}}

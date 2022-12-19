@@ -497,6 +497,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                     <React.Fragment>
                         <GridViewComponent
                             id={this.props.id}
+                            gridFromDashboard={true}
                             elementSubViewId={this.state.elementSubViewId}
                             handleOnDataGrid={(ref) => (this.refDataGrid = ref)}
                             parsedGridView={this.state.parsedGridView}

@@ -66,7 +66,10 @@ class GridViewComponent extends React.Component {
     }
 
     render() {
-        const showGroupPanel = this.props.parsedGridView?.gridOptions?.showGroupPanel || false;
+        const showGroupPanel = this.props.gridFromDashboard
+            ? false
+            : this.props.parsedGridView?.gridOptions?.showGroupPanel || false;
+
         const groupExpandAll = this.props.parsedGridView?.gridOptions?.groupExpandAll || false;
         const columnAutoWidth = this.props.parsedGridView?.gridOptions?.columnAutoWidth || true;
         const rowAutoHeight = this.props.parsedGridView?.gridOptions?.rowAutoHeight || false;
@@ -494,6 +497,7 @@ GridViewComponent.defaultProps = {
     showBorders: true,
     showColumnHeaders: true,
     showFilterRow: true,
+    gridFromDashboard: false,
     showSelection: true,
     dataGridStoreSuccess: true,
     focusedRowEnabled: false,
@@ -544,6 +548,8 @@ GridViewComponent.propTypes = {
     dataGridHeight: PropTypes.number,
     dataGridStoreSuccess: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
     allowSelectAll: PropTypes.bool,
+
+    gridFromDashboard: PropTypes.bool,
 };
 
 export default GridViewComponent;
