@@ -563,6 +563,8 @@ class TreeViewComponent extends React.Component {
                                             }
                                         }}
                                         handleEditSpec={() => {
+                                            let prevUrl = window.location.href;
+                                            sessionStorage.setItem('prevUrl', prevUrl);
                                             TreeListUtils.openEditSpec(
                                                 viewId,
                                                 parentId,

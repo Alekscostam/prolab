@@ -9,6 +9,7 @@ import Gantt, {
     ContextMenu,
     Column,
     Editing,
+    StripLine,
     HeaderFilter,
 } from 'devextreme-react/gantt';
 
@@ -164,7 +165,7 @@ class GanttViewComponent extends React.Component {
     render() {
         const showRowLines = this.props.showRowLines;
         const showColumnHeaders = this.props.showColumnHeaders;
-
+        let currentDate = new Date(Date.now());
         const brawserWidth = document.body.offsetWidth;
         const width = this.props.collapsed ? brawserWidth - COLLAPSED_CUT_SIZE : brawserWidth - UNCOLLAPSED_CUT_SIZE;
 
@@ -258,6 +259,7 @@ class GanttViewComponent extends React.Component {
                     />
                     <ContextMenu enabled={false} />
                     {this.state.columns}
+                    <StripLine start={currentDate} title='Current Time' cssClass='current-time' />
 
                     <Editing enabled={isEditing} />
                     <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'} />
@@ -499,6 +501,8 @@ class GanttViewComponent extends React.Component {
                                             }
                                         }}
                                         handleEditSpec={() => {
+                                            let prevUrl = window.location.href;
+                                            sessionStorage.setItem('prevUrl', prevUrl);
                                             TreeListUtils.openEditSpec(
                                                 viewId,
                                                 parentId,

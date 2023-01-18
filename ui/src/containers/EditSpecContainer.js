@@ -32,6 +32,7 @@ export class EditSpecContainer extends BaseContainer {
     constructor(props) {
         ConsoleHelper('EditSpecContainer -> constructor');
         super(props);
+        debugger;
         this.viewService = new ViewService();
         this.crudService = new CrudService();
         this.dataTreeStore = new DataTreeStore();
@@ -62,6 +63,7 @@ export class EditSpecContainer extends BaseContainer {
         if (id === undefined) {
             id = this.props.id;
         }
+        this.props.handleRenderNoRefreshContent(false);
         const parentId = UrlUtils.getURLParameter('parentId');
         const recordId = UrlUtils.getURLParameter('recordId');
         const filterId = UrlUtils.getURLParameter('filterId');
@@ -80,6 +82,7 @@ export class EditSpecContainer extends BaseContainer {
         if (id === undefined) {
             id = this.props.id;
         }
+
         const parentId = UrlUtils.getURLParameter('parentId');
         const recordId = UrlUtils.getURLParameter('recordId');
         const filterId = UrlUtils.getURLParameter('filterId');
@@ -397,6 +400,14 @@ export class EditSpecContainer extends BaseContainer {
                         const viewIdArg = this.state.elementId;
                         const parentIdArg = this.state.elementParentId;
                         this.handleEditSpecSave(viewIdArg, parentIdArg);
+                        const prevUrl = sessionStorage.getItem('prevUrl');
+                        sessionStorage.removeItem('prevUrl');
+                        if (prevUrl) {
+                            window.location.href = prevUrl;
+                        } else {
+                            this.refreshView();
+                            this.refreshTable();
+                        }
                     }}
                 />
             </React.Fragment>
@@ -512,7 +523,6 @@ export class EditSpecContainer extends BaseContainer {
                         }
                         break;
                 }
-
                 this.unselectAllDataGrid();
             })
             .catch((err) => {

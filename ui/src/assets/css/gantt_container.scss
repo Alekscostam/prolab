@@ -13,6 +13,9 @@
         -ms-user-select: none;
         user-select: none;
     }
+    .dx-gantt-tm.current-time {
+        border-left: 1px solid red;
+    }
 
     .container-checkbox input {
         position: absolute;

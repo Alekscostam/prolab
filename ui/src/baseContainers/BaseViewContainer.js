@@ -39,7 +39,7 @@ import DataCardStore from '../containers/dao/DataCardStore';
 import DivContainer from '../components/DivContainer';
 import ActionButton from '../components/ActionButton';
 import {ConfirmDialog, confirmDialog} from 'primereact/confirmdialog';
-
+import {StringUtils} from '../utils/StringUtils';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -1132,8 +1132,10 @@ export class BaseViewContainer extends BaseContainer {
                                                 this.setState({subViewTabIndex: i});
                                             }
                                         });
+
                                         const subViewId = args.value.id;
                                         const parentId = UrlUtils.getURLParameter('parentId');
+
                                         const viewInfoId = this.state.subView.viewInfo.id;
                                         const recordId = this.state.elementRecordId;
                                         const kindView = !!this.state.subView.viewInfo?.kindView
@@ -1153,10 +1155,11 @@ export class BaseViewContainer extends BaseContainer {
                                 const recordId = this.state.elementRecordId;
                                 const parentId = UrlUtils.getURLParameter('parentId');
                                 const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+                                const parentUrl = StringUtils.isBlank(parentId) ? '' : `&parentId=${parentId}`;
                                 return (
                                     <a
                                         href={AppPrefixUtils.locationHrefUrl(
-                                            `/#/grid-view/${viewInfoId}?recordId=${recordId}&parentId=${parentId}&subview=${subViewId}${currentBreadcrumb}`
+                                            `/#/grid-view/${viewInfoId}?recordId=${recordId}${parentUrl}&subview=${subViewId}${currentBreadcrumb}`
                                         )}
                                         className='subview-tab-item-href'
                                     >

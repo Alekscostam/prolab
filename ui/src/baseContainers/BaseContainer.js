@@ -59,6 +59,7 @@ class BaseContainer extends React.Component {
         this.unselectAllDataGrid = this.unselectAllDataGrid.bind(this);
         this.setVariableFromEvent = this.setVariableFromEvent.bind(this);
         this.handleChangeCriteria = this.handleChangeCriteria.bind(this);
+        this.viewToRefresh = undefined;
         this.validator = new SimpleReactValidator();
         this._isMounted = false;
         this.jwtRefreshBlocked = false;
@@ -1026,7 +1027,8 @@ class BaseContainer extends React.Component {
         } else if (this.isDashboard()) {
             this.getRefGridView().instance.getDataSource().reload();
         }
-        if (!!this.getSelectedDataGridRef()) {
+        // TODO: tak wiem troche pazdzierz no ale coz
+        if (this.state.viewToRefresh) {
             let id = UrlUtils.getViewIdFromURL();
             this.downloadData(
                 id,
@@ -1036,6 +1038,9 @@ class BaseContainer extends React.Component {
                 this.state.elementParentId,
                 this.state.elementViewType
             );
+            this.setState({
+                viewToRefresh: undefined,
+            });
         }
     }
 
@@ -1895,12 +1900,10 @@ class BaseContainer extends React.Component {
         return !!this.refCardGrid ? this.refCardGrid : null;
     }
 
-    getSelectedDataGridRef() {
-        return !!this.selectedDataGrid ? this.selectedDataGrid : null;
-    }
-
     setSelectedDataGridRef(ref) {
-        this.selectedDataGrid = ref;
+        this.setState({
+            viewToRefresh: ref,
+        });
     }
 
     getRealViewId() {

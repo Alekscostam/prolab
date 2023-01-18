@@ -372,6 +372,8 @@ class GridViewComponent extends React.Component {
                                         handleEditSpec={() => {
                                             //edycja pojedynczego rekordu lub
                                             //edycja dla wszystkich rekordów, wywoływana krok wcześniej
+                                            let prevUrl = window.location.href;
+                                            sessionStorage.setItem('prevUrl', prevUrl);
                                             TreeListUtils.openEditSpec(
                                                 viewId,
                                                 TreeListUtils.isKindViewSpec(this.props.parsedGridView)

@@ -136,7 +136,13 @@ export class AddSpecContainer extends BaseContainer {
                 <Dialog
                     id='addSpecDialog'
                     header={
-                        <React.Fragment>{LocUtils.loc(this.props.labels, 'add_spec_parameters', title)}</React.Fragment>
+                        <div>
+                            <div className='mb-4'>{LocUtils.loc(this.props.labels, 'add_spec_parameters', title)}</div>
+                            <div className='row ' style={{flaot: 'right!important'}}>
+                                <div className='col-lg-6 col-md-12'>{this.renderHeaderLeft()}</div>
+                                <span className='col-lg-6 col-md-12'>{this.renderHeaderRight()}</span>
+                            </div>
+                        </div>
                     }
                     visible={true}
                     resizable={false}
@@ -147,12 +153,6 @@ export class AddSpecContainer extends BaseContainer {
                     {this.renderGlobalTop()}
                     <DivContainer colClass='base-container-div'>
                         <DivContainer colClass='row base-container-header'>
-                            <DivContainer id='header-left' colClass={''}>
-                                {this.renderHeaderLeft()}
-                            </DivContainer>
-                            <DivContainer id='header-right' colClass={''}>
-                                {this.renderHeaderRight()}
-                            </DivContainer>
                             <DivContainer id='header-content' colClass='col-12'>
                                 {this.renderHeaderContent()}
                             </DivContainer>
@@ -370,9 +370,9 @@ export class AddSpecContainer extends BaseContainer {
         let opCount = DataGridUtils.containsOperationsButton(operations, 'OP_ADDSPEC_COUNT');
 
         return (
-            <React.Fragment>
-                <div className='mt-2 ml-4'>
-                    <DivContainer>
+            <div>
+                <div className='mt-2 ml-4 text-end'>
+                    <div>
                         {!!opCount ? (
                             <React.Fragment>
                                 {LocUtils.loc(this.props.labels, 'number_of_copy', opCount.label + ' ')}
@@ -406,9 +406,9 @@ export class AddSpecContainer extends BaseContainer {
                                 this.handleExecSpec(viewIdArg, parentIdArg, type, headerId, header);
                             }}
                         />
-                    </DivContainer>
+                    </div>
                 </div>
-            </React.Fragment>
+            </div>
         );
     }
 

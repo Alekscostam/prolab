@@ -32,7 +32,7 @@ class App extends Component {
         this.history = createBrowserHistory();
         this.authService = new AuthService();
         this.historyBrowser = this.history;
-        this.selectedDataGrid = {};
+        this.selectedDataGrid = React.createRef();
         this.localizationService = new LocalizationService();
         this.viewContainer = React.createRef();
         this.editSpecContainer = React.createRef();
@@ -360,6 +360,11 @@ class App extends Component {
                                                             id={props.match.params.id}
                                                             labels={labels}
                                                             collapsed={this.state.collapsed}
+                                                            handleRenderNoRefreshContent={(renderNoRefreshContent) => {
+                                                                this.setState({
+                                                                    renderNoRefreshContent: renderNoRefreshContent,
+                                                                });
+                                                            }}
                                                         />
                                                     </AuthComponent>
                                                 );
