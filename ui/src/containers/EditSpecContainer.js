@@ -416,9 +416,14 @@ export class EditSpecContainer extends BaseContainer {
 
     handleAddElements(elements) {
         let addParsedView = (this.state.parsedData || []).concat(elements);
-        this.setState({parsedData: addParsedView}, () => {
-            this.refreshTable();
-        });
+        this.setState(
+            {
+                parsedData: addParsedView,
+            },
+            () => {
+                this.refreshTable();
+            }
+        );
     }
 
     showAddSpecDialog(recordId) {
@@ -661,7 +666,7 @@ export class EditSpecContainer extends BaseContainer {
     }
 
     getLastId() {
-        return Math.max(...this.state.parsedData.map((el) => el._ID));
+        return this.state.parsedData.length === 0 ? 0 : Math.max(...this.state.parsedData.map((el) => el._ID));
     }
 
     refreshTable(callbackAction) {
