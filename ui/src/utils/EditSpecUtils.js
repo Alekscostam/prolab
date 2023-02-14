@@ -1,5 +1,4 @@
 import AppPrefixUtils from './AppPrefixUtils';
-import UrlUtils from './UrlUtils';
 
 export class EditSpecUtils {
     static navToEditSpec(viewId, parentId, recordIdsParams, currentBreadcrumb) {

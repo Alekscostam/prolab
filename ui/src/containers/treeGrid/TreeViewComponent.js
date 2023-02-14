@@ -245,9 +245,6 @@ class TreeViewComponent extends React.Component {
                     handleOnChosen={(fieldsToUpdate) => {
                         try {
                             ConsoleHelper('EditRowComponent::handleOnChosen = ', JSON.stringify(fieldsToUpdate));
-                            const foundIndex = this.props.parsedGridViewData.findIndex(
-                                (item) => item.ID === this.state.editListRecordId
-                            );
                             let rowReplacementCopy = Object.assign(
                                 {},
                                 this.findRowDataById(this.state.editListRecordId)
@@ -259,8 +256,7 @@ class TreeViewComponent extends React.Component {
                                     rowReplacementCopy[fieldToUpdate] = newValue;
                                 }
                             }
-                            this.props.parsedGridViewData[foundIndex] = rowReplacementCopy;
-                            this.ref?.instance?.refresh();
+                            this.props.modifyParsedGridViewData(rowReplacementCopy);
                         } finally {
                             this.props.handleUnblockUi();
                         }

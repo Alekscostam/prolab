@@ -13,7 +13,7 @@ import {loadMessages, locale as devExpressLocale} from 'devextreme/localization'
 import AppPrefixUtils from './utils/AppPrefixUtils';
 import packageJson from '../package.json';
 import ReadConfigService from './services/ReadConfigService';
-import {readObjFromCookieGlobal, saveObjToCookieGlobal} from './utils/Cookie';
+import {readObjFromCookieGlobal, saveValueToCookieGlobal, saveObjToCookieGlobal} from './utils/Cookie';
 import LocalizationService from './services/LocalizationService';
 import config from 'devextreme/core/config';
 import ConsoleHelper from './utils/ConsoleHelper';
@@ -264,16 +264,12 @@ class App extends Component {
                                                         labels={labels}
                                                         handleRightHeadPanelContent={(e) => {
                                                             this.viewContainer?.current?.handleRightHeadPanelContent(e);
-                                                            this.viewContainer?.current?.setSelectedDataGridRef(
-                                                                this.selectedDataGrid
-                                                            );
+                                                            saveValueToCookieGlobal('refreshSubView', true);
                                                         }}
                                                         handleOnEditClick={(e) => {
                                                             //TODO antypattern :P
                                                             this.viewContainer?.current?.editSubView(e);
-                                                            this.viewContainer?.current?.setSelectedDataGridRef(
-                                                                this.selectedDataGrid
-                                                            );
+                                                            saveValueToCookieGlobal('refreshSubView', true);
                                                         }}
                                                     />
                                                 ) : null}

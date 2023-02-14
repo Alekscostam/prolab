@@ -80,7 +80,9 @@ export class DataGridUtils extends ViewDataCompUtils {
                             }}
                             title={info.text}
                         >
-                            <a href={info.value}>{info.text} </a>
+                            <a href={info.value} rel='noopener noreferrer' target='_blank'>
+                                {info.text}{' '}
+                            </a>
                         </div>,
                         element
                     );

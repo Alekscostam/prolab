@@ -517,6 +517,7 @@ export class AddSpecContainer extends BaseContainer {
 
     //override
     renderContent = () => {
+        let parsedData = this.state?.parsedData;
         return (
             <React.Fragment>
                 {this.state.loading ? null : (
@@ -531,7 +532,7 @@ export class AddSpecContainer extends BaseContainer {
                                 elementRecordId={this.state.elementRecordId}
                                 handleOnTreeList={(ref) => (this.refTreeList = ref)}
                                 parsedGridView={this.state.parsedView}
-                                parsedGridViewData={this.state.parsedData}
+                                parsedGridViewData={parsedData}
                                 gridViewColumns={this.state.columns}
                                 handleAddSpecSpec={(id) => {
                                     const viewId = this.state.elementId;
@@ -562,6 +563,16 @@ export class AddSpecContainer extends BaseContainer {
                                             ...prevState,
                                             selectedRowKeys: e,
                                         };
+                                    });
+                                }}
+                                modifyParsedGridViewData={(newCopyRow) => {
+                                    parsedData.forEach((el) => {
+                                        if (el.ID === newCopyRow.ID) {
+                                            el = newCopyRow;
+                                        }
+                                    });
+                                    this.setState({
+                                        parsedData,
                                     });
                                 }}
                                 handleDeleteRow={(id) => this.delete(id)}

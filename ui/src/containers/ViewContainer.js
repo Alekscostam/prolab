@@ -7,6 +7,9 @@ import LocUtils from '../utils/LocUtils';
 import {AttachmentViewDialog} from './attachmentView/AttachmentViewDialog';
 import {BaseViewContainer} from '../baseContainers/BaseViewContainer';
 import {EntryResponseUtils} from '../utils/EntryResponseUtils';
+import {DataGridUtils} from '../utils/component/DataGridUtils';
+import ActionButton from '../components/ActionButton';
+import {AddSpecContainer} from './AddSpecContainer';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -20,6 +23,48 @@ export class ViewContainer extends BaseViewContainer {
         this.getViewById = this.getViewById.bind(this);
         this.getDataByViewResponse = this.getDataByViewResponse.bind(this);
         this.additionalTopComponents = this.additionalTopComponents.bind(this);
+        this.showAddSpecDialog = this.showAddSpecDialog.bind(this);
+        this.getLastId = this.getLastId.bind(this);
+        this.handleAddElements = this.handleAddElements.bind(this);
+    }
+
+    showAddSpecDialog(recordId) {
+        this.unselectAllDataGrid();
+        this.setState({visibleAddSpec: true, levelId: recordId});
+    }
+
+    renderHeaderRight() {
+        let opADD = DataGridUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_ADD_SPEC');
+        return (
+            <React.Fragment>
+                <div>
+                    <ActionButton
+                        rendered={opADD}
+                        className='mt-3 mr-3'
+                        label={opADD?.label}
+                        handleClick={(e) => {
+                            this.showAddSpecDialog();
+                        }}
+                    />
+                </div>
+            </React.Fragment>
+        );
+    }
+    getLastId() {
+        return 0;
+    }
+
+    //override
+    createObjectToSave(rowArray) {
+        let arrayTmp = [];
+        for (let row of rowArray) {
+            let rowArray = [];
+            for (let field in row) {
+                rowArray.push({fieldName: field, value: row[field]});
+            }
+            arrayTmp.push(rowArray);
+        }
+        return arrayTmp;
     }
 
     // overide
@@ -257,47 +302,75 @@ export class ViewContainer extends BaseViewContainer {
     //override
     additionalTopComponents() {
         ConsoleHelper('ViewContainer::additionalTopComponents');
-        return this.state.attachmentViewInfo ? (
-            <AttachmentViewDialog
-                ref={this.viewContainer}
-                recordId={this.state.attachmentViewInfo.recordId}
-                id={this.state.attachmentViewInfo.viewId}
-                handleRenderNoRefreshContent={(renderNoRefreshContent) => {
-                    this.setState({renderNoRefreshContent: renderNoRefreshContent});
-                }}
-                handleShowGlobalErrorMessage={(err) => {
-                    this.setState({
-                        attachmentViewInfo: undefined,
-                    });
-                    this.showGlobalErrorMessage(err);
-                }}
-                handleShowErrorMessages={(err) => {
-                    this.showErrorMessage(err);
-                }}
-                handleShowEditPanel={(editDataResponse) => {
-                    this.handleShowEditPanel(editDataResponse);
-                }}
-                onHide={() =>
-                    this.setState({
-                        attachmentViewInfo: undefined,
-                    })
-                }
-                handleViewInfoName={(viewInfoName) => {
-                    this.setState({viewInfoName: viewInfoName});
-                }}
-                handleSubView={(subView) => {
-                    this.setState({subView: subView});
-                }}
-                handleOperations={(operations) => {
-                    this.setState({operations: operations});
-                }}
-                handleShortcutButtons={(shortcutButtons) => {
-                    this.setState({shortcutButtons: shortcutButtons});
-                }}
-                collapsed={this.state.collapsed}
-            />
-        ) : null;
+        return (
+            <div>
+                {this.state.attachmentViewInfo ? (
+                    <AttachmentViewDialog
+                        ref={this.viewContainer}
+                        recordId={this.state.attachmentViewInfo.recordId}
+                        id={this.state.attachmentViewInfo.viewId}
+                        handleRenderNoRefreshContent={(renderNoRefreshContent) => {
+                            this.setState({renderNoRefreshContent: renderNoRefreshContent});
+                        }}
+                        handleShowGlobalErrorMessage={(err) => {
+                            this.setState({
+                                attachmentViewInfo: undefined,
+                            });
+                            this.showGlobalErrorMessage(err);
+                        }}
+                        handleShowErrorMessages={(err) => {
+                            this.showErrorMessage(err);
+                        }}
+                        handleShowEditPanel={(editDataResponse) => {
+                            this.handleShowEditPanel(editDataResponse);
+                        }}
+                        onHide={() =>
+                            this.setState({
+                                attachmentViewInfo: undefined,
+                            })
+                        }
+                        handleViewInfoName={(viewInfoName) => {
+                            this.setState({viewInfoName: viewInfoName});
+                        }}
+                        handleSubView={(subView) => {
+                            this.setState({subView: subView});
+                        }}
+                        handleOperations={(operations) => {
+                            this.setState({operations: operations});
+                        }}
+                        handleShortcutButtons={(shortcutButtons) => {
+                            this.setState({shortcutButtons: shortcutButtons});
+                        }}
+                        collapsed={this.state.collapsed}
+                    />
+                ) : null}
+                {this.state.visibleAddSpec ? (
+                    <AddSpecContainer
+                        ref={this.addSpecContainer}
+                        lastId={this.getLastId()}
+                        id={this.props.id}
+                        levelId={this.state.levelId}
+                        handleAddElements={(el) => this.handleAddElements(el)}
+                        onHide={() =>
+                            this.setState({
+                                visibleAddSpec: false,
+                            })
+                        }
+                        collapsed={this.props.collapsed}
+                    />
+                ) : null}
+            </div>
+        );
     }
+
+    handleAddElements(elements) {
+        const viewIdArg = this.state.elementSubViewId;
+        const parentIdArg = this.state.elementRecordId;
+        const saveElement = this.createObjectToSave((this.state.parsedData || []).concat(elements));
+        ConsoleHelper(`handleAddElements: element to save = ${JSON.stringify(saveElement)}`);
+        this.specSave(viewIdArg, parentIdArg, saveElement, false);
+    }
+
     //override
     render() {
         return <React.Fragment>{super.render()}</React.Fragment>;

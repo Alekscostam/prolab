@@ -372,16 +372,22 @@ export class EditSpecContainer extends BaseContainer {
         );
     }
 
+    showAddSpecDialog(recordId) {
+        this.unselectAllDataGrid();
+        this.setState({visibleAddSpec: true, levelId: recordId});
+    }
+
     //override
     renderHeaderRight() {
         //TODO let operations = this.state.operations;
         //TODO mock
         let operations = [];
         operations.push({type: 'OP_SAVE', label: 'Zapisz'});
-        operations.push({type: 'OP_ADD', label: 'Dodaj'});
+        operations.push({type: 'OP_ADD_SPEC', label: 'Dodaj'});
         //TODO mock end
-        let opAdd = DataGridUtils.containsOperationsButton(operations, 'OP_ADD');
+        let opAdd = DataGridUtils.containsOperationsButton(operations, 'OP_ADD_SPEC');
         let opSave = DataGridUtils.containsOperationsButton(operations, 'OP_SAVE');
+
         return (
             <React.Fragment>
                 <ActionButton
@@ -426,11 +432,6 @@ export class EditSpecContainer extends BaseContainer {
         );
     }
 
-    showAddSpecDialog(recordId) {
-        this.unselectAllDataGrid();
-        this.setState({visibleAddSpec: true, levelId: recordId});
-    }
-
     handleEditSpecSave(viewId, parentId) {
         ConsoleHelper(`handleEditSpecSave: viewId = ${viewId} parentId = ${parentId}`);
         const saveElement = this.createObjectToSave(this.state.parsedData);
@@ -461,79 +462,6 @@ export class EditSpecContainer extends BaseContainer {
         this.unblockUi();
     }
     //override
-    specSave = (viewId, parentId, saveElement, confirmSave) => {
-        this.blockUi();
-
-        saveElement.forEach((array) => {
-            array.forEach((el) => {
-                if (el.fieldName === '_STATUS' && el.value === 'inserted') {
-                    let ID = array.find((arr) => arr.fieldName === 'ID');
-                    ID.value = null;
-                }
-            });
-        });
-
-        this.crudService
-            .saveSpec(viewId, parentId, saveElement, confirmSave)
-            .then((saveResponse) => {
-                switch (saveResponse.status) {
-                    case 'OK':
-                        if (!!saveResponse.message) {
-                            confirmDialog({
-                                appendTo: document.body,
-                                message: saveResponse?.message?.text,
-                                header: saveResponse?.message?.title,
-                                icon: 'pi pi-info-circle',
-                                rejectClassName: 'hidden',
-                                acceptLabel: 'OK',
-                                rejectLabel: undefined,
-                                accept: () => {},
-                            });
-                        } else if (!!saveResponse.error) {
-                            this.showResponseErrorMessage(saveResponse);
-                        }
-                        break;
-                    case 'NOK':
-                        if (!!saveResponse.question) {
-                            confirmDialog({
-                                appendTo: document.body,
-                                message: saveResponse?.question?.text,
-                                header: saveResponse?.question?.title,
-                                icon: 'pi pi-question-circle',
-                                acceptLabel: localeOptions('accept'),
-                                rejectLabel: localeOptions('reject'),
-                                accept: () => this.specSave(viewId, parentId, saveElement, true),
-                                reject: () => undefined,
-                            });
-                        } else if (!!saveResponse.message) {
-                            confirmDialog({
-                                appendTo: document.body,
-                                message: saveResponse?.message?.text,
-                                header: saveResponse?.message?.title,
-                                icon: 'pi pi-info-circle',
-                                rejectClassName: 'hidden',
-                                acceptLabel: 'OK',
-                                rejectLabel: undefined,
-                                accept: () => undefined,
-                            });
-                        } else if (!!saveResponse.error) {
-                            this.showResponseErrorMessage(saveResponse);
-                        }
-                        break;
-                    default:
-                        if (!!saveResponse.error) {
-                            this.showResponseErrorMessage(saveResponse);
-                        } else {
-                            this.showErrorMessages(saveResponse);
-                        }
-                        break;
-                }
-                this.unselectAllDataGrid();
-            })
-            .catch((err) => {
-                this.showGlobalErrorMessage(err);
-            });
-    };
 
     //override
     renderHeaderContent() {}
@@ -680,7 +608,7 @@ export class EditSpecContainer extends BaseContainer {
 
     //override
     renderContent = () => {
-        const parsedData = this.state.parsedData.filter((el) => el._STATUS !== 'deleted');
+        let parsedData = this.state.parsedData.filter((el) => el._STATUS !== 'deleted');
         return (
             <React.Fragment>
                 {this.state.loading ? null : (
@@ -696,6 +624,16 @@ export class EditSpecContainer extends BaseContainer {
                                 focusedRowEnabled={true}
                                 hoverStateEnabled={true}
                                 parsedGridViewData={parsedData}
+                                modifyParsedGridViewData={(newCopyRow) => {
+                                    parsedData.forEach((el) => {
+                                        if (el.ID === newCopyRow.ID) {
+                                            el = newCopyRow;
+                                        }
+                                    });
+                                    this.setState({
+                                        parsedData,
+                                    });
+                                }}
                                 allowUpdating={true}
                                 gridViewColumns={this.state.columns}
                                 selectedRowKeys={this.state.selectedRowKeys}

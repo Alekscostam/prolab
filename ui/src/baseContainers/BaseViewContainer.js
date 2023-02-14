@@ -69,6 +69,7 @@ export class BaseViewContainer extends BaseContainer {
             loading: true,
             elementId: props.id,
             elementSubViewId: null,
+            visibleAddSpec: false,
             elementRecordId: null,
             elementParentId: null,
             elementKindView: this.defaultKindView,
@@ -742,14 +743,12 @@ export class BaseViewContainer extends BaseContainer {
     }
 
     //override
-
-    //override
-    renderHeaderLeft() {
+    renderHeaderRight() {
         return <React.Fragment />;
     }
 
     //override
-    renderHeaderRight() {
+    renderHeaderLeft() {
         return <React.Fragment />;
     }
 

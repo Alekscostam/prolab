@@ -21,7 +21,12 @@ import {DataGridUtils} from '../utils/component/DataGridUtils';
 import {EntryResponseUtils} from '../utils/EntryResponseUtils';
 import CrudService from '../services/CrudService';
 import UrlUtils from '../utils/UrlUtils';
-
+import {
+    readValueCookieGlobal,
+    readObjFromCookieGlobal,
+    saveObjToCookieGlobal,
+    removeCookieGlobal,
+} from '../utils/Cookie';
 class BaseContainer extends React.Component {
     constructor(props, service) {
         super(props);
@@ -59,7 +64,7 @@ class BaseContainer extends React.Component {
         this.unselectAllDataGrid = this.unselectAllDataGrid.bind(this);
         this.setVariableFromEvent = this.setVariableFromEvent.bind(this);
         this.handleChangeCriteria = this.handleChangeCriteria.bind(this);
-        this.viewToRefresh = undefined;
+        this.refreshSubView = this.refreshSubView.bind(this);
         this.validator = new SimpleReactValidator();
         this._isMounted = false;
         this.jwtRefreshBlocked = false;
@@ -1027,8 +1032,10 @@ class BaseContainer extends React.Component {
         } else if (this.isDashboard()) {
             this.getRefGridView().instance.getDataSource().reload();
         }
-        // TODO: tak wiem troche pazdzierz no ale coz
-        if (this.state.viewToRefresh) {
+    }
+
+    refreshSubView() {
+        if (this.state.kindView === 'ViewSpec' && this.state.subView) {
             let id = UrlUtils.getViewIdFromURL();
             this.downloadData(
                 id,
@@ -1038,9 +1045,8 @@ class BaseContainer extends React.Component {
                 this.state.elementParentId,
                 this.state.elementViewType
             );
-            this.setState({
-                viewToRefresh: undefined,
-            });
+        } else {
+            removeCookieGlobal('refreshSubView');
         }
     }
 
@@ -1056,8 +1062,84 @@ class BaseContainer extends React.Component {
         }
     }
 
+    specSave = (viewId, parentId, saveElement, confirmSave) => {
+        this.blockUi();
+
+        saveElement.forEach((array) => {
+            array.forEach((el) => {
+                if (el.fieldName === '_STATUS' && el.value === 'inserted') {
+                    let ID = array.find((arr) => arr.fieldName === 'ID');
+                    ID.value = null;
+                }
+            });
+        });
+
+        this.crudService
+            .saveSpec(viewId, parentId, saveElement, confirmSave)
+            .then((saveResponse) => {
+                switch (saveResponse.status) {
+                    case 'OK':
+                        if (!!saveResponse.message) {
+                            confirmDialog({
+                                appendTo: document.body,
+                                message: saveResponse?.message?.text,
+                                header: saveResponse?.message?.title,
+                                icon: 'pi pi-info-circle',
+                                rejectClassName: 'hidden',
+                                acceptLabel: 'OK',
+                                rejectLabel: undefined,
+                                accept: () => {},
+                            });
+                        } else if (!!saveResponse.error) {
+                            this.showResponseErrorMessage(saveResponse);
+                        }
+                        break;
+                    case 'NOK':
+                        if (!!saveResponse.question) {
+                            confirmDialog({
+                                appendTo: document.body,
+                                message: saveResponse?.question?.text,
+                                header: saveResponse?.question?.title,
+                                icon: 'pi pi-question-circle',
+                                acceptLabel: localeOptions('accept'),
+                                rejectLabel: localeOptions('reject'),
+                                accept: () => this.specSave(viewId, parentId, saveElement, true),
+                                reject: () => undefined,
+                            });
+                        } else if (!!saveResponse.message) {
+                            confirmDialog({
+                                appendTo: document.body,
+                                message: saveResponse?.message?.text,
+                                header: saveResponse?.message?.title,
+                                icon: 'pi pi-info-circle',
+                                rejectClassName: 'hidden',
+                                acceptLabel: 'OK',
+                                rejectLabel: undefined,
+                                accept: () => undefined,
+                            });
+                        } else if (!!saveResponse.error) {
+                            this.showResponseErrorMessage(saveResponse);
+                        }
+                        break;
+                    default:
+                        if (!!saveResponse.error) {
+                            this.showResponseErrorMessage(saveResponse);
+                        } else {
+                            this.showErrorMessages(saveResponse);
+                        }
+                        break;
+                }
+                this.refreshView();
+                this.unselectAllDataGrid();
+            })
+            .catch((err) => {
+                this.showGlobalErrorMessage(err);
+            });
+    };
+
     rowSave = (viewId, recordId, parentId, saveElement, confirmSave, token) => {
         this.blockUi();
+        const refreshSubView = this.state.refreshSubView;
         const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
         const kindOperation = this.state.editData.editInfo?.kindOperation
             ? this.state.editData.editInfo?.kindOperation
@@ -1127,6 +1209,9 @@ class BaseContainer extends React.Component {
                 if (this.state?.attachmentFiles?.length) {
                     this.uploadAttachemnt(this.state.parsedGridView, this.state.attachmentFiles[0]);
                 }
+                if (readValueCookieGlobal('refreshSubView')) {
+                    this.refreshSubView(refreshSubView);
+                }
                 this.refreshView();
                 this.unblockUi();
             })
@@ -1134,7 +1219,6 @@ class BaseContainer extends React.Component {
                 this.showGlobalErrorMessage(err);
             });
     };
-
     copyAfterSave = (saveResponse) => {
         let {copyOptions, copyCounter} = this.state.copyData;
         let selectedRowKeys = this.state.selectedRowKeys;
@@ -1898,12 +1982,6 @@ class BaseContainer extends React.Component {
 
     getRefCardGrid() {
         return !!this.refCardGrid ? this.refCardGrid : null;
-    }
-
-    setSelectedDataGridRef(ref) {
-        this.setState({
-            viewToRefresh: ref,
-        });
     }
 
     getRealViewId() {

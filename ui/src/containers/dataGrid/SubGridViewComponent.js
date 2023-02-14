@@ -7,7 +7,12 @@ import ShortcutButton from '../../components/prolab/ShortcutButton';
 import ActionButtonWithMenu from '../../components/prolab/ActionButtonWithMenu';
 import ConsoleHelper from '../../utils/ConsoleHelper';
 import GridViewMinimizeComponent from './GridViewMinimizeComponent';
-import {readObjFromCookieGlobal, saveObjToCookieGlobal} from '../../utils/Cookie';
+import {
+    readObjFromCookieGlobal,
+    readValueCookieGlobal,
+    removeCookieGlobal,
+    saveObjToCookieGlobal,
+} from '../../utils/Cookie';
 import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils';
 import UrlUtils from '../../utils/UrlUtils';
 
@@ -23,6 +28,12 @@ class SubGridViewComponent extends React.Component {
 
     //very important !!!
     shouldComponentUpdate(nextProps, nextState, nextContext) {
+        // TODO: robilem na wiele sposobów i wychodiz tylko to niestety
+        const refreshSubView = readValueCookieGlobal('refreshSubView');
+        if (refreshSubView) {
+            removeCookieGlobal('refreshSubView');
+            return true;
+        }
         if (!!window.performance) {
             if (performance.navigation.type === 1) {
                 return true;
@@ -92,6 +103,7 @@ class SubGridViewComponent extends React.Component {
                             <div className='maximalized-sub-view'>
                                 <DataGrid
                                     id='selection-data-grid'
+                                    // handleOnDataGrid={(ref) => (this.refDataGrid = ref)}
                                     ref={(ref) => this.props.handleOnInitialized(ref)}
                                     dataSource={this.props.subView?.headerData}
                                     wordWrapEnabled={rowAutoHeight}
