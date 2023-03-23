@@ -123,6 +123,7 @@ export class BaseViewContainer extends BaseContainer {
         this.getViewById = this.getViewById.bind(this);
         this.handleRightHeadPanelContent = this.handleRightHeadPanelContent.bind(this);
         this.executePlugin = this.executePlugin.bind(this);
+        this.calculateFormula = this.calculateFormula.bind(this);
         this.refreshGanttData = this.refreshGanttData.bind(this);
         this.additionalTopComponents = this.additionalTopComponents.bind(this);
         this.executeDocument = this.executeDocument.bind(this);
@@ -1005,6 +1006,9 @@ export class BaseViewContainer extends BaseContainer {
         });
     }
 
+    calculateFormula() {
+        // TODO:
+    }
     //override
     renderHeadPanel = () => {
         if (this.isDashboard()) {
@@ -1022,6 +1026,7 @@ export class BaseViewContainer extends BaseContainer {
                     operations={this.state.parsedGridView?.operations}
                     leftContent={this.leftHeadPanelContent()}
                     rightContent={this.rightHeadPanelContent()}
+                    handleFormula={() => this.calculateFormula()}
                     handleDelete={() => this.delete()}
                     handleRestore={() => this.restore()}
                     handleCopy={() => this.showCopyView()}
@@ -1133,8 +1138,9 @@ export class BaseViewContainer extends BaseContainer {
                                         });
 
                                         const subViewId = args.value.id;
-                                        const parentId = UrlUtils.getURLParameter('parentId');
-
+                                        const parentId = StringUtils.isBlank(UrlUtils.getURLParameter('parentId'))
+                                            ? ''
+                                            : `&parentId=${UrlUtils.getURLParameter('parentId')}`;
                                         const viewInfoId = this.state.subView.viewInfo.id;
                                         const recordId = this.state.elementRecordId;
                                         const kindView = !!this.state.subView.viewInfo?.kindView

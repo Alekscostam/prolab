@@ -6,6 +6,8 @@ import {TreeList} from 'devextreme-react';
 import {
     Column,
     Editing,
+    Toolbar,
+    Item,
     FilterRow,
     HeaderFilter,
     LoadPanel,
@@ -36,14 +38,18 @@ import UploadMultiImageFileBase64 from '../../components/prolab/UploadMultiImage
 import EditListComponent from '../../components/prolab/EditListComponent';
 import EditListUtils from '../../utils/EditListUtils';
 import EditListDataStore from '../dao/EditListDataStore';
+import {EditSpecUtils} from '../../utils/EditSpecUtils';
+import {compress} from 'int-compress-string';
 //
 //    https://js.devexpress.com/Documentation/Guide/UI_Components/TreeList/Getting_Started_with_TreeList/
 //
+
 class TreeViewComponent extends React.Component {
     constructor(props) {
         super(props);
         this.labels = this.props;
         this.crudService = new CrudService();
+        this.ref = React.createRef();
         this.editListDataStore = new EditListDataStore();
         ConsoleHelper('TreeViewComponent -> constructor');
         this.state = {
@@ -116,6 +122,7 @@ class TreeViewComponent extends React.Component {
                 const currentEditListRow = this.props.parsedGridViewData.filter((item) => {
                     return item.ID === recordId;
                 });
+
                 const editListBodyObject = TreeListUtils.createBodyToEditList(currentEditListRow[0]);
                 this.crudService
                     .editSpecList(viewId, parentId, fieldId, editListBodyObject)
@@ -347,10 +354,14 @@ class TreeViewComponent extends React.Component {
                  */}
 
                     <Scrolling
-                        showScrollbar={true}
                         mode='virtual'
-                        rowRenderingMode={'virtual'}
-                        preloadEnabled={false}
+                        useNative={false}
+                        scrollByContent={true}
+                        scrollByThumb={true}
+                        showScrollbar='always'
+                        visible={true}
+                        rowRenderingMode={this.props.rowRenderingMode}
+                        preloadEnabled={this.props.preloadEnabled}
                     />
 
                     <Selection
@@ -407,7 +418,7 @@ class TreeViewComponent extends React.Component {
                     sortOrder={sortOrder}
                     dataField={columnDefinition?.fieldName}
                     sortIndex={columnDefinition?.sortIndex}
-                    allowEditing={columnDefinition?.edit || columnDefinition?.selectionList}
+                    allowEditing={editable || columnDefinition?.selectionList}
                     cellRender={
                         this.isSpecialCell(columnDefinition?.type)
                             ? (cellInfo, columnDefinition) => this.cellRenderSpecial(cellInfo, columnDefinition)
@@ -571,7 +582,15 @@ class TreeViewComponent extends React.Component {
                                             );
                                         }}
                                         hrefSubview={AppPrefixUtils.locationHrefUrl(
-                                            `/#/grid-view/${viewId}?recordId=${recordId}${currentBreadcrumb}`
+                                            `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${
+                                                !!currentBreadcrumb ? currentBreadcrumb : ``
+                                            }`
+                                        )}
+                                        hrefSpecView={EditSpecUtils.editSpecUrl(
+                                            viewId,
+                                            parentId,
+                                            compress([recordId]),
+                                            currentBreadcrumb
                                         )}
                                         handleHrefSubview={() => {
                                             let result = this.props.handleBlockUi();
@@ -1001,7 +1020,9 @@ TreeViewComponent.defaultProps = {
     showBorders: true,
     showColumnHeaders: true,
     focusedRowEnabled: false,
+    rowRenderingMode: 'virtual',
     hoverStateEnabled: false,
+    preloadEnabled: true,
     showFilterRow: true,
     showSelection: true,
     isAddSpec: false,
@@ -1041,6 +1062,8 @@ TreeViewComponent.propTypes = {
     showColumnHeaders: PropTypes.bool,
     showColumnLines: PropTypes.bool,
     showRowLines: PropTypes.bool,
+    preloadEnabled: PropTypes.bool,
+    rowRenderingMode: PropTypes.string,
     showBorders: PropTypes.bool,
     showFilterRow: PropTypes.bool,
     showSelection: PropTypes.bool,

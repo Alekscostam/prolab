@@ -21,12 +21,7 @@ import {DataGridUtils} from '../utils/component/DataGridUtils';
 import {EntryResponseUtils} from '../utils/EntryResponseUtils';
 import CrudService from '../services/CrudService';
 import UrlUtils from '../utils/UrlUtils';
-import {
-    readValueCookieGlobal,
-    readObjFromCookieGlobal,
-    saveObjToCookieGlobal,
-    removeCookieGlobal,
-} from '../utils/Cookie';
+import {readValueCookieGlobal, removeCookieGlobal} from '../utils/Cookie';
 class BaseContainer extends React.Component {
     constructor(props, service) {
         super(props);
@@ -1064,7 +1059,6 @@ class BaseContainer extends React.Component {
 
     specSave = (viewId, parentId, saveElement, confirmSave) => {
         this.blockUi();
-
         saveElement.forEach((array) => {
             array.forEach((el) => {
                 if (el.fieldName === '_STATUS' && el.value === 'inserted') {
@@ -1073,7 +1067,6 @@ class BaseContainer extends React.Component {
                 }
             });
         });
-
         this.crudService
             .saveSpec(viewId, parentId, saveElement, confirmSave)
             .then((saveResponse) => {
@@ -1203,6 +1196,7 @@ class BaseContainer extends React.Component {
                         }
                         break;
                 }
+
                 if (kindOperation.toUpperCase() === 'COPY') {
                     this.copyAfterSave(saveResponse);
                 }
@@ -1212,7 +1206,12 @@ class BaseContainer extends React.Component {
                 if (readValueCookieGlobal('refreshSubView')) {
                     this.refreshSubView(refreshSubView);
                 }
-                this.refreshView();
+                // to oznacza ze to bedzie komponent DashboardContainer -> DashboardCardViewComponent
+                if (this.state?.cardView) {
+                    this.refreshView(saveElement);
+                } else {
+                    this.refreshView();
+                }
                 this.unblockUi();
             })
             .catch((err) => {
@@ -1350,6 +1349,7 @@ class BaseContainer extends React.Component {
         });
     }
 
+    // TODO: plugin
     plugin(id) {
         ConsoleHelper('handlePlugin');
         const viewId = this.getRealViewId();
@@ -1370,7 +1370,11 @@ class BaseContainer extends React.Component {
                         listId,
                         parentId,
                         (err) => {
-                            this.props.showErrorMessages(err);
+                            if (typeof this.showErrorMessage === 'undefined') {
+                                this.props.showErrorMessage(err);
+                            } else {
+                                this.showErrorMessages(err);
+                            }
                         },
                         () => {
                             this.setState({dataPluginStoreSuccess: true});
@@ -1632,6 +1636,30 @@ class BaseContainer extends React.Component {
                     },
                     () => this.unblockUi()
                 );
+            })
+            .catch((err) => {
+                this.showGlobalErrorMessage(err);
+            });
+    }
+
+    calculateFormula(id) {
+        ConsoleHelper('handleCalculateFormula');
+        this.blockUi();
+        const viewId = this.getRealViewId();
+        const parentId = this.state.elementRecordId;
+        const selectedRowKeysIds = this.getSelectedRowKeysIds(id);
+        this.crudService
+            .calculateFormula(viewId, parentId, selectedRowKeysIds)
+            .then((formulaResponse) => {
+                this.unselectAllDataGrid();
+                this.refreshView();
+                const msg = formulaResponse.message;
+                if (!!msg) {
+                    this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title);
+                } else if (!!formulaResponse.error) {
+                    this.showResponseErrorMessage(formulaResponse);
+                }
+                this.unblockUi();
             })
             .catch((err) => {
                 this.showGlobalErrorMessage(err);

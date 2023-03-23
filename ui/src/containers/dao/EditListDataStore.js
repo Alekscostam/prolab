@@ -2,19 +2,31 @@ import CustomStore from 'devextreme/data/custom_store';
 import 'devextreme/dist/css/dx.light.css';
 import 'whatwg-fetch';
 import BaseService from '../../services/BaseService';
-import ConsoleHelper from "../../utils/ConsoleHelper";
-import EditListUtils from "../../utils/EditListUtils";
+import ConsoleHelper from '../../utils/ConsoleHelper';
+import EditListUtils from '../../utils/EditListUtils';
 //example
 //api//View/{id}/Edit/{recordId}/list/{fieldId}/data?skip={skip}&take={take}&parentId={parentId}&sort={sort}&filter={filter}
 export default class EditListDataStore extends BaseService {
-
     constructor() {
         super();
         this.path = 'View';
-        this.response = {}
+        this.response = {};
     }
 
-    getEditListDataStore(viewIdArg, viewTypeArg, recordIdArg, fieldIdArg, parentIdArg, filterIdArg, kindViewArg, elementArg, setFields, onError, onSuccess, onStart) {
+    getEditListDataStore(
+        viewIdArg,
+        viewTypeArg,
+        recordIdArg,
+        fieldIdArg,
+        parentIdArg,
+        filterIdArg,
+        kindViewArg,
+        elementArg,
+        setFields,
+        onError,
+        onSuccess,
+        onStart
+    ) {
         if (!viewIdArg) {
             return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0});
         }
@@ -25,7 +37,7 @@ export default class EditListDataStore extends BaseService {
                 let selectAll = false;
                 if (onStart) {
                     let result = onStart();
-                    selectAll = result?.selectAll
+                    selectAll = result?.selectAll;
                 }
                 let params = '?';
                 [
@@ -49,22 +61,22 @@ export default class EditListDataStore extends BaseService {
                         params += `${i}=${JSON.stringify(loadOptions[i])}&`;
                     }
                 });
-                const viewTypeParam = viewTypeArg !== undefined && viewTypeArg != null ? `&viewType=${viewTypeArg}` : '';
+                const viewTypeParam =
+                    viewTypeArg !== undefined && viewTypeArg != null ? `&viewType=${viewTypeArg}` : '';
                 const filterIdParam = filterIdArg !== undefined && filterIdArg != null ? `&filter=${filterIdArg}` : '';
-                const parentIdParam = parentIdArg !== undefined && parentIdArg != null ? `&parentId=${parentIdArg}` : '';
+                const parentIdParam =
+                    parentIdArg !== undefined && parentIdArg != null ? `&parentId=${parentIdArg}` : '';
                 const kindViewParam = !!kindViewArg && !!parentIdParam ? `&kindView=${kindViewArg}` : '';
                 const selectAllParam = !!selectAll ? `&selection=true` : '';
                 const url = `${this.domain}/${this.path}/${viewIdArg}/Edit/${recordIdArg}/list/${fieldIdArg}/data${params}${parentIdParam}${filterIdParam}${selectAllParam}${viewTypeParam}${kindViewParam}`;
                 if (url.indexOf(_key) > 0) {
                     //myk blokujący nadmiarowo generowane requesty przez store odnośnie selection
-                    return Promise.reject('')
+                    return Promise.reject('');
                 } else {
-                    return this.fetch(url,
-                        {
-                            method: 'POST',
-                            body: JSON.stringify(elementArg),
-                        }
-                    )
+                    return this.fetch(url, {
+                        method: 'POST',
+                        body: JSON.stringify(elementArg),
+                    })
                         .then((response) => {
                             console.time('CALC_CRC');
                             let data = response.data;
@@ -83,18 +95,22 @@ export default class EditListDataStore extends BaseService {
                                 totalCount: response.totalCount,
                                 summary: response.summary || [],
                                 groupCount: response.groupCount || 0,
-                            }
+                            };
                             return this.response;
                         })
                         .catch((err) => {
-                            ConsoleHelper('Error fetch data edit list data store for view id={%s}. Error = ', viewIdArg, err);
+                            ConsoleHelper(
+                                'Error fetch data edit list data store for view id={%s}. Error = ',
+                                viewIdArg,
+                                err
+                            );
                             if (onError) {
                                 onError(err);
                             }
                             return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0});
                         });
                 }
-            }
+            },
         });
     }
 

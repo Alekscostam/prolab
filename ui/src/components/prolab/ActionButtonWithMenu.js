@@ -7,7 +7,6 @@ import ShortcutButton from './ShortcutButton';
 import {Menu} from 'primereact/menu';
 
 export class ActionButtonWithMenu extends React.Component {
-
     handleClick = (event) => {
         event.stopPropagation();
         this.menu.toggle(event);
@@ -31,8 +30,10 @@ export class ActionButtonWithMenu extends React.Component {
             items,
             title,
         } = this.props;
+
         return (
             <React.Fragment>
+                <div id='action-button-with-menu-contant'></div>
                 <Menu
                     appendTo={document.body}
                     id={`${id}_popup_menu`}
@@ -45,7 +46,11 @@ export class ActionButtonWithMenu extends React.Component {
                     id={`${id}_menu_button`}
                     className={`action-button-with-menu ${className}`}
                     disabled={disabled}
-                    handleClick={(event) => this.handleClick(event)}
+                    handleClick={(event) => {
+                        const content = document.getElementById('action-button-with-menu-contant');
+                        content.click();
+                        this.handleClick(event);
+                    }}
                     iconColor={iconColor}
                     iconName={iconName}
                     iconSide={iconSide}

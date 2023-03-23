@@ -81,6 +81,7 @@ export const HeadPanel = (props) => {
                                     handleDelete={(e) => props.handleDelete(e)}
                                     handlePublish={(e) => props.handlePublish(e)}
                                     handleCopy={(e) => props.handleCopy(e)}
+                                    handleFormula={(e) => props.handleFormula(e)}
                                     handleArchive={(e) => props.handleArchive(e)}
                                     handleAttachments={(e) => props.handleAttachments(e)}
                                     handleEdit={(e) => handleEdit(e, props, viewId, parentId, currentBreadcrumb)}
@@ -106,6 +107,7 @@ export const HeadPanel = (props) => {
                                     handleDelete={(e) => props.handleDelete(e)}
                                     handleCopy={(e) => props.handleCopy(e)}
                                     handleDownload={(e) => props.handleDownload(e)}
+                                    handleFormula={(e) => props.handleFormula(e)}
                                     handlePublish={(e) => props.handlePublish(e)}
                                     handleArchive={(e) => props.handleArchive(e)}
                                     handleAttachments={(e) => props.handleAttachments(e)}
@@ -150,6 +152,7 @@ HeadPanel.propTypes = {
     handleRestore: PropTypes.func.isRequired,
     handleCopy: PropTypes.func.isRequired,
     handleArchive: PropTypes.func.isRequired,
+    handleFormula: PropTypes.func.isRequired,
     handleAttachments: PropTypes.func.isRequired,
     handleBlockUi: PropTypes.func.isRequired,
     handleUnblockUi: PropTypes.func.isRequired,

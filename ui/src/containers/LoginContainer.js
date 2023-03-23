@@ -196,10 +196,6 @@ class LoginContainer extends BaseContainer {
                             user={this.state.userInfo.user}
                             close={() => this.setState({visiblePublishDialog: false})}
                             handleUnselectAllData={this.unselectAllDataGrid}
-                            publishValues={this.state.publishValues}
-                            handlePublish={(el) => {
-                                this.publish(this.state?.currentSelectedRowKeyId, el);
-                            }}
                             labels={this.props.labels}
                         />
                     ) : null}
@@ -356,7 +352,7 @@ class LoginContainer extends BaseContainer {
                                                             />
                                                             <div className='mt-4'>
                                                                 <p className='font-normal text-center'>
-                                                                {labels['Login_Signup_Info']}&nbsp;
+                                                                    {labels['Login_Signup_Info']}&nbsp;
                                                                     <ActionLink
                                                                         handleClick={this.registration}
                                                                         label={labels['Login_Signup']}

@@ -46,7 +46,6 @@ export default class DataPluginStore extends BaseService {
                     parentIdArg !== undefined && parentIdArg != null ? `&parentId=${parentIdArg}` : '';
 
                 const url = `${this.domain}/${this.path}/${viewIdArg}/plugin/${pluginId}/execute/data/${params}${parentIdParam}`;
-
                 if (url.indexOf(_key) > 0) {
                     //myk blokujący nadmiarowo generowane requesty przez store odnośnie selection
                     return Promise.reject('');
@@ -118,39 +117,35 @@ export default class DataPluginStore extends BaseService {
                 const parentIdParam =
                     parentIdArg !== undefined && parentIdArg != null ? `&parentId=${parentIdArg}` : '';
 
-                const url = `${this.domain}/${this.path}/${viewIdArg}/plugin/${pluginId}/data/${params}${parentIdParam}`;
-                if (url.indexOf(_key) > 0) {
-                    //myk blokujący nadmiarowo generowane requesty przez store odnośnie selection
-                    return Promise.reject('');
-                } else {
-                    return this.fetch(url, {
-                        method: 'POST',
-                        body: JSON.stringify(elementArg),
+                let url = `${this.domain}/${this.path}/${viewIdArg}/plugin/${pluginId}/data/${params}${parentIdParam}`;
+                url = this.commonCorrectUrl(url);
+                return this.fetch(url, {
+                    method: 'POST',
+                    body: JSON.stringify(elementArg),
+                })
+                    .then((response) => {
+                        ConsoleHelper('PluginListDataStore -> fetch ');
+                        if (onSuccess) {
+                            onSuccess();
+                        }
+                        return {
+                            data: response.data,
+                            totalCount: response.totalCount,
+                            summary: response.summary || [],
+                            groupCount: response.groupCount || 0,
+                        };
                     })
-                        .then((response) => {
-                            this.cachedLastResponse = {
-                                data: response.data,
-                                totalCount: response.totalCount,
-                            };
-
-                            ConsoleHelper('PluginListDataStore -> fetch data');
-                            if (onSuccess) {
-                                onSuccess();
-                            }
-                            return this.cachedLastResponse;
-                        })
-                        .catch((err) => {
-                            ConsoleHelper(
-                                'Error fetch data plugin list data store for view id={%s}. Error = ',
-                                viewIdArg,
-                                err
-                            );
-                            if (onError) {
-                                onError(err);
-                            }
-                            return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0});
-                        });
-                }
+                    .catch((err) => {
+                        ConsoleHelper(
+                            'Error fetch data plugin list data store for view id={%s}. Error = ',
+                            viewIdArg,
+                            err
+                        );
+                        if (onError) {
+                            onError(err);
+                        }
+                        return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0, selectAll: false});
+                    });
             },
         });
     }

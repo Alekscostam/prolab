@@ -95,6 +95,7 @@ class GridViewComponent extends React.Component {
         const allowSelectAll = selectAll === undefined || selectAll === null || !!selectAll;
         const defaultSelectedRowKeys = this.props.defaultSelectedRowKeys;
         const selectedRowKeys = this.props.selectedRowKeys;
+
         return (
             <React.Fragment>
                 {/* <div className='dx-container'> */}
@@ -272,6 +273,9 @@ class GridViewComponent extends React.Component {
                         }
                     }
                 });
+            // Bardzo ważne!!! clear pol bo w tym utilsie są parametry typu let
+            DataGridUtils.clearProperties();
+
             let operationsRecord = this.props.parsedGridView?.operationsRecord;
             let operationsRecordList = this.props.parsedGridView?.operationsRecordList;
             if (!(operationsRecord instanceof Array)) {
@@ -390,6 +394,18 @@ class GridViewComponent extends React.Component {
                                         hrefSubview={AppPrefixUtils.locationHrefUrl(
                                             this.subViewHref(viewId, recordId, parentId, currentBreadcrumb)
                                         )}
+                                        hrefSpecView={EditSpecUtils.editSpecUrl(
+                                            viewId,
+                                            TreeListUtils.isKindViewSpec(this.props.parsedGridView)
+                                                ? parentId
+                                                : recordId,
+                                            compress(
+                                                TreeListUtils.isKindViewSpec(this.props.parsedGridView)
+                                                    ? [recordId]
+                                                    : []
+                                            ),
+                                            currentBreadcrumb
+                                        )}
                                         handleHrefSubview={() => {
                                             let result = this.props.handleBlockUi();
                                             if (result) {
@@ -429,7 +445,7 @@ class GridViewComponent extends React.Component {
                                             this.props.handleRestoreRow(recordId);
                                         }}
                                         handleFormula={() => {
-                                            alert('TODO');
+                                            this.props.handleFormulaRow(recordId);
                                         }}
                                         handleHistory={() => {
                                             alert('TODO');
@@ -465,7 +481,9 @@ class GridViewComponent extends React.Component {
 
     subViewHref(viewId, recordId, parentId, currentBreadcrumb) {
         parentId = StringUtils.isBlank(parentId) ? 0 : parentId;
-        return `/#/grid-view/${viewId}?recordId=${recordId}&parentId=${parentId}${currentBreadcrumb}`;
+        return `/#/grid-view/${viewId}${
+            !!recordId ? `?recordId=${recordId}` : ``
+        }&parentId=${parentId}${currentBreadcrumb}`;
     }
 
     preGenerateColumnsDefinition() {
@@ -534,6 +552,7 @@ GridViewComponent.propTypes = {
     handleDocumentRow: PropTypes.func,
     handleCopyRow: PropTypes.func,
     handleDeleteRow: PropTypes.func,
+    handleFormulaRow: PropTypes.func,
     handleDownloadRow: PropTypes.func,
     handleRestoreRow: PropTypes.func,
     handlePublishRow: PropTypes.func,

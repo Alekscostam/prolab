@@ -33,6 +33,13 @@ export class Breadcrumb {
         return tmp;
     }
 
+    static pushSubView(menu, breadcrumb) {
+        breadcrumb.push({name: menu.name, id: menu.id, type: 'menu'});
+        if (menu?.sub) {
+            this.pushSubView(menu.sub, breadcrumb);
+        }
+    }
+
     static updateView(viewInfo, viewId, recordId) {
         ConsoleHelper(`*Breadcrumb::updateView, viewId=${viewId}, recordId=${recordId}, viewInfo`, viewInfo);
         let breadcrumb = this.readFromUrl();
@@ -43,7 +50,9 @@ export class Breadcrumb {
             if (viewInfo.menu) {
                 breadcrumb = [];
                 breadcrumb.push({name: viewInfo.menu.name, id: viewInfo.menu.id, type: 'menu'});
-                //TODO obsluga sub
+                if (viewInfo.menu?.sub) {
+                    this.pushSubView(viewInfo.menu?.sub, breadcrumb);
+                }
             }
             if (breadcrumb?.filter((i) => i.id === viewInfo.id && i.type === 'view').length === 0) {
                 const last = breadcrumb.length > 0 ? breadcrumb[breadcrumb.length - 1] : null;

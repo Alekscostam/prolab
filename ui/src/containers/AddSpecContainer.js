@@ -14,10 +14,10 @@ import DataTreeStore from './dao/DataTreeStore';
 import TreeViewComponent from './treeGrid/TreeViewComponent';
 import ActionButton from '../components/ActionButton';
 import DivContainer from '../components/DivContainer';
-import {Dialog} from 'primereact/dialog';
 import LocUtils from '../utils/LocUtils';
 import {Tabs} from 'devextreme-react';
 import {InputNumber} from 'primereact/inputnumber';
+import {Popup} from 'devextreme-react/popup';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -129,42 +129,33 @@ export class AddSpecContainer extends BaseContainer {
     render() {
         return <React.Fragment>{super.render()}</React.Fragment>;
     }
+
     renderView() {
         const title = this.state.parsedView?.info?.title;
         return (
             <React.Fragment>
-                <Dialog
-                    id='addSpecDialog'
-                    header={
-                        <div>
-                            <div className='mb-4'>{LocUtils.loc(this.props.labels, 'add_spec_parameters', title)}</div>
-                            <div className='row ' style={{flaot: 'right!important'}}>
-                                <div className='col-lg-6 col-md-12'>{this.renderHeaderLeft()}</div>
-                                <span className='col-lg-6 col-md-12'>{this.renderHeaderRight()}</span>
-                            </div>
-                        </div>
-                    }
-                    visible={true}
-                    resizable={false}
-                    breakpoints={{'960px': '75vw'}}
-                    style={{width: '90vw'}}
-                    onHide={() => this.props.onHide()}
+                <Popup
+                    showTitle={true}
+                    id='popup'
+                    visible={this.props.visibleAddSpec}
+                    className={'col-12 col-6'}
+                    dragEnabled={true}
+                    hideOnOutsideClick={true}
+                    showCloseButton={true}
+                    onHiding={this.props.onHide}
+                    title={LocUtils.loc(this.props.labels, 'add_spec_parameters', title)}
+                    container='.dx-viewport'
                 >
-                    {this.renderGlobalTop()}
-                    <DivContainer colClass='base-container-div'>
-                        <DivContainer colClass='row base-container-header'>
-                            <DivContainer id='header-content' colClass='col-12'>
-                                {this.renderHeaderContent()}
-                            </DivContainer>
-                        </DivContainer>
-                        <DivContainer id='header-panel' colClass='col-12'>
-                            {this.renderHeadPanel()}
-                        </DivContainer>
-                        <DivContainer id='content' colClass='col-12'>
-                            {this.renderContent()}
-                        </DivContainer>
-                    </DivContainer>
-                </Dialog>
+                    <div className='mb-4'>
+                        <div className='row ' style={{flaot: 'right!important'}}>
+                            <div className='col-lg-6 col-md-12'>{this.renderHeaderLeft()}</div>
+                            <span className='col-lg-6 col-md-12'>{this.renderHeaderRight()}</span>
+                        </div>
+                    </div>
+
+                    {this.renderHeadPanel()}
+                    {this.renderContent()}
+                </Popup>
             </React.Fragment>
         );
     }
@@ -312,10 +303,11 @@ export class AddSpecContainer extends BaseContainer {
     renderHeaderLeft() {
         return (
             <React.Fragment>
-                <DivContainer id='header-left '>
-                    <div id='subviews-panel' className='ml-4'>
+                <DivContainer id='header-left ' style={{maxWidth: '400px'}}>
+                    <div id='subviews-panel' className='ml-2'>
                         {this.state.tabs?.length > 0 ? (
                             <Tabs
+                                style={{maxHeight: '300px'}}
                                 dataSource={this.state.tabs}
                                 selectedIndex={this.state.selectedIndex}
                                 onOptionChanged={(args, e, b, d) => {
@@ -499,6 +491,7 @@ export class AddSpecContainer extends BaseContainer {
                     handleRestore={() => this.restore()}
                     handleCopy={() => this.copyEntry()}
                     handleArchive={() => this.archive()}
+                    handleFormula={() => this.caclulateFormula()}
                     handleAttachments={() => this.attachment()}
                     handlePublish={() => this.publishEntry()}
                     handleUnblockUi={() => this.unblockUi()}
@@ -522,13 +515,15 @@ export class AddSpecContainer extends BaseContainer {
             <React.Fragment>
                 {this.state.loading ? null : (
                     <React.Fragment>
+                        {this.renderHeaderLeft}
                         {/*{this.state.parsedData.map((el) => el.ID).join(", ")}*/}
-                        <div id='spec-edit'>
+                        <div id='spec-edit-dialog'>
                             <TreeViewComponent
                                 id={this.props.id}
                                 allowOperations={false}
                                 elementParentId={this.state.elementParentId}
                                 isAddSpec={true}
+                                preloadEnabled={false}
                                 elementRecordId={this.state.elementRecordId}
                                 handleOnTreeList={(ref) => (this.refTreeList = ref)}
                                 parsedGridView={this.state.parsedView}
@@ -576,6 +571,7 @@ export class AddSpecContainer extends BaseContainer {
                                     });
                                 }}
                                 handleDeleteRow={(id) => this.delete(id)}
+                                handleForumlaRow={(id) => this.calculateFormula(id)}
                                 handleDownload={(id) => {
                                     this.props.handleDownloadRow(id);
                                 }}
@@ -614,10 +610,12 @@ export class AddSpecContainer extends BaseContainer {
 
 AddSpecContainer.defaultProps = {
     viewMode: 'VIEW',
+    visibleAddSpec: false,
 };
 
 AddSpecContainer.propTypes = {
     id: PropTypes.string.isRequired,
     labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
     collapsed: PropTypes.bool.isRequired,
+    visibleAddSpec: PropTypes.bool.isRequired,
 };

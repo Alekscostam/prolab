@@ -36,10 +36,6 @@ class DashboardContainer extends BaseContainer {
     componentDidMount() {
         super.componentDidMount();
         this.props.handleRenderNoRefreshContent(false);
-        this.refreshDashboard();
-    }
-
-    refreshDashboard() {
         if (!!this.props.dashboard) {
             this.setState(
                 {
@@ -49,12 +45,36 @@ class DashboardContainer extends BaseContainer {
                 () => {
                     this.prepareCardView();
                     this.unblockUi();
+                    this.forceUpdate();
                 }
             );
             this.unblockUi();
         } else {
             this.initializeDashboard();
         }
+    }
+
+    refreshDashboard(savedElement) {
+        let dashboard = this.props.dashboard;
+        let headerData = dashboard.headerData[0];
+        // tutaj czitujemy sobie odswiezanie widoku poprzez state i zapisany element, poniewaz funkcja refresh() nie dziala dla TileView jak nie ma DataSource
+        savedElement.data.forEach((savedEl) => {
+            Object.entries(headerData).forEach((headerEl) => {
+                if (savedEl.fieldName === headerEl[0]) {
+                    headerData[savedEl.fieldName] = savedEl.value;
+                }
+            });
+        });
+        this.setState(
+            {
+                dashboard: dashboard,
+                loading: false,
+            },
+            () => {
+                this.prepareCardView();
+                this.unblockUi();
+            }
+        );
     }
 
     initializeDashboard = () => {
@@ -68,6 +88,7 @@ class DashboardContainer extends BaseContainer {
                     },
                     () => {
                         this.prepareCardView();
+                        // TODO: hmm czy force update potrzebny
                         this.forceUpdate();
                         this.unblockUi();
                     }
@@ -190,8 +211,8 @@ class DashboardContainer extends BaseContainer {
     }
 
     //override
-    refreshView() {
-        this.refreshDashboard();
+    refreshView(saveElement) {
+        this.refreshDashboard(saveElement);
     }
 
     renderContent() {

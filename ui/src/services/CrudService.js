@@ -381,6 +381,15 @@ export default class CrudService extends BaseService {
         });
     }
 
+    calculateFormula(viewId, parentId, selectedIds) {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/editspec/${parentId}calculate`, {
+            method: 'POST',
+            body: selectedIds,
+        }).catch((err) => {
+            throw err;
+        });
+    }
+
     archiveEntry(viewId, parentId, kindView, selectedIds) {
         let queryStringTmp = [];
         if (!!parentId) {

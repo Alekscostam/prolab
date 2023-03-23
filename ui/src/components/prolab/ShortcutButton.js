@@ -21,7 +21,7 @@ export const ShortcutButton = (props) => {
         rendered,
         title,
         linkViewMode,
-        buttonShadow
+        buttonShadow,
     } = props;
     let ariaLabel = '';
     if (rendered) {
@@ -34,11 +34,11 @@ export const ShortcutButton = (props) => {
                     className={
                         linkViewMode
                             ? `shortcut-link ${className !== undefined ? className : ''} ${
-                                disabled ? 'p-disabled disabled' : ''
-                            } ${active ? 'active-shortcut-link' : ''}`
-                            : `shortcut ${buttonShadow ? 'shortcut-shadow' : ''} p-button p-component ${className !== undefined ? className : ''} ${
-                                disabled ? 'p-disabled disabled' : ''
-                            } ${active ? 'active-shortcut-button' : ''}`
+                                  disabled ? 'p-disabled disabled' : ''
+                              } ${active ? 'active-shortcut-link' : ''}`
+                            : `shortcut ${buttonShadow ? 'shortcut-shadow' : ''} p-button p-component ${
+                                  className !== undefined ? className : ''
+                              } ${disabled ? 'p-disabled disabled' : ''} ${active ? 'active-shortcut-button' : ''}`
                     }
                     href={disabled ? undefined : href ? href : 'javascript:;'}
                     onClick={(e) => {
@@ -59,11 +59,11 @@ export const ShortcutButton = (props) => {
                         }`}
                     >
                         {iconSide === 'left' && iconName !== undefined ? (
-                            <i className={`icon mdi ${iconName} ${iconSize}`}/>
+                            <i className={`icon mdi ${iconName} ${iconSize}`} />
                         ) : null}
                         {label}
                         {iconSide === 'right' && iconName !== undefined ? (
-                            <i className={`icon mdi ${iconName} ${iconSize}`}/>
+                            <i className={`icon mdi ${iconName} ${iconSize}`} />
                         ) : null}
                     </span>
                 </a>
@@ -83,7 +83,7 @@ ShortcutButton.defaultProps = {
     params: {},
     active: false,
     linkViewMode: false,
-    buttonShadow: true
+    buttonShadow: true,
 };
 
 ShortcutButton.propTypes = {

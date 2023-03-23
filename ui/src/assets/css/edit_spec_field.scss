@@ -1,8 +1,8 @@
 /*Edycja specyfikacji*/
 
-#spec-edit {
+#spec-edit,
+#spec-edit-dialog {
     width: 100%;
-    height: 100%;
 
     .dx-overlay-content.dx-invalid-message-content.dx-resizable {
         visibility: hidden;
@@ -91,4 +91,20 @@
     #drop-region {
         border: none;
     }
+}
+#spec-edit-dialog {
+    height: 83%;
+}
+@media (max-width: 1280px) {
+    #spec-edit-dialog {
+        height: 77%;
+    }
+}
+@media (max-width: 601px) {
+    #spec-edit-dialog {
+        height: 65%;
+    }
+}
+#spec-edit {
+    height: 100%;
 }

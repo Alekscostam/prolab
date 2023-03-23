@@ -48,6 +48,7 @@ export const OperationsButtons = (props) => {
                                     iconColor={`${inverseColor ? `white` : `blue`}`}
                                     buttonShadow={buttonShadow}
                                     title={operations.label}
+                                    hrefSpecView={props.hrefSpecView}
                                     handleClick={(e) => {
                                         e.selectAll = !atLeastOneSelected && !!operations.showAlways;
                                         return props.handleEditSpec(e);
@@ -201,7 +202,9 @@ export const OperationsButtons = (props) => {
                             <React.Fragment>
                                 <ShortcutButton
                                     className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
-                                    handleClick={(e) => props.handleFormula(e)}
+                                    handleClick={(e) => {
+                                        props.handleFormula(e);
+                                    }}
                                     iconName={operations?.iconCode || 'mdi-help-circle'}
                                     iconColor={`${inverseColor ? `white` : `blue`}`}
                                     buttonShadow={buttonShadow}
@@ -298,9 +301,22 @@ export const OperationsButtons = (props) => {
     };
 
     const menuItems = props.operationList.map((i) => {
+        let url = undefined;
+        switch (i.type?.toUpperCase()) {
+            case 'OP_EDIT_SPEC':
+                url = props.hrefSpecView;
+                break;
+            case 'OP_SUBVIEWS':
+                url = props.hrefSubview;
+                break;
+            default:
+                url = undefined;
+                break;
+        }
         return {
             label: i.label,
             icon: `mdi ${i.iconCode}`,
+            url: url,
             command: () => {
                 switch (i.type?.toUpperCase()) {
                     case 'OP_EDIT':
@@ -348,7 +364,6 @@ export const OperationsButtons = (props) => {
     });
 
     const showOperationList = props.operationList?.length > 0;
-
     return (
         <React.Fragment>
             {/*przyciski z ikonkami*/}

@@ -51,7 +51,9 @@ class DashboardCardViewComponent extends React.Component {
         let fontColor = this.props.parsedGridView?.cardOptions?.fontColor;
         return (
             <TileView
-                onInitialized={(e) => this.props.handleOnInitialized(e.component)}
+                onInitialized={(e) => {
+                    this.props.handleOnInitialized(e.component);
+                }}
                 className='card-grid'
                 items={this.props.parsedCardViewData}
                 itemRender={(rowData) => {
@@ -89,7 +91,6 @@ class DashboardCardViewComponent extends React.Component {
                     const recordId = rowData.ID;
                     const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
                     const subviewId = elementSubViewId ? elementId : undefined;
-
                     setTimeout(() => {
                         const cardHeight = this.props.parsedGridView?.cardOptions?.heigh ?? 200;
                         var p = $(`#${recordId} .card-grid-body-content`);

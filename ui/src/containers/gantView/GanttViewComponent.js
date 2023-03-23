@@ -27,11 +27,19 @@ import {GanttUtils} from '../../utils/component/GanttUtils.js';
 import '../../assets/css/gantt_container.scss';
 import ParentModel from '../../model/ParentModel';
 import {TreeListUtils} from '../../utils/component/TreeListUtils';
+import {EditSpecUtils} from '../../utils/EditSpecUtils';
+import {compress} from 'int-compress-string';
+import {StringUtils} from '../../utils/StringUtils';
+import Image from '../../components/Image';
 
 let _selectionClassName = 'checkBoxSelection';
 
 const UNCOLLAPSED_CUT_SIZE = 327;
 const COLLAPSED_CUT_SIZE = 140;
+
+let _rowIndex = null;
+let _bgcolor = null;
+let _fontcolor = null;
 
 class GanttViewComponent extends React.Component {
     constructor(props) {
@@ -212,6 +220,7 @@ class GanttViewComponent extends React.Component {
                     startDateRange={startDateRange}
                     endDateRange={endDateRange}
                     rowAlternationEnabled={false}
+                    // allowSorting={true}
                     width={width}
                     onSelectionChanged={this.onVisibleIndexChange}
                     // Jesli robimy checkboxy to allowSelection w tym miejscu musi byc false
@@ -418,11 +427,11 @@ class GanttViewComponent extends React.Component {
                         name={columnDefinition?.fieldName}
                         dataType={GanttUtils.specifyColumnType(columnDefinition?.type)}
                         format={GanttUtils.specifyColumnFormat(columnDefinition?.type)}
-                        cellTemplate={GanttUtils.cellTemplate(columnDefinition, this.state.singleRowElements)}
+                        cellTemplate={this.cellTemplate(columnDefinition, this.state.singleRowElements)}
                     />
                 );
             });
-
+            this.clearProperties();
             if (operationsRecord instanceof Array && operationsRecord.length > 0) {
                 columns.push(
                     <Column
@@ -513,7 +522,15 @@ class GanttViewComponent extends React.Component {
                                             );
                                         }}
                                         hrefSubview={AppPrefixUtils.locationHrefUrl(
-                                            `/#/grid-view/${viewId}?recordId=${recordId}${currentBreadcrumb}`
+                                            `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${
+                                                !!currentBreadcrumb ? currentBreadcrumb : ``
+                                            }`
+                                        )}
+                                        hrefSpecView={EditSpecUtils.editSpecUrl(
+                                            viewId,
+                                            parentId,
+                                            compress([recordId]),
+                                            currentBreadcrumb
                                         )}
                                         handleHrefSubview={() => {
                                             let result = this.props.handleBlockUi();
@@ -585,6 +602,184 @@ class GanttViewComponent extends React.Component {
         this.setState({
             columns: columns,
         });
+    }
+
+    clearProperties() {
+        _rowIndex = null;
+        _bgcolor = null;
+        _fontcolor = null;
+    }
+
+    cellTemplate(column) {
+        return function (element, info) {
+            if (_rowIndex !== info.row.dataIndex) {
+                _rowIndex = info.row.dataIndex;
+                _bgcolor = info.data['_BGCOLOR'];
+                _fontcolor = info.data['_FONTCOLOR'];
+            }
+
+            if (_bgcolor) element.style.backgroundColor = _bgcolor;
+
+            let fontColorFinal = 'black';
+            let bgColorFinal = '';
+
+            if (!!_fontcolor) {
+                fontColorFinal = _fontcolor;
+            }
+            if (!!_bgcolor) {
+                bgColorFinal = _bgcolor;
+            }
+
+            switch (column?.type) {
+                case 'C':
+                case 'N':
+                    return ReactDOM.render(
+                        <div
+                            style={{
+                                display: 'inline',
+                                color: fontColorFinal,
+                                backgroundColor: bgColorFinal,
+                                borderRadius: '25px',
+                                padding: '2px 6px 2px 6px',
+                            }}
+                            title={info.text}
+                        >
+                            {info.text}
+                        </div>,
+                        element
+                    );
+                case 'D':
+                case 'E':
+                case 'T':
+                case 'H':
+                    return ReactDOM.render(
+                        <div
+                            style={{
+                                display: 'inline',
+                                color: fontColorFinal,
+                                backgroundColor: bgColorFinal,
+                                borderRadius: '25px',
+                                padding: '2px 6px 2px 6px',
+                            }}
+                            title={info.text}
+                        >
+                            {info.text}
+                        </div>,
+                        element
+                    );
+                case 'O':
+                    return ReactDOM.render(
+                        <div
+                            style={{
+                                // display: 'inline',
+                                whiteSpace: 'nowrap',
+                                maxWidth: column.width + 'px',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                backgroundColor: bgColorFinal,
+                                color: fontColorFinal,
+                                borderRadius: '25px',
+                                padding: '2px 6px 2px 6px',
+                            }}
+                            title={StringUtils.textFromHtmlString(info.text)}
+                        >
+                            {StringUtils.textFromHtmlString(info.text)}
+                        </div>,
+                        element
+                    );
+                case 'B':
+                    return ReactDOM.render(
+                        <div
+                            style={{
+                                display: 'inline',
+                                color: fontColorFinal,
+                                backgroundColor: bgColorFinal,
+                                borderRadius: '25px',
+                                padding: '2px 6px 2px 6px',
+                            }}
+                            title={info.text}
+                        >
+                            <input
+                                type='checkbox'
+                                readOnly={true}
+                                checked={GanttUtils.conditionForTrueValueForBoolType(info.text)}
+                            />
+                        </div>,
+                        element
+                    );
+                case 'L':
+                    return ReactDOM.render(
+                        <div
+                            style={{
+                                display: 'inline',
+                                color: fontColorFinal,
+                                backgroundColor: bgColorFinal,
+                                borderRadius: '25px',
+                                padding: '2px 6px 2px 6px',
+                            }}
+                            title={info.text}
+                        >
+                            <input
+                                type='checkbox'
+                                readOnly={true}
+                                checked={GanttUtils.conditionForTrueValueForLogicType(info.text)}
+                            />
+                        </div>,
+                        element
+                    );
+                case 'I':
+                case 'IM':
+                    if (Array.isArray(info.text) && info.text?.length > 0) {
+                        return ReactDOM.render(
+                            <div
+                                style={{
+                                    display: 'inline',
+                                    color: fontColorFinal,
+                                    backgroundColor: bgColorFinal,
+                                    borderRadius: '25px',
+                                    padding: '2px 0px 2px 0px',
+                                }}
+                            >
+                                {info.text?.map((i, index) => {
+                                    return <Image style={{maxWidth: '100%'}} key={index} base64={info.text} />;
+                                })}
+                            </div>,
+                            element
+                        );
+                    } else {
+                        return ReactDOM.render(
+                            <div
+                                style={{
+                                    display: 'inline',
+                                    color: fontColorFinal,
+                                    backgroundColor: bgColorFinal,
+                                    borderRadius: '25px',
+                                    padding: '2px 0px 2px 0px',
+                                }}
+                            >
+                                <Image style={{maxHeight: '26px'}} base64={info.text} />
+                            </div>,
+                            element
+                        );
+                    }
+                default:
+                    return ReactDOM.render(
+                        <div
+                            style={{
+                                display: 'inline',
+                                color: fontColorFinal,
+                                backgroundColor: bgColorFinal,
+                                borderRadius: '25px',
+                                padding: '2px 6px 2px 6px',
+                            }}
+                            title={info.text}
+                        >
+                            {info.text}
+                        </div>,
+                        element
+                    );
+            }
+        };
     }
 }
 

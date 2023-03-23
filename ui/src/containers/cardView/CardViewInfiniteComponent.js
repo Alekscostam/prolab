@@ -11,6 +11,9 @@ import CardInfiniteLoaderWrapper from './CardInfiniteLoaderWrapper';
 import WindowSizeListener from 'react-window-size-listener';
 import DataCardStore from '../dao/DataCardStore';
 import OperationsButtons from '../../components/prolab/OperationsButtons';
+import {EditSpecUtils} from '../../utils/EditSpecUtils';
+import {compress} from 'int-compress-string';
+import {TreeListUtils} from '../../utils/component/TreeListUtils';
 
 class CardViewInfiniteComponent extends React.Component {
     constructor(props) {
@@ -221,6 +224,7 @@ class CardViewInfiniteComponent extends React.Component {
         const elementSubViewId = this.props.elementSubViewId;
         const elementKindView = this.props.elementKindView;
         const elementId = this.props.id;
+        const parentId = this.props?.elementRecordId;
         const viewId = DataGridUtils.getRealViewId(elementSubViewId, elementId);
         const recordId = rowData.ID;
         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
@@ -310,6 +314,36 @@ class CardViewInfiniteComponent extends React.Component {
                                                         });
                                                 }
                                             }}
+                                            handleEditSpec={() => {
+                                                //edycja pojedynczego rekordu lub
+                                                //edycja dla wszystkich rekordów, wywoływana krok wcześniej
+                                                let prevUrl = window.location.href;
+                                                sessionStorage.setItem('prevUrl', prevUrl);
+                                                TreeListUtils.openEditSpec(
+                                                    viewId,
+                                                    TreeListUtils.isKindViewSpec(this.props.parsedGridView)
+                                                        ? parentId
+                                                        : recordId,
+                                                    TreeListUtils.isKindViewSpec(this.props.parsedGridView)
+                                                        ? [recordId]
+                                                        : [],
+                                                    currentBreadcrumb,
+                                                    () => this.props.handleUnblockUi(),
+                                                    (err) => this.props.showErrorMessages(err)
+                                                );
+                                            }}
+                                            hrefSpecView={EditSpecUtils.editSpecUrl(
+                                                viewId,
+                                                TreeListUtils.isKindViewSpec(this.props.parsedGridView)
+                                                    ? parentId
+                                                    : recordId,
+                                                compress(
+                                                    TreeListUtils.isKindViewSpec(this.props.parsedGridView)
+                                                        ? [recordId]
+                                                        : []
+                                                ),
+                                                currentBreadcrumb
+                                            )}
                                             hrefSubview={AppPrefixUtils.locationHrefUrl(
                                                 `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${
                                                     !!currentBreadcrumb ? currentBreadcrumb : ``
@@ -337,6 +371,9 @@ class CardViewInfiniteComponent extends React.Component {
                                             }}
                                             handleDelete={() => {
                                                 this.props.handleDeleteRow(recordId);
+                                            }}
+                                            handleFormula={() => {
+                                                this.props.handleFormulaRow(recordId);
                                             }}
                                             handleRestore={() => {
                                                 this.props.handleRestoreRow(recordId);

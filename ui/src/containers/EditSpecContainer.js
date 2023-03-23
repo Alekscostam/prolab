@@ -32,7 +32,6 @@ export class EditSpecContainer extends BaseContainer {
     constructor(props) {
         ConsoleHelper('EditSpecContainer -> constructor');
         super(props);
-        debugger;
         this.viewService = new ViewService();
         this.crudService = new CrudService();
         this.dataTreeStore = new DataTreeStore();
@@ -390,32 +389,36 @@ export class EditSpecContainer extends BaseContainer {
 
         return (
             <React.Fragment>
-                <ActionButton
-                    rendered={!!opAdd}
-                    label={opAdd?.label}
-                    className='ml-2'
-                    handleClick={(e) => {
-                        this.showAddSpecDialog();
-                    }}
-                />
-                <ActionButton
-                    rendered={!!opSave}
-                    label={opSave?.label}
-                    className='ml-2'
-                    handleClick={() => {
-                        const viewIdArg = this.state.elementId;
-                        const parentIdArg = this.state.elementParentId;
-                        this.handleEditSpecSave(viewIdArg, parentIdArg);
-                        const prevUrl = sessionStorage.getItem('prevUrl');
-                        sessionStorage.removeItem('prevUrl');
-                        if (prevUrl) {
-                            window.location.href = prevUrl;
-                        } else {
-                            this.refreshView();
-                            this.refreshTable();
-                        }
-                    }}
-                />
+                <div id='global-top-components'>
+                    <ActionButton
+                        rendered={!!opAdd}
+                        label={opAdd?.label}
+                        className='ml-2'
+                        handleClick={(e) => {
+                            this.showAddSpecDialog();
+                        }}
+                    />
+                    <ActionButton
+                        rendered={!!opSave}
+                        label={opSave?.label}
+                        className='ml-2'
+                        handleClick={() => {
+                            const viewIdArg = this.state.elementId;
+                            const parentIdArg = this.state.elementParentId;
+                            const globalComponents = document.getElementById('global-top-components');
+                            globalComponents.click();
+                            this.handleEditSpecSave(viewIdArg, parentIdArg);
+                            const prevUrl = sessionStorage.getItem('prevUrl');
+                            sessionStorage.removeItem('prevUrl');
+                            if (prevUrl) {
+                                window.location.href = prevUrl;
+                            } else {
+                                this.refreshView();
+                                this.refreshTable();
+                            }
+                        }}
+                    />
+                </div>
             </React.Fragment>
         );
     }
@@ -437,6 +440,7 @@ export class EditSpecContainer extends BaseContainer {
         const saveElement = this.createObjectToSave(this.state.parsedData);
         ConsoleHelper(`handleEditSpecSave: element to save = ${JSON.stringify(saveElement)}`);
         this.specSave(viewId, parentId, saveElement, false);
+        this.unblockUi();
     }
 
     //override
@@ -491,6 +495,7 @@ export class EditSpecContainer extends BaseContainer {
                         </React.Fragment>
                     }
                     handleDelete={() => this.delete()}
+                    handleFormula={() => this.calculateFormula()}
                     handleAddLevel={() => this.publish()}
                     handleUp={() => this.up()}
                     handleDown={() => this.down()}
@@ -637,7 +642,9 @@ export class EditSpecContainer extends BaseContainer {
                                 allowUpdating={true}
                                 gridViewColumns={this.state.columns}
                                 selectedRowKeys={this.state.selectedRowKeys}
-                                onChange={(type, e, rowId, info) => this.handleEditRowChange(type, e, rowId, info)}
+                                onChange={(type, e, rowId, info) => {
+                                    this.handleEditRowChange(type, e, rowId, info);
+                                }}
                                 handleBlockUi={() => {
                                     this.blockUi();
                                     return true;
@@ -659,6 +666,7 @@ export class EditSpecContainer extends BaseContainer {
                                     );
                                 }}
                                 handleDeleteRow={(id) => this.delete(id)}
+                                handleFormulaRow={(id) => this.calculateFormula(id)}
                                 handleDownload={(id) => {
                                     this.props.handleDownloadRow(id);
                                 }}
@@ -686,11 +694,12 @@ export class EditSpecContainer extends BaseContainer {
                                 labels={this.props.labels}
                             />
                         </div>
-                        {this.state.visibleAddSpec ? (
+                        {/* {this.state.visibleAddSpec ? (
                             <AddSpecContainer
                                 ref={this.addSpecContainer}
                                 lastId={this.getLastId()}
                                 id={this.props.id}
+                                visibleAddSpec={this.state.visibleAddSpec}
                                 levelId={this.state.levelId}
                                 handleAddElements={(el) => this.handleAddElements(el)}
                                 onHide={() =>
@@ -700,7 +709,7 @@ export class EditSpecContainer extends BaseContainer {
                                 }
                                 collapsed={this.props.collapsed}
                             />
-                        ) : null}
+                        ) : null} */}
                     </React.Fragment>
                 )}
             </React.Fragment>
