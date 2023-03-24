@@ -1020,7 +1020,7 @@ TreeViewComponent.defaultProps = {
     showBorders: true,
     showColumnHeaders: true,
     focusedRowEnabled: false,
-    rowRenderingMode: 'virtual',
+    rowRenderingMode: 'standard',
     hoverStateEnabled: false,
     preloadEnabled: true,
     showFilterRow: true,

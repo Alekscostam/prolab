@@ -694,7 +694,7 @@ export class EditSpecContainer extends BaseContainer {
                                 labels={this.props.labels}
                             />
                         </div>
-                        {/* {this.state.visibleAddSpec ? (
+                        {this.state.visibleAddSpec ? (
                             <AddSpecContainer
                                 ref={this.addSpecContainer}
                                 lastId={this.getLastId()}
@@ -709,7 +709,7 @@ export class EditSpecContainer extends BaseContainer {
                                 }
                                 collapsed={this.props.collapsed}
                             />
-                        ) : null} */}
+                        ) : null}
                     </React.Fragment>
                 )}
             </React.Fragment>
