@@ -22,6 +22,7 @@ import {confirmDialog} from 'primereact/confirmdialog';
 import {localeOptions} from 'primereact/api';
 import ActionButtonWithMenuUtils from '../utils/ActionButtonWithMenuUtils';
 import {AddSpecContainer} from './AddSpecContainer';
+import SubGridViewComponent from './dataGrid/SubGridViewComponent';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -357,7 +358,7 @@ export class EditSpecContainer extends BaseContainer {
 
     //override
     renderGlobalTop() {
-        return <React.Fragment />;
+        return <React.Fragment></React.Fragment>;
     }
 
     //override
@@ -468,7 +469,32 @@ export class EditSpecContainer extends BaseContainer {
     //override
 
     //override
-    renderHeaderContent() {}
+    renderHeaderContent() {
+        const {parsedView} = this.state;
+        // const headerOperations = parsedView.headerOperations;
+
+        const subView = {
+            headerData: parsedView.headerData,
+            viewInfo: parsedView.viewInfo,
+            headerOperations: [],
+            headerColumns: parsedView.headerColumns,
+        };
+
+        return (
+            <div>
+                <SubGridViewComponent
+                    handleOnInitialized={(ref) => (this.selectedDataGrid = ref)}
+                    subView={subView}
+                    handleRightHeadPanelContent={(e) => {
+                        this.viewContainer?.current?.handleRightHeadPanelContent(e);
+                    }}
+                    handleOnEditClick={(e) => {
+                        this.viewContainer?.current?.editSubView(e);
+                    }}
+                />
+            </div>
+        );
+    }
 
     //override
     renderHeadPanel = () => {

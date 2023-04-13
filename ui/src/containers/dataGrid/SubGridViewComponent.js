@@ -160,7 +160,7 @@ class SubGridViewComponent extends React.Component {
                                                                 undefined
                                                             )}
                                                             rendered={showMenu}
-                                                            title={labels['View_AdditionalOptions']}
+                                                            title={labels ? labels['View_AdditionalOptions'] : ''}
                                                         />
                                                     </div>,
                                                     element
