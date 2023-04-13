@@ -495,7 +495,9 @@ export class EditSpecContainer extends BaseContainer {
                         </React.Fragment>
                     }
                     handleDelete={() => this.delete()}
-                    handleFormula={() => this.calculateFormula()}
+                    handleFormula={(e) => {
+                        this.prepareCalculateFormula();
+                    }}
                     handleAddLevel={() => this.publish()}
                     handleUp={() => this.up()}
                     handleDown={() => this.down()}
@@ -666,7 +668,7 @@ export class EditSpecContainer extends BaseContainer {
                                     );
                                 }}
                                 handleDeleteRow={(id) => this.delete(id)}
-                                handleFormulaRow={(id) => this.calculateFormula(id)}
+                                handleFormulaRow={(id) => this.prepareCalculateFormula(id)}
                                 handleDownload={(id) => {
                                     this.props.handleDownloadRow(id);
                                 }}

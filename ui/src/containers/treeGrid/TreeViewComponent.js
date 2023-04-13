@@ -40,6 +40,7 @@ import EditListUtils from '../../utils/EditListUtils';
 import EditListDataStore from '../dao/EditListDataStore';
 import {EditSpecUtils} from '../../utils/EditSpecUtils';
 import {compress} from 'int-compress-string';
+import {StringUtils} from '../../utils/StringUtils';
 //
 //    https://js.devexpress.com/Documentation/Guide/UI_Components/TreeList/Getting_Started_with_TreeList/
 //
@@ -93,10 +94,13 @@ class TreeViewComponent extends React.Component {
         return editData[0];
     }
 
-    isSpecialCell(type) {
+    isSpecialCell(columnDefinition) {
+        const type = columnDefinition?.type;
         try {
             switch (type) {
                 case 'H':
+                case 'C':
+                    return columnDefinition.fieldName.toUpperCase() === 'WART';
                 case 'O':
                 case 'I':
                 case 'IM':
@@ -420,7 +424,7 @@ class TreeViewComponent extends React.Component {
                     sortIndex={columnDefinition?.sortIndex}
                     allowEditing={editable || columnDefinition?.selectionList}
                     cellRender={
-                        this.isSpecialCell(columnDefinition?.type)
+                        this.isSpecialCell(columnDefinition)
                             ? (cellInfo, columnDefinition) => this.cellRenderSpecial(cellInfo, columnDefinition)
                             : undefined
                     }
@@ -634,7 +638,7 @@ class TreeViewComponent extends React.Component {
                                             this.props.handlePluginRow(el.id);
                                         }}
                                         handleFormula={() => {
-                                            alert('TODO');
+                                            this.props.handleFormulaRow(recordId);
                                         }}
                                         handleHistory={() => {
                                             alert('TODO');
@@ -679,7 +683,12 @@ class TreeViewComponent extends React.Component {
 
     cellRenderSpecial(cellInfo) {
         try {
-            const _bgColor = cellInfo.data['_BGCOLOR'];
+            let _bgColor;
+            if (cellInfo.column.dataField.toUpperCase() === 'WART' && cellInfo.data?.WART !== '') {
+                _bgColor = '#FFFF00';
+            } else {
+                _bgColor = cellInfo.data['_BGCOLOR'];
+            }
             let bgColorFinal = 'white';
             const specialBgColor = cellInfo.data['_BGCOLOR_' + cellInfo.column?.dataField];
             if (!!specialBgColor) {
@@ -742,7 +751,7 @@ class TreeViewComponent extends React.Component {
                             <span
                                 style={{
                                     color: fontColorFinal,
-                                    // background: bgColorFinal,
+                                    background: _bgColor,
                                 }}
                                 // eslint-disable-next-line
                                 dangerouslySetInnerHTML={{__html: cellInfo?.text}}

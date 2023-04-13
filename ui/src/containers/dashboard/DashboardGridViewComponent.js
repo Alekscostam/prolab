@@ -421,7 +421,9 @@ export class DashboardGridViewComponent extends BaseContainer {
                     leftContent={this.leftHeadPanelContent()}
                     rightContent={this.rightHeadPanelContent()}
                     handleDelete={() => this.delete()}
-                    handleFormula={() => this.calculateFormula()}
+                    handleFormula={() => {
+                        this.prepareCalculateFormula();
+                    }}
                     handleRestore={() => this.restore()}
                     handleCopy={() => this.copyEntry()}
                     handleArchive={() => this.archive()}
@@ -533,7 +535,9 @@ export class DashboardGridViewComponent extends BaseContainer {
                             showSelection={this.props.showSelection}
                             dataGridHeight={this.props.dataGridHeight}
                             handleDeleteRow={(id) => this.delete(id)}
-                            handleFormulaRow={(id) => this.calculateFormula(id)}
+                            handleFormulaRow={(id) => {
+                                this.prepareCalculateFormula(id);
+                            }}
                             handleRestoreRow={(id) => this.restore(id)}
                             handleDocumentRow={(id) => this.generate(id)}
                             handlePluginRow={(id) => this.plugin(id)}

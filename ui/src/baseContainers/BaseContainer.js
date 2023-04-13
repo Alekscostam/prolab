@@ -6,7 +6,7 @@ import ActionButton from '../components/ActionButton';
 import DivContainer from '../components/DivContainer';
 import SimpleReactValidator from '../components/validator';
 import AuthService from '../services/AuthService';
-import $ from 'jquery';
+import $, {data} from 'jquery';
 import Constants from '../utils/Constants';
 import BlockUi from '../components/waitPanel/BlockUi';
 import {Toast} from 'primereact/toast';
@@ -1642,28 +1642,78 @@ class BaseContainer extends React.Component {
             });
     }
 
-    calculateFormula(id) {
+    prepareCalculateFormula(id) {
         ConsoleHelper('handleCalculateFormula');
         this.blockUi();
+
         const viewId = this.getRealViewId();
-        const parentId = this.state.elementRecordId;
-        const selectedRowKeysIds = this.getSelectedRowKeysIds(id);
+        const parentId = this.state.elementParentId;
+
+        let datas = [];
+        if (!!this.getRefGridView()) {
+            datas = this.getRefGridView().instance.getDataSource()._items;
+        }
+        if (!this.state.gridViewType) {
+            datas = this.refTreeList.instance.getDataSource()._items.map((el) => el.data);
+        }
+        if (id) {
+            datas = datas.filter((el) => {
+                return el._ID === id;
+            });
+        }
+        const fieldsToCalculate = this.createObjectToCalculate(datas);
+        this.calculateFormula(viewId, parentId, id, fieldsToCalculate);
+    }
+
+    calculateFormula(viewId, parentId, id, fieldsToCalculate) {
         this.crudService
-            .calculateFormula(viewId, parentId, selectedRowKeysIds)
-            .then((formulaResponse) => {
+            .calculateFormula(viewId, parentId, id, fieldsToCalculate)
+            .then((res) => {
+                // Ponizej fake odpowiedzi 
+                // let asd =
+                //     '{ "message": { "title": "Komunikat", "text": "Przeliczenie zakończono poprawnie." }, "data": [ [ { "fieldName": "ID", "value": "537" }, { "fieldName": "WART", "value": "9.48" }, { "fieldName": "_CALC_OK", "value": true } ] ] }';
+                // let arr = JSON.parse(asd);
+                res?.data?.forEach((calcultedFormula) => {
+                    this.refTreeList.instance
+                        .getDataSource()
+                        ._items.map((el) => el.data)
+                        .forEach((el) => {
+                            if (parseInt(calcultedFormula[0].value) === parseInt(el.ID)) {
+                                el.WART = calcultedFormula[1].value;
+                            }
+                        });
+                });
                 this.unselectAllDataGrid();
-                this.refreshView();
-                const msg = formulaResponse.message;
+                this.refTreeList.instance.refresh();
+                const msg = res.message;
                 if (!!msg) {
                     this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title);
-                } else if (!!formulaResponse.error) {
-                    this.showResponseErrorMessage(formulaResponse);
+                } else if (!!res.error) {
+                    this.showResponseErrorMessage(res);
                 }
                 this.unblockUi();
             })
             .catch((err) => {
                 this.showGlobalErrorMessage(err);
+                this.unblockUi();
             });
+    }
+
+    createObjectToCalculate(datas) {
+        let data = [];
+        let arrTemp = [];
+        datas?.forEach((fields) => {
+            arrTemp = [];
+            Object.entries(fields).forEach((field) => {
+                const elementTmp = {
+                    fieldName: field[0],
+                    value: field[1],
+                };
+                arrTemp.push(elementTmp);
+            });
+            data.push(arrTemp);
+        });
+        return {data: data};
     }
 
     archive(id) {

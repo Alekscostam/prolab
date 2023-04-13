@@ -491,7 +491,9 @@ export class AddSpecContainer extends BaseContainer {
                     handleRestore={() => this.restore()}
                     handleCopy={() => this.copyEntry()}
                     handleArchive={() => this.archive()}
-                    handleFormula={() => this.caclulateFormula()}
+                    handleFormula={() => {
+                        this.caclulateFormula();
+                    }}
                     handleAttachments={() => this.attachment()}
                     handlePublish={() => this.publishEntry()}
                     handleUnblockUi={() => this.unblockUi()}
@@ -571,7 +573,7 @@ export class AddSpecContainer extends BaseContainer {
                                     });
                                 }}
                                 handleDeleteRow={(id) => this.delete(id)}
-                                handleForumlaRow={(id) => this.calculateFormula(id)}
+                                handleForumlaRow={(id) => this.prepareCalculateFormula(id)}
                                 handleDownload={(id) => {
                                     this.props.handleDownloadRow(id);
                                 }}

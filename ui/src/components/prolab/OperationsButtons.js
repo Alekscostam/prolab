@@ -342,7 +342,7 @@ export const OperationsButtons = (props) => {
                     case 'OP_PUBLISH':
                         return props.handlePublish();
                     case 'OP_FORMULA':
-                        return props.handleFormula();
+                        return props.handleFormula(i);
                     case 'OP_DOWNLOAD':
                         return props.handleDownload();
                     case 'OP_HISTORY':

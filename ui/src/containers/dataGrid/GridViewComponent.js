@@ -34,6 +34,7 @@ class GridViewComponent extends React.Component {
         super(props);
         this.labels = this.props;
         this.dataGrid = null;
+
         this.crudService = new CrudService();
         ConsoleHelper('GridViewComponent -> constructor');
     }
