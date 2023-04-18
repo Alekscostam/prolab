@@ -1009,6 +1009,7 @@ class BaseContainer extends React.Component {
         const saveElement = this.crudService.createObjectToSave(this.state);
         ConsoleHelper(`handleEditRowSave: element to save = ${JSON.stringify(saveElement)}`);
         this.rowSave(viewId, recordId, parentId, saveElement, false, token);
+        this.unselectAllDataGrid();
     }
 
     refreshView() {
@@ -1669,7 +1670,7 @@ class BaseContainer extends React.Component {
         this.crudService
             .calculateFormula(viewId, parentId, id, fieldsToCalculate)
             .then((res) => {
-                // Ponizej fake odpowiedzi 
+                // Ponizej fake odpowiedzi
                 // let asd =
                 //     '{ "message": { "title": "Komunikat", "text": "Przeliczenie zakończono poprawnie." }, "data": [ [ { "fieldName": "ID", "value": "537" }, { "fieldName": "WART", "value": "9.48" }, { "fieldName": "_CALC_OK", "value": true } ] ] }';
                 // let arr = JSON.parse(asd);

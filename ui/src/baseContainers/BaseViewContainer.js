@@ -1023,7 +1023,6 @@ export class BaseViewContainer extends BaseContainer {
                     leftContent={this.leftHeadPanelContent()}
                     rightContent={this.rightHeadPanelContent()}
                     handleFormula={(e) => {
-                        debugger;
                         this.prepareCalculateFormula();
                     }}
                     handleDelete={() => this.delete()}
@@ -1252,14 +1251,31 @@ export class BaseViewContainer extends BaseContainer {
             this.state.subView == null ? UrlUtils.getURLParameter('parentId') : this.state.elementRecordId;
         const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId;
         const kindViewArg = this.state.kindView;
-        this.loadGanttData(viewIdArg, parentIdArg, filterIdArg, kindViewArg);
+        const loadSortOptions = this.state.parsedGridView.ganttColumns.filter((c) => {
+            return c.sortIndex === 1;
+        })[0];
+        this.loadGanttData(viewIdArg, parentIdArg, filterIdArg, kindViewArg, loadSortOptions);
     }
 
-    loadGanttData(viewIdArg, parentIdArg, filterIdArg, kindViewArg) {
+    loadGanttData(viewIdArg, parentIdArg, filterIdArg, kindViewArg, loadSortOptions) {
         this.setState({loading: true}, () => {
+            const sort = [];
+
+            if (loadSortOptions) {
+                const operation = {
+                    desc: loadSortOptions?.sortOrder?.toUpperCase() === 'DESC',
+                    selector: loadSortOptions?.fieldName,
+                };
+                sort.push(operation);
+            }
+
             let res = this.dataGanttStore.getDataForGantt(
                 viewIdArg,
-                {skip: 0, take: Constants.INTEGER_MAX_VALUE},
+                {
+                    skip: 0,
+                    take: Constants.INTEGER_MAX_VALUE,
+                    sort: sort.length === 0 ? undefined : sort,
+                },
                 parentIdArg,
                 filterIdArg,
                 kindViewArg

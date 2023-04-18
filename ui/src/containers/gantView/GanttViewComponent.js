@@ -427,7 +427,7 @@ class GanttViewComponent extends React.Component {
                         name={columnDefinition?.fieldName}
                         dataType={GanttUtils.specifyColumnType(columnDefinition?.type)}
                         format={GanttUtils.specifyColumnFormat(columnDefinition?.type)}
-                        cellTemplate={this.cellTemplate(columnDefinition, this.state.singleRowElements)}
+                        cellTemplate={this.cellTemplate(columnDefinition)}
                     />
                 );
             });
@@ -629,7 +629,6 @@ class GanttViewComponent extends React.Component {
             if (!!_bgcolor) {
                 bgColorFinal = _bgcolor;
             }
-
             switch (column?.type) {
                 case 'C':
                 case 'N':

@@ -207,6 +207,7 @@ export class ViewContainer extends BaseViewContainer {
         const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId;
         const kindViewArg = this.state.kindView;
         const dataPackageSize = this.state.parsedGridView?.viewInfo?.dataPackageSize;
+
         const packageCount =
             !!dataPackageSize || dataPackageSize === 0 ? Constants.DEFAULT_DATA_PACKAGE_COUNT : dataPackageSize;
         if (this.isCardView()) {
@@ -248,7 +249,10 @@ export class ViewContainer extends BaseViewContainer {
                 this.unblockUi();
             });
         } else if (this.isGanttView()) {
-            this.loadGanttData(viewIdArg, parentIdArg, filterIdArg, kindViewArg);
+            const loadSortOptions = this.state.parsedGridView.ganttColumns.filter((c) => {
+                return c.sortIndex === 1;
+            })[0];
+            this.loadGanttData(viewIdArg, parentIdArg, filterIdArg, kindViewArg, loadSortOptions);
         } else {
             this.setState({loading: true}, () => {
                 let res = this.dataGridStore.getDataGridStore(
