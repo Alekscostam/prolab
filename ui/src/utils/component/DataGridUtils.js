@@ -60,7 +60,7 @@ export class DataGridUtils extends ViewDataCompUtils {
                             style={{
                                 // display: 'inline',
                                 whiteSpace: info.column.allowWrapping ? 'wrap' : 'nowrap',
-                                maxWidth: column.width + 'px',
+                                // maxWidth: column.width + 'px',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
                                 backgroundColor: bgColorFinal,

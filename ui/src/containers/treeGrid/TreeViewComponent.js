@@ -684,8 +684,12 @@ class TreeViewComponent extends React.Component {
     cellRenderSpecial(cellInfo) {
         try {
             let _bgColor;
-            if (cellInfo.column.dataField.toUpperCase() === 'WART' && cellInfo.data?.WART !== '') {
-                _bgColor = '#FFFF00';
+            if (cellInfo.data?.FORMULA === 'SUM' && cellInfo.column.dataField.toUpperCase() === 'WART') {
+                const elements = document.querySelectorAll('td[aria-describedby="' + cellInfo.column.headerId + '"]');
+                const element = elements[cellInfo.rowIndex];
+                if (element.parentNode.rowIndex === cellInfo.rowIndex) {
+                    element.style.backgroundColor = 'yellow';
+                }
             } else {
                 _bgColor = cellInfo.data['_BGCOLOR'];
             }
@@ -751,7 +755,7 @@ class TreeViewComponent extends React.Component {
                             <span
                                 style={{
                                     color: fontColorFinal,
-                                    background: _bgColor,
+                                    // background: _bgColor,
                                 }}
                                 // eslint-disable-next-line
                                 dangerouslySetInnerHTML={{__html: cellInfo?.text}}

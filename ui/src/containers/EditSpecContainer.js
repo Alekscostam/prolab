@@ -658,13 +658,15 @@ export class EditSpecContainer extends BaseContainer {
                                 hoverStateEnabled={true}
                                 parsedGridViewData={parsedData}
                                 modifyParsedGridViewData={(newCopyRow) => {
+                                    const replacedParsedData = [];
                                     parsedData.forEach((el) => {
                                         if (el.ID === newCopyRow.ID) {
                                             el = newCopyRow;
                                         }
+                                        replacedParsedData.push(el);
                                     });
                                     this.setState({
-                                        parsedData,
+                                        parsedData: replacedParsedData,
                                     });
                                 }}
                                 allowUpdating={true}
