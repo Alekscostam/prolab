@@ -415,7 +415,6 @@ class TreeViewComponent extends React.Component {
             }
             const editable = columnDefinition?.edit;
             this.preColumnDefinition(editable, INDEX_COLUMN);
-
             columns.push(
                 <Column
                     key={INDEX_COLUMN}
@@ -470,15 +469,19 @@ class TreeViewComponent extends React.Component {
                             column.dataType = TreeListUtils.specifyColumnType(columnDefinition?.type);
 
                             column.format = TreeListUtils.specifyColumnFormat(columnDefinition?.type);
-
-                            column.fixed =
-                                columnDefinition.freeze !== undefined && columnDefinition?.freeze !== null
-                                    ? columnDefinition?.freeze?.toLowerCase() === 'left' ||
-                                      columnDefinition?.freeze?.toLowerCase() === 'right'
-                                    : false;
-                            column.fixedPosition = !!columnDefinition.freeze
-                                ? columnDefinition.freeze?.toLowerCase()
-                                : null;
+                            if (column.index === 0) {
+                                column.fixed = true;
+                                column.fixedPosition = 'left';
+                            } else {
+                                column.fixed =
+                                    columnDefinition.freeze !== undefined && columnDefinition?.freeze !== null
+                                        ? columnDefinition?.freeze?.toLowerCase() === 'left' ||
+                                          columnDefinition?.freeze?.toLowerCase() === 'right'
+                                        : false;
+                                column.fixedPosition = !!columnDefinition.freeze
+                                    ? columnDefinition.freeze?.toLowerCase()
+                                    : null;
+                            }
                             column.renderAsync = false;
                             //own properties
                             column.ownType = columnDefinition?.type;

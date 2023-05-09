@@ -205,9 +205,8 @@ export class ViewContainer extends BaseViewContainer {
         const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
         const parentIdArg = this.state.subView == null ? parentId : this.state.elementRecordId;
         const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId;
-        const kindViewArg = this.state.kindView;
+        const kindViewArg = this.state?.gridViewType?.toUpperCase() === 'cardView' ? 'cardView' : this.state.kindView;
         const dataPackageSize = this.state.parsedGridView?.viewInfo?.dataPackageSize;
-
         const packageCount =
             !!dataPackageSize || dataPackageSize === 0 ? Constants.DEFAULT_DATA_PACKAGE_COUNT : dataPackageSize;
         if (this.isCardView()) {

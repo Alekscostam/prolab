@@ -85,9 +85,11 @@ export const HeadPanel = (props) => {
                                     handleArchive={(e) => props.handleArchive(e)}
                                     handleAttachments={(e) => props.handleAttachments(e)}
                                     handleEdit={(e) => handleEdit(e, props, viewId, parentId, currentBreadcrumb)}
-                                    handleEditSpec={(e) =>
-                                        handleSpecEdit(e, props, viewId, parentId, currentBreadcrumb)
-                                    }
+                                    handleEditSpec={(e) => {
+                                        let prevUrl = window.location.href;
+                                        sessionStorage.setItem('prevUrl', prevUrl);
+                                        handleSpecEdit(e, props, viewId, parentId, currentBreadcrumb);
+                                    }}
                                     inverseColor={true}
                                     buttonShadow={false}
                                     handleBlockUi={(e) => props.handleUnblockUi()}

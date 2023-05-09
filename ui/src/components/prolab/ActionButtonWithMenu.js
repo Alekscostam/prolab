@@ -47,7 +47,7 @@ export class ActionButtonWithMenu extends React.Component {
                     className={`action-button-with-menu ${className}`}
                     disabled={disabled}
                     handleClick={(event) => {
-                        const content = document.getElementById('action-button-with-menu-contant');
+                        const content = document.getElementById('header-left');
                         content.click();
                         this.handleClick(event);
                     }}

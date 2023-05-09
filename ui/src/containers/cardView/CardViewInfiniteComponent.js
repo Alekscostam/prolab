@@ -81,6 +81,10 @@ class CardViewInfiniteComponent extends React.Component {
             cardSkip: 0,
             cardScrollLoading: false,
         });
+        // TODO: ... duży problem z listą w CardInfiniteLoaderWrapper, ona jest taka srednia do update.
+        if (this.props?.elementSubViewId) {
+            this._loadNextPage([0]);
+        }
     }
 
     _loadNextPage = (...args) => {
