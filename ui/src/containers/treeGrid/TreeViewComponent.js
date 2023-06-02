@@ -413,6 +413,7 @@ class TreeViewComponent extends React.Component {
             if (!!columnDefinition?.sortIndex && columnDefinition?.sortIndex > 0 && !!columnDefinition?.sortOrder) {
                 sortOrder = columnDefinition?.sortOrder?.toLowerCase();
             }
+
             const editable = columnDefinition?.edit;
             this.preColumnDefinition(editable, INDEX_COLUMN);
             columns.push(

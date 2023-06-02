@@ -154,18 +154,15 @@ export const MemoizedBoolInput = React.memo(
     ({field, cellInfo, inputValue, fieldIndex, editable, autoFillCheckbox, required, validateCheckbox}) => {
         return (
             <React.Fragment>
-                <div
-                    style={{display: 'inline-block'}}
-                    // ${autoFillCheckbox} ${editable}
-                    className={`${validateCheckbox}`}
-                >
+                <div style={{display: 'inline-block'}} className={`${validateCheckbox}`}>
                     <CheckBox
                         id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                         name={field.fieldName}
                         onValueChanged={(e) => {
-                            cellInfo.setValue(e.value);
+                            if (e.event) cellInfo.setValue(e.value);
                         }}
-                        defaultValue={inputValue === true || DataGridUtils.conditionForTrueValueForBoolType(inputValue)}
+                        defaultValue={inputValue === true || TreeListUtils.conditionForTrueValue(inputValue)}
+                        value={inputValue === true || TreeListUtils.conditionForTrueValue(inputValue)}
                         disabled={!field.edit}
                         required={required}
                     />
@@ -189,19 +186,16 @@ export const MemoizedLogicInput = React.memo(
     }) => {
         return (
             <React.Fragment>
-                <div
-                    style={{display: 'inline-block'}}
-                    // ${autoFillCheckbox} ${editable}
-                    className={`${validateCheckbox}`}
-                >
+                <div style={{display: 'inline-block'}} className={`${validateCheckbox}`}>
                     <CheckBox
                         id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                         name={field.fieldName}
                         onValueChanged={(e) => {
-                            cellInfo.setValue(e.value);
+                            if (e.event) cellInfo.setValue(e.value);
                         }}
-                        checked={inputValue === true || DataGridUtils.conditionForTrueValueForLogicType(inputValue)}
                         disabled={!field.edit}
+                        defaultValue={inputValue === true || TreeListUtils.conditionForTrueValue(inputValue)}
+                        value={inputValue === true || TreeListUtils.conditionForTrueValue(inputValue)}
                         required={required}
                     />
                 </div>
@@ -366,6 +360,25 @@ export class TreeListUtils extends ViewDataCompUtils {
 
     static getCrudService() {
         return TreeListUtils.crudService;
+    }
+
+    static conditionForTrueValue(value) {
+        if (typeof value === 'boolean') {
+            return value;
+        }
+        if (typeof value === 'number') {
+            return value === 1;
+        }
+        if (typeof value === 'string') {
+            return (
+                value === 'T' ||
+                value === 't' ||
+                value === '1' ||
+                value.toLowerCase() === 'true' ||
+                value.toLowerCase() === 'tak'
+            );
+        }
+        return value;
     }
 
     static openEditSpec = (

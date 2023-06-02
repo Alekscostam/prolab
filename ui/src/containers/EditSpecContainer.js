@@ -446,8 +446,24 @@ export class EditSpecContainer extends BaseContainer {
 
     //override
     createObjectToSave(rowArray) {
+        const booleanLogicColumns = this.state.columns.filter((el) => el.type === 'L');
+        const booleanNumberColumns = this.state.columns.filter((el) => el.type === 'B');
         let arrayTmp = [];
         for (let row of rowArray) {
+            Object.keys(row).forEach((el) => {
+                booleanLogicColumns.forEach((bool) => {
+                    if (bool.fieldName === el) {
+                        row[el] ? (row[el] = 'T') : (row[el] = 'N');
+                    }
+                });
+            });
+            Object.keys(row).forEach((el) => {
+                booleanNumberColumns.forEach((bool) => {
+                    if (bool.fieldName === el) {
+                        row[el] ? (row[el] = 1) : (row[el] = 0);
+                    }
+                });
+            });
             let rowArray = [];
             for (let field in row) {
                 rowArray.push({fieldName: field, value: row[field]});

@@ -243,6 +243,8 @@ class GridViewComponent extends React.Component {
                                 column.caption = columnDefinition?.label;
                                 column.dataType = DataGridUtils.specifyColumnType(columnDefinition?.type);
                                 column.format = DataGridUtils.specifyColumnFormat(columnDefinition?.type);
+                                
+                               
                                 // column.editorOptions = DataGridUtils.specifyEditorOptions(columnDefinition?.type);
                                 column.cellTemplate = DataGridUtils.cellTemplate(columnDefinition);
                                 column.fixed =
