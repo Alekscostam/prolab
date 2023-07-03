@@ -18,11 +18,10 @@ import {SelectBox} from 'devextreme-react';
 import AppPrefixUtils from '../utils/AppPrefixUtils';
 import ActionButton from '../components/ActionButton';
 import DivContainer from '../components/DivContainer';
-import {confirmDialog} from 'primereact/confirmdialog';
-import {localeOptions} from 'primereact/api';
 import ActionButtonWithMenuUtils from '../utils/ActionButtonWithMenuUtils';
 import {AddSpecContainer} from './AddSpecContainer';
 import SubGridViewComponent from './dataGrid/SubGridViewComponent';
+import {TreeListUtils} from '../utils/component/TreeListUtils';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -245,9 +244,10 @@ export class EditSpecContainer extends BaseContainer {
                     this.dataTreeStore
                         .getDataTreeStoreDirect(viewIdArg, parentIdArg, recordIdArg, packageCount)
                         .then((res) => {
+                            const data = TreeListUtils.paintDatas(res.data);
                             this.setState({
                                 loading: false,
-                                parsedData: res.data,
+                                parsedData: data,
                             });
                         });
                 }
@@ -501,6 +501,10 @@ export class EditSpecContainer extends BaseContainer {
                 <SubGridViewComponent
                     handleOnInitialized={(ref) => (this.selectedDataGrid = ref)}
                     subView={subView}
+                    minHeight={'110px'}
+                    getRef={() => {
+                        return this.selectedDataGrid;
+                    }}
                     handleRightHeadPanelContent={(e) => {
                         this.viewContainer?.current?.handleRightHeadPanelContent(e);
                     }}
@@ -691,6 +695,9 @@ export class EditSpecContainer extends BaseContainer {
                                 onChange={(type, e, rowId, info) => {
                                     this.handleEditRowChange(type, e, rowId, info);
                                 }}
+                                handleUnselectAll={() => {
+                                    this.unselectAllDataGrid();
+                                }}
                                 handleBlockUi={() => {
                                     this.blockUi();
                                     return true;
@@ -742,6 +749,7 @@ export class EditSpecContainer extends BaseContainer {
                         </div>
                         {this.state.visibleAddSpec ? (
                             <AddSpecContainer
+                                parsedGridViewData={parsedData}
                                 ref={this.addSpecContainer}
                                 lastId={this.getLastId()}
                                 id={this.props.id}

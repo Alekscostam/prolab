@@ -94,7 +94,9 @@ class GanttViewComponent extends React.Component {
             }
             resultLength = (resultLength + 1) * 21;
         }
-
+        if (resultLength < 75) {
+            resultLength = 75;
+        }
         this.setState({
             selectionColumnWidth: resultLength,
         });
@@ -115,6 +117,9 @@ class GanttViewComponent extends React.Component {
     }
 
     componentDidMount() {
+        if (this.props.selectedRowKeys.length !== 0) {
+            this.props.unselectAll();
+        }
         if (
             typeof this.props.parsedGanttViewData === 'object' &&
             typeof this.props.parsedGanttViewData.then === 'function'

@@ -18,6 +18,7 @@ import UrlUtils from '../../utils/UrlUtils';
 import LocUtils from '../../utils/LocUtils';
 import DashboardCardViewComponent from './DashboardCardViewComponent';
 import CrudService from '../../services/CrudService';
+import {EntryResponseUtils} from '../../utils/EntryResponseUtils';
 
 class DashboardContainer extends BaseContainer {
     constructor(props) {
@@ -56,15 +57,10 @@ class DashboardContainer extends BaseContainer {
 
     refreshDashboard(savedElement) {
         let dashboard = this.props.dashboard;
-        let headerData = dashboard.headerData[0];
-        // tutaj czitujemy sobie odswiezanie widoku poprzez state i zapisany element, poniewaz funkcja refresh() nie dziala dla TileView jak nie ma DataSource
-        savedElement.data.forEach((savedEl) => {
-            Object.entries(headerData).forEach((headerEl) => {
-                if (savedEl.fieldName === headerEl[0]) {
-                    headerData[savedEl.fieldName] = savedEl.value;
-                }
-            });
-        });
+        if (savedElement) {
+            this.downloadDashboardData();
+            return;
+        }
         this.setState(
             {
                 dashboard: dashboard,
@@ -76,6 +72,50 @@ class DashboardContainer extends BaseContainer {
             }
         );
     }
+
+    downloadDashboardData = () => {
+        const {dashboard} = this.props;
+        const id = dashboard.viewInfo.id;
+        const recordId = UrlUtils.getURLParameter('recordId');
+        const parentId = UrlUtils.getURLParameter('parentId');
+
+        this.viewService
+            .subViewEntry(id, recordId, parentId)
+            .then((entryResponse) => {
+                EntryResponseUtils.run(
+                    entryResponse,
+                    () => {
+                        if (!!entryResponse.next) {
+                            this.viewService
+                                .getSubView(id, recordId, parentId)
+                                .then((subViewResponse) => {
+                                    if (subViewResponse.viewInfo?.type === 'dashboard') {
+                                        this.setState(
+                                            {
+                                                dashboard: subViewResponse,
+                                                loading: false,
+                                            },
+                                            () => {
+                                                this.prepareCardView();
+                                                this.unblockUi();
+                                            }
+                                        );
+                                    }
+                                })
+                                .catch((err) => {
+                                    this.showGlobalErrorMessage(err);
+                                });
+                        } else {
+                            this.unblockUi();
+                        }
+                    },
+                    () => this.unblockUi()
+                );
+            })
+            .catch((err) => {
+                this.showGlobalErrorMessage(err);
+            });
+    };
 
     initializeDashboard = () => {
         this.dashboardService
@@ -219,6 +259,8 @@ class DashboardContainer extends BaseContainer {
         const recordId = UrlUtils.getURLParameter('recordId');
         const cardId = this.state.dashboard?.headerData ? this.state.dashboard?.headerData[0]?.ID : null;
         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+        console.log(this.state.dashboard?.headerData);
+
         return (
             <React.Fragment>
                 <div className='rows'>

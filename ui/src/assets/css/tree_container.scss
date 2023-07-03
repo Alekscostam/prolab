@@ -31,6 +31,74 @@ $table-selection: #dde6ff;
     font-weight: 500;
 }
 
+.line-treelist {
+    content: '';
+    position: absolute;
+    height: 100%; /* Wysokość paska */
+    top: 0;
+    width: 15px; /* Szerokość paska */
+}
+
+.dx-treelist-rowsview .dx-treelist-expanded span::before {
+    margin-left: -2px !important;
+}
+.dx-treelist-rowsview .dx-treelist-collapsed span::before {
+    margin-left: -2px !important;
+}
+
+.dx-treelist-icon-container.dx-editor-inline-block .dx-checkbox {
+    top: 50%;
+    margin-top: -8px;
+    margin-left: 0px;
+}
+
+.dx-gridbase-container > .dx-treelist-rowsview.dx-scrollable {
+    .line-treelist-90 {
+        left: 0;
+        background-color: #0e49eb;
+    }
+    .line-treelist-80 {
+        left: 15px;
+        background-color: rgb(14, 73, 235, 0.9); /* Obniżenie cieni o połowę */
+    }
+    .line-treelist-70 {
+        left: 30px;
+        background-color: rgb(14, 73, 235, 0.8);
+    }
+    .line-treelist-60 {
+        left: 45px;
+        background-color: rgb(14, 73, 235, 0.7);
+    }
+    .line-treelist-50 {
+        left: 60px;
+        background-color: rgb(14, 73, 235, 0.6);
+    }
+    .line-treelist-40 {
+        left: 75px;
+        background-color: rgb(14, 73, 235, 0.5);
+    }
+    .line-treelist-30 {
+        left: 90px;
+        background-color: rgb(14, 73, 235, 0.4);
+    }
+    .line-treelist-20 {
+        left: 105px;
+        background-color: rgb(14, 73, 235, 0.3);
+    }
+    .line-treelist-10 {
+        left: 120px;
+        background-color: rgb(14, 73, 235, 0.2);
+    }
+    .line-treelist-0 {
+        left: 135px;
+        background-color: rgb(14, 73, 235, 0.1);
+    }
+}
+.dx-treelist-headers,
+.dx-treelist-rowsview {
+    z-index: 0;
+}
+
 .dx-datagrid .dx-column-lines > td {
     border-left: 1px solid $table-border;
     border-right: 1px solid $table-border;
@@ -128,7 +196,10 @@ $table-selection: #dde6ff;
 .grid-count-fragment {
     margin-top: 2px;
 }
-
+#spec-edit table.dx-treelist-table td button,
+#spec-edit-dialog table.dx-treelist-table td button {
+    max-height: 35px;
+}
 .grid-separator-fragment {
     border-left: $button-text-color 1px solid;
     margin-left: 10px;
@@ -649,7 +720,15 @@ body .grid-container {
     -webkit-box-shadow: none;
     box-shadow: none;
 }
+#column_0_undefined-fixed {
+    .dx-column-indicators {
+        display: none;
+    }
+}
 
+.dx-htmleditor-content {
+    background: white;
+}
 //fix z uciekającymi bordersami tabelek
 
 .maximalized-sub-view {

@@ -29,6 +29,8 @@ import {StringUtils} from '../../utils/StringUtils';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
+let clearSelection = false;
+
 class GridViewComponent extends React.Component {
     constructor(props) {
         super(props);
@@ -54,6 +56,10 @@ class GridViewComponent extends React.Component {
     selectAllEvent(e) {
         const value = e?.cellElement?.children[0]?.children[0]?.value;
         return value === 'true' || value === true;
+    }
+
+    componentWillUnmount() {
+        clearSelection = false;
     }
 
     groupCellTemplate(element, data) {
@@ -96,7 +102,7 @@ class GridViewComponent extends React.Component {
         const allowSelectAll = selectAll === undefined || selectAll === null || !!selectAll;
         const defaultSelectedRowKeys = this.props.defaultSelectedRowKeys;
         const selectedRowKeys = this.props.selectedRowKeys;
-
+        console.log(selectedRowKeys);
         return (
             <React.Fragment>
                 {/* <div className='dx-container'> */}
@@ -116,6 +122,14 @@ class GridViewComponent extends React.Component {
                     autoNavigateToFocusedRow={false}
                     columnResizingMode='widget'
                     allowColumnReordering={true}
+                    onOptionChanged={(e) => {
+                        if (e.fullName.includes('filterValue') && e.name === 'columns') {
+                            if (this.labels?.getRef) {
+                                this.labels.getRef().instance.clearSelection();
+                                clearSelection = true;
+                            }
+                        }
+                    }}
                     allowColumnResizing={true}
                     showColumnLines={showColumnLines}
                     showRowLines={showRowLines}
@@ -146,6 +160,10 @@ class GridViewComponent extends React.Component {
                     onContentReady={(e) => {
                         //myczek na rozjezdzajace sie linie wierszy w dataGrid
                         // $(document).ready(function () {
+                        if (clearSelection) {
+                            this.props.handleUnselectAll();
+                            clearSelection = false;
+                        }
                         if (e.component.shouldSkipNextReady) {
                             e.component.shouldSkipNextReady = false;
                         } else {
@@ -167,8 +185,8 @@ class GridViewComponent extends React.Component {
                     />
 
                     <FilterRow visible={showFilterRow} applyFilter={true} />
-                    <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'} />
 
+                    <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'} />
                     <Grouping autoExpandAll={groupExpandAll} allowCollapsing={true} contextMenuEnabled={true} />
                     <GroupPanel visible={showGroupPanel} />
 
@@ -243,9 +261,6 @@ class GridViewComponent extends React.Component {
                                 column.caption = columnDefinition?.label;
                                 column.dataType = DataGridUtils.specifyColumnType(columnDefinition?.type);
                                 column.format = DataGridUtils.specifyColumnFormat(columnDefinition?.type);
-                                
-                               
-                                // column.editorOptions = DataGridUtils.specifyEditorOptions(columnDefinition?.type);
                                 column.cellTemplate = DataGridUtils.cellTemplate(columnDefinition);
                                 column.fixed =
                                     columnDefinition.freeze !== undefined && columnDefinition?.freeze !== null
@@ -267,6 +282,7 @@ class GridViewComponent extends React.Component {
                                             columnDefinition
                                         );
                                 }
+
                                 column.headerFilter = {groupInterval: null};
                                 column.renderAsync = true;
                                 INDEX_COLUMN++;

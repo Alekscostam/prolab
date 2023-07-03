@@ -349,6 +349,7 @@ export class ViewContainer extends BaseViewContainer {
                 ) : null}
                 {this.state.visibleAddSpec ? (
                     <AddSpecContainer
+                        parsedGridView={this.state?.parsedGridView}
                         ref={this.addSpecContainer}
                         lastId={this.getLastId()}
                         id={this.props.id}

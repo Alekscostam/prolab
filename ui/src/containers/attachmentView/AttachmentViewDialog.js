@@ -5,6 +5,8 @@ import LocUtils from '../../utils/LocUtils';
 import DivContainer from '../../components/DivContainer';
 import {BaseViewContainer} from '../../baseContainers/BaseViewContainer';
 import {Dialog} from 'primereact/dialog';
+import UrlUtils from '../../utils/UrlUtils';
+import {DataGridUtils} from '../../utils/component/DataGridUtils';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -27,6 +29,17 @@ export class AttachmentViewDialog extends BaseViewContainer {
         });
     }
 
+    // overide
+    componentDidUpdate(prevProps, prevState, snapshot) {}
+
+    componentWillUnmount() {
+        const {prevElementSubViewId} = this.state;
+        this.setState({
+            elementSubViewId: prevElementSubViewId,
+        });
+        super.componentWillUnmount();
+    }
+
     getViewById(viewId, recordId, filterId, parentId, viewType, isSubView) {
         ConsoleHelper(
             `AttachmentViewDialog::getViewById: viewId=${viewId}, isSubView=${isSubView} recordId=${recordId}, filterId=${filterId}, parentId=${parentId}, viewType=${viewType},`
@@ -35,7 +48,10 @@ export class AttachmentViewDialog extends BaseViewContainer {
             this.viewService
                 .getAttachemntView(viewId, recordId)
                 .then((responseView) => {
+                    const {elementSubViewId} = this.state;
+
                     this.setState({
+                        prevElementSubViewId: elementSubViewId,
                         elementSubViewId: responseView.viewInfo.id,
                     });
                     this.processViewResponse(responseView, parentId, recordId, isSubView);
@@ -54,7 +70,8 @@ export class AttachmentViewDialog extends BaseViewContainer {
         const viewInfo = responseView.viewInfo;
         const initFilterId = viewInfo?.filterdId;
         const viewIdArg = viewInfo.id;
-        const parentIdArg = viewInfo.parentId;
+        const parentIdArg =
+            UrlUtils.getURLParameter('recordId') === null ? viewInfo.parentId : UrlUtils.getURLParameter('recordId');
         const parentViewIdArg = viewInfo.parentViewId;
         const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId;
         const kindViewArg = 'View';

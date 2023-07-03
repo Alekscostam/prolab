@@ -430,6 +430,10 @@ body .grid-container.grid-header-auto-height .dx-datagrid-headers .dx-header-row
     white-space: -webkit-pre-wrap; /* Newer versions of Chrome/Safari*/
 }
 
+.dx-row.dx-data-row.dx-row-lines.dx-column-lines {
+    position: relative;
+}
+
 body .grid-container {
     max-width: 100%;
     width: min-content;

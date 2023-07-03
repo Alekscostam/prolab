@@ -78,10 +78,16 @@ export default class EditListComponent extends React.Component {
                         handleBlockUi={() => {
                             this.props.handleBlockUi();
                         }}
+                        getRef={() => {
+                            return this.refDataGrid;
+                        }}
                         handleUnblockUi={() => {
                             this.props.handleUnblockUi();
                         }}
                         showSelection={true}
+                        handleUnselectAll={() => {
+                            this.unselectAllDataGrid();
+                        }}
                         defaultSelectedRowKeys={this.props.defaultSelectedRowKeys}
                         handleSelectedRowKeys={(e) => this.handleSelectedRowData(e)}
                         showFilterRow={true}

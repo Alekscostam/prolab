@@ -1,4 +1,4 @@
-import BaseService from "./BaseService";
+import BaseService from './BaseService';
 
 //Deprecated
 /*
@@ -20,5 +20,4 @@ export default class ViewDataService extends BaseService {
             throw err;
         });
     }
-
 }

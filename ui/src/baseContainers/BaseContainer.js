@@ -22,6 +22,7 @@ import {EntryResponseUtils} from '../utils/EntryResponseUtils';
 import CrudService from '../services/CrudService';
 import UrlUtils from '../utils/UrlUtils';
 import {readValueCookieGlobal, removeCookieGlobal} from '../utils/Cookie';
+import {TreeListUtils} from '../utils/component/TreeListUtils';
 class BaseContainer extends React.Component {
     constructor(props, service) {
         super(props);
@@ -1297,7 +1298,7 @@ class BaseContainer extends React.Component {
                                     this.refreshView();
                                     const msg = deleteResponse.message;
                                     if (!!msg) {
-                                        this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title);
+                                        this.showErrorMessage(msg.text, Constants.SUCCESS_MSG_LIFE, true, msg.title);
                                     } else if (!!deleteResponse.error) {
                                         this.showResponseErrorMessage(deleteResponse);
                                     }
@@ -1436,7 +1437,12 @@ class BaseContainer extends React.Component {
         this.blockUi();
         const viewInfo = gridView.viewInfo;
         const viewId = viewInfo.id;
-        let parentId = viewInfo.parentId ? viewInfo.parentId : UrlUtils.getURLParameter('parentId');
+        let parentId =
+            UrlUtils.getURLParameter('recordId') === null
+                ? viewInfo.parentId
+                    ? viewInfo.parentId
+                    : UrlUtils.getURLParameter('parentId')
+                : UrlUtils.getURLParameter('recordId');
         const parentViewId = viewInfo.parentViewId;
         if (parentId == null) {
             parentId = 0;
@@ -1655,12 +1661,8 @@ class BaseContainer extends React.Component {
             datas = this.getRefGridView().instance.getDataSource()._items;
         }
         if (!this.state.gridViewType) {
-            datas = this.refTreeList.instance.getDataSource()._items.map((el) => el.data);
-        }
-        if (id) {
-            datas = datas.filter((el) => {
-                return el._ID === id;
-            });
+            const ref = this.refTreeList.instance.getDataSource();
+            datas = TreeListUtils.unpackAllElementsFromTreeListModel(ref._items).map((el) => el.data);
         }
         const fieldsToCalculate = this.createObjectToCalculate(datas);
         this.calculateFormula(viewId, parentId, id, fieldsToCalculate);
@@ -1862,7 +1864,15 @@ class BaseContainer extends React.Component {
             });
     }
 
-    unselectAllDataGrid() {}
+    unselectAllDataGrid() {
+        this.refTreeList?.instance.deselectAll();
+        this.setState({
+            selectAll: false,
+            select: false,
+            selectedRowKeys: [],
+        });
+        this.unblockUi();
+    }
 
     handleEditListRowChange(editInfo, editListData) {
         ConsoleHelper(`handleEditListRowChange = `, JSON.stringify(editListData));

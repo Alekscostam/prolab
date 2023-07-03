@@ -202,6 +202,7 @@ export class BaseViewContainer extends BaseContainer {
             fromSubviewToFirstSubView ||
             !DataGridUtils.equalNumbers(this.state.elementFilterId, filterId) ||
             !DataGridUtils.equalNumbers(this.state.elementRecordId, recordId);
+
         ConsoleHelper(
             'BaseViewContainer::componentDidUpdate -> updatePage={%s id={%s} id={%s} type={%s} type={%s}',
             updatePage,
@@ -361,7 +362,6 @@ export class BaseViewContainer extends BaseContainer {
                     );
                     this.props.handleOperations(this.state.parsedGridView?.operations);
                     this.props.handleShortcutButtons(this.state.parsedGridView?.shortcutButtons);
-
                     this.getDataByViewResponse(responseView, parentId);
                 }
             );
@@ -947,6 +947,10 @@ export class BaseViewContainer extends BaseContainer {
         $(document).keyup((event) => {
             try {
                 const keycode = event.keyCode || event.which;
+
+                if (keycode === 13 && event.originalEvent.path === undefined) {
+                    return;
+                }
                 if (
                     keycode === 13 &&
                     event.target?.className === 'dx-texteditor-input' &&
@@ -1302,6 +1306,7 @@ export class BaseViewContainer extends BaseContainer {
             ? this.state.elementKindView
             : UrlUtils.getURLParameter('kindView');
         const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
+
         return (
             <React.Fragment>
                 {this.state.loading ? null : (
@@ -1310,6 +1315,7 @@ export class BaseViewContainer extends BaseContainer {
                             <React.Fragment>
                                 <GridViewComponent
                                     id={this.props.id}
+                                    selectedRows={this.state.selectedRowKeys}
                                     elementSubViewId={this.state.elementSubViewId}
                                     elementKindView={this.state.elementKindView}
                                     elementRecordId={
@@ -1328,6 +1334,9 @@ export class BaseViewContainer extends BaseContainer {
                                     handleBlockUi={() => {
                                         this.blockUi();
                                         return true;
+                                    }}
+                                    handleUnselectAll={() => {
+                                        this.unselectAllDataGrid();
                                     }}
                                     handleUnblockUi={() => this.unblockUi()}
                                     showErrorMessages={(err) => this.showErrorMessages(err)}
@@ -1383,6 +1392,7 @@ export class BaseViewContainer extends BaseContainer {
                                 <CardViewInfiniteComponent
                                     id={viewIdArg}
                                     ref={this.refCardGrid}
+                                    gridViewType={this.state.gridViewType}
                                     elementSubViewId={this.state.elementSubViewId}
                                     elementKindView={this.state.elementKindView}
                                     handleOnInitialized={(ref) => (this.cardGrid = ref)}
@@ -1417,6 +1427,11 @@ export class BaseViewContainer extends BaseContainer {
                             <React.Fragment>
                                 <GanttViewComponent
                                     id={this.props.id}
+                                    unselectAll={() => {
+                                        this.setState({
+                                            selectedRowKeys: [],
+                                        });
+                                    }}
                                     collapsed={this.props.collapsed}
                                     elementSubViewId={this.state.elementSubViewId}
                                     elementKindView={this.state.elementKindView}

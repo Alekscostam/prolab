@@ -73,68 +73,87 @@ class CardViewInfiniteComponent extends React.Component {
         return styleTile;
     }
 
-    refresh() {
-        this.setState({
-            hasNextPage: true,
-            isNextPageLoading: false,
-            items: [],
-            cardSkip: 0,
-            cardScrollLoading: false,
-        });
-        // TODO: ... duży problem z listą w CardInfiniteLoaderWrapper, ona jest taka srednia do update.
-        if (this.props?.elementSubViewId) {
-            this._loadNextPage([0]);
-        }
+    refresh(noLoadNextPage) {
+        this.setState(
+            {
+                hasNextPage: true,
+                isNextPageLoading: false,
+                items: [],
+                cardSkip: 0,
+                cardScrollLoading: false,
+            },
+            () => {
+                // TODO: ... duży problem z listą w CardInfiniteLoaderWrapper, ona jest taka srednia do update.
+                if (this.props?.elementSubViewId && !this.state.isNextPageLoading) {
+                    this._loadNextPage(0);
+                }
+            }
+        );
+        //
     }
 
     _loadNextPage = (...args) => {
         const dataPackageSize = 30;
         const packageCount = !!dataPackageSize || dataPackageSize === 0 ? 30 : dataPackageSize;
-        this.setState(
-            {
-                isNextPageLoading: true,
-                cardScrollLoading: true,
-                cardSkip: this.state.cardSkip + packageCount,
-            },
-            () => {
-                const columnCount = this.state.columnCount;
-                let skip = args[0] * columnCount;
-                if ((args[0] * columnCount) % packageCount !== 0) {
-                    let divide = args[0] * columnCount;
-                    skip = Math.ceil(divide / packageCount) * dataPackageSize;
-                }
-                this.dataCardStore
-                    .getDataForCard(
-                        this.props.id,
-                        {
-                            skip: skip,
-                            take: packageCount,
-                        },
-                        this.props.parentId,
-                        this.props.filterId,
-                        this.props.kindView
-                    )
-                    .then((res) => {
-                        let parsedCardViewData = [];
-                        res.data.forEach((item) => {
-                            for (var key in item) {
-                                var upper = key.toUpperCase();
-                                // check if it already wasn't uppercase
-                                if (upper !== key) {
-                                    item[upper] = item[key];
-                                    delete item[key];
+        if (!this.state.isNextPageLoading) {
+            this.setState(
+                {
+                    isNextPageLoading: true,
+                    cardScrollLoading: true,
+                    cardSkip: this.state.cardSkip + packageCount,
+                },
+                () => {
+                    const columnCount = this.state.columnCount;
+                    let skip = args[0] * columnCount;
+                    if ((args[0] * columnCount) % packageCount !== 0) {
+                        let divide = args[0] * columnCount;
+                        skip = Math.ceil(divide / packageCount) * dataPackageSize;
+                    }
+                    this.dataCardStore
+                        .getDataForCard(
+                            this.props.id,
+                            {
+                                skip: skip,
+                                take: packageCount,
+                            },
+                            this.props.parentId,
+                            this.props.filterId,
+                            this.props.kindView
+                        )
+                        .then((res) => {
+                            let parsedCardViewData = [];
+
+                            let items = this.state.items;
+                            console.time('reloadDataFromCardComponent');
+                            res.data.forEach((item) => {
+                                for (var key in item) {
+                                    var upper = key.toUpperCase();
+                                    // check if it already wasn't uppercase
+                                    if (upper !== key) {
+                                        item[upper] = item[key];
+                                        delete item[key];
+                                    }
                                 }
-                            }
-                            parsedCardViewData.push(item);
+                                for (let i = 0; i < items.length; i++) {
+                                    if (items[i].ID === item.ID) {
+                                        items.splice(i, 1);
+                                        i--;
+                                    }
+                                }
+                                parsedCardViewData.push(item);
+                            });
+
+                            console.timeEnd('reloadDataFromCardComponent');
+                            items = items.concat(parsedCardViewData);
+                            this.setState((state) => ({
+                                hasNextPage: state.items.length < res.totalCount,
+                                isNextPageLoading: false,
+                                items: items,
+                            }));
                         });
-                        this.setState((state) => ({
-                            hasNextPage: state.items.length < res.totalCount,
-                            isNextPageLoading: false,
-                            items: [...state.items].concat(parsedCardViewData),
-                        }));
-                    });
-            }
-        );
+                }
+            );
+        }
     };
 
     chunkData = (array, size = 1) => {

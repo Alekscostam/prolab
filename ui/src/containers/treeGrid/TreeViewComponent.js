@@ -44,7 +44,7 @@ import {StringUtils} from '../../utils/StringUtils';
 //
 //    https://js.devexpress.com/Documentation/Guide/UI_Components/TreeList/Getting_Started_with_TreeList/
 //
-
+let clearSelection = false;
 class TreeViewComponent extends React.Component {
     constructor(props) {
         super(props);
@@ -65,7 +65,15 @@ class TreeViewComponent extends React.Component {
         };
     }
 
-    componentDidMount() {}
+    componentDidMount() {
+        const gridViewColumns = this.props.gridViewColumns;
+        if (!gridViewColumns[0]) {
+            return;
+        }
+        if (gridViewColumns[0].id) {
+            gridViewColumns.unshift({width: '60'});
+        }
+    }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         return prevProps.id !== prevState.id && prevProps.elementRecordId !== prevState.elementRecordId;
@@ -93,7 +101,9 @@ class TreeViewComponent extends React.Component {
         });
         return editData[0];
     }
-
+    componentWillUnmount() {
+        clearSelection = false;
+    }
     isSpecialCell(columnDefinition) {
         const type = columnDefinition?.type;
         try {
@@ -238,10 +248,10 @@ class TreeViewComponent extends React.Component {
         const selectAll = this.props.allowSelectAll;
         const allowSelectAll = selectAll === undefined || selectAll === null || !!selectAll;
         const selectedRowKeys = this.props.selectedRowKeys;
-
         return (
             <React.Fragment>
                 <EditListComponent
+                    className
                     visible={this.state.editListVisible}
                     field={this.state.editListField}
                     parsedGridView={this.state.parsedGridView}
@@ -295,6 +305,30 @@ class TreeViewComponent extends React.Component {
                     wordWrapEnabled={rowAutoHeight}
                     columnAutoWidth={columnAutoWidth}
                     columnResizingMode='widget'
+                    onOptionChanged={(e) => {
+                        if (e.fullName.includes('filterValue') && e.name === 'columns') {
+                            if (this.ref) {
+                                this.ref.instance.clearSelection();
+                                clearSelection = true;
+                            }
+                        }
+                    }}
+                    onContentReady={(e) => {
+                        const editListDialog = document.getElementById('editListDialog');
+                        // ze wzgledów optymalizacyjnych
+                        if (!editListDialog) {
+                            this.rerenderRows(e);
+                            return;
+                        }
+                        if (editListDialog.classList.contains('p-dialog-exit-active')) {
+                            this.rerenderRows(e);
+                            return;
+                        }
+                        if (editListDialog.classList.contains('p-dialog-enter-done')) {
+                            this.rerenderRows(e);
+                            return;
+                        }
+                    }}
                     allowColumnReordering={true}
                     allowColumnResizing={true}
                     showColumnLines={showColumnLines}
@@ -389,6 +423,15 @@ class TreeViewComponent extends React.Component {
         );
     }
 
+    rerenderRows(e) {
+        const rowDatas = e.component.getVisibleRows();
+        this.paintLine(rowDatas);
+        if (clearSelection) {
+            this.props.handleUnselectAll();
+            clearSelection = false;
+        }
+    }
+
     preColumnDefinition(editable, INDEX_COLUMN) {
         if (INDEX_COLUMN !== 0) {
             let preInitializedColumns = this.state.preInitializedColumns;
@@ -408,12 +451,12 @@ class TreeViewComponent extends React.Component {
 
     preGenerateColumnsDefinition() {
         let columns = [];
+
         this.props.gridViewColumns?.forEach((columnDefinition, INDEX_COLUMN) => {
             let sortOrder;
             if (!!columnDefinition?.sortIndex && columnDefinition?.sortIndex > 0 && !!columnDefinition?.sortOrder) {
                 sortOrder = columnDefinition?.sortOrder?.toLowerCase();
             }
-
             const editable = columnDefinition?.edit;
             this.preColumnDefinition(editable, INDEX_COLUMN);
             columns.push(
@@ -521,7 +564,7 @@ class TreeViewComponent extends React.Component {
                             let viewId = this.props.id;
                             viewId = TreeListUtils.getRealViewId(subViewId, viewId);
                             ReactDOM.render(
-                                <div style={{textAlign: 'center', display: 'flex'}}>
+                                <div style={{textAlign: 'center', display: 'flex', maxWidth: '20px!important'}}>
                                     <OperationsButtons
                                         labels={this.labels}
                                         operations={operationsRecord}
@@ -612,6 +655,9 @@ class TreeViewComponent extends React.Component {
                                             }
                                         }}
                                         handleAddSpecSpec={() => {
+                                            if (this.props?.handleChaningTab) {
+                                                this.props?.handleChaningTab();
+                                            }
                                             this.props.handleAddSpecSpec(recordId);
                                         }}
                                         handleArchive={() => {
@@ -685,10 +731,34 @@ class TreeViewComponent extends React.Component {
         }
     };
 
+    // doklejamy style
+    paintLine = (datas) => {
+        Array.from(document.querySelectorAll('td[aria-describedby=column_0_undefined-fixed]')).forEach((row) => {
+            const rowIndex = row.parentNode.rowIndex;
+            datas.forEach((idata) => {
+                if (idata.rowIndex === rowIndex) {
+                    const gradients = idata.data?._LINE_COLOR_GRADIENT;
+                    if (gradients) {
+                        if (!(row.children.length > gradients.length + 1)) {
+                            if (gradients.length !== 1) {
+                                gradients.forEach((el) => {
+                                    const divElement = document.createElement('div');
+                                    const classLine = 'line-treelist-' + el;
+                                    divElement.classList.add(classLine);
+                                    divElement.classList.add('line-treelist');
+                                    row.appendChild(divElement);
+                                });
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    };
     cellRenderSpecial(cellInfo) {
         try {
             let _bgColor;
-            if (cellInfo.data?.FORMULA === 'SUM' && cellInfo.column.dataField.toUpperCase() === 'WART') {
+            if (cellInfo.data?.FORMULA && cellInfo.column.dataField.toUpperCase() === 'WART') {
                 const elements = document.querySelectorAll('td[aria-describedby="' + cellInfo.column.headerId + '"]');
                 const element = elements[cellInfo.rowIndex];
                 if (element.parentNode.rowIndex === cellInfo.rowIndex) {
@@ -1067,6 +1137,7 @@ TreeViewComponent.propTypes = {
     handleAttachmentRow: PropTypes.func.isRequired,
     handleAttachments: PropTypes.func.isRequired,
     handleCopyRow: PropTypes.func.isRequired,
+    handleChaningTab: PropTypes.func,
     handleDeleteRow: PropTypes.func.isRequired,
     handleRestoreRow: PropTypes.func.isRequired, //other
     handleAddLevel: PropTypes.func.isRequired,

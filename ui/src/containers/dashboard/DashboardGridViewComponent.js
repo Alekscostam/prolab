@@ -511,6 +511,9 @@ export class DashboardGridViewComponent extends BaseContainer {
                             handleBlockUi={() => {
                                 return this.blockUi();
                             }}
+                            getRef={() => {
+                                return this.refDataGrid;
+                            }}
                             handleUnblockUi={() => {
                                 return this.unblockUi();
                             }}
@@ -537,6 +540,9 @@ export class DashboardGridViewComponent extends BaseContainer {
                             handleDeleteRow={(id) => this.delete(id)}
                             handleFormulaRow={(id) => {
                                 this.prepareCalculateFormula(id);
+                            }}
+                            handleUnselectAll={() => {
+                                this.unselectAllDataGrid();
                             }}
                             handleRestoreRow={(id) => this.restore(id)}
                             handleDocumentRow={(id) => this.generate(id)}

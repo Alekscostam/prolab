@@ -39,6 +39,7 @@ export class AddSpecContainer extends BaseContainer {
             selectedIndex: 0,
             tabs: 0,
             visibleAddSpec: false,
+            changingTab: false,
             isSubView: false,
             arrayToAdd: [],
             elementParentId: null,
@@ -277,6 +278,7 @@ export class AddSpecContainer extends BaseContainer {
                             this.setState({
                                 loading: false,
                                 parsedData: res.data,
+                                changingTab: false,
                             });
                         });
                 }
@@ -337,10 +339,11 @@ export class AddSpecContainer extends BaseContainer {
                                                 header,
                                                 headerId
                                             );
-
                                             this.setState({
                                                 selectedIndex: args.value,
+                                                changingTab: true,
                                             });
+                                            this.unselectAllDataGrid();
                                         }
                                     }
                                 }}
@@ -421,6 +424,17 @@ export class AddSpecContainer extends BaseContainer {
             .then((saveResponse) => {
                 let validArray = this.createValidArray(saveResponse.data);
                 let res = this.setFakeIds(validArray);
+                const parsedGridViewData = this.props?.parsedGridViewData;
+                if (parsedGridViewData) {
+                    const foundedElementToSetLine = parsedGridViewData.find((el) => {
+                        return parseInt(el._ID) === parseInt(res[0]._ID_PARENT);
+                    });
+                    foundedElementToSetLine
+                        ? this.setLinesForChild(res, foundedElementToSetLine._LINE_COLOR_GRADIENT)
+                        : this.setLinesForChild(res);
+                } else {
+                    this.setLinesForChild(res);
+                }
                 this.props.handleAddElements(res);
                 this.props.onHide();
                 this.unblockUi();
@@ -429,6 +443,27 @@ export class AddSpecContainer extends BaseContainer {
                 this.showGlobalErrorMessage(err);
             });
     };
+
+    setLinesForChild(array, prevGradients) {
+        const clonedPrevGradients = structuredClone(prevGradients);
+
+        if (clonedPrevGradients) {
+            clonedPrevGradients.sort(function (a, b) {
+                return b - a;
+            });
+            array.forEach((el) => {
+                el._LINE_COLOR_GRADIENT = structuredClone(clonedPrevGradients);
+                el._LINE_COLOR_GRADIENT.push(el._LINE_COLOR_GRADIENT[el._LINE_COLOR_GRADIENT.length - 1] - 10);
+                // raczej nie potrzebny ten set ale w razie czego moze byc
+                const set = [...new Set(el._LINE_COLOR_GRADIENT)];
+                el._LINE_COLOR_GRADIENT = [...set];
+            });
+        } else {
+            array.forEach((el) => {
+                el._LINE_COLOR_GRADIENT = [100];
+            });
+        }
+    }
 
     setFakeIds(array) {
         let startElementId = this.state.lastElementId + 1;
@@ -518,86 +553,99 @@ export class AddSpecContainer extends BaseContainer {
                 {this.state.loading ? null : (
                     <React.Fragment>
                         {this.renderHeaderLeft}
-                        {/*{this.state.parsedData.map((el) => el.ID).join(", ")}*/}
                         <div id='spec-edit-dialog'>
-                            <TreeViewComponent
-                                id={this.props.id}
-                                allowOperations={false}
-                                elementParentId={this.state.elementParentId}
-                                isAddSpec={true}
-                                preloadEnabled={false}
-                                elementRecordId={this.state.elementRecordId}
-                                handleOnTreeList={(ref) => (this.refTreeList = ref)}
-                                parsedGridView={this.state.parsedView}
-                                parsedGridViewData={parsedData}
-                                gridViewColumns={this.state.columns}
-                                handleAddSpecSpec={(id) => {
-                                    const viewId = this.state.elementId;
-                                    const parentId = this.state.elementParentId;
-                                    const recordId = this.state.elementRecordId;
-                                    const parsedView = this.state.parsedView;
-                                    const type = parsedView.info?.type;
-                                    let header = parsedView.info?.header;
-                                    if (type === 'METHODS' || type === 'TEMPLATES') {
-                                        header = false;
+                            {!this.state.changingTab ? (
+                                <TreeViewComponent
+                                    handleChaningTab={() => {
                                         this.setState({
-                                            isSubView: true,
+                                            changingTab: !this.state.changingTab,
                                         });
-                                    }
-                                    this.getViewAddSpec(viewId, parentId, recordId, type, header, id);
-                                }}
-                                selectedRowKeys={this.state.selectedRowKeys}
-                                onChange={(type, e, rowId, info) => this.handleEditRowChange(type, e, rowId, info)}
-                                handleBlockUi={() => {
-                                    this.blockUi();
-                                    return true;
-                                }}
-                                handleUnblockUi={() => this.unblockUi()}
-                                handleShowEditPanel={(editDataResponse) => this.handleShowEditPanel(editDataResponse)}
-                                handleSelectedRowKeys={(e) => {
-                                    this.setState((prevState) => {
-                                        return {
-                                            ...prevState,
-                                            selectedRowKeys: e,
-                                        };
-                                    });
-                                }}
-                                modifyParsedGridViewData={(newCopyRow) => {
-                                    parsedData.forEach((el) => {
-                                        if (el.ID === newCopyRow.ID) {
-                                            el = newCopyRow;
+                                    }}
+                                    ref={this.refTreeList}
+                                    id={this.props.id}
+                                    allowOperations={false}
+                                    elementParentId={this.state.elementParentId}
+                                    isAddSpec={true}
+                                    preloadEnabled={false}
+                                    elementRecordId={this.state.elementRecordId}
+                                    handleOnTreeList={(ref) => (this.refTreeList = ref)}
+                                    parsedGridView={this.state.parsedView}
+                                    parsedGridViewData={parsedData}
+                                    gridViewColumns={this.state.columns}
+                                    handleAddSpecSpec={(id) => {
+                                        const viewId = this.state.elementId;
+                                        const parentId = this.state.elementParentId;
+                                        const recordId = this.state.elementRecordId;
+                                        const parsedView = this.state.parsedView;
+                                        const type = parsedView.info?.type;
+                                        let header = parsedView.info?.header;
+                                        if (type === 'METHODS' || type === 'TEMPLATES') {
+                                            header = false;
+                                            this.setState({
+                                                isSubView: true,
+                                            });
                                         }
-                                    });
-                                    this.setState({
-                                        parsedData,
-                                    });
-                                }}
-                                handleDeleteRow={(id) => this.delete(id)}
-                                handleForumlaRow={(id) => this.prepareCalculateFormula(id)}
-                                handleDownload={(id) => {
-                                    this.props.handleDownloadRow(id);
-                                }}
-                                handleAttachments={(id) => {
-                                    this.props.handleAttachmentRow(id);
-                                }}
-                                handleAddLevel={(id) => alert(id)}
-                                handleUp={(id) => this.up(id)}
-                                handleDown={(id) => this.down(id)}
-                                handleRestoreRow={(id) => this.restore(id)}
-                                handleCopyRow={(id) => this.copyEntry(id)}
-                                handleDocumentsRow={(id) => {
-                                    this.generate(id);
-                                }}
-                                handlePluginsRow={(id) => {
-                                    this.plugin(id);
-                                }}
-                                handleDownloadRow={(id) => this.downloadAttachment(id)}
-                                handleAttachmentRow={(id) => this.attachment(id)}
-                                handleArchiveRow={(id) => this.archive(id)}
-                                handlePublishRow={(id) => this.publishEntry(id)}
-                                showErrorMessages={(err) => this.showErrorMessages(err)}
-                                labels={this.props.labels}
-                            />
+                                        this.unselectAllDataGrid();
+                                        this.getViewAddSpec(viewId, parentId, recordId, type, header, id);
+                                    }}
+                                    selectedRowKeys={this.state.selectedRowKeys}
+                                    onChange={(type, e, rowId, info) => this.handleEditRowChange(type, e, rowId, info)}
+                                    handleBlockUi={() => {
+                                        this.blockUi();
+                                        return true;
+                                    }}
+                                    handleUnselectAll={() => {
+                                        this.unselectAllDataGrid();
+                                    }}
+                                    handleUnblockUi={() => this.unblockUi()}
+                                    handleShowEditPanel={(editDataResponse) =>
+                                        this.handleShowEditPanel(editDataResponse)
+                                    }
+                                    handleSelectedRowKeys={(e) => {
+                                        this.setState((prevState) => {
+                                            return {
+                                                ...prevState,
+                                                selectedRowKeys: e,
+                                            };
+                                        });
+                                    }}
+                                    modifyParsedGridViewData={(newCopyRow) => {
+                                        parsedData.forEach((el) => {
+                                            if (el.ID === newCopyRow.ID) {
+                                                el = newCopyRow;
+                                            }
+                                        });
+                                        this.setState({
+                                            parsedData,
+                                        });
+                                    }}
+                                    handleDeleteRow={(id) => this.delete(id)}
+                                    handleForumlaRow={(id) => this.prepareCalculateFormula(id)}
+                                    handleDownload={(id) => {
+                                        this.props.handleDownloadRow(id);
+                                    }}
+                                    handleAttachments={(id) => {
+                                        this.props.handleAttachmentRow(id);
+                                    }}
+                                    handleAddLevel={(id) => alert(id)}
+                                    handleUp={(id) => this.up(id)}
+                                    handleDown={(id) => this.down(id)}
+                                    handleRestoreRow={(id) => this.restore(id)}
+                                    handleCopyRow={(id) => this.copyEntry(id)}
+                                    handleDocumentsRow={(id) => {
+                                        this.generate(id);
+                                    }}
+                                    handlePluginsRow={(id) => {
+                                        this.plugin(id);
+                                    }}
+                                    handleDownloadRow={(id) => this.downloadAttachment(id)}
+                                    handleAttachmentRow={(id) => this.attachment(id)}
+                                    handleArchiveRow={(id) => this.archive(id)}
+                                    handlePublishRow={(id) => this.publishEntry(id)}
+                                    showErrorMessages={(err) => this.showErrorMessages(err)}
+                                    labels={this.props.labels}
+                                />
+                            ) : null}
                         </div>
                     </React.Fragment>
                 )}

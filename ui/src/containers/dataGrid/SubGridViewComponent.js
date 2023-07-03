@@ -81,6 +81,7 @@ class SubGridViewComponent extends React.Component {
         const viewId = this.props.subView?.viewInfo?.id;
         const recordId = this.props.subView?.headerData[0]?.ID;
         this.props.subView?.headerColumns
+
             ?.filter((c) => c.visible === true)
             .map((c) => {
                 return c;
@@ -100,7 +101,7 @@ class SubGridViewComponent extends React.Component {
                                 }}
                             />
                         ) : (
-                            <div className='maximalized-sub-view'>
+                            <div className='maximalized-sub-view' style={{minHeight: this.props?.minHeight}}>
                                 <DataGrid
                                     id='selection-data-grid'
                                     // handleOnDataGrid={(ref) => (this.refDataGrid = ref)}

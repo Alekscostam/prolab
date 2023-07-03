@@ -241,7 +241,6 @@ export default class CrudService extends BaseService {
             'Sec-Fetch-Site': 'same-origin',
             Pragma: 'no-cahce',
         };
-
         return this.fetch(
             `${this.getDomain()}/${
                 this.path

@@ -46,7 +46,6 @@ export default class DataGridStore extends BaseService {
         let eventSelectAll = true;
         const filterIdParam = !!filterIdArg ? `&filterId=${filterIdArg}` : '';
         const recordParentIdParam = !!recordParentIdArg ? `&parentId=${recordParentIdArg}` : '';
-
         const kindViewParam = !!kindViewArg && !!recordParentIdParam ? `&kindView=${kindViewArg}` : '';
         const selectAllParam = !!eventSelectAll ? `&selection=true` : '';
         let url = `${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${recordParentIdParam}${kindViewParam}${selectAllParam}`;
