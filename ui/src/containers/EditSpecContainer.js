@@ -125,10 +125,12 @@ export class EditSpecContainer extends BaseContainer {
     }
 
     downloadData(viewId, parentId, recordId, filterId) {
-        ConsoleHelper(
-            `EditSpecContainer::downloadData: viewId=${viewId}, parentId=${parentId}, recordId=${recordId}, filterId=${filterId}`
-        );
-        this.getViewById(viewId, parentId, recordId, filterId);
+        if (!window.location.href.includes('grid-view')) {
+            ConsoleHelper(
+                `EditSpecContainer::downloadData: viewId=${viewId}, parentId=${parentId}, recordId=${recordId}, filterId=${filterId}`
+            );
+            this.getViewById(viewId, parentId, recordId, filterId);
+        }
     }
 
     getViewById(viewId, parentId, recordId, filterId) {

@@ -86,7 +86,9 @@ export default class EditListComponent extends React.Component {
                         }}
                         showSelection={true}
                         handleUnselectAll={() => {
-                            this.unselectAllDataGrid();
+                            if (this.props.unselectAllDataGrid) {
+                                this.props.unselectAllDataGrid();
+                            }
                         }}
                         defaultSelectedRowKeys={this.props.defaultSelectedRowKeys}
                         handleSelectedRowKeys={(e) => this.handleSelectedRowData(e)}

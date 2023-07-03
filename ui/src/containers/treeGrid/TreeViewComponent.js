@@ -262,6 +262,7 @@ class TreeViewComponent extends React.Component {
                         this.handleBlockUi();
                         return true;
                     }}
+                    handleUnselectAll={this.props?.handleUnselectAll}
                     handleUnblockUi={() => this.props.handleUnblockUi()}
                     handleOnChosen={(fieldsToUpdate) => {
                         try {
@@ -1043,6 +1044,22 @@ class TreeViewComponent extends React.Component {
                                 displayText={''}
                                 initBase64={cellInfo.value}
                                 onSuccessB64={(e) => {
+                                    const image = document.getElementsByClassName(`image-base ${autoFill} ${validate}`);
+                                    if (image) {
+                                        setTimeout(function () {
+                                            const rowIndex = cellInfo.rowIndex;
+                                            const elements = document.querySelectorAll(
+                                                'td[aria-describedby=column_0_undefined-fixed]'
+                                            );
+                                            const realRowIndex = rowIndex + 1;
+
+                                            const row = document.querySelectorAll(
+                                                'tr[aria-rowindex="' + realRowIndex + '"][class*="dx-column-lines"]'
+                                            )[0];
+                                            const element = elements[realRowIndex];
+                                            element.style.height = row.clientHeight + 'px';
+                                        }, 1);
+                                    }
                                     cellInfo.setValue(e);
                                 }}
                                 onError={(e) => this.props.onError(e)}
@@ -1059,6 +1076,24 @@ class TreeViewComponent extends React.Component {
                                 displayText={''}
                                 initBase64={cellInfo.value}
                                 onSuccessB64={(e) => {
+                                    const image = document.getElementsByClassName(
+                                        `image-base ${autoFill} ${validate}`
+                                    )[0];
+                                    if (image) {
+                                        setTimeout(function () {
+                                            const rowIndex = cellInfo.rowIndex;
+                                            const elements = document.querySelectorAll(
+                                                'td[aria-describedby=column_0_undefined-fixed]'
+                                            );
+                                            const realRowIndex = rowIndex + 1;
+
+                                            const row = document.querySelectorAll(
+                                                'tr[aria-rowindex="' + realRowIndex + '"][class*="dx-column-lines"]'
+                                            )[0];
+                                            const element = elements[realRowIndex];
+                                            element.style.height = row.clientHeight + 'px';
+                                        }, 1);
+                                    }
                                     cellInfo.setValue(e);
                                 }}
                                 onError={(e) => this.props.onError(e)}
@@ -1146,6 +1181,7 @@ TreeViewComponent.propTypes = {
     handleBlockUi: PropTypes.func.isRequired,
     handleUnblockUi: PropTypes.func.isRequired,
     handleAddSpecSpec: PropTypes.func,
+    handleUnselectAll: PropTypes.func,
     showErrorMessages: PropTypes.func.isRequired,
     showColumnHeaders: PropTypes.bool,
     showColumnLines: PropTypes.bool,

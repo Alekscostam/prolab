@@ -295,9 +295,15 @@ export const MemoizedEditorDescription = React.memo(
                     onValueChanged={(e) => {
                         // dostosowanie pierwszej doklejonej kolumny
                         const rowIndex = cellInfo.rowIndex;
+                        const realRowIndex = rowIndex + 1;
                         const elements = document.querySelectorAll('td[aria-describedby=column_0_undefined-fixed]');
-                        const element = elements[rowIndex + 1];
-                        element.style.height = e.element.clientHeight + 'px';
+                        const row = document.querySelectorAll(
+                            'tr[aria-rowindex="' + realRowIndex + '"][class*="dx-column-lines"]'
+                        )[0];
+
+                        const element = elements[realRowIndex];
+
+                        element.style.height = row.clientHeight + 'px';
                         cellInfo.setValue(e.value);
                     }}
                     validationMessageMode='always'
