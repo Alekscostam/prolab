@@ -31,7 +31,6 @@ class SubGridViewComponent extends React.Component {
         // TODO: robilem na wiele sposobów i wychodiz tylko to niestety
         const refreshSubView = readValueCookieGlobal('refreshSubView');
         if (refreshSubView) {
-            removeCookieGlobal('refreshSubView');
             return true;
         }
         if (!!window.performance) {
@@ -49,8 +48,13 @@ class SubGridViewComponent extends React.Component {
         ConsoleHelper('subGridViewComponent::shouldComponentUpdate update=true');
         return true;
     }
+    componentDidMount() {
+        saveObjToCookieGlobal('refreshSubView', true);
+    }
     componentDidUpdate() {}
-
+    componentWillUnmount() {
+        removeCookieGlobal('refreshSubView');
+    }
     render() {
         //TODO jak będzie potrzeba przepiąć guziki na OperationsRecordButtons
         const {labels} = this.props;

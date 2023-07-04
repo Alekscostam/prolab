@@ -40,13 +40,16 @@ export class DataGridUtils extends ViewDataCompUtils {
                 }
             }
             if (info.data?.SKASOWANY) {
-                element.style.backgroundColor = '#FF0000';
+                // element.style.backgroundColor = '#FF0000';
             }
             let fontColorFinal = 'black';
             const specialFontColor = info.data['_FONTCOLOR_' + info.column?.dataField];
             if (!!specialFontColor) {
                 fontColorFinal = specialFontColor;
             } else {
+                if (!info.data['_FONTCOLOR']) {
+                    _fontcolor = '#00000';
+                }
                 if (!!_fontcolor) {
                     fontColorFinal = _fontcolor;
                 }

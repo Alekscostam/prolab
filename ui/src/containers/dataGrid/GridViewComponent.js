@@ -29,7 +29,6 @@ import {StringUtils} from '../../utils/StringUtils';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
-let clearSelection = false;
 
 class GridViewComponent extends React.Component {
     constructor(props) {
@@ -56,10 +55,6 @@ class GridViewComponent extends React.Component {
     selectAllEvent(e) {
         const value = e?.cellElement?.children[0]?.children[0]?.value;
         return value === 'true' || value === true;
-    }
-
-    componentWillUnmount() {
-        clearSelection = false;
     }
 
     groupCellTemplate(element, data) {
@@ -126,7 +121,9 @@ class GridViewComponent extends React.Component {
                         if (e.fullName.includes('filterValue') && e.name === 'columns') {
                             if (this.labels?.getRef) {
                                 this.labels.getRef().instance.clearSelection();
-                                clearSelection = true;
+                                if (this.props.handleUnselectAll) {
+                                    this.props.handleUnselectAll();
+                                }
                             }
                         }
                     }}
@@ -160,10 +157,7 @@ class GridViewComponent extends React.Component {
                     onContentReady={(e) => {
                         //myczek na rozjezdzajace sie linie wierszy w dataGrid
                         // $(document).ready(function () {
-                        if (clearSelection) {
-                            this.props.handleUnselectAll();
-                            clearSelection = false;
-                        }
+
                         if (e.component.shouldSkipNextReady) {
                             e.component.shouldSkipNextReady = false;
                         } else {

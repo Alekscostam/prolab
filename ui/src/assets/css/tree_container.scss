@@ -517,10 +517,13 @@ body .grid-container.grid-header-auto-height .dx-datagrid-headers .dx-header-row
     white-space: -webkit-pre-wrap; /* Newer versions of Chrome/Safari*/
 }
 
-.dx-treelist-table {
-    .dx-dropdowneditor-icon {
-        min-width: 34px !important;
-    }
+// .dx-treelist-table {
+//     .dx-dropdowneditor-icon {
+//         min-width: 32px !important;
+//     }
+// }
+.dx-dropdowneditor-icon {
+    min-width: 32px !important;
 }
 body .grid-container {
     max-width: 100%;

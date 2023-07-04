@@ -581,6 +581,11 @@ export class BaseViewContainer extends BaseContainer {
                         this.blockUi();
                         return true;
                     }}
+                    unselectAllDataGrid={() => {
+                        this.setState({
+                            selectedRowKeys: [],
+                        });
+                    }}
                     pluginId={this.state.pluginId}
                     isPluginFirstStep={this.state.isPluginFirstStep}
                     executePlugin={this.executePlugin}
@@ -1336,7 +1341,9 @@ export class BaseViewContainer extends BaseContainer {
                                         return true;
                                     }}
                                     handleUnselectAll={() => {
-                                        this.unselectAllDataGrid();
+                                        this.setState({
+                                            selectedRowKeys: [],
+                                        });
                                     }}
                                     handleUnblockUi={() => this.unblockUi()}
                                     showErrorMessages={(err) => this.showErrorMessages(err)}

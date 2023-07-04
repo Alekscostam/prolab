@@ -1,30 +1,30 @@
 /*Edycja*/
 
 #right-sidebar {
-  background: transparent linear-gradient(90deg, #F7F9FD 0%, #ECF2FB 100%) 0% 0% no-repeat padding-box !important;
-  z-index: 1;
+    background: transparent linear-gradient(90deg, #f7f9fd 0%, #ecf2fb 100%) 0% 0% no-repeat padding-box !important;
+    z-index: 1;
 }
 
 #row-edit .p-panel {
-  background: #FFFFFF 0% 0% no-repeat padding-box;
-  box-shadow: 0px 0px 6px #00000029 !important;
-  border-radius: 4px;
+    background: #ffffff 0% 0% no-repeat padding-box;
+    box-shadow: 0px 0px 6px #00000029 !important;
+    border-radius: 4px;
 }
 
 #row-edit .p-panel .p-panel-content {
-  padding: 0rem 0rem 1rem 0rem;
+    padding: 0rem 0rem 1rem 0rem;
 }
 
 #row-edit .p-float-label {
-  margin-bottom: 0.2rem;
+    margin-bottom: 0.2rem;
 }
 
 #row-edit .field {
-  margin-bottom: 0.6rem;
+    margin-bottom: 0.6rem;
 }
 
 #row-edit .editor {
-  margin-bottom: 0.6rem;
+    margin-bottom: 0.6rem;
 }
 
 #row-edit .p-float-label input:focus ~ label,
@@ -33,308 +33,314 @@
 #row-edit .p-float-label textarea.p-filled ~ label,
 #row-edit .p-float-label .p-inputwrapper-focus ~ label,
 #row-edit .p-float-label .p-inputwrapper-filled ~ label {
-  top: -1rem !important;
-  background-color: #ffffff;
-  padding: 2px 4px;
-  margin-left: -1rem;
-  margin-top: 0;
+    top: -1rem !important;
+    background-color: #ffffff;
+    padding: 2px 4px;
+    margin-left: -1rem;
+    margin-top: 0;
 }
 
 #row-edit .p-dropdown,
 #row-edit .p-dropdown .p-dropdown-label {
-  background-color: $text-bg;
-  color: $text-color;
-  font-weight: 500;
-  font-size: 16px;
-  letter-spacing: 0px;
-  text-align: left;
-  border: 1px solid rgba(0, 0, 0, 0.38);
-  border-radius: 6px;
-  box-shadow: none;
-  width: 100%;
+    background-color: $text-bg;
+    color: $text-color;
+    font-weight: 500;
+    font-size: 16px;
+    letter-spacing: 0px;
+    text-align: left;
+    border: 1px solid rgba(0, 0, 0, 0.38);
+    border-radius: 6px;
+    box-shadow: none;
+    width: 100%;
 }
 
 #row-edit .p-dropdown .p-dropdown-label {
-  border: 0;
+    border: 0;
 }
 
 #row-edit .p-dropdown:hover {
-  border: 1px solid #707890;
-  color: #707890;
+    border: 1px solid #707890;
+    color: #707890;
 }
 
 #row-edit .p-dropdown.p-component.p-inputwrapper-focus {
-  border: 2px solid $button-color;
-  color: $button-color;
+    border: 2px solid $button-color;
+    color: $button-color;
 }
 
 #row-edit .p-calendar.p-component {
-  width: 100%;
+    width: 100%;
 }
 
 #right-sidebar .label {
-  font-size: 25px;
-  font-weight: bold;
-  letter-spacing: 0px;
-  color: $text-color;
+    font-size: 25px;
+    font-weight: bold;
+    letter-spacing: 0px;
+    color: $text-color;
 }
 
 #right-sidebar #buttons {
-  margin-top: 5px;
+    margin-top: 5px;
 }
 
 #right-sidebar #buttons > .shortcut.p-button.p-component {
-  height: 35px;
-  min-width: 50px;
-  width: 80px;
-  font-size: 14px;
-  font-weight: bold;
-  box-shadow: 0px 3px 6px #00000029;
+    height: 35px;
+    min-width: 50px;
+    width: 80px;
+    font-size: 14px;
+    font-weight: bold;
+    box-shadow: 0px 3px 6px #00000029;
 }
 
 #right-sidebar #buttons a {
-  align-items: center;
-  justify-content: center;
+    align-items: center;
+    justify-content: center;
 }
 
 #row-edit .p-disabled,
 #row-edit .p-component:disabled {
-  opacity: 1;
+    opacity: 1;
 }
 
 #row-edit .p-invalid {
-  border: 1px solid $danger-color;
-  -webkit-box-shadow: none;
-  box-shadow: none;
-  background-color: #FDEBEB;
+    border: 1px solid $danger-color;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    background-color: #fdebeb;
 }
 
 #row-edit .dx-htmleditor {
-  border-radius: 6px;
+    border-radius: 6px;
 }
 
 #row-edit .validation-msg.invalid > .dx-htmleditor {
-  border: 1px solid $danger-color;
-  -webkit-box-shadow: none;
-  box-shadow: none;
-  background-color: #FDEBEB;
+    border: 1px solid $danger-color;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    background-color: #fdebeb;
 }
 
 #row-edit .dx-htmleditor {
-  border-radius: 6px;
+    border-radius: 6px;
 }
 
 #row-edit .validation-msg {
-  text-align: left;
-  font-size: 12px;
-  font-weight: normal;
-  letter-spacing: 0px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: normal;
+    letter-spacing: 0px;
 }
 
 #row-edit .validation-msg.invalid {
-  color: $danger-color;
+    color: $danger-color;
 }
 
 #row-edit .dx-htmleditor.dx-htmleditor-outlined.dx-invalid {
-  border: 1px solid $danger-color !important;
-  -webkit-box-shadow: none;
-  box-shadow: none;
+    border: 1px solid $danger-color !important;
+    -webkit-box-shadow: none;
+    box-shadow: none;
 }
 
 #row-edit .p-calendar-w-btn .p-datepicker-trigger.p-button span {
-  color: $link-color;
+    color: $link-color;
 }
 
 #row-edit .p-calendar-w-btn .p-datepicker-trigger,
 #row-edit .p-calendar-w-btn .p-datepicker-trigger:hover {
-  background-color: rgba(0, 0, 0, 0.12) !important;
+    background-color: rgba(0, 0, 0, 0.12) !important;
 }
 
 .p-datepicker-buttonbar > .p-button.p-component.p-button-text.p-button-secondary {
-  color: $button-text-color;
-  background-color: $link-color;
+    color: $button-text-color;
+    background-color: $link-color;
 }
 
 #row-edit .p-calendar > .p-button {
-  width: 45px;
+    width: 45px;
 }
 
 #row-edit .dx-overlay-content.dx-invalid-message-content.dx-resizable {
-  visibility: hidden;
+    visibility: hidden;
 }
 
 #row-edit .dx-htmleditor.dx-state-focused {
-  -webkit-box-shadow: inset 0 0 0 1px $button-color;
-  box-shadow: inset 0 0 0 1px $button-color;
+    -webkit-box-shadow: inset 0 0 0 1px $button-color;
+    box-shadow: inset 0 0 0 1px $button-color;
 }
 
 #row-edit .p-panel {
-  margin-bottom: 10px !important;
+    margin-bottom: 10px !important;
 }
 
 #row-edit .validation-msg.invalid .image-base {
-  border: 1px solid $danger-color;
-  -webkit-box-shadow: none;
-  box-shadow: none;
-  background-color: #FDEBEB;
-  border-radius: 4px;
+    border: 1px solid $danger-color;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    background-color: #fdebeb;
+    border-radius: 4px;
 }
 
 #row-edit .p-dropdown-trigger span {
-  color: $button-color;
+    color: $button-color;
 }
 
 #row-edit .file-chooser::-webkit-file-upload-button {
-  box-shadow: 0px 3px 6px #00000029;
-  background-color: $button-color;
-  color: #ffffff;
-  font-size: 14px;
-  font-weight: bold;
-  border-color: transparent;
-  border-radius: 4px;
-  flex: auto;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem;
-  min-width: 0rem;
-  margin-top: 5px;
-  margin-bottom: 5px;
+    box-shadow: 0px 3px 6px #00000029;
+    background-color: $button-color;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: bold;
+    border-color: transparent;
+    border-radius: 4px;
+    flex: auto;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    min-width: 0rem;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
 #row-edit .validation-panel {
-  font-size: 14px;
-  font-weight: bold;
-  background: #FDEBEB 0% 0% no-repeat padding-box;
-  border-radius: 4px;
-  color: #CB0A2F;
-  margin-bottom: 0.5rem;
-  padding: 0.8rem;
+    font-size: 14px;
+    font-weight: bold;
+    background: #fdebeb 0% 0% no-repeat padding-box;
+    border-radius: 4px;
+    color: #cb0a2f;
+    margin-bottom: 0.5rem;
+    padding: 0.8rem;
 }
 
 #row-edit input[type='file'] {
-  color: transparent;
+    color: transparent;
 }
 
 #row-edit .autofill-border {
-  outline: 2px solid yellow !important;
+    outline: 2px solid yellow !important;
 }
 
 #row-edit .editable-border {
-  border: 2px solid $button-color !important;
+    border: 2px solid $button-color !important;
 }
 
 #row-edit label {
-  margin-bottom: .1rem;
+    margin-bottom: 0.1rem;
 }
 
 #row-edit a {
-  color: $link-color;
+    color: $link-color;
 }
 
 #row-edit .p-button p-component p-confirm-dialog-accept:focus,
 #row-edit .p-button p-component p-confirm-dialog-accept:active,
 #row-edit .p-button p-component p-confirm-dialog-accept:visited,
 #row-edit .p-button p-component p-confirm-dialog-accept:hover {
-  background-color: $button-color !important;
+    background-color: $button-color !important;
 }
 
 .p-button:not(a):not(.p-disabled):focus,
 .p-button:not(a):not(.p-disabled):active,
 .p-button:not(a):not(.p-disabled):hover,
-.p-button:not(a):not(.p-disabled):visited, {
-  background: $button-color !important;
+.p-button:not(a):not(.p-disabled):visited {
+    background: $button-color !important;
 }
 
 #row-edit .p-checkbox-icon {
-  position: relative;
-  bottom: 5px;
-  right: 5px;
+    position: relative;
+    bottom: 5px;
+    right: 5px;
 }
 
-#row-edit .p-checkbox .p-checkbox-box{
-  border-radius: 0px;
+#row-edit .p-checkbox .p-checkbox-box {
+    border-radius: 0px;
 }
 
 #row-edit .p-checkbox-box.p-highlight {
-  border-color: $button-color !important;
-  background: $button-color !important;
+    border-color: $button-color !important;
+    background: $button-color !important;
 }
 
-
 #row-edit .autofill-border-checkbox {
-  outline: 3px solid yellow !important;
-  border-radius: 2px !important;
+    outline: 3px solid yellow !important;
+    border-radius: 2px !important;
 }
 
 #row-edit .p-invalid-checkbox {
-  outline: 3px solid $danger-color !important;
-  border-radius: 2px !important;
+    outline: 3px solid $danger-color !important;
+    border-radius: 2px !important;
 }
 
 #row-edit .p-button.p-button-secondary {
-  color: $button-color;
-  background: rgba(0, 0, 0, 0.12) !important;
+    color: $button-color;
+    background: rgba(0, 0, 0, 0.12) !important;
 }
 
 #row-edit .p-button.p-button-secondary:hover {
-  background: rgba(0, 0, 0, 0.12) !important;
-  color: $button-color !important;
+    background: rgba(0, 0, 0, 0.12) !important;
+    color: $button-color !important;
 }
 
 #row-edit .p-inputgroup {
-  border: 1px solid rgba(0, 0, 0, 0.38);
-  border-radius: 4px;
+    border: 1px solid rgba(0, 0, 0, 0.38);
+    border-radius: 4px;
 
-  &:hover {
-    border-color: rgba(0, 0, 0, 0.87);
-  }
+    &:hover {
+        border-color: rgba(0, 0, 0, 0.87);
+    }
 }
 
 #row-edit .p-inputgroup > .p-inputtext {
-  border: none;
+    border: none;
 }
 
 //TODO ograniczyc tylko do podpowiedzi
 #editListDialog .dx-datagrid .dx-error-row {
-  display: none;
+    display: none;
 }
-
+#editListDialog {
+    tr {
+        cursor: pointer;
+    }
+    .p-dialog-header-close-icon.pi.pi-times {
+        color: white;
+    }
+}
 #innerHTML p {
-  margin-top: revert;
-  margin-bottom: revert;
+    margin-top: revert;
+    margin-bottom: revert;
 }
 
 #editListDialog .dx-datagrid-headers .dx-checkbox-container {
-  visibility: hidden;
+    visibility: hidden;
 }
 
-#row-edit .dx-button.dx-button-has-icon:not(.dx-button-has-text):not(.dx-shape-standard){
-  border-radius:0
+#row-edit .dx-button.dx-button-has-icon:not(.dx-button-has-text):not(.dx-shape-standard) {
+    border-radius: 0;
 }
-#row-edit .dx-dropdownmenu.dx-button-has-icon .dx-button-content{
-  padding: 4px;
+#row-edit .dx-dropdownmenu.dx-button-has-icon .dx-button-content {
+    padding: 4px;
 }
 
-#row-edit .p-password input{
-  width: 100%;
+#row-edit .p-password input {
+    width: 100%;
 }
 
 #row-edit input::-webkit-outer-spin-button,
 #row-edit input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 /* Firefox */
-#row-edit input[type=number] {
-  -moz-appearance: textfield;
+#row-edit input[type='number'] {
+    -moz-appearance: textfield;
 }
 
 .p-sidebar {
-	.p-sidebar-header {
-		& + .p-sidebar-content {
-			padding-top: 0;
-			height: 100%;
-		}
-	}
+    .p-sidebar-header {
+        & + .p-sidebar-content {
+            padding-top: 0;
+            height: 100%;
+        }
+    }
 }

@@ -352,6 +352,19 @@ export class EditSpecContainer extends BaseContainer {
                             ) : null}
                         </React.Fragment>
                     );
+                case 'OP_FORMULA':
+                    return (
+                        <React.Fragment>
+                            <ActionButtonWithMenu
+                                id={`button_formula_` + index}
+                                className={`${margin}`}
+                                formula={true}
+                                customEventClick={() => this.prepareCalculateFormula()}
+                                iconName={operation?.iconCode || 'mdi-cogs'}
+                                title={operation?.label}
+                            />{' '}
+                        </React.Fragment>
+                    );
                 default:
                     return null;
             }

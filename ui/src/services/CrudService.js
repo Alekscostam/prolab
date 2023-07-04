@@ -381,15 +381,14 @@ export default class CrudService extends BaseService {
     }
 
     calculateFormula(viewId, parentId, recordId, fieldsToCalculate) {
-        return this.fetch(
-            `${this.getDomain()}/${this.path}/${viewId}/editspec/${parentId}/calculate?recordId=${
-                recordId ? recordId : 0
-            }`,
-            {
-                method: 'POST',
-                body: JSON.stringify(fieldsToCalculate),
-            }
-        ).catch((err) => {
+        let url = `${this.getDomain()}/${this.path}/${viewId}/editspec/${parentId}/calculate`;
+        if (recordId) {
+            url = `${url}?recordId=${recordId}`;
+        }
+        return this.fetch(url, {
+            method: 'POST',
+            body: JSON.stringify(fieldsToCalculate),
+        }).catch((err) => {
             throw err;
         });
     }

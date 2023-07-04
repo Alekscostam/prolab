@@ -117,7 +117,14 @@ export default class PluginListComponent extends React.Component {
                         showSelection={true}
                         selectedRowKeys={this.state.selectedRowKeys}
                         handleUnselectAll={() => {
-                            this.unselectAllDataGrid();
+                            if (this.unselectAllDataGrid) {
+                                this.unselectAllDataGrid();
+                                return;
+                            }
+                            if (this.props?.unselectAllDataGrid) {
+                                this.props.unselectAllDataGrid();
+                                return;
+                            }
                         }}
                         handleSelectedRowKeys={(e) => {
                             this.handleSelectedRowData(e);

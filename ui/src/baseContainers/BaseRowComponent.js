@@ -25,6 +25,9 @@ import CrudService from '../services/CrudService';
 import {DataGridUtils} from '../utils/component/DataGridUtils';
 import {Password} from 'primereact/password';
 
+let clickCount = 0;
+let timeout;
+
 export class BaseRowComponent extends BaseContainer {
     constructor(props) {
         super(props);
@@ -51,6 +54,7 @@ export class BaseRowComponent extends BaseContainer {
         ];
         this.headerValues = [false, 1, 2, 3, 4, 5];
         this.messages = React.createRef();
+        this.calendarDateTimeRef = React.createRef();
         this.selectionListValuesToJson = this.selectionListValuesToJson.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
         this.validateDate = this.validateDate.bind(this);
@@ -274,6 +278,10 @@ export class BaseRowComponent extends BaseContainer {
                 return null;
             }
         }
+    }
+
+    doubleClickFakeEvent(e, element) {
+        this.calendarDateTimeRef.current.hideOverlay();
     }
 
     renderInputComponent(field, fieldIndex, onChange, onBlur, groupName, required, validatorMsgs, onClickEditList) {
@@ -557,6 +565,7 @@ export class BaseRowComponent extends BaseContainer {
                             {required ? '*' : ''}
                         </label>
                         <Calendar
+                            ref={this.calendarDateTimeRef}
                             id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                             showTime
                             hourFormat='24'
@@ -565,8 +574,22 @@ export class BaseRowComponent extends BaseContainer {
                             style={{width: '100%'}}
                             value={this.validateDate(field)}
                             dateFormat='yy-mm-dd'
-                            appendTo={document.body}
+                            onSelect={(e) => {
+                                clickCount++;
+                                if (clickCount === 1) {
+                                    console.log('pojedyncze kliknięcie zostało wykonane!');
+                                    timeout = setTimeout(function () {
+                                        clickCount = 0;
+                                    }, 300); // Ustaw interwał czasowy na oczekiwanie na drugie kliknięcie (np. 300ms)
+                                } else if (clickCount >= 2) {
+                                    this.doubleClickFakeEvent(e, this);
+                                    clearTimeout(timeout);
+                                    clickCount = 0;
+                                }
+                            }}
+                            visible={this.state?.ddd}
                             onChange={(e) => (onChange ? onChange('DATETIME', e, groupName, info) : null)}
+                            appendTo={document.body}
                             disabled={!field.edit}
                             required={required}
                             showButtonBar

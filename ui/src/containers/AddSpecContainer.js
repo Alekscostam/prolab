@@ -267,10 +267,13 @@ export class AddSpecContainer extends BaseContainer {
                 () => {
                     //const initFilterId = responseView?.viewInfo?.filterdId;
                     const viewIdArg = this.state.elementId;
-                    const parentIdArg = this.state.elementParentId;
+                    let parentIdArg = this.state.elementParentId;
                     const type = responseView.info.type;
                     const headerId = responseView.info.headerId;
                     const header = responseView.info.header;
+                    if (window.location.href.includes('grid-view')) {
+                        parentIdArg = UrlUtils.getURLParameter('recordId');
+                    }
                     //const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId;
                     this.dataTreeStore
                         .getAddSpecDataTreeStoreDirect(viewIdArg, parentIdArg, type, headerId, header)
@@ -398,6 +401,7 @@ export class AddSpecContainer extends BaseContainer {
                                 const type = parsedView.info?.type;
                                 const headerId = parsedView.info?.headerId;
                                 const header = parsedView.info?.header;
+
                                 this.handleExecSpec(viewIdArg, parentIdArg, type, headerId, header);
                             }}
                         />

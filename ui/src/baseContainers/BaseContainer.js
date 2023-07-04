@@ -1032,8 +1032,9 @@ class BaseContainer extends React.Component {
     }
 
     refreshSubView() {
-        if (this.state.kindView === 'ViewSpec' && this.state.subView) {
-            let id = UrlUtils.getViewIdFromURL();
+        if ((this.state.kindView === 'ViewSpec' || this.state.kindView === 'View') && this.state.subView) {
+            console.log('refreshing subview: ', this.state.kindView);
+            const id = UrlUtils.getViewIdFromURL();
             this.downloadData(
                 id,
                 this.state.elementRecordId,
@@ -1134,7 +1135,6 @@ class BaseContainer extends React.Component {
 
     rowSave = (viewId, recordId, parentId, saveElement, confirmSave, token) => {
         this.blockUi();
-        const refreshSubView = this.state.refreshSubView;
         const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
         const kindOperation = this.state.editData.editInfo?.kindOperation
             ? this.state.editData.editInfo?.kindOperation
@@ -1206,7 +1206,7 @@ class BaseContainer extends React.Component {
                     this.uploadAttachemnt(this.state.parsedGridView, this.state.attachmentFiles[0]);
                 }
                 if (readValueCookieGlobal('refreshSubView')) {
-                    this.refreshSubView(refreshSubView);
+                    this.refreshSubView();
                 }
                 // to oznacza ze to bedzie komponent DashboardContainer -> DashboardCardViewComponent
                 if (this.state?.cardView) {

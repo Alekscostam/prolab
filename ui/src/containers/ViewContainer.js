@@ -355,7 +355,9 @@ export class ViewContainer extends BaseViewContainer {
                         id={this.props.id}
                         visibleAddSpec={this.state.visibleAddSpec}
                         levelId={this.state.levelId}
-                        handleAddElements={(el) => this.handleAddElements(el)}
+                        handleAddElements={(el) => {
+                            this.handleAddElements(el);
+                        }}
                         onHide={() =>
                             this.setState({
                                 visibleAddSpec: false,
