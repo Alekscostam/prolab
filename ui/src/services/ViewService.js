@@ -1,6 +1,8 @@
 import BaseService from './BaseService';
 import moment from 'moment';
 import ConsoleHelper from '../utils/ConsoleHelper';
+import UrlUtils from '../utils/UrlUtils';
+import {readObjFromCookieGlobal} from '../utils/Cookie';
 
 /*
 GET zwracający dane potrzebne do wyrenderowania widoku: informacje ogólne o widoku, opcje
@@ -49,8 +51,28 @@ export default class ViewService extends BaseService {
                 throw err;
             });
     }
-
+    // TODO: logika w serwisie hmmm tak se troszke
     getViewSpec(viewId, parentId) {
+        if (UrlUtils.batchIdParamExist('batchId')) {
+            let batchId = UrlUtils.getBatchIdParam('batchId');
+            const selectedRowKeys = readObjFromCookieGlobal('selectedRowKeys');
+            console.log(selectedRowKeys, 'selectedRowKeys');
+            const idRowKeys = selectedRowKeys.map((el) => el.ID);
+            const requestBody = {
+                listId: idRowKeys,
+            };
+            let url = `${this.domain}/${this.path}/${viewId}/batch/${batchId}`;
+            if (parentId) {
+                url = url + `?parentId=${parentId}`;
+            }
+            return this.fetch(`${url}`, {
+                // method: 'GET',
+                method: 'POST',
+                body: JSON.stringify(requestBody),
+            }).catch((err) => {
+                throw err;
+            });
+        }
         return this.fetch(`${this.domain}/${this.path}/${viewId}/editspec/${parentId}`, {
             method: 'GET',
         }).catch((err) => {

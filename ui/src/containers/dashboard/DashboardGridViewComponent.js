@@ -310,11 +310,11 @@ export class DashboardGridViewComponent extends BaseContainer {
                             handleShowEditPanel={(editDataResponse) => {
                                 this.handleShowEditPanel(editDataResponse);
                             }}
-                            onHide={() =>
+                            onHide={() => {
                                 this.setState({
                                     attachmentViewInfo: undefined,
-                                })
-                            }
+                                });
+                            }}
                             handleViewInfoName={(viewInfoName) => {
                                 this.setState({viewInfoName: viewInfoName});
                             }}

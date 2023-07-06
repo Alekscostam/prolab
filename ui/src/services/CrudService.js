@@ -2,6 +2,7 @@ import BaseService from './BaseService';
 import moment from 'moment';
 import EditRowUtils from '../utils/EditRowUtils';
 import {saveAs} from 'file-saver';
+import UrlUtils from '../utils/UrlUtils';
 /*
 Kontroler do edycji danych.
  */
@@ -130,7 +131,12 @@ export default class CrudService extends BaseService {
     }
 
     editSpecList(viewId, parentId, fieldId, element) {
-        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/editspec/${parentId}/list/${fieldId}`, {
+        let point = 'editspec';
+        if (UrlUtils.batchIdParamExist('batchId')) {
+            point = 'batch';
+            parentId = UrlUtils.getBatchIdParam('batchId');
+        }
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/${point}/${parentId}/list/${fieldId}`, {
             method: 'POST',
             body: JSON.stringify(element),
         }).catch((err) => {
@@ -380,8 +386,22 @@ export default class CrudService extends BaseService {
         });
     }
 
+    calculateFormulaForView(viewId, recordId) {
+        let url = `${this.getDomain()}/${this.path}/${viewId}/calculate/${recordId}`;
+        return this.fetch(url, {
+            method: 'POST',
+        }).catch((err) => {
+            throw err;
+        });
+    }
+
     calculateFormula(viewId, parentId, recordId, fieldsToCalculate) {
-        let url = `${this.getDomain()}/${this.path}/${viewId}/editspec/${parentId}/calculate`;
+        let point = 'editspec';
+        if (UrlUtils.batchIdParamExist('batchId')) {
+            point = 'batch';
+            parentId = UrlUtils.getBatchIdParam('batchId');
+        }
+        let url = `${this.getDomain()}/${this.path}/${viewId}/${point}/${parentId}/calculate`;
         if (recordId) {
             url = `${url}?recordId=${recordId}`;
         }
@@ -554,7 +574,12 @@ export default class CrudService extends BaseService {
     }
 
     saveSpecEntry(viewId, parentId, listId, filterId) {
-        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Editspec/${parentId}/Entry`, {
+        let point = 'editspec';
+        if (UrlUtils.batchIdParamExist('batchId')) {
+            point = 'batch';
+            parentId = UrlUtils.getBatchIdParam('batchId');
+        }
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/${point}/${parentId}/Entry`, {
             method: 'POST',
             body: JSON.stringify({
                 listId: listId,
@@ -565,8 +590,13 @@ export default class CrudService extends BaseService {
     }
 
     saveSpec(viewId, parentId, elementToSave, confirmSave) {
+        let point = 'editspec';
+        if (UrlUtils.batchIdParamExist('batchId')) {
+            point = 'batch';
+            parentId = UrlUtils.getBatchIdParam('batchId');
+        }
         return this.fetch(
-            `${this.getDomain()}/${this.path}/${viewId}/Editspec/${parentId}/Save?confirmSave=${confirmSave}`,
+            `${this.getDomain()}/${this.path}/${viewId}/${point}/${parentId}/Save?confirmSave=${confirmSave}`,
             {
                 method: 'POST',
                 body: JSON.stringify({
@@ -579,7 +609,12 @@ export default class CrudService extends BaseService {
     }
 
     cancelSpec(viewId, parentId, listId) {
-        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Editspec/${parentId}/Cancel`, {
+        let point = 'editspec';
+        if (UrlUtils.batchIdParamExist('batchId')) {
+            point = 'batch';
+            parentId = UrlUtils.getBatchIdParam('batchId');
+        }
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/${point}/${parentId}/Cancel`, {
             method: 'POST',
             body: {
                 listId: JSON.stringify(listId),

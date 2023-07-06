@@ -437,7 +437,11 @@ class GanttViewComponent extends React.Component {
                 );
             });
             this.clearProperties();
-            if (operationsRecord instanceof Array && operationsRecord.length > 0) {
+
+            if (
+                (operationsRecord instanceof Array && operationsRecord.length > 0) ||
+                (operationsRecordList instanceof Array && operationsRecordList.length > 0)
+            ) {
                 columns.push(
                     <Column
                         caption=''

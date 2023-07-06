@@ -204,6 +204,8 @@ export class AddSpecContainer extends BaseContainer {
                 this.unblockUi();
             });
     }
+    // TODO:
+    processingViewResponseBatch(responseView, batchId) {}
 
     processingViewResponse(responseView, parentId, recordId) {
         if (this._isMounted) {

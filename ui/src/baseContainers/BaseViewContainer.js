@@ -40,6 +40,7 @@ import DivContainer from '../components/DivContainer';
 import ActionButton from '../components/ActionButton';
 import {ConfirmDialog, confirmDialog} from 'primereact/confirmdialog';
 import {StringUtils} from '../utils/StringUtils';
+import {saveObjToCookieGlobal} from '../utils/Cookie';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -211,7 +212,7 @@ export class BaseViewContainer extends BaseContainer {
             prevState.gridViewType,
             this.state.gridViewType
         );
-        if (updatePage) {
+        if (updatePage || this.state?.attachmentCloseWindow) {
             const newUrl = UrlUtils.deleteParameterFromURL(window.document.URL.toString(), 'force');
             window.history.replaceState('', '', newUrl);
             this.setState(
@@ -224,6 +225,7 @@ export class BaseViewContainer extends BaseContainer {
                     elementKindView: kindView,
                     elementViewType: viewType,
                     dataGridStoreSuccess: false,
+                    attachmentCloseWindow: false,
                 },
                 () => {
                     this.downloadData(
@@ -369,11 +371,33 @@ export class BaseViewContainer extends BaseContainer {
     }
 
     handleRightHeadPanelContent(element) {
+        // const parentIdArg =
+        //     this.state.subView == null ? UrlUtils.getURLParameter('parentId') : this.state.elementRecordId;
+        // const filterIdArg = !!this.state.elementFilterId
+        //     ? this.state.elementFilterId
+        //     : this.state.parsedGridView?.viewInfo?.filterdId;
+        // const kindViewArg = !!this.state.elementKindView
+        //     ? this.state.elementKindView
+        //     : UrlUtils.getURLParameter('kindView');
+        // const recordId = this.state.elementRecordId ? this.state.elementRecordId : parentIdArg;
+        // TODO:
+        const id = this.props.id;
+        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
         const elementId = `${element?.id}`;
+        const urlEditSpecBatch = AppPrefixUtils.locationHrefUrl(
+            `/#/edit-spec/${id}?batchId=${elementId}${currentBreadcrumb}`
+        );
         switch (element.type) {
             case 'OP_PLUGINS':
             case 'SK_PLUGIN':
                 this.plugin(elementId);
+                break;
+            case 'OP_BATCH':
+            case 'SK_BATCH':
+                // zapamietanie do cookiesa bo zmieniamy url :(
+                const selectedRowKeys = this.state.selectedRowKeys;
+                saveObjToCookieGlobal('selectedRowKeys', selectedRowKeys);
+                window.location.href = urlEditSpecBatch;
                 break;
             case 'OP_DOCUMENTS':
             case 'SK_DOCUMENT':
@@ -839,7 +863,12 @@ export class BaseViewContainer extends BaseContainer {
                                 id='button_batches'
                                 className={`${margin}`}
                                 iconName={operation?.iconCode || 'mdi-cogs'}
-                                items={this.state.batchesList}
+                                items={ActionButtonWithMenuUtils.createItemsWithCommand(
+                                    this.state.batchesList,
+                                    undefined,
+                                    this.handleRightHeadPanelContent,
+                                    'OP_BATCH'
+                                )}
                                 title={operation?.label}
                             />
                             {/*) : null}*/}

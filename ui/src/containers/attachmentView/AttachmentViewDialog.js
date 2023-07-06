@@ -32,6 +32,11 @@ export class AttachmentViewDialog extends BaseViewContainer {
     // overide
     componentDidUpdate(prevProps, prevState, snapshot) {}
 
+    // overide
+    componentDidMount() {
+        super.componentDidMount();
+    }
+
     componentWillUnmount() {
         const {prevElementSubViewId} = this.state;
         this.setState({

@@ -298,6 +298,15 @@
     display: none;
 }
 #editListDialog {
+    .dx-datagrid-borders > .dx-datagrid-filter-panel,
+    .dx-datagrid-borders > .dx-datagrid-headers,
+    .dx-datagrid-borders > .dx-datagrid-pager {
+        border-top: 1px solid #ddd;
+        top: 0;
+        position: sticky;
+        z-index: 1000000000;
+        background: white;
+    }
     tr {
         cursor: pointer;
     }

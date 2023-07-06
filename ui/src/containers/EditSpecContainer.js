@@ -160,7 +160,11 @@ export class EditSpecContainer extends BaseContainer {
                         listColumns: undefined,
                         listOptions: undefined,
                     };
-                    this.processingViewResponse(refactorResponseView, parentId, recordId);
+                    if (UrlUtils.batchIdParamExist('batchId')) {
+                        this.processingViewResponseBatch(refactorResponseView, UrlUtils.getBatchIdParam('batchId'));
+                    } else {
+                        this.processingViewResponse(refactorResponseView, parentId, recordId);
+                    }
                 })
                 .catch((err) => {
                     console.error('Error getViewSpec in EditSpec. Exception = ', err);
@@ -171,6 +175,19 @@ export class EditSpecContainer extends BaseContainer {
                 .finally(() => {
                     this.unblockUi();
                 });
+        });
+    }
+    processingViewResponseBatch(responseView, batchId) {
+        let id = UrlUtils.getViewIdFromURL();
+        if (id === undefined) {
+            id = this.props.id;
+        }
+        this.dataTreeStore.getDataTreeBatchStoreDirect(id, batchId).then((res) => {
+            this.setState({
+                loading: false,
+                parsedData: res.data,
+                changingTab: false,
+            });
         });
     }
 
@@ -502,13 +519,15 @@ export class EditSpecContainer extends BaseContainer {
     //override
     renderHeaderContent() {
         const {parsedView} = this.state;
-        // const headerOperations = parsedView.headerOperations;
+        if (!parsedView) {
+            return;
+        }
 
         const subView = {
-            headerData: parsedView.headerData,
-            viewInfo: parsedView.viewInfo,
+            headerData: parsedView?.headerData,
+            viewInfo: parsedView?.viewInfo,
             headerOperations: [],
-            headerColumns: parsedView.headerColumns,
+            headerColumns: parsedView?.headerColumns,
         };
 
         return (
@@ -615,31 +634,35 @@ export class EditSpecContainer extends BaseContainer {
 
     //metoda przenosi rekord o poziom wyżej
     up(id) {
-        this.refTreeList?.instance?.beginCustomLoading();
-        let data = this.getData();
-        const index = data.findIndex((x) => x.ID === id);
-        if (index !== undefined) {
-            this.move(data, index, index - 1);
-            this.updateData(data, () => {
-                this.disableAllSort();
-                this.refreshTable();
-            });
-        }
-        this.refTreeList?.instance?.endCustomLoading();
+        this.moveItem(id, -1);
     }
 
     //metoda przenosi rekord o poziom niżej
     down(id) {
+        this.moveItem(id, 1);
+    }
+
+    moveItem(id, shiftNumber) {
         this.refTreeList?.instance?.beginCustomLoading();
         let data = this.getData();
-        const index = data.findIndex((x) => x.ID === id);
-        if (index !== undefined) {
-            this.move(data, index, index + 1);
-            this.updateData(data, () => {
-                this.disableAllSort();
-                this.refreshTable();
-            });
+        const index = data.findIndex((x) => x._ID === id);
+        const currentElement = data.find((el) => el._ID === id);
+        console.log(currentElement, 'currentElement');
+        const prevElement = data[index + shiftNumber];
+        if (prevElement) {
+            const currentOrder = currentElement._ORDER;
+            const prevOrder = prevElement._ORDER;
+            currentElement._ORDER = prevOrder;
+            prevElement._ORDER = currentOrder;
+            if (index !== undefined) {
+                this.move(data, index, index + shiftNumber);
+                this.updateData(data, () => {
+                    this.disableAllSort();
+                    this.refreshTable();
+                });
+            }
         }
+
         this.refTreeList?.instance?.endCustomLoading();
     }
 
@@ -676,7 +699,7 @@ export class EditSpecContainer extends BaseContainer {
 
     //override
     renderContent = () => {
-        let parsedData = this.state.parsedData.filter((el) => el._STATUS !== 'deleted');
+        let parsedData = this.state?.parsedData?.filter((el) => el._STATUS !== 'deleted');
         return (
             <React.Fragment>
                 {this.state.loading ? null : (

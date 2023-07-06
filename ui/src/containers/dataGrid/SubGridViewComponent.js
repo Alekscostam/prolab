@@ -83,7 +83,7 @@ class SubGridViewComponent extends React.Component {
         const columnAutoWidth = true;
         const subViewMode = !!this.props.subView;
         const viewId = this.props.subView?.viewInfo?.id;
-        const recordId = this.props.subView?.headerData[0]?.ID;
+        const recordId = this.props?.subView?.headerData[0]?.ID;
         this.props.subView?.headerColumns
 
             ?.filter((c) => c.visible === true)

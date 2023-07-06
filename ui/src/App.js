@@ -366,6 +366,32 @@ class App extends Component {
                                                 );
                                             }}
                                         />
+                                        <Route
+                                            path='/batch/:id'
+                                            render={(props) => {
+                                                return (
+                                                    <AuthComponent
+                                                        viewMode={'VIEW'}
+                                                        historyBrowser={this.historyBrowser}
+                                                        handleLogout={(forceByButton) =>
+                                                            this.handleLogoutUser(forceByButton)
+                                                        }
+                                                    >
+                                                        <EditSpecContainer
+                                                            ref={this.editSpecContainer}
+                                                            id={props.match.params.id}
+                                                            labels={labels}
+                                                            collapsed={this.state.collapsed}
+                                                            handleRenderNoRefreshContent={(renderNoRefreshContent) => {
+                                                                this.setState({
+                                                                    renderNoRefreshContent: renderNoRefreshContent,
+                                                                });
+                                                            }}
+                                                        />
+                                                    </AuthComponent>
+                                                );
+                                            }}
+                                        />
                                     </Switch>
                                 </div>
                             </main>

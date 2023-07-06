@@ -121,7 +121,7 @@ class GridViewComponent extends React.Component {
                         if (e.fullName.includes('filterValue') && e.name === 'columns') {
                             if (this.labels?.getRef) {
                                 this.labels.getRef().instance.clearSelection();
-                                if (this.props.handleUnselectAll) {
+                                if (this.props?.handleUnselectAll) {
                                     this.props.handleUnselectAll();
                                 }
                             }
@@ -295,8 +295,11 @@ class GridViewComponent extends React.Component {
                 operationsRecord = [];
                 operationsRecord.push(this.props.parsedGridView?.operationsRecord);
             }
-            if (operationsRecord[0]) {
-                if (operationsRecord instanceof Array && operationsRecord.length > 0) {
+            if (operationsRecord[0] || (operationsRecordList instanceof Array && operationsRecordList.length > 0)) {
+                if (
+                    operationsRecord instanceof Array &&
+                    (operationsRecord.length > 0 || operationsRecordList.length > 0)
+                ) {
                     columns?.push({
                         caption: '',
                         fixed: true,

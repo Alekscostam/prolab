@@ -546,8 +546,13 @@ class TreeViewComponent extends React.Component {
                 operationsRecord = [];
                 operationsRecord.push(this.props.parsedGridView?.operationsRecord);
             }
-            if (operationsRecord[0]) {
-                if (operationsRecord instanceof Array && operationsRecord.length > 0) {
+
+
+            if (operationsRecord[0] || (operationsRecordList instanceof Array && operationsRecordList.length > 0)) {
+                if (
+                    operationsRecord instanceof Array &&
+                    (operationsRecord.length > 0 || operationsRecordList.length > 0)
+                ) {
                     columns?.push({
                         caption: '',
                         fixed: true,

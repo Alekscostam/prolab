@@ -1198,21 +1198,27 @@ class BaseContainer extends React.Component {
                         }
                         break;
                 }
-
+                let refresh = true;
                 if (kindOperation.toUpperCase() === 'COPY') {
-                    this.copyAfterSave(saveResponse);
+                    if (saveResponse?.status !== 'NOK') {
+                        this.copyAfterSave(saveResponse);
+                    } else {
+                        refresh = false;
+                    }
                 }
                 if (this.state?.attachmentFiles?.length) {
                     this.uploadAttachemnt(this.state.parsedGridView, this.state.attachmentFiles[0]);
                 }
-                if (readValueCookieGlobal('refreshSubView')) {
-                    this.refreshSubView();
-                }
                 // to oznacza ze to bedzie komponent DashboardContainer -> DashboardCardViewComponent
-                if (this.state?.cardView) {
-                    this.refreshView(saveElement);
-                } else {
-                    this.refreshView();
+                if (refresh) {
+                    if (readValueCookieGlobal('refreshSubView')) {
+                        this.refreshSubView();
+                    }
+                    if (this.state?.cardView) {
+                        this.refreshView(saveElement);
+                    } else {
+                        this.refreshView();
+                    }
                 }
                 this.unblockUi();
             })
@@ -1351,7 +1357,6 @@ class BaseContainer extends React.Component {
         });
     }
 
-    // TODO: plugin
     plugin(id) {
         ConsoleHelper('handlePlugin');
         const viewId = this.getRealViewId();
@@ -1669,6 +1674,19 @@ class BaseContainer extends React.Component {
     }
 
     calculateFormula(viewId, parentId, id, fieldsToCalculate) {
+        if (parentId === null && window.location.href.includes('grid-view')) {
+            // jesli główny grid
+            this.crudService.calculateFormulaForView(viewId, id).then((res) => {
+                if (res.message) {
+                    this.showSuccessMessage(res.message.text, 1000, res.message.title);
+                } else {
+                    this.showResponseErrorMessage(res);
+                }
+                this.refreshView();
+            });
+            return;
+        }
+
         this.crudService
             .calculateFormula(viewId, parentId, id, fieldsToCalculate)
             .then((res) => {

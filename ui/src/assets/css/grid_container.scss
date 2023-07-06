@@ -347,7 +347,15 @@ $table-selection: #dde6ff;
         //border-top-right-radius: 4px;
     }
 }
-
+.p-dialog .p-dialog-header .p-dialog-header-icon {
+    background: #0e49eb;
+    .pi-times {
+        color: white;
+    }
+}
+.p-dialog .p-dialog-header .p-dialog-header-icon:hover {
+    background: #0e49eb !important;
+}
 .grid-container .shortcut.p-button,
 .card-grid-header .shortcut.p-button {
     box-shadow: none;

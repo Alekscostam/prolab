@@ -69,6 +69,8 @@ export class ViewContainer extends BaseViewContainer {
 
     // overide
     downloadData(viewId, recordId, subviewId, filterId, parentId, viewType) {
+        console.log(viewId, recordId, subviewId, filterId, parentId, viewType);
+        console.log('viewId, recordId, subviewId, filterId, parentId, viewType EEEEEEEEEEEEEEEE');
         let subviewMode = !!recordId && !!viewId;
         if (subviewMode) {
             this.viewService
@@ -327,11 +329,12 @@ export class ViewContainer extends BaseViewContainer {
                         handleShowEditPanel={(editDataResponse) => {
                             this.handleShowEditPanel(editDataResponse);
                         }}
-                        onHide={() =>
+                        onHide={() => {
                             this.setState({
-                                attachmentViewInfo: undefined,
-                            })
-                        }
+                                attachmentViewInfo: false,
+                                attachmentCloseWindow: true,
+                            });
+                        }}
                         handleViewInfoName={(viewInfoName) => {
                             this.setState({viewInfoName: viewInfoName});
                         }}
