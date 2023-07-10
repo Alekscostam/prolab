@@ -10,6 +10,7 @@ import {EntryResponseUtils} from '../utils/EntryResponseUtils';
 import {DataGridUtils} from '../utils/component/DataGridUtils';
 import ActionButton from '../components/ActionButton';
 import {AddSpecContainer} from './AddSpecContainer';
+import UrlUtils from '../utils/UrlUtils';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -69,8 +70,6 @@ export class ViewContainer extends BaseViewContainer {
 
     // overide
     downloadData(viewId, recordId, subviewId, filterId, parentId, viewType) {
-        console.log(viewId, recordId, subviewId, filterId, parentId, viewType);
-        console.log('viewId, recordId, subviewId, filterId, parentId, viewType EEEEEEEEEEEEEEEE');
         let subviewMode = !!recordId && !!viewId;
         if (subviewMode) {
             this.viewService
@@ -146,13 +145,19 @@ export class ViewContainer extends BaseViewContainer {
                                                     elementSubViewId: elementSubViewId,
                                                 },
                                                 () => {
+                                                    const viewTypeParam =
+                                                        UrlUtils.getURLParameter('viewType') !== null ||
+                                                        UrlUtils.getURLParameter('viewType') !== undefined
+                                                            ? UrlUtils.getURLParameter('viewType')
+                                                            : viewType;
+
                                                     this.props.handleSubView(subViewResponse);
                                                     this.getViewById(
                                                         elementSubViewId,
                                                         recordId,
                                                         filterId,
                                                         parentId,
-                                                        viewType,
+                                                        viewTypeParam,
                                                         true
                                                     );
                                                 }

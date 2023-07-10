@@ -8,6 +8,7 @@ import ViewService from '../services/ViewService';
 import {Breadcrumb} from '../utils/BreadcrumbUtils';
 import {DataGridUtils} from '../utils/component/DataGridUtils';
 import {ViewValidatorUtils} from '../utils/parser/ViewValidatorUtils';
+import MemoizedTreeViewComponent from './treeGrid/MemoizedTreeViewComponent';
 import UrlUtils from '../utils/UrlUtils';
 import ConsoleHelper from '../utils/ConsoleHelper';
 import DataTreeStore from './dao/DataTreeStore';
@@ -24,7 +25,6 @@ import {Popup} from 'devextreme-react/popup';
 //
 export class AddSpecContainer extends BaseContainer {
     _isMounted = false;
-
     constructor(props) {
         ConsoleHelper('AddSpecContainer -> constructor');
         super(props);
@@ -371,7 +371,7 @@ export class AddSpecContainer extends BaseContainer {
 
         return (
             <div>
-                <div className='mt-2 ml-4 text-end'>
+                <div className='mt-2 ml-4 text-end number-of-copies-header'>
                     <div>
                         {!!opCount ? (
                             <React.Fragment>
@@ -559,97 +559,104 @@ export class AddSpecContainer extends BaseContainer {
                 {this.state.loading ? null : (
                     <React.Fragment>
                         {this.renderHeaderLeft}
+
                         <div id='spec-edit-dialog'>
                             {!this.state.changingTab ? (
-                                <TreeViewComponent
-                                    handleChaningTab={() => {
-                                        this.setState({
-                                            changingTab: !this.state.changingTab,
-                                        });
-                                    }}
-                                    ref={this.refTreeList}
-                                    id={this.props.id}
-                                    allowOperations={false}
-                                    elementParentId={this.state.elementParentId}
-                                    isAddSpec={true}
-                                    preloadEnabled={false}
-                                    elementRecordId={this.state.elementRecordId}
-                                    handleOnTreeList={(ref) => (this.refTreeList = ref)}
-                                    parsedGridView={this.state.parsedView}
-                                    parsedGridViewData={parsedData}
-                                    gridViewColumns={this.state.columns}
-                                    handleAddSpecSpec={(id) => {
-                                        const viewId = this.state.elementId;
-                                        const parentId = this.state.elementParentId;
-                                        const recordId = this.state.elementRecordId;
-                                        const parsedView = this.state.parsedView;
-                                        const type = parsedView.info?.type;
-                                        let header = parsedView.info?.header;
-                                        if (type === 'METHODS' || type === 'TEMPLATES') {
-                                            header = false;
-                                            this.setState({
-                                                isSubView: true,
-                                            });
-                                        }
-                                        this.unselectAllDataGrid();
-                                        this.getViewAddSpec(viewId, parentId, recordId, type, header, id);
-                                    }}
-                                    selectedRowKeys={this.state.selectedRowKeys}
-                                    onChange={(type, e, rowId, info) => this.handleEditRowChange(type, e, rowId, info)}
-                                    handleBlockUi={() => {
-                                        this.blockUi();
-                                        return true;
-                                    }}
-                                    handleUnselectAll={() => {
-                                        this.unselectAllDataGrid();
-                                    }}
-                                    handleUnblockUi={() => this.unblockUi()}
-                                    handleShowEditPanel={(editDataResponse) =>
-                                        this.handleShowEditPanel(editDataResponse)
-                                    }
-                                    handleSelectedRowKeys={(e) => {
-                                        this.setState((prevState) => {
-                                            return {
-                                                ...prevState,
-                                                selectedRowKeys: e,
-                                            };
-                                        });
-                                    }}
-                                    modifyParsedGridViewData={(newCopyRow) => {
-                                        parsedData.forEach((el) => {
-                                            if (el.ID === newCopyRow.ID) {
-                                                el = newCopyRow;
+                                <MemoizedTreeViewComponent
+                                    treeViewComponent={
+                                        <TreeViewComponent
+                                            handleChaningTab={() => {
+                                                this.setState({
+                                                    changingTab: !this.state.changingTab,
+                                                });
+                                            }}
+                                            ref={this.refTreeList}
+                                            id={this.props.id}
+                                            allowOperations={false}
+                                            elementParentId={this.state.elementParentId}
+                                            isAddSpec={true}
+                                            preloadEnabled={false}
+                                            elementRecordId={this.state.elementRecordId}
+                                            handleOnTreeList={(ref) => (this.refTreeList = ref)}
+                                            parsedGridView={this.state.parsedView}
+                                            parsedGridViewData={parsedData}
+                                            gridViewColumns={this.state.columns}
+                                            handleAddSpecSpec={(id) => {
+                                                const viewId = this.state.elementId;
+                                                const parentId = this.state.elementParentId;
+                                                const recordId = this.state.elementRecordId;
+                                                const parsedView = this.state.parsedView;
+                                                const type = parsedView.info?.type;
+                                                let header = parsedView.info?.header;
+                                                if (type === 'METHODS' || type === 'TEMPLATES') {
+                                                    header = false;
+                                                    this.setState({
+                                                        isSubView: true,
+                                                    });
+                                                }
+                                                this.unselectAllDataGrid();
+                                                this.getViewAddSpec(viewId, parentId, recordId, type, header, id);
+                                            }}
+                                            selectedRowKeys={this.state.selectedRowKeys}
+                                            onChange={(type, e, rowId, info) =>
+                                                this.handleEditRowChange(type, e, rowId, info)
                                             }
-                                        });
-                                        this.setState({
-                                            parsedData,
-                                        });
-                                    }}
-                                    handleDeleteRow={(id) => this.delete(id)}
-                                    handleForumlaRow={(id) => this.prepareCalculateFormula(id)}
-                                    handleDownload={(id) => {
-                                        this.props.handleDownloadRow(id);
-                                    }}
-                                    handleAttachments={(id) => {
-                                        this.props.handleAttachmentRow(id);
-                                    }}
-                                    handleAddLevel={(id) => alert(id)}
-                                    handleUp={(id) => this.up(id)}
-                                    handleDown={(id) => this.down(id)}
-                                    handleRestoreRow={(id) => this.restore(id)}
-                                    handleCopyRow={(id) => this.copyEntry(id)}
-                                    handleDocumentsRow={(id) => {
-                                        this.generate(id);
-                                    }}
-                                    handlePluginsRow={(id) => {
-                                        this.plugin(id);
-                                    }}
-                                    handleDownloadRow={(id) => this.downloadAttachment(id)}
-                                    handleAttachmentRow={(id) => this.attachment(id)}
-                                    handleArchiveRow={(id) => this.archive(id)}
-                                    handlePublishRow={(id) => this.publishEntry(id)}
-                                    showErrorMessages={(err) => this.showErrorMessages(err)}
-                                    labels={this.props.labels}
+                                            handleBlockUi={() => {
+                                                this.blockUi();
+                                                return true;
+                                            }}
+                                            handleUnselectAll={() => {
+                                                this.unselectAllDataGrid();
+                                            }}
+                                            handleUnblockUi={() => this.unblockUi()}
+                                            handleShowEditPanel={(editDataResponse) =>
+                                                this.handleShowEditPanel(editDataResponse)
+                                            }
+                                            handleSelectedRowKeys={(e) => {
+                                                this.setState((prevState) => {
+                                                    return {
+                                                        ...prevState,
+                                                        selectedRowKeys: e,
+                                                    };
+                                                });
+                                            }}
+                                            modifyParsedGridViewData={(newCopyRow) => {
+                                                parsedData.forEach((el) => {
+                                                    if (el.ID === newCopyRow.ID) {
+                                                        el = newCopyRow;
+                                                    }
+                                                });
+                                                this.setState({
+                                                    parsedData,
+                                                });
+                                            }}
+                                            handleDeleteRow={(id) => this.delete(id)}
+                                            handleForumlaRow={(id) => this.prepareCalculateFormula(id)}
+                                            handleDownload={(id) => {
+                                                this.props.handleDownloadRow(id);
+                                            }}
+                                            handleAttachments={(id) => {
+                                                this.props.handleAttachmentRow(id);
+                                            }}
+                                            handleAddLevel={(id) => alert(id)}
+                                            handleUp={(id) => this.up(id)}
+                                            handleDown={(id) => this.down(id)}
+                                            handleRestoreRow={(id) => this.restore(id)}
+                                            handleCopyRow={(id) => this.copyEntry(id)}
+                                            handleDocumentsRow={(id) => {
+                                                this.generate(id);
+                                            }}
+                                            handlePluginsRow={(id) => {
+                                                this.plugin(id);
+                                            }}
+                                            handleDownloadRow={(id) => this.downloadAttachment(id)}
+                                            handleAttachmentRow={(id) => this.attachment(id)}
+                                            handleArchiveRow={(id) => this.archive(id)}
+                                            handlePublishRow={(id) => this.publishEntry(id)}
+                                            showErrorMessages={(err) => this.showErrorMessages(err)}
+                                            labels={this.props.labels}
+                                        />
+                                    }
                                 />
                             ) : null}
                         </div>

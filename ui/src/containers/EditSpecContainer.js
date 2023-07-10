@@ -160,11 +160,7 @@ export class EditSpecContainer extends BaseContainer {
                         listColumns: undefined,
                         listOptions: undefined,
                     };
-                    if (UrlUtils.batchIdParamExist('batchId')) {
-                        this.processingViewResponseBatch(refactorResponseView, UrlUtils.getBatchIdParam('batchId'));
-                    } else {
-                        this.processingViewResponse(refactorResponseView, parentId, recordId);
-                    }
+                    this.processingViewResponse(refactorResponseView, parentId, recordId);
                 })
                 .catch((err) => {
                     console.error('Error getViewSpec in EditSpec. Exception = ', err);
@@ -175,19 +171,6 @@ export class EditSpecContainer extends BaseContainer {
                 .finally(() => {
                     this.unblockUi();
                 });
-        });
-    }
-    processingViewResponseBatch(responseView, batchId) {
-        let id = UrlUtils.getViewIdFromURL();
-        if (id === undefined) {
-            id = this.props.id;
-        }
-        this.dataTreeStore.getDataTreeBatchStoreDirect(id, batchId).then((res) => {
-            this.setState({
-                loading: false,
-                parsedData: res.data,
-                changingTab: false,
-            });
         });
     }
 
@@ -260,6 +243,7 @@ export class EditSpecContainer extends BaseContainer {
                             ? Constants.DEFAULT_DATA_PACKAGE_COUNT
                             : dataPackageSize;
                     //const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId;
+
                     this.dataTreeStore
                         .getDataTreeStoreDirect(viewIdArg, parentIdArg, recordIdArg, packageCount)
                         .then((res) => {
@@ -388,7 +372,7 @@ export class EditSpecContainer extends BaseContainer {
         }
     }
 
-    //override
+    // //override
     renderGlobalTop() {
         return <React.Fragment></React.Fragment>;
     }
@@ -411,26 +395,27 @@ export class EditSpecContainer extends BaseContainer {
 
     //override
     renderHeaderRight() {
-        //TODO let operations = this.state.operations;
-        //TODO mock
         let operations = [];
         operations.push({type: 'OP_SAVE', label: 'Zapisz'});
         operations.push({type: 'OP_ADD_SPEC', label: 'Dodaj'});
-        //TODO mock end
+
         let opAdd = DataGridUtils.containsOperationsButton(operations, 'OP_ADD_SPEC');
         let opSave = DataGridUtils.containsOperationsButton(operations, 'OP_SAVE');
 
         return (
             <React.Fragment>
                 <div id='global-top-components'>
-                    <ActionButton
-                        rendered={!!opAdd}
-                        label={opAdd?.label}
-                        className='ml-2'
-                        handleClick={(e) => {
-                            this.showAddSpecDialog();
-                        }}
-                    />
+                    {!UrlUtils.batchIdParamExist('batchId') && (
+                        <ActionButton
+                            rendered={!!opAdd}
+                            label={opAdd?.label}
+                            className='ml-2'
+                            handleClick={(e) => {
+                                this.showAddSpecDialog();
+                            }}
+                        />
+                    )}
+
                     <ActionButton
                         rendered={!!opSave}
                         label={opSave?.label}
@@ -522,7 +507,9 @@ export class EditSpecContainer extends BaseContainer {
         if (!parsedView) {
             return;
         }
-
+        if (!parsedView?.headerData) {
+            return;
+        }
         const subView = {
             headerData: parsedView?.headerData,
             viewInfo: parsedView?.viewInfo,
@@ -556,7 +543,9 @@ export class EditSpecContainer extends BaseContainer {
             <React.Fragment>
                 <HeadPanel
                     elementId={this.state.elementId}
-                    elementRecordId={this.state.elementRecordId}
+                    elementRecordId={
+                        this.state.elementRecordId ? this.state.elementRecordId : UrlUtils.getBatchIdParam()
+                    }
                     elementSubViewId={null}
                     elementKindView={this.state.elementKindView}
                     selectedRowKeys={this.state.selectedRowKeys}

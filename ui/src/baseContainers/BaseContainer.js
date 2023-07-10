@@ -6,7 +6,7 @@ import ActionButton from '../components/ActionButton';
 import DivContainer from '../components/DivContainer';
 import SimpleReactValidator from '../components/validator';
 import AuthService from '../services/AuthService';
-import $, {data} from 'jquery';
+import $ from 'jquery';
 import Constants from '../utils/Constants';
 import BlockUi from '../components/waitPanel/BlockUi';
 import {Toast} from 'primereact/toast';
@@ -22,7 +22,7 @@ import {EntryResponseUtils} from '../utils/EntryResponseUtils';
 import CrudService from '../services/CrudService';
 import UrlUtils from '../utils/UrlUtils';
 import {readValueCookieGlobal, removeCookieGlobal} from '../utils/Cookie';
-import {TreeListUtils} from '../utils/component/TreeListUtils';
+
 class BaseContainer extends React.Component {
     constructor(props, service) {
         super(props);
@@ -61,6 +61,7 @@ class BaseContainer extends React.Component {
         this.setVariableFromEvent = this.setVariableFromEvent.bind(this);
         this.handleChangeCriteria = this.handleChangeCriteria.bind(this);
         this.refreshSubView = this.refreshSubView.bind(this);
+        this.prepareCalculateFormula = this.prepareCalculateFormula.bind(this);
         this.validator = new SimpleReactValidator();
         this._isMounted = false;
         this.jwtRefreshBlocked = false;
@@ -1666,8 +1667,7 @@ class BaseContainer extends React.Component {
             datas = this.getRefGridView().instance.getDataSource()._items;
         }
         if (!this.state.gridViewType) {
-            const ref = this.refTreeList.instance.getDataSource();
-            datas = TreeListUtils.unpackAllElementsFromTreeListModel(ref._items).map((el) => el.data);
+            datas = this.state.parsedData;
         }
         const fieldsToCalculate = this.createObjectToCalculate(datas);
         this.calculateFormula(viewId, parentId, id, fieldsToCalculate);

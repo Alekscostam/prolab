@@ -6,8 +6,6 @@ import {TreeList} from 'devextreme-react';
 import {
     Column,
     Editing,
-    Toolbar,
-    Item,
     FilterRow,
     HeaderFilter,
     LoadPanel,
@@ -40,7 +38,6 @@ import EditListUtils from '../../utils/EditListUtils';
 import EditListDataStore from '../dao/EditListDataStore';
 import {EditSpecUtils} from '../../utils/EditSpecUtils';
 import {compress} from 'int-compress-string';
-import {StringUtils} from '../../utils/StringUtils';
 //
 //    https://js.devexpress.com/Documentation/Guide/UI_Components/TreeList/Getting_Started_with_TreeList/
 //
@@ -70,7 +67,7 @@ class TreeViewComponent extends React.Component {
         if (!gridViewColumns[0]) {
             return;
         }
-        if (gridViewColumns[0].id) {
+        if (gridViewColumns[0].id !== undefined && gridViewColumns[0].id !== null) {
             gridViewColumns.unshift({width: '60'});
         }
     }
@@ -547,7 +544,6 @@ class TreeViewComponent extends React.Component {
                 operationsRecord.push(this.props.parsedGridView?.operationsRecord);
             }
 
-
             if (operationsRecord[0] || (operationsRecordList instanceof Array && operationsRecordList.length > 0)) {
                 if (
                     operationsRecord instanceof Array &&
@@ -765,7 +761,11 @@ class TreeViewComponent extends React.Component {
         try {
             let _bgColor;
             if (cellInfo.data?.FORMULA && cellInfo.column.dataField.toUpperCase() === 'WART') {
-                const elements = document.querySelectorAll('td[aria-describedby="' + cellInfo.column.headerId + '"]');
+                const elements = Array.from(
+                    document.querySelectorAll('td[aria-describedby="' + cellInfo.column.headerId + '"]')
+                ).filter((el) => {
+                    return !el.ariaLabel;
+                });
                 const element = elements[cellInfo.rowIndex];
                 if (element.parentNode.rowIndex === cellInfo.rowIndex) {
                     element.style.backgroundColor = 'yellow';

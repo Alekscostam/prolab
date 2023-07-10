@@ -97,7 +97,7 @@ class GridViewComponent extends React.Component {
         const allowSelectAll = selectAll === undefined || selectAll === null || !!selectAll;
         const defaultSelectedRowKeys = this.props.defaultSelectedRowKeys;
         const selectedRowKeys = this.props.selectedRowKeys;
-        console.log(selectedRowKeys);
+
         return (
             <React.Fragment>
                 {/* <div className='dx-container'> */}

@@ -18,7 +18,8 @@ export default class DataGridStore extends BaseService {
         filterIdArg,
         kindViewArg,
         filters,
-        recordParentViewIdArg
+        recordParentViewIdArg,
+        isAttachmentDialog
     ) {
         let params = '?';
         [
@@ -48,7 +49,11 @@ export default class DataGridStore extends BaseService {
         const recordParentIdParam = !!recordParentIdArg ? `&parentId=${recordParentIdArg}` : '';
         const kindViewParam = !!kindViewArg && !!recordParentIdParam ? `&kindView=${kindViewArg}` : '';
         const selectAllParam = !!eventSelectAll ? `&selection=true` : '';
-        let url = `${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${recordParentIdParam}${kindViewParam}${selectAllParam}`;
+        let recordParentViewIdParam = '';
+        if (isAttachmentDialog) {
+            recordParentViewIdParam = !!recordParentViewIdArg ? `&parentViewId=${recordParentViewIdArg}` : '';
+        }
+        let url = `${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${recordParentIdParam}${recordParentViewIdParam}${kindViewParam}${selectAllParam}`;
         url = this.commonCorrectUrl(url);
         return this.fetch(url, {
             method: 'GET',
@@ -66,7 +71,8 @@ export default class DataGridStore extends BaseService {
         onStartCallback,
         onSuccessCallback,
         onErrorCallback,
-        recordParentViewIdArg
+        recordParentViewIdArg,
+        isAttachmentDialog
     ) {
         if (!viewIdArg) {
             if (onSuccessCallback) {
@@ -127,7 +133,13 @@ export default class DataGridStore extends BaseService {
                 }
 
                 const filterIdParam = !!filterIdArg ? `&filterId=${filterIdArg}` : '';
-                const recordParentIdParam = !!recordParentIdArg ? `&parentId=${recordParentIdArg}` : '';
+                let recordParentIdParam = !!recordParentIdArg ? `&parentId=${recordParentIdArg}` : '';
+                if (isAttachmentDialog) {
+                    recordParentIdParam =
+                        recordParentIdArg === undefined || recordParentIdArg === null
+                            ? ''
+                            : `&parentId=${recordParentIdArg}`;
+                }
                 const kindViewParam = !!kindViewArg && !!recordParentIdParam ? `&kindView=${kindViewArg}` : '';
                 const selectAllParam = !!addSelectAllParam ? `&selection=true` : '';
                 const recordParentViewIdParam = !!recordParentViewIdArg ? `&parentViewId=${recordParentViewIdArg}` : '';

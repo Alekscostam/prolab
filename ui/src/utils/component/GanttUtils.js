@@ -1,8 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Image from '../../components/Image';
 import Constants from '../Constants';
-import {StringUtils} from '../StringUtils';
 import {ViewDataCompUtils} from './ViewDataCompUtils';
 
 export class GanttUtils extends ViewDataCompUtils {

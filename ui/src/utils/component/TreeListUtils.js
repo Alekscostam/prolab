@@ -2,7 +2,6 @@ import React from 'react';
 import {ViewDataCompUtils} from './ViewDataCompUtils';
 import EditRowUtils from '../EditRowUtils';
 import {Button} from 'primereact/button';
-import {DataGridUtils} from './DataGridUtils';
 import HtmlEditor, {Item, MediaResizing, Toolbar} from 'devextreme-react/html-editor';
 import {CheckBox, DateBox, NumberBox, TextBox, Validator} from 'devextreme-react';
 import {RequiredRule} from 'devextreme-react/validator';
@@ -242,7 +241,6 @@ export const MemoizedDateTimeInput = React.memo(
                     onValueChanged={(e) => {
                         cellInfo.setValue(e.component.option('text'));
                     }}
-                    defaultValue={inputValue}
                     style={{width: '100%'}}
                     disabled={!field.edit}
                     required={required}
@@ -398,6 +396,9 @@ export class TreeListUtils extends ViewDataCompUtils {
             data._LINE_COLOR_GRADIENT.push(value);
         }
         const childrens = datas.filter((el) => {
+            if (!data._ID) {
+                return false;
+            }
             return data._ID === el._ID_PARENT;
         });
         if (childrens.length) {

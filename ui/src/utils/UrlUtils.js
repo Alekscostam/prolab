@@ -21,12 +21,12 @@ class UrlUtils {
             return null;
         }
     }
-    static batchIdParamExist(paramName) {
-        const batchId = this.getURLParameter(paramName);
+    static batchIdParamExist() {
+        const batchId = this.getURLParameter('batchId');
         return batchId !== undefined && batchId !== null;
     }
-    static getBatchIdParam(paramName) {
-        return this.getURLParameter(paramName);
+    static getBatchIdParam() {
+        return this.getURLParameter('batchId');
     }
 
     static deleteParameterFromURL(url, paramName) {

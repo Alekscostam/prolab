@@ -104,6 +104,7 @@ export class BaseViewContainer extends BaseContainer {
             viewInfoTypes: [],
             visibleEditPanel: false,
             visibleUploadFile: false,
+            updateBreadcrumb: true,
             visiblePluginPanel: false,
             visibleCopyDialog: false,
             visiblePublishDialog: false,
@@ -271,7 +272,7 @@ export class BaseViewContainer extends BaseContainer {
                 id = this.props.id;
             }
 
-            Breadcrumb.updateView(responseView.viewInfo, id, recordId);
+            if (this.state.updateBreadcrumb) Breadcrumb.updateView(responseView.viewInfo, id, recordId);
             let gridViewColumnsTmp = [];
             let pluginsListTmp = [];
             let documentsListTmp = [];
@@ -371,21 +372,16 @@ export class BaseViewContainer extends BaseContainer {
     }
 
     handleRightHeadPanelContent(element) {
-        // const parentIdArg =
-        //     this.state.subView == null ? UrlUtils.getURLParameter('parentId') : this.state.elementRecordId;
-        // const filterIdArg = !!this.state.elementFilterId
-        //     ? this.state.elementFilterId
-        //     : this.state.parsedGridView?.viewInfo?.filterdId;
-        // const kindViewArg = !!this.state.elementKindView
-        //     ? this.state.elementKindView
-        //     : UrlUtils.getURLParameter('kindView');
-        // const recordId = this.state.elementRecordId ? this.state.elementRecordId : parentIdArg;
-        // TODO:
+        let parentIdArg =
+            this.state.subView == null ? UrlUtils.getURLParameter('parentId') : this.state.elementRecordId;
+        if (parentIdArg === null) {
+            parentIdArg = 0;
+        }
         const id = this.props.id;
         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
         const elementId = `${element?.id}`;
         const urlEditSpecBatch = AppPrefixUtils.locationHrefUrl(
-            `/#/edit-spec/${id}?batchId=${elementId}${currentBreadcrumb}`
+            `/#/edit-spec/${id}?batchId=${elementId}&parentId=${parentIdArg}${currentBreadcrumb}`
         );
         switch (element.type) {
             case 'OP_PLUGINS':
@@ -1184,7 +1180,7 @@ export class BaseViewContainer extends BaseContainer {
                                             : this.defaultKindView;
                                         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
                                         window.location.href = AppPrefixUtils.locationHrefUrl(
-                                            `/#/grid-view/${viewInfoId}?recordId=${recordId}&parentId=${parentId}&subview=${subViewId}&kindView=${kindView}${currentBreadcrumb}`
+                                            `/#/grid-view/${viewInfoId}?recordId=${recordId}${parentId}&subview=${subViewId}&kindView=${kindView}${currentBreadcrumb}`
                                         );
                                     }
                                 }

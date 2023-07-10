@@ -6,7 +6,6 @@ import DivContainer from '../../components/DivContainer';
 import {BaseViewContainer} from '../../baseContainers/BaseViewContainer';
 import {Dialog} from 'primereact/dialog';
 import UrlUtils from '../../utils/UrlUtils';
-import {DataGridUtils} from '../../utils/component/DataGridUtils';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -34,6 +33,9 @@ export class AttachmentViewDialog extends BaseViewContainer {
 
     // overide
     componentDidMount() {
+        this.setState({
+            updateBreadcrumb: false,
+        });
         super.componentDidMount();
     }
 
@@ -41,8 +43,54 @@ export class AttachmentViewDialog extends BaseViewContainer {
         const {prevElementSubViewId} = this.state;
         this.setState({
             elementSubViewId: prevElementSubViewId,
+            updateBreadcrumb: true,
         });
         super.componentWillUnmount();
+    }
+
+    selectAllDataGrid(selectionValue) {
+        this.setState(
+            {
+                selectAll: true,
+                isSelectAll: selectionValue,
+                select: false,
+            },
+            () => {
+                this.getRefGridView().instance.selectAll();
+
+                const {viewInfo} = this.state.attachmentResponseView;
+                const parentIdArg =
+                    UrlUtils.getURLParameter('recordId') === null
+                        ? viewInfo.parentId
+                        : UrlUtils.getURLParameter('recordId');
+                this.dataGridStore
+                    .getSelectAllDataGridStore(
+                        viewInfo.id,
+                        'gridView',
+                        parentIdArg,
+                        viewInfo.filterdId,
+                        'View',
+                        this.getRefGridView().instance.getCombinedFilter(),
+                        viewInfo.parentViewId,
+                        true
+                    )
+                    .then((result) => {
+                        this.setState(
+                            {
+                                selectAll: false,
+                                select: false,
+                                selectedRowKeys: result.data,
+                            },
+                            () => {
+                                this.unblockUi();
+                            }
+                        );
+                    })
+                    .catch((err) => {
+                        this.showGlobalErrorMessage(err);
+                    });
+            }
+        );
     }
 
     getViewById(viewId, recordId, filterId, parentId, viewType, isSubView) {
@@ -51,13 +99,13 @@ export class AttachmentViewDialog extends BaseViewContainer {
         );
         this.setState({loading: true}, () => {
             this.viewService
-                .getAttachemntView(viewId, recordId)
+                .getAttachemntView(viewId, recordId, parentId)
                 .then((responseView) => {
                     const {elementSubViewId} = this.state;
-
                     this.setState({
                         prevElementSubViewId: elementSubViewId,
                         elementSubViewId: responseView.viewInfo.id,
+                        attachmentResponseView: responseView,
                     });
                     this.processViewResponse(responseView, parentId, recordId, isSubView);
                 })
@@ -75,8 +123,10 @@ export class AttachmentViewDialog extends BaseViewContainer {
         const viewInfo = responseView.viewInfo;
         const initFilterId = viewInfo?.filterdId;
         const viewIdArg = viewInfo.id;
-        const parentIdArg =
-            UrlUtils.getURLParameter('recordId') === null ? viewInfo.parentId : UrlUtils.getURLParameter('recordId');
+        let recordParentIdArg = viewInfo.parentId;
+        if (viewInfo.parentId === 0) {
+            recordParentIdArg = UrlUtils.getURLParameter('recordId');
+        }
         const parentViewIdArg = viewInfo.parentViewId;
         const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId;
         const kindViewArg = 'View';
@@ -84,7 +134,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
             let res = this.dataGridStore.getDataGridStore(
                 viewIdArg,
                 'gridView',
-                parentIdArg,
+                recordParentIdArg,
                 filterIdArg,
                 kindViewArg,
                 () => {
@@ -118,7 +168,8 @@ export class AttachmentViewDialog extends BaseViewContainer {
                         }
                     );
                 },
-                parentViewIdArg
+                parentViewIdArg,
+                true
             );
             if (!!res) {
                 this.setState({

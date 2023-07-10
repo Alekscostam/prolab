@@ -37,11 +37,14 @@ export default class ViewService extends BaseService {
         });
     }
 
-    getAttachemntView(viewId, recordId) {
+    getAttachemntView(viewId, recordId, parentId) {
         if (Array.isArray(recordId)) {
             recordId = recordId[0];
         }
-        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/attachment/${recordId}`, {
+        if (!parentId) {
+            parentId = 0;
+        }
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/attachment/${recordId}?parentId=${parentId}`, {
             method: 'GET',
         })
             .then((attachmentResponse) => {
@@ -51,12 +54,11 @@ export default class ViewService extends BaseService {
                 throw err;
             });
     }
-    // TODO: logika w serwisie hmmm tak se troszke
+
     getViewSpec(viewId, parentId) {
-        if (UrlUtils.batchIdParamExist('batchId')) {
-            let batchId = UrlUtils.getBatchIdParam('batchId');
+        if (UrlUtils.batchIdParamExist()) {
+            let batchId = UrlUtils.getBatchIdParam();
             const selectedRowKeys = readObjFromCookieGlobal('selectedRowKeys');
-            console.log(selectedRowKeys, 'selectedRowKeys');
             const idRowKeys = selectedRowKeys.map((el) => el.ID);
             const requestBody = {
                 listId: idRowKeys,
@@ -66,18 +68,18 @@ export default class ViewService extends BaseService {
                 url = url + `?parentId=${parentId}`;
             }
             return this.fetch(`${url}`, {
-                // method: 'GET',
                 method: 'POST',
                 body: JSON.stringify(requestBody),
             }).catch((err) => {
                 throw err;
             });
+        } else {
+            return this.fetch(`${this.domain}/${this.path}/${viewId}/editspec/${parentId}`, {
+                method: 'GET',
+            }).catch((err) => {
+                throw err;
+            });
         }
-        return this.fetch(`${this.domain}/${this.path}/${viewId}/editspec/${parentId}`, {
-            method: 'GET',
-        }).catch((err) => {
-            throw err;
-        });
     }
 
     getViewAddSpec(viewId, parentId, type, header, headerId) {
@@ -94,7 +96,6 @@ export default class ViewService extends BaseService {
 
     subViewEntry(viewId, recordId, parentId) {
         let queryStringTmp = [];
-
         if (!!parentId) {
             queryStringTmp.push(`parentId=${parentId}`);
         }
@@ -113,7 +114,6 @@ export default class ViewService extends BaseService {
 
     getSubView(viewId, recordId, parentId) {
         const cacheKey = JSON.stringify({viewId: parseInt(viewId), recordId: parseInt(recordId)});
-
         ConsoleHelper('getSubView: cacheKey=' + cacheKey);
         try {
             let cacheValue = JSON.parse(sessionStorage.getItem(cacheKey));

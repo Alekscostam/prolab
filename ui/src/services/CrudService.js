@@ -131,12 +131,7 @@ export default class CrudService extends BaseService {
     }
 
     editSpecList(viewId, parentId, fieldId, element) {
-        let point = 'editspec';
-        if (UrlUtils.batchIdParamExist('batchId')) {
-            point = 'batch';
-            parentId = UrlUtils.getBatchIdParam('batchId');
-        }
-        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/${point}/${parentId}/list/${fieldId}`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/editspec/${parentId}/list/${fieldId}`, {
             method: 'POST',
             body: JSON.stringify(element),
         }).catch((err) => {
@@ -394,7 +389,7 @@ export default class CrudService extends BaseService {
             throw err;
         });
     }
-
+    // TODO: musi byc inaczej dla batcha
     calculateFormula(viewId, parentId, recordId, fieldsToCalculate) {
         let point = 'editspec';
         if (UrlUtils.batchIdParamExist('batchId')) {
@@ -574,54 +569,83 @@ export default class CrudService extends BaseService {
     }
 
     saveSpecEntry(viewId, parentId, listId, filterId) {
-        let point = 'editspec';
-        if (UrlUtils.batchIdParamExist('batchId')) {
-            point = 'batch';
-            parentId = UrlUtils.getBatchIdParam('batchId');
+        if (UrlUtils.batchIdParamExist()) {
+            const batchId = UrlUtils.getBatchIdParam();
+            return this.fetch(
+                `${this.getDomain()}/${this.path}/${viewId}/batch/${batchId}/Entry?parentId=${parentId}`,
+                {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        listId: listId,
+                    }),
+                }
+            ).catch((err) => {
+                throw err;
+            });
+        } else {
+            return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/editspec/${parentId}/Entry`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    listId: listId,
+                }),
+            }).catch((err) => {
+                throw err;
+            });
         }
-        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/${point}/${parentId}/Entry`, {
-            method: 'POST',
-            body: JSON.stringify({
-                listId: listId,
-            }),
-        }).catch((err) => {
-            throw err;
-        });
     }
 
     saveSpec(viewId, parentId, elementToSave, confirmSave) {
-        let point = 'editspec';
-        if (UrlUtils.batchIdParamExist('batchId')) {
-            point = 'batch';
-            parentId = UrlUtils.getBatchIdParam('batchId');
+        if (UrlUtils.batchIdParamExist()) {
+            const batchId = UrlUtils.getBatchIdParam();
+            return this.fetch(
+                `${this.getDomain()}/${
+                    this.path
+                }/${viewId}/batch/${batchId}/Save?confirmSave=${confirmSave}&parentId=${parentId}`,
+                {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        data: elementToSave,
+                    }),
+                }
+            ).catch((err) => {
+                throw err;
+            });
+        } else {
+            return this.fetch(
+                `${this.getDomain()}/${this.path}/${viewId}/editspec/${parentId}/Save?confirmSave=${confirmSave}`,
+                {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        data: elementToSave,
+                    }),
+                }
+            ).catch((err) => {
+                throw err;
+            });
         }
-        return this.fetch(
-            `${this.getDomain()}/${this.path}/${viewId}/${point}/${parentId}/Save?confirmSave=${confirmSave}`,
-            {
-                method: 'POST',
-                body: JSON.stringify({
-                    data: elementToSave,
-                }),
-            }
-        ).catch((err) => {
-            throw err;
-        });
     }
 
     cancelSpec(viewId, parentId, listId) {
-        let point = 'editspec';
-        if (UrlUtils.batchIdParamExist('batchId')) {
-            point = 'batch';
-            parentId = UrlUtils.getBatchIdParam('batchId');
+        if (UrlUtils.batchIdParamExist()) {
+            const batchId = UrlUtils.getBatchIdParam('batchId');
+            return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/batch/${batchId}/Cancel?parentId=0`, {
+                method: 'POST',
+                body: {
+                    listId: JSON.stringify(listId),
+                },
+            }).catch((err) => {
+                throw err;
+            });
+        } else {
+            return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/editspec/${parentId}/Cancel`, {
+                method: 'POST',
+                body: {
+                    listId: JSON.stringify(listId),
+                },
+            }).catch((err) => {
+                throw err;
+            });
         }
-        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/${point}/${parentId}/Cancel`, {
-            method: 'POST',
-            body: {
-                listId: JSON.stringify(listId),
-            },
-        }).catch((err) => {
-            throw err;
-        });
     }
 
     createObjectToSave(state) {

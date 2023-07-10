@@ -145,7 +145,7 @@ HeadPanel.defaultProps = {};
 
 HeadPanel.propTypes = {
     elementId: PropTypes.string.isRequired,
-    elementRecordId: PropTypes.string.isRequired,
+    elementRecordId: PropTypes.string, // nie musi byc required jednak
     elementKindView: PropTypes.string,
     labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
     selectedRowKeys: PropTypes.array.isRequired,
