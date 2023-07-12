@@ -49,7 +49,7 @@ export class ActionButtonWithMenu extends React.Component {
                     disabled={disabled}
                     handleClick={(event) => {
                         const content = document.getElementById('header-left');
-                        content.click();
+                        if (content) content.click();
                         if (this.props.formula) {
                             if (customEventClick) {
                                 customEventClick();
