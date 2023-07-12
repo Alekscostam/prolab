@@ -18,7 +18,7 @@ export default class EditListComponent extends React.Component {
 
     render() {
         let width = this.props.parsedGridView?.info?.windowSize?.width || '50vw';
-        let height = this.props.parsedGridView?.info?.windowSize?.height || undefined;
+        let height = this.props.parsedGridView?.info?.windowSize?.height || '150vw';
         let opSelect = DataGridUtils.containsOperationsButton(this.props.parsedGridView?.operations, 'OP_SELECT');
         return (
             <React.Fragment>
@@ -64,7 +64,7 @@ export default class EditListComponent extends React.Component {
                     visible={this.props.visible}
                     resizable={false}
                     breakpoints={{'960px': '75vw', '640px': '100vw'}}
-                    style={{maxWidth: width, maxHeight: height}}
+                    style={{width: width, height: height, minWidth: width, minHeight: height}}
                     onHide={() => this.props.onHide()}
                 >
                     <GridViewComponent

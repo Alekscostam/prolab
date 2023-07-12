@@ -17,6 +17,7 @@ import EditListUtils from '../../utils/EditListUtils';
 import CrudService from '../../services/CrudService';
 import BaseRowComponent from '../../baseContainers/BaseRowComponent';
 
+let copyDataGlobalTop = null;
 export class EditRowComponent extends BaseRowComponent {
     constructor(props) {
         super(props);
@@ -40,6 +41,7 @@ export class EditRowComponent extends BaseRowComponent {
         this.editListDataGrid = null;
 
         this.messages = React.createRef();
+        this.sidebarRef = React.createRef();
         this.handleAutoFill = this.handleAutoFill.bind(this);
         this.handleCancel = this.handleCancel.bind(this);
     }
@@ -52,9 +54,20 @@ export class EditRowComponent extends BaseRowComponent {
         if (visibleEditPanelPrevious === false && visibleEditPanel === true) {
             this.setState({preventSave: false});
         }
+
+        window.sidebarRef = this.sidebarRef;
         super.componentDidUpdate();
     }
 
+    componentDidMount() {
+        super.componentDidMount();
+    }
+
+    componentWillUnmount() {
+        super.componentWillUnmount();
+        window.sidebarRef = null;
+        copyDataGlobalTop = null;
+    }
     handleSelectedRowData(selectedRowData) {
         ConsoleHelper('EditRowComponent::handleSelectedRowData obj=' + JSON.stringify(selectedRowData));
         const setFields = this.state.parsedGridView.setFields;
@@ -80,6 +93,9 @@ export class EditRowComponent extends BaseRowComponent {
         const visibleEditPanel = this.props.visibleEditPanel;
         let editData = this.props.editData;
         let editListVisible = this.state.editListVisible;
+        if (this.props?.copyData) {
+            copyDataGlobalTop = this.props.copyData;
+        }
         return (
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
@@ -111,6 +127,7 @@ export class EditRowComponent extends BaseRowComponent {
                     labels={this.props.labels}
                 />
                 <Sidebar
+                    ref={this.sidebarRef}
                     id='right-sidebar'
                     visible={visibleEditPanel}
                     modal={true}
@@ -128,8 +145,8 @@ export class EditRowComponent extends BaseRowComponent {
                                 </div>
                                 {kindOperation?.toUpperCase() === 'COPY' ? (
                                     <div id='label' className='label col-lg-12' style={{fontSize: '1em'}}>
-                                        Kopiowanie {this.props.copyData?.copyCounter.counter} z{' '}
-                                        {this.props.copyData?.copyOptions.numberOfCopy}{' '}
+                                        Kopiowanie {copyDataGlobalTop?.copyCounter?.counter} z{' '}
+                                        {copyDataGlobalTop?.copyOptions?.numberOfCopy}{' '}
                                     </div>
                                 ) : null}
                             </div>

@@ -109,6 +109,7 @@ class CardViewInfiniteComponent extends React.Component {
                         let divide = args[0] * columnCount;
                         skip = Math.ceil(divide / packageCount) * dataPackageSize;
                     }
+
                     this.dataCardStore
                         .getDataForCard(
                             this.props.id,
@@ -122,7 +123,6 @@ class CardViewInfiniteComponent extends React.Component {
                         )
                         .then((res) => {
                             let parsedCardViewData = [];
-
                             let items = this.state.items;
                             console.time('reloadDataFromCardComponent');
                             res.data.forEach((item) => {
@@ -142,7 +142,6 @@ class CardViewInfiniteComponent extends React.Component {
                                 }
                                 parsedCardViewData.push(item);
                             });
-
                             console.timeEnd('reloadDataFromCardComponent');
                             items = items.concat(parsedCardViewData);
                             this.setState((state) => ({

@@ -25,7 +25,11 @@ export class DataGridUtils extends ViewDataCompUtils {
                 _rowIndex = info.row.dataIndex;
                 _bgColor = info.data['_BGCOLOR'];
                 _fontcolor = info.data['_FONTCOLOR'];
+            } else {
+                _bgColor = info.data['_BGCOLOR'];
+                _fontcolor = info.data['_FONTCOLOR'];
             }
+
             if (!!rowSelected) {
                 bgColorFinal = undefined;
             } else {

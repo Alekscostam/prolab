@@ -297,6 +297,7 @@
 #editListDialog .dx-datagrid .dx-error-row {
     display: none;
 }
+
 #editListDialog {
     .dx-datagrid-borders > .dx-datagrid-filter-panel,
     .dx-datagrid-borders > .dx-datagrid-headers,
@@ -307,6 +308,7 @@
         z-index: 1000000000;
         background: white;
     }
+    overflow-y: hidden;
     tr {
         cursor: pointer;
     }

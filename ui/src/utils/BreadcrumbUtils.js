@@ -41,6 +41,10 @@ export class Breadcrumb {
     }
 
     static updateView(viewInfo, viewId, recordId) {
+        const sidebar = window.sidebarRef;
+        if (sidebar) {
+            sidebar.current.props?.onHide();
+        }
         ConsoleHelper(`*Breadcrumb::updateView, viewId=${viewId}, recordId=${recordId}, viewInfo`, viewInfo);
         let breadcrumb = this.readFromUrl();
         let currentUrl = window.document.URL.toString();
@@ -79,6 +83,10 @@ export class Breadcrumb {
     }
 
     static updateSubView(subViewResponse, subViewId) {
+        const sidebar = window.sidebarRef;
+        if (sidebar) {
+            sidebar.current.props?.onHide();
+        }
         ConsoleHelper('Breadcrumb::updateSubView, subViewId=' + subViewId + ', subViewResponse', subViewResponse);
         let breadcrumb = this.readFromUrl();
         if (subViewResponse && subViewResponse.viewInfo) {
@@ -97,9 +105,13 @@ export class Breadcrumb {
                 if (!name) {
                     name = '' + subViewId;
                 }
-                const path = AppPrefixUtils.locationHrefUrl(
+
+                let path = AppPrefixUtils.locationHrefUrl(
                     `/#/grid-view/${subViewResponse.viewInfo.id}?recordId=${subViewId}`
                 );
+                if (!isNaN(name)) {
+                    path = window.location.href;
+                }
                 breadcrumb.push({name, id: subViewResponse.viewInfo.id, type: 'subview', path});
             }
         }

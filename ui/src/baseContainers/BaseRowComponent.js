@@ -35,6 +35,10 @@ export class BaseRowComponent extends BaseContainer {
         this.state = {
             loading: true,
             preventSave: false,
+            numberFormat: {
+                isValidNumberFormat: true,
+                prevNumber: undefined,
+            },
         };
 
         this.yesNoTypes = [
@@ -440,11 +444,40 @@ export class BaseRowComponent extends BaseContainer {
                                     <InputText
                                         id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                                         name={field.fieldName}
+                                        onBeforeInput={(e) => {
+                                            if (e.currentTarget.value !== '') {
+                                                if (e.data === '-') {
+                                                    this.setState({
+                                                        numberFormat: {
+                                                            isValidNumberFormat: false,
+                                                            prevNumber: e.currentTarget.value,
+                                                        },
+                                                    });
+                                                }
+                                            }
+                                        }}
                                         className={`${autoFill} ${editable} ${validate}`}
                                         style={{width: '100%'}}
                                         value={field.value}
                                         type='number'
-                                        onChange={(e) => (onChange ? onChange('TEXT', e, groupName, info) : null)}
+                                        onChange={(e) => {
+                                            if (
+                                                this.state?.numberFormat?.isValidNumberFormat === false &&
+                                                e.target.value === ''
+                                            ) {
+                                                e.target.value = this.state.numberFormat.prevNumber;
+                                            }
+                                            this.setState({
+                                                numberFormat: {
+                                                    isValidNumberFormat: true,
+                                                    prevNumber: undefined,
+                                                },
+                                            });
+
+                                            if (onChange) {
+                                                onChange('TEXT', e, groupName, info);
+                                            }
+                                        }}
                                         onBlur={(e) => (onBlur ? onBlur('TEXT', e, groupName, info) : null)}
                                         disabled={!field.edit}
                                         required={required}
@@ -587,7 +620,6 @@ export class BaseRowComponent extends BaseContainer {
                                     clickCount = 0;
                                 }
                             }}
-                            visible={this.state?.ddd}
                             onChange={(e) => (onChange ? onChange('DATETIME', e, groupName, info) : null)}
                             appendTo={document.body}
                             disabled={!field.edit}

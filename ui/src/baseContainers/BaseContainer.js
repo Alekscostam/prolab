@@ -22,6 +22,7 @@ import {EntryResponseUtils} from '../utils/EntryResponseUtils';
 import CrudService from '../services/CrudService';
 import UrlUtils from '../utils/UrlUtils';
 import {readValueCookieGlobal, removeCookieGlobal} from '../utils/Cookie';
+import DataPluginStore from '../containers/dao/DataPluginStore';
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -46,6 +47,7 @@ class BaseContainer extends React.Component {
         this.showSuccessMessage = this.showSuccessMessage.bind(this);
         this.showInfoMessage = this.showInfoMessage.bind(this);
         this.showWarningMessage = this.showWarningMessage.bind(this);
+        this.executePlugin = this.executePlugin.bind(this);
         this.showErrorMessages = this.showErrorMessages.bind(this);
         this.handleGetDetailsError = this.handleGetDetailsError.bind(this);
         this.renderGlobalTop = this.renderGlobalTop.bind(this);
@@ -285,6 +287,64 @@ class BaseContainer extends React.Component {
         } else {
             ConsoleHelper('scrollToFirstError ', this, ReactDOM.findDOMNode(this));
         }
+    }
+
+    /** Metoda już typowo pod plugin. executePlugin wykonuje się w momencie przejscia z pierwszego do drugiego kroku*/
+    // TODO: ogolnie to programsityczni slabo ze to jest w BaseContainer
+    executePlugin(pluginId, requestBody, refreshAll) {
+        const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
+        const parentIdArg =
+            this.state.subView == null ? UrlUtils.getURLParameter('parentId') : this.state.elementRecordId;
+
+        let visiblePluginPanel = false;
+        let visibleMessagePluginPanel = false;
+        this.crudService
+            .getPluginExecuteColumnsDefinitions(viewIdArg, pluginId, requestBody, parentIdArg)
+            .then((res) => {
+                let parsedPluginViewData;
+                let renderNextStep = true;
+                if (res.info.kind === 'GRID') {
+                    visiblePluginPanel = true;
+                    let datas = this.dataPluginStore.getPluginExecuteDataStore(
+                        viewIdArg,
+                        pluginId,
+                        requestBody,
+                        parentIdArg,
+                        (err) => {
+                            this.showErrorMessages(err);
+                        },
+                        () => {
+                            this.setState({dataPluginStoreSuccess: true});
+                        },
+                        () => {
+                            return {selectAll: this.state.selectAll};
+                        }
+                    );
+                    parsedPluginViewData = datas;
+                } else {
+                    if (res.info.message === null && res.info.question == null) {
+                        renderNextStep = false;
+                    } else visibleMessagePluginPanel = true;
+                }
+
+                if (renderNextStep) {
+                    this.setState({
+                        pluginId: pluginId,
+                        parsedPluginViewData: parsedPluginViewData,
+                        parsedPluginView: res,
+                        visiblePluginPanel: visiblePluginPanel,
+                        visibleMessagePluginPanel: visibleMessagePluginPanel,
+                        isPluginFirstStep: false,
+                    });
+                }
+                if (res.viewOptions?.refreshAll) {
+                    this.unselectAllDataGrid(false);
+                    this.refreshView();
+                }
+            })
+            .catch((err) => {
+                this.showErrorMessages(err);
+            });
     }
 
     handleChangeSetState(varName, varValue, onAfterStateChange, stateField, parameter) {
@@ -1028,7 +1088,7 @@ class BaseContainer extends React.Component {
                 this.getRefGridView().instance.getDataSource().reload();
             }
         } else if (this.isDashboard()) {
-            this.getRefGridView().instance.getDataSource().reload();
+            this.getRefGridView()?.instance?.getDataSource()?.reload();
         }
     }
 
@@ -1210,16 +1270,12 @@ class BaseContainer extends React.Component {
                 if (this.state?.attachmentFiles?.length) {
                     this.uploadAttachemnt(this.state.parsedGridView, this.state.attachmentFiles[0]);
                 }
-                // to oznacza ze to bedzie komponent DashboardContainer -> DashboardCardViewComponent
-                if (refresh) {
+                if (refresh && saveResponse.status !== 'NOK') {
+                    // to oznacza ze to bedzie komponent DashboardContainer -> DashboardCardViewComponent, mozna by zamiast tego pomyslec o reduxie
                     if (readValueCookieGlobal('refreshSubView')) {
                         this.refreshSubView();
                     }
-                    if (this.state?.cardView) {
-                        this.refreshView(saveElement);
-                    } else {
-                        this.refreshView();
-                    }
+                    this.refreshView();
                 }
                 this.unblockUi();
             })
@@ -1372,6 +1428,9 @@ class BaseContainer extends React.Component {
                 let parsedPluginViewData;
                 if (res.info.kind === 'GRID') {
                     visiblePluginPanel = true;
+                    if (!this.dataPluginStore) {
+                        this.dataPluginStore = new DataPluginStore();
+                    }
                     let datas = this.dataPluginStore.getPluginDataStore(
                         viewId,
                         id,
@@ -1450,8 +1509,8 @@ class BaseContainer extends React.Component {
                     : UrlUtils.getURLParameter('parentId')
                 : UrlUtils.getURLParameter('recordId');
         const parentViewId = viewInfo.parentViewId;
-        if (parentId == null) {
-            parentId = 0;
+        if (viewInfo.parentId !== 0 || viewInfo.parentId !== '0') {
+            parentId = viewInfo.parentId;
         }
         this.crudService
             .uploadAttachemnt(viewId, parentId, parentViewId, attachmentFile)
@@ -1528,7 +1587,7 @@ class BaseContainer extends React.Component {
             });
     }
 
-    copyEntry(id) {
+    copyEntry(id, callBack) {
         ConsoleHelper('handleEntryCopy');
         this.blockUi();
         const viewId = this.getRealViewId();
@@ -1553,10 +1612,17 @@ class BaseContainer extends React.Component {
                                     } else if (!!copyResponse.error) {
                                         this.showResponseErrorMessage(copyResponse);
                                     }
-                                    this.setState({
-                                        visibleEditPanel: true,
-                                        editData: copyResponse,
-                                    });
+                                    this.setState(
+                                        {
+                                            visibleEditPanel: true,
+                                            editData: copyResponse,
+                                        },
+                                        () => {
+                                            if (callBack) {
+                                                callBack(copyData);
+                                            }
+                                        }
+                                    );
                                     this.unblockUi();
                                 })
                                 .catch((err) => {
@@ -1620,16 +1686,24 @@ class BaseContainer extends React.Component {
             });
     }
 
-    attachment(id) {
+    attachment(id, isAttachmentFromHeader) {
         ConsoleHelper('handleAttachment');
         this.blockUi();
-        const viewId = this.getRealViewId();
+        let viewId = isAttachmentFromHeader ? this.props.id : this.getRealViewId();
         let recordId = this.getSelectedRowKeysIds(id);
         if (Array.isArray(recordId)) {
             recordId = recordId[0];
         }
+
+        let parentIdParam = '';
+        if (!isAttachmentFromHeader) {
+            const recordId = UrlUtils.getURLParameter('recordId');
+            if (recordId !== undefined && recordId !== null) {
+                parentIdParam = '?parentId=' + recordId;
+            }
+        }
         this.crudService
-            .attachmentEntry(viewId, recordId)
+            .attachmentEntry(viewId, recordId, parentIdParam)
             .then((attachmentResponse) => {
                 EntryResponseUtils.run(
                     attachmentResponse,
@@ -1705,13 +1779,19 @@ class BaseContainer extends React.Component {
                         });
                 });
                 this.unselectAllDataGrid();
-                this.refTreeList.instance.refresh();
+
                 const msg = res.message;
                 if (!!msg) {
                     this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title);
                 } else if (!!res.error) {
                     this.showResponseErrorMessage(res);
                 }
+                if (this.refTreeList?.instance) {
+                    this.refTreeList?.instance?.refresh();
+                } else {
+                    this.refreshView();
+                }
+
                 this.unblockUi();
             })
             .catch((err) => {

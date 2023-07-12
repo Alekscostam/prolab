@@ -400,7 +400,7 @@ export class BaseViewContainer extends BaseContainer {
                 this.generate(elementId);
                 break;
             case 'OP_ATTACHMENTS':
-                this.attachment(elementId);
+                this.attachment(elementId, element.id === 0);
                 break;
             case 'OP_PUBLISH':
             case 'SK_PUBLISH':
@@ -708,63 +708,6 @@ export class BaseViewContainer extends BaseContainer {
             });
         }
         this.unblockUi();
-    }
-
-    /** Metoda już typowo pod plugin. executePlugin wykonuje się w momencie przejscia z pierwszego do drugiego kroku */
-    executePlugin(pluginId, requestBody, refreshAll) {
-        const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
-        const parentIdArg =
-            this.state.subView == null ? UrlUtils.getURLParameter('parentId') : this.state.elementRecordId;
-
-        let visiblePluginPanel = false;
-        let visibleMessagePluginPanel = false;
-        this.crudService
-            .getPluginExecuteColumnsDefinitions(viewIdArg, pluginId, requestBody, parentIdArg)
-            .then((res) => {
-                let parsedPluginViewData;
-                let renderNextStep = true;
-                if (res.info.kind === 'GRID') {
-                    visiblePluginPanel = true;
-                    let datas = this.dataPluginStore.getPluginExecuteDataStore(
-                        viewIdArg,
-                        pluginId,
-                        requestBody,
-                        parentIdArg,
-                        (err) => {
-                            this.showErrorMessages(err);
-                        },
-                        () => {
-                            this.setState({dataPluginStoreSuccess: true});
-                        },
-                        () => {
-                            return {selectAll: this.state.selectAll};
-                        }
-                    );
-                    parsedPluginViewData = datas;
-                } else {
-                    if (res.info.message === null && res.info.question == null) {
-                        renderNextStep = false;
-                    } else visibleMessagePluginPanel = true;
-                }
-
-                if (renderNextStep) {
-                    this.setState({
-                        pluginId: pluginId,
-                        parsedPluginViewData: parsedPluginViewData,
-                        parsedPluginView: res,
-                        visiblePluginPanel: visiblePluginPanel,
-                        visibleMessagePluginPanel: visibleMessagePluginPanel,
-                        isPluginFirstStep: false,
-                    });
-                }
-                if (res.viewOptions?.refreshAll) {
-                    this.unselectAllDataGrid(false);
-                    this.refreshView();
-                }
-            })
-            .catch((err) => {
-                this.showErrorMessages(err);
-            });
     }
 
     //override
@@ -1087,7 +1030,9 @@ export class BaseViewContainer extends BaseContainer {
                         .getSelectAllDataGridStore(
                             this.state.subView == null ? this.state.elementId : this.state.elementSubViewId,
                             'gridView',
-                            this.state.elementRecordId,
+                            this.state.elementRecordId === null
+                                ? this.state.elementParentId
+                                : this.state.elementRecordId,
                             this.state.elementFilterId,
                             this.state.kindView,
                             this.getRefGridView().instance.getCombinedFilter()

@@ -115,17 +115,18 @@ export default class DataGridStore extends BaseService {
                     let result = onStartCallback();
                     if (result?.select || result?.selectAll) {
                         addSelectAllParam = true;
+                        // return;
                         //TODO można tak przerobić, żeby select nie pukał w backend, ale trzeba jeszcze popracować nad selectAll
                         // const filterIds = JSON.stringify(loadOptions['filter']);
-                        // const selectionIds = filterIds.match(/-?\d+/g).map(id => ({"'ID'": id}));
+                        // const selectionIds = filterIds.match(/-?\d+/g).map((id) => ({"'ID'": id}));
                         // if (selectionIds instanceof Array && selectionIds.length > 0) {
                         //     console.log(selectionIds);
                         //     let selectionIdsResponse = {
                         //         data: selectionIds,
                         //         skip: 0,
                         //         take: selectionIds.length,
-                        //         totalCount: selectionIds.length
-                        //     }
+                        //         totalCount: selectionIds.length,
+                        //     };
                         //     console.log(selectionIdsResponse);
                         //     return Promise.resolve(selectionIdsResponse);
                         // }

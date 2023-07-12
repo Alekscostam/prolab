@@ -14,13 +14,15 @@ import {DataGridUtils} from '../../utils/component/DataGridUtils';
 import {ViewValidatorUtils} from '../../utils/parser/ViewValidatorUtils';
 import UrlUtils from '../../utils/UrlUtils';
 import DataGridStore from '../dao/DataGridStore';
-import {confirmDialog} from 'primereact/confirmdialog';
+import {ConfirmDialog, confirmDialog} from 'primereact/confirmdialog';
 import {localeOptions} from 'primereact/api';
 import GridViewComponent from '../dataGrid/GridViewComponent';
 import ConsoleHelper from '../../utils/ConsoleHelper';
 import LocUtils from '../../utils/LocUtils';
 import {Toast} from 'primereact/toast';
 import {AttachmentViewDialog} from '../attachmentView/AttachmentViewDialog';
+import CopyDialogComponent from '../../components/prolab/CopyDialogComponent';
+import PluginListComponent from '../../components/prolab/PluginListComponent';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -39,6 +41,7 @@ export class DashboardGridViewComponent extends BaseContainer {
             elementId: props.id,
             elementSubViewId: null,
             elementRecordId: null,
+            copyData: null,
             viewMode: props.viewMode,
             parsedGridView: {},
             parsedGridViewData: {},
@@ -50,6 +53,7 @@ export class DashboardGridViewComponent extends BaseContainer {
             subView: null,
             viewInfoTypes: [],
             visibleEditPanel: false,
+            visibleCopyDialog: false,
             modifyEditData: false,
             editData: null,
             kindView: 'View',
@@ -57,6 +61,7 @@ export class DashboardGridViewComponent extends BaseContainer {
         this.viewTypeChange = this.viewTypeChange.bind(this);
         this.getViewById = this.getViewById.bind(this);
         this.downloadData = this.downloadData.bind(this);
+        this.showCopyView = this.showCopyView.bind(this);
         this.messages = React.createRef();
         this.refDataGrid = React.createRef();
     }
@@ -290,6 +295,21 @@ export class DashboardGridViewComponent extends BaseContainer {
                             showErrorMessages={(err) => this.showErrorMessages(err)}
                         />
                     ) : null}
+                    {this.state.visibleCopyDialog ? (
+                        <CopyDialogComponent
+                            visible={this.state.visibleCopyDialog}
+                            onHide={() => this.setState({visibleCopyDialog: false})}
+                            isSpecification={this.state.parsedGridView.viewInfo.isSpecification}
+                            handleUnselectAllData={this.unselectAllDataGrid}
+                            handleCopy={(datas) => {
+                                this.setState({
+                                    copyData: datas,
+                                });
+                                this.copyEntry(this.state.copyId, this.props?.copyDataForDashboard);
+                            }}
+                            labels={this.props.labels}
+                        />
+                    ) : null}
                     {this.state.attachmentViewInfo ? (
                         <AttachmentViewDialog
                             ref={this.viewContainer}
@@ -328,6 +348,96 @@ export class DashboardGridViewComponent extends BaseContainer {
                                 this.setState({shortcutButtons: shortcutButtons});
                             }}
                             collapsed={this.state.collapsed}
+                        />
+                    ) : null}
+                    {this.state.visiblePluginPanel && (
+                        <PluginListComponent
+                            visible={this.state.visiblePluginPanel}
+                            field={this.state.editListField}
+                            parsedPluginView={this.state.parsedPluginView}
+                            parsedPluginViewData={this.state.parsedPluginViewData}
+                            onHide={() => this.setState({visiblePluginPanel: false})}
+                            handleBlockUi={() => {
+                                this.blockUi();
+                                return true;
+                            }}
+                            unselectAllDataGrid={() => {
+                                this.setState({
+                                    selectedRowKeys: [],
+                                });
+                            }}
+                            pluginId={this.state.pluginId}
+                            isPluginFirstStep={this.state.isPluginFirstStep}
+                            executePlugin={this.executePlugin}
+                            selectedRowKeys={this.state.selectedRowKeys}
+                            handleUnblockUi={() => this.unblockUi}
+                            showErrorMessages={(err) => this.showErrorMessages(err)}
+                            dataGridStoreSuccess={this.state.dataPluginStoreSuccess}
+                            selectedRowData={this.state.selectedRowData}
+                            defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
+                            labels={this.props.labels}
+                        />
+                    )}
+
+                    {this.state.visibleMessagePluginPanel ? (
+                        <ConfirmDialog
+                            acceptLabel={
+                                this.state.parsedPluginView.info.question
+                                    ? LocUtils.loc(this.props.labels, 'Yes', 'Tak')
+                                    : LocUtils.loc(this.props.labels, 'Ok', 'Ok')
+                            }
+                            rejectLabel={
+                                this.state.parsedPluginView.info.question
+                                    ? LocUtils.loc(this.props.labels, 'No', 'Nie')
+                                    : LocUtils.loc(this.props.labels, 'Close', 'Zamknij')
+                            }
+                            /** Question jest nadrzedny tzn. jesli message i question !== null to bierze wartosci z question */
+                            header={
+                                this.state.parsedPluginView.info.question
+                                    ? LocUtils.loc(
+                                          this.props.labels,
+                                          '',
+                                          this.state.parsedPluginView.info.question?.title
+                                      )
+                                    : LocUtils.loc(
+                                          this.props.labels,
+                                          '',
+                                          this.state.parsedPluginView.info.message?.title
+                                      )
+                            }
+                            visible={true}
+                            onHide={() => this.setState({visibleMessagePluginPanel: false})}
+                            message={
+                                this.state.parsedPluginView.info.question
+                                    ? LocUtils.loc(
+                                          this.props.labels,
+                                          '',
+                                          this.state.parsedPluginView.info.question?.text
+                                      )
+                                    : LocUtils.loc(
+                                          this.props.labels,
+                                          '',
+                                          this.state.parsedPluginView.info.message?.text
+                                      )
+                            }
+                            icon='pi pi-exclamation-triangle'
+                            accept={() => {
+                                const refreshAll = this.state.parsedPluginView?.viewOptions?.refreshAll;
+                                if (this.state.isPluginFirstStep) {
+                                    const isThereNextStep = this.state.parsedPluginView?.info?.next;
+                                    const idRowKeys = this.state.selectedRowKeys.map((el) => el.ID);
+                                    const listId = {listId: idRowKeys};
+                                    const pluginId = this.state.pluginId;
+                                    if (isThereNextStep) this.executePlugin(pluginId, listId, refreshAll);
+                                    else this.setState({visibleMessagePluginPanel: false});
+                                }
+                                if (refreshAll) {
+                                    this.refreshView();
+                                    this.unselectAllDataGrid(false);
+                                }
+                                this.setState({visibleMessagePluginPanel: false});
+                            }}
+                            reject={() => this.setState({visibleMessagePluginPanel: false})}
                         />
                     ) : null}
                 </React.Fragment>
@@ -491,6 +601,12 @@ export class DashboardGridViewComponent extends BaseContainer {
             return true;
         }
     }
+    showCopyView(id) {
+        this.setState({
+            visibleCopyDialog: true,
+            copyId: id,
+        });
+    }
 
     //override
     renderContent = () => {
@@ -547,7 +663,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                             handleRestoreRow={(id) => this.restore(id)}
                             handleDocumentRow={(id) => this.generate(id)}
                             handlePluginRow={(id) => this.plugin(id)}
-                            handleCopyRow={(id) => this.copyEntry(id)}
+                            handleCopyRow={(id) => this.showCopyView(id)}
                             handleArchiveRow={(id) => this.archive(id)}
                             handleDownloadRow={(id) => this.downloadAttachment(id)}
                             handleAttachmentRow={(id) => this.attachment(id)}

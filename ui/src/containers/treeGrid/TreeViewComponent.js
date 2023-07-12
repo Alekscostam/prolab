@@ -916,6 +916,22 @@ class TreeViewComponent extends React.Component {
         //const refreshFieldVisibility = !!field?.refreshFieldVisibility;
         switch (field?.type) {
             case 'C':
+                if (cellInfo.column.dataField?.includes('WART') && cellInfo.data?.PIERW_TYP?.includes('N')) {
+                    return (
+                        <MemoizedNumericInput
+                            field={field}
+                            cellInfo={cellInfo}
+                            inputValue={cellInfo.value}
+                            fieldIndex={fieldIndex}
+                            editable={editable}
+                            autoFill={autoFill}
+                            required={required}
+                            validate={validate}
+                            selectionList={selectionList}
+                            onClickEditListCallback={onClickEditListCallback}
+                        />
+                    );
+                }
                 return (
                     <MemoizedText
                         field={field}

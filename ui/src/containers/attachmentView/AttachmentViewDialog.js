@@ -22,6 +22,11 @@ export class AttachmentViewDialog extends BaseViewContainer {
         ConsoleHelper(
             `AttachmentViewDialog::downloadData: viewId=${viewId}, subview=${subviewId} recordId=${recordId}, filterId=${filterId}, parentId=${parentId}, viewType=${viewType},`
         );
+
+        if (recordId !== '0' && recordId !== 0) {
+            viewId = subviewId;
+            parentId = UrlUtils.getURLParameter('recordId');
+        }
         this.setState({subView: null}, () => {
             this.props.handleSubView(null);
             this.getViewById(viewId, recordId, filterId, parentId, viewType, false);
@@ -97,6 +102,10 @@ export class AttachmentViewDialog extends BaseViewContainer {
         ConsoleHelper(
             `AttachmentViewDialog::getViewById: viewId=${viewId}, isSubView=${isSubView} recordId=${recordId}, filterId=${filterId}, parentId=${parentId}, viewType=${viewType},`
         );
+        if (!viewId) {
+            // przypadek dashboardu
+            viewId = this.props.id;
+        }
         this.setState({loading: true}, () => {
             this.viewService
                 .getAttachemntView(viewId, recordId, parentId)

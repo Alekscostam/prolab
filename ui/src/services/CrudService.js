@@ -223,8 +223,8 @@ export default class CrudService extends BaseService {
             });
     }
 
-    attachmentEntry(viewId, recordId) {
-        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/attachment/${recordId}/Entry`, {
+    attachmentEntry(viewId, recordId, parentIdParam) {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/attachment/${recordId}/Entry${parentIdParam}`, {
             method: 'POST',
         })
             .then((attachmentEntryResponse) => {
@@ -242,6 +242,7 @@ export default class CrudService extends BaseService {
             'Sec-Fetch-Site': 'same-origin',
             Pragma: 'no-cahce',
         };
+
         return this.fetch(
             `${this.getDomain()}/${
                 this.path

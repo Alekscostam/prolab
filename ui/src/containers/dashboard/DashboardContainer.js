@@ -30,6 +30,7 @@ class DashboardContainer extends BaseContainer {
         this.messages = React.createRef();
         this.state = {
             loading: true,
+            copyData: null,
             cardView: [],
         };
     }
@@ -210,6 +211,7 @@ class DashboardContainer extends BaseContainer {
                     onEditList={this.handleEditListRowChange}
                     onAutoFill={this.handleAutoFillRowChange}
                     onCancel={this.handleCancelRowChange}
+                    copyData={this.state?.copyData}
                     validator={this.validator}
                     onHide={(e, viewId, recordId, parentId) =>
                         !!this.state.modifyEditData
@@ -334,6 +336,9 @@ class DashboardContainer extends BaseContainer {
                     subViewId={undefined}
                     parentId={cardViewId}
                     recordId={recordId}
+                    copyDataForDashboard={(copyData) => {
+                        this.setState({copyData});
+                    }}
                     filterId={undefined}
                     viewType={'dashboard'}
                     showColumnLines={false}
