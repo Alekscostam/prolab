@@ -143,6 +143,7 @@ class App extends Component {
             .localization(lang)
             .then((resp) => {
                 const langs = resp.langList;
+                const realLang = resp.lang;
                 const labels = {};
                 if (resp.labels) {
                     resp.labels.forEach((label) => (labels[label.code] = label.caption));
@@ -150,8 +151,8 @@ class App extends Component {
                 this.setState({langs, labels});
                 const localizationService = new LocalizationService(configUrl);
                 /* init dev express translations */
-                const shortLang = lang.toLowerCase().substr(0, 2);
-                localizationService.getTranslationsFromFile('dev', lang).then((devExpressTranslation) => {
+                const shortLang = realLang.toLowerCase().substr(0, 2);
+                localizationService.getTranslationsFromFile('dev', realLang).then((devExpressTranslation) => {
                     resp.labels.forEach((label) => {
                         devExpressTranslation[label.code] = label.caption;
                     });
@@ -161,7 +162,7 @@ class App extends Component {
                     devExpressLocale(shortLang);
                 });
                 /* init primereact translations */
-                localizationService.getTranslationsFromFile('primi', lang).then((primeReactTranslation) => {
+                localizationService.getTranslationsFromFile('primi', realLang).then((primeReactTranslation) => {
                     addLocale(shortLang, primeReactTranslation[shortLang]);
                     primeReactLocale(shortLang);
                 });
@@ -259,6 +260,7 @@ class App extends Component {
                                             <div style={{marginRight: '30px'}}>
                                                 {!!this.state.subView ? (
                                                     <SubGridViewComponent
+                                                        key={'sub'}
                                                         handleOnInitialized={(ref) => (this.selectedDataGrid = ref)}
                                                         subView={this.state.subView}
                                                         labels={labels}

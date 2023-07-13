@@ -520,6 +520,7 @@ export class EditSpecContainer extends BaseContainer {
         return (
             <div>
                 <SubGridViewComponent
+                    key={'sub'}
                     handleOnInitialized={(ref) => (this.selectedDataGrid = ref)}
                     subView={subView}
                     minHeight={'110px'}

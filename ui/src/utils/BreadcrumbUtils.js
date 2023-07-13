@@ -43,7 +43,7 @@ export class Breadcrumb {
     static updateView(viewInfo, viewId, recordId) {
         const sidebar = window.sidebarRef;
         if (sidebar) {
-            sidebar.current.props?.onHide();
+            sidebar.current?.props?.onHide();
         }
         ConsoleHelper(`*Breadcrumb::updateView, viewId=${viewId}, recordId=${recordId}, viewInfo`, viewInfo);
         let breadcrumb = this.readFromUrl();
@@ -85,7 +85,7 @@ export class Breadcrumb {
     static updateSubView(subViewResponse, subViewId) {
         const sidebar = window.sidebarRef;
         if (sidebar) {
-            sidebar.current.props?.onHide();
+            sidebar.current?.props?.onHide();
         }
         ConsoleHelper('Breadcrumb::updateSubView, subViewId=' + subViewId + ', subViewResponse', subViewResponse);
         let breadcrumb = this.readFromUrl();

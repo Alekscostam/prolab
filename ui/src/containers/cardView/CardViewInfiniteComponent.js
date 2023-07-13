@@ -84,7 +84,7 @@ class CardViewInfiniteComponent extends React.Component {
             },
             () => {
                 // TODO: ... duży problem z listą w CardInfiniteLoaderWrapper, ona jest taka srednia do update.
-                if (this.props?.elementSubViewId && !this.state.isNextPageLoading) {
+                if ((this.props?.elementSubViewId && !this.state.isNextPageLoading) || this.state.items.length < 5) {
                     this._loadNextPage(0);
                 }
             }

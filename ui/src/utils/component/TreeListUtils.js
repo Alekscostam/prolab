@@ -12,6 +12,11 @@ import {compress} from 'int-compress-string/src';
 import {EditSpecUtils} from '../EditSpecUtils';
 import CrudService from '../../services/CrudService';
 
+import {Calendar} from 'primereact/calendar';
+import LocUtils from '../LocUtils';
+let clickCount = 0;
+let timeout;
+
 const sizeValues = ['8pt', '10pt', '12pt', '14pt', '18pt', '24pt', '36pt'];
 const fontValues = [
     'Arial',
@@ -230,7 +235,7 @@ export const MemoizedDateInput = React.memo(
 );
 //E – Data + czas
 export const MemoizedDateTimeInput = React.memo(
-    ({field, cellInfo, inputValue, fieldIndex, editable, autoFill, required, validate}) => {
+    ({field, cellInfo, inputValue, fieldIndex, editable, autoFill, required, validate, refDateTime, labels}) => {
         return (
             <React.Fragment>
                 <DateBox
@@ -238,21 +243,61 @@ export const MemoizedDateTimeInput = React.memo(
                     name={field.fieldName}
                     // ${autoFill} ${editable}
                     className={`${validate}`}
+                    showAnalogClock={false}
+                    ref={refDateTime}
+                    onOpenedChange={() => {
+                        setTimeout(function () {
+                            const cells = document.getElementsByClassName('dx-calendar-cell');
+                            for (let index = 0; index < cells.length; index++) {
+                                const element = cells[index];
+                                element.addEventListener('click', (e) => {
+                                    const ref = refDateTime?.current?.props;
+                                    if (ref) {
+                                        const selectedDate =
+                                            document.getElementsByClassName('dx-calendar-selected-date')[0];
+                                        if (selectedDate) {
+                                            if (Array.from(selectedDate.classList).includes('dx-state-active')) {
+                                                const dateYYYYMMDD = selectedDate.attributes[1].value;
+                                                const hours = Array.from(
+                                                    document.querySelectorAll('input[aria-valuenow')
+                                                ).find((e) => e.ariaLabel === 'hours').ariaValueNow;
+                                                const minutes = Array.from(
+                                                    document.querySelectorAll('input[aria-valuenow')
+                                                ).find((e) => e.ariaLabel === 'minutes').ariaValueNow;
+
+                                                const myMomentInString = moment(
+                                                    dateYYYYMMDD + ` ${hours}:${minutes}`
+                                                ).format('yyyy-MM-DD HH:mm');
+                                                ref.onValueChanged(myMomentInString);
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                        }, 0);
+                    }}
                     onValueChanged={(e) => {
-                        cellInfo.setValue(e.component.option('text'));
+                        const headerLeft = document.getElementById('header-left');
+                        if (typeof e === 'string') {
+                            cellInfo.setValue(e);
+                            headerLeft.click();
+                        } else if (headerLeft) {
+                            headerLeft.click();
+                        }
                     }}
                     style={{width: '100%'}}
                     disabled={!field.edit}
+                    applyButtonText={'Wyczyść'}
                     required={required}
                     type='datetime'
                     useMaskBehavior={true}
-                    applyValueMode='useButtons'
                     displayFormat={'yyyy-MM-dd HH:mm'}
                 ></DateBox>
             </React.Fragment>
         );
     }
 );
+
 //T – Czas
 export const MemoizedTimeInput = React.memo(
     ({field, cellInfo, inputValue, fieldIndex, editable, autoFill, required, validate}) => {
@@ -266,9 +311,6 @@ export const MemoizedTimeInput = React.memo(
                     onValueChanged={(e) => {
                         cellInfo.setValue(e.component.option('text'));
                     }}
-                    defaultValue={
-                        !!inputValue ? moment(inputValue, Constants.DATE_FORMAT.TIME_FORMAT).toDate() : new Date()
-                    }
                     style={{width: '100%'}}
                     disabled={!field.edit}
                     required={required}

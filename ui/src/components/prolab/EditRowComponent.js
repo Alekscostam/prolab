@@ -135,7 +135,9 @@ export class EditRowComponent extends BaseRowComponent {
                     position='right'
                     onHide={() => {
                         let editInfo = this.props.editData?.editInfo;
-                        this.props.onHide(!visibleEditPanel, editInfo.viewId, editInfo.recordId, editInfo.parentId);
+                        if (editInfo) {
+                            this.props.onHide(!visibleEditPanel, editInfo.viewId, editInfo.recordId, editInfo.parentId);
+                        }
                     }}
                     icons={() => (
                         <React.Fragment>

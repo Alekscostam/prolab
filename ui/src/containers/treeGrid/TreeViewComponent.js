@@ -48,6 +48,7 @@ class TreeViewComponent extends React.Component {
         this.labels = this.props;
         this.crudService = new CrudService();
         this.ref = React.createRef();
+        this.refDateTime = React.createRef();
         this.editListDataStore = new EditListDataStore();
         ConsoleHelper('TreeViewComponent -> constructor');
         this.state = {
@@ -914,6 +915,7 @@ class TreeViewComponent extends React.Component {
         const autoFillCheckbox = field?.autoFill ? 'autofill-border-checkbox' : '';
         const selectionList = field?.selectionList ? 'p-inputgroup' : null;
         //const refreshFieldVisibility = !!field?.refreshFieldVisibility;
+
         switch (field?.type) {
             case 'C':
                 if (cellInfo.column.dataField?.includes('WART') && cellInfo.data?.PIERW_TYP?.includes('N')) {
@@ -1020,6 +1022,7 @@ class TreeViewComponent extends React.Component {
             case 'E': //E – Data + czas
                 return (
                     <MemoizedDateTimeInput
+                        labels={this.props.labels}
                         field={field}
                         cellInfo={cellInfo}
                         inputValue={cellInfo.value}
@@ -1028,6 +1031,7 @@ class TreeViewComponent extends React.Component {
                         autoFill={autoFill}
                         required={required}
                         validate={validate}
+                        refDateTime={this.refDateTime}
                     />
                 );
             case 'T': //T – Czas

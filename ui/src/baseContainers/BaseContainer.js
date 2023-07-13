@@ -289,64 +289,6 @@ class BaseContainer extends React.Component {
         }
     }
 
-    /** Metoda już typowo pod plugin. executePlugin wykonuje się w momencie przejscia z pierwszego do drugiego kroku*/
-    // TODO: ogolnie to programsityczni slabo ze to jest w BaseContainer
-    executePlugin(pluginId, requestBody, refreshAll) {
-        const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
-        const parentIdArg =
-            this.state.subView == null ? UrlUtils.getURLParameter('parentId') : this.state.elementRecordId;
-
-        let visiblePluginPanel = false;
-        let visibleMessagePluginPanel = false;
-        this.crudService
-            .getPluginExecuteColumnsDefinitions(viewIdArg, pluginId, requestBody, parentIdArg)
-            .then((res) => {
-                let parsedPluginViewData;
-                let renderNextStep = true;
-                if (res.info.kind === 'GRID') {
-                    visiblePluginPanel = true;
-                    let datas = this.dataPluginStore.getPluginExecuteDataStore(
-                        viewIdArg,
-                        pluginId,
-                        requestBody,
-                        parentIdArg,
-                        (err) => {
-                            this.showErrorMessages(err);
-                        },
-                        () => {
-                            this.setState({dataPluginStoreSuccess: true});
-                        },
-                        () => {
-                            return {selectAll: this.state.selectAll};
-                        }
-                    );
-                    parsedPluginViewData = datas;
-                } else {
-                    if (res.info.message === null && res.info.question == null) {
-                        renderNextStep = false;
-                    } else visibleMessagePluginPanel = true;
-                }
-
-                if (renderNextStep) {
-                    this.setState({
-                        pluginId: pluginId,
-                        parsedPluginViewData: parsedPluginViewData,
-                        parsedPluginView: res,
-                        visiblePluginPanel: visiblePluginPanel,
-                        visibleMessagePluginPanel: visibleMessagePluginPanel,
-                        isPluginFirstStep: false,
-                    });
-                }
-                if (res.viewOptions?.refreshAll) {
-                    this.unselectAllDataGrid(false);
-                    this.refreshView();
-                }
-            })
-            .catch((err) => {
-                this.showErrorMessages(err);
-            });
-    }
-
     handleChangeSetState(varName, varValue, onAfterStateChange, stateField, parameter) {
         if (stateField && stateField !== '') {
             const stateFieldArray = stateField.split('.');
@@ -1414,6 +1356,63 @@ class BaseContainer extends React.Component {
         });
     }
 
+    /** Metoda już typowo pod plugin. executePlugin wykonuje się w momencie przejscia z pierwszego do drugiego kroku*/
+    // TODO: ogolnie to programsityczni slabo ze to jest w BaseContainer hmmm...
+    executePlugin(pluginId, requestBody, refreshAll) {
+        const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
+        const parentIdArg =
+            this.state.subView == null ? UrlUtils.getURLParameter('parentId') : this.state.elementRecordId;
+
+        let visiblePluginPanel = false;
+        let visibleMessagePluginPanel = false;
+        this.crudService
+            .getPluginExecuteColumnsDefinitions(viewIdArg, pluginId, requestBody, parentIdArg)
+            .then((res) => {
+                let parsedPluginViewData;
+                let renderNextStep = true;
+                if (res.info.kind === 'GRID') {
+                    visiblePluginPanel = true;
+                    let datas = this.dataPluginStore.getPluginExecuteDataStore(
+                        viewIdArg,
+                        pluginId,
+                        requestBody,
+                        parentIdArg,
+                        (err) => {
+                            this.showErrorMessages(err);
+                        },
+                        () => {
+                            this.setState({dataPluginStoreSuccess: true});
+                        },
+                        () => {
+                            return {selectAll: this.state.selectAll};
+                        }
+                    );
+                    parsedPluginViewData = datas;
+                } else {
+                    if (res.info.message === null && res.info.question == null) {
+                        renderNextStep = false;
+                    } else visibleMessagePluginPanel = true;
+                }
+
+                if (renderNextStep) {
+                    this.setState({
+                        pluginId: pluginId,
+                        parsedPluginViewData: parsedPluginViewData,
+                        parsedPluginView: res,
+                        visiblePluginPanel: visiblePluginPanel,
+                        visibleMessagePluginPanel: visibleMessagePluginPanel,
+                        isPluginFirstStep: false,
+                    });
+                }
+                if (res.viewOptions?.refreshAll) {
+                    this.unselectAllDataGrid(false);
+                    this.refreshView();
+                }
+            })
+            .catch((err) => {
+                this.showErrorMessages(err);
+            });
+    }
     plugin(id) {
         ConsoleHelper('handlePlugin');
         const viewId = this.getRealViewId();
