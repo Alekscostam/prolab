@@ -21,8 +21,15 @@ import {DataGridUtils} from '../utils/component/DataGridUtils';
 import {EntryResponseUtils} from '../utils/EntryResponseUtils';
 import CrudService from '../services/CrudService';
 import UrlUtils from '../utils/UrlUtils';
-import {readValueCookieGlobal, removeCookieGlobal} from '../utils/Cookie';
+import {
+    readObjFromCookieGlobal,
+    readValueCookieGlobal,
+    removeCookieGlobal,
+    saveValueToCookieGlobal,
+} from '../utils/Cookie';
 import DataPluginStore from '../containers/dao/DataPluginStore';
+import LocalizationService from '../services/LocalizationService';
+import {Url} from 'devextreme-react/range-selector';
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -62,9 +69,11 @@ class BaseContainer extends React.Component {
         this.unselectAllDataGrid = this.unselectAllDataGrid.bind(this);
         this.setVariableFromEvent = this.setVariableFromEvent.bind(this);
         this.handleChangeCriteria = this.handleChangeCriteria.bind(this);
+        this.getConfigUrl = this.getConfigUrl.bind(this);
         this.refreshSubView = this.refreshSubView.bind(this);
         this.prepareCalculateFormula = this.prepareCalculateFormula.bind(this);
         this.validator = new SimpleReactValidator();
+        this.localizationService = new LocalizationService();
         this._isMounted = false;
         this.jwtRefreshBlocked = false;
         this.scrollToError = false;
@@ -192,6 +201,23 @@ class BaseContainer extends React.Component {
             detail: errMsg,
         });
         this.unblockUi();
+    }
+
+    getConfigUrl() {
+        let browseUrl = window.location.href;
+        const id = browseUrl.indexOf('/#');
+        if (id > 0) {
+            browseUrl = browseUrl.substring(0, id + 1);
+        }
+        let configUrl;
+        const urlPrefixCookie = readObjFromCookieGlobal('REACT_APP_URL_PREFIX');
+        if (urlPrefixCookie === undefined || urlPrefixCookie == null || urlPrefixCookie === '') {
+            configUrl = browseUrl;
+        } else {
+            configUrl = browseUrl.trim().match('^(?:https?:)?(?:\\/\\/)?([^\\/\\?]+)', '')[0] + '/' + urlPrefixCookie;
+        }
+
+        return configUrl;
     }
 
     showErrorMessages(err) {
@@ -1027,6 +1053,9 @@ class BaseContainer extends React.Component {
             }
         } else if (this.isGridView()) {
             if (!!this.getRefGridView()) {
+                if (window?.dataGrid) {
+                    window.dataGrid.clearSelection();
+                }
                 this.getRefGridView().instance.getDataSource().reload();
             }
         } else if (this.isDashboard()) {
@@ -1037,6 +1066,9 @@ class BaseContainer extends React.Component {
     refreshSubView() {
         if ((this.state.kindView === 'ViewSpec' || this.state.kindView === 'View') && this.state.subView) {
             console.log('refreshing subview: ', this.state.kindView);
+            if (window?.dataGrid) {
+                window.dataGrid.clearSelection();
+            }
             const id = UrlUtils.getViewIdFromURL();
             this.downloadData(
                 id,
@@ -1213,11 +1245,16 @@ class BaseContainer extends React.Component {
                     this.uploadAttachemnt(this.state.parsedGridView, this.state.attachmentFiles[0]);
                 }
                 if (refresh && saveResponse.status !== 'NOK') {
-                    // to oznacza ze to bedzie komponent DashboardContainer -> DashboardCardViewComponent, mozna by zamiast tego pomyslec o reduxie
-                    if (readValueCookieGlobal('refreshSubView')) {
-                        this.refreshSubView();
+                    let attachmentDialog = document.getElementById('attachmentDialog');
+                    if (attachmentDialog) {
+                        this.refreshView(saveElement);
+                    } else {
+                        if (readValueCookieGlobal('refreshSubView')) {
+                            this.refreshSubView();
+                        } else {
+                            this.refreshView(saveElement);
+                        }
                     }
-                    this.refreshView();
                 }
                 this.unblockUi();
             })
@@ -1495,22 +1532,38 @@ class BaseContainer extends React.Component {
             : [id];
     }
 
+    getParentValidNumber(gridView) {
+        const recordId = UrlUtils.getURLParameter('recordId');
+        if (recordId === undefined || recordId === null) {
+            // is global
+            if (gridView.viewInfo) {
+                return gridView.viewInfo.parentId;
+            }
+            // is dashboard?
+            else {
+                return this.props.id;
+            }
+        } else {
+            // is header
+            let elementId = UrlUtils.getIdFromUrl();
+            if (elementId === this.props.id) {
+                return UrlUtils.getURLParameter('recordId');
+            }
+            // is grid in sub
+            else {
+                return this.props.recordId;
+            }
+        }
+    }
+
     // gridView przekazywany dla załaczników
     uploadAttachemnt(gridView, attachmentFile) {
         ConsoleHelper('handleUploadAttachemnt');
         this.blockUi();
         const viewInfo = gridView.viewInfo;
         const viewId = viewInfo.id;
-        let parentId =
-            UrlUtils.getURLParameter('recordId') === null
-                ? viewInfo.parentId
-                    ? viewInfo.parentId
-                    : UrlUtils.getURLParameter('parentId')
-                : UrlUtils.getURLParameter('recordId');
+        let parentId = this.getParentValidNumber(gridView);
         const parentViewId = viewInfo.parentViewId;
-        if (viewInfo.parentId !== 0 || viewInfo.parentId !== '0') {
-            parentId = viewInfo.parentId;
-        }
         this.crudService
             .uploadAttachemnt(viewId, parentId, parentViewId, attachmentFile)
             .then((uploadResponse) => {

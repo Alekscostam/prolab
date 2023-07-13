@@ -17,6 +17,7 @@ import ConsoleHelper from '../utils/ConsoleHelper';
 import ActionLink from '../components/ActionLink';
 import UserService from '../services/UserService';
 import UserRowComponent from '../components/prolab/UserRowComponent';
+import ReadConfigService from '../services/ReadConfigService';
 
 const element = {
     appName: 'ProlabRD',
@@ -26,7 +27,7 @@ const element = {
 class LoginContainer extends BaseContainer {
     constructor(props) {
         super(props);
-        this.localizationService = new LocalizationService();
+        this.localizationService = new LocalizationService(this.getConfigUrl());
         this.handleChange = this.handleChange.bind(this);
         this.handleFormSubmit = this.handleFormSubmit.bind(this);
         this.showWarningMessage = this.showWarningMessage.bind(this);
@@ -41,7 +42,7 @@ class LoginContainer extends BaseContainer {
             redirectToReferrer: true,
             editData: {},
             authValid: true,
-            lang: null,
+            lang: 'PL',
             langs: [],
             visibleUserComponent: false,
             userInfo: {},
@@ -109,23 +110,24 @@ class LoginContainer extends BaseContainer {
     }
 
     getLocalizationLoginPage() {
-        this.blockUi();
-        this.localizationService
-            .localizationLoginPage(this.state.lang)
-            .then((resp) => {
-                const langs = resp.langList;
-                const labels = {};
-                const lang = resp.lang;
-                if (resp.labels) {
-                    resp.labels.forEach((label) => (labels[label.code] = label.caption));
-                }
-                this.setState({langs, labels, lang}, () => this.unblockUi());
-            })
-            .catch((err) => {
-                ConsoleHelper(`LoginContainer:getLocalizationLoginPage error`, err);
-                this.showErrorMessages(err);
-                this.unblockUi();
-            });
+        new ReadConfigService(this.getConfigUrl()).getConfiguration().then((configuration) => {
+            this.localizationService
+                .getTranslationsFromFile('rd', this.state.lang)
+                .then((resp) => {
+                    const langs = configuration.LANG_LIST;
+                    const labels = {};
+                    const lang = this.state.lang;
+                    if (resp.labels) {
+                        resp.labels.forEach((label) => (labels[label.code] = label.caption));
+                    }
+                    this.setState({langs, labels, lang}, () => this.unblockUi());
+                })
+                .catch((err) => {
+                    ConsoleHelper(`LoginContainer:getLocalizationLoginPage error`, err);
+                    this.showErrorMessages(err);
+                    this.unblockUi();
+                });
+        });
     }
 
     handleFormSubmit(e) {

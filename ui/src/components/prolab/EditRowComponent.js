@@ -132,6 +132,9 @@ export class EditRowComponent extends BaseRowComponent {
                     visible={visibleEditPanel}
                     modal={true}
                     style={{width: '45%'}}
+                    onCustomClose={() => {
+                        this.props.onCloseCustom();
+                    }}
                     position='right'
                     onHide={() => {
                         let editInfo = this.props.editData?.editInfo;

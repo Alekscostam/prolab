@@ -213,6 +213,11 @@ class DashboardContainer extends BaseContainer {
                     onCancel={this.handleCancelRowChange}
                     copyData={this.state?.copyData}
                     validator={this.validator}
+                    onCloseCustom={() => {
+                        this.setState({
+                            visibleEditPanel: false,
+                        });
+                    }}
                     onHide={(e, viewId, recordId, parentId) =>
                         !!this.state.modifyEditData
                             ? confirmDialog({

@@ -22,7 +22,6 @@ export class AttachmentViewDialog extends BaseViewContainer {
         ConsoleHelper(
             `AttachmentViewDialog::downloadData: viewId=${viewId}, subview=${subviewId} recordId=${recordId}, filterId=${filterId}, parentId=${parentId}, viewType=${viewType},`
         );
-
         if (recordId !== '0' && recordId !== 0) {
             viewId = subviewId;
             parentId = UrlUtils.getURLParameter('recordId');
@@ -102,7 +101,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
         ConsoleHelper(
             `AttachmentViewDialog::getViewById: viewId=${viewId}, isSubView=${isSubView} recordId=${recordId}, filterId=${filterId}, parentId=${parentId}, viewType=${viewType},`
         );
-        if (!viewId) {
+        if (viewId === null || viewId === undefined) {
             // przypadek dashboardu
             viewId = this.props.id;
         }

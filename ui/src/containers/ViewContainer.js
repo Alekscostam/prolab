@@ -335,10 +335,19 @@ export class ViewContainer extends BaseViewContainer {
                             this.handleShowEditPanel(editDataResponse);
                         }}
                         onHide={() => {
-                            this.setState({
-                                attachmentViewInfo: false,
-                                attachmentCloseWindow: true,
-                            });
+                            if (
+                                UrlUtils.getURLParameter('recordId') !== undefined &&
+                                UrlUtils.getURLParameter('recordId') !== null
+                            ) {
+                                this.setState({
+                                    attachmentViewInfo: false,
+                                    attachmentCloseWindow: true,
+                                });
+                            } else {
+                                this.setState({
+                                    attachmentViewInfo: false,
+                                });
+                            }
                         }}
                         handleViewInfoName={(viewInfoName) => {
                             this.setState({viewInfoName: viewInfoName});

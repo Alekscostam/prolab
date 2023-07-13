@@ -266,6 +266,11 @@ export class DashboardGridViewComponent extends BaseContainer {
                             onAutoFill={this.handleAutoFillRowChange}
                             onEditList={this.handleEditListRowChange}
                             onCancel={this.handleCancelRowChange}
+                            onCloseCustom={() => {
+                                this.setState({
+                                    visibleEditPanel: false,
+                                });
+                            }}
                             validator={this.validator}
                             onHide={(e, viewId, recordId, parentId) =>
                                 !!this.state.modifyEditData

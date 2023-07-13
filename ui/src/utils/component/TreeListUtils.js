@@ -243,7 +243,7 @@ export const MemoizedDateTimeInput = React.memo(
                     name={field.fieldName}
                     // ${autoFill} ${editable}
                     className={`${validate}`}
-                    showAnalogClock={false}
+                    showAnalogClock={true}
                     ref={refDateTime}
                     onOpenedChange={() => {
                         setTimeout(function () {
@@ -287,7 +287,7 @@ export const MemoizedDateTimeInput = React.memo(
                     }}
                     style={{width: '100%'}}
                     disabled={!field.edit}
-                    applyButtonText={'Wyczyść'}
+                    applyButtonText={labels['Calendar_ButtonClear']}
                     required={required}
                     type='datetime'
                     useMaskBehavior={true}

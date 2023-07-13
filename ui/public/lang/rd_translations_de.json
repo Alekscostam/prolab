@@ -1,0 +1,18 @@
+{
+    "labels": [
+        {"code": "Login_SigninError", "caption": "Anmeldefehler"},
+        {"code": "Login_ConnectionError", "caption": "Verbindungsfehler: Server nicht erreichbar"},
+        {"code": "Login_UserName", "caption": "Benutzername"},
+        {"code": "Login_Password", "caption": "Passwort"},
+        {"code": "Login_Signin", "caption": "Profil erstellen"},
+        {"code": "Login_Signup", "caption": "Sign Up"},
+        {"code": "Login_Signup_Info", "caption": "Sie haben noch keinen Account?"},
+        {"code": "Login_ResetPassword", "caption": "Passwort vergessen?"},
+        {"code": "Menu_Search", "caption": "Im Menü suchen"},
+        {"code": "Menu_Logout", "caption": "Abmelden"},
+        {"code": "View_LoadError", "caption": "Fehler beim Laden der Seite mit der ID:"},
+        {"code": "View_AdditionalOptions", "caption": "Zusätzliche Optionen"},
+        {"code": "View_StartPage", "caption": "Startseite"},
+        {"code": "Calendar_ButtonClear", "caption": "Löschen"}
+    ]
+}

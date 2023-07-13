@@ -29,6 +29,12 @@ class UrlUtils {
         return this.getURLParameter('batchId');
     }
 
+    static getIdFromUrl() {
+        let splittedUrlByWildcard = window.location.href.split('?')[0];
+        let elements = splittedUrlByWildcard.split('/');
+        return elements[elements.length - 1];
+    }
+
     static deleteParameterFromURL(url, paramName) {
         let rtn = url.split('?')[0],
             param,

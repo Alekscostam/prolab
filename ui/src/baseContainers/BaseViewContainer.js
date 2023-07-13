@@ -246,6 +246,9 @@ export class BaseViewContainer extends BaseContainer {
 
     componentWillUnmount() {
         this._isMounted = false;
+        if (window?.dataGrid) {
+            delete window?.dataGrid;
+        }
     }
 
     getDataByViewResponse(responseView) {
@@ -445,6 +448,11 @@ export class BaseViewContainer extends BaseContainer {
                         onEditList={this.handleEditListRowChange}
                         onCancel={this.handleCancelRowChange}
                         validator={this.validator}
+                        onCloseCustom={() => {
+                            this.setState({
+                                visibleEditPanel: false,
+                            });
+                        }}
                         onHide={(e, viewId, recordId, parentId) => {
                             !!this.state.modifyEditData
                                 ? confirmDialog({
@@ -916,6 +924,7 @@ export class BaseViewContainer extends BaseContainer {
 
     onInitialize(e) {
         dataGrid = e.component;
+        window.dataGrid = dataGrid;
         //umożliwa filrowanie po niepełniej dacie (która się nie parsuje) i naciśnięciu Enter
         $(document).keyup((event) => {
             try {

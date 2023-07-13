@@ -1,7 +1,7 @@
 import decode from 'jwt-decode';
 import moment from 'moment';
-import {readObjFromCookieGlobal} from "../utils/Cookie";
-import ConsoleHelper from "../utils/ConsoleHelper";
+import {readObjFromCookieGlobal} from '../utils/Cookie';
+import ConsoleHelper from '../utils/ConsoleHelper';
 
 /*
 Żądanie POST służy do uwierzytelnienia użytkownika i uzyskania tokena, który służy do weryfikacji innego interfejsu API
@@ -13,7 +13,7 @@ export default class AuthService {
         if (domain !== null && domain !== undefined) {
             this.domain = domain;
         } else {
-            this.domain = readObjFromCookieGlobal("REACT_APP_BACKEND_URL"); // API server domain
+            this.domain = readObjFromCookieGlobal('REACT_APP_BACKEND_URL'); // API server domain
         }
         this.fetch = this.fetch.bind(this);
         this.setUiMethods = this.setUiMethods.bind(this);
@@ -66,7 +66,12 @@ export default class AuthService {
                             this.unblockUi();
                         }
                     }
-                    if (response.ok && (headers === undefined || headers.accept === 'application/json' || headers.Accept === 'application/json')) {
+                    if (
+                        response.ok &&
+                        (headers === undefined ||
+                            headers.accept === 'application/json' ||
+                            headers.Accept === 'application/json')
+                    ) {
                         return resolve(response.json, response.status);
                     } else if (response.ok) {
                         return resolve(response.body);
@@ -86,7 +91,8 @@ export default class AuthService {
                         error !== null &&
                         error.message !== undefined &&
                         error.message !== null &&
-                        (error.message.includes('NetworkError when attempting to fetch resource') || error.message.includes('Failed to fetch'))
+                        (error.message.includes('NetworkError when attempting to fetch resource') ||
+                            error.message.includes('Failed to fetch'))
                     ) {
                         error.message = 'komunikacji z serwerem podczas pobierania danych.';
                     }
@@ -98,7 +104,11 @@ export default class AuthService {
     parseJSON(response, headers) {
         if (response.status) {
             return new Promise((resolve, reject) => {
-                if (headers === undefined || headers.accept === 'application/json' || headers.Accept === 'application/json') {
+                if (
+                    headers === undefined ||
+                    headers.accept === 'application/json' ||
+                    headers.Accept === 'application/json'
+                ) {
                     response.json().then(
                         (json) => {
                             resolve({
@@ -204,9 +214,10 @@ export default class AuthService {
 
     logout() {
         // Clear user token and profile data from localStorage
-        localStorage.removeItem('id_token')
-        localStorage.removeItem('expiration_token')
-        localStorage.removeItem('logged_user')
+        localStorage.removeItem('id_token');
+        localStorage.removeItem('expiration_token');
+        localStorage.removeItem('logged_user');
+        localStorage.removeItem('real_lang');
     }
 
     //TODO
@@ -263,11 +274,11 @@ export default class AuthService {
             let seconds = moment().diff(new Date(decoded.exp * 1000), 'seconds');
             return moment.utc(-seconds * 1000).format('mm [minut] ss [sekund]');
         } catch (err) {
-            this.logout()
+            this.logout();
         }
     }
 
     getUserLang() {
-        return "PL";
+        return 'PL';
     }
 }

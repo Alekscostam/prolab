@@ -50,6 +50,7 @@ class App extends Component {
             collapsed: false,
         };
         this.handleLogoutUser = this.handleLogoutUser.bind(this);
+        this.getTranslations = this.getTranslations.bind(this);
         //primereact config
         PrimeReact.ripple = true;
         PrimeReact.zIndex = {
@@ -138,38 +139,41 @@ class App extends Component {
 
     getLocalization(configUrl) {
         this.localizationService.reConfigureDomain();
-        const lang = this.authService.getUserLang();
-        this.localizationService
-            .localization(lang)
-            .then((resp) => {
-                const langs = resp.langList;
-                const realLang = resp.lang;
-                const labels = {};
-                if (resp.labels) {
-                    resp.labels.forEach((label) => (labels[label.code] = label.caption));
-                }
-                this.setState({langs, labels});
-                const localizationService = new LocalizationService(configUrl);
-                /* init dev express translations */
-                const shortLang = realLang.toLowerCase().substr(0, 2);
-                localizationService.getTranslationsFromFile('dev', realLang).then((devExpressTranslation) => {
-                    resp.labels.forEach((label) => {
-                        devExpressTranslation[label.code] = label.caption;
-                    });
-                    loadMessages({
-                        [shortLang]: devExpressTranslation,
-                    });
-                    devExpressLocale(shortLang);
+        if (this.authService.loggedIn()) {
+            const language = JSON.parse(localStorage.getItem('logged_user')).lang.toLowerCase();
+            this.getTranslations(configUrl, language);
+        } else {
+            this.getTranslations(configUrl, 'pl');
+        }
+    }
+    getTranslations(configUrl, language) {
+        const localizationService = new LocalizationService(configUrl);
+        localizationService.getTranslationsFromFile('rd', language.toLowerCase()).then((res) => {
+            const config = this.state.config;
+            const langs = config.LANG_LIST;
+            const realLang = language;
+            const labels = {};
+            if (res.labels) {
+                res.labels.forEach((label) => (labels[label.code] = label.caption));
+            }
+            this.setState({langs, labels});
+            /* init dev express translations */
+            const shortLang = realLang.toLowerCase().substr(0, 2);
+            localizationService.getTranslationsFromFile('dev', realLang).then((devExpressTranslation) => {
+                res.labels.forEach((label) => {
+                    devExpressTranslation[label.code] = label.caption;
                 });
-                /* init primereact translations */
-                localizationService.getTranslationsFromFile('primi', realLang).then((primeReactTranslation) => {
-                    addLocale(shortLang, primeReactTranslation[shortLang]);
-                    primeReactLocale(shortLang);
+                loadMessages({
+                    [shortLang]: devExpressTranslation,
                 });
-            })
-            .catch((err) => {
-                ConsoleHelper(`App:getLocalization error`, err);
+                devExpressLocale(shortLang);
             });
+            /* init primereact translations */
+            localizationService.getTranslationsFromFile('primi', realLang).then((primeReactTranslation) => {
+                addLocale(shortLang, primeReactTranslation[shortLang]);
+                primeReactLocale(shortLang);
+            });
+        });
     }
 
     readTextFile(file, callback) {

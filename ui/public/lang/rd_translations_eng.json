@@ -1,0 +1,18 @@
+{
+    "labels": [
+        {"code": "Login_SigninError", "caption": "Login Error"},
+        {"code": "Login_ConnectionError", "caption": "Could not connect to the server"},
+        {"code": "Login_UserName", "caption": "Username"},
+        {"code": "Login_Password", "caption": "Password"},
+        {"code": "Login_Signin", "caption": "Sign In"},
+        {"code": "Login_Signup", "caption": "Sign Up"},
+        {"code": "Login_Signup_Info", "caption": "Don't have an account?"},
+        {"code": "Login_ResetPassword", "caption": "Forgot Password?"},
+        {"code": "Menu_Search", "caption": "Search in menu"},
+        {"code": "Menu_Logout", "caption": "Logout"},
+        {"code": "View_LoadError", "caption": "Failed to fetch data for page with id:"},
+        {"code": "View_AdditionalOptions", "caption": "Additional Options"},
+        {"code": "View_StartPage", "caption": "Home Page"},
+        {"code": "Calendar_ButtonClear", "caption": "Clear"}
+    ]
+}
