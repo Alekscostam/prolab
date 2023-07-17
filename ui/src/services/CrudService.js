@@ -382,20 +382,22 @@ export default class CrudService extends BaseService {
         });
     }
 
-    calculateFormulaForView(viewId, recordId) {
-        let url = `${this.getDomain()}/${this.path}/${viewId}/calculate/${recordId}`;
+    calculateFormulaForView(viewId, recordId, params) {
+        let url = `${this.getDomain()}/${this.path}/${viewId}/calculate?recordId=${recordId}${params}`;
+        if (recordId === null || recordId === undefined) {
+            url = `${this.getDomain()}/${this.path}/${viewId}/calculate${params}`;
+        }
         return this.fetch(url, {
             method: 'POST',
         }).catch((err) => {
             throw err;
         });
     }
-    // TODO: musi byc inaczej dla batcha
     calculateFormula(viewId, parentId, recordId, fieldsToCalculate) {
         let point = 'editspec';
-        if (UrlUtils.batchIdParamExist('batchId')) {
+        if (UrlUtils.batchIdParamExist()) {
             point = 'batch';
-            parentId = UrlUtils.getBatchIdParam('batchId');
+            parentId = UrlUtils.getBatchIdParam();
         }
         let url = `${this.getDomain()}/${this.path}/${viewId}/${point}/${parentId}/calculate`;
         if (recordId) {

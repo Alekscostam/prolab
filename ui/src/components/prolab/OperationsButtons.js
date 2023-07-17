@@ -196,25 +196,24 @@ export const OperationsButtons = (props) => {
                             </React.Fragment>
                         );
                     break;
-                // turn off na życzenie
-                // case 'OP_FORMULA':
-                //     if (!!atLeastOneSelected)
-                //         return (
-                //             <React.Fragment>
-                //                 <ShortcutButton
-                //                     className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
-                //                     handleClick={(e) => {
-                //                         props.handleFormula(e);
-                //                     }}
-                //                     iconName={operations?.iconCode || 'mdi-help-circle'}
-                //                     iconColor={`${inverseColor ? `white` : `blue`}`}
-                //                     buttonShadow={buttonShadow}
-                //                     iconSide='left'
-                //                     title={operations?.label}
-                //                 />
-                //             </React.Fragment>
-                //         );
-                //     break;
+                case 'OP_FORMULA':
+                    if (!!atLeastOneSelected)
+                        return (
+                            <React.Fragment>
+                                <ShortcutButton
+                                    className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
+                                    handleClick={(e) => {
+                                        props.handleFormula(e);
+                                    }}
+                                    iconName={operations?.iconCode || 'mdi-help-circle'}
+                                    iconColor={`${inverseColor ? `white` : `blue`}`}
+                                    buttonShadow={buttonShadow}
+                                    iconSide='left'
+                                    title={operations?.label}
+                                />
+                            </React.Fragment>
+                        );
+                    break;
                 case 'OP_HISTORY':
                     if (!!atLeastOneSelected)
                         return (

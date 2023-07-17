@@ -1,20 +1,36 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const MemoizedTreeViewComponent = React.memo(
+let value = 0;
+
+const MemoizedTreeViewAddSpecComponent = React.memo(
     ({treeViewComponent}) => {
+        value = 0;
         return treeViewComponent;
     },
     (prevProps, nextProps) => {
-        return true; // robimy ze zawsze true
+        if (value !== 0) {
+            if (value !== nextProps.parameterToCompare) {
+                value = value + 1;
+                return true;
+            }
+            return false;
+        }
+        if (prevProps.parameterToCompare !== nextProps.parameterToCompare) {
+            value = prevProps.parameterToCompare + 1;
+            return true;
+        }
+        return false;
     }
 );
-MemoizedTreeViewComponent.defaultProps = {
+MemoizedTreeViewAddSpecComponent.defaultProps = {
     treeViewComponent: undefined,
+    parameterToCompare: 0,
 };
 
-MemoizedTreeViewComponent.propTypes = {
+MemoizedTreeViewAddSpecComponent.propTypes = {
     treeViewComponent: PropTypes.object.isRequired,
+    parameterToCompare: PropTypes.number.isRequired,
 };
 
-export default MemoizedTreeViewComponent;
+export default MemoizedTreeViewAddSpecComponent;

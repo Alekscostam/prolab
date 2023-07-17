@@ -4,6 +4,7 @@ import 'whatwg-fetch';
 import BaseService from '../../services/BaseService';
 import ConsoleHelper from '../../utils/ConsoleHelper';
 import EditListUtils from '../../utils/EditListUtils';
+import UrlUtils from '../../utils/UrlUtils';
 //example
 //api//View/{id}/Edit/{recordId}/list/{fieldId}/data?skip={skip}&take={take}&parentId={parentId}&sort={sort}&filter={filter}
 export default class EditListDataStore extends BaseService {
@@ -68,7 +69,13 @@ export default class EditListDataStore extends BaseService {
                     parentIdArg !== undefined && parentIdArg != null ? `&parentId=${parentIdArg}` : '';
                 const kindViewParam = !!kindViewArg && !!parentIdParam ? `&kindView=${kindViewArg}` : '';
                 const selectAllParam = !!selectAll ? `&selection=true` : '';
-                const url = `${this.domain}/${this.path}/${viewIdArg}/Edit/${recordIdArg}/list/${fieldIdArg}/data${params}${parentIdParam}${filterIdParam}${selectAllParam}${viewTypeParam}${kindViewParam}`;
+                let point = 'edit';
+                if (UrlUtils.batchIdParamExist()) {
+                    const batchId = UrlUtils.getBatchIdParam();
+                    point = 'batch';
+                    recordIdArg = batchId;
+                }
+                const url = `${this.domain}/${this.path}/${viewIdArg}/${point}/${recordIdArg}/list/${fieldIdArg}/data${params}${parentIdParam}${filterIdParam}${selectAllParam}${viewTypeParam}${kindViewParam}`;
                 if (url.indexOf(_key) > 0) {
                     //myk blokujący nadmiarowo generowane requesty przez store odnośnie selection
                     return Promise.reject('');

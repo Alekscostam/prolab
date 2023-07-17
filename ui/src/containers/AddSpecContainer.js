@@ -8,7 +8,7 @@ import ViewService from '../services/ViewService';
 import {Breadcrumb} from '../utils/BreadcrumbUtils';
 import {DataGridUtils} from '../utils/component/DataGridUtils';
 import {ViewValidatorUtils} from '../utils/parser/ViewValidatorUtils';
-import MemoizedTreeViewComponent from './treeGrid/MemoizedTreeViewComponent';
+import MemoizedTreeViewAddSpecComponent from './treeGrid/MemoizedTreeViewComponent';
 import UrlUtils from '../utils/UrlUtils';
 import ConsoleHelper from '../utils/ConsoleHelper';
 import DataTreeStore from './dao/DataTreeStore';
@@ -349,6 +349,9 @@ export class AddSpecContainer extends BaseContainer {
                                                 changingTab: true,
                                             });
                                             this.unselectAllDataGrid();
+                                            this.setState(() => ({
+                                                numberOfCopies: 1,
+                                            }));
                                         }
                                     }
                                 }}
@@ -562,7 +565,8 @@ export class AddSpecContainer extends BaseContainer {
 
                         <div id='spec-edit-dialog'>
                             {!this.state.changingTab ? (
-                                <MemoizedTreeViewComponent
+                                <MemoizedTreeViewAddSpecComponent
+                                    parameterToCompare={this.state.numberOfCopies}
                                     treeViewComponent={
                                         <TreeViewComponent
                                             handleChaningTab={() => {

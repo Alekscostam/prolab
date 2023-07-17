@@ -116,7 +116,7 @@ export default class DataGridStore extends BaseService {
                     if (result?.select || result?.selectAll) {
                         addSelectAllParam = true;
                         // return;
-                        //TODO można tak przerobić, żeby select nie pukał w backend, ale trzeba jeszcze popracować nad selectAll
+                        // TODO można tak przerobić, żeby select nie pukał w backend, ale trzeba jeszcze popracować nad selectAll
                         // const filterIds = JSON.stringify(loadOptions['filter']);
                         // const selectionIds = filterIds.match(/-?\d+/g).map((id) => ({"'ID'": id}));
                         // if (selectionIds instanceof Array && selectionIds.length > 0) {

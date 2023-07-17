@@ -29,6 +29,7 @@ class UrlUtils {
         return this.getURLParameter('batchId');
     }
 
+    // TODO: pewnie mozna lepiej
     static getIdFromUrl() {
         let splittedUrlByWildcard = window.location.href.split('?')[0];
         let elements = splittedUrlByWildcard.split('/');

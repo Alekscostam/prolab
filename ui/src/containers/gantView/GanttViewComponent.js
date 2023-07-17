@@ -64,7 +64,7 @@ class GanttViewComponent extends React.Component {
         };
 
         this.repaint = () => {
-            this.gantt.repaint();
+            this?.gantt?.repaint();
         };
 
         /** Custom refresh, bo na gancie działa tylko .repaint() pomimo tego iż taka funkcja istnieje w dokumentacji dla tego komponentu */
@@ -142,7 +142,10 @@ class GanttViewComponent extends React.Component {
     }
 
     get gantt() {
-        return this.ganttRef.current.instance;
+        if (this.ganttRef) {
+            return this.ganttRef.current.instance;
+        }
+        return null;
     }
 
     datasInitialization(res) {

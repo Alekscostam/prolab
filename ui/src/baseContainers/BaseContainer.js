@@ -1039,7 +1039,9 @@ class BaseContainer extends React.Component {
         const saveElement = this.crudService.createObjectToSave(this.state);
         ConsoleHelper(`handleEditRowSave: element to save = ${JSON.stringify(saveElement)}`);
         this.rowSave(viewId, recordId, parentId, saveElement, false, token);
-        this.unselectAllDataGrid();
+        if (!this.state?.copyData) {
+            this.unselectAllDataGrid();
+        }
     }
 
     refreshView() {
@@ -1054,7 +1056,7 @@ class BaseContainer extends React.Component {
         } else if (this.isGridView()) {
             if (!!this.getRefGridView()) {
                 if (window?.dataGrid) {
-                    window.dataGrid.clearSelection();
+                    if (this.state?.gridViewType !== 'cardView') window.dataGrid.clearSelection();
                 }
                 this.getRefGridView().instance.getDataSource().reload();
             }
@@ -1067,7 +1069,7 @@ class BaseContainer extends React.Component {
         if ((this.state.kindView === 'ViewSpec' || this.state.kindView === 'View') && this.state.subView) {
             console.log('refreshing subview: ', this.state.kindView);
             if (window?.dataGrid) {
-                window.dataGrid.clearSelection();
+                if (this.state?.gridViewType !== 'cardView') window.dataGrid.clearSelection();
             }
             const id = UrlUtils.getViewIdFromURL();
             this.downloadData(
@@ -1312,6 +1314,7 @@ class BaseContainer extends React.Component {
             .cancel(viewId, recordId, parentId, kindView, kindOperation, saveElement)
             .then(() => {
                 this.refreshView();
+                this.unselectAllDataGrid();
                 this.unblockUi();
             })
             .catch((err) => {
@@ -1800,56 +1803,84 @@ class BaseContainer extends React.Component {
     }
 
     calculateFormula(viewId, parentId, id, fieldsToCalculate) {
-        if (parentId === null && window.location.href.includes('grid-view')) {
-            // jesli główny grid
-            this.crudService.calculateFormulaForView(viewId, id).then((res) => {
-                if (res.message) {
-                    this.showSuccessMessage(res.message.text, 1000, res.message.title);
-                } else {
-                    this.showResponseErrorMessage(res);
-                }
-                this.refreshView();
-            });
-            return;
-        }
+        if (window.location.href.includes('edit-spec')) {
+            this.crudService
+                .calculateFormula(viewId, parentId, id, fieldsToCalculate)
+                .then((res) => {
+                    res?.data?.forEach((calcultedFormula) => {
+                        this.refTreeList.instance
+                            .getDataSource()
+                            ._items.map((el) => el.data)
+                            .forEach((el) => {
+                                if (parseInt(calcultedFormula[0].value) === parseInt(el.ID)) {
+                                    el.WART = calcultedFormula[1].value;
+                                }
+                            });
+                    });
+                    const msg = res.message;
+                    if (!!msg) {
+                        this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title);
+                    } else if (!!res.error) {
+                        this.showResponseErrorMessage(res);
+                    }
+                    if (this.refTreeList?.instance) {
+                        this.refTreeList?.instance?.refresh();
+                    } else {
+                        this.refreshView();
+                    }
 
-        this.crudService
-            .calculateFormula(viewId, parentId, id, fieldsToCalculate)
-            .then((res) => {
-                // Ponizej fake odpowiedzi
-                // let asd =
-                //     '{ "message": { "title": "Komunikat", "text": "Przeliczenie zakończono poprawnie." }, "data": [ [ { "fieldName": "ID", "value": "537" }, { "fieldName": "WART", "value": "9.48" }, { "fieldName": "_CALC_OK", "value": true } ] ] }';
-                // let arr = JSON.parse(asd);
-                res?.data?.forEach((calcultedFormula) => {
-                    this.refTreeList.instance
-                        .getDataSource()
-                        ._items.map((el) => el.data)
-                        .forEach((el) => {
-                            if (parseInt(calcultedFormula[0].value) === parseInt(el.ID)) {
-                                el.WART = calcultedFormula[1].value;
-                            }
-                        });
+                    this.unblockUi();
+                })
+                .catch((err) => {
+                    this.showGlobalErrorMessage(err);
+                    this.unblockUi();
                 });
-                this.unselectAllDataGrid();
-
-                const msg = res.message;
-                if (!!msg) {
-                    this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title);
-                } else if (!!res.error) {
-                    this.showResponseErrorMessage(res);
+        } else if (this.state.elementKindView && this.state.elementKindView.toUpperCase() === 'VIEWSPEC') {
+            parentId = UrlUtils.getURLParameter('recordId');
+            let params = '';
+            if (!!id) {
+                params = `&specId=${id}`;
+            } else {
+                const selectedRowKeys = this.state.selectedRowKeys;
+                if (selectedRowKeys.length !== 0) {
+                    selectedRowKeys.forEach((rowKey) => {
+                        params = params + `&specId=${rowKey.ID}`;
+                    });
                 }
-                if (this.refTreeList?.instance) {
-                    this.refTreeList?.instance?.refresh();
-                } else {
-                    this.refreshView();
-                }
+            }
 
-                this.unblockUi();
-            })
-            .catch((err) => {
-                this.showGlobalErrorMessage(err);
-                this.unblockUi();
-            });
+            this.calculateFormulaForView(viewId, parentId, params);
+        } else {
+            let params = '';
+            if (!!id) {
+                params = `?recordId=${id}`;
+            } else {
+                const selectedRowKeys = this.state.selectedRowKeys;
+                if (selectedRowKeys.length !== 0) {
+                    let first = true;
+                    selectedRowKeys.forEach((rowKey) => {
+                        if (first) {
+                            first = false;
+                            params = params + `?recordId=${rowKey.ID}`;
+                        } else {
+                            params = params + `&recordId=${rowKey.ID}`;
+                        }
+                    });
+                }
+            }
+            this.calculateFormulaForView(viewId, parentId, params);
+        }
+        this.unselectAllDataGrid();
+    }
+    calculateFormulaForView(viewId, parentId, params) {
+        this.crudService.calculateFormulaForView(viewId, parentId, params).then((res) => {
+            if (res.message) {
+                this.showSuccessMessage(res.message.text, 1000, res.message.title);
+            } else {
+                this.showResponseErrorMessage(res);
+            }
+            this.refreshView();
+        });
     }
 
     createObjectToCalculate(datas) {

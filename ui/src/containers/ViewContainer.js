@@ -27,6 +27,9 @@ export class ViewContainer extends BaseViewContainer {
         this.showAddSpecDialog = this.showAddSpecDialog.bind(this);
         this.getLastId = this.getLastId.bind(this);
         this.handleAddElements = this.handleAddElements.bind(this);
+        this.state = {
+            prevDataGridGlobalReference: null,
+        };
     }
 
     showAddSpecDialog(recordId) {
@@ -183,7 +186,7 @@ export class ViewContainer extends BaseViewContainer {
                 `ViewContainer::downloadData: viewId=${viewId}, recordId=${recordId}, filterId=${filterId}, parentId=${parentId}, viewType=${viewType},`
             );
             this.setState({subView: null}, () => {
-                this.props.handleSubView(null);
+                // this.props.handleSubView(null);
                 this.getViewById(viewId, recordId, filterId, parentId, viewType, false);
             });
         }
@@ -322,6 +325,11 @@ export class ViewContainer extends BaseViewContainer {
                         handleRenderNoRefreshContent={(renderNoRefreshContent) => {
                             this.setState({renderNoRefreshContent: renderNoRefreshContent});
                         }}
+                        setPrevDataGridGlobalReference={() => {
+                            this.setState({
+                                prevDataGridGlobalReference: window.dataGrid,
+                            });
+                        }}
                         handleShowGlobalErrorMessage={(err) => {
                             this.setState({
                                 attachmentViewInfo: undefined,
@@ -335,19 +343,9 @@ export class ViewContainer extends BaseViewContainer {
                             this.handleShowEditPanel(editDataResponse);
                         }}
                         onHide={() => {
-                            if (
-                                UrlUtils.getURLParameter('recordId') !== undefined &&
-                                UrlUtils.getURLParameter('recordId') !== null
-                            ) {
-                                this.setState({
-                                    attachmentViewInfo: false,
-                                    attachmentCloseWindow: true,
-                                });
-                            } else {
-                                this.setState({
-                                    attachmentViewInfo: false,
-                                });
-                            }
+                            this.setState({
+                                attachmentViewInfo: null,
+                            });
                         }}
                         handleViewInfoName={(viewInfoName) => {
                             this.setState({viewInfoName: viewInfoName});

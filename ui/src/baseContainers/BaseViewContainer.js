@@ -145,6 +145,7 @@ export class BaseViewContainer extends BaseContainer {
         if (id === undefined) {
             id = this.props.id;
         }
+
         ConsoleHelper(
             `BaseViewContainer::componentDidMount -> id=${id}, subViewId = ${subViewId}, recordId = ${recordId}, filterId = ${filterId}, viewType=${viewType}`
         );
@@ -182,6 +183,8 @@ export class BaseViewContainer extends BaseContainer {
             id = this.props.id;
         }
         const subViewId = UrlUtils.getURLParameter('subview');
+
+        window.dataGrid = dataGrid;
 
         const recordId = this.props.recordId || UrlUtils.getURLParameter('recordId');
         const filterId = UrlUtils.getURLParameter('filterId');
@@ -805,20 +808,20 @@ export class BaseViewContainer extends BaseContainer {
                 case 'OP_BATCH':
                     return (
                         <React.Fragment>
-                            {/*{this.state.batchesList?.length > 0 ? (*/}
-                            <ActionButtonWithMenu
-                                id='button_batches'
-                                className={`${margin}`}
-                                iconName={operation?.iconCode || 'mdi-cogs'}
-                                items={ActionButtonWithMenuUtils.createItemsWithCommand(
-                                    this.state.batchesList,
-                                    undefined,
-                                    this.handleRightHeadPanelContent,
-                                    'OP_BATCH'
-                                )}
-                                title={operation?.label}
-                            />
-                            {/*) : null}*/}
+                            {operation.showAlways && (
+                                <ActionButtonWithMenu
+                                    id='button_batches'
+                                    className={`${margin}`}
+                                    iconName={operation?.iconCode || 'mdi-cogs'}
+                                    items={ActionButtonWithMenuUtils.createItemsWithCommand(
+                                        this.state.batchesList,
+                                        undefined,
+                                        this.handleRightHeadPanelContent,
+                                        'OP_BATCH'
+                                    )}
+                                    title={operation?.label}
+                                />
+                            )}
                         </React.Fragment>
                     );
                 case 'OP_DOCUMENTS':
@@ -858,6 +861,21 @@ export class BaseViewContainer extends BaseContainer {
                                     title={operation?.label}
                                 />
                             ) : null}
+                        </React.Fragment>
+                    );
+                case 'OP_FORMULA':
+                    return (
+                        <React.Fragment>
+                            {operation.showAlways && (
+                                <ActionButtonWithMenu
+                                    id={`button_formula_` + index}
+                                    className={`${margin}`}
+                                    formula={true}
+                                    customEventClick={() => this.prepareCalculateFormula()}
+                                    iconName={operation?.iconCode || 'mdi-cogs'}
+                                    title={operation?.label}
+                                />
+                            )}
                         </React.Fragment>
                     );
 
@@ -1076,6 +1094,7 @@ export class BaseViewContainer extends BaseContainer {
                 },
                 () => {
                     this.getRefGridView().instance.deselectAll();
+                    this.getRefGridView().instance.clearSelection();
                     this.setState(
                         {
                             selectAll: false,
@@ -1332,6 +1351,11 @@ export class BaseViewContainer extends BaseContainer {
                                     }}
                                     handleSelectAll={(selectionValue) => {
                                         this.blockUi();
+                                        const prevDataGridGlobalReference = this.state.prevDataGridGlobalReference;
+                                        if (!!prevDataGridGlobalReference) {
+                                            window.dataGrid = prevDataGridGlobalReference;
+                                            dataGrid = prevDataGridGlobalReference;
+                                        }
                                         if (selectionValue === null) {
                                             this.setState({
                                                 selectAll: false,
@@ -1343,6 +1367,7 @@ export class BaseViewContainer extends BaseContainer {
                                                         selectedRowKeys: rowData,
                                                         selectAll: false,
                                                         select: false,
+                                                        prevDataGridGlobalReference: null,
                                                     },
                                                     () => {
                                                         this.unblockUi();

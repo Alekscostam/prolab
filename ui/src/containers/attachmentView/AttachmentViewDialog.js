@@ -26,8 +26,9 @@ export class AttachmentViewDialog extends BaseViewContainer {
             viewId = subviewId;
             parentId = UrlUtils.getURLParameter('recordId');
         }
-        this.setState({subView: null}, () => {
-            this.props.handleSubView(null);
+        // rerender
+        this.setState({test: null}, () => {
+            // this.props.handleSubView(null);
             this.getViewById(viewId, recordId, filterId, parentId, viewType, false);
         });
     }
@@ -37,6 +38,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
 
     // overide
     componentDidMount() {
+        this.props.setPrevDataGridGlobalReference();
         this.setState({
             updateBreadcrumb: false,
         });
