@@ -184,8 +184,6 @@ export class BaseViewContainer extends BaseContainer {
         }
         const subViewId = UrlUtils.getURLParameter('subview');
 
-        window.dataGrid = dataGrid;
-
         const recordId = this.props.recordId || UrlUtils.getURLParameter('recordId');
         const filterId = UrlUtils.getURLParameter('filterId');
         const viewType = UrlUtils.getURLParameter('viewType');
@@ -878,7 +876,6 @@ export class BaseViewContainer extends BaseContainer {
                             )}
                         </React.Fragment>
                     );
-
                 case 'OP_CARDVIEW':
                 case 'OP_GRIDVIEW':
                     let indexInArray = this.state.parsedGridView?.operations?.findIndex(
@@ -1053,6 +1050,7 @@ export class BaseViewContainer extends BaseContainer {
                 },
                 () => {
                     this.getRefGridView().instance.selectAll();
+
                     this.dataGridStore
                         .getSelectAllDataGridStore(
                             this.state.subView == null ? this.state.elementId : this.state.elementSubViewId,

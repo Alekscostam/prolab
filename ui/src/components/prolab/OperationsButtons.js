@@ -13,8 +13,15 @@ export const OperationsButtons = (props) => {
         const info = props.info;
         const margin = props.margin;
         const inverseColor = props.inverseColor;
+        const isFromHeader = props.isFromHeader;
         const buttonShadow = props.buttonShadow;
         const atLeastOneSelected = props.atLeastOneSelected;
+        let showOperation = true;
+        if (isFromHeader && !!atLeastOneSelected) {
+            showOperation = !operations.showAlways;
+        } else {
+            showOperation = !!atLeastOneSelected;
+        }
         if (operations && !!operations.type) {
             switch (operations.type?.toUpperCase()) {
                 case 'OP_EDIT':
@@ -197,7 +204,7 @@ export const OperationsButtons = (props) => {
                         );
                     break;
                 case 'OP_FORMULA':
-                    if (!!atLeastOneSelected)
+                    if (showOperation)
                         return (
                             <React.Fragment>
                                 <ShortcutButton
@@ -405,6 +412,7 @@ OperationsButtons.defaultProps = {
     handlePlugins: () => {},
     handleAttachments: () => {},
     inverseColor: false,
+    isFromHeader: false,
     buttonShadow: true,
     margin: Constants.DEFAULT_MARGIN_BETWEEN_BUTTONS,
     atLeastOneSelected: true,
@@ -436,6 +444,7 @@ OperationsButtons.propTypes = {
     handleDown: PropTypes.func,
     margin: PropTypes.string,
     atLeastOneSelected: PropTypes.bool,
+    isFromHeader: PropTypes.bool,
     inverseColor: PropTypes.bool,
     buttonShadow: PropTypes.bool,
 };

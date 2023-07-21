@@ -51,6 +51,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
             elementSubViewId: prevElementSubViewId,
             updateBreadcrumb: true,
         });
+        this.props.handleBackToOldGlobalReference();
         super.componentWillUnmount();
     }
 

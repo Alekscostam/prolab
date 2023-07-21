@@ -323,6 +323,16 @@ export class DashboardGridViewComponent extends BaseContainer {
                             handleRenderNoRefreshContent={(renderNoRefreshContent) => {
                                 this.setState({renderNoRefreshContent: renderNoRefreshContent});
                             }}
+                            prevDataGridGlobalReference={this.state.prevDataGridGlobalReference}
+                            setPrevDataGridGlobalReference={() => {
+                                this.setState({
+                                    prevDataGridGlobalReference: window.dataGrid,
+                                });
+                            }}
+                            handleBackToOldGlobalReference={() => {
+                                const prevDataGridGlobalReference = this.state.prevDataGridGlobalReference;
+                                window.dataGrid = prevDataGridGlobalReference;
+                            }}
                             handleShowGlobalErrorMessage={(err) => {
                                 this.setState({
                                     attachmentViewInfo: undefined,

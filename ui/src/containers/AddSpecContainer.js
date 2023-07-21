@@ -32,6 +32,7 @@ export class AddSpecContainer extends BaseContainer {
         this.crudService = new CrudService();
         this.dataTreeStore = new DataTreeStore();
         this.refTreeList = React.createRef();
+        this.numberOfCopies = React.createRef();
         this.messages = React.createRef();
         this.state = {
             lastElementId: this.props.lastId,
@@ -380,17 +381,13 @@ export class AddSpecContainer extends BaseContainer {
                             <React.Fragment>
                                 {LocUtils.loc(this.props.labels, 'number_of_copy', opCount.label + ' ')}
                                 <InputNumber
+                                    ref={this.numberOfCopies}
                                     id='numberOsfCopy'
                                     name='numberOfCopy'
                                     className='p-inputtext-sm mr-2'
                                     min={1}
                                     style={{maxHeight: '43px'}}
-                                    value={this.state.numberOfCopies}
-                                    onValueChange={(e) => {
-                                        this.setState(() => ({
-                                            numberOfCopies: e.value,
-                                        }));
-                                    }}
+                                    value={0}
                                     showButtons
                                 />
                             </React.Fragment>
@@ -427,9 +424,10 @@ export class AddSpecContainer extends BaseContainer {
 
     //override
     specExec = (viewId, parentId, saveElement, type, headerId, header) => {
+        const numberOfCopies = this.numberOfCopies?.current?.element.children[0]?.value;
         this.blockUi();
         this.crudService
-            .executeSpec(viewId, parentId, saveElement, type, headerId, header, this.state.numberOfCopies)
+            .executeSpec(viewId, parentId, saveElement, type, headerId, header, numberOfCopies)
             .then((saveResponse) => {
                 let validArray = this.createValidArray(saveResponse.data);
                 let res = this.setFakeIds(validArray);
@@ -564,105 +562,94 @@ export class AddSpecContainer extends BaseContainer {
                         {this.renderHeaderLeft}
 
                         <div id='spec-edit-dialog'>
-                            {!this.state.changingTab ? (
-                                <MemoizedTreeViewAddSpecComponent
-                                    parameterToCompare={this.state.numberOfCopies}
-                                    treeViewComponent={
-                                        <TreeViewComponent
-                                            handleChaningTab={() => {
-                                                this.setState({
-                                                    changingTab: !this.state.changingTab,
-                                                });
-                                            }}
-                                            ref={this.refTreeList}
-                                            id={this.props.id}
-                                            allowOperations={false}
-                                            elementParentId={this.state.elementParentId}
-                                            isAddSpec={true}
-                                            preloadEnabled={false}
-                                            elementRecordId={this.state.elementRecordId}
-                                            handleOnTreeList={(ref) => (this.refTreeList = ref)}
-                                            parsedGridView={this.state.parsedView}
-                                            parsedGridViewData={parsedData}
-                                            gridViewColumns={this.state.columns}
-                                            handleAddSpecSpec={(id) => {
-                                                const viewId = this.state.elementId;
-                                                const parentId = this.state.elementParentId;
-                                                const recordId = this.state.elementRecordId;
-                                                const parsedView = this.state.parsedView;
-                                                const type = parsedView.info?.type;
-                                                let header = parsedView.info?.header;
-                                                if (type === 'METHODS' || type === 'TEMPLATES') {
-                                                    header = false;
-                                                    this.setState({
-                                                        isSubView: true,
-                                                    });
-                                                }
-                                                this.unselectAllDataGrid();
-                                                this.getViewAddSpec(viewId, parentId, recordId, type, header, id);
-                                            }}
-                                            selectedRowKeys={this.state.selectedRowKeys}
-                                            onChange={(type, e, rowId, info) =>
-                                                this.handleEditRowChange(type, e, rowId, info)
-                                            }
-                                            handleBlockUi={() => {
-                                                this.blockUi();
-                                                return true;
-                                            }}
-                                            handleUnselectAll={() => {
-                                                this.unselectAllDataGrid();
-                                            }}
-                                            handleUnblockUi={() => this.unblockUi()}
-                                            handleShowEditPanel={(editDataResponse) =>
-                                                this.handleShowEditPanel(editDataResponse)
-                                            }
-                                            handleSelectedRowKeys={(e) => {
-                                                this.setState((prevState) => {
-                                                    return {
-                                                        ...prevState,
-                                                        selectedRowKeys: e,
-                                                    };
-                                                });
-                                            }}
-                                            modifyParsedGridViewData={(newCopyRow) => {
-                                                parsedData.forEach((el) => {
-                                                    if (el.ID === newCopyRow.ID) {
-                                                        el = newCopyRow;
-                                                    }
-                                                });
-                                                this.setState({
-                                                    parsedData,
-                                                });
-                                            }}
-                                            handleDeleteRow={(id) => this.delete(id)}
-                                            handleForumlaRow={(id) => this.prepareCalculateFormula(id)}
-                                            handleDownload={(id) => {
-                                                this.props.handleDownloadRow(id);
-                                            }}
-                                            handleAttachments={(id) => {
-                                                this.props.handleAttachmentRow(id);
-                                            }}
-                                            handleAddLevel={(id) => alert(id)}
-                                            handleUp={(id) => this.up(id)}
-                                            handleDown={(id) => this.down(id)}
-                                            handleRestoreRow={(id) => this.restore(id)}
-                                            handleCopyRow={(id) => this.copyEntry(id)}
-                                            handleDocumentsRow={(id) => {
-                                                this.generate(id);
-                                            }}
-                                            handlePluginsRow={(id) => {
-                                                this.plugin(id);
-                                            }}
-                                            handleDownloadRow={(id) => this.downloadAttachment(id)}
-                                            handleAttachmentRow={(id) => this.attachment(id)}
-                                            handleArchiveRow={(id) => this.archive(id)}
-                                            handlePublishRow={(id) => this.publishEntry(id)}
-                                            showErrorMessages={(err) => this.showErrorMessages(err)}
-                                            labels={this.props.labels}
-                                        />
+                            <TreeViewComponent
+                                handleChaningTab={() => {
+                                    this.setState({
+                                        changingTab: !this.state.changingTab,
+                                    });
+                                }}
+                                ref={this.refTreeList}
+                                id={this.props.id}
+                                allowOperations={false}
+                                elementParentId={this.state.elementParentId}
+                                isAddSpec={true}
+                                preloadEnabled={false}
+                                elementRecordId={this.state.elementRecordId}
+                                handleOnTreeList={(ref) => (this.refTreeList = ref)}
+                                parsedGridView={this.state.parsedView}
+                                parsedGridViewData={parsedData}
+                                gridViewColumns={this.state.columns}
+                                handleAddSpecSpec={(id) => {
+                                    const viewId = this.state.elementId;
+                                    const parentId = this.state.elementParentId;
+                                    const recordId = this.state.elementRecordId;
+                                    const parsedView = this.state.parsedView;
+                                    const type = parsedView.info?.type;
+                                    let header = parsedView.info?.header;
+                                    if (type === 'METHODS' || type === 'TEMPLATES') {
+                                        header = false;
+                                        this.setState({
+                                            isSubView: true,
+                                        });
                                     }
-                                />
-                            ) : null}
+                                    this.unselectAllDataGrid();
+                                    this.getViewAddSpec(viewId, parentId, recordId, type, header, id);
+                                }}
+                                selectedRowKeys={this.state.selectedRowKeys}
+                                onChange={(type, e, rowId, info) => this.handleEditRowChange(type, e, rowId, info)}
+                                handleBlockUi={() => {
+                                    this.blockUi();
+                                    return true;
+                                }}
+                                handleUnselectAll={() => {
+                                    this.unselectAllDataGrid();
+                                }}
+                                handleUnblockUi={() => this.unblockUi()}
+                                handleShowEditPanel={(editDataResponse) => this.handleShowEditPanel(editDataResponse)}
+                                handleSelectedRowKeys={(e) => {
+                                    this.setState((prevState) => {
+                                        return {
+                                            ...prevState,
+                                            selectedRowKeys: e,
+                                        };
+                                    });
+                                }}
+                                modifyParsedGridViewData={(newCopyRow) => {
+                                    parsedData.forEach((el) => {
+                                        if (el.ID === newCopyRow.ID) {
+                                            el = newCopyRow;
+                                        }
+                                    });
+                                    this.setState({
+                                        parsedData,
+                                    });
+                                }}
+                                handleDeleteRow={(id) => this.delete(id)}
+                                handleForumlaRow={(id) => this.prepareCalculateFormula(id)}
+                                handleDownload={(id) => {
+                                    this.props.handleDownloadRow(id);
+                                }}
+                                handleAttachments={(id) => {
+                                    this.props.handleAttachmentRow(id);
+                                }}
+                                handleAddLevel={(id) => alert(id)}
+                                handleUp={(id) => this.up(id)}
+                                handleDown={(id) => this.down(id)}
+                                handleRestoreRow={(id) => this.restore(id)}
+                                handleCopyRow={(id) => this.copyEntry(id)}
+                                handleDocumentsRow={(id) => {
+                                    this.generate(id);
+                                }}
+                                handlePluginsRow={(id) => {
+                                    this.plugin(id);
+                                }}
+                                handleDownloadRow={(id) => this.downloadAttachment(id)}
+                                handleAttachmentRow={(id) => this.attachment(id)}
+                                handleArchiveRow={(id) => this.archive(id)}
+                                handlePublishRow={(id) => this.publishEntry(id)}
+                                showErrorMessages={(err) => this.showErrorMessages(err)}
+                                labels={this.props.labels}
+                            />
                         </div>
                     </React.Fragment>
                 )}

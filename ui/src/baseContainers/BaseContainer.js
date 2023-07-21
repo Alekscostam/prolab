@@ -1251,7 +1251,7 @@ class BaseContainer extends React.Component {
                     if (attachmentDialog) {
                         this.refreshView(saveElement);
                     } else {
-                        if (readValueCookieGlobal('refreshSubView')) {
+                        if (readValueCookieGlobal('refreshSubView') && kindOperation.toUpperCase() !== 'COPY') {
                             this.refreshSubView();
                         } else {
                             this.refreshView(saveElement);

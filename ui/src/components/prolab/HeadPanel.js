@@ -76,6 +76,7 @@ export const HeadPanel = (props) => {
                                     labels={props.labels}
                                     operations={props.operations}
                                     atLeastOneSelected={true}
+                                    isFromHeader={true}
                                     handleRestore={(e) => props.handleRestore(e)}
                                     handleDownload={(e) => props.handleDownload(e)}
                                     handleDelete={(e) => props.handleDelete(e)}

@@ -186,7 +186,9 @@ export class ViewContainer extends BaseViewContainer {
                 `ViewContainer::downloadData: viewId=${viewId}, recordId=${recordId}, filterId=${filterId}, parentId=${parentId}, viewType=${viewType},`
             );
             this.setState({subView: null}, () => {
-                // this.props.handleSubView(null);
+                if (!UrlUtils.parentIdParamExist() || !UrlUtils.parentIdParamExist()) {
+                    this.props.handleSubView(null);
+                }
                 this.getViewById(viewId, recordId, filterId, parentId, viewType, false);
             });
         }
@@ -325,10 +327,15 @@ export class ViewContainer extends BaseViewContainer {
                         handleRenderNoRefreshContent={(renderNoRefreshContent) => {
                             this.setState({renderNoRefreshContent: renderNoRefreshContent});
                         }}
+                        prevDataGridGlobalReference={this.state.prevDataGridGlobalReference}
                         setPrevDataGridGlobalReference={() => {
                             this.setState({
                                 prevDataGridGlobalReference: window.dataGrid,
                             });
+                        }}
+                        handleBackToOldGlobalReference={() => {
+                            const prevDataGridGlobalReference = this.state.prevDataGridGlobalReference;
+                            window.dataGrid = prevDataGridGlobalReference;
                         }}
                         handleShowGlobalErrorMessage={(err) => {
                             this.setState({
