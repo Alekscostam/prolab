@@ -331,11 +331,15 @@ export class ViewContainer extends BaseViewContainer {
                         setPrevDataGridGlobalReference={() => {
                             this.setState({
                                 prevDataGridGlobalReference: window.dataGrid,
+                                isAttachement: true,
                             });
                         }}
                         handleBackToOldGlobalReference={() => {
                             const prevDataGridGlobalReference = this.state.prevDataGridGlobalReference;
                             window.dataGrid = prevDataGridGlobalReference;
+                            this.setState({
+                                isAttachement: false,
+                            });
                         }}
                         handleShowGlobalErrorMessage={(err) => {
                             this.setState({

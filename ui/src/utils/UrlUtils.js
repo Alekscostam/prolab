@@ -30,8 +30,8 @@ class UrlUtils {
         return batchId !== undefined && batchId !== null;
     }
     static recordIdParamExist() {
-        const batchId = this.getURLParameter('recordId');
-        return batchId !== undefined && batchId !== null;
+        const recordId = this.getURLParameter('recordId');
+        return recordId !== undefined && recordId !== null;
     }
     static getBatchIdParam() {
         return this.getURLParameter('batchId');

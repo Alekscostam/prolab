@@ -64,12 +64,10 @@ export class AttachmentViewDialog extends BaseViewContainer {
             },
             () => {
                 this.getRefGridView().instance.selectAll();
-
                 const {viewInfo} = this.state.attachmentResponseView;
-                const parentIdArg =
-                    UrlUtils.getURLParameter('recordId') === null
-                        ? viewInfo.parentId
-                        : UrlUtils.getURLParameter('recordId');
+                const parentIdArg = UrlUtils.recordIdParamExist()
+                    ? UrlUtils.getURLParameter('recordId')
+                    : viewInfo.parentId;
                 this.dataGridStore
                     .getSelectAllDataGridStore(
                         viewInfo.id,

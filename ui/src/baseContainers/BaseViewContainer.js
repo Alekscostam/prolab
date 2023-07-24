@@ -182,8 +182,17 @@ export class BaseViewContainer extends BaseContainer {
         if (id === undefined) {
             id = this.props.id;
         }
-        const subViewId = UrlUtils.getURLParameter('subview');
+        // TODO: moze bylo by łądniejsze miesce na to
+        const prevDataGridGlobalReference = this.state.prevDataGridGlobalReference;
+        if (!!prevDataGridGlobalReference && !this.state.isAttachement) {
+            window.dataGrid = prevDataGridGlobalReference;
+            dataGrid = prevDataGridGlobalReference;
+            this.setState({
+                prevDataGridGlobalReference: null,
+            });
+        }
 
+        const subViewId = UrlUtils.getURLParameter('subview');
         const recordId = this.props.recordId || UrlUtils.getURLParameter('recordId');
         const filterId = UrlUtils.getURLParameter('filterId');
         const viewType = UrlUtils.getURLParameter('viewType');
@@ -1093,6 +1102,7 @@ export class BaseViewContainer extends BaseContainer {
                 () => {
                     this.getRefGridView().instance.deselectAll();
                     this.getRefGridView().instance.clearSelection();
+
                     this.setState(
                         {
                             selectAll: false,
@@ -1349,8 +1359,9 @@ export class BaseViewContainer extends BaseContainer {
                                     }}
                                     handleSelectAll={(selectionValue) => {
                                         this.blockUi();
-                                        const prevDataGridGlobalReference = this.state.prevDataGridGlobalReference;
-                                        if (!!prevDataGridGlobalReference) {
+
+                                        const prevDataGridGlobalReference = this.state?.prevDataGridGlobalReference;
+                                        if (prevDataGridGlobalReference) {
                                             window.dataGrid = prevDataGridGlobalReference;
                                             dataGrid = prevDataGridGlobalReference;
                                         }
