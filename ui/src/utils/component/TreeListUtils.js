@@ -243,7 +243,7 @@ export const MemoizedDateTimeInput = React.memo(
                     name={field.fieldName}
                     // ${autoFill} ${editable}
                     className={`${validate}`}
-                    showAnalogClock={true}
+                    showAnalogClock={false}
                     ref={refDateTime}
                     onOpenedChange={() => {
                         setTimeout(function () {

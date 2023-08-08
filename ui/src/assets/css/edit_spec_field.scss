@@ -1,5 +1,7 @@
 /*Edycja specyfikacji*/
 
+$primary-color: #0e49eb;
+
 #spec-edit,
 #spec-edit-dialog {
     width: 100%;
@@ -108,3 +110,50 @@
 #spec-edit {
     height: 100%;
 }
+// bloki nalezące do specyfikacji
+.dx-dropdowneditor-overlay.dx-popup-wrapper {
+    .dx-overlay-content {
+        .dx-timeview {
+            background: white;
+        }
+    }
+}
+.dx-timeview-time-separator {
+    margin: 20px !important;
+    font-size: 20px;
+}
+.dx-button-today {
+    background: $primary-color !important;
+    .dx-button-content {
+        .dx-button-text {
+            color: white;
+        }
+    }
+}
+.dx-button-default {
+    background: $primary-color !important;
+    border-radius: 4px !important;
+    .dx-button-content {
+        .dx-button-text {
+            color: white;
+        }
+    }
+}
+.dx-calendar-navigator {
+    .dx-button {
+        border: none;
+    }
+}
+.dx-datebox-wrapper-calendar.dx-datebox-wrapper-datetime {
+    .dx-timeview {
+        margin: 0 !important;
+    }
+}
+.dx-box-item {
+    .dx-texteditor-input-container {
+        .dx-texteditor-input {
+            font-size: 20px;
+        }
+    }
+}
+// end bloki nalezace do specyfikacji

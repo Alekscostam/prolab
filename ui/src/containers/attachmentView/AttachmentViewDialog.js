@@ -65,9 +65,9 @@ export class AttachmentViewDialog extends BaseViewContainer {
             () => {
                 this.getRefGridView().instance.selectAll();
                 const {viewInfo} = this.state.attachmentResponseView;
-                const parentIdArg = UrlUtils.recordIdParamExist()
-                    ? UrlUtils.getURLParameter('recordId')
-                    : viewInfo.parentId;
+                // jesli 0 to znacyz ze jest to SubGridView
+                const parentIdArg = viewInfo.parentId === 0 ? UrlUtils.getURLParameter('recordId') : viewInfo.parentId;
+                // todo przypadek glowengo grida jescze
                 this.dataGridStore
                     .getSelectAllDataGridStore(
                         viewInfo.id,

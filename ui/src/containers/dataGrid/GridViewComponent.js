@@ -52,6 +52,10 @@ class GridViewComponent extends React.Component {
         );
     }
 
+    hasSelectClass(e) {
+        return e.cellElement?.className?.includes('dx-command-select');
+    }
+
     selectAllEvent(e) {
         const value = e?.cellElement?.children[0]?.children[0]?.value;
         return value === 'true' || value === true;
@@ -147,6 +151,9 @@ class GridViewComponent extends React.Component {
                                 let event = this.selectAllEvent(e);
                                 this.props.handleSelectAll(event);
                             } else if (this.ifSelectEvent(e)) {
+                                this.props.handleSelectAll(null);
+                            } else if (this.hasSelectClass(e)) {
+                                // global dla mobile
                                 this.props.handleSelectAll(null);
                             }
                         }

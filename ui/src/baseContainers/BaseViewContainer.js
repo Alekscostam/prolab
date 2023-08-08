@@ -1058,8 +1058,6 @@ export class BaseViewContainer extends BaseContainer {
                     select: false,
                 },
                 () => {
-                    this.getRefGridView().instance.selectAll();
-
                     this.dataGridStore
                         .getSelectAllDataGridStore(
                             this.state.subView == null ? this.state.elementId : this.state.elementSubViewId,
@@ -1079,6 +1077,7 @@ export class BaseViewContainer extends BaseContainer {
                                     selectedRowKeys: result.data,
                                 },
                                 () => {
+                                    this.getRefGridView().instance.selectAll();
                                     this.unblockUi();
                                 }
                             );
