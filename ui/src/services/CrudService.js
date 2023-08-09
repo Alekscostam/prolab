@@ -169,6 +169,27 @@ export default class CrudService extends BaseService {
                 throw err;
             });
     }
+    getHistoryLogColumnsDefnitions(viewId, recordId, parentId, kindView) {
+        let queryStringTmp = [];
+        if (!!parentId) {
+            queryStringTmp.push(`parentId=${parentId}`);
+        }
+        if (!!kindView) {
+            queryStringTmp.push(`kindView=${kindView}`);
+        }
+        return this.fetch(
+            `${this.getDomain()}/${this.path}/${viewId}/historyLog/${recordId}?${queryStringTmp.join('&')}`,
+            {
+                method: 'GET',
+            }
+        )
+            .then((historyLogResponse) => {
+                return Promise.resolve(historyLogResponse);
+            })
+            .catch((err) => {
+                throw err;
+            });
+    }
 
     getPluginExecuteColumnsDefinitions(viewId, pluginId, requestBody, parentId) {
         return this.fetch(

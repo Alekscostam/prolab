@@ -679,6 +679,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                             handleUnselectAll={() => {
                                 this.unselectAllDataGrid();
                             }}
+                            handleHistoryLogRow={(id) => this.historyLog(id)}
                             handleRestoreRow={(id) => this.restore(id)}
                             handleDocumentRow={(id) => this.generate(id)}
                             handlePluginRow={(id) => this.plugin(id)}

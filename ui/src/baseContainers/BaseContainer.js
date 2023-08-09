@@ -30,6 +30,7 @@ import {
 import DataPluginStore from '../containers/dao/DataPluginStore';
 import LocalizationService from '../services/LocalizationService';
 import {Url} from 'devextreme-react/range-selector';
+import DataHistoryLogStore from '../containers/dao/DataHistoryLogStore';
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -1503,6 +1504,52 @@ class BaseContainer extends React.Component {
                 this.showErrorMessages(err);
             });
     }
+    historyLog(recordId) {
+        ConsoleHelper('historyLog');
+        const viewId = this.getRealViewId();
+        const parentId = this.state.elementRecordId;
+        let visibleHistoryLogPanel = false;
+        let visibleMessageHistoryLogPanel = false;
+        const kindView = this.state.kindView;
+        this.crudService
+            .getHistoryLogColumnsDefnitions(viewId, recordId, parentId, kindView)
+            .then((res) => {
+                let parsedHistoryLogViewData;
+                if (res.info.kind === 'GRID') {
+                    visibleHistoryLogPanel = true;
+                    if (!this.historyLogStore) {
+                        this.historyLogStore = new DataHistoryLogStore();
+                    }
+                    const datas = this.historyLogStore.getHistoryLogDataStore(
+                        viewId,
+                        recordId,
+                        parentId,
+                        (err) => {
+                            if (typeof this.showErrorMessage === 'undefined') {
+                                this.props.showErrorMessage(err);
+                            } else {
+                                this.showErrorMessages(err);
+                            }
+                        },
+                        () => {
+                            this.setState({dataHistoryLogStoreSuccess: true});
+                        }
+                    );
+                    parsedHistoryLogViewData = datas;
+                } else {
+                    visibleMessageHistoryLogPanel = true;
+                }
+                this.setState({
+                    parsedHistoryLogView: res,
+                    parsedHistoryLogViewData: parsedHistoryLogViewData,
+                    visibleHistoryLogPanel: visibleHistoryLogPanel,
+                    visibleMessageHistoryLogPanel: visibleMessageHistoryLogPanel,
+                });
+            })
+            .catch((err) => {
+                this.showErrorMessages(err);
+            });
+    }
 
     handleRightHeadPanelContent(element) {
         const elementId = `${element?.id}`;
@@ -1521,6 +1568,10 @@ class BaseContainer extends React.Component {
             case 'OP_PUBLISH':
             case 'SK_PUBLISH':
                 this.publishEntry();
+                break;
+            case 'OP_HISTORY':
+            case 'SK_HISTORY':
+                this.historyLog(elementId);
                 break;
             default:
                 return null;

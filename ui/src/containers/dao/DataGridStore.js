@@ -40,7 +40,7 @@ export default class DataGridStore extends BaseService {
             if (i in this.cachedLoadOptions && this.isNotEmpty(this.cachedLoadOptions[i])) {
                 if (i === 'filter') {
                     // Przypadek selectiona
-                    // prawdopodobnie to całe lepiej jakby wyalic imo... Jest to obejscie no ale takie se.
+                    // prawdopodobnie to całe lepiej jakby wyalic imo... Jest to obejscie oczywiscie, no ale takie se.
                     this.cachedLoadOptions[i][0] = filters[0];
                     this.cachedLoadOptions[i][1] = filters[1];
                     this.cachedLoadOptions[i][2] = filters[2];

@@ -63,7 +63,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
                 select: false,
             },
             () => {
-                this.getRefGridView().instance.selectAll();
+                this.getRefGridView().instance.clearSelection();
                 const {viewInfo} = this.state.attachmentResponseView;
                 // jesli 0 to znacyz ze jest to SubGridView
                 const parentIdArg = viewInfo.parentId === 0 ? UrlUtils.getURLParameter('recordId') : viewInfo.parentId;
@@ -87,6 +87,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
                                 selectedRowKeys: result.data,
                             },
                             () => {
+                                this.getRefGridView().instance.selectAll();
                                 this.unblockUi();
                             }
                         );

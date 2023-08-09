@@ -394,6 +394,9 @@ class CardViewInfiniteComponent extends React.Component {
                                             handleDelete={() => {
                                                 this.props.handleDeleteRow(recordId);
                                             }}
+                                            handleHistory={() => {
+                                                this.props.handleHistoryLogRow(recordId);
+                                            }}
                                             handleFormula={() => {
                                                 this.props.handleFormulaRow(recordId);
                                             }}
@@ -477,6 +480,7 @@ CardViewInfiniteComponent.propTypes = {
     handleAttachmentRow: PropTypes.func.isRequired,
     handleCopyRow: PropTypes.func.isRequired,
     handleDeleteRow: PropTypes.func.isRequired,
+    handleHistory: PropTypes.func.isRequired,
     handleRestoreRow: PropTypes.func.isRequired,
     handlePublishRow: PropTypes.func.isRequired,
 };

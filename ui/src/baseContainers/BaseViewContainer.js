@@ -41,6 +41,8 @@ import ActionButton from '../components/ActionButton';
 import {ConfirmDialog, confirmDialog} from 'primereact/confirmdialog';
 import {StringUtils} from '../utils/StringUtils';
 import {saveObjToCookieGlobal} from '../utils/Cookie';
+import DataHistoryLogStore from '../containers/dao/DataHistoryLogStore';
+import HistoryLogListComponent from '../components/prolab/HistoryLogListComponent';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -60,6 +62,7 @@ export class BaseViewContainer extends BaseContainer {
         this.dataCardStore = new DataCardStore();
         this.dataGanttStore = new DataGanttStore();
         this.dataPluginStore = new DataPluginStore();
+        this.dataHistoryLogStore = new DataHistoryLogStore();
         this.dataTreeStore = new DataTreeStore();
         this.refDataGrid = React.createRef();
         this.ganttRef = React.createRef();
@@ -419,6 +422,10 @@ export class BaseViewContainer extends BaseContainer {
             case 'SK_PUBLISH':
                 this.publishEntry();
                 break;
+            case 'OP_HISTORY':
+            case 'SK_HISTORY':
+                this.historyLog(elementId);
+                break;
             default:
                 return null;
         }
@@ -635,6 +642,32 @@ export class BaseViewContainer extends BaseContainer {
                     defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
                     labels={this.props.labels}
                 />
+                {this.state.visibleHistoryLogPanel ? (
+                    <HistoryLogListComponent
+                        visible={this.state.visibleHistoryLogPanel}
+                        field={this.state.editListField}
+                        parsedHistoryLogView={this.state.parsedHistoryLogView}
+                        parsedHistoryLogViewData={this.state.parsedHistoryLogViewData}
+                        onHide={() => this.setState({visibleHistoryLogPanel: false})}
+                        handleBlockUi={() => {
+                            this.blockUi();
+                            return true;
+                        }}
+                        unselectAllDataGrid={() => {
+                            this.setState({
+                                selectedRowKeys: [],
+                            });
+                        }}
+                        historyLogId={this.state.historyLogId}
+                        selectedRowKeys={this.state.selectedRowKeys}
+                        handleUnblockUi={() => this.unblockUi}
+                        showErrorMessages={(err) => this.showErrorMessages(err)}
+                        dataGridStoreSuccess={this.state.dataHistoryLogStoreSuccess}
+                        selectedRowData={this.state.selectedRowData}
+                        defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
+                        labels={this.props.labels}
+                    />
+                ) : null}
 
                 {this.state.visibleMessagePluginPanel ? (
                     <ConfirmDialog
@@ -1058,6 +1091,7 @@ export class BaseViewContainer extends BaseContainer {
                     select: false,
                 },
                 () => {
+                    this.getRefGridView().instance.clearSelection();
                     this.dataGridStore
                         .getSelectAllDataGridStore(
                             this.state.subView == null ? this.state.elementId : this.state.elementSubViewId,
@@ -1101,7 +1135,6 @@ export class BaseViewContainer extends BaseContainer {
                 () => {
                     this.getRefGridView().instance.deselectAll();
                     this.getRefGridView().instance.clearSelection();
-
                     this.setState(
                         {
                             selectAll: false,
@@ -1358,7 +1391,6 @@ export class BaseViewContainer extends BaseContainer {
                                     }}
                                     handleSelectAll={(selectionValue) => {
                                         this.blockUi();
-
                                         const prevDataGridGlobalReference = this.state?.prevDataGridGlobalReference;
                                         if (prevDataGridGlobalReference) {
                                             window.dataGrid = prevDataGridGlobalReference;
@@ -1401,6 +1433,7 @@ export class BaseViewContainer extends BaseContainer {
                                     handleRestoreRow={(id) => this.restore(id)}
                                     handleDownloadRow={(id) => this.downloadAttachment(id)}
                                     handleAttachmentRow={(id) => this.attachment(id)}
+                                    handleHistoryLogRow={(id) => this.historyLog(id)}
                                     handleCopyRow={(id) => this.showCopyView(id)}
                                     handleArchiveRow={(id) => this.archive(id)}
                                     handlePublishRow={(id) => this.publishEntry(id)}
@@ -1431,6 +1464,7 @@ export class BaseViewContainer extends BaseContainer {
                                     kindView={kindViewArg}
                                     parentId={parentIdArg}
                                     filterId={filterIdArg}
+                                    handleHistoryLogRow={(id) => this.historyLog(id)}
                                     handlePluginRow={(id) => this.plugin(id)}
                                     handleDocumentRow={(id) => this.generate(id)}
                                     handleDeleteRow={(id) => this.delete(id)}
@@ -1503,6 +1537,7 @@ export class BaseViewContainer extends BaseContainer {
                                     handleAttachmentRow={(id) => this.attachment(id)}
                                     handleRestoreRow={(id) => this.restore(id)}
                                     handleCopyRow={(id) => this.showCopyView(id)}
+                                    handleHistoryLogRow={(id) => this.historyLog(id)}
                                     handleArchiveRow={(id) => this.archive(id)}
                                     handlePublishRow={(id) => this.publishEntry(id)}
                                 />

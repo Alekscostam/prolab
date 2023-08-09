@@ -3,6 +3,7 @@ import 'whatwg-fetch';
 import BaseService from '../../services/BaseService';
 import ConsoleHelper from '../../utils/ConsoleHelper';
 import CustomStore from 'devextreme/data/custom_store';
+import TransformFiltersUtil from './util/TransformFiltersUtil';
 
 export default class DataPluginStore extends BaseService {
     constructor() {
@@ -93,23 +94,7 @@ export default class DataPluginStore extends BaseService {
             keyExpr: 'ID',
             load: (loadOptions) => {
                 // w pluginach liczby cos sie psuja nie wiadomo dlaczego tzn. zamieniaja sie na stringu. Tutaj podmieniamy string, który jest liczba na wartosc liczbowa
-                if (loadOptions.filter) {
-                    for (let index = 0; index < loadOptions.filter.length; index++) {
-                        const element = loadOptions.filter[index];
-                        if (Array.isArray(element)) {
-                            for (let index = 0; index < element.length; index++) {
-                                const childrenElement = element[index];
-                                if (!isNaN(childrenElement)) {
-                                    element[index] = parseInt(element[index]);
-                                    element[index - 1] = '=';
-                                }
-                            }
-                        } else if (!isNaN(element)) {
-                            loadOptions.filter[index] = parseInt(loadOptions.filter[index]);
-                            loadOptions.filter[index - 1] = '=';
-                        }
-                    }
-                }
+                TransformFiltersUtil.filterValidTransform(loadOptions);
                 let params = '?';
                 [
                     'filter',

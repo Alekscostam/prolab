@@ -573,6 +573,9 @@ class GanttViewComponent extends React.Component {
                                         handlePublish={() => {
                                             this.props.handlePublish(recordId);
                                         }}
+                                        handleHistory={() => {
+                                            this.props.handleHistoryLogRow(recordId);
+                                        }}
                                         handleCopy={() => {
                                             this.props.handleCopyRow(recordId);
                                         }}
@@ -829,6 +832,7 @@ GanttViewComponent.propTypes = {
     handleAttachmentRow: PropTypes.func.isRequired,
     handleDeleteRow: PropTypes.func.isRequired,
     handleRestoreRow: PropTypes.func.isRequired,
+    handleHistory: PropTypes.func.isRequired,
     handlePublishRow: PropTypes.func.isRequired,
     //other
     handleBlockUi: PropTypes.func.isRequired,

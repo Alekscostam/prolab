@@ -471,7 +471,7 @@ class GridViewComponent extends React.Component {
                                             this.props.handleFormulaRow(recordId);
                                         }}
                                         handleHistory={() => {
-                                            alert('TODO');
+                                            this.props.handleHistoryLogRow(recordId);
                                         }}
                                         handleBlockUi={() => {
                                             this.props.handleBlockUi();
@@ -579,6 +579,7 @@ GridViewComponent.propTypes = {
     handleDownloadRow: PropTypes.func,
     handleRestoreRow: PropTypes.func,
     handlePublishRow: PropTypes.func,
+    handleHistoryLogRow: PropTypes.func,
     //other
     handleBlockUi: PropTypes.func.isRequired,
     handleUnblockUi: PropTypes.func.isRequired,
