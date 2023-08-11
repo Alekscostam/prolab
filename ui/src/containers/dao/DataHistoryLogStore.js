@@ -11,7 +11,7 @@ export default class DataHistoryLogStore extends BaseService {
         this.path = 'view';
     }
 
-    getHistoryLogDataStore(viewIdArg, recordId, parentIdArg, onError, onSuccess) {
+    getHistoryLogDataStore(viewIdArg, recordId, parentIdArg, kindViewArg, onError, onSuccess) {
         if (!viewIdArg) {
             return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0});
         }
@@ -46,7 +46,10 @@ export default class DataHistoryLogStore extends BaseService {
                 const parentIdParam =
                     parentIdArg !== undefined && parentIdArg != null ? `&parentId=${parentIdArg}` : '';
 
-                let url = `${this.domain}/${this.path}/${viewIdArg}/historyLog/${recordId}/data/${params}${parentIdParam}`;
+                const kindViewParam =
+                    kindViewArg !== undefined && kindViewArg != null ? `&kindView=${kindViewArg}` : '';
+
+                let url = `${this.domain}/${this.path}/${viewIdArg}/historyLog/${recordId}/data${params}${parentIdParam}${kindViewParam}`;
                 url = this.commonCorrectUrl(url);
                 return this.fetch(url, {
                     method: 'POST',

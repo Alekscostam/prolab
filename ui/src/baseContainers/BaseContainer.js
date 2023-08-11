@@ -21,15 +21,9 @@ import {DataGridUtils} from '../utils/component/DataGridUtils';
 import {EntryResponseUtils} from '../utils/EntryResponseUtils';
 import CrudService from '../services/CrudService';
 import UrlUtils from '../utils/UrlUtils';
-import {
-    readObjFromCookieGlobal,
-    readValueCookieGlobal,
-    removeCookieGlobal,
-    saveValueToCookieGlobal,
-} from '../utils/Cookie';
+import {readObjFromCookieGlobal, readValueCookieGlobal, removeCookieGlobal} from '../utils/Cookie';
 import DataPluginStore from '../containers/dao/DataPluginStore';
 import LocalizationService from '../services/LocalizationService';
-import {Url} from 'devextreme-react/range-selector';
 import DataHistoryLogStore from '../containers/dao/DataHistoryLogStore';
 
 class BaseContainer extends React.Component {
@@ -1507,10 +1501,12 @@ class BaseContainer extends React.Component {
     historyLog(recordId) {
         ConsoleHelper('historyLog');
         const viewId = this.getRealViewId();
-        const parentId = this.state.elementRecordId;
+        const recordIsZero = recordId === 0 || recordId === '0';
+        const parentId = recordIsZero ? recordId : this.state.elementRecordId;
+        const kindView = recordIsZero ? 'view' : this.state.kindView;
+        recordId = recordIsZero ? UrlUtils.getURLParameter('recordId') : recordId;
         let visibleHistoryLogPanel = false;
         let visibleMessageHistoryLogPanel = false;
-        const kindView = this.state.kindView;
         this.crudService
             .getHistoryLogColumnsDefnitions(viewId, recordId, parentId, kindView)
             .then((res) => {
@@ -1524,6 +1520,7 @@ class BaseContainer extends React.Component {
                         viewId,
                         recordId,
                         parentId,
+                        kindView,
                         (err) => {
                             if (typeof this.showErrorMessage === 'undefined') {
                                 this.props.showErrorMessage(err);
