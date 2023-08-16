@@ -1092,6 +1092,7 @@ export class BaseViewContainer extends BaseContainer {
                 },
                 () => {
                     this.getRefGridView().instance.clearSelection();
+
                     this.dataGridStore
                         .getSelectAllDataGridStore(
                             this.state.subView == null ? this.state.elementId : this.state.elementSubViewId,

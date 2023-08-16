@@ -8,6 +8,7 @@ export default class DataGridStore extends BaseService {
     constructor() {
         super();
         this.path = 'viewdata';
+        // chyba depraced
         this.cachedLoadOptions = null;
     }
 
@@ -39,10 +40,11 @@ export default class DataGridStore extends BaseService {
         ].forEach((i) => {
             if (i in this.cachedLoadOptions && this.isNotEmpty(this.cachedLoadOptions[i])) {
                 if (i === 'filter') {
-                    params += `${i}=${JSON.stringify(this.cachedLoadOptions[i])}&`;
+                    params += `${i}=${JSON.stringify(filters)}&`;
                 } else {
-                    params += `${i}=${JSON.stringify(this.cachedLoadOptions[i])}&`;
+                    params += `${i}=${JSON.stringify(filters)}&`;
                 }
+                this.cachedLoadOptions[i] = filters;
             }
         });
         if (!!viewTypeArg) {

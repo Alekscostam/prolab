@@ -8,7 +8,6 @@ import ViewService from '../services/ViewService';
 import {Breadcrumb} from '../utils/BreadcrumbUtils';
 import {DataGridUtils} from '../utils/component/DataGridUtils';
 import {ViewValidatorUtils} from '../utils/parser/ViewValidatorUtils';
-import MemoizedTreeViewAddSpecComponent from './treeGrid/MemoizedTreeViewComponent';
 import UrlUtils from '../utils/UrlUtils';
 import ConsoleHelper from '../utils/ConsoleHelper';
 import DataTreeStore from './dao/DataTreeStore';
