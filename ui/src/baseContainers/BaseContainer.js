@@ -1833,7 +1833,7 @@ class BaseContainer extends React.Component {
     }
 
     prepareCalculateFormula(id) {
-        ConsoleHelper('handleCalculateFormula');
+        ConsoleHelper('handlePrepareCalculateFormula');
         this.blockUi();
 
         const viewId = this.getRealViewId();
@@ -1851,59 +1851,29 @@ class BaseContainer extends React.Component {
     }
 
     calculateFormula(viewId, parentId, id, fieldsToCalculate) {
+        this.blockUi();
+        ConsoleHelper('calculateFormula');
+        const selectedRowKeys = this.state.selectedRowKeys;
         if (window.location.href.includes('edit-spec')) {
-            this.crudService
-                .calculateFormula(viewId, parentId, id, fieldsToCalculate)
-                .then((res) => {
-                    res?.data?.forEach((calcultedFormula) => {
-                        this.refTreeList.instance
-                            .getDataSource()
-                            ._items.map((el) => el.data)
-                            .forEach((el) => {
-                                if (parseInt(calcultedFormula[0].value) === parseInt(el.ID)) {
-                                    el.WART = calcultedFormula[1].value;
-                                }
-                            });
-                    });
-                    const msg = res.message;
-                    if (!!msg) {
-                        this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title);
-                    } else if (!!res.error) {
-                        this.showResponseErrorMessage(res);
-                    }
-                    if (this.refTreeList?.instance) {
-                        this.refTreeList?.instance?.refresh();
-                    } else {
-                        this.refreshView();
-                    }
-
-                    this.unblockUi();
-                })
-                .catch((err) => {
-                    this.showGlobalErrorMessage(err);
-                    this.unblockUi();
-                });
+            this.calculateFormulaForEditSpec(viewId, parentId, id, fieldsToCalculate);
         } else if (this.state.elementKindView && this.state.elementKindView.toUpperCase() === 'VIEWSPEC') {
             parentId = UrlUtils.getURLParameter('recordId');
             let params = '';
             if (!!id) {
                 params = `&specId=${id}`;
             } else {
-                const selectedRowKeys = this.state.selectedRowKeys;
                 if (selectedRowKeys.length !== 0) {
                     selectedRowKeys.forEach((rowKey) => {
                         params = params + `&specId=${rowKey.ID}`;
                     });
                 }
             }
-
             this.calculateFormulaForView(viewId, parentId, params);
         } else {
             let params = '';
             if (!!id) {
                 params = `?recordId=${id}`;
             } else {
-                const selectedRowKeys = this.state.selectedRowKeys;
                 if (selectedRowKeys.length !== 0) {
                     let first = true;
                     selectedRowKeys.forEach((rowKey) => {
@@ -1918,17 +1888,57 @@ class BaseContainer extends React.Component {
             }
             this.calculateFormulaForView(viewId, parentId, params);
         }
-        this.unselectAllDataGrid();
     }
+
+    calculateFormulaForEditSpec(viewId, parentId, id, fieldsToCalculate) {
+        this.crudService
+            .calculateFormula(viewId, parentId, id, fieldsToCalculate)
+            .then((res) => {
+                res?.data?.forEach((calcultedFormula) => {
+                    this.refTreeList.instance
+                        .getDataSource()
+                        ._items.map((el) => el.data)
+                        .forEach((el) => {
+                            if (parseInt(calcultedFormula[0].value) === parseInt(el.ID)) {
+                                el.WART = calcultedFormula[1].value;
+                            }
+                        });
+                });
+                const msg = res.message;
+                if (!!msg) {
+                    this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title);
+                } else if (!!res.error) {
+                    this.showResponseErrorMessage(res);
+                }
+                if (this.refTreeList?.instance) {
+                    this.refTreeList?.instance?.refresh();
+                } else {
+                    this.refreshView();
+                }
+                this.unblockUi();
+            })
+            .catch((err) => {
+                this.showGlobalErrorMessage(err);
+            })
+            .finally(() => {
+                this.unselectAllDataGrid();
+            });
+    }
+
     calculateFormulaForView(viewId, parentId, params) {
-        this.crudService.calculateFormulaForView(viewId, parentId, params).then((res) => {
-            if (res.message) {
-                this.showSuccessMessage(res.message.text, 1000, res.message.title);
-            } else {
-                this.showResponseErrorMessage(res);
-            }
-            this.refreshView();
-        });
+        this.crudService
+            .calculateFormulaForView(viewId, parentId, params)
+            .then((res) => {
+                if (res.message) {
+                    this.showSuccessMessage(res.message.text, 1000, res.message.title);
+                } else {
+                    this.showResponseErrorMessage(res);
+                }
+                this.refreshView();
+            })
+            .finally(() => {
+                this.unselectAllDataGrid();
+            });
     }
 
     createObjectToCalculate(datas) {
@@ -2053,7 +2063,6 @@ class BaseContainer extends React.Component {
                     () => {
                         if (!!entryResponse.next) {
                             let isInitializePublish = this.state?.isInitializePublish;
-
                             if (this.state?.isInitializePublish === undefined) {
                                 isInitializePublish = true;
                             }

@@ -79,7 +79,7 @@ export class ViewDataCompUtils {
                 case 'E':
                     return 'datetime';
                 case 'T':
-                    return 'datetime';
+                    return 'string'; // to niestety musi byc string dla pola time - bo devextreme nie radzi sobie z tym @link https://supportcenter.devexpress.com/ticket/details/t633188/datagrid-how-to-filter-data-by-time
                 case 'O':
                 case 'H':
                     return 'string';
@@ -199,7 +199,12 @@ export class ViewDataCompUtils {
                     ]);
                 } else {
                     const dateFormatted = this.formatDateFilterExpression(columnDefinition.type, value);
-                    return this.customFilterExpression(operations, columnDefinition.fieldName, dateFormatted);
+                    return this.customFilterExpression(
+                        operations,
+                        columnDefinition.fieldName,
+                        dateFormatted,
+                        columnDefinition
+                    );
                 }
             }
         } catch (err) {
