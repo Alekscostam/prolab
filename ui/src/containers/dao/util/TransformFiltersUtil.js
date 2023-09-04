@@ -19,4 +19,29 @@ export default class TansformFiltersUtil {
             }
         }
     }
+
+    static putValueIntoParam(sort, filter, group, loadOptions, paramName) {
+        const paramValue = loadOptions[paramName];
+        switch (paramValue) {
+            case 'filter':
+                filter = paramValue;
+                break;
+            case 'group':
+                group = paramValue;
+                break;
+            case 'sort':
+                sort = paramValue;
+                break;
+            default:
+        }
+    }
+    static notExcludedForFilter(paramName) {
+        return (
+            paramName !== 'filter' &&
+            paramName !== 'requireTotalCount' &&
+            paramName !== 'searchOperation' &&
+            paramName !== 'group' &&
+            paramName !== 'sort'
+        );
+    }
 }

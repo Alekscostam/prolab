@@ -3,6 +3,7 @@ import 'devextreme/dist/css/dx.light.css';
 import 'whatwg-fetch';
 import BaseService from '../../services/BaseService';
 import ConsoleHelper from '../../utils/ConsoleHelper';
+import TansformFiltersUtil from '../dao/util/TransformFiltersUtil';
 
 export default class DataGridStore extends BaseService {
     constructor() {
@@ -23,6 +24,9 @@ export default class DataGridStore extends BaseService {
         isAttachmentDialog
     ) {
         let params = '?';
+        let filter = undefined;
+        let sort = undefined;
+        let group = undefined;
         [
             !!filters && filters.length > 0 ? 'filter' : undefined,
             'group',
@@ -39,12 +43,23 @@ export default class DataGridStore extends BaseService {
             // 'userData',
         ].forEach((i) => {
             if (i in this.cachedLoadOptions && this.isNotEmpty(this.cachedLoadOptions[i])) {
-                if (i === 'filter') {
-                    params += `${i}=${JSON.stringify(filters)}&`;
-                } else {
+                if (TansformFiltersUtil.notExcludedForFilter(i)) {
                     params += `${i}=${JSON.stringify(filters)}&`;
                 }
-                this.cachedLoadOptions[i] = filters;
+                switch (i) {
+                    case 'filter':
+                        this.cachedLoadOptions[i] = filters;
+                        filter = filters;
+                        break;
+                    case 'group':
+                        group = this.cachedLoadOptions[i];
+                        break;
+                    case 'sort':
+                        sort = this.cachedLoadOptions[i];
+                        break;
+                    default:
+                    // nothing
+                }
             }
         });
         if (!!viewTypeArg) {
@@ -59,10 +74,16 @@ export default class DataGridStore extends BaseService {
         if (isAttachmentDialog) {
             recordParentViewIdParam = !!recordParentViewIdArg ? `&parentViewId=${recordParentViewIdArg}` : '';
         }
+        const requestBody = {
+            filter: filter,
+            sort: sort,
+            group: group,
+        };
         let url = `${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${recordParentIdParam}${recordParentViewIdParam}${kindViewParam}${selectAllParam}`;
         url = this.commonCorrectUrl(url);
         return this.fetch(url, {
-            method: 'GET',
+            method: 'POST',
+            body: JSON.stringify(requestBody),
         }).then((res) => {
             return Promise.resolve(res);
         });
@@ -92,6 +113,9 @@ export default class DataGridStore extends BaseService {
             load: (loadOptions) => {
                 this.cachedLoadOptions = loadOptions;
                 let params = '?';
+                const filter = loadOptions?.filter;
+                const sort = loadOptions?.sort;
+                const group = loadOptions?.group;
                 [
                     'filter',
                     'group',
@@ -110,7 +134,9 @@ export default class DataGridStore extends BaseService {
                     // 'userData',
                 ].forEach((i) => {
                     if (i in loadOptions && this.isNotEmpty(loadOptions[i])) {
-                        params += `${i}=${JSON.stringify(loadOptions[i])}&`;
+                        if (TansformFiltersUtil.notExcludedForFilter(i)) {
+                            params += `${i}=${JSON.stringify(loadOptions[i])}&`;
+                        }
                     }
                 });
                 if (!!viewTypeArg) {
@@ -153,9 +179,15 @@ export default class DataGridStore extends BaseService {
 
                 let url = `${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${recordParentIdParam}${recordParentViewIdParam}${kindViewParam}${selectAllParam}`;
                 url = this.commonCorrectUrl(url);
+                const requestBody = {
+                    filter: filter,
+                    sort: sort,
+                    group: group,
+                };
                 //blokuje niepotrzebne requesty do backendu o ID rekordów
                 return this.fetch(url, {
-                    method: 'GET',
+                    method: 'POST',
+                    body: JSON.stringify(requestBody),
                 })
                     .then((response) => {
                         ConsoleHelper('DataGridStore -> fetch ');
