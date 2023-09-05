@@ -89,7 +89,9 @@ export default class EditListDataStore extends BaseService {
                     data: elementArg.data,
                 };
                 const url = `${this.domain}/${this.path}/${viewIdArg}/${point}/${recordIdArg}/list/${fieldIdArg}/data${params}${parentIdParam}${filterIdParam}${selectAllParam}${viewTypeParam}${kindViewParam}`;
-                if (url.indexOf(_key) > 0) {
+                let crcFilter = filter?.toString() === undefined ? '' : filter.toString();
+                crcFilter = 'CRC' + crcFilter;
+                if (crcFilter.indexOf(_key) > 0) {
                     //myk blokujący nadmiarowo generowane requesty przez store odnośnie selection
                     return Promise.reject('');
                 } else {

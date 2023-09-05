@@ -44,10 +44,6 @@ export default class TansformFiltersUtil {
     static isDataColumn(element) {
         return Array.isArray(element) && element.length === 3 && element[0].includes('DATA');
     }
-    static isArrayInsideArray(element) {
-        Array.isArray(element);
-        return Array.isArray(element);
-    }
 
     static notExcludedForFilter(paramName) {
         return (
