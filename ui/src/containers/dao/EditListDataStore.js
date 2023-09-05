@@ -63,6 +63,7 @@ export default class EditListDataStore extends BaseService {
                     // 'userData',
                 ].forEach((i) => {
                     if (i in loadOptions && this.isNotEmpty(loadOptions[i])) {
+                        TansformFiltersUtil.replaceNotValidDateFromLoadOptions(i, loadOptions);
                         if (TansformFiltersUtil.notExcludedForFilter(i)) {
                             params += `${i}=${JSON.stringify(loadOptions[i])}&`;
                         }
@@ -85,7 +86,7 @@ export default class EditListDataStore extends BaseService {
                     filter: filter,
                     sort: sort,
                     group: group,
-                    data: elementArg,
+                    data: elementArg.data,
                 };
                 const url = `${this.domain}/${this.path}/${viewIdArg}/${point}/${recordIdArg}/list/${fieldIdArg}/data${params}${parentIdParam}${filterIdParam}${selectAllParam}${viewTypeParam}${kindViewParam}`;
                 if (url.indexOf(_key) > 0) {

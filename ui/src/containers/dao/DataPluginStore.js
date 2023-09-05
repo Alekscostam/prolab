@@ -43,6 +43,7 @@ export default class DataPluginStore extends BaseService {
                     'totalSummary',
                 ].forEach((i) => {
                     if (i in loadOptions && this.isNotEmpty(loadOptions[i])) {
+                        TansformFiltersUtil.replaceNotValidDateFromLoadOptions(i, loadOptions);
                         if (TansformFiltersUtil.notExcludedForFilter(i)) {
                             params += `${i}=${JSON.stringify(loadOptions[i])}&`;
                         }
@@ -56,7 +57,7 @@ export default class DataPluginStore extends BaseService {
                     filter: filter,
                     sort: sort,
                     group: group,
-                    elementArg: elementArg,
+                    listId: elementArg?.listId,
                 };
                 const url = `${this.domain}/${this.path}/${viewIdArg}/plugin/${pluginId}/execute/data/${params}${parentIdParam}`;
                 if (url.indexOf(_key) > 0) {
@@ -144,7 +145,7 @@ export default class DataPluginStore extends BaseService {
                     filter: filter,
                     sort: sort,
                     group: group,
-                    elementArg: elementArg,
+                    listId: elementArg?.listId,
                 };
 
                 let url = `${this.domain}/${this.path}/${viewIdArg}/plugin/${pluginId}/data/${params}${parentIdParam}`;

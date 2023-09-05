@@ -43,6 +43,7 @@ export default class DataHistoryLogStore extends BaseService {
                     'totalSummary',
                 ].forEach((i) => {
                     if (i in loadOptions && this.isNotEmpty(loadOptions[i])) {
+                        TansformFiltersUtil.replaceNotValidDateFromLoadOptions(i, loadOptions);
                         if (TansformFiltersUtil.notExcludedForFilter(i)) {
                             params += `${i}=${JSON.stringify(loadOptions[i])}&`;
                         }

@@ -134,6 +134,7 @@ export default class DataGridStore extends BaseService {
                     // 'userData',
                 ].forEach((i) => {
                     if (i in loadOptions && this.isNotEmpty(loadOptions[i])) {
+                        TansformFiltersUtil.replaceNotValidDateFromLoadOptions(i, loadOptions);
                         if (TansformFiltersUtil.notExcludedForFilter(i)) {
                             params += `${i}=${JSON.stringify(loadOptions[i])}&`;
                         }

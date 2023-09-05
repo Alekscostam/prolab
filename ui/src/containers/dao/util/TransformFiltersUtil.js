@@ -20,21 +20,35 @@ export default class TansformFiltersUtil {
         }
     }
 
-    static putValueIntoParam(sort, filter, group, loadOptions, paramName) {
-        const paramValue = loadOptions[paramName];
-        switch (paramValue) {
-            case 'filter':
-                filter = paramValue;
-                break;
-            case 'group':
-                group = paramValue;
-                break;
-            case 'sort':
-                sort = paramValue;
-                break;
-            default:
+    static replaceNotValidDateFromLoadOptions(paramName, loadOptions) {
+        if (paramName === 'filter') {
+            if (loadOptions.filter) {
+                for (let x = 0; x < loadOptions.filter.length; x++) {
+                    const element = loadOptions.filter[x];
+                    if (Array.isArray(element)) {
+                        for (let y = 0; y < element.length; y++) {
+                            const childrenElement = element[y];
+                            if (this.isDataColumn(childrenElement)) {
+                                loadOptions.filter[x][y][2] = '';
+                            } else if (childrenElement === 'Invalid date') {
+                                loadOptions.filter[x][y] = '';
+                            }
+                        }
+                    }
+                }
+            }
         }
+        return loadOptions;
     }
+
+    static isDataColumn(element) {
+        return Array.isArray(element) && element.length === 3 && element[0].includes('DATA');
+    }
+    static isArrayInsideArray(element) {
+        Array.isArray(element);
+        return Array.isArray(element);
+    }
+
     static notExcludedForFilter(paramName) {
         return (
             paramName !== 'filter' &&
