@@ -5,6 +5,7 @@ import BaseService from '../../services/BaseService';
 import ConsoleHelper from '../../utils/ConsoleHelper';
 import EditListUtils from '../../utils/EditListUtils';
 import UrlUtils from '../../utils/UrlUtils';
+import TansformFiltersUtil from '../dao/util/TransformFiltersUtil';
 //example
 //api//View/{id}/Edit/{recordId}/list/{fieldId}/data?skip={skip}&take={take}&parentId={parentId}&sort={sort}&filter={filter}
 export default class EditListDataStore extends BaseService {
@@ -40,6 +41,9 @@ export default class EditListDataStore extends BaseService {
                     let result = onStart();
                     selectAll = result?.selectAll;
                 }
+                const filter = loadOptions?.filter;
+                const sort = loadOptions?.sort;
+                const group = loadOptions?.group;
                 let params = '?';
                 [
                     'filter',
@@ -59,7 +63,9 @@ export default class EditListDataStore extends BaseService {
                     // 'userData',
                 ].forEach((i) => {
                     if (i in loadOptions && this.isNotEmpty(loadOptions[i])) {
-                        params += `${i}=${JSON.stringify(loadOptions[i])}&`;
+                        if (TansformFiltersUtil.notExcludedForFilter(i)) {
+                            params += `${i}=${JSON.stringify(loadOptions[i])}&`;
+                        }
                     }
                 });
                 const viewTypeParam =
@@ -75,6 +81,12 @@ export default class EditListDataStore extends BaseService {
                     point = 'batch';
                     recordIdArg = batchId;
                 }
+                const requestBody = {
+                    filter: filter,
+                    sort: sort,
+                    group: group,
+                    data: elementArg,
+                };
                 const url = `${this.domain}/${this.path}/${viewIdArg}/${point}/${recordIdArg}/list/${fieldIdArg}/data${params}${parentIdParam}${filterIdParam}${selectAllParam}${viewTypeParam}${kindViewParam}`;
                 if (url.indexOf(_key) > 0) {
                     //myk blokujący nadmiarowo generowane requesty przez store odnośnie selection
@@ -82,7 +94,7 @@ export default class EditListDataStore extends BaseService {
                 } else {
                     return this.fetch(url, {
                         method: 'POST',
-                        body: JSON.stringify(elementArg),
+                        body: JSON.stringify(requestBody),
                     })
                         .then((response) => {
                             console.time('CALC_CRC');

@@ -4,6 +4,7 @@ import BaseService from '../../services/BaseService';
 import ConsoleHelper from '../../utils/ConsoleHelper';
 import TransformFiltersUtil from './util/TransformFiltersUtil';
 import CustomStore from 'devextreme/data/custom_store';
+import TansformFiltersUtil from '../dao/util/TransformFiltersUtil';
 
 export default class DataHistoryLogStore extends BaseService {
     constructor() {
@@ -21,6 +22,9 @@ export default class DataHistoryLogStore extends BaseService {
             keyExpr: 'ID',
             load: (loadOptions) => {
                 TransformFiltersUtil.filterValidTransform(loadOptions);
+                const filter = loadOptions?.filter;
+                const sort = loadOptions?.sort;
+                const group = loadOptions?.group;
                 let params = '?';
                 [
                     'filter',
@@ -39,7 +43,9 @@ export default class DataHistoryLogStore extends BaseService {
                     'totalSummary',
                 ].forEach((i) => {
                     if (i in loadOptions && this.isNotEmpty(loadOptions[i])) {
-                        params += `${i}=${JSON.stringify(loadOptions[i])}&`;
+                        if (TansformFiltersUtil.notExcludedForFilter(i)) {
+                            params += `${i}=${JSON.stringify(loadOptions[i])}&`;
+                        }
                     }
                 });
 
@@ -49,10 +55,16 @@ export default class DataHistoryLogStore extends BaseService {
                 const kindViewParam =
                     kindViewArg !== undefined && kindViewArg != null ? `&kindView=${kindViewArg}` : '';
 
+                const requestBody = {
+                    filter: filter,
+                    sort: sort,
+                    group: group,
+                };
                 let url = `${this.domain}/${this.path}/${viewIdArg}/historyLog/${recordId}/data${params}${parentIdParam}${kindViewParam}`;
                 url = this.commonCorrectUrl(url);
                 return this.fetch(url, {
                     method: 'POST',
+                    body: JSON.stringify(requestBody),
                 })
                     .then((response) => {
                         ConsoleHelper('HistoryLogDataStore -> fetch ');

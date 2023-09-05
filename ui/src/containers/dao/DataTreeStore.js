@@ -49,10 +49,10 @@ export default class DataTreeStore extends BaseService {
         if (!StringUtils.isBlank(type) || type !== 'DEF') {
             url += `&type=${type}&header=${header}&headerId=${headerId}`;
         }
-
         url = this.commonCorrectUrl(url);
         return this.fetch(url, {
-            method: 'GET',
+            method: 'POST',
+            body: JSON.stringify({}),
         }).catch((err) => {
             throw err;
         });

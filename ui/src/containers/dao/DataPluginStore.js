@@ -4,6 +4,7 @@ import BaseService from '../../services/BaseService';
 import ConsoleHelper from '../../utils/ConsoleHelper';
 import CustomStore from 'devextreme/data/custom_store';
 import TransformFiltersUtil from './util/TransformFiltersUtil';
+import TansformFiltersUtil from '../dao/util/TransformFiltersUtil';
 
 export default class DataPluginStore extends BaseService {
     constructor() {
@@ -21,6 +22,9 @@ export default class DataPluginStore extends BaseService {
             key: _key,
             keyExpr: 'ID',
             load: (loadOptions) => {
+                let filter = loadOptions?.filter;
+                let sort = loadOptions?.sort;
+                let group = loadOptions?.group;
                 let params = '?';
                 [
                     'filter',
@@ -39,13 +43,21 @@ export default class DataPluginStore extends BaseService {
                     'totalSummary',
                 ].forEach((i) => {
                     if (i in loadOptions && this.isNotEmpty(loadOptions[i])) {
-                        params += `${i}=${JSON.stringify(loadOptions[i])}&`;
+                        if (TansformFiltersUtil.notExcludedForFilter(i)) {
+                            params += `${i}=${JSON.stringify(loadOptions[i])}&`;
+                        }
                     }
                 });
 
                 const parentIdParam =
                     parentIdArg !== undefined && parentIdArg != null ? `&parentId=${parentIdArg}` : '';
 
+                const requestBody = {
+                    filter: filter,
+                    sort: sort,
+                    group: group,
+                    elementArg: elementArg,
+                };
                 const url = `${this.domain}/${this.path}/${viewIdArg}/plugin/${pluginId}/execute/data/${params}${parentIdParam}`;
                 if (url.indexOf(_key) > 0) {
                     //myk blokujący nadmiarowo generowane requesty przez store odnośnie selection
@@ -53,7 +65,7 @@ export default class DataPluginStore extends BaseService {
                 } else {
                     return this.fetch(url, {
                         method: 'POST',
-                        body: JSON.stringify(elementArg),
+                        body: JSON.stringify(requestBody),
                     })
                         .then((response) => {
                             this.cachedLastResponse = {
@@ -95,6 +107,11 @@ export default class DataPluginStore extends BaseService {
             load: (loadOptions) => {
                 // w pluginach liczby cos sie psuja nie wiadomo dlaczego tzn. zamieniaja sie na stringu. Tutaj podmieniamy string, który jest liczba na wartosc liczbowa
                 TransformFiltersUtil.filterValidTransform(loadOptions);
+
+                const filter = loadOptions?.filter;
+                const sort = loadOptions?.sort;
+                const group = loadOptions?.group;
+
                 let params = '?';
                 [
                     'filter',
@@ -113,18 +130,28 @@ export default class DataPluginStore extends BaseService {
                     'totalSummary',
                 ].forEach((i) => {
                     if (i in loadOptions && this.isNotEmpty(loadOptions[i])) {
-                        params += `${i}=${JSON.stringify(loadOptions[i])}&`;
+                        if (TansformFiltersUtil.notExcludedForFilter(i)) {
+                            if (TansformFiltersUtil.notExcludedForFilter(i)) {
+                                params += `${i}=${JSON.stringify(loadOptions[i])}&`;
+                            }
+                        }
                     }
                 });
 
                 const parentIdParam =
                     parentIdArg !== undefined && parentIdArg != null ? `&parentId=${parentIdArg}` : '';
+                const requestBody = {
+                    filter: filter,
+                    sort: sort,
+                    group: group,
+                    elementArg: elementArg,
+                };
 
                 let url = `${this.domain}/${this.path}/${viewIdArg}/plugin/${pluginId}/data/${params}${parentIdParam}`;
                 url = this.commonCorrectUrl(url);
                 return this.fetch(url, {
                     method: 'POST',
-                    body: JSON.stringify(elementArg),
+                    body: JSON.stringify(requestBody),
                 })
                     .then((response) => {
                         ConsoleHelper('PluginListDataStore -> fetch ');
