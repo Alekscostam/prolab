@@ -201,14 +201,6 @@ class GridViewComponent extends React.Component {
                         deferred={this.props.selectionDeferred}
                     />
 
-                    {/*  byc moze moze byc sam standard mode bo i tak jest tutaj paginacja */}
-                    {/* 
-                    <Scrolling
-                        mode='virtual'
-                        rowRenderingMode={this.props.showRenderingViewMode === true ? 'virtual' : 'standard'}
-                        preloadEnabled={false}
-                    />
-                     */}
                     <Scrolling mode='virtual' rowRenderingMode={'standard'} preloadEnabled={false} />
 
                     <Paging defaultPageSize={packageCount} pageSize={packageCount} />
@@ -221,8 +213,8 @@ class GridViewComponent extends React.Component {
                         position='absolute'
                     />
                     {this.preGenerateColumnsDefinition()}
-                </DataGrid>
-                {/* </div> */}
+                </DataGrid> 
+               
             </React.Fragment>
         );
     }

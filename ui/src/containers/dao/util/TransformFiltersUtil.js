@@ -29,7 +29,9 @@ export default class TansformFiltersUtil {
                         for (let y = 0; y < element.length; y++) {
                             const childrenElement = element[y];
                             if (this.isDataColumn(childrenElement)) {
-                                loadOptions.filter[x][y][2] = '';
+                                if(childrenElement[2] === 'Invalid date'){
+                                    loadOptions.filter[x][y][2] = '';
+                                }
                             } else if (childrenElement === 'Invalid date') {
                                 loadOptions.filter[x][y] = '';
                             }
@@ -40,7 +42,9 @@ export default class TansformFiltersUtil {
         }
         return loadOptions;
     }
-
+    static isNotValidRequiredParam(param){
+        return !(param === true || param === false || param === "" || param === "true" || param === "false" || param === undefined || param === null);
+      }
     static isDataColumn(element) {
         return Array.isArray(element) && element.length === 3 && element[0].includes('DATA');
     }
@@ -48,7 +52,6 @@ export default class TansformFiltersUtil {
     static notExcludedForFilter(paramName) {
         return (
             paramName !== 'filter' &&
-            paramName !== 'requireTotalCount' &&
             paramName !== 'searchOperation' &&
             paramName !== 'group' &&
             paramName !== 'sort'

@@ -111,6 +111,10 @@ export default class DataGridStore extends BaseService {
             key: 'ID',
             keyExpr: 'ID',
             load: (loadOptions) => {
+                if(loadOptions?.take === undefined  || loadOptions?.take === null){
+                    // Tu wchodiz tylko dla opcji grupowania, initial value na 60
+                    loadOptions.take = 60;
+                }
                 this.cachedLoadOptions = loadOptions;
                 let params = '?';
                 const filter = loadOptions?.filter;
@@ -135,6 +139,10 @@ export default class DataGridStore extends BaseService {
                 ].forEach((i) => {
                     if (i in loadOptions && this.isNotEmpty(loadOptions[i])) {
                         TansformFiltersUtil.replaceNotValidDateFromLoadOptions(i, loadOptions);
+                        if((i==="requireGroupCount" || i==="requireTotalCount") && TansformFiltersUtil.isNotValidRequiredParam(loadOptions[i])){
+                            // TODO: fix - czasami zdazało sie ze ten komponent zwracl; nierpawidlowe warotsic w requiredGroupCount i w requiredTotalCount
+                            loadOptions[i] = false;
+                        }
                         if (TansformFiltersUtil.notExcludedForFilter(i)) {
                             params += `${i}=${JSON.stringify(loadOptions[i])}&`;
                         }
@@ -165,7 +173,6 @@ export default class DataGridStore extends BaseService {
                         // }
                     }
                 }
-
                 const filterIdParam = !!filterIdArg ? `&filterId=${filterIdArg}` : '';
                 let recordParentIdParam = !!recordParentIdArg ? `&parentId=${recordParentIdArg}` : '';
                 if (isAttachmentDialog) {
