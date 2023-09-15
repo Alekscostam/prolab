@@ -244,10 +244,15 @@ export default class CrudService extends BaseService {
             });
     }
 
-    attachmentEntry(viewId, recordId, parentIdParam) {
-        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/attachment/${recordId}/Entry${parentIdParam}`, {
-            method: 'POST',
-        })
+    attachmentEntry(viewId, recordId, parentIdParam, isKindViewSpec) {
+        return this.fetch(
+            `${this.getDomain()}/${this.path}/${viewId}/attachment/${recordId}/Entry${parentIdParam}${
+                isKindViewSpec ? '&kindView=ViewSpec' : ''
+            }`,
+            {
+                method: 'POST',
+            }
+        )
             .then((attachmentEntryResponse) => {
                 return Promise.resolve(attachmentEntryResponse);
             })
@@ -256,7 +261,7 @@ export default class CrudService extends BaseService {
             });
     }
 
-    uploadAttachemnt(viewId, parentId, parentViewId, formData) {
+    uploadAttachemnt(viewId, parentId, parentViewId, formData, isKindViewSpec) {
         const headers = {
             Accept: 'application/json',
             'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -267,7 +272,9 @@ export default class CrudService extends BaseService {
         return this.fetch(
             `${this.getDomain()}/${
                 this.path
-            }/${viewId}/Attachment/Upload?parentId=${parentId}&parentViewId=${parentViewId}`,
+            }/${viewId}/Attachment/Upload?parentId=${parentId}&parentViewId=${parentViewId}${
+                isKindViewSpec ? '&parentKindView=ViewSpec' : ''
+            }`,
             {
                 method: 'POST',
                 body: formData,

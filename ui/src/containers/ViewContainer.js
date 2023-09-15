@@ -327,6 +327,7 @@ export class ViewContainer extends BaseViewContainer {
                         handleRenderNoRefreshContent={(renderNoRefreshContent) => {
                             this.setState({renderNoRefreshContent: renderNoRefreshContent});
                         }}
+                        isKindViewSpec={this.state?.attachmentViewInfo?.isKindViewSpec}
                         prevDataGridGlobalReference={this.state.prevDataGridGlobalReference}
                         setPrevDataGridGlobalReference={() => {
                             this.setState({

@@ -1615,8 +1615,9 @@ class BaseContainer extends React.Component {
         const viewId = viewInfo.id;
         let parentId = this.getParentValidNumber(gridView);
         const parentViewId = viewInfo.parentViewId;
+        const isKindViewSpec = this.props.isKindViewSpec;
         this.crudService
-            .uploadAttachemnt(viewId, parentId, parentViewId, attachmentFile)
+            .uploadAttachemnt(viewId, parentId, parentViewId, attachmentFile, isKindViewSpec)
             .then((uploadResponse) => {
                 EntryResponseUtils.run(
                     uploadResponse,
@@ -1797,7 +1798,6 @@ class BaseContainer extends React.Component {
         if (Array.isArray(recordId)) {
             recordId = recordId[0];
         }
-
         let parentIdParam = '';
         if (!isAttachmentFromHeader) {
             const recordId = UrlUtils.getURLParameter('recordId');
@@ -1805,8 +1805,16 @@ class BaseContainer extends React.Component {
                 parentIdParam = '?parentId=' + recordId;
             }
         }
+        const isKindViewSpec =
+            this.state.elementKindView === 'ViewSpec' &&
+            this.state.kindView === 'ViewSpec' &&
+            recordId !== '0' &&
+            recordId !== 0;
+        if (recordId === '0' || recordId === 0) {
+            recordId = this.state.elementRecordId;
+        }
         this.crudService
-            .attachmentEntry(viewId, recordId, parentIdParam)
+            .attachmentEntry(viewId, recordId, parentIdParam, isKindViewSpec)
             .then((attachmentResponse) => {
                 EntryResponseUtils.run(
                     attachmentResponse,
@@ -1817,6 +1825,7 @@ class BaseContainer extends React.Component {
                                 attachmentViewInfo: {
                                     viewId,
                                     recordId,
+                                    isKindViewSpec,
                                 },
                             });
                             this.unblockUi();

@@ -460,7 +460,9 @@ export class EditSpecContainer extends BaseContainer {
         this.specSave(viewId, parentId, saveElement, false);
         this.unblockUi();
     }
-
+    booleanShouldBeZero(row, el) {
+        return row[el] === '0' || row[el] === 0 || row[el] === undefined || row[el] === null || row[el] === false;
+    }
     //override
     createObjectToSave(rowArray) {
         const booleanLogicColumns = this.state.columns.filter((el) => el.type === 'L');
@@ -477,7 +479,7 @@ export class EditSpecContainer extends BaseContainer {
             Object.keys(row).forEach((el) => {
                 booleanNumberColumns.forEach((bool) => {
                     if (bool.fieldName === el) {
-                        row[el] ? (row[el] = 1) : (row[el] = 0);
+                        row[el] = this.booleanShouldBeZero(row, el) ? 0 : 1;
                     }
                 });
             });

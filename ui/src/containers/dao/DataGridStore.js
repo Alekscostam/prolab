@@ -99,7 +99,8 @@ export default class DataGridStore extends BaseService {
         onSuccessCallback,
         onErrorCallback,
         recordParentViewIdArg,
-        isAttachmentDialog
+        isAttachmentDialog,
+        isKindViewSpec
     ) {
         if (!viewIdArg) {
             if (onSuccessCallback) {
@@ -111,7 +112,7 @@ export default class DataGridStore extends BaseService {
             key: 'ID',
             keyExpr: 'ID',
             load: (loadOptions) => {
-                if(loadOptions?.take === undefined  || loadOptions?.take === null){
+                if (loadOptions?.take === undefined || loadOptions?.take === null) {
                     // Tu wchodiz tylko dla opcji grupowania, initial value na 60
                     loadOptions.take = 60;
                 }
@@ -139,7 +140,10 @@ export default class DataGridStore extends BaseService {
                 ].forEach((i) => {
                     if (i in loadOptions && this.isNotEmpty(loadOptions[i])) {
                         TansformFiltersUtil.replaceNotValidDateFromLoadOptions(i, loadOptions);
-                        if((i==="requireGroupCount" || i==="requireTotalCount") && TansformFiltersUtil.isNotValidRequiredParam(loadOptions[i])){
+                        if (
+                            (i === 'requireGroupCount' || i === 'requireTotalCount') &&
+                            TansformFiltersUtil.isNotValidRequiredParam(loadOptions[i])
+                        ) {
                             // TODO: fix - czasami zdazało sie ze ten komponent zwracl; nierpawidlowe warotsic w requiredGroupCount i w requiredTotalCount
                             loadOptions[i] = false;
                         }
@@ -184,8 +188,9 @@ export default class DataGridStore extends BaseService {
                 const kindViewParam = !!kindViewArg && !!recordParentIdParam ? `&kindView=${kindViewArg}` : '';
                 const selectAllParam = !!addSelectAllParam ? `&selection=true` : '';
                 const recordParentViewIdParam = !!recordParentViewIdArg ? `&parentViewId=${recordParentViewIdArg}` : '';
+                const viewSpec = isKindViewSpec ? `&parentKindView=viewSpec` : '';
 
-                let url = `${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${recordParentIdParam}${recordParentViewIdParam}${kindViewParam}${selectAllParam}`;
+                let url = `${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${recordParentIdParam}${recordParentViewIdParam}${kindViewParam}${viewSpec}${selectAllParam}`;
                 url = this.commonCorrectUrl(url);
                 const requestBody = {
                     filter: filter,

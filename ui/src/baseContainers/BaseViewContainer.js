@@ -347,7 +347,6 @@ export class BaseViewContainer extends BaseContainer {
                     hint: viewButton?.label,
                 });
             }
-
             this.setState(
                 () => ({
                     loading: false, //elementId: this.props.id,

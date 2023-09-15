@@ -67,6 +67,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
                 const {viewInfo} = this.state.attachmentResponseView;
                 // jesli 0 to znacyz ze jest to SubGridView
                 const parentIdArg = viewInfo.parentId === 0 ? UrlUtils.getURLParameter('recordId') : viewInfo.parentId;
+
                 // todo przypadek glowengo grida jescze
                 this.dataGridStore
                     .getSelectAllDataGridStore(
@@ -109,7 +110,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
         }
         this.setState({loading: true}, () => {
             this.viewService
-                .getAttachemntView(viewId, recordId, parentId)
+                .getAttachemntView(viewId, recordId, parentId, this.props.isKindViewSpec)
                 .then((responseView) => {
                     const {elementSubViewId} = this.state;
                     this.setState({
@@ -179,7 +180,8 @@ export class AttachmentViewDialog extends BaseViewContainer {
                     );
                 },
                 parentViewIdArg,
-                true
+                true,
+                this.props.isKindViewSpec
             );
             if (!!res) {
                 this.setState({

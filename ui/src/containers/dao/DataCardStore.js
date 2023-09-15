@@ -45,7 +45,8 @@ export default class DataCardStore extends BaseService {
         let url = `${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${recordParentIdParam}${kindViewParam}`;
         url = this.commonCorrectUrl(url);
         return this.fetch(url, {
-            method: 'GET',
+            method: 'POST',
+            body: JSON.stringify({}),
         }).then((res) => {
             return Promise.resolve(res);
         });
@@ -101,7 +102,8 @@ export default class DataCardStore extends BaseService {
                 let url = `${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${recordParentIdParam}${kindViewParam}`;
                 url = this.commonCorrectUrl(url);
                 return this.fetch(url, {
-                    method: 'GET',
+                    method: 'POST',
+                    body: JSON.stringify({}),
                 })
                     .then((response) => {
                         ConsoleHelper('DataCardStore -> fetch ');

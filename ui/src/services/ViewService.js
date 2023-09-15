@@ -37,16 +37,21 @@ export default class ViewService extends BaseService {
         });
     }
 
-    getAttachemntView(viewId, recordId, parentId) {
+    getAttachemntView(viewId, recordId, parentId, isKindViewSpec) {
         if (Array.isArray(recordId)) {
             recordId = recordId[0];
         }
         if (!parentId) {
             parentId = 0;
         }
-        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/attachment/${recordId}?parentId=${parentId}`, {
-            method: 'GET',
-        })
+        return this.fetch(
+            `${this.getDomain()}/${this.path}/${viewId}/attachment/${recordId}?parentId=${parentId}${
+                isKindViewSpec ? '&kindView=ViewSpec' : ''
+            }`,
+            {
+                method: 'GET',
+            }
+        )
             .then((attachmentResponse) => {
                 return Promise.resolve(attachmentResponse);
             })
