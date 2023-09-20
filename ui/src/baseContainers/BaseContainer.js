@@ -2196,7 +2196,7 @@ class BaseContainer extends React.Component {
             this.setState({documentdInfo: documentInfo, modifyEditData: true});
         }
     }
-
+    // TUUUU
     handleEditRowChange(inputType, event, groupName, info) {
         ConsoleHelper(`handleEditRowChange inputType=${inputType} groupName=${groupName}`);
         let editData = this.state.editData;
@@ -2265,6 +2265,9 @@ class BaseContainer extends React.Component {
                 varName = event.target?.name;
                 varValue = event.target?.value || event.target?.value === '' ? event.target.value : undefined;
                 break;
+        }
+        if (varValue === '') {
+            varValue = null;
         }
         return {
             varName: varName,
