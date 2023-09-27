@@ -20,6 +20,7 @@ import AppPrefixUtils from '../../utils/AppPrefixUtils';
 import UrlUtils from '../../utils/UrlUtils';
 import Avatar from '../../components/prolab/Avatar';
 import ConsoleHelper from '../../utils/ConsoleHelper';
+import AuthService from '../../services/AuthService';
 
 class Sidebar extends React.Component {
     constructor(props) {
@@ -45,6 +46,7 @@ class Sidebar extends React.Component {
         this.menuService = new MenuService();
         this.viewService = new ViewService();
         this.versionService = new VersionService();
+        this.authService = new AuthService();
         this.handleLogoutUser = this.handleLogoutUser.bind(this);
         this.handleFilter = this.handleFilter.bind(this);
         this.handleCollapseChange = this.handleCollapseChange.bind(this);
@@ -291,6 +293,11 @@ class Sidebar extends React.Component {
                                         className='title'
                                         style={{fontSize: '14px', fontWeight: 'normal'}}
                                         onClick={(e) => {
+                                            this.authService.refresh().catch(err=>{
+                                                if (err.status === 401) {
+                                                    this.handleLogoutUser();
+                                                }
+                                            });
                                             let href = e.target.href;
                                             e.target.href = UrlUtils.addParameterToURL(href, 'force', Date.now());
                                         }}

@@ -54,6 +54,7 @@ class BaseContainer extends React.Component {
         this.handleGetDetailsError = this.handleGetDetailsError.bind(this);
         this.renderGlobalTop = this.renderGlobalTop.bind(this);
         this.handleEditRowChange = this.handleEditRowChange.bind(this);
+        this.handleLogoutUser = this.handleLogoutUser.bind(this);
         this.handleEditRowSave = this.handleEditRowSave.bind(this);
         this.handleEditRowBlur = this.handleEditRowBlur.bind(this);
         this.handleAutoFillRowChange = this.handleAutoFillRowChange.bind(this);
@@ -86,8 +87,11 @@ class BaseContainer extends React.Component {
                 .then(() => {
                     this.jwtRefreshBlocked = false;
                 })
-                .catch(() => {
+                .catch((err) => {
                     this.jwtRefreshBlocked = false;
+                    if (err.status === 401) {
+                        this.handleLogoutUser();
+                    }
                 });
         }
         this.scrollToError = false;
@@ -97,6 +101,19 @@ class BaseContainer extends React.Component {
         $(window).unbind();
     }
 
+    getTranslationParam(language, param) {
+        let frameworkType = 'rd'.toLowerCase();
+        let lang = language.toLowerCase();
+        return this.fetch(`${readObjFromCookieGlobal('CONFIG_URL')}/lang/${frameworkType}_translations_${lang}.json`, {
+            method: 'GET',
+        })
+            .then((arr) => {
+                return Promise.resolve(arr.labels.find((el) => el.code.toLowerCase() === param.toLowerCase()));
+            })
+            .catch((err) => {
+                throw err;
+            });
+    }
     componentDidUpdate() {
         this.refreshJwtToken();
         if (this.scrollToError) {
@@ -113,10 +130,18 @@ class BaseContainer extends React.Component {
                 .then(() => {
                     this.jwtRefreshBlocked = false;
                 })
-                .catch(() => {
+                .catch((err) => {
                     this.jwtRefreshBlocked = false;
+                    if (err.status === 401) {
+                        this.handleLogoutUser();
+                    }
                 });
         }
+    }
+
+    handleLogoutUser() {
+        this.authService.logout();
+        window.location.href = AppPrefixUtils.locationHrefUrl('/#/');
     }
 
     componentWillUnmount() {

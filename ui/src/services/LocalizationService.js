@@ -5,6 +5,7 @@ export default class LocalizationService extends BaseService {
 
     constructor(props) {
         super(props);
+
         this.path = '';
     }
 

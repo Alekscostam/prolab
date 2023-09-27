@@ -86,9 +86,8 @@ export default class UserService extends BaseServiceCrud {
         });
     }
     registration(element) {
-        let fakeUrl = 'https://rdprolab.inform-tech.pl:444/Api/api/registration';
-
-        return this.fetch(fakeUrl, {
+        const url = `${this.domain}/${this.path}/registration`;
+        return this.fetch(url, {
             method: 'POST',
             body: JSON.stringify(element),
         }).then((res) => {
@@ -96,8 +95,8 @@ export default class UserService extends BaseServiceCrud {
         });
     }
     resetPassword(element) {
-        let fakeUrl = 'https://rdprolab.inform-tech.pl:444/Api/api/resetpassword';
-        return this.fetch(fakeUrl, {
+        const url = `${this.domain}/${this.path}/resetpassword`;
+        return this.fetch(url, {
             method: 'POST',
             body: JSON.stringify(element),
         }).then((res) => {
@@ -106,9 +105,9 @@ export default class UserService extends BaseServiceCrud {
     }
 
     add(viewId, token) {
-        let fakeUrl = `https://rdprolab.inform-tech.pl:444/Api/api/View/${viewId}/add`;
+        const url = `${this.domain}/${this.path}/View/${viewId}/add`;
         return this.fetch(
-            fakeUrl,
+            url,
             {
                 method: 'POST',
             },

@@ -13,6 +13,11 @@
         {"code": "View_LoadError", "caption": "Nie udało się pobrać danych strony o id:"},
         {"code": "View_AdditionalOptions", "caption": "Dodatkowe opcje"},
         {"code": "View_StartPage", "caption": "Strona startowa"},
+        {
+            "code": "Session_Expired",
+            "caption": "Sesja wygasła",
+            "message": "Nastąpiło wylogowanie użytkownika z powodu przekroczenia czasu bezczynności użytkownika"
+        },
         {"code": "Calendar_ButtonClear", "caption": "Wyczyść"}
     ]
 }

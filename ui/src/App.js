@@ -101,6 +101,8 @@ class App extends Component {
         return new ReadConfigService(configUrl).getConfiguration().then((configuration) => {
             saveObjToCookieGlobal('REACT_APP_BACKEND_URL', configuration.REACT_APP_BACKEND_URL);
             saveObjToCookieGlobal('REACT_APP_URL_PREFIX', configuration.REACT_APP_URL_PREFIX);
+            saveObjToCookieGlobal('CONFIG_URL', configUrl);
+
             this.setState(
                 {
                     loadedConfiguration: true,

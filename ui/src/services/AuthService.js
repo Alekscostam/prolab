@@ -154,19 +154,41 @@ export default class AuthService {
                 password,
             }),
         }).then((res) => {
-            this.setToken(res.token, res.expiration, res.user); // Setting the token in localStorage
+            this.setToken(res.token, res.expiration, res.user, res.refreshToken); // Setting the token in localStorage
             return Promise.resolve(res);
         });
     }
 
     refresh() {
         // Get a token from api server using the fetch api
-        return this.fetch(`${this.domain}/refresh`, {
+        return this.fetch(`${this.domain}/adsauth/refreshT3oken`, {
+            method: 'POST',
+            body: JSON.stringify({
+                accessToken: localStorage.getItem('id_token'),
+                refreshToken: localStorage.getItem('id_refresh_token'),
+            }),
+        })
+            .then((res) => {
+                this.setRefreshedToken(res.accessToken, res.refreshToken); // Setting the token in localStorage
+                return Promise.resolve(res);
+            })
+            .catch((err) => {
+                throw err;
+            });
+    }
+
+    getTranslationParam(language, param) {
+        let frameworkType = 'rd'.toLowerCase();
+        let lang = language.toLowerCase();
+        return this.fetch(`${readObjFromCookieGlobal('CONFIG_URL')}/lang/${frameworkType}_translations_${lang}.json`, {
             method: 'GET',
-        }).then((res) => {
-            this.setToken(res.token, res.expiration, res.user); // Setting the token in localStorage
-            return Promise.resolve(res);
-        });
+        })
+            .then((arr) => {
+                return Promise.resolve(arr.labels.find((el) => el.code.toLowerCase() === param.toLowerCase()));
+            })
+            .catch((err) => {
+                throw err;
+            });
     }
 
     loggedIn() {
@@ -195,11 +217,18 @@ export default class AuthService {
         }
     }
 
-    setToken(idToken, expirationToken, loggedUser) {
+    setToken(idToken, expirationToken, loggedUser, idRefreshToken) {
         // Saves user token to localStorage
         localStorage.setItem('id_token', idToken);
         localStorage.setItem('expiration_token', decode(idToken).exp);
         localStorage.setItem('logged_user', JSON.stringify(loggedUser));
+        localStorage.setItem('id_refresh_token', JSON.stringify(idRefreshToken));
+    }
+    setRefreshedToken(idToken, idRefreshToken) {
+        // Saves user token to localStorage
+        localStorage.setItem('id_token', idToken);
+        localStorage.setItem('expiration_token', decode(idToken).exp);
+        localStorage.setItem('id_refresh_token', JSON.stringify(idRefreshToken));
     }
 
     getToken() {
