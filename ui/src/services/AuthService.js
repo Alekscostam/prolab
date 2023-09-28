@@ -7,6 +7,7 @@ import ConsoleHelper from '../utils/ConsoleHelper';
 Żądanie POST służy do uwierzytelnienia użytkownika i uzyskania tokena, który służy do weryfikacji innego interfejsu API
 żądanie. Token jest ważny przez określony czas, po wygaśnięciu należy poprosić o nowy.
  */
+let refreshFlag = true;
 export default class AuthService {
     // Initializing important variables
     constructor(domain) {
@@ -32,7 +33,7 @@ export default class AuthService {
         this.unblockUi = unblockUi;
     }
 
-    fetch(url, options, headers) {
+    fetch(url, options, headers, shouldAddAuthorization) {
         const method = options !== undefined ? options.method : undefined;
         // performs api calls sending the required authentication headers
         if (headers === null || headers === undefined) {
@@ -43,7 +44,10 @@ export default class AuthService {
                 Pragma: 'no-cahce',
             };
         }
-        if (this.loggedIn()) {
+        if (shouldAddAuthorization === undefined || shouldAddAuthorization == null) {
+            shouldAddAuthorization = true;
+        }
+        if (shouldAddAuthorization && this.loggedIn()) {
             headers['Authorization'] = this.getToken();
         }
         if (method === 'POST' || method === 'PUT') {
@@ -80,23 +84,52 @@ export default class AuthService {
                     return reject(response.json);
                 })
                 .catch((error) => {
-                    if (method === 'POST' || method === 'PUT') {
-                        this.counter -= 1;
-                        if (this.counter <= 0 && this.unblockUi !== undefined) {
-                            this.unblockUi();
+                    if (error?.status === 401 && refreshFlag) {
+                        refreshFlag = false;
+                        this.refresh()
+                            .then((res) => {
+                                return this.fetch(url, options, headers, shouldAddAuthorization);
+                            })
+                            .catch((err) => {
+                                refreshFlag = true;
+                                if (method === 'POST' || method === 'PUT') {
+                                    this.counter -= 1;
+                                    if (this.counter <= 0 && this.unblockUi !== undefined) {
+                                        this.unblockUi();
+                                    }
+                                }
+                                if (
+                                    error !== undefined &&
+                                    error !== null &&
+                                    error.message !== undefined &&
+                                    error.message !== null &&
+                                    (error.message.includes('NetworkError when attempting to fetch resource') ||
+                                        error.message.includes('Failed to fetch'))
+                                ) {
+                                    error.message = 'komunikacji z serwerem podczas pobierania danych.';
+                                }
+                                reject(error);
+                            });
+                    } else {
+                        refreshFlag = true;
+                        if (method === 'POST' || method === 'PUT') {
+                            this.counter -= 1;
+                            if (this.counter <= 0 && this.unblockUi !== undefined) {
+                                this.unblockUi();
+                            }
                         }
+                        if (
+                            error !== undefined &&
+                            error !== null &&
+                            error.message !== undefined &&
+                            error.message !== null &&
+                            (error.message.includes('NetworkError when attempting to fetch resource') ||
+                                error.message.includes('Failed to fetch'))
+                        ) {
+                            error.message = 'komunikacji z serwerem podczas pobierania danych.';
+                        }
+                        reject(error);
                     }
-                    if (
-                        error !== undefined &&
-                        error !== null &&
-                        error.message !== undefined &&
-                        error.message !== null &&
-                        (error.message.includes('NetworkError when attempting to fetch resource') ||
-                            error.message.includes('Failed to fetch'))
-                    ) {
-                        error.message = 'komunikacji z serwerem podczas pobierania danych.';
-                    }
-                    reject(error);
                 });
         });
     }
@@ -154,20 +187,25 @@ export default class AuthService {
                 password,
             }),
         }).then((res) => {
-            this.setToken(res.token, res.expiration, res.user, res.refreshToken); // Setting the token in localStorage
+            this.setToken(res.token, res.expiration, res.user, res.refreshToken, res.sessionTimeoutInMinutes); // Setting the token in localStorage
             return Promise.resolve(res);
         });
     }
 
     refresh() {
         // Get a token from api server using the fetch api
-        return this.fetch(`${this.domain}/adsauth/refreshT3oken`, {
-            method: 'POST',
-            body: JSON.stringify({
-                accessToken: localStorage.getItem('id_token'),
-                refreshToken: localStorage.getItem('id_refresh_token'),
-            }),
-        })
+        return this.fetch(
+            `${this.domain}/auth/refreshToken`,
+            {
+                method: 'POST',
+                body: JSON.stringify({
+                    accessToken: localStorage.getItem('id_token'),
+                    refreshToken: localStorage.getItem('id_refresh_token'),
+                }),
+            },
+            null,
+            false
+        )
             .then((res) => {
                 this.setRefreshedToken(res.accessToken, res.refreshToken); // Setting the token in localStorage
                 return Promise.resolve(res);
@@ -217,18 +255,33 @@ export default class AuthService {
         }
     }
 
-    setToken(idToken, expirationToken, loggedUser, idRefreshToken) {
+    setToken(idToken, expirationToken, loggedUser, idRefreshToken, sessionTimeoutInMinutes) {
         // Saves user token to localStorage
+        // debugger;
+
+        // const xd = decode(idToken).exp;
+        // const xd2 = decode(idRefreshToken).exp;
+        // debugger;
         localStorage.setItem('id_token', idToken);
         localStorage.setItem('expiration_token', decode(idToken).exp);
         localStorage.setItem('logged_user', JSON.stringify(loggedUser));
         localStorage.setItem('id_refresh_token', JSON.stringify(idRefreshToken));
+        const sessionTimeout = moment(new Date()).add(sessionTimeoutInMinutes, 'm').toString();
+        localStorage.setItem('session_timeout', sessionTimeout);
+        localStorage.setItem('session_timeout_in_minutes', sessionTimeoutInMinutes);
     }
     setRefreshedToken(idToken, idRefreshToken) {
         // Saves user token to localStorage
         localStorage.setItem('id_token', idToken);
         localStorage.setItem('expiration_token', decode(idToken).exp);
         localStorage.setItem('id_refresh_token', JSON.stringify(idRefreshToken));
+    }
+
+    getSessionTimeout() {
+        return localStorage.getItem('session_timeout');
+    }
+    getSessionTimeoutInMinutes() {
+        return localStorage.getItem('session_timeout_in_minutes');
     }
 
     getToken() {
@@ -247,6 +300,9 @@ export default class AuthService {
         localStorage.removeItem('expiration_token');
         localStorage.removeItem('logged_user');
         localStorage.removeItem('real_lang');
+        localStorage.removeItem('session_timeout');
+        localStorage.removeItem('session_timeout_in_minutes');
+        localStorage.removeItem('id_refresh_token');
     }
 
     //TODO

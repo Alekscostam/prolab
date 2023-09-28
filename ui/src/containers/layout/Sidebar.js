@@ -293,11 +293,6 @@ class Sidebar extends React.Component {
                                         className='title'
                                         style={{fontSize: '14px', fontWeight: 'normal'}}
                                         onClick={(e) => {
-                                            this.authService.refresh().catch(err=>{
-                                                if (err.status === 401) {
-                                                    this.handleLogoutUser();
-                                                }
-                                            });
                                             let href = e.target.href;
                                             e.target.href = UrlUtils.addParameterToURL(href, 'force', Date.now());
                                         }}

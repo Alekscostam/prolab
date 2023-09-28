@@ -25,6 +25,9 @@ import ActionButton from './components/ActionButton';
 import {Toast} from 'primereact/toast';
 import LocUtils from './utils/LocUtils';
 import {EditSpecContainer} from './containers/EditSpecContainer';
+import {Dialog} from 'primereact/dialog';
+import moment from 'moment/moment';
+import {Button} from 'primereact/button';
 
 class App extends Component {
     constructor() {
@@ -44,10 +47,13 @@ class App extends Component {
             labels: [],
             renderNoRefreshContent: false,
             viewInfoName: null,
+            rednerSessionTimeoutDialog: false,
             subView: null,
             operations: null,
             shortcutButtons: null,
             collapsed: false,
+            timer: null,
+            sessionTimeOut: null,
         };
         this.handleLogoutUser = this.handleLogoutUser.bind(this);
         this.getTranslations = this.getTranslations.bind(this);
@@ -95,8 +101,22 @@ class App extends Component {
         this.readConfigAndSaveInCookie(configUrl).catch((err) => {
             console.error('Error start application = ', err);
         });
-    }
 
+        this.timer = setInterval(() => {
+            if (!this.state?.sessionTimeOut) {
+                this.setState({
+                    sessionTimeOut: localStorage.getItem('session_timeout'),
+                });
+            }
+            const sessionTimeout = Date.parse(localStorage.getItem('session_timeout'));
+            if (sessionTimeout < new Date()) {
+                this.handleLogoutUser();
+            }
+        }, 3000);
+    }
+    componentWillUnmount() {
+        clearTimeout(this.timer);
+    }
     readConfigAndSaveInCookie(configUrl) {
         return new ReadConfigService(configUrl).getConfiguration().then((configuration) => {
             saveObjToCookieGlobal('REACT_APP_BACKEND_URL', configuration.REACT_APP_BACKEND_URL);

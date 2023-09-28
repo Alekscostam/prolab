@@ -81,18 +81,17 @@ class BaseContainer extends React.Component {
         window.addEventListener('beforeunload', function () {});
         this._isMounted = true;
         if (!this.jwtRefreshBlocked && this.authService.loggedIn()) {
-            this.jwtRefreshBlocked = true;
-            this.authService
-                .refresh()
-                .then(() => {
-                    this.jwtRefreshBlocked = false;
-                })
-                .catch((err) => {
-                    this.jwtRefreshBlocked = false;
-                    if (err.status === 401) {
-                        this.handleLogoutUser();
-                    }
-                });
+            if (this.authService.isTokenExpiredDate()) {
+                this.jwtRefreshBlocked = true;
+                this.authService
+                    .refresh()
+                    .then(() => {
+                        this.jwtRefreshBlocked = false;
+                    })
+                    .catch((err) => {
+                        this.jwtRefreshBlocked = false;
+                    });
+            }
         }
         this.scrollToError = false;
         // eslint-disable-next-line no-undef
@@ -132,9 +131,6 @@ class BaseContainer extends React.Component {
                 })
                 .catch((err) => {
                     this.jwtRefreshBlocked = false;
-                    if (err.status === 401) {
-                        this.handleLogoutUser();
-                    }
                 });
         }
     }
