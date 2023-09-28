@@ -25,10 +25,9 @@ import ActionButton from './components/ActionButton';
 import {Toast} from 'primereact/toast';
 import LocUtils from './utils/LocUtils';
 import {EditSpecContainer} from './containers/EditSpecContainer';
-import {Dialog} from 'primereact/dialog';
-import moment from 'moment/moment';
-import {Button} from 'primereact/button';
+import moment from 'moment';
 
+let clickEventSeesion = null;
 class App extends Component {
     constructor() {
         super();
@@ -56,6 +55,7 @@ class App extends Component {
             sessionTimeOut: null,
         };
         this.handleLogoutUser = this.handleLogoutUser.bind(this);
+        this.handleLogoutBySideBar = this.handleLogoutBySideBar.bind(this);
         this.getTranslations = this.getTranslations.bind(this);
         //primereact config
         PrimeReact.ripple = true;
@@ -103,26 +103,48 @@ class App extends Component {
         });
 
         this.timer = setInterval(() => {
-            if (!this.state?.sessionTimeOut) {
-                this.setState({
-                    sessionTimeOut: localStorage.getItem('session_timeout'),
-                });
-            }
             const sessionTimeout = Date.parse(localStorage.getItem('session_timeout'));
             if (sessionTimeout < new Date()) {
-                this.handleLogoutUser();
+                this.handleLogoutByTokenExpired();
             }
         }, 3000);
+
+        const root = document.getElementById('root');
+        const clickEventForSession = function () {
+            const user = localStorage.getItem('logged_user');
+            if (user) {
+                const timeInMinutes = localStorage.getItem('session_timeout_in_minutes');
+                if (timeInMinutes) {
+                    const sessionTimeout = moment(new Date()).add(timeInMinutes, 'm').toString();
+                    localStorage.setItem('session_timeout', sessionTimeout);
+                }
+            }
+            return true;
+        };
+        clickEventSeesion = clickEventForSession;
+        root.addEventListener('click', clickEventForSession);
     }
+
     componentWillUnmount() {
+        this.unregisteredClickEventForSession();
         clearTimeout(this.timer);
     }
+    unregisteredClickEventForSession() {
+        const root = document.getElementById('root');
+        try {
+            if (clickEventSeesion) {
+                root.removeEventListener('click', clickEventSeesion);
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
     readConfigAndSaveInCookie(configUrl) {
         return new ReadConfigService(configUrl).getConfiguration().then((configuration) => {
             saveObjToCookieGlobal('REACT_APP_BACKEND_URL', configuration.REACT_APP_BACKEND_URL);
             saveObjToCookieGlobal('REACT_APP_URL_PREFIX', configuration.REACT_APP_URL_PREFIX);
             saveObjToCookieGlobal('CONFIG_URL', configUrl);
-
             this.setState(
                 {
                     loadedConfiguration: true,
@@ -139,6 +161,10 @@ class App extends Component {
     }
 
     handleLogoutUser(forceByButton, labels) {
+        // puste poki co
+    }
+
+    handleLogoutByTokenExpired(forceByButton, labels) {
         this.authService.logout();
         if (this.state.user) {
             this.setState({user: null, renderNoRefreshContent: false});
@@ -156,6 +182,14 @@ class App extends Component {
                     ),
                 });
             }
+        }
+    }
+
+    handleLogoutBySideBar() {
+        this.authService.logout();
+        if (this.state.user) {
+            this.setState({user: null, renderNoRefreshContent: false});
+            window.location.href = AppPrefixUtils.locationHrefUrl('/#/');
         }
     }
 
@@ -256,7 +290,7 @@ class App extends Component {
                                     authService={this.authService}
                                     historyBrowser={this.historyBrowser}
                                     handleLogoutUser={(forceByButton) =>
-                                        this.handleLogoutUser(forceByButton, this.state.labels)
+                                        this.handleLogoutBySideBar(forceByButton, this.state.labels)
                                     }
                                     labels={this.state.labels}
                                     collapsed={this.state.collapsed}

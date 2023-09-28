@@ -108,6 +108,9 @@ export class AttachmentViewDialog extends BaseViewContainer {
             // przypadek dashboardu
             viewId = this.props.id;
         }
+        if (recordId === parentId && UrlUtils.urlParamExsits('subview')) {
+            viewId = UrlUtils.getIdFromUrl();
+        }
         this.setState({loading: true}, () => {
             this.viewService
                 .getAttachemntView(viewId, recordId, parentId, this.props.isKindViewSpec)

@@ -18,6 +18,22 @@
             "caption": "Sesja wygasła",
             "message": "Nastąpiło wylogowanie użytkownika z powodu przekroczenia czasu bezczynności użytkownika"
         },
-        {"code": "Calendar_ButtonClear", "caption": "Löschen"}
+        {"code": "Calendar_ButtonClear", "caption": "Löschen"},
+        {
+            "code": "Session_Timeout",
+            "caption": "Sesja wyagasa. Czy chcesz ją przedłużyć?"
+        },
+        {
+            "code": "extend_session",
+            "caption": "przedłuż sesje"
+        },
+        {
+            "code": "Yes",
+            "caption": "Tak"
+        },
+        {
+            "code": "No",
+            "caption": "Nie"
+        }
     ]
 }

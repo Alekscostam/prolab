@@ -394,6 +394,7 @@ export class AddSpecContainer extends BaseContainer {
                         <ActionButton
                             rendered={!!opAdd}
                             label={opAdd?.label}
+                            disabled={this.state.selectedRowKeys.length === 0}
                             className=''
                             handleClick={() => {
                                 const viewIdArg = this.state.elementId;

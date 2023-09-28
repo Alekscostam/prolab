@@ -95,23 +95,31 @@ export default class BaseService {
                     return reject(response.json);
                 })
                 .catch((error) => {
-                    if (method === 'POST' || method === 'PUT') {
-                        this.counter -= 1;
-                        if (this.counter <= 0 && this.unblockUi !== undefined) {
-                            this.unblockUi();
+                    if (error.status === 401) {
+                        this.auth.refresh().then(() => {
+                            return this.fetch(url, options, headers, token).then((el) => {
+                                return resolve(el);
+                            });
+                        });
+                    } else {
+                        if (method === 'POST' || method === 'PUT') {
+                            this.counter -= 1;
+                            if (this.counter <= 0 && this.unblockUi !== undefined) {
+                                this.unblockUi();
+                            }
                         }
+                        if (
+                            error !== undefined &&
+                            error !== null &&
+                            error.message !== undefined &&
+                            error.message !== null &&
+                            (error.message.includes('NetworkError when attempting to fetch resource') ||
+                                error.message.includes('Failed to fetch'))
+                        ) {
+                            error.message = 'komunikacji z serwerem podczas pobierania danych.';
+                        }
+                        reject(error);
                     }
-                    if (
-                        error !== undefined &&
-                        error !== null &&
-                        error.message !== undefined &&
-                        error.message !== null &&
-                        (error.message.includes('NetworkError when attempting to fetch resource') ||
-                            error.message.includes('Failed to fetch'))
-                    ) {
-                        error.message = 'komunikacji z serwerem podczas pobierania danych.';
-                    }
-                    reject(error);
                 });
         });
     }
