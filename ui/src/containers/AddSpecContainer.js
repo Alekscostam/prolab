@@ -18,6 +18,7 @@ import LocUtils from '../utils/LocUtils';
 import {Tabs} from 'devextreme-react';
 import {InputNumber} from 'primereact/inputnumber';
 import {Popup} from 'devextreme-react/popup';
+import {Url} from 'devextreme-react/chart';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -169,6 +170,9 @@ export class AddSpecContainer extends BaseContainer {
     }
 
     getViewAddSpec(viewId, parentId, recordId, type, header, headerId) {
+        if (this.shouldParentIdBeReplace(parentId)) {
+            parentId = UrlUtils.getURLParameter('recordId');
+        }
         this.viewService
             .getViewAddSpec(viewId, parentId, type, header, headerId)
             .then((responseView) => {
@@ -386,7 +390,7 @@ export class AddSpecContainer extends BaseContainer {
                                     className='p-inputtext-sm mr-2'
                                     min={1}
                                     style={{maxHeight: '43px'}}
-                                    value={0}
+                                    value={1}
                                     showButtons
                                 />
                             </React.Fragment>
@@ -421,11 +425,16 @@ export class AddSpecContainer extends BaseContainer {
         ConsoleHelper(`handleExecSpec: element to save = ${JSON.stringify(saveElement)}`);
         this.specExec(viewId, parentId, saveElement, type, headerId, header);
     }
-
+    shouldParentIdBeReplace(parentId) {
+        return UrlUtils.urlParamExsits('grid-view') && parentId === '0';
+    }
     //override
     specExec = (viewId, parentId, saveElement, type, headerId, header) => {
         const numberOfCopies = this.numberOfCopies?.current?.element.children[0]?.value;
         this.blockUi();
+        if (this.shouldParentIdBeReplace(parentId)) {
+            parentId = UrlUtils.getURLParameter('recordId');
+        }
         this.crudService
             .executeSpec(viewId, parentId, saveElement, type, headerId, header, numberOfCopies)
             .then((saveResponse) => {

@@ -46,6 +46,10 @@ class UrlUtils {
         return elements[elements.length - 1];
     }
 
+    static mainViewUrl() {
+        return window.location.href.split('?')[0];
+    }
+
     static deleteParameterFromURL(url, paramName) {
         let rtn = url.split('?')[0],
             param,

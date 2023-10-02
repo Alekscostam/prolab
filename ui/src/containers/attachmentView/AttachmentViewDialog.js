@@ -78,7 +78,8 @@ export class AttachmentViewDialog extends BaseViewContainer {
                         'View',
                         this.getRefGridView().instance.getCombinedFilter(),
                         viewInfo.parentViewId,
-                        true
+                        true,
+                        this.props.isKindViewSpec
                     )
                     .then((result) => {
                         this.setState(

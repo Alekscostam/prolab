@@ -21,7 +21,8 @@ export default class DataGridStore extends BaseService {
         kindViewArg,
         filters,
         recordParentViewIdArg,
-        isAttachmentDialog
+        isAttachmentDialog,
+        isKindViewSpec
     ) {
         let params = '?';
         let filter = undefined;
@@ -74,12 +75,14 @@ export default class DataGridStore extends BaseService {
         if (isAttachmentDialog) {
             recordParentViewIdParam = !!recordParentViewIdArg ? `&parentViewId=${recordParentViewIdArg}` : '';
         }
+        const viewSpec = isKindViewSpec ? `&parentKindView=viewSpec` : '';
+
         const requestBody = {
             filter: filter,
             sort: sort,
             group: group,
         };
-        let url = `${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${recordParentIdParam}${recordParentViewIdParam}${kindViewParam}${selectAllParam}`;
+        let url = `${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${filterIdParam}${recordParentIdParam}${recordParentViewIdParam}${kindViewParam}${viewSpec}${selectAllParam}`;
         url = this.commonCorrectUrl(url);
         return this.fetch(url, {
             method: 'POST',

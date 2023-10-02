@@ -1671,6 +1671,13 @@ class BaseContainer extends React.Component {
                         } else {
                             if (!!uploadResponse.error) {
                                 this.showResponseErrorMessage(uploadResponse);
+                            } else if (!!uploadResponse.message) {
+                                this.showErrorMessage(
+                                    uploadResponse.message.text,
+                                    3000,
+                                    true,
+                                    uploadResponse.message.title
+                                );
                             } else {
                                 this.showErrorMessages(uploadResponse);
                             }

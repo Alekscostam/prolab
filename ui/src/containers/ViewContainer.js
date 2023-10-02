@@ -169,7 +169,7 @@ export class ViewContainer extends BaseViewContainer {
                                     })
                                     .catch((err) => {
                                         this.showGlobalErrorMessage(err);
-                                        window.history.back();
+                                        window.location.href = UrlUtils.mainViewUrl();
                                     });
                             } else {
                                 this.unblockUi();
