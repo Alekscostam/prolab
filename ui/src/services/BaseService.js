@@ -1,6 +1,7 @@
 import moment from 'moment';
 import AuthService from './AuthService';
 import {readObjFromCookieGlobal} from '../utils/Cookie';
+import AppPrefixUtils from '../utils/AppPrefixUtils';
 
 export default class BaseService {
     // Initializing important variables
@@ -96,11 +97,18 @@ export default class BaseService {
                 })
                 .catch((error) => {
                     if (error.status === 401) {
-                        this.auth.refresh().then(() => {
-                            return this.fetch(url, options, headers, token).then((el) => {
-                                return resolve(el);
+                        this.auth
+                            .refresh()
+                            .then(() => {
+                                return this.fetch(url, options, headers, token).then((el) => {
+                                    return resolve(el);
+                                });
+                            })
+                            .catch((error) => {
+                                this.auth.logout();
+                                window.location.href = AppPrefixUtils.locationHrefUrl('/#/');
+                                reject(error);
                             });
-                        });
                     } else {
                         if (method === 'POST' || method === 'PUT') {
                             this.counter -= 1;
