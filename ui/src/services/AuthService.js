@@ -2,6 +2,7 @@ import decode from 'jwt-decode';
 import moment from 'moment';
 import {readObjFromCookieGlobal} from '../utils/Cookie';
 import ConsoleHelper from '../utils/ConsoleHelper';
+import AppPrefixUtils from '../utils/AppPrefixUtils';
 
 /*
 Żądanie POST służy do uwierzytelnienia użytkownika i uzyskania tokena, który służy do weryfikacji innego interfejsu API
@@ -267,33 +268,45 @@ export default class AuthService {
     }
 
     logout() {
-        try {
-            this.fetch(
-                `${this.domain}/auth/logout`,
-                {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        accessToken: localStorage.getItem('id_token'),
-                        refreshToken: localStorage.getItem('id_refresh_token'),
-                    }),
-                },
-                null,
-                false
-            )
-                .then(() => {})
-                .catch(() => {});
-        } catch (err) {
-        } finally {
-            localStorage.removeItem('id_token');
-            localStorage.removeItem('expiration_token');
-            localStorage.removeItem('logged_user');
-            localStorage.removeItem('real_lang');
-            localStorage.removeItem('session_timeout');
-            localStorage.removeItem('session_timeout_in_minutes');
-            localStorage.removeItem('id_refresh_token');
+        if (localStorage.getItem('id_token') === undefined || localStorage.getItem('id_token') === null) {
+            this.removeLoginCookies();
+        } else {
+            try {
+                this.fetch(
+                    `${this.domain}/auth/logout`,
+                    {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            accessToken: localStorage.getItem('id_token'),
+                            refreshToken: localStorage.getItem('id_refresh_token'),
+                        }),
+                    },
+                    null,
+                    false
+                )
+                    .then(() => {
+                        this.removeLoginCookies();
+                    })
+                    .catch(() => {
+                        this.removeLoginCookies();
+                    });
+            } catch (err) {
+                this.removeLoginCookies();
+            }
         }
+        window.location.href = AppPrefixUtils.locationHrefUrl('/#/');
+        window.location.reload();
 
         // Clear user token and profile data from localStorage
+    }
+    removeLoginCookies() {
+        localStorage.removeItem('id_token');
+        localStorage.removeItem('expiration_token');
+        localStorage.removeItem('logged_user');
+        localStorage.removeItem('real_lang');
+        localStorage.removeItem('session_timeout');
+        localStorage.removeItem('session_timeout_in_minutes');
+        localStorage.removeItem('id_refresh_token');
     }
 
     //TODO

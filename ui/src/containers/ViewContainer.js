@@ -75,112 +75,122 @@ export class ViewContainer extends BaseViewContainer {
     downloadData(viewId, recordId, subviewId, filterId, parentId, viewType) {
         let subviewMode = !!recordId && !!viewId;
         if (subviewMode) {
-            this.viewService
-                .subViewEntry(viewId, recordId, parentId)
-                .then((entryResponse) => {
-                    EntryResponseUtils.run(
-                        entryResponse,
-                        () => {
-                            if (!!entryResponse.next) {
-                                this.viewService
-                                    .getSubView(viewId, recordId, parentId)
-                                    .then((subViewResponse) => {
-                                        Breadcrumb.updateSubView(subViewResponse, recordId);
-                                        if (subViewResponse.viewInfo?.type === 'dashboard') {
-                                            const kindView = subViewResponse.viewInfo.kindView;
-                                            ConsoleHelper(
-                                                `ViewContainer::downloadDashboardData: viewId=${viewId}, recordId=${recordId},  parentId=${parentId}, viewType=${viewType}, kindView=${kindView}`
-                                            );
-                                            this.setState(
-                                                {
-                                                    subView: subViewResponse,
-                                                    gridViewType: 'dashboard',
-                                                    elementKindView: kindView,
-                                                    loading: false,
-                                                },
-                                                () => {
-                                                    this.props.handleSubView(subViewResponse);
-                                                    this.unblockUi();
-                                                }
-                                            );
-                                        } else {
-                                            ConsoleHelper(
-                                                `ViewContainer::downloadSubViewData: viewId=${viewId}, subviewId=${subviewId}, recordId=${recordId}, filterId=${filterId}, parentId=${parentId}, viewType=${viewType},`
-                                            );
-                                            const elementSubViewId = subviewId
-                                                ? subviewId
-                                                : subViewResponse.subViews[0]?.id;
-                                            if (!subViewResponse.subViews || subViewResponse.subViews.length === 0) {
-                                                this.showErrorMessages(
-                                                    LocUtils.loc(
-                                                        this.props.labels,
-                                                        'No_Subview',
-                                                        'Brak podwidoków - niepoprawna konfiguracja!'
-                                                    )
-                                                );
-                                                window.history.back();
-                                                this.unblockUi();
-                                                return;
-                                            } else {
-                                                let subViewsTabs = [];
-                                                subViewResponse.subViews.forEach((subView, i) => {
-                                                    subViewsTabs.push({
-                                                        id: subView.id,
-                                                        text: subView.label,
-                                                        icon: subView.icon,
-                                                        kindView: subView.kindView,
-                                                    });
-                                                    if (subView.id === parseInt(elementSubViewId)) {
-                                                        this.setState({subViewTabIndex: i});
+            if (this.notProccessed(this.state.loading)) {
+                this.setState({loading: true}, () => {
+                    this.viewService
+                        .subViewEntry(viewId, recordId, parentId)
+                        .then((entryResponse) => {
+                            EntryResponseUtils.run(
+                                entryResponse,
+                                () => {
+                                    if (!!entryResponse.next) {
+                                        this.viewService
+                                            .getSubView(viewId, recordId, parentId)
+                                            .then((subViewResponse) => {
+                                                Breadcrumb.updateSubView(subViewResponse, recordId);
+                                                if (subViewResponse.viewInfo?.type === 'dashboard') {
+                                                    const kindView = subViewResponse.viewInfo.kindView;
+                                                    ConsoleHelper(
+                                                        `ViewContainer::downloadDashboardData: viewId=${viewId}, recordId=${recordId},  parentId=${parentId}, viewType=${viewType}, kindView=${kindView}`
+                                                    );
+                                                    this.setState(
+                                                        {
+                                                            subView: subViewResponse,
+                                                            gridViewType: 'dashboard',
+                                                            elementKindView: kindView,
+                                                            loading: false,
+                                                        },
+                                                        () => {
+                                                            this.props.handleSubView(subViewResponse);
+                                                            this.unblockUi();
+                                                        }
+                                                    );
+                                                } else {
+                                                    ConsoleHelper(
+                                                        `ViewContainer::downloadSubViewData: viewId=${viewId}, subviewId=${subviewId}, recordId=${recordId}, filterId=${filterId}, parentId=${parentId}, viewType=${viewType},`
+                                                    );
+                                                    const elementSubViewId = subviewId
+                                                        ? subviewId
+                                                        : subViewResponse.subViews[0]?.id;
+                                                    if (
+                                                        !subViewResponse.subViews ||
+                                                        subViewResponse.subViews.length === 0
+                                                    ) {
+                                                        this.showErrorMessages(
+                                                            LocUtils.loc(
+                                                                this.props.labels,
+                                                                'No_Subview',
+                                                                'Brak podwidoków - niepoprawna konfiguracja!'
+                                                            )
+                                                        );
+                                                        window.history.back();
+                                                        this.unblockUi();
+                                                        return;
+                                                    } else {
+                                                        let subViewsTabs = [];
+                                                        subViewResponse.subViews.forEach((subView, i) => {
+                                                            subViewsTabs.push({
+                                                                id: subView.id,
+                                                                text: subView.label,
+                                                                icon: subView.icon,
+                                                                kindView: subView.kindView,
+                                                            });
+                                                            if (subView.id === parseInt(elementSubViewId)) {
+                                                                this.setState({subViewTabIndex: i});
+                                                            }
+                                                        });
+                                                        subViewResponse.subViewsTabs = subViewsTabs;
                                                     }
-                                                });
-                                                subViewResponse.subViewsTabs = subViewsTabs;
-                                            }
-                                            const currentSubView = subViewResponse.subViewsTabs?.filter(
-                                                (i) => i.id === parseInt(elementSubViewId)
-                                            );
-                                            this.setState(
-                                                {
-                                                    subView: subViewResponse,
-                                                    elementKindView: !!currentSubView
-                                                        ? currentSubView[0].kindView
-                                                        : this.defaultKindView,
-                                                    elementSubViewId: elementSubViewId,
-                                                },
-                                                () => {
-                                                    const viewTypeParam =
-                                                        UrlUtils.getURLParameter('viewType') !== null ||
-                                                        UrlUtils.getURLParameter('viewType') !== undefined
-                                                            ? UrlUtils.getURLParameter('viewType')
-                                                            : viewType;
-
-                                                    this.props.handleSubView(subViewResponse);
-                                                    this.getViewById(
-                                                        elementSubViewId,
-                                                        recordId,
-                                                        filterId,
-                                                        parentId,
-                                                        viewTypeParam,
-                                                        true
+                                                    const currentSubView = subViewResponse.subViewsTabs?.filter(
+                                                        (i) => i.id === parseInt(elementSubViewId)
+                                                    );
+                                                    this.setState(
+                                                        {
+                                                            subView: subViewResponse,
+                                                            elementKindView: !!currentSubView
+                                                                ? currentSubView[0].kindView
+                                                                : this.defaultKindView,
+                                                            elementSubViewId: elementSubViewId,
+                                                            loading: false,
+                                                        },
+                                                        () => {
+                                                            const viewTypeParam =
+                                                                UrlUtils.getURLParameter('viewType') !== null ||
+                                                                UrlUtils.getURLParameter('viewType') !== undefined
+                                                                    ? UrlUtils.getURLParameter('viewType')
+                                                                    : viewType;
+                                                            this.props.handleSubView(subViewResponse);
+                                                            this.getViewById(
+                                                                elementSubViewId,
+                                                                recordId,
+                                                                filterId,
+                                                                parentId,
+                                                                viewTypeParam,
+                                                                true
+                                                            );
+                                                        }
                                                     );
                                                 }
-                                            );
-                                        }
-                                    })
-                                    .catch((err) => {
-                                        this.showGlobalErrorMessage(err);
-                                        window.location.href = UrlUtils.mainViewUrl();
-                                    });
-                            } else {
-                                this.unblockUi();
-                            }
-                        },
-                        () => this.unblockUi()
-                    );
-                })
-                .catch((err) => {
-                    this.showGlobalErrorMessage(err);
+                                            })
+                                            .catch((err) => {
+                                                this.setState({loading: false});
+                                                this.showGlobalErrorMessage(err);
+                                                window.location.href = UrlUtils.mainViewUrl();
+                                            });
+                                    } else {
+                                        this.unblockUi();
+                                    }
+                                },
+                                () => this.unblockUi()
+                            );
+                        })
+                        .then()
+                        .catch((err) => {
+                            this.showGlobalErrorMessage(err);
+                            this.setState({loading: false});
+                        });
                 });
+            }
         } else {
             ConsoleHelper(
                 `ViewContainer::downloadData: viewId=${viewId}, recordId=${recordId}, filterId=${filterId}, parentId=${parentId}, viewType=${viewType},`
@@ -196,19 +206,25 @@ export class ViewContainer extends BaseViewContainer {
 
     // overide
     getViewById(viewId, recordId, filterId, parentId, viewType, isSubView) {
-        this.setState({loading: true}, () => {
-            this.viewService
-                .getView(viewId, viewType, recordId, this.state.elementKindView)
-                .then((responseView) => {
-                    this.processViewResponse(responseView, parentId, recordId, isSubView);
-                })
-                .catch((err) => {
-                    console.error('Error getView in GridView. Exception = ', err);
-                    this.setState({loading: false}, () => {
-                        this.showGlobalErrorMessage(err); //'Nie udało się pobrać danych strony o id: ' + viewId);
+        if (this.notProccessed(this.state.loading)) {
+            this.setState({loading: true}, () => {
+                this.viewService
+                    .getView(viewId, viewType, recordId, this.state.elementKindView)
+                    .then((responseView) => {
+                        this.processViewResponse(responseView, parentId, recordId, isSubView);
+                    })
+                    .catch((err) => {
+                        console.error('Error getView in GridView. Exception = ', err);
+                        this.setState({loading: false}, () => {
+                            this.showGlobalErrorMessage(err); //'Nie udało się pobrać danych strony o id: ' + viewId);
+                        });
                     });
-                });
-        });
+            });
+        }
+    }
+
+    notProccessed(loading) {
+        return loading === false || loading === null || loading === undefined;
     }
 
     // overide
