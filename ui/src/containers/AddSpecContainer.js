@@ -170,7 +170,7 @@ export class AddSpecContainer extends BaseContainer {
     }
 
     getViewAddSpec(viewId, parentId, recordId, type, header, headerId) {
-        if (this.shouldParentIdBeReplace(parentId)) {
+        if (this.isGridViewUrlExist()) {
             parentId = UrlUtils.getURLParameter('recordId');
         }
         this.viewService
@@ -425,14 +425,14 @@ export class AddSpecContainer extends BaseContainer {
         ConsoleHelper(`handleExecSpec: element to save = ${JSON.stringify(saveElement)}`);
         this.specExec(viewId, parentId, saveElement, type, headerId, header);
     }
-    shouldParentIdBeReplace(parentId) {
-        return UrlUtils.urlParamExsits('grid-view') && parentId === '0';
+    isGridViewUrlExist() {
+        return UrlUtils.urlParamExsits('grid-view');
     }
     //override
     specExec = (viewId, parentId, saveElement, type, headerId, header) => {
         const numberOfCopies = this.numberOfCopies?.current?.element.children[0]?.value;
         this.blockUi();
-        if (this.shouldParentIdBeReplace(parentId)) {
+        if (this.isGridViewUrlExist()) {
             parentId = UrlUtils.getURLParameter('recordId');
         }
         this.crudService

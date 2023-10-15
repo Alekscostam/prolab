@@ -71,6 +71,10 @@ class GridViewComponent extends React.Component {
         return this.props.dataGridStoreSuccess === false || this.props.gridViewColumns?.length === 0;
     }
 
+    isGroupModeEnabled() {
+        return document.getElementsByClassName('dx-group-panel-item').length !== 0;
+    }
+
     render() {
         const showGroupPanel = this.props.gridFromDashboard
             ? false
@@ -201,7 +205,12 @@ class GridViewComponent extends React.Component {
                         deferred={this.props.selectionDeferred}
                     />
 
-                    <Scrolling mode='virtual' rowRenderingMode={'standard'} preloadEnabled={false} />
+                    <Scrolling
+                        mode='virtual'
+                        rowRenderingMode={'standard'}
+                        preloadEnabled={false}
+                        useNative={this.isGroupModeEnabled()}
+                    />
 
                     <Paging defaultPageSize={packageCount} pageSize={packageCount} />
 
@@ -213,8 +222,7 @@ class GridViewComponent extends React.Component {
                         position='absolute'
                     />
                     {this.preGenerateColumnsDefinition()}
-                </DataGrid> 
-               
+                </DataGrid>
             </React.Fragment>
         );
     }

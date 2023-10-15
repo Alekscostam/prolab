@@ -157,7 +157,12 @@ export default class AuthService {
                 username,
                 password,
                 DeviceID: process.env.REACT_APP_NAME_DEVICE_ID,
-                AppName: process.env.REACT_APP_NAME_PROLAB + ' ' + process.env.REACT_APP_VERSION,
+                AppName:
+                    process.env.REACT_APP_NAME_PROLAB +
+                    ' ' +
+                    process.env.REACT_APP_VERSION +
+                    '_' +
+                    process.env.REACT_APP_BUILD_NUMBER,
             }),
         }).then((res) => {
             this.setToken(res.token, res.expiration, res.user, res.refreshToken, res.sessionTimeoutInMinutes); // Setting the token in localStorage

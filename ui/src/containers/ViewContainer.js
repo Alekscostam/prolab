@@ -72,8 +72,8 @@ export class ViewContainer extends BaseViewContainer {
     }
 
     // overide
-    downloadData(viewId, recordId, subviewId, filterId, parentId, viewType) {
-        let subviewMode = !!recordId && !!viewId;
+    downloadData(viewId, recordId, subviewId, filterId, parentId, viewType, forceReStateSubView) {
+        const subviewMode = !!recordId && !!viewId;
         if (subviewMode) {
             if (this.notProccessed(this.state.loading)) {
                 this.setState({loading: true}, () => {
@@ -144,6 +144,9 @@ export class ViewContainer extends BaseViewContainer {
                                                     const currentSubView = subViewResponse.subViewsTabs?.filter(
                                                         (i) => i.id === parseInt(elementSubViewId)
                                                     );
+                                                    // if (forceReStateSubView) {
+                                                    //     subViewResponse.headerData[0].POLE1 = 'MOCK';
+                                                    // }
                                                     this.setState(
                                                         {
                                                             subView: subViewResponse,
@@ -160,14 +163,16 @@ export class ViewContainer extends BaseViewContainer {
                                                                     ? UrlUtils.getURLParameter('viewType')
                                                                     : viewType;
                                                             this.props.handleSubView(subViewResponse);
-                                                            this.getViewById(
-                                                                elementSubViewId,
-                                                                recordId,
-                                                                filterId,
-                                                                parentId,
-                                                                viewTypeParam,
-                                                                true
-                                                            );
+                                                            if (!forceReStateSubView) {
+                                                                this.getViewById(
+                                                                    elementSubViewId,
+                                                                    recordId,
+                                                                    filterId,
+                                                                    parentId,
+                                                                    viewTypeParam,
+                                                                    true
+                                                                );
+                                                            }
                                                         }
                                                     );
                                                 }

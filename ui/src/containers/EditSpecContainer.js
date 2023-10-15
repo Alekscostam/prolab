@@ -88,6 +88,7 @@ export class EditSpecContainer extends BaseContainer {
         const s1 = !DataGridUtils.equalNumbers(this.state.elementId, id);
         const s2 = !DataGridUtils.equalNumbers(this.state.elementFilterId, filterId);
         const s3 = !DataGridUtils.equalString(this.state.elementRecordId, recordId);
+
         const updatePage = s1 || s2 || s3;
         ConsoleHelper(
             'EditSpecContainer::componentDidUpdate -> updateData={%s} updatePage={%s} id={%s} id={%s} s1={%s} s2={%s} s3={%s}',
@@ -243,7 +244,6 @@ export class EditSpecContainer extends BaseContainer {
                             ? Constants.DEFAULT_DATA_PACKAGE_COUNT
                             : dataPackageSize;
                     //const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId;
-
                     this.dataTreeStore
                         .getDataTreeStoreDirect(viewIdArg, parentIdArg, recordIdArg, packageCount)
                         .then((res) => {
@@ -518,7 +518,6 @@ export class EditSpecContainer extends BaseContainer {
             headerOperations: [],
             headerColumns: parsedView?.headerColumns,
         };
-
         return (
             <div>
                 <SubGridViewComponent

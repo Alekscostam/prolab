@@ -210,6 +210,7 @@ export class BaseViewContainer extends BaseContainer {
             this.state.subView.subViews &&
             this.state.subView.subViews.length > 0 &&
             this.state.elementSubViewId !== this.state.subView.subViews[0].id;
+
         const updatePage =
             !!force ||
             !DataGridUtils.equalNumbers(this.state.elementId, id) ||
@@ -217,7 +218,6 @@ export class BaseViewContainer extends BaseContainer {
             fromSubviewToFirstSubView ||
             !DataGridUtils.equalNumbers(this.state.elementFilterId, filterId) ||
             !DataGridUtils.equalNumbers(this.state.elementRecordId, recordId);
-
         ConsoleHelper(
             'BaseViewContainer::componentDidUpdate -> updatePage={%s id={%s} id={%s} type={%s} type={%s}',
             updatePage,
@@ -1090,7 +1090,7 @@ export class BaseViewContainer extends BaseContainer {
                     select: false,
                 },
                 () => {
-                    this.getRefGridView().instance.clearSelection();
+                    this.getRefGridView()?.instance.clearSelection();
                     this.dataGridStore
                         .getSelectAllDataGridStore(
                             this.state.subView == null ? this.state.elementId : this.state.elementSubViewId,
@@ -1100,7 +1100,7 @@ export class BaseViewContainer extends BaseContainer {
                                 : this.state.elementRecordId,
                             this.state.elementFilterId,
                             this.state.kindView,
-                            this.getRefGridView().instance.getCombinedFilter()
+                            this.getRefGridView()?.instance.getCombinedFilter()
                         )
                         .then((result) => {
                             this.setState(
@@ -1110,7 +1110,7 @@ export class BaseViewContainer extends BaseContainer {
                                     selectedRowKeys: result.data,
                                 },
                                 () => {
-                                    this.getRefGridView().instance.selectAll();
+                                    this.getRefGridView()?.instance.selectAll();
                                     this.unblockUi();
                                 }
                             );
@@ -1132,8 +1132,8 @@ export class BaseViewContainer extends BaseContainer {
                     select: false,
                 },
                 () => {
-                    this.getRefGridView().instance.deselectAll();
-                    this.getRefGridView().instance.clearSelection();
+                    this.getRefGridView()?.instance?.deselectAll();
+                    this.getRefGridView()?.instance?.clearSelection();
                     this.setState(
                         {
                             selectAll: false,

@@ -616,6 +616,27 @@ body .grid-container {
     top: 50%;
     transform: translateY(-50%); /* or try 50% */
 }
+#grid-container {
+    ::-webkit-scrollbar {
+        width: 7px;
+        height: 7px;
+    }
+
+    /* Track */
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+        background: #b8b8b8;
+    }
+
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+        background: #797979;
+    }
+}
 
 .center-inside-div {
     display: -webkit-flex;

@@ -1081,8 +1081,11 @@ class BaseContainer extends React.Component {
         }
     }
 
-    refreshSubView() {
-        if ((this.state.kindView === 'ViewSpec' || this.state.kindView === 'View') && this.state.subView) {
+    refreshSubView(forceReStateSubView) {
+        if (
+            ((this.state.kindView === 'ViewSpec' || this.state.kindView === 'View') && this.state.subView) ||
+            forceReStateSubView
+        ) {
             console.log('refreshing subview: ', this.state.kindView);
             if (window?.dataGrid) {
                 if (this.state?.gridViewType !== 'cardView') window.dataGrid.clearSelection();
@@ -1094,7 +1097,8 @@ class BaseContainer extends React.Component {
                 this.state.elementSubViewId,
                 this.state.elementFilterId,
                 this.state.elementParentId,
-                this.state.elementViewType
+                this.state.elementViewType,
+                forceReStateSubView
             );
         } else {
             removeCookieGlobal('refreshSubView');
@@ -1179,6 +1183,7 @@ class BaseContainer extends React.Component {
                         break;
                 }
                 this.refreshView();
+                if (UrlUtils.urlParamExsits('grid-view')) this.refreshSubView(true);
                 this.unselectAllDataGrid();
             })
             .catch((err) => {
@@ -1357,6 +1362,14 @@ class BaseContainer extends React.Component {
                                 .then((deleteResponse) => {
                                     this.unselectAllDataGrid();
                                     this.refreshView();
+                                    if (
+                                        kindView !== undefined &&
+                                        kindView !== null &&
+                                        kindView.toUpperCase() === 'VIEWSPEC' &&
+                                        UrlUtils.urlParamExsits('grid-view')
+                                    ) {
+                                        this.refreshSubView(true);
+                                    }
                                     const msg = deleteResponse.message;
                                     if (!!msg) {
                                         this.showErrorMessage(msg.text, Constants.SUCCESS_MSG_LIFE, true, msg.title);
@@ -1926,21 +1939,25 @@ class BaseContainer extends React.Component {
             this.calculateFormulaForView(viewId, parentId, params);
         }
     }
+    changeWart(calcultedFormula, oldFormula) {
+        if (parseInt(calcultedFormula[0].value) === parseInt(oldFormula.data.ID)) {
+            oldFormula.data.WART = calcultedFormula[1].value;
+        }
+        oldFormula.children.forEach((child) => {
+            this.changeWart(calcultedFormula, child);
+        });
+    }
 
     calculateFormulaForEditSpec(viewId, parentId, id, fieldsToCalculate) {
         this.crudService
             .calculateFormula(viewId, parentId, id, fieldsToCalculate)
             .then((res) => {
                 res?.data?.forEach((calcultedFormula) => {
-                    this.refTreeList.instance
-                        .getDataSource()
-                        ._items.map((el) => el.data)
-                        .forEach((el) => {
-                            if (parseInt(calcultedFormula[0].value) === parseInt(el.ID)) {
-                                el.WART = calcultedFormula[1].value;
-                            }
-                        });
+                    this.refTreeList.instance.getDataSource()._items.forEach((item) => {
+                        this.changeWart(calcultedFormula, item);
+                    });
                 });
+
                 const msg = res.message;
                 if (!!msg) {
                     this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title);
@@ -1971,7 +1988,9 @@ class BaseContainer extends React.Component {
                 } else {
                     this.showResponseErrorMessage(res);
                 }
+
                 this.refreshView();
+                this.refreshSubView(true);
             })
             .finally(() => {
                 this.unselectAllDataGrid();
