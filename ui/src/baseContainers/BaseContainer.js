@@ -1117,7 +1117,7 @@ class BaseContainer extends React.Component {
         }
     }
 
-    specSave = (viewId, parentId, saveElement, confirmSave) => {
+    specSave = (viewId, parentId, saveElement, confirmSave, fncRedirect) => {
         this.blockUi();
         saveElement.forEach((array) => {
             array.forEach((el) => {
@@ -1185,9 +1185,12 @@ class BaseContainer extends React.Component {
                 this.refreshView();
                 if (UrlUtils.urlParamExsits('grid-view')) this.refreshSubView(true);
                 this.unselectAllDataGrid();
+                fncRedirect();
+                this.unblockUi();
             })
             .catch((err) => {
                 this.showGlobalErrorMessage(err);
+                this.unblockUi();
             });
     };
 

@@ -425,15 +425,16 @@ export class EditSpecContainer extends BaseContainer {
                             const parentIdArg = this.state.elementParentId;
                             const globalComponents = document.getElementById('global-top-components');
                             globalComponents.click();
-                            this.handleEditSpecSave(viewIdArg, parentIdArg);
-                            const prevUrl = sessionStorage.getItem('prevUrl');
-                            sessionStorage.removeItem('prevUrl');
-                            if (prevUrl) {
-                                window.location.href = prevUrl;
-                            } else {
-                                this.refreshView();
-                                this.refreshTable();
-                            }
+                            this.handleEditSpecSave(viewIdArg, parentIdArg, () => {
+                                const prevUrl = sessionStorage.getItem('prevUrl');
+                                sessionStorage.removeItem('prevUrl');
+                                if (prevUrl) {
+                                    window.location.href = prevUrl;
+                                } else {
+                                    this.refreshView();
+                                    this.refreshTable();
+                                }
+                            });
                         }}
                     />
                 </div>
@@ -453,12 +454,12 @@ export class EditSpecContainer extends BaseContainer {
         );
     }
 
-    handleEditSpecSave(viewId, parentId) {
+    handleEditSpecSave(viewId, parentId, fncRedirect) {
+        this.blockUi();
         ConsoleHelper(`handleEditSpecSave: viewId = ${viewId} parentId = ${parentId}`);
         const saveElement = this.createObjectToSave(this.state.parsedData);
         ConsoleHelper(`handleEditSpecSave: element to save = ${JSON.stringify(saveElement)}`);
-        this.specSave(viewId, parentId, saveElement, false);
-        this.unblockUi();
+        this.specSave(viewId, parentId, saveElement, false, fncRedirect);
     }
     booleanShouldBeZero(row, el) {
         return row[el] === '0' || row[el] === 0 || row[el] === undefined || row[el] === null || row[el] === false;
