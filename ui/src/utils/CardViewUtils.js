@@ -5,6 +5,8 @@ import Image from '../components/Image';
 export class CardViewUtils {
     static cellTemplate(fieldDefinition, rowData, className, type) {
         if (!!rowData[fieldDefinition.fieldName]) {
+            const bgColor = rowData[`_BGCOLOR_${fieldDefinition.fieldName.toUpperCase()}`];
+            const fontColor = rowData[`_FONTCOLOR_${fieldDefinition.fieldName.toUpperCase()}`];
             switch (fieldDefinition?.type) {
                 case 'I':
                 case 'IM':
@@ -16,8 +18,8 @@ export class CardViewUtils {
                             <Image
                                 alt={rowData[fieldDefinition.title]}
                                 style={{
-                                    backgroundColor: rowData[`_BGCOLOR_${fieldDefinition.fieldName.toUpperCase()}`],
-                                    color: rowData[`_FONTCOLOR_${fieldDefinition.fieldName.toUpperCase()}`],
+                                    backgroundColor: bgColor === undefined ? rowData._BGCOLOR : bgColor,
+                                    color: fontColor === undefined ? rowData._FONTCOLOR : fontColor,
                                     display: 'block',
                                     maxWidth: type === 'IMG' ? '33%' : type === 'BODY_WITH_IMG' ? '67%' : '100%',
                                 }}
@@ -30,8 +32,8 @@ export class CardViewUtils {
                             <Image
                                 alt={rowData[fieldDefinition.title]}
                                 style={{
-                                    backgroundColor: rowData[`_BGCOLOR_${fieldDefinition.fieldName.toUpperCase()}`],
-                                    color: rowData[`_FONTCOLOR_${fieldDefinition.fieldName.toUpperCase()}`],
+                                    backgroundColor: bgColor === undefined ? rowData._BGCOLOR : bgColor,
+                                    color: fontColor === undefined ? rowData._FONTCOLOR : fontColor,
                                     display: 'block',
                                     maxWidth: type === 'IMG' ? '33%' : type === 'BODY_WITH_IMG' ? '67%' : '100%',
                                 }}
@@ -44,8 +46,8 @@ export class CardViewUtils {
                     return (
                         <div
                             style={{
-                                backgroundColor: rowData[`_BGCOLOR_${fieldDefinition.fieldName.toUpperCase()}`],
-                                color: rowData[`_FONTCOLOR_${fieldDefinition.fieldName.toUpperCase()}`],
+                                backgroundColor: bgColor === undefined ? rowData._BGCOLOR : bgColor,
+                                color: fontColor === undefined ? rowData._FONTCOLOR : fontColor,
                                 maxWidth: type === 'IMG' ? '33%' : type === 'BODY_WITH_IMG' ? '67%' : '100%',
                             }}
                             className={className}
@@ -72,8 +74,8 @@ export class CardViewUtils {
                     return (
                         <span
                             style={{
-                                backgroundColor: rowData[`_BGCOLOR_${fieldDefinition.fieldName.toUpperCase()}`],
-                                color: rowData[`_FONTCOLOR_${fieldDefinition.fieldName.toUpperCase()}`],
+                                backgroundColor: bgColor === undefined ? rowData._BGCOLOR : bgColor,
+                                color: fontColor === undefined ? rowData._FONTCOLOR : fontColor,
                                 maxWidth: type === 'IMG' ? '33%' : type === 'BODY_WITH_IMG' ? '67%' : '100%',
                             }}
                             className={className}

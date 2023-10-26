@@ -87,6 +87,7 @@ export class BaseViewContainer extends BaseContainer {
             attachmentFiles: [],
             parsedPluginViewData: {},
             pluginId: undefined,
+            visibleHistoryLogPanel: false,
             copyId: undefined,
             parsedPluginView: {},
             selectedRowKeys: [],
@@ -1463,6 +1464,9 @@ export class BaseViewContainer extends BaseContainer {
                                     kindView={kindViewArg}
                                     parentId={parentIdArg}
                                     filterId={filterIdArg}
+                                    handleFormulaRow={(id) => {
+                                        this.prepareCalculateFormula(id);
+                                    }}
                                     handleHistoryLogRow={(id) => this.historyLog(id)}
                                     handlePluginRow={(id) => this.plugin(id)}
                                     handleDocumentRow={(id) => this.generate(id)}

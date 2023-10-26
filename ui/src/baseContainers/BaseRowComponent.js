@@ -747,6 +747,18 @@ export class BaseRowComponent extends BaseContainer {
                             <br />
                             <UploadMultiImageFileBase64
                                 multiple={false}
+                                deleteBtn={true}
+                                onDeleteChange={() => {
+                                    onChange(
+                                        'IMAGE64',
+                                        {
+                                            fieldName: field.fieldName,
+                                            base64: '',
+                                        },
+                                        groupName,
+                                        info
+                                    );
+                                }}
                                 displayText={''}
                                 alt={field.label}
                                 initBase64={field.value}
@@ -780,7 +792,19 @@ export class BaseRowComponent extends BaseContainer {
                             </label>
                             <br />
                             <UploadMultiImageFileBase64
+                                deleteBtn={true}
                                 multiple={true}
+                                onDeleteChange={() => {
+                                    onChange(
+                                        'MULTI_IMAGE64',
+                                        {
+                                            fieldName: field.fieldName,
+                                            base64: '',
+                                        },
+                                        groupName,
+                                        info
+                                    );
+                                }}
                                 displayText={''}
                                 alt={field.label}
                                 initBase64={field.value}

@@ -610,11 +610,21 @@ body .grid-container {
 .dx-searchbox.dx-editor-underlined .dx-texteditor-input {
     padding-left: 30px;
 }
+.dx-overlay-wrapper.dx-header-filter-menu.dx-popup-wrapper {
+    z-index: 1000000 !important;
+}
 
 .center-outside-div {
     position: relative;
     top: 50%;
     transform: translateY(-50%); /* or try 50% */
+}
+#sessionTimeoutDialog {
+    width: 500px;
+}
+#time-ticker {
+    font-size: 25px;
+    float: right;
 }
 #grid-container {
     ::-webkit-scrollbar {

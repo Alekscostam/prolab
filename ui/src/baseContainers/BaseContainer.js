@@ -1081,7 +1081,19 @@ class BaseContainer extends React.Component {
         }
     }
 
+    windowNotHaveSubView() {
+        return (
+            this.isCardView() &&
+            UrlUtils.getURLParameter('viewType') === 'cardView' &&
+            !UrlUtils.getURLParameter('parentId') &&
+            !UrlUtils.getURLParameter('recordId')
+        );
+    }
     refreshSubView(forceReStateSubView) {
+        if (this.windowNotHaveSubView()) {
+            this.unblockUi();
+            return;
+        }
         if (
             ((this.state.kindView === 'ViewSpec' || this.state.kindView === 'View') && this.state.subView) ||
             forceReStateSubView
@@ -1185,7 +1197,9 @@ class BaseContainer extends React.Component {
                 this.refreshView();
                 if (UrlUtils.urlParamExsits('grid-view')) this.refreshSubView(true);
                 this.unselectAllDataGrid();
-                fncRedirect();
+                if (fncRedirect) {
+                    fncRedirect();
+                }
                 this.unblockUi();
             })
             .catch((err) => {
@@ -1543,7 +1557,6 @@ class BaseContainer extends React.Component {
         const kindView = recordIsZero ? 'view' : this.state.kindView;
         recordId = recordIsZero ? UrlUtils.getURLParameter('recordId') : recordId;
         let visibleHistoryLogPanel = false;
-        let visibleMessageHistoryLogPanel = false;
         this.crudService
             .getHistoryLogColumnsDefnitions(viewId, recordId, parentId, kindView)
             .then((res) => {
@@ -1560,9 +1573,9 @@ class BaseContainer extends React.Component {
                         kindView,
                         (err) => {
                             if (typeof this.showErrorMessage === 'undefined') {
-                                this.props.showErrorMessage(err);
+                                this.props.showErrorMessage(err.error.message, 3000, true, err.error.code);
                             } else {
-                                this.showErrorMessages(err);
+                                this.showErrorMessage(err.error.message, 3000, true, err.error.code);
                             }
                         },
                         () => {
@@ -1570,14 +1583,11 @@ class BaseContainer extends React.Component {
                         }
                     );
                     parsedHistoryLogViewData = datas;
-                } else {
-                    visibleMessageHistoryLogPanel = true;
                 }
                 this.setState({
                     parsedHistoryLogView: res,
                     parsedHistoryLogViewData: parsedHistoryLogViewData,
                     visibleHistoryLogPanel: visibleHistoryLogPanel,
-                    visibleMessageHistoryLogPanel: visibleMessageHistoryLogPanel,
                 });
             })
             .catch((err) => {
@@ -1893,11 +1903,13 @@ class BaseContainer extends React.Component {
         const parentId = this.state.elementParentId;
 
         let datas = [];
-        if (!!this.getRefGridView()) {
-            datas = this.getRefGridView().instance.getDataSource()._items;
-        }
-        if (!this.state.gridViewType) {
-            datas = this.state.parsedData;
+        if (this.state?.elementViewType?.toUpperCase() !== 'CARDVIEW') {
+            if (!!this.getRefGridView()) {
+                datas = this.getRefGridView()?.instance?.getDataSource()?._items;
+            }
+            if (!this.state.gridViewType) {
+                datas = this.state.parsedData;
+            }
         }
         const fieldsToCalculate = this.createObjectToCalculate(datas);
         this.calculateFormula(viewId, parentId, id, fieldsToCalculate);
@@ -1983,6 +1995,7 @@ class BaseContainer extends React.Component {
     }
 
     calculateFormulaForView(viewId, parentId, params) {
+        this.blockUi();
         this.crudService
             .calculateFormulaForView(viewId, parentId, params)
             .then((res) => {
@@ -1996,6 +2009,7 @@ class BaseContainer extends React.Component {
                 this.refreshSubView(true);
             })
             .finally(() => {
+                this.unblockUi();
                 this.unselectAllDataGrid();
             });
     }

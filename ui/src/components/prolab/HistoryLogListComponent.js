@@ -42,9 +42,9 @@ export default class HistoryLogListComponent extends React.Component {
             delete convertedParsedView.viewOptions;
             convertedParsedView.gridOptions = gridOptions;
         }
-
+        const isVisible = this.props.visible === true;
         return (
-            <React.Fragment>
+            <div>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
                 <Dialog
                     id='HistoryLogListDialog'
@@ -60,7 +60,7 @@ export default class HistoryLogListComponent extends React.Component {
                             />
                         </React.Fragment>
                     }
-                    visible={this.props.visible}
+                    visible={isVisible}
                     resizable={false}
                     breakpoints={{'960px': '75vw', '640px': '100vw'}}
                     style={{width: width, height: height, minWidth: width, minHeight: height}}
@@ -105,7 +105,7 @@ export default class HistoryLogListComponent extends React.Component {
                         allowSelectAll={false}
                     />
                 </Dialog>
-            </React.Fragment>
+            </div>
         );
     }
 }
