@@ -1,0 +1,107 @@
+.shortcut {
+    font-size: 12px;
+    font-weight: bold;
+    background: $text-bg;
+    padding: 0.35rem 0.5rem;
+}
+
+.shortcut-shadow {
+    box-shadow: 0 2px 8px 3px rgba(0, 0, 0, 0.1);
+}
+
+#subviews-panel {
+    // margin-top: 10px;
+}
+
+.shortcut-link .shortcut-text {
+    color: $text-color;
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 0;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.shortcut-link:hover {
+    color: $button-text-color;
+}
+
+.active-shortcut-link {
+    border-bottom: 2px solid $link-color;
+}
+
+.shortcut > .shortcut-text {
+    color: $button-color;
+}
+
+.grid-buttons-fragment {
+    display: flex;
+    flex-direction: row;
+}
+
+.grid-buttons-fragment .shortcut {
+    width: 28px;
+}
+
+.action-button-with-menu {
+    font-size: 20px;
+    padding: 0 0.3rem;
+    min-width: 0;
+    height: 26px;
+    width: 30px;
+
+    &.normal {
+        background-color: $button-text-color;
+        color: $button-color;
+    }
+
+    &.inverse {
+        background-color: $button-color;
+        color: $button-text-color;
+    }
+}
+
+.button-with-menu-filter {
+    font-size: 22px;
+    padding: 0 0.2rem;
+    min-width: 0;
+    height: 28px;
+    width: 30px;
+    border: 1px solid #ddd;
+}
+
+.button-with-menu-filter .shortcut-text {
+    color: gray;
+}
+
+.action-button-with-menu-popup {
+    position: absolute;
+    z-index: 999;
+    top: 36px;
+    right: 15px;
+}
+
+.action-button-with-menu-popup .p-menuitem-link,
+.action-button-with-menu-popup .p-menuitem-link span {
+    padding: 0.2rem 0.5rem;
+    color: $button-color !important;
+    font-size: 14px;
+}
+
+.dx-buttongroup-wrapper {
+    background: $button-text-color !important;
+    border-radius: 5px;
+}
+
+.active-shortcut-button {
+    background: $link-color;
+    border-color: transparent;
+}
+
+.active-shortcut-button .shortcut-text {
+    color: white;
+}
+
+.grid-button-panel.shortcut > .shortcut-text {
+    color: $button-text-color;
+}
