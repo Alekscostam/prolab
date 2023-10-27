@@ -1,0 +1,39 @@
+{
+    "labels": [
+        {"code": "Login_SigninError", "caption": "Błąd logowania"},
+        {"code": "Login_ConnectionError", "caption": "Nie można nawiązać połączenia z serwerem"},
+        {"code": "Login_UserName", "caption": "Nazwa użytkownika"},
+        {"code": "Login_Password", "caption": "Hasło"},
+        {"code": "Login_Signin", "caption": "Zaloguj się"},
+        {"code": "Login_Signup", "caption": "Stwórz profil"},
+        {"code": "Login_Signup_Info", "caption": "Nie masz swojego konta?"},
+        {"code": "Login_ResetPassword", "caption": "Zapomniałeś hasła?"},
+        {"code": "Menu_Search", "caption": "Wyszukaj w menu"},
+        {"code": "Menu_Logout", "caption": "Wyloguj"},
+        {"code": "View_LoadError", "caption": "Nie udało się pobrać danych strony o id:"},
+        {"code": "View_AdditionalOptions", "caption": "Dodatkowe opcje"},
+        {"code": "View_StartPage", "caption": "Strona startowa"},
+        {
+            "code": "Session_Expired",
+            "caption": "Sesja wygasła",
+            "message": "Nastąpiło wylogowanie użytkownika z powodu przekroczenia czasu bezczynności użytkownika"
+        },
+        {"code": "Calendar_ButtonClear", "caption": "Wyczyść"},
+        {
+            "code": "Session_Timeout",
+            "caption": "Sesja wyagasa. Czy chcesz ją przedłużyć?"
+        },
+        {
+            "code": "extend_session",
+            "caption": "przedłuż sesje"
+        },
+        {
+            "code": "Yes",
+            "caption": "Tak"
+        },
+        {
+            "code": "No",
+            "caption": "Nie"
+        }
+    ]
+}
