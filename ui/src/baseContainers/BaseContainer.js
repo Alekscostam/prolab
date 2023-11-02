@@ -2347,18 +2347,14 @@ class BaseContainer extends React.Component {
     }
     realViewSelector(recordId) {
         if (this.isViewSpecHeader(recordId) || this.isViewSpecBody(recordId)) {
-            debugger;
             return this.getRealViewId();
         }
         if (this.isGridViewHeader(recordId)) {
-            debugger;
             return this.props.id;
         }
         if (this.isGridViewBody(recordId)) {
-            debugger;
             return this.getRealViewId();
         }
-        debugger;
         return this.getRealViewId();
     }
 
