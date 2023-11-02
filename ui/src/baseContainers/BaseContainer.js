@@ -1444,11 +1444,16 @@ class BaseContainer extends React.Component {
 
     /** Metoda już typowo pod plugin. executePlugin wykonuje się w momencie przejscia z pierwszego do drugiego kroku*/
     // TODO: ogolnie to programsityczni slabo ze to jest w BaseContainer hmmm...
+    isDashboardView() {
+        return this.state.subView === null && this.state?.gridViewType === 'dashboard';
+    }
     executePlugin(pluginId, requestBody, refreshAll) {
         const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
-        const parentIdArg =
-            this.state.subView == null ? UrlUtils.getURLParameter('parentId') : this.state.elementRecordId;
-
+        const parentIdArg = this.isDashboardView()
+            ? this.state.elementRecordId
+            : this.state.subView == null
+            ? UrlUtils.getURLParameter('parentId')
+            : this.state.elementRecordId;
         let visiblePluginPanel = false;
         let visibleMessagePluginPanel = false;
         this.crudService
@@ -1549,9 +1554,10 @@ class BaseContainer extends React.Component {
                 this.showErrorMessages(err);
             });
     }
+
     historyLog(recordId) {
         ConsoleHelper('historyLog');
-        const viewId = this.getRealViewId();
+        const viewId = this.realViewSelector(recordId);
         const recordIsZero = recordId === 0 || recordId === '0';
         const parentId = recordIsZero ? recordId : this.state.elementRecordId;
         const kindView = recordIsZero ? 'view' : this.state.kindView;
@@ -2339,6 +2345,22 @@ class BaseContainer extends React.Component {
             refreshFieldVisibility: refreshFieldVisibility,
         };
     }
+    realViewSelector(recordId) {
+        if (this.isViewSpecHeader(recordId) || this.isViewSpecBody(recordId)) {
+            debugger;
+            return this.getRealViewId();
+        }
+        if (this.isGridViewHeader(recordId)) {
+            debugger;
+            return this.props.id;
+        }
+        if (this.isGridViewBody(recordId)) {
+            debugger;
+            return this.getRealViewId();
+        }
+        debugger;
+        return this.getRealViewId();
+    }
 
     handleEditRowBlur(inputType, event, groupName, viewInfo, field) {
         ConsoleHelper(`handleEditRowBlur inputType=${inputType} groupName=${groupName}`);
@@ -2411,6 +2433,28 @@ class BaseContainer extends React.Component {
 
     isDashboard() {
         return this.state.gridViewType === 'dashboard';
+    }
+
+    isHeader(recordId) {
+        return recordId === '0' || recordId === 0;
+    }
+    isBody(recordId) {
+        return !(recordId === '0' || recordId === 0);
+    }
+    isChoosenKindView(kindViewSelected) {
+        return this.state.kindView === kindViewSelected && this.state.elementKindView === kindViewSelected;
+    }
+    isViewSpecHeader(recordId) {
+        return this.isHeader(recordId) && this.isChoosenKindView('ViewSpec');
+    }
+    isViewSpecBody(recordId) {
+        return this.isBody(recordId) && this.isChoosenKindView('ViewSpec');
+    }
+    isGridViewHeader(recordId) {
+        return this.isHeader(recordId) && this.isChoosenKindView('View');
+    }
+    isGridViewBody(recordId) {
+        return this.isBody(recordId) && this.isChoosenKindView('View');
     }
 }
 

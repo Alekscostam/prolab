@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 
 import '../../assets/css/multi_image_upload_base64.scss';
 import ConsoleHelper from '../../utils/ConsoleHelper';
-import LocUtils from '../../utils/LocUtils';
 
 class UploadMultiImageFileBase64 extends React.Component {
     componentDidMount() {
@@ -215,6 +214,15 @@ class UploadMultiImageFileBase64 extends React.Component {
     }
 
     render() {
+        // setTimeout(function () {
+        //     const imagePreview = document.getElementById('image-preview');
+        //     const img = imagePreview?.children[0]?.children[0];
+        //     console.log(img, 'SDS');
+        //     if (img) {
+        //         debugger;
+        //     }
+        // }, 1000);
+
         return (
             <React.Fragment>
                 <div id='drop-region' style={{width: '100%'}}>
@@ -232,9 +240,9 @@ class UploadMultiImageFileBase64 extends React.Component {
                                 this.props.onDeleteChange();
                             }
                         }}
-                        className='p-button-secondary selectionList float-right'
+                        className='p-button-secondary selectionList float-right mt-2'
                     >
-                        {LocUtils.loc(this.props.labels, 'Delete image', 'Usuń obrazek')}
+                        <i style={{fontSize: '25px', color: 'red'}} className='icon mdi mdi-trash-can '></i>
                     </a>
                 )}
             </React.Fragment>

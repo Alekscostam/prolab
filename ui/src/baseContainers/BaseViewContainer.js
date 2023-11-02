@@ -434,7 +434,7 @@ export class BaseViewContainer extends BaseContainer {
     renderGlobalTop() {
         let operations = this.state.parsedGridView?.operations;
         let opADDFile = DataGridUtils.containsOperationsButton(operations, 'OP_ADD_FILE');
-
+        console.log(this.state.visiblePublishDialog, 'this.state.visiblePublishDialog');
         return (
             <React.Fragment>
                 {opADDFile && (
@@ -615,33 +615,35 @@ export class BaseViewContainer extends BaseContainer {
                         labels={this.props.labels}
                     />
                 ) : null}
+                {this.state.visiblePluginPanel && (
+                    <PluginListComponent
+                        visible={this.state.visiblePluginPanel}
+                        field={this.state.editListField}
+                        parsedPluginView={this.state.parsedPluginView}
+                        parsedPluginViewData={this.state.parsedPluginViewData}
+                        onHide={() => this.setState({visiblePluginPanel: false})}
+                        handleBlockUi={() => {
+                            this.blockUi();
+                            return true;
+                        }}
+                        unselectAllDataGrid={() => {
+                            this.setState({
+                                selectedRowKeys: [],
+                            });
+                        }}
+                        pluginId={this.state.pluginId}
+                        isPluginFirstStep={this.state.isPluginFirstStep}
+                        executePlugin={this.executePlugin}
+                        selectedRowKeys={this.state.selectedRowKeys}
+                        handleUnblockUi={() => this.unblockUi}
+                        showErrorMessages={(err) => this.showErrorMessages(err)}
+                        dataGridStoreSuccess={this.state.dataPluginStoreSuccess}
+                        selectedRowData={this.state.selectedRowData}
+                        defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
+                        labels={this.props.labels}
+                    />
+                )}
 
-                <PluginListComponent
-                    visible={this.state.visiblePluginPanel}
-                    field={this.state.editListField}
-                    parsedPluginView={this.state.parsedPluginView}
-                    parsedPluginViewData={this.state.parsedPluginViewData}
-                    onHide={() => this.setState({visiblePluginPanel: false})}
-                    handleBlockUi={() => {
-                        this.blockUi();
-                        return true;
-                    }}
-                    unselectAllDataGrid={() => {
-                        this.setState({
-                            selectedRowKeys: [],
-                        });
-                    }}
-                    pluginId={this.state.pluginId}
-                    isPluginFirstStep={this.state.isPluginFirstStep}
-                    executePlugin={this.executePlugin}
-                    selectedRowKeys={this.state.selectedRowKeys}
-                    handleUnblockUi={() => this.unblockUi}
-                    showErrorMessages={(err) => this.showErrorMessages(err)}
-                    dataGridStoreSuccess={this.state.dataPluginStoreSuccess}
-                    selectedRowData={this.state.selectedRowData}
-                    defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
-                    labels={this.props.labels}
-                />
                 {this.state.visibleHistoryLogPanel ? (
                     <HistoryLogListComponent
                         visible={this.state.visibleHistoryLogPanel}
@@ -806,7 +808,6 @@ export class BaseViewContainer extends BaseContainer {
                                     valueExpr='id'
                                     onValueChanged={(e) => {
                                         ConsoleHelper('onValueChanged:', e);
-
                                         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
                                         if (!!e.value && e.value !== e.previousValue) {
                                             const filterId = parseInt(e.value);
@@ -818,7 +819,11 @@ export class BaseViewContainer extends BaseContainer {
                                             const breadCrumbs = UrlUtils.getURLParameter('bc');
                                             const viewType =
                                                 UrlUtils.getURLParameter('viewType') || this.state.gridViewType;
-                                            if (!breadCrumbs) {
+                                            const canNotBeRefresh =
+                                                this.state.kindView === 'View' && this.state.gridViewType === 'gridView'
+                                                    ? false
+                                                    : !breadCrumbs;
+                                            if (canNotBeRefresh) {
                                                 return;
                                             }
                                             if (subviewMode) {

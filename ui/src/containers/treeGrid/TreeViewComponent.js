@@ -62,15 +62,20 @@ class TreeViewComponent extends React.Component {
             preInitializedColumns: [],
         };
     }
-
+    // TODO tworzy zla kolejnosc dlatego kolumny sa w złem kolejnosci!!!
+    createFakeColumn() {
+        if (this.props.isAddSpec) {
+            const gridViewColumns = this.props.gridViewColumns;
+            if (!gridViewColumns[0]) {
+                return;
+            }
+            if (gridViewColumns[0].id !== undefined && gridViewColumns[0].id !== null) {
+                gridViewColumns.unshift({width: '60'});
+            }
+        }
+    }
     componentDidMount() {
-        const gridViewColumns = this.props.gridViewColumns;
-        if (!gridViewColumns[0]) {
-            return;
-        }
-        if (gridViewColumns[0].id !== undefined && gridViewColumns[0].id !== null) {
-            gridViewColumns.unshift({width: '60'});
-        }
+        this.createFakeColumn();
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -449,8 +454,8 @@ class TreeViewComponent extends React.Component {
     }
 
     preGenerateColumnsDefinition() {
+        this.createFakeColumn();
         let columns = [];
-
         this.props.gridViewColumns?.forEach((columnDefinition, INDEX_COLUMN) => {
             let sortOrder;
             if (!!columnDefinition?.sortIndex && columnDefinition?.sortIndex > 0 && !!columnDefinition?.sortOrder) {
@@ -458,6 +463,7 @@ class TreeViewComponent extends React.Component {
             }
             const editable = columnDefinition?.edit;
             this.preColumnDefinition(editable, INDEX_COLUMN);
+
             columns.push(
                 <Column
                     key={INDEX_COLUMN}
@@ -479,6 +485,14 @@ class TreeViewComponent extends React.Component {
             );
         });
         return columns;
+    }
+
+    isFakeColumnWithoutIndex(columnDefinition) {
+        return (
+            columnDefinition?.fieldName === undefined &&
+            columnDefinition.index === undefined &&
+            columnDefinition?.label === undefined
+        );
     }
 
     postCustomizeColumns = (columns) => {
@@ -512,6 +526,9 @@ class TreeViewComponent extends React.Component {
                             column.dataType = TreeListUtils.specifyColumnType(columnDefinition?.type);
 
                             column.format = TreeListUtils.specifyColumnFormat(columnDefinition?.type);
+                            if (this.isFakeColumnWithoutIndex(columnDefinition)) {
+                                column.index = 0;
+                            }
                             if (column.index === 0) {
                                 column.fixed = true;
                                 column.fixedPosition = 'left';
@@ -1068,6 +1085,10 @@ class TreeViewComponent extends React.Component {
                                 multiple={false}
                                 displayText={''}
                                 initBase64={cellInfo.value}
+                                deleteBtn={true}
+                                onDeleteChange={() => {
+                                    cellInfo.setValue([]);
+                                }}
                                 onSuccessB64={(e) => {
                                     const image = document.getElementsByClassName(`image-base ${autoFill} ${validate}`);
                                     if (image) {
@@ -1099,6 +1120,10 @@ class TreeViewComponent extends React.Component {
                             <UploadMultiImageFileBase64
                                 multiple={true}
                                 displayText={''}
+                                deleteBtn={true}
+                                onDeleteChange={() => {
+                                    cellInfo.setValue([]);
+                                }}
                                 initBase64={cellInfo.value}
                                 onSuccessB64={(e) => {
                                     const image = document.getElementsByClassName(

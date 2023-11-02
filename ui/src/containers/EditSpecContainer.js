@@ -639,7 +639,6 @@ export class EditSpecContainer extends BaseContainer {
         let data = this.getData();
         const index = data.findIndex((x) => x._ID === id);
         const currentElement = data.find((el) => el._ID === id);
-        console.log(currentElement, 'currentElement');
         const prevElement = data[index + shiftNumber];
         if (prevElement) {
             const currentOrder = currentElement._ORDER;

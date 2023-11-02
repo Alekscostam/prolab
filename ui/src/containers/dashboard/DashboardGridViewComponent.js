@@ -23,6 +23,7 @@ import {Toast} from 'primereact/toast';
 import {AttachmentViewDialog} from '../attachmentView/AttachmentViewDialog';
 import CopyDialogComponent from '../../components/prolab/CopyDialogComponent';
 import PluginListComponent from '../../components/prolab/PluginListComponent';
+import HistoryLogListComponent from '../../components/prolab/HistoryLogListComponent';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -397,7 +398,32 @@ export class DashboardGridViewComponent extends BaseContainer {
                             labels={this.props.labels}
                         />
                     )}
-
+                    {this.state.visibleHistoryLogPanel ? (
+                        <HistoryLogListComponent
+                            visible={this.state.visibleHistoryLogPanel}
+                            field={this.state.editListField}
+                            parsedHistoryLogView={this.state.parsedHistoryLogView}
+                            parsedHistoryLogViewData={this.state.parsedHistoryLogViewData}
+                            onHide={() => this.setState({visibleHistoryLogPanel: false})}
+                            handleBlockUi={() => {
+                                this.blockUi();
+                                return true;
+                            }}
+                            unselectAllDataGrid={() => {
+                                this.setState({
+                                    selectedRowKeys: [],
+                                });
+                            }}
+                            historyLogId={this.state.historyLogId}
+                            selectedRowKeys={this.state.selectedRowKeys}
+                            handleUnblockUi={() => this.unblockUi}
+                            showErrorMessages={(err) => this.showErrorMessages(err)}
+                            dataGridStoreSuccess={this.state.dataHistoryLogStoreSuccess}
+                            selectedRowData={this.state.selectedRowData}
+                            defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
+                            labels={this.props.labels}
+                        />
+                    ) : null}
                     {this.state.visibleMessagePluginPanel ? (
                         <ConfirmDialog
                             acceptLabel={
