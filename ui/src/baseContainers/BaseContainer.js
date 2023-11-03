@@ -1089,6 +1089,14 @@ class BaseContainer extends React.Component {
             !UrlUtils.getURLParameter('recordId')
         );
     }
+
+    incompatibleView() {
+        return (
+            UrlUtils.getURLParameter('viewType') === 'gridView' &&
+            this.state.elementViewType === 'cardView' &&
+            this.state.gridViewType === 'gridView'
+        );
+    }
     refreshSubView(forceReStateSubView) {
         if (this.windowNotHaveSubView()) {
             this.unblockUi();
@@ -1098,20 +1106,22 @@ class BaseContainer extends React.Component {
             ((this.state.kindView === 'ViewSpec' || this.state.kindView === 'View') && this.state.subView) ||
             forceReStateSubView
         ) {
-            console.log('refreshing subview: ', this.state.kindView);
-            if (window?.dataGrid) {
-                if (this.state?.gridViewType !== 'cardView') window.dataGrid.clearSelection();
+            if (!this.incompatibleView()) {
+                if (window?.dataGrid) {
+                    if (this.state?.gridViewType !== 'cardView') window.dataGrid.clearSelection();
+                }
+                const id = UrlUtils.getViewIdFromURL();
+                // Patrz na viewContainer
+                this.downloadData(
+                    id,
+                    this.state.elementRecordId,
+                    this.state.elementSubViewId,
+                    this.state.elementFilterId,
+                    this.state.elementParentId,
+                    this.state.elementViewType,
+                    forceReStateSubView
+                );
             }
-            const id = UrlUtils.getViewIdFromURL();
-            this.downloadData(
-                id,
-                this.state.elementRecordId,
-                this.state.elementSubViewId,
-                this.state.elementFilterId,
-                this.state.elementParentId,
-                this.state.elementViewType,
-                forceReStateSubView
-            );
         } else {
             removeCookieGlobal('refreshSubView');
         }
@@ -1291,6 +1301,7 @@ class BaseContainer extends React.Component {
                     } else {
                         if (readValueCookieGlobal('refreshSubView') && kindOperation.toUpperCase() !== 'COPY') {
                             this.refreshSubView();
+                            this.refreshView(saveElement);
                         } else {
                             this.refreshView(saveElement);
                         }

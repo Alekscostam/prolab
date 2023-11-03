@@ -27,14 +27,18 @@ export class AttachmentViewDialog extends BaseViewContainer {
             parentId = UrlUtils.getURLParameter('recordId');
         }
         // rerender
-        this.setState({test: null}, () => {
+        this.setState({test: null, cardId: recordId}, () => {
             // this.props.handleSubView(null);
             this.getViewById(viewId, recordId, filterId, parentId, viewType, false);
         });
     }
 
     // overide
-    componentDidUpdate(prevProps, prevState, snapshot) {}
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (this.state?.cardId) {
+            this.addBorderToCardView(this.state.cardId);
+        }
+    }
 
     // overide
     componentDidMount() {
@@ -50,6 +54,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
         this.setState({
             elementSubViewId: prevElementSubViewId,
             updateBreadcrumb: true,
+            cardId: null,
         });
         this.props.handleBackToOldGlobalReference();
         super.componentWillUnmount();
@@ -101,6 +106,20 @@ export class AttachmentViewDialog extends BaseViewContainer {
         );
     }
 
+    isCardViewType() {
+        return UrlUtils.getURLParameter('viewType') === 'cardView';
+    }
+    classListIncludesSelectedBorder(element) {
+        return Array.from(element.classList).includes('card-grid-selected');
+    }
+    addBorderToCardView(recordId) {
+        if (this.isCardViewType()) {
+            const card = document.getElementById(recordId.toString());
+            if (!this.classListIncludesSelectedBorder(card)) {
+                card.classList.add('card-grid-selected');
+            }
+        }
+    }
     getViewById(viewId, recordId, filterId, parentId, viewType, isSubView) {
         ConsoleHelper(
             `AttachmentViewDialog::getViewById: viewId=${viewId}, isSubView=${isSubView} recordId=${recordId}, filterId=${filterId}, parentId=${parentId}, viewType=${viewType},`

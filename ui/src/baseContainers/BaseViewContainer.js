@@ -788,6 +788,12 @@ export class BaseViewContainer extends BaseContainer {
         );
     };
 
+    canNotBeRefreshed() {
+        return (
+            this.state.kindView === 'View' &&
+            (this.state.gridViewType === 'gridView' || this.state.gridViewType === 'cardView')
+        );
+    }
     renderButton(operation, index) {
         const margin = Constants.DEFAULT_MARGIN_BETWEEN_BUTTONS;
         if (!!operation.type) {
@@ -819,10 +825,7 @@ export class BaseViewContainer extends BaseContainer {
                                             const breadCrumbs = UrlUtils.getURLParameter('bc');
                                             const viewType =
                                                 UrlUtils.getURLParameter('viewType') || this.state.gridViewType;
-                                            const canNotBeRefresh =
-                                                this.state.kindView === 'View' && this.state.gridViewType === 'gridView'
-                                                    ? false
-                                                    : !breadCrumbs;
+                                            const canNotBeRefresh = this.canNotBeRefreshed() ? false : !breadCrumbs;
                                             if (canNotBeRefresh) {
                                                 return;
                                             }
@@ -984,75 +987,85 @@ export class BaseViewContainer extends BaseContainer {
         );
     };
 
+    isCalendarDateBox(event) {
+        try {
+            const dateBoxCalendar = event?.target?.parentElement?.parentElement?.parentElement?.parentElement;
+            const neededParents = dateBoxCalendar.parentElement?.parentElement?.parentElement?.parentElement;
+            if (dateBoxCalendar && neededParents) {
+                const classesFromDateBox = dateBoxCalendar?.classList;
+                return Array.from(classesFromDateBox).includes('dx-datebox-calendar');
+            }
+            return false;
+        } catch (err) {}
+    }
+
     onInitialize(e) {
         dataGrid = e.component;
         window.dataGrid = dataGrid;
         //umożliwa filrowanie po niepełniej dacie (która się nie parsuje) i naciśnięciu Enter
+        // $(document).on('keyup', function (event) {
+        //     debugger;
+        // });
         $(document).keyup((event) => {
             try {
                 const keycode = event.keyCode || event.which;
 
-                if (keycode === 13 && event.originalEvent.path === undefined) {
+                if (!this.isEnter(keycode)) {
                     return;
                 }
-                if (
-                    keycode === 13 &&
-                    event.target?.className === 'dx-texteditor-input' &&
-                    event.originalEvent?.path[8]?.className === 'dx-row dx-column-lines dx-datagrid-filter-row' &&
-                    event.originalEvent?.path[4]?.className?.includes('dx-datebox-calendar')
-                ) {
-                    // let td = event.originalEvent?.path[7]
-                    // let ariaDescribedby = td?.getAttribute("aria-describedby");
-                    // let columnName = new String(ariaDescribedby)?.replace(new RegExp('column_[0-9]+_'), '')?.toUpperCase();
-                    let inputValue = event.originalEvent?.path[0]?.value;
-                    if (
-                        inputValue === undefined ||
-                        inputValue === null ||
-                        inputValue === '' ||
-                        inputValue.includes('*')
-                    ) {
-                        this.setState({specialFilter: true}, () => {
-                            let filterArray = [];
-                            let tr = event.originalEvent?.path[8];
-                            for (let child of tr.children) {
-                                if (child.className !== 'dx-command-select') {
-                                    if (
-                                        child?.children[0]?.children[1]?.children[0]?.className?.includes(
-                                            'dx-datebox-calendar'
-                                        )
-                                    ) {
-                                        let inputValue =
-                                            child?.children[0]?.children[1]?.children[0]?.children[0]?.children[1]
-                                                ?.children[0]?.children[0]?.value;
-                                        if (inputValue !== undefined && inputValue !== null && inputValue !== '') {
-                                            let ariaDescribedby = child?.getAttribute('aria-describedby');
-                                            let columnName =
-                                                '' +
-                                                ariaDescribedby
-                                                    ?.replace(new RegExp('column_[0-9]+_'), '')
-                                                    ?.toUpperCase();
-                                            if (filterArray.length > 0) {
-                                                filterArray.push('and');
-                                            }
-                                            filterArray.push([columnName, 'contains', inputValue]);
-                                        }
-                                    }
-                                }
-                            }
+                if (!this.isCalendarDateBox(event)) {
+                    return;
+                }
+                if (!this.isCalendarDateBoxValidForFilter(event)) {
+                    return;
+                }
+                const tr = this.getCurrentDataGridByEvent(event);
+                let filterArray = [];
+                for (let index = 0; index < tr.children.length; index++) {
+                    const child = tr.children[index];
+                    if (this.isValidChildForFilter(child)) {
+                        const inputValue = this.getValueFromChild(child);
+                        if (this.isValidValueFromChild(inputValue)) {
+                            let ariaDescribedby = child?.getAttribute('aria-describedby');
+                            let columnName =
+                                '' + ariaDescribedby?.replace(new RegExp('column_[0-9]+_'), '')?.toUpperCase();
                             if (filterArray.length > 0) {
-                                this.getRefGridView()?.instance?.filter(filterArray);
-                            } else {
-                                this.getRefGridView()?.instance?.clearFilter('dataSource');
+                                filterArray.push('and');
                             }
-                        });
+                            filterArray.push([columnName, 'contains', inputValue]);
+                        }
                     }
+                }
+                if (filterArray.length > 0) {
+                    this.getRefGridView()?.instance?.filter(filterArray);
+                } else {
+                    this.getRefGridView()?.instance?.clearFilter('dataSource');
                 }
             } catch (err) {
                 this.showGlobalErrorMessage(err);
             }
         });
     }
-
+    isCalendarDateBoxValidForFilter(event) {
+        const inputValue = event.target.value;
+        return inputValue === undefined || inputValue === null || inputValue === '' || inputValue.includes('*');
+    }
+    isEnter(keyCode) {
+        return keyCode === 13;
+    }
+    getCurrentDataGridByEvent(event) {
+        return event?.target?.parentElement?.parentElement?.parentElement?.parentElement?.parentElement?.parentElement
+            ?.parentElement?.parentElement;
+    }
+    isValidChildForFilter(child) {
+        return child?.getAttribute('aria-describedby') !== null && child.className !== 'dx-command-select';
+    }
+    getValueFromChild(child) {
+        return child?.children[0]?.children[1]?.children[0]?.children[0]?.children[1]?.children[0]?.children[0]?.value;
+    }
+    isValidValueFromChild(inputValue) {
+        return inputValue !== undefined && inputValue !== null && inputValue !== '';
+    }
     //override
     renderHeadPanel = () => {
         if (this.isDashboard()) {
