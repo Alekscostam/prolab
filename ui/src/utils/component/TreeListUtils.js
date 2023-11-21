@@ -340,10 +340,10 @@ export const MemoizedEditorDescription = React.memo(
                         const row = document.querySelectorAll(
                             'tr[aria-rowindex="' + realRowIndex + '"][class*="dx-column-lines"]'
                         )[0];
-
                         const element = elements[realRowIndex];
-
-                        element.style.height = row.clientHeight + 'px';
+                        if (element) {
+                            element.style.height = row.clientHeight + 'px';
+                        }
                         cellInfo.setValue(e.value);
                     }}
                     validationMessageMode='always'

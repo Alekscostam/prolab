@@ -1103,7 +1103,9 @@ class TreeViewComponent extends React.Component {
                                                 'tr[aria-rowindex="' + realRowIndex + '"][class*="dx-column-lines"]'
                                             )[0];
                                             const element = elements[realRowIndex];
-                                            element.style.height = row.clientHeight + 'px';
+                                            if(element){
+                                                element.style.height = row.clientHeight + 'px';
+                                            }
                                         }, 1);
                                     }
                                     cellInfo.setValue(e);
@@ -1141,7 +1143,9 @@ class TreeViewComponent extends React.Component {
                                                 'tr[aria-rowindex="' + realRowIndex + '"][class*="dx-column-lines"]'
                                             )[0];
                                             const element = elements[realRowIndex];
-                                            element.style.height = row.clientHeight + 'px';
+                                            if(element){
+                                                element.style.height = row.clientHeight + 'px';
+                                            }
                                         }, 1);
                                     }
                                     cellInfo.setValue(e);

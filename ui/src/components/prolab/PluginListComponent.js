@@ -40,7 +40,6 @@ export default class PluginListComponent extends React.Component {
             delete convertedParsedView.viewOptions;
             convertedParsedView.gridOptions = gridOptions;
         }
-
         return (
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />

@@ -432,6 +432,7 @@ export class BaseViewContainer extends BaseContainer {
     }
 
     renderGlobalTop() {
+       const {parsedPluginView} = this.state;
         let operations = this.state.parsedGridView?.operations;
         let opADDFile = DataGridUtils.containsOperationsButton(operations, 'OP_ADD_FILE');
         console.log(this.state.visiblePublishDialog, 'this.state.visiblePublishDialog');
@@ -674,31 +675,34 @@ export class BaseViewContainer extends BaseContainer {
                 {this.state.visibleMessagePluginPanel ? (
                     <ConfirmDialog
                         acceptLabel={
-                            this.state.parsedPluginView.info.question
+                            parsedPluginView.info.question
                                 ? LocUtils.loc(this.props.labels, 'Yes', 'Tak')
                                 : LocUtils.loc(this.props.labels, 'Ok', 'Ok')
                         }
                         rejectLabel={
-                            this.state.parsedPluginView.info.question
+                            parsedPluginView.info.question
                                 ? LocUtils.loc(this.props.labels, 'No', 'Nie')
                                 : LocUtils.loc(this.props.labels, 'Close', 'Zamknij')
                         }
                         /** Question jest nadrzedny tzn. jesli message i question !== null to bierze wartosci z question */
                         header={
-                            this.state.parsedPluginView.info.question
-                                ? LocUtils.loc(this.props.labels, '', this.state.parsedPluginView.info.question?.title)
-                                : LocUtils.loc(this.props.labels, '', this.state.parsedPluginView.info.message?.title)
+                            parsedPluginView.info.question
+                                ? LocUtils.loc(this.props.labels, '', parsedPluginView.info.question?.title)
+                                : parsedPluginView.info.message 
+                                    ? LocUtils.loc(this.props.labels, '', parsedPluginView.info.message?.title) 
+                                    : (LocUtils.loc(this.props.labels, '', parsedPluginView.info?.name)
+                            )
                         }
                         visible={true}
                         onHide={() => this.setState({visibleMessagePluginPanel: false})}
                         message={
-                            this.state.parsedPluginView.info.question
-                                ? LocUtils.loc(this.props.labels, '', this.state.parsedPluginView.info.question?.text)
-                                : LocUtils.loc(this.props.labels, '', this.state.parsedPluginView.info.message?.text)
+                            parsedPluginView.info.question
+                                ? LocUtils.loc(this.props.labels, '', parsedPluginView.info.question?.text)
+                                : LocUtils.loc(this.props.labels, '', parsedPluginView.info.message?.text)
                         }
                         icon='pi pi-exclamation-triangle'
                         accept={() => {
-                            const refreshAll = this.state.parsedPluginView?.viewOptions?.refreshAll;
+                            const refreshAll = parsedPluginView?.viewOptions?.refreshAll;
                             if (this.state.isPluginFirstStep) {
                                 const isThereNextStep = this.state.parsedPluginView?.info?.next;
                                 const idRowKeys = this.state.selectedRowKeys.map((el) => el.ID);

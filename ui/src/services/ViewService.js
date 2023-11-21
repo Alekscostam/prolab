@@ -151,7 +151,7 @@ export default class ViewService extends BaseService {
         })
             .then((result) => {
                 const cacheValue = {
-                    expDate: moment().add(5, 'seconds'),
+                    expDate: moment().add(1, 'seconds'),
                     data: result,
                 };
                 ConsoleHelper('getSubView: setting data to cache');

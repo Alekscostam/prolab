@@ -76,30 +76,7 @@ export class ViewContainer extends BaseViewContainer {
         const subviewMode = !!recordId && !!viewId;
         if (subviewMode) {
             if (this.notProccessed(this.state.loading)) {
-                if (forceReStateSubView) {
-                    // CZASAMI BE nie nadąza
-                    setTimeout(() => {
-                        this.getDataFromSubview(
-                            viewId,
-                            recordId,
-                            parentId,
-                            subviewId,
-                            filterId,
-                            viewType,
-                            forceReStateSubView
-                        );
-                    }, 1000);
-                } else {
-                    this.getDataFromSubview(
-                        viewId,
-                        recordId,
-                        parentId,
-                        subviewId,
-                        filterId,
-                        viewType,
-                        forceReStateSubView
-                    );
-                }
+                this.getDataFromSubview(viewId, recordId, parentId, subviewId, filterId, viewType, forceReStateSubView);
             }
         } else {
             ConsoleHelper(
