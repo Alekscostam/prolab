@@ -64,14 +64,12 @@ class TreeViewComponent extends React.Component {
     }
     // TODO tworzy zla kolejnosc dlatego kolumny sa w złem kolejnosci!!!
     createFakeColumn() {
-        if (this.props.isAddSpec) {
-            const gridViewColumns = this.props.gridViewColumns;
-            if (!gridViewColumns[0]) {
-                return;
-            }
-            if (gridViewColumns[0].id !== undefined && gridViewColumns[0].id !== null) {
-                gridViewColumns.unshift({width: '60'});
-            }
+        const gridViewColumns = this.props.gridViewColumns;
+        if (!gridViewColumns[0]) {
+            return;
+        }
+        if (gridViewColumns[0].id !== undefined && gridViewColumns[0].id !== null) {
+            gridViewColumns.unshift({width: '60'});
         }
     }
     componentDidMount() {
@@ -355,7 +353,7 @@ class TreeViewComponent extends React.Component {
                     }}
                     selectedRowKeys={selectedRowKeys}
                     onSelectionChanged={(e) => {
-                        this.props.handleSelectedRowKeys(e.selectedRowKeys);
+                        this.props.handleSelectedRowKeys(e.selectedRowKeys, this.rerenderColorAfterClickCheckbox());
                     }}
                     renderAsync={true}
                     selectAsync={false}
@@ -435,6 +433,18 @@ class TreeViewComponent extends React.Component {
             clearSelection = false;
         }
     }
+    shouldBeRepainting = () => {
+        const {info} = this.props.parsedGridView;
+        return this.props.isAddSpec && info?.type === 'TEMPLATES' && info?.header === false;
+    };
+    rerenderColorAfterClickCheckbox = () => {
+        if (this.shouldBeRepainting()) {
+            setTimeout(() => {
+                const rowDatas = this.ref.instance.getVisibleRows();
+                this.paintLine(rowDatas);
+            }, 0);
+        }
+    };
 
     preColumnDefinition(editable, INDEX_COLUMN) {
         if (INDEX_COLUMN !== 0) {
@@ -839,6 +849,9 @@ class TreeViewComponent extends React.Component {
                                     color: fontColorFinal,
                                     // background: bgColorFinal,
                                 }}
+                                onClick={(e) => {
+                                    debugger;
+                                }}
                                 // eslint-disable-next-line
                                 dangerouslySetInnerHTML={{__html: cellInfo?.text}}
                             />
@@ -1103,7 +1116,7 @@ class TreeViewComponent extends React.Component {
                                                 'tr[aria-rowindex="' + realRowIndex + '"][class*="dx-column-lines"]'
                                             )[0];
                                             const element = elements[realRowIndex];
-                                            if(element){
+                                            if (element) {
                                                 element.style.height = row.clientHeight + 'px';
                                             }
                                         }, 1);
@@ -1143,7 +1156,7 @@ class TreeViewComponent extends React.Component {
                                                 'tr[aria-rowindex="' + realRowIndex + '"][class*="dx-column-lines"]'
                                             )[0];
                                             const element = elements[realRowIndex];
-                                            if(element){
+                                            if (element) {
                                                 element.style.height = row.clientHeight + 'px';
                                             }
                                         }, 1);

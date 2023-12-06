@@ -18,7 +18,7 @@ import LocUtils from '../utils/LocUtils';
 import {Tabs} from 'devextreme-react';
 import {InputNumber} from 'primereact/inputnumber';
 import {Popup} from 'devextreme-react/popup';
-import {Url} from 'devextreme-react/chart';
+import {TreeListUtils} from '../utils/component/TreeListUtils';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -284,6 +284,13 @@ export class AddSpecContainer extends BaseContainer {
                     this.dataTreeStore
                         .getAddSpecDataTreeStoreDirect(viewIdArg, parentIdArg, type, headerId, header)
                         .then((res) => {
+                            if (type === 'TEMPLATES' && header === false) {
+                                res.data.forEach((el) => {
+                                    el._ID_PARENT = el[responseView.info.fieldParent];
+                                    el._ID = el[responseView.info.fieldKey];
+                                });
+                                res.data = TreeListUtils.paintDatas(res.data);
+                            }
                             this.setState({
                                 loading: false,
                                 parsedData: res.data,
@@ -566,7 +573,7 @@ export class AddSpecContainer extends BaseContainer {
         let parsedData = this.state?.parsedData;
         return (
             <React.Fragment>
-                {this.state.loading ? null : (
+                {!this.state.loading && (
                     <React.Fragment>
                         {this.renderHeaderLeft}
 
@@ -615,13 +622,22 @@ export class AddSpecContainer extends BaseContainer {
                                 }}
                                 handleUnblockUi={() => this.unblockUi()}
                                 handleShowEditPanel={(editDataResponse) => this.handleShowEditPanel(editDataResponse)}
-                                handleSelectedRowKeys={(e) => {
-                                    this.setState((prevState) => {
-                                        return {
-                                            ...prevState,
-                                            selectedRowKeys: e,
-                                        };
-                                    });
+                                handleSelectedRowKeys={(e, rerenderColorAfterClickCheckbox) => {
+                                    this.blockUi();
+                                    this.setState(
+                                        (prevState) => {
+                                            return {
+                                                ...prevState,
+                                                selectedRowKeys: e,
+                                            };
+                                        },
+                                        () => {
+                                            this.unblockUi();
+                                            if (rerenderColorAfterClickCheckbox) {
+                                                rerenderColorAfterClickCheckbox();
+                                            }
+                                        }
+                                    );
                                 }}
                                 modifyParsedGridViewData={(newCopyRow) => {
                                     parsedData.forEach((el) => {
