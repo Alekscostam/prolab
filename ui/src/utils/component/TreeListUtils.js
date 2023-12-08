@@ -6,16 +6,10 @@ import HtmlEditor, {Item, MediaResizing, Toolbar} from 'devextreme-react/html-ed
 import {CheckBox, DateBox, NumberBox, TextBox, Validator} from 'devextreme-react';
 import {RequiredRule} from 'devextreme-react/validator';
 import moment from 'moment';
-import Constants from '../Constants';
 import {EntryResponseUtils} from '../EntryResponseUtils';
 import {compress} from 'int-compress-string/src';
 import {EditSpecUtils} from '../EditSpecUtils';
 import CrudService from '../../services/CrudService';
-
-import {Calendar} from 'primereact/calendar';
-import LocUtils from '../LocUtils';
-let clickCount = 0;
-let timeout;
 
 const sizeValues = ['8pt', '10pt', '12pt', '14pt', '18pt', '24pt', '36pt'];
 const fontValues = [
@@ -29,8 +23,8 @@ const fontValues = [
     'Verdana',
 ];
 const headerValues = [false, 1, 2, 3, 4, 5];
-
 //P - Hasło
+
 export const MemoizedText = React.memo(
     ({
         field,
@@ -380,8 +374,46 @@ export const MemoizedEditorDescription = React.memo(
                         <Item name='orderedList' />
                         <Item name='bulletList' />
                         <Item name='separator' />
-                        <Item name='color' />
-                        <Item name='background' />
+                        <Item
+                            name='color'
+                            onClick={() => {
+                                setTimeout(function () {
+                                    document
+                                        .getElementsByClassName('dx-popup-normal')[1]
+                                        .addEventListener('click', () => {
+                                            const dialog = document.getElementsByClassName('dx-popup-normal')[1];
+                                            if (dialog !== null && dialog !== undefined) {
+                                                const btn =
+                                                    dialog?.children[2]?.children[0]?.children[2]?.children[0]
+                                                        ?.children[0]?.children[0];
+                                                if (btn) {
+                                                    btn.click();
+                                                }
+                                            }
+                                        });
+                                }, 300);
+                            }}
+                        />
+                        <Item
+                            name='background'
+                            onClick={() => {
+                                setTimeout(function () {
+                                    document
+                                        .getElementsByClassName('dx-popup-normal')[1]
+                                        .addEventListener('click', () => {
+                                            const dialog = document.getElementsByClassName('dx-popup-normal')[1];
+                                            if (dialog !== null && dialog !== undefined) {
+                                                const btn =
+                                                    dialog?.children[2]?.children[0]?.children[2]?.children[0]
+                                                        ?.children[0]?.children[0];
+                                                if (btn) {
+                                                    btn.click();
+                                                }
+                                            }
+                                        });
+                                }, 300);
+                            }}
+                        />
                         <Item name='separator' />
                         <Item name='insertTable' />
                         <Item name='deleteTable' />
@@ -428,6 +460,7 @@ export class TreeListUtils extends ViewDataCompUtils {
         datas.forEach((data) => {
             this.recursionPainting(data, 100, datas);
         });
+        console.log(datas);
         return datas;
     };
 

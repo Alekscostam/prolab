@@ -445,6 +445,7 @@ export class AddSpecContainer extends BaseContainer {
         this.crudService
             .executeSpec(viewId, parentId, saveElement, type, headerId, header, numberOfCopies)
             .then((saveResponse) => {
+                this.setParents(type, header, saveResponse);
                 let validArray = this.createValidArray(saveResponse.data);
                 let res = this.setFakeIds(validArray);
                 const parsedGridViewData = this.props?.parsedGridViewData;
@@ -466,6 +467,18 @@ export class AddSpecContainer extends BaseContainer {
                 this.showGlobalErrorMessage(err);
             });
     };
+
+    setParents(type, header, res) {
+        const responseView = this.state.parsedView;
+        if (type === 'TEMPLATES' && header === false) {
+            res.data.forEach((el) => {
+                el._ID_PARENT = el[responseView.info.fieldParent];
+                el.ID_PARENT = el._ID_PARENT;
+                el._ID = el[responseView.info.fieldKey];
+            });
+            res.data = TreeListUtils.paintDatas(res.data);
+        }
+    }
 
     setLinesForChild(array, prevGradients) {
         const clonedPrevGradients = structuredClone(prevGradients);

@@ -849,9 +849,6 @@ class TreeViewComponent extends React.Component {
                                     color: fontColorFinal,
                                     // background: bgColorFinal,
                                 }}
-                                onClick={(e) => {
-                                    debugger;
-                                }}
                                 // eslint-disable-next-line
                                 dangerouslySetInnerHTML={{__html: cellInfo?.text}}
                             />
@@ -1090,7 +1087,7 @@ class TreeViewComponent extends React.Component {
                         validate={validate}
                     />
                 );
-            case 'IM': //I – Obrazek
+            case 'IM': //IM – Obrazek multi
                 return (
                     <React.Fragment>
                         <div className={`image-base ${autoFill} ${validate}`}>
@@ -1128,7 +1125,7 @@ class TreeViewComponent extends React.Component {
                         </div>
                     </React.Fragment>
                 );
-            case 'I': //IM – Obrazek multi
+            case 'I': //I – Obrazek
                 return (
                     <React.Fragment>
                         <div className={`image-base ${autoFill} ${validate}`}>
@@ -1161,7 +1158,7 @@ class TreeViewComponent extends React.Component {
                                             }
                                         }, 1);
                                     }
-                                    cellInfo.setValue(e);
+                                    cellInfo.setValue(e[0]);
                                 }}
                                 onError={(e) => this.props.onError(e)}
                             />

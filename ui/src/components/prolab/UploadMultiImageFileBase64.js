@@ -242,7 +242,7 @@ class UploadMultiImageFileBase64 extends React.Component {
                         }}
                         className='p-button-secondary selectionList float-right mt-2'
                     >
-                        <i style={{fontSize: '25px', color: 'red'}} className='icon mdi mdi-trash-can '></i>
+                        <i style={{fontSize: '25px', color: '#0e49eb'}} className='icon mdi mdi-trash-can '></i>
                     </a>
                 )}
             </React.Fragment>

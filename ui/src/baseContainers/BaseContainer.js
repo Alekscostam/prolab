@@ -61,6 +61,7 @@ class BaseContainer extends React.Component {
         this.handleRightHeadPanelContent = this.handleRightHeadPanelContent.bind(this);
         this.handleCancelRowChange = this.handleCancelRowChange.bind(this);
         this.handleEditListRowChange = this.handleEditListRowChange.bind(this);
+        this.handleAttachmentEntry = this.handleAttachmentEntry.bind(this);
         this.getRealViewId = this.getRealViewId.bind(this);
         this.unselectAllDataGrid = this.unselectAllDataGrid.bind(this);
         this.setVariableFromEvent = this.setVariableFromEvent.bind(this);
@@ -1876,16 +1877,16 @@ class BaseContainer extends React.Component {
                 parentIdParam = '?parentId=' + recordId;
             }
         }
-        const isKindViewSpec =
-            this.state.elementKindView === 'ViewSpec' &&
-            this.state.kindView === 'ViewSpec' &&
-            recordId !== '0' &&
-            recordId !== 0;
+        const isKindViewSpec = this.isKindViewSpec(recordId);
         if (recordId === '0' || recordId === 0) {
             recordId = this.state.elementRecordId;
         }
+        this.handleAttachmentEntry(viewId, recordId, parentIdParam, isKindViewSpec);
+    }
+
+    handleAttachmentEntry(viewId, recordId, parentIdParam, isKindViewSpec) {
         this.crudService
-            .attachmentEntry(viewId, recordId, parentIdParam, isKindViewSpec)
+            .attachmentEntry(viewId, recordId, parentIdParam)
             .then((attachmentResponse) => {
                 EntryResponseUtils.run(
                     attachmentResponse,
@@ -1899,10 +1900,8 @@ class BaseContainer extends React.Component {
                                     isKindViewSpec,
                                 },
                             });
-                            this.unblockUi();
-                        } else {
-                            this.unblockUi();
                         }
+                        this.unblockUi();
                     },
                     () => this.unblockUi()
                 );
@@ -1910,6 +1909,15 @@ class BaseContainer extends React.Component {
             .catch((err) => {
                 this.showGlobalErrorMessage(err);
             });
+    }
+
+    isKindViewSpec(recordId) {
+        return (
+            this.state.elementKindView === 'ViewSpec' &&
+            this.state.kindView === 'ViewSpec' &&
+            recordId !== '0' &&
+            recordId !== 0
+        );
     }
 
     prepareCalculateFormula(id) {
@@ -2365,6 +2373,9 @@ class BaseContainer extends React.Component {
         }
         if (this.isGridViewBody(recordId)) {
             return this.getRealViewId();
+        }
+        if (this.getRealViewId() === undefined) {
+            return UrlUtils.getViewIdFromURL();
         }
         return this.getRealViewId();
     }

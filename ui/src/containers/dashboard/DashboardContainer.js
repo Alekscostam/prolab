@@ -19,6 +19,8 @@ import LocUtils from '../../utils/LocUtils';
 import DashboardCardViewComponent from './DashboardCardViewComponent';
 import CrudService from '../../services/CrudService';
 import {EntryResponseUtils} from '../../utils/EntryResponseUtils';
+import HistoryLogListComponent from '../../components/prolab/HistoryLogListComponent';
+import {AttachmentViewDialog} from '../attachmentView/AttachmentViewDialog';
 
 class DashboardContainer extends BaseContainer {
     constructor(props) {
@@ -245,6 +247,86 @@ class DashboardContainer extends BaseContainer {
                     labels={this.props.labels}
                     showErrorMessages={(err) => this.showErrorMessages(err)}
                 />
+                {this.state.visibleHistoryLogPanel ? (
+                    <HistoryLogListComponent
+                        visible={this.state.visibleHistoryLogPanel}
+                        field={this.state.editListField}
+                        parsedHistoryLogView={this.state.parsedHistoryLogView}
+                        parsedHistoryLogViewData={this.state.parsedHistoryLogViewData}
+                        onHide={() => this.setState({visibleHistoryLogPanel: false})}
+                        handleBlockUi={() => {
+                            this.blockUi();
+                            return true;
+                        }}
+                        unselectAllDataGrid={() => {
+                            this.setState({
+                                selectedRowKeys: [],
+                            });
+                        }}
+                        historyLogId={this.state.historyLogId}
+                        selectedRowKeys={this.state.selectedRowKeys}
+                        handleUnblockUi={() => this.unblockUi}
+                        showErrorMessages={(err) => this.showErrorMessages(err)}
+                        dataGridStoreSuccess={this.state.dataHistoryLogStoreSuccess}
+                        selectedRowData={this.state.selectedRowData}
+                        defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
+                        labels={this.props.labels}
+                    />
+                ) : null}
+                {this.state.attachmentViewInfo ? (
+                    <AttachmentViewDialog
+                        ref={this.viewContainer}
+                        recordId={this.state.attachmentViewInfo.recordId}
+                        id={this.state.attachmentViewInfo.viewId}
+                        handleRenderNoRefreshContent={(renderNoRefreshContent) => {
+                            this.setState({renderNoRefreshContent: renderNoRefreshContent});
+                        }}
+                        prevDataGridGlobalReference={this.state.prevDataGridGlobalReference}
+                        setPrevDataGridGlobalReference={() => {
+                            this.setState({
+                                prevDataGridGlobalReference: window.dataGrid,
+                                isAttachement: true,
+                            });
+                        }}
+                        handleBackToOldGlobalReference={() => {
+                            const prevDataGridGlobalReference = this.state.prevDataGridGlobalReference;
+                            window.dataGrid = prevDataGridGlobalReference;
+                            this.setState({
+                                isAttachement: false,
+                            });
+                        }}
+                        handleShowGlobalErrorMessage={(err) => {
+                            this.setState({
+                                attachmentViewInfo: undefined,
+                            });
+                            this.showGlobalErrorMessage(err);
+                        }}
+                        handleShowErrorMessages={(err) => {
+                            this.showErrorMessage(err);
+                        }}
+                        handleShowEditPanel={(editDataResponse) => {
+                            this.handleShowEditPanel(editDataResponse);
+                        }}
+                        onHide={() => {
+                            this.setState({
+                                attachmentViewInfo: undefined,
+                            });
+                        }}
+                        handleViewInfoName={(viewInfoName) => {
+                            this.setState({viewInfoName: viewInfoName});
+                        }}
+                        handleSubView={(subView) => {
+                            this.setState({subView: subView});
+                        }}
+                        handleOperations={(operations) => {
+                            this.setState({operations: operations});
+                        }}
+                        handleShortcutButtons={(shortcutButtons) => {
+                            this.setState({shortcutButtons: shortcutButtons});
+                        }}
+                        collapsed={this.state.collapsed}
+                    />
+                ) : null}
             </React.Fragment>
         );
     }
@@ -261,6 +343,25 @@ class DashboardContainer extends BaseContainer {
     refreshView(saveElement) {
         this.refreshDashboard(saveElement);
     }
+
+    handleOperation = (operation) => {
+        switch (operation.type) {
+            case 'OP_ATTACHMENTS':
+                this.handleAttachmentEntry(
+                    UrlUtils.getViewIdFromURL(),
+                    UrlUtils.getURLParameter('recordId'),
+                    '?parentId=' + operation.id,
+                    false
+                );
+                break;
+            case 'OP_HISTORY':
+            case 'SK_HISTORY':
+                this.historyLog(operation.id);
+                break;
+            default:
+                return null;
+        }
+    };
 
     renderContent() {
         const recordId = UrlUtils.getURLParameter('recordId');
@@ -280,6 +381,9 @@ class DashboardContainer extends BaseContainer {
                             parsedCardViewData={this.state.dashboard?.headerData}
                             handleShowEditPanel={(editDataResponse) => {
                                 this.handleShowEditPanel(editDataResponse);
+                            }}
+                            handleOperation={(operation) => {
+                                this.handleOperation(operation);
                             }}
                             handleBlockUi={() => {
                                 this.blockUi();

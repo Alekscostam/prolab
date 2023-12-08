@@ -10,6 +10,7 @@ import AppPrefixUtils from '../../utils/AppPrefixUtils';
 import PropTypes from 'prop-types';
 import CrudService from '../../services/CrudService';
 import ConsoleHelper from '../../utils/ConsoleHelper';
+import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils';
 
 class DashboardCardViewComponent extends React.Component {
     constructor(props) {
@@ -177,7 +178,14 @@ class DashboardCardViewComponent extends React.Component {
                                                 id={`${recordId}_more_shortcut`}
                                                 className={`action-button-with-menu`}
                                                 iconName='mdi-dots-vertical'
-                                                items={menuItems}
+                                                items={ActionButtonWithMenuUtils.createItemsWithCommand(
+                                                    menuItems,
+                                                    undefined,
+                                                    (e) => {
+                                                        this.props.handleOperation(e);
+                                                    },
+                                                    undefined
+                                                )}
                                                 rendered={showMenu}
                                             />
                                         </div>
