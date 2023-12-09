@@ -1,0 +1,6 @@
+{
+    "REACT_APP_BACKEND_URL": "https://rdprolab.inform-tech.pl:444/Api/api",
+    "REACT_APP_URL_PREFIX": "",
+    "LANG": "PL",
+    "LANG_LIST": ["PL", "ENG", "DE"]
+}
