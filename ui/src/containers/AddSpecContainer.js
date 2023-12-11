@@ -284,7 +284,7 @@ export class AddSpecContainer extends BaseContainer {
                     this.dataTreeStore
                         .getAddSpecDataTreeStoreDirect(viewIdArg, parentIdArg, type, headerId, header)
                         .then((res) => {
-                            if (type === 'TEMPLATES' && header === false) {
+                            if (header === false) {
                                 res.data.forEach((el) => {
                                     el._ID_PARENT = el[responseView.info.fieldParent];
                                     el._ID = el[responseView.info.fieldKey];
@@ -470,7 +470,7 @@ export class AddSpecContainer extends BaseContainer {
 
     setParents(type, header, res) {
         const responseView = this.state.parsedView;
-        if (type === 'TEMPLATES' && header === false) {
+        if (header === false) {
             res.data.forEach((el) => {
                 el._ID_PARENT = el[responseView.info.fieldParent];
                 el.ID_PARENT = el._ID_PARENT;

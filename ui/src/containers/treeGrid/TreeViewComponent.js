@@ -435,7 +435,7 @@ class TreeViewComponent extends React.Component {
     }
     shouldBeRepainting = () => {
         const {info} = this.props.parsedGridView;
-        return this.props.isAddSpec && info?.type === 'TEMPLATES' && info?.header === false;
+        return this.props.isAddSpec && info?.header === false;
     };
     rerenderColorAfterClickCheckbox = () => {
         if (this.shouldBeRepainting()) {
@@ -473,7 +473,6 @@ class TreeViewComponent extends React.Component {
             }
             const editable = columnDefinition?.edit;
             this.preColumnDefinition(editable, INDEX_COLUMN);
-
             columns.push(
                 <Column
                     key={INDEX_COLUMN}
@@ -921,7 +920,7 @@ class TreeViewComponent extends React.Component {
         }
     }
 
-    editCellRender(cellInfo, columnDefinition, onClickEditListCallback) {
+    editCellRender = (cellInfo, columnDefinition, onClickEditListCallback) => {
         //mock
         //columnDefinition.edit = true;
         const field = columnDefinition;
@@ -942,7 +941,6 @@ class TreeViewComponent extends React.Component {
         const autoFillCheckbox = field?.autoFill ? 'autofill-border-checkbox' : '';
         const selectionList = field?.selectionList ? 'p-inputgroup' : null;
         //const refreshFieldVisibility = !!field?.refreshFieldVisibility;
-
         switch (field?.type) {
             case 'C':
                 if (cellInfo.column.dataField?.includes('WART') && cellInfo.data?.PIERW_TYP?.includes('N')) {
@@ -1076,16 +1074,18 @@ class TreeViewComponent extends React.Component {
                 );
             case 'O': //O – Opisowe
                 return (
-                    <MemoizedEditorDescription
-                        field={field}
-                        cellInfo={cellInfo}
-                        inputValue={cellInfo.value}
-                        fieldIndex={fieldIndex}
-                        editable={editable}
-                        autoFill={autoFill}
-                        required={required}
-                        validate={validate}
-                    />
+                    <div aria-live='assertive'>
+                        <MemoizedEditorDescription
+                            field={field}
+                            cellInfo={cellInfo}
+                            inputValue={cellInfo.value}
+                            fieldIndex={fieldIndex}
+                            editable={editable}
+                            autoFill={autoFill}
+                            required={required}
+                            validate={validate}
+                        />
+                    </div>
                 );
             case 'IM': //IM – Obrazek multi
                 return (
@@ -1095,6 +1095,7 @@ class TreeViewComponent extends React.Component {
                                 multiple={false}
                                 displayText={''}
                                 initBase64={cellInfo.value}
+                                redBtnColor={true}
                                 deleteBtn={true}
                                 onDeleteChange={() => {
                                     cellInfo.setValue([]);
@@ -1130,9 +1131,10 @@ class TreeViewComponent extends React.Component {
                     <React.Fragment>
                         <div className={`image-base ${autoFill} ${validate}`}>
                             <UploadMultiImageFileBase64
-                                multiple={true}
+                                multiple={false}
                                 displayText={''}
                                 deleteBtn={true}
+                                redBtnColor={true}
                                 onDeleteChange={() => {
                                     cellInfo.setValue([]);
                                 }}
@@ -1184,7 +1186,7 @@ class TreeViewComponent extends React.Component {
             default:
                 return undefined;
         }
-    }
+    };
 
     waitForSuccess() {
         return this.props.dataTreeStoreSuccess === false || this.props.gridViewColumns?.length === 0;

@@ -214,15 +214,6 @@ class UploadMultiImageFileBase64 extends React.Component {
     }
 
     render() {
-        // setTimeout(function () {
-        //     const imagePreview = document.getElementById('image-preview');
-        //     const img = imagePreview?.children[0]?.children[0];
-        //     console.log(img, 'SDS');
-        //     if (img) {
-        //         debugger;
-        //     }
-        // }, 1000);
-
         return (
             <React.Fragment>
                 <div id='drop-region' style={{width: '100%'}}>
@@ -242,7 +233,10 @@ class UploadMultiImageFileBase64 extends React.Component {
                         }}
                         className='p-button-secondary selectionList float-right mt-2'
                     >
-                        <i style={{fontSize: '25px', color: '#0e49eb'}} className='icon mdi mdi-trash-can '></i>
+                        <i
+                            style={{fontSize: '25px', color: this.props.redBtnColor ? 'red' : '#0e49eb'}}
+                            className='icon mdi mdi-trash-can '
+                        ></i>
                     </a>
                 )}
             </React.Fragment>
@@ -269,6 +263,7 @@ UploadMultiImageFileBase64.propTypes = {
     initBase64: PropTypes.any.isRequired,
     className: PropTypes.string,
     rendered: PropTypes.bool,
+    redBtnColor: PropTypes.bool,
     deleteBtn: PropTypes.bool,
 };
 
@@ -288,6 +283,7 @@ UploadMultiImageFileBase64.defaultProps = {
     clearOnInput: true,
     preview: true,
     deleteBtn: false,
+    redBtnColor: false,
     maxSize: undefined, // 1MB
 };
 

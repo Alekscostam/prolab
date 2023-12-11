@@ -26,6 +26,9 @@ import {Toast} from 'primereact/toast';
 import LocUtils from './utils/LocUtils';
 import {EditSpecContainer} from './containers/EditSpecContainer';
 import moment from 'moment';
+import {Dialog} from 'primereact/dialog';
+import {Button} from 'react-bootstrap';
+import {StringUtils} from './utils/StringUtils';
 
 let clickEventSeesion = null;
 class App extends Component {
@@ -35,6 +38,7 @@ class App extends Component {
         this.authService = new AuthService();
         this.historyBrowser = this.history;
         this.selectedDataGrid = React.createRef();
+        // this.progressBarRef = React.createRef();
         this.localizationService = new LocalizationService();
         this.viewContainer = React.createRef();
         this.editSpecContainer = React.createRef();
@@ -52,6 +56,7 @@ class App extends Component {
             shortcutButtons: null,
             collapsed: false,
             timer: null,
+            // tickerForEndSession: null,
             sessionTimeOut: null,
         };
         this.handleLogoutUser = this.handleLogoutUser.bind(this);
@@ -79,6 +84,55 @@ class App extends Component {
         ConsoleHelper('App version = ' + packageJson.version);
         this.handleCollapseChange = this.handleCollapseChange.bind(this);
     }
+
+    // componentDidMount() {
+    //     let browseUrl = window.location.href;
+    //     const id = browseUrl.indexOf('/#');
+    //     if (id > 0) {
+    //         browseUrl = browseUrl.substring(0, id + 1);
+    //     }
+    //     let configUrl;
+    //     const urlPrefixCookie = readObjFromCookieGlobal('REACT_APP_URL_PREFIX');
+    //     if (urlPrefixCookie === undefined || urlPrefixCookie == null || urlPrefixCookie === '') {
+    //         configUrl = browseUrl;
+    //         // .trim()
+    //         // .replaceAll("/#/", "/")
+    //         // .replaceAll("/#", "")
+    //         // .replaceAll("#/", "");
+    //     } else {
+    //         configUrl = browseUrl.trim().match('^(?:https?:)?(?:\\/\\/)?([^\\/\\?]+)', '')[0] + '/' + urlPrefixCookie;
+    //     }
+
+    //     this.readConfigAndSaveInCookie(configUrl).catch((err) => {
+    //         console.error('Error start application = ', err);
+    //     });
+
+    //     this.timer = setInterval(() => {
+    //         const sessionTimeout = Date.parse(localStorage.getItem('session_timeout'));
+    //         let t = new Date();
+    //         t.setSeconds(t.getSeconds() + 30);
+    //         console.log(!this.state?.rednerSessionTimeoutDialog);
+    //         if (sessionTimeout < t && !this.state?.rednerSessionTimeoutDialog) {
+    //             // this.setState({rednerSessionTimeoutDialog: true});
+    //             // this.handleLogoutByTokenExpired();
+    //         }
+    //     }, 1000);
+
+    //     const root = document.getElementById('root');
+    //     const clickEventForSession = function () {
+    //         const user = localStorage.getItem('logged_user');
+    //         if (user) {
+    //             const timeInMinutes = localStorage.getItem('session_timeout_in_minutes');
+    //             if (timeInMinutes && !this.state?.rednerSessionTimeoutDialog) {
+    //                 const sessionTimeout = moment(new Date()).add(timeInMinutes, 'm').toString();
+    //                 localStorage.setItem('session_timeout', sessionTimeout);
+    //             }
+    //         }
+    //         return true;
+    //     };
+    //     clickEventSeesion = clickEventForSession;
+    //     root.addEventListener('click', clickEventForSession);
+    // }
 
     componentDidMount() {
         let browseUrl = window.location.href;
@@ -124,10 +178,10 @@ class App extends Component {
         clickEventSeesion = clickEventForSession;
         root.addEventListener('click', clickEventForSession);
     }
-
     componentWillUnmount() {
         this.unregisteredClickEventForSession();
         clearTimeout(this.timer);
+        // clearTimeout(this.tickerForEndSession);
     }
     unregisteredClickEventForSession() {
         const root = document.getElementById('root');
@@ -267,6 +321,28 @@ class App extends Component {
         this.setState({collapsed: collapsed});
     }
 
+    // renderTickerForEndSession() {
+    //     let seconds = 60;
+    //     if (localStorage.getItem('ticker-startc') !== 'true') {
+    //         localStorage.setItem('ticker-startc', 'true');
+    //         this.tickerForEndSession = setInterval(() => {
+    //             seconds--;
+    //             document.getElementById('time-ticker').innerText = seconds;
+    //             if (seconds <= 0) {
+    //                 clearInterval(this.tickerForEndSession);
+    //                 localStorage.setItem('ticker-startc', 'false');
+    //                 this.setState({rednerSessionTimeoutDialog: false});
+    //                 this.handleLogoutByTokenExpired();
+    //             }
+    //         }, 1000);
+    //     }
+    // }
+
+    haveSubViewColumns() {
+        const {subView} = this.state;
+        return !!subView && !StringUtils.isBlank(subView.headerColumns);
+    }
+
     render() {
         const authService = this.authService;
         const {labels} = this.state;
@@ -274,6 +350,43 @@ class App extends Component {
         let opADD = DataGridUtils.containsOperationsButton(this.state.operations, 'OP_ADD');
         return (
             <React.Fragment>
+                {/* {this.state.rednerSessionTimeoutDialog && (
+                    <Dialog
+                        id='sessionTimeoutDialog'
+                        header={'Sesja wygasa'}
+                        footer={
+                            <React.Fragment>
+                                <div>
+                                    <Button
+                                        type='button'
+                                        onClick={() => {
+                                            const timeInMinutes = localStorage.getItem('session_timeout_in_minutes');
+                                            if (timeInMinutes && !this.state?.rednerSessionTimeoutDialog) {
+                                                const sessionTimeout = moment(new Date())
+                                                    .add(timeInMinutes, 'm')
+                                                    .toString();
+                                                localStorage.setItem('session_timeout', sessionTimeout);
+                                            }
+                                            this.onHide();
+                                        }}
+                                        label={LocUtils.loc(this.props.labels, 'Publish_next', 'Dalej')}
+                                    >
+                                        Przedłuż
+                                    </Button>
+                                </div>
+                            </React.Fragment>
+                        }
+                        minX={'1200px'}
+                        visible={this.state.rednerSessionTimeoutDialog}
+                        resizable={false}
+                        breakpoints={{'1260px': '75vw', '840px': '100vw'}}
+                        onHide={() => this.onHide()}
+                    >
+                        {this.renderTickerForEndSession()}
+                        Czas do wygaśniecia sesji <span id='time-ticker '>23</span>
+                    </Dialog>
+                )} */}
+
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
                 {this.state.loadedConfiguration ? (
                     <HashRouter
@@ -318,7 +431,7 @@ class App extends Component {
                                                 <DivContainer id='header-content' colClass='col-12'></DivContainer>
                                             </DivContainer>
                                             <div style={{marginRight: '30px'}}>
-                                                {!!this.state.subView ? (
+                                                {this.haveSubViewColumns() ? (
                                                     <SubGridViewComponent
                                                         key={'sub'}
                                                         handleOnInitialized={(ref) => (this.selectedDataGrid = ref)}

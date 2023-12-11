@@ -321,110 +321,142 @@ export const MemoizedEditorDescription = React.memo(
     ({field, cellInfo, inputValue, fieldIndex, editable, autoFill, required, validate}) => {
         return (
             <React.Fragment>
-                <HtmlEditor
-                    id={`editor_${fieldIndex}`}
-                    // ${autoFill} ${editable}
-                    className={`editor ${validate}`}
-                    defaultValue={inputValue}
-                    onValueChanged={(e) => {
-                        // dostosowanie pierwszej doklejonej kolumny
-                        const rowIndex = cellInfo.rowIndex;
-                        const realRowIndex = rowIndex + 1;
-                        const elements = document.querySelectorAll('td[aria-describedby=column_0_undefined-fixed]');
-                        const row = document.querySelectorAll(
-                            'tr[aria-rowindex="' + realRowIndex + '"][class*="dx-column-lines"]'
-                        )[0];
-                        const element = elements[realRowIndex];
-                        if (element) {
-                            element.style.height = row.clientHeight + 'px';
-                        }
-                        cellInfo.setValue(e.value);
-                    }}
-                    validationMessageMode='always'
-                    disabled={!field.edit}
-                    required={required}
-                >
-                    {' '}
-                    {required ? (
-                        <Validator>
-                            <RequiredRule message={`Pole jest wymagane`} />
-                        </Validator>
-                    ) : null}
-                    <MediaResizing enabled={true} />
-                    <Toolbar multiline={false}>
-                        <Item name='undo' />
-                        <Item name='redo' />
-                        <Item name='separator' />
-                        <Item name='size' acceptedValues={sizeValues} />
-                        <Item name='font' acceptedValues={fontValues} />
-                        <Item name='header' acceptedValues={headerValues} />
-                        <Item name='separator' />
-                        <Item name='bold' />
-                        <Item name='italic' />
-                        <Item name='strike' />
-                        <Item name='underline' />
-                        <Item name='subscript' />
-                        <Item name='superscript' />
-                        <Item name='separator' />
-                        <Item name='alignLeft' />
-                        <Item name='alignCenter' />
-                        <Item name='alignRight' />
-                        <Item name='alignJustify' />
-                        <Item name='separator' />
-                        <Item name='orderedList' />
-                        <Item name='bulletList' />
-                        <Item name='separator' />
-                        <Item
-                            name='color'
-                            onClick={() => {
-                                setTimeout(function () {
-                                    document
-                                        .getElementsByClassName('dx-popup-normal')[1]
-                                        .addEventListener('click', () => {
-                                            const dialog = document.getElementsByClassName('dx-popup-normal')[1];
-                                            if (dialog !== null && dialog !== undefined) {
-                                                const btn =
-                                                    dialog?.children[2]?.children[0]?.children[2]?.children[0]
-                                                        ?.children[0]?.children[0];
-                                                if (btn) {
-                                                    btn.click();
+                <div aria-live='assertive'>
+                    <HtmlEditor
+                        id={`editor_${fieldIndex}`}
+                        // ${autoFill} ${editable}
+                        className={`editor ${validate}`}
+                        defaultValue={inputValue}
+                        onValueChanged={(e) => {
+                            // dostosowanie pierwszej doklejonej kolumny
+                            const rowIndex = cellInfo.rowIndex;
+                            const realRowIndex = rowIndex + 1;
+                            const elements = document.querySelectorAll('td[aria-describedby=column_0_undefined-fixed]');
+                            const row = document.querySelectorAll(
+                                'tr[aria-rowindex="' + realRowIndex + '"][class*="dx-column-lines"]'
+                            )[0];
+                            const element = elements[realRowIndex];
+                            if (element) {
+                                element.style.height = row.clientHeight + 'px';
+                            }
+                            cellInfo.setValue(e.value);
+                        }}
+                        validationMessageMode='always'
+                        disabled={!field.edit}
+                        required={required}
+                    >
+                        {' '}
+                        {required ? (
+                            <Validator>
+                                <RequiredRule message={`Pole jest wymagane`} />
+                            </Validator>
+                        ) : null}
+                        <MediaResizing enabled={true} />
+                        <Toolbar multiline={false}>
+                            <Item name='undo' />
+                            <Item name='redo' />
+                            <Item name='separator' />
+                            <Item name='size' acceptedValues={sizeValues} />
+                            <Item name='font' acceptedValues={fontValues} />
+                            <Item name='header' acceptedValues={headerValues} />
+                            <Item name='separator' />
+                            <Item name='bold' />
+                            <Item name='italic' />
+                            <Item name='strike' />
+                            <Item name='underline' />
+                            <Item name='subscript' />
+                            <Item name='superscript' />
+                            <Item name='separator' />
+                            <Item name='alignLeft' />
+                            <Item name='alignCenter' />
+                            <Item name='alignRight' />
+                            <Item name='alignJustify' />
+                            <Item name='separator' />
+                            <Item name='orderedList' />
+                            <Item name='bulletList' />
+                            <Item name='separator' />
+                            <Item
+                                name='color'
+                                onClick={() => {
+                                    setTimeout(function () {
+                                        document
+                                            .getElementsByClassName('dx-popup-normal')[1]
+                                            .addEventListener('click', () => {
+                                                const dialog = document.getElementsByClassName('dx-popup-normal')[1];
+                                                if (dialog !== null && dialog !== undefined) {
+                                                    const btn =
+                                                        dialog?.children[2]?.children[0]?.children[2]?.children[0]
+                                                            ?.children[0]?.children[0];
+                                                    if (btn) {
+                                                        btn.click();
+                                                    }
                                                 }
-                                            }
-                                        });
-                                }, 300);
-                            }}
-                        />
-                        <Item
-                            name='background'
-                            onClick={() => {
-                                setTimeout(function () {
-                                    document
-                                        .getElementsByClassName('dx-popup-normal')[1]
-                                        .addEventListener('click', () => {
-                                            const dialog = document.getElementsByClassName('dx-popup-normal')[1];
-                                            if (dialog !== null && dialog !== undefined) {
-                                                const btn =
-                                                    dialog?.children[2]?.children[0]?.children[2]?.children[0]
-                                                        ?.children[0]?.children[0];
-                                                if (btn) {
-                                                    btn.click();
+                                            });
+                                    }, 300);
+                                }}
+                            />
+                            <Item
+                                name='background'
+                                onClick={() => {
+                                    setTimeout(function () {
+                                        document
+                                            .getElementsByClassName('dx-popup-normal')[1]
+                                            .addEventListener('click', () => {
+                                                const dialog = document.getElementsByClassName('dx-popup-normal')[1];
+                                                if (dialog !== null && dialog !== undefined) {
+                                                    const btn =
+                                                        dialog?.children[2]?.children[0]?.children[2]?.children[0]
+                                                            ?.children[0]?.children[0];
+                                                    if (btn) {
+                                                        btn.click();
+                                                    }
                                                 }
-                                            }
-                                        });
-                                }, 300);
-                            }}
-                        />
-                        <Item name='separator' />
-                        <Item name='insertTable' />
-                        <Item name='deleteTable' />
-                        <Item name='insertRowAbove' />
-                        <Item name='insertRowBelow' />
-                        <Item name='deleteRow' />
-                        <Item name='insertColumnLeft' />
-                        <Item name='insertColumnRight' />
-                        <Item name='deleteColumn' />
-                    </Toolbar>
-                </HtmlEditor>
+                                            });
+                                    }, 300);
+                                }}
+                            />
+                            <Item name='separator' />
+                            {/* <div style={{pointerEvents: 'none'}}> */}
+                            <Item
+                                name='insertTable'
+                                // onClick={() => {
+                                //     setTimeout(function (e) {
+                                //         document.getElementsByClassName('dx-popup-normal')[1].style.pointerEvents =
+                                //             'none';
+                                //         debugger;
+
+                                //         // console.log(document.getElementsByClassName('dx-popup-normal'));
+                                //         // document
+                                //         //     .getElementsByClassName('dx-popup-normal')[1]
+                                //         //     .addEventListener('click', () => {
+                                //         //         const dialog = document.getElementsByClassName('dx-popup-normal')[1];
+
+                                //         //         if (dialog !== null && dialog !== undefined) {
+                                //         //             const btn =
+                                //         //                 dialog?.children[2]?.children[0]?.children[2].children[0]
+                                //         //                     .children[0].children[0];
+                                //         //             debugger;
+                                //         //             console.log(btn);
+                                //         //             if (btn) {
+                                //         //                 // btn.click();
+                                //         //             }
+                                //         //         }
+                                //         //     });
+                                //     }, 1300);
+                                // }}
+                            />
+                            {/* </div> */}
+
+                            <Item name='deleteTable' />
+                            <Item name='insertRowAbove' />
+                            <Item name='insertRowBelow' />
+                            <Item name='deleteRow' />
+                            <Item name='insertColumnLeft' />
+                            <Item name='insertColumnRight' />
+                            <Item name='deleteColumn' />
+                        </Toolbar>
+                    </HtmlEditor>
+                </div>
             </React.Fragment>
         );
     }
