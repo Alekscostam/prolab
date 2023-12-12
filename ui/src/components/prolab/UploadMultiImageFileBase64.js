@@ -222,8 +222,12 @@ class UploadMultiImageFileBase64 extends React.Component {
                 </div>
                 {this.props.deleteBtn && (
                     <a
+                        id='trash-button'
                         type='button'
                         onClick={(e) => {
+                            if (e === undefined) {
+                                this.props.onDeleteChange();
+                            }
                             const imagePreview = document.getElementById('image-preview');
                             const img = imagePreview?.children[0]?.children[0];
                             if (img) {
@@ -234,7 +238,7 @@ class UploadMultiImageFileBase64 extends React.Component {
                         className='p-button-secondary selectionList float-right mt-2'
                     >
                         <i
-                            style={{fontSize: '25px', color: this.props.redBtnColor ? 'red' : '#0e49eb'}}
+                            style={{fontSize: '25px', color: this.props.whiteBtnColor ? 'white' : '#0e49eb'}}
                             className='icon mdi mdi-trash-can '
                         ></i>
                     </a>

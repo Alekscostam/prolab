@@ -12,6 +12,9 @@ export default class DataGanttStore extends BaseService {
     }
 
     getDataForGantt(viewIdArg, loadOptions, recordParentIdArg, filterIdArg, kindViewArg) {
+        const filter = loadOptions?.filter;
+        const sort = loadOptions?.sort;
+        const group = loadOptions?.group;
         let params = '?';
         [
             'filter',
@@ -33,7 +36,6 @@ export default class DataGanttStore extends BaseService {
             'userData',
         ].forEach((i) => {
             if (i in loadOptions && this.isNotEmpty(loadOptions[i])) {
-                params += `${i}=${JSON.stringify(loadOptions[i])}&`;
             }
         });
         params += 'viewType=gantt';
@@ -42,9 +44,16 @@ export default class DataGanttStore extends BaseService {
         const kindViewParam = kindViewArg !== undefined && kindViewArg != null ? `&kindView=${kindViewArg}` : '';
         let url = `${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${recordParentIdParam}${kindViewParam}`;
 
+        const requestBody = {
+            filter: filter,
+            sort: sort,
+            group: group,
+        };
+
         url = this.commonCorrectUrl(url);
         return this.fetch(url, {
-            method: 'GET',
+            method: 'POST',
+            body: JSON.stringify(requestBody),
         }).then((res) => {
             ConsoleHelper('DataGanttStore -> fetch');
             this.cachedLastResponse = {

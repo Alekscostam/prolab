@@ -419,6 +419,7 @@ export const MemoizedEditorDescription = React.memo(
                             {/* <div style={{pointerEvents: 'none'}}> */}
                             <Item
                                 name='insertTable'
+
                                 // onClick={() => {
                                 //     setTimeout(function (e) {
                                 //         document.getElementsByClassName('dx-popup-normal')[1].style.pointerEvents =

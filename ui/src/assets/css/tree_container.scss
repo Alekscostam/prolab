@@ -128,8 +128,13 @@ $table-selection: #dde6ff;
 .dx-treelist-rowsview .dx-row-focused > tr > td,
 .dx-treelist-rowsview .dx-row-focused:hover > tr > td {
     background-color: #0e49eb !important;
+    .trash-icon-treeview {
+        color: white !important;
+    }
 }
-
+.trash-icon-treeview {
+    color: #0e49eb;
+}
 .dx-treelist-rowsview .dx-state-hover > td,
 .dx-treelist-rowsview .dx-state-hover:hover > td,
 .dx-treelist-rowsview .dx-state-hover > tr > td,

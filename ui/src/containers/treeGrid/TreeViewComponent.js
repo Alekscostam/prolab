@@ -54,6 +54,7 @@ class TreeViewComponent extends React.Component {
         this.state = {
             editListVisible: false,
             editListRecordId: null,
+            mode: 'cell',
             parsedGridView: {},
             parsedGridViewData: {},
             gridViewColumns: [],
@@ -361,6 +362,7 @@ class TreeViewComponent extends React.Component {
                     rootValue={0}
                     parentIdExpr='_ID_PARENT'
                     onCellClick={(e) => {
+                        // return;
                         if (e?.column?.ownOnlySelectList) {
                             this.setState({editListVisible: true});
                             this.editListVisible(e.data.ID, e.column.ownFieldId);
@@ -390,8 +392,8 @@ class TreeViewComponent extends React.Component {
                         allowSelectAll={allowSelectAll}
                     />
                     {/*- virtual działa szybko ale wyżera heap przeglądarki
-                   - normal długo wczytuje ale heap jest stabilniejszy
-                 */}
+                        - normal długo wczytuje ale heap jest stabilniejszy
+                    */}
 
                     <Scrolling
                         mode='virtual'
@@ -903,7 +905,37 @@ class TreeViewComponent extends React.Component {
                     try {
                         return !!cellInfo?.text ? (
                             cellInfo?.text?.split(',').map((img) => {
-                                return <img alt={''} height={100} src={`data:image/jpeg;base64,${img}`} />;
+                                return (
+                                    <div>
+                                        <div>
+                                            <img
+                                                id='xd123'
+                                                alt={''}
+                                                height={100}
+                                                src={`data:image/jpeg;base64,${img}`}
+                                                className='mb-1'
+                                            />
+                                        </div>
+                                        <div>
+                                            <i
+                                                onClick={(el) => {
+                                                    setTimeout(function () {
+                                                        document.getElementById('trash-button').click();
+                                                        setTimeout(function () {
+                                                            document.getElementById('grid-selection-panel').click();
+                                                        }, 0);
+                                                    }, 0);
+                                                }}
+                                                style={{
+                                                    cursor: 'pointer',
+                                                    fontSize: '25px',
+                                                }}
+                                                className='icon mdi mdi-trash-can mdi-trash-background trash-icon-treeview'
+                                            ></i>
+                                        </div>
+                                    </div>
+                                );
+                                // return ;
                             })
                         ) : (
                             <div />
@@ -1095,7 +1127,7 @@ class TreeViewComponent extends React.Component {
                                 multiple={false}
                                 displayText={''}
                                 initBase64={cellInfo.value}
-                                redBtnColor={true}
+                                whiteBtnColor={true}
                                 deleteBtn={true}
                                 onDeleteChange={() => {
                                     cellInfo.setValue([]);
@@ -1134,7 +1166,7 @@ class TreeViewComponent extends React.Component {
                                 multiple={false}
                                 displayText={''}
                                 deleteBtn={true}
-                                redBtnColor={true}
+                                whiteBtnColor={true}
                                 onDeleteChange={() => {
                                     cellInfo.setValue([]);
                                 }}
