@@ -375,7 +375,9 @@ label {
 .prolab-logo {
     filter: blur(0.4px);
 }
-
+.dx-popup-inherit-height {
+    // pointer-events: none !important;
+}
 .pro-sidebar ::-webkit-scrollbar-thumb {
     background: $link-color-highlighted;
 }

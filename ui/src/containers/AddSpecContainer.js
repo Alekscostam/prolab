@@ -169,7 +169,7 @@ export class AddSpecContainer extends BaseContainer {
         });
     }
 
-    getViewAddSpec(viewId, parentId, recordId, type, header, headerId) {
+    getViewAddSpec(viewId, parentId, recordId, type, header, headerId, isChanged) {
         if (this.isGridViewUrlExist()) {
             parentId = UrlUtils.getURLParameter('recordId');
         }
@@ -196,7 +196,7 @@ export class AddSpecContainer extends BaseContainer {
                     ],
                     gridOptions: responseView.viewOptions,
                 };
-                this.processingViewResponse(refactorResponseView, parentId, recordId);
+                this.processingViewResponse(refactorResponseView, parentId, recordId, isChanged);
             })
             .catch((err) => {
                 console.error('Error getViewSpec in EditSpec. Exception = ', err);
@@ -211,7 +211,7 @@ export class AddSpecContainer extends BaseContainer {
     // TODO:
     processingViewResponseBatch(responseView, batchId) {}
 
-    processingViewResponse(responseView, parentId, recordId) {
+    processingViewResponse(responseView, parentId, recordId, isChanged) {
         if (this._isMounted) {
             ViewValidatorUtils.validation(responseView);
             let id = UrlUtils.getViewIdFromURL();
@@ -269,6 +269,7 @@ export class AddSpecContainer extends BaseContainer {
                     batchesList: batchesListTmp,
                     filtersList: filtersListTmp,
                     tabs: this.createValidTabs(responseView.tabs),
+                    isChanged: isChanged,
                 }),
                 () => {
                     //const initFilterId = responseView?.viewInfo?.filterdId;
@@ -353,7 +354,8 @@ export class AddSpecContainer extends BaseContainer {
                                                 elementRecordId,
                                                 tab.type,
                                                 header,
-                                                headerId
+                                                headerId,
+                                                true
                                             );
                                             this.setState({
                                                 selectedIndex: args.value,
@@ -597,6 +599,12 @@ export class AddSpecContainer extends BaseContainer {
                                         changingTab: !this.state.changingTab,
                                     });
                                 }}
+                                handleIsChanged={() => {
+                                    this.setState({
+                                        isChanged: false,
+                                    });
+                                }}
+                                isChanged={this.state.isChanged}
                                 ref={this.refTreeList}
                                 id={this.props.id}
                                 allowOperations={false}

@@ -53,6 +53,7 @@ class TreeViewComponent extends React.Component {
         ConsoleHelper('TreeViewComponent -> constructor');
         this.state = {
             editListVisible: false,
+            groupExpandAll: undefined,
             editListRecordId: null,
             mode: 'cell',
             parsedGridView: {},
@@ -235,6 +236,7 @@ class TreeViewComponent extends React.Component {
 
     render() {
         const columnAutoWidth = this.props.parsedGridView?.gridOptions?.columnAutoWidth || true;
+        // const groupExpandAll = this.props.parsedGridView?.gridOptions?.groupExpandAll || false;
         const rowAutoHeight = this.props.parsedGridView?.gridOptions?.rowAutoHeight || false;
         const headerAutoHeight = this.props.parsedGridView?.gridOptions?.headerAutoHeight || false;
         const multiSelect = this.props.parsedGridView?.gridOptions?.multiSelect;
@@ -292,6 +294,7 @@ class TreeViewComponent extends React.Component {
                     handleSelectedRowData={(e) => this.handleSelectedRowData(e)}
                     labels={this.props.labels}
                 />
+
                 <TreeList
                     id='spec-edit'
                     keyExpr='ID'
@@ -317,6 +320,16 @@ class TreeViewComponent extends React.Component {
                         }
                     }}
                     onContentReady={(e) => {
+                        if (this.shouldBeExpanded()) {
+                            this.setState({isChanged: false});
+                            this.props.handleIsChanged(false);
+                            const treeList = this.ref.instance;
+                            const data = this.props.parsedGridViewData;
+                            setTimeout(function () {
+                                data.forEach((el) => treeList.expandRow(el.ID));
+                            }, 0);
+                        }
+
                         const editListDialog = document.getElementById('editListDialog');
                         // ze wzgledów optymalizacyjnych
                         if (!editListDialog) {
@@ -427,6 +440,9 @@ class TreeViewComponent extends React.Component {
         );
     }
 
+    shouldBeExpanded() {
+        return (this.props.isChanged || this.state.isChanged) && this.props.parsedGridView?.gridOptions?.groupExpandAll;
+    }
     rerenderRows(e) {
         const rowDatas = e.component.getVisibleRows();
         this.paintLine(rowDatas);
@@ -687,6 +703,7 @@ class TreeViewComponent extends React.Component {
                                         }}
                                         handleAddSpecSpec={() => {
                                             if (this.props?.handleChaningTab) {
+                                                this.setState({isChanged: true});
                                                 this.props?.handleChaningTab();
                                             }
                                             this.props.handleAddSpecSpec(recordId);
@@ -1168,7 +1185,7 @@ class TreeViewComponent extends React.Component {
                                 deleteBtn={true}
                                 whiteBtnColor={true}
                                 onDeleteChange={() => {
-                                    cellInfo.setValue([]);
+                                    cellInfo.setValue('');
                                 }}
                                 initBase64={cellInfo.value}
                                 onSuccessB64={(e) => {

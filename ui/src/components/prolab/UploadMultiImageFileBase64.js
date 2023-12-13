@@ -225,9 +225,6 @@ class UploadMultiImageFileBase64 extends React.Component {
                         id='trash-button'
                         type='button'
                         onClick={(e) => {
-                            if (e === undefined) {
-                                this.props.onDeleteChange();
-                            }
                             const imagePreview = document.getElementById('image-preview');
                             const img = imagePreview?.children[0]?.children[0];
                             if (img) {

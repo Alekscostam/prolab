@@ -493,7 +493,6 @@ export class TreeListUtils extends ViewDataCompUtils {
         datas.forEach((data) => {
             this.recursionPainting(data, 100, datas);
         });
-        console.log(datas);
         return datas;
     };
 
