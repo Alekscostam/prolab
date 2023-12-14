@@ -432,7 +432,7 @@ export class BaseViewContainer extends BaseContainer {
     }
 
     renderGlobalTop() {
-       const {parsedPluginView} = this.state;
+        const {parsedPluginView} = this.state;
         let operations = this.state.parsedGridView?.operations;
         let opADDFile = DataGridUtils.containsOperationsButton(operations, 'OP_ADD_FILE');
         console.log(this.state.visiblePublishDialog, 'this.state.visiblePublishDialog');
@@ -688,10 +688,9 @@ export class BaseViewContainer extends BaseContainer {
                         header={
                             parsedPluginView.info.question
                                 ? LocUtils.loc(this.props.labels, '', parsedPluginView.info.question?.title)
-                                : parsedPluginView.info.message 
-                                    ? LocUtils.loc(this.props.labels, '', parsedPluginView.info.message?.title) 
-                                    : (LocUtils.loc(this.props.labels, '', parsedPluginView.info?.name)
-                            )
+                                : parsedPluginView.info.message
+                                ? LocUtils.loc(this.props.labels, '', parsedPluginView.info.message?.title)
+                                : LocUtils.loc(this.props.labels, '', parsedPluginView.info?.name)
                         }
                         visible={true}
                         onHide={() => this.setState({visibleMessagePluginPanel: false})}
@@ -795,7 +794,9 @@ export class BaseViewContainer extends BaseContainer {
     canNotBeRefreshed() {
         return (
             this.state.kindView === 'View' &&
-            (this.state.gridViewType === 'gridView' || this.state.gridViewType === 'cardView')
+            (this.state.gridViewType === 'gridView' ||
+                this.state.gridViewType === 'cardView' ||
+                this.state.gridViewType === 'gantt')
         );
     }
     renderButton(operation, index) {

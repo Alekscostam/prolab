@@ -419,34 +419,27 @@ export const MemoizedEditorDescription = React.memo(
                             {/* <div style={{pointerEvents: 'none'}}> */}
                             <Item
                                 name='insertTable'
-
-                                // onClick={() => {
-                                //     setTimeout(function (e) {
-                                //         document.getElementsByClassName('dx-popup-normal')[1].style.pointerEvents =
-                                //             'none';
-                                //         debugger;
-
-                                //         // console.log(document.getElementsByClassName('dx-popup-normal'));
-                                //         // document
-                                //         //     .getElementsByClassName('dx-popup-normal')[1]
-                                //         //     .addEventListener('click', () => {
-                                //         //         const dialog = document.getElementsByClassName('dx-popup-normal')[1];
-
-                                //         //         if (dialog !== null && dialog !== undefined) {
-                                //         //             const btn =
-                                //         //                 dialog?.children[2]?.children[0]?.children[2].children[0]
-                                //         //                     .children[0].children[0];
-                                //         //             debugger;
-                                //         //             console.log(btn);
-                                //         //             if (btn) {
-                                //         //                 // btn.click();
-                                //         //             }
-                                //         //         }
-                                //         //     });
-                                //     }, 1300);
-                                // }}
+                                onClick={() => {
+                                    document
+                                        .getElementsByClassName('dx-popup-normal')[2]
+                                        .children[1].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[1].children[0].children[1].children[0].children[0].addEventListener(
+                                            'click',
+                                            (event) => {
+                                                event.stopPropagation();
+                                                event.preventDefault();
+                                            }
+                                        );
+                                    document
+                                        .getElementsByClassName('dx-popup-normal')[2]
+                                        .children[1].children[0].children[0].children[0].children[0].children[1].children[0].children[0].children[1].children[0].children[1].children[0].children[0].addEventListener(
+                                            'click',
+                                            (event) => {
+                                                event.stopPropagation();
+                                                event.preventDefault();
+                                            }
+                                        );
+                                }}
                             />
-                            {/* </div> */}
 
                             <Item name='deleteTable' />
                             <Item name='insertRowAbove' />

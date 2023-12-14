@@ -441,7 +441,11 @@ class TreeViewComponent extends React.Component {
     }
 
     shouldBeExpanded() {
-        return (this.props.isChanged || this.state.isChanged) && this.props.parsedGridView?.gridOptions?.groupExpandAll;
+        return (
+            ((this.props.isChanged || this.state.isChanged) &&
+                this.props.parsedGridView?.gridOptions?.groupExpandAll) ||
+            (this.props.isChanged && !this.props.isAddSpec && this.props.parsedGridView?.gridOptions?.groupExpandAll)
+        );
     }
     rerenderRows(e) {
         const rowDatas = e.component.getVisibleRows();

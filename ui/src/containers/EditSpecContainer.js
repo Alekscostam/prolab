@@ -39,6 +39,7 @@ export class EditSpecContainer extends BaseContainer {
         this.messages = React.createRef();
         this.state = {
             loading: true,
+            isChanged: undefined,
             levelId: undefined,
             visibleAddSpec: false,
             elementParentId: null,
@@ -112,7 +113,8 @@ export class EditSpecContainer extends BaseContainer {
                         id,
                         this.state.elementParentId,
                         this.state.elementRecordId,
-                        this.state.elementFilterId
+                        this.state.elementFilterId,
+                        true
                     );
                 }
             );
@@ -125,16 +127,16 @@ export class EditSpecContainer extends BaseContainer {
         this._isMounted = false;
     }
 
-    downloadData(viewId, parentId, recordId, filterId) {
+    downloadData(viewId, parentId, recordId, filterId, isChanged) {
         if (!window.location.href.includes('grid-view')) {
             ConsoleHelper(
-                `EditSpecContainer::downloadData: viewId=${viewId}, parentId=${parentId}, recordId=${recordId}, filterId=${filterId}`
+                `EditSpecContainer::downloadData: viewId=${viewId}, parentId=${parentId}, recordId=${recordId}, filterId=${filterId} isChanged=${isChanged}`
             );
-            this.getViewById(viewId, parentId, recordId, filterId);
+            this.getViewById(viewId, parentId, recordId, filterId, isChanged);
         }
     }
 
-    getViewById(viewId, parentId, recordId, filterId) {
+    getViewById(viewId, parentId, recordId, filterId, isChanged) {
         this.setState({loading: true}, () => {
             this.viewService
                 .getViewSpec(viewId, parentId)
@@ -161,7 +163,7 @@ export class EditSpecContainer extends BaseContainer {
                         listColumns: undefined,
                         listOptions: undefined,
                     };
-                    this.processingViewResponse(refactorResponseView, parentId, recordId);
+                    this.processingViewResponse(refactorResponseView, parentId, recordId, isChanged);
                 })
                 .catch((err) => {
                     console.error('Error getViewSpec in EditSpec. Exception = ', err);
@@ -175,7 +177,7 @@ export class EditSpecContainer extends BaseContainer {
         });
     }
 
-    processingViewResponse(responseView, parentId, recordId) {
+    processingViewResponse(responseView, parentId, recordId, isChanged) {
         if (this._isMounted) {
             ViewValidatorUtils.validation(responseView);
             let id = UrlUtils.getViewIdFromURL();
@@ -232,6 +234,7 @@ export class EditSpecContainer extends BaseContainer {
                     documentsList: documentsListTmp,
                     batchesList: batchesListTmp,
                     filtersList: filtersListTmp,
+                    isChanged: isChanged,
                 }),
                 () => {
                     //const initFilterId = responseView?.viewInfo?.filterdId;
@@ -699,6 +702,12 @@ export class EditSpecContainer extends BaseContainer {
                         <div id='spec-edit'>
                             <TreeViewComponent
                                 id={this.props.id}
+                                handleIsChanged={() => {
+                                    this.setState({
+                                        isChanged: false,
+                                    });
+                                }}
+                                isChanged={this.state.isChanged}
                                 elementParentId={this.state.elementParentId}
                                 elementRecordId={this.state.elementRecordId}
                                 handleOnTreeList={(ref) => (this.refTreeList = ref)}
