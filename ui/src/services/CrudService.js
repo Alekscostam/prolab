@@ -130,8 +130,11 @@ export default class CrudService extends BaseService {
         });
     }
 
-    editSpecList(viewId, parentId, fieldId, element) {
-        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/editspec/${parentId}/list/${fieldId}`, {
+    editSpecList(viewId, paramId, fieldId, element) {
+        const url = UrlUtils.batchIdParamExist()
+            ? `${this.getDomain()}/${this.path}/${viewId}/batch/${paramId}/list/${fieldId}`
+            : `${this.getDomain()}/${this.path}/${viewId}/editspec/${paramId}/list/${fieldId}`;
+        return this.fetch(`${url}`, {
             method: 'POST',
             body: JSON.stringify(element),
         }).catch((err) => {
@@ -655,26 +658,14 @@ export default class CrudService extends BaseService {
     }
 
     cancelSpec(viewId, parentId, listId) {
-        if (UrlUtils.batchIdParamExist()) {
-            const batchId = UrlUtils.getBatchIdParam('batchId');
-            return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/batch/${batchId}/Cancel?parentId=0`, {
-                method: 'POST',
-                body: {
-                    listId: JSON.stringify(listId),
-                },
-            }).catch((err) => {
-                throw err;
-            });
-        } else {
-            return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/editspec/${parentId}/Cancel`, {
-                method: 'POST',
-                body: {
-                    listId: JSON.stringify(listId),
-                },
-            }).catch((err) => {
-                throw err;
-            });
-        }
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/editspec/${parentId}/Cancel`, {
+            method: 'POST',
+            body: {
+                listId: JSON.stringify(listId),
+            },
+        }).catch((err) => {
+            throw err;
+        });
     }
 
     createObjectToSave(state) {

@@ -43,6 +43,7 @@ import {StringUtils} from '../utils/StringUtils';
 import {saveObjToCookieGlobal} from '../utils/Cookie';
 import DataHistoryLogStore from '../containers/dao/DataHistoryLogStore';
 import HistoryLogListComponent from '../components/prolab/HistoryLogListComponent';
+import HashUtils from '../utils/HashUtils';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -390,14 +391,13 @@ export class BaseViewContainer extends BaseContainer {
     handleRightHeadPanelContent(element) {
         let parentIdArg =
             this.state.subView == null ? UrlUtils.getURLParameter('parentId') : this.state.elementRecordId;
-        if (parentIdArg === null) {
+        if (StringUtils.isBlank(parentIdArg)) {
             parentIdArg = 0;
         }
         const id = this.props.id;
-        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
         const elementId = `${element?.id}`;
         const urlEditSpecBatch = AppPrefixUtils.locationHrefUrl(
-            `/#/edit-spec/${id}?batchId=${elementId}&parentId=${parentIdArg}${currentBreadcrumb}`
+            `/#/batch/${id}?batchId=${elementId}&parentId=${parentIdArg}`
         );
         switch (element.type) {
             case 'OP_PLUGINS':
@@ -435,7 +435,6 @@ export class BaseViewContainer extends BaseContainer {
         const {parsedPluginView} = this.state;
         let operations = this.state.parsedGridView?.operations;
         let opADDFile = DataGridUtils.containsOperationsButton(operations, 'OP_ADD_FILE');
-        console.log(this.state.visiblePublishDialog, 'this.state.visiblePublishDialog');
         return (
             <React.Fragment>
                 {opADDFile && (

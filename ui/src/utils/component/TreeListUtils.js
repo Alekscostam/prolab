@@ -10,6 +10,7 @@ import {EntryResponseUtils} from '../EntryResponseUtils';
 import {compress} from 'int-compress-string/src';
 import {EditSpecUtils} from '../EditSpecUtils';
 import CrudService from '../../services/CrudService';
+import UrlUtils from '../UrlUtils';
 
 const sizeValues = ['8pt', '10pt', '12pt', '14pt', '18pt', '24pt', '36pt'];
 const fontValues = [
@@ -149,7 +150,7 @@ export const MemoizedNumericInput = React.memo(
 );
 //B – Logiczny (0/1)
 export const MemoizedBoolInput = React.memo(
-    ({field, cellInfo, inputValue, fieldIndex, editable, autoFillCheckbox, required, validateCheckbox}) => {
+    ({field, cellInfo, inputValue, fieldIndex, editable, autoFillCheckbox, required, validateCheckbox, callback}) => {
         return (
             <React.Fragment>
                 <div style={{display: 'inline-block'}} className={`${validateCheckbox}`}>
@@ -157,7 +158,17 @@ export const MemoizedBoolInput = React.memo(
                         id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                         name={field.fieldName}
                         onValueChanged={(e) => {
-                            if (e.event) cellInfo.setValue(e.value);
+                            if (UrlUtils.batchIdParamExist()) {
+                                if (e.event) {
+                                    const res = e.value === true ? '1' : '0';
+                                    cellInfo.setValue(res);
+                                    callback(e.value);
+                                }
+                            } else {
+                                if (e.event) {
+                                    cellInfo.setValue(e.value);
+                                }
+                            }
                         }}
                         defaultValue={inputValue === true || TreeListUtils.conditionForTrueValue(inputValue)}
                         value={inputValue === true || TreeListUtils.conditionForTrueValue(inputValue)}
@@ -169,7 +180,7 @@ export const MemoizedBoolInput = React.memo(
         );
     }
 );
-//B – Logiczny (0/1)
+//L – Logiczny (T/N)
 export const MemoizedLogicInput = React.memo(
     ({
         field,
@@ -181,6 +192,7 @@ export const MemoizedLogicInput = React.memo(
         required,
         validateCheckbox,
         onChangeCallback,
+        callback,
     }) => {
         return (
             <React.Fragment>
@@ -189,7 +201,17 @@ export const MemoizedLogicInput = React.memo(
                         id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                         name={field.fieldName}
                         onValueChanged={(e) => {
-                            if (e.event) cellInfo.setValue(e.value);
+                            if (UrlUtils.batchIdParamExist()) {
+                                if (e.event) {
+                                    const res = e.value === true ? 'T' : 'N';
+                                    cellInfo.setValue(res);
+                                    callback(e.value);
+                                }
+                            } else {
+                                if (e.event) {
+                                    cellInfo.setValue(e.value);
+                                }
+                            }
                         }}
                         disabled={!field.edit}
                         defaultValue={inputValue === true || TreeListUtils.conditionForTrueValue(inputValue)}
@@ -378,66 +400,29 @@ export const MemoizedEditorDescription = React.memo(
                             <Item
                                 name='color'
                                 onClick={() => {
-                                    setTimeout(function () {
-                                        document
-                                            .getElementsByClassName('dx-popup-normal')[1]
-                                            .addEventListener('click', () => {
-                                                const dialog = document.getElementsByClassName('dx-popup-normal')[1];
-                                                if (dialog !== null && dialog !== undefined) {
-                                                    const btn =
-                                                        dialog?.children[2]?.children[0]?.children[2]?.children[0]
-                                                            ?.children[0]?.children[0];
-                                                    if (btn) {
-                                                        btn.click();
-                                                    }
-                                                }
-                                            });
-                                    }, 300);
+                                    const dialog = document.getElementsByClassName('dx-popup-normal')[1];
+                                    if (dialog) {
+                                        overideEventClick(dialog);
+                                    }
                                 }}
                             />
                             <Item
                                 name='background'
                                 onClick={() => {
-                                    setTimeout(function () {
-                                        document
-                                            .getElementsByClassName('dx-popup-normal')[1]
-                                            .addEventListener('click', () => {
-                                                const dialog = document.getElementsByClassName('dx-popup-normal')[1];
-                                                if (dialog !== null && dialog !== undefined) {
-                                                    const btn =
-                                                        dialog?.children[2]?.children[0]?.children[2]?.children[0]
-                                                            ?.children[0]?.children[0];
-                                                    if (btn) {
-                                                        btn.click();
-                                                    }
-                                                }
-                                            });
-                                    }, 300);
+                                    const dialog = document.getElementsByClassName('dx-popup-normal')[1];
+                                    if (dialog) {
+                                        overideEventClick(dialog);
+                                    }
                                 }}
                             />
                             <Item name='separator' />
-                            {/* <div style={{pointerEvents: 'none'}}> */}
                             <Item
                                 name='insertTable'
                                 onClick={() => {
-                                    document
-                                        .getElementsByClassName('dx-popup-normal')[2]
-                                        .children[1].children[0].children[0].children[0].children[0].children[0].children[0].children[0].children[1].children[0].children[1].children[0].children[0].addEventListener(
-                                            'click',
-                                            (event) => {
-                                                event.stopPropagation();
-                                                event.preventDefault();
-                                            }
-                                        );
-                                    document
-                                        .getElementsByClassName('dx-popup-normal')[2]
-                                        .children[1].children[0].children[0].children[0].children[0].children[1].children[0].children[0].children[1].children[0].children[1].children[0].children[0].addEventListener(
-                                            'click',
-                                            (event) => {
-                                                event.stopPropagation();
-                                                event.preventDefault();
-                                            }
-                                        );
+                                    const dialog = document.getElementsByClassName('dx-popup-normal')[1];
+                                    if (dialog) {
+                                        overideEventClick(dialog);
+                                    }
                                 }}
                             />
 
@@ -456,6 +441,37 @@ export const MemoizedEditorDescription = React.memo(
     }
 );
 
+const classListContainsButton = (element) => {
+    try {
+        return Array.from(element.classList).includes('dx-button');
+    } catch (ex) {
+        console.log('to much iterations');
+    }
+};
+const clickButtonIfIsParent = (parent, iterations) => {
+    if (iterations < 0) {
+        return;
+    }
+    if (classListContainsButton(parent)) {
+        parent.click();
+        return;
+    }
+    clickButtonIfIsParent(parent.parentNode, iterations - 1);
+};
+const overideEventClick = (element) => {
+    element.addEventListener('click', (event) => {
+        event.stopPropagation();
+        event.preventDefault();
+        if (classListContainsButton(event.target)) {
+            event.target.click();
+        } else {
+            clickButtonIfIsParent(event.target.parentNode, 3);
+        }
+    });
+    Array.from(element.children).forEach((child) => {
+        overideEventClick(child);
+    });
+};
 export class TreeListUtils extends ViewDataCompUtils {
     static crudService = new CrudService();
 

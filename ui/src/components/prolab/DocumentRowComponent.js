@@ -19,10 +19,9 @@ export class DocumentRowComponent extends BaseRowComponent {
             loading: true,
             preventSave: false,
         };
-       
+
         this.messages = React.createRef();
         this.handleCancel = this.handleCancel.bind(this);
-        
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -63,7 +62,6 @@ export class DocumentRowComponent extends BaseRowComponent {
                     id='right-sidebar'
                     visible={visibleDocumentPanel}
                     modal={true}
-                    style={{width: '45%'}}
                     position='right'
                     onHide={() => {
                         this.props.onHide();
@@ -100,7 +98,7 @@ export class DocumentRowComponent extends BaseRowComponent {
                                 </div>
                             ) : null}
                             {inputDataFields?.map((field, index) => {
-                                return this.renderField(field, index,undefined);
+                                return this.renderField(field, index, undefined);
                             })}
                         </div>
                     </form>

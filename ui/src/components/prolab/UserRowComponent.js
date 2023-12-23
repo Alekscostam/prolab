@@ -34,7 +34,6 @@ export default class UserRowComponent extends BaseRowComponent {
                 <Dialog
                     id='right-sidebar'
                     className='bg-dark'
-                    style={{width: '45%'}}
                     header={
                         <div className='row ' style={{flex: 'auto'}}>
                             <div id='label' className='label  col-lg-12'>

@@ -25,6 +25,8 @@ import {readObjFromCookieGlobal, readValueCookieGlobal, removeCookieGlobal} from
 import DataPluginStore from '../containers/dao/DataPluginStore';
 import LocalizationService from '../services/LocalizationService';
 import DataHistoryLogStore from '../containers/dao/DataHistoryLogStore';
+import BatchService from '../services/BatchService';
+import {ResponseUtils} from '../utils/ResponseUtils';
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -33,6 +35,7 @@ class BaseContainer extends React.Component {
         this.service = service;
         this.authService = new AuthService(this.props.backendUrl);
         this.crudService = new CrudService();
+        this.batchService = new BatchService();
         this.scrollToFirstError = this.scrollToFirstError.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleFormSubmit = this.handleFormSubmit.bind(this);
@@ -1140,6 +1143,51 @@ class BaseContainer extends React.Component {
         }
     }
 
+    batchSave = (viewId, parentId, saveElement, confirmSave, fncRedirect) => {
+        this.blockUi();
+        this.batchService
+            .save(viewId, parentId, saveElement, confirmSave)
+            .then((saveResponse) => {
+                ResponseUtils.run(
+                    saveResponse,
+                    () => this.batchSave(viewId, parentId, saveElement, true),
+                    (res) => {
+                        this.showErrorMessages(res);
+                    },
+                    (res) => {
+                        this.showResponseErrorMessage(res);
+                    }
+                );
+                if (fncRedirect) {
+                    fncRedirect();
+                }
+                this.getRefGridView().instance.getDataSource().reload();
+                this.unblockUi();
+            })
+            .catch((ex) => {
+                this.showResponseErrorMessage(ex);
+                this.unblockUi();
+            });
+    };
+
+    batchCancel = (viewId, parentId, listIds, callBack) => {
+        this.blockUi();
+        this.batchService
+            .cancel(viewId, parentId, listIds)
+            .then((res) => {
+                this.refreshView();
+                this.unselectAllDataGrid();
+                this.unblockUi();
+                if (callBack) {
+                    callBack();
+                }
+            })
+            .catch((err) => {
+                this.showGlobalErrorMessage(err);
+                this.unblockUi();
+            });
+    };
+
     specSave = (viewId, parentId, saveElement, confirmSave, fncRedirect) => {
         this.blockUi();
         saveElement.forEach((array) => {
@@ -1153,58 +1201,16 @@ class BaseContainer extends React.Component {
         this.crudService
             .saveSpec(viewId, parentId, saveElement, confirmSave)
             .then((saveResponse) => {
-                switch (saveResponse.status) {
-                    case 'OK':
-                        if (!!saveResponse.message) {
-                            confirmDialog({
-                                appendTo: document.body,
-                                message: saveResponse?.message?.text,
-                                header: saveResponse?.message?.title,
-                                icon: 'pi pi-info-circle',
-                                rejectClassName: 'hidden',
-                                acceptLabel: 'OK',
-                                rejectLabel: undefined,
-                                accept: () => {},
-                            });
-                        } else if (!!saveResponse.error) {
-                            this.showResponseErrorMessage(saveResponse);
-                        }
-                        break;
-                    case 'NOK':
-                        if (!!saveResponse.question) {
-                            confirmDialog({
-                                appendTo: document.body,
-                                message: saveResponse?.question?.text,
-                                header: saveResponse?.question?.title,
-                                icon: 'pi pi-question-circle',
-                                acceptLabel: localeOptions('accept'),
-                                rejectLabel: localeOptions('reject'),
-                                accept: () => this.specSave(viewId, parentId, saveElement, true),
-                                reject: () => undefined,
-                            });
-                        } else if (!!saveResponse.message) {
-                            confirmDialog({
-                                appendTo: document.body,
-                                message: saveResponse?.message?.text,
-                                header: saveResponse?.message?.title,
-                                icon: 'pi pi-info-circle',
-                                rejectClassName: 'hidden',
-                                acceptLabel: 'OK',
-                                rejectLabel: undefined,
-                                accept: () => undefined,
-                            });
-                        } else if (!!saveResponse.error) {
-                            this.showResponseErrorMessage(saveResponse);
-                        }
-                        break;
-                    default:
-                        if (!!saveResponse.error) {
-                            this.showResponseErrorMessage(saveResponse);
-                        } else {
-                            this.showErrorMessages(saveResponse);
-                        }
-                        break;
-                }
+                ResponseUtils.run(
+                    saveResponse,
+                    () => this.specSave(viewId, parentId, saveElement, true),
+                    (res) => {
+                        this.showErrorMessages(res);
+                    },
+                    (res) => {
+                        this.showResponseErrorMessage(res);
+                    }
+                );
                 this.refreshView();
                 if (UrlUtils.urlParamExsits('grid-view')) this.refreshSubView(true);
                 this.unselectAllDataGrid();
@@ -1228,62 +1234,16 @@ class BaseContainer extends React.Component {
         this.crudService
             .save(viewId, recordId, parentId, kindView, kindOperation, saveElement, confirmSave, token)
             .then((saveResponse) => {
-                switch (saveResponse.status) {
-                    case 'OK':
-                        if (!!saveResponse.message) {
-                            confirmDialog({
-                                appendTo: document.body,
-                                message: saveResponse?.message?.text,
-                                header: saveResponse?.message?.title,
-                                icon: 'pi pi-info-circle',
-                                rejectClassName: 'hidden',
-                                acceptLabel: 'OK',
-                                rejectLabel: undefined,
-                                accept: () => {
-                                    this.setState({visibleEditPanel: false});
-                                },
-                            });
-                        } else if (!!saveResponse.error) {
-                            this.showResponseErrorMessage(saveResponse);
-                        } else {
-                            this.setState({visibleEditPanel: false});
-                        }
-                        break;
-                    case 'NOK':
-                        if (!!saveResponse.question) {
-                            confirmDialog({
-                                appendTo: document.body,
-                                message: saveResponse?.question?.text,
-                                header: saveResponse?.question?.title,
-                                icon: 'pi pi-question-circle',
-                                acceptLabel: localeOptions('accept'),
-                                rejectLabel: localeOptions('reject'),
-                                accept: () => this.rowSave(viewId, recordId, parentId, saveElement, true),
-                                reject: () => undefined,
-                            });
-                        } else if (!!saveResponse.message) {
-                            confirmDialog({
-                                appendTo: document.body,
-                                message: saveResponse?.message?.text,
-                                header: saveResponse?.message?.title,
-                                icon: 'pi pi-info-circle',
-                                rejectClassName: 'hidden',
-                                acceptLabel: 'OK',
-                                rejectLabel: undefined,
-                                accept: () => undefined,
-                            });
-                        } else if (!!saveResponse.error) {
-                            this.showResponseErrorMessage(saveResponse);
-                        }
-                        break;
-                    default:
-                        if (!!saveResponse.error) {
-                            this.showResponseErrorMessage(saveResponse);
-                        } else {
-                            this.showErrorMessages(saveResponse);
-                        }
-                        break;
-                }
+                ResponseUtils.run(
+                    saveResponse,
+                    () => () => this.rowSave(viewId, recordId, parentId, saveElement, true),
+                    (res) => {
+                        this.showErrorMessages(res);
+                    },
+                    (res) => {
+                        this.showResponseErrorMessage(res);
+                    }
+                );
                 let refresh = true;
                 if (kindOperation.toUpperCase() === 'COPY') {
                     if (saveResponse?.status !== 'NOK') {

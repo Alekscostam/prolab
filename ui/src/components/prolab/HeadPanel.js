@@ -77,6 +77,9 @@ export const HeadPanel = (props) => {
                                     operations={props.operations}
                                     atLeastOneSelected={true}
                                     isFromHeader={true}
+                                    handleBatch={(e) => {
+                                        props.handleBatch(e);
+                                    }}
                                     handleRestore={(e) => props.handleRestore(e)}
                                     handleDownload={(e) => props.handleDownload(e)}
                                     handleDelete={(e) => props.handleDelete(e)}

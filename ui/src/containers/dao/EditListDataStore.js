@@ -69,19 +69,13 @@ export default class EditListDataStore extends BaseService {
                         }
                     }
                 });
-                const viewTypeParam =
-                    viewTypeArg !== undefined && viewTypeArg != null ? `&viewType=${viewTypeArg}` : '';
-                const filterIdParam = filterIdArg !== undefined && filterIdArg != null ? `&filter=${filterIdArg}` : '';
-                const parentIdParam =
-                    parentIdArg !== undefined && parentIdArg != null ? `&parentId=${parentIdArg}` : '';
+                const viewTypeParam = this.createParam(viewTypeArg, 'viewType');
+                const filterIdParam = this.createParam(filterIdArg, 'filter');
+                const parentIdParam = this.createParam(parentIdArg, 'parentId');
                 const kindViewParam = !!kindViewArg && !!parentIdParam ? `&kindView=${kindViewArg}` : '';
                 const selectAllParam = !!selectAll ? `&selection=true` : '';
-                let point = 'edit';
-                if (UrlUtils.batchIdParamExist()) {
-                    const batchId = UrlUtils.getBatchIdParam();
-                    point = 'batch';
-                    recordIdArg = batchId;
-                }
+                const point = UrlUtils.batchIdParamExist() ? 'batch' : 'edit';
+                recordIdArg = UrlUtils.batchIdParamExist() ? UrlUtils.getBatchIdParam() : recordIdArg;
                 const requestBody = {
                     filter: filter,
                     sort: sort,
@@ -134,6 +128,20 @@ export default class EditListDataStore extends BaseService {
                 }
             },
         });
+    }
+
+    createParam(param, paramName) {
+        return this.shouldBeParamEmpty(param) ? '' : `&${paramName}=${param}`;
+    }
+
+    shouldBeParamEmpty(param) {
+        if (UrlUtils.batchIdParamExist()) {
+            return true;
+        }
+        if (param === undefined || param == null) {
+            return true;
+        }
+        return false;
     }
 
     isNotEmpty(value) {

@@ -15,7 +15,9 @@ $table-selection: #dde6ff;
     font-variant: normal;
     font-weight: 500;
 }
-
+.dx-dropdowneditor-icon {
+    background: white;
+}
 .dx-datagrid-rowsview tr > td {
     color: $data-label;
     text-align: left;
@@ -77,7 +79,15 @@ $table-selection: #dde6ff;
     > td:not(.dx-validation-pending):not(.dx-datagrid-select-all):first-of-type {
     padding-left: 0;
 }
-
+.disabled-background {
+    background-color: whitesmoke !important;
+}
+.border-around-editor {
+    border: 2px solid silver !important;
+    .dx-htmleditor-toolbar-wrapper {
+        border: 1px solid silver !important;
+    }
+}
 .dx-datagrid-rowsview .dx-select-checkboxes-hidden > tbody > tr > td > .dx-select-checkbox {
     display: inline-block !important;
 }
@@ -85,7 +95,9 @@ $table-selection: #dde6ff;
 .dx-datagrid-rowsview .dx-select-checkboxes-hidden > tbody > tr > td > .dx-select-checkbox {
     display: grid;
 }
-
+.dx-htmleditor-toolbar-format {
+    background: white !important;
+}
 .grid-selection-panel {
     font-size: 12px;
     line-height: 14px;
@@ -373,6 +385,9 @@ $table-selection: #dde6ff;
     .dx-datagrid-rowsview .dx-row-focused > tr > td,
     .dx-datagrid-rowsview .dx-row-focused:hover > tr > td {
         background-color: #0e49eb !important;
+        .trash-icon-treeview {
+            color: white !important;
+        }
     }
 }
 

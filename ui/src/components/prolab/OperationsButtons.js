@@ -356,6 +356,8 @@ export const OperationsButtons = (props) => {
                         return props.handleHistory();
                     case 'OP_ATTACHMENTS':
                         return props.handleAttachments();
+                    case 'OP_BATCH':
+                        return props.handleBatch(i);
                     //treeList
                     case 'OP_ADD_LEVEL':
                         return props.handleAddLevel();
@@ -403,6 +405,7 @@ OperationsButtons.defaultProps = {
     handleDelete: () => {},
     handleRestore: () => {},
     handleCopy: () => {},
+    handleBatch: () => {},
     handleArchive: () => {},
     handleDownload: () => {},
     handlePublish: () => {},

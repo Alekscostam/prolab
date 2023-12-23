@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import Image from '../../components/Image';
 import {StringUtils} from '../StringUtils';
 import {ViewDataCompUtils} from './ViewDataCompUtils';
+import EditRowUtils from '../EditRowUtils';
 
 let _rowIndex = null;
 let _bgColor = null;
@@ -15,7 +16,7 @@ export class DataGridUtils extends ViewDataCompUtils {
         _bgColor = null;
         _fontcolor = null;
     }
-    static cellTemplate(column) {
+    static cellTemplate(column, isEditableCell) {
         return function (element, info) {
             let bgColorFinal = undefined;
             let rowSelected = null;
@@ -29,7 +30,6 @@ export class DataGridUtils extends ViewDataCompUtils {
                 _bgColor = info.data['_BGCOLOR'];
                 _fontcolor = info.data['_FONTCOLOR'];
             }
-
             if (!!rowSelected) {
                 bgColorFinal = undefined;
             } else {
@@ -43,9 +43,7 @@ export class DataGridUtils extends ViewDataCompUtils {
                     }
                 }
             }
-            if (info.data?.SKASOWANY) {
-                // element.style.backgroundColor = '#FF0000';
-            }
+
             let fontColorFinal = 'black';
             const specialFontColor = info.data['_FONTCOLOR_' + info.column?.dataField];
             if (!!specialFontColor) {
@@ -63,8 +61,8 @@ export class DataGridUtils extends ViewDataCompUtils {
                 case 'N':
                 case 'D':
                 case 'E':
-                case 'T':
                 case 'O':
+                case 'T':
                     return ReactDOM.render(
                         <div
                             style={{
@@ -117,6 +115,13 @@ export class DataGridUtils extends ViewDataCompUtils {
                         >
                             <input
                                 type='checkbox'
+                                onChange={(e) => {
+                                    setTimeout(function () {
+                                        const id = `${EditRowUtils.getType(column?.type)}${column.id}`;
+                                        const checkbox = document.getElementById(id);
+                                        checkbox.click();
+                                    }, 100);
+                                }}
                                 readOnly={true}
                                 checked={DataGridUtils.conditionForTrueValueForBoolType(info.text)}
                             />
@@ -138,6 +143,13 @@ export class DataGridUtils extends ViewDataCompUtils {
                             <input
                                 type='checkbox'
                                 readOnly={true}
+                                onChange={(e) => {
+                                    setTimeout(function () {
+                                        const id = `${EditRowUtils.getType(column?.type)}${column.id}`;
+                                        const checkbox = document.getElementById(id);
+                                        checkbox.click();
+                                    }, 100);
+                                }}
                                 checked={DataGridUtils.conditionForTrueValueForLogicType(info.text)}
                             />
                         </div>,
@@ -163,6 +175,7 @@ export class DataGridUtils extends ViewDataCompUtils {
                             element
                         );
                     } else {
+                        const imageStyle = isEditableCell ? {maxHeight: '76px'} : {maxHeight: '26px'};
                         return ReactDOM.render(
                             <div
                                 style={{
@@ -173,7 +186,19 @@ export class DataGridUtils extends ViewDataCompUtils {
                                     padding: '2px 0px 2px 0px',
                                 }}
                             >
-                                <Image style={{maxHeight: '26px'}} base64={info.text} />
+                                <Image
+                                    onRemove={() => {
+                                        setTimeout(function () {
+                                            const trashButton = document.getElementById('trash-button');
+                                            if (trashButton) {
+                                                trashButton.click();
+                                            }
+                                        }, 300);
+                                    }}
+                                    canRemove={isEditableCell && info.text?.length > 0}
+                                    style={imageStyle}
+                                    base64={info.text}
+                                />
                             </div>,
                             element
                         );

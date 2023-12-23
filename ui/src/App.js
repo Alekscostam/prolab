@@ -29,6 +29,7 @@ import moment from 'moment';
 import {Dialog} from 'primereact/dialog';
 import {Button} from 'react-bootstrap';
 import {StringUtils} from './utils/StringUtils';
+import {BatchContainer} from './containers/BatchContainer';
 
 let clickEventSeesion = null;
 class App extends Component {
@@ -543,6 +544,7 @@ class App extends Component {
                                         />
                                         <Route
                                             path='/batch/:id'
+                                            key={new Date()}
                                             render={(props) => {
                                                 return (
                                                     <AuthComponent
@@ -552,16 +554,16 @@ class App extends Component {
                                                             this.handleLogoutUser(forceByButton)
                                                         }
                                                     >
-                                                        <EditSpecContainer
+                                                        <BatchContainer
                                                             ref={this.editSpecContainer}
                                                             id={props.match.params.id}
-                                                            labels={labels}
-                                                            collapsed={this.state.collapsed}
                                                             handleRenderNoRefreshContent={(renderNoRefreshContent) => {
                                                                 this.setState({
                                                                     renderNoRefreshContent: renderNoRefreshContent,
                                                                 });
                                                             }}
+                                                            labels={labels}
+                                                            collapsed={this.state.collapsed}
                                                         />
                                                     </AuthComponent>
                                                 );

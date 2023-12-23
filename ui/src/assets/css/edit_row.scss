@@ -1,8 +1,14 @@
 /*Edycja*/
 
 #right-sidebar {
+    width: 45%;
     background: transparent linear-gradient(90deg, #f7f9fd 0%, #ecf2fb 100%) 0% 0% no-repeat padding-box !important;
     z-index: 1;
+}
+@media (max-width: 768px) {
+    #right-sidebar {
+        width: 100%;
+    }
 }
 
 #row-edit .p-panel {
@@ -269,7 +275,9 @@
     outline: 3px solid $danger-color !important;
     border-radius: 2px !important;
 }
-
+.p-button.p-button-secondary {
+    background: #0e49eb;
+}
 #row-edit .p-button.p-button-secondary {
     color: $button-color;
     background: rgba(0, 0, 0, 0.12) !important;

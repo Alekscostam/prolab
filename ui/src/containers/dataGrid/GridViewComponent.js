@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import DataGrid, {
     Column,
+    Editing,
     FilterRow,
     Grouping,
     GroupPanel,
@@ -26,17 +27,20 @@ import {EditSpecUtils} from '../../utils/EditSpecUtils';
 import {compress} from 'int-compress-string/src';
 import {TreeListUtils} from '../../utils/component/TreeListUtils';
 import {StringUtils} from '../../utils/StringUtils';
+import CellEditComponent from '../CellEditComponent';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
 
-class GridViewComponent extends React.Component {
+class GridViewComponent extends CellEditComponent {
     constructor(props) {
         super(props);
         this.labels = this.props;
         this.dataGrid = null;
-
         this.crudService = new CrudService();
+        this.state = {
+            editListVisible: false,
+        };
         ConsoleHelper('GridViewComponent -> constructor');
     }
 
@@ -87,13 +91,10 @@ class GridViewComponent extends React.Component {
         //odkomentowac dla mock
         //const multiSelect = true;
         //multiSelect dla podpowiedzi
-        const multiSelect = this.props.parsedGridView?.gridOptions?.multiSelect;
-        const multiSelection = multiSelect === undefined || multiSelect === null || !!multiSelect;
         const packageCount =
             !!this.props.packageRows || this.props.packageRows === 0
                 ? Constants.DEFAULT_DATA_PACKAGE_COUNT
                 : this.props.packageRows;
-        const showSelection = this.waitForSuccess() ? false : this.props.showSelection;
         const showColumnHeaders = this.props.showColumnHeaders;
         const showColumnLines = this.props.showColumnLines;
         const showRowLines = this.props.showRowLines;
@@ -108,6 +109,8 @@ class GridViewComponent extends React.Component {
 
         return (
             <React.Fragment>
+                {this.state.editListVisible && this.editListComponent()}
+
                 {/* <div className='dx-container'> */}
                 <DataGrid
                     id='grid-container'
@@ -180,14 +183,18 @@ class GridViewComponent extends React.Component {
                         // });
                     }}
                 >
-                    <RemoteOperations
-                        filtering={true}
-                        summary={true}
-                        sorting={true}
-                        paging={true}
-                        grouping={true}
-                        groupPaging={true}
-                    />
+                    {this.props.cellModeEnabled ? (
+                        <Editing mode='cell' allowUpdating={true} />
+                    ) : (
+                        <RemoteOperations
+                            filtering={true}
+                            summary={true}
+                            sorting={true}
+                            paging={true}
+                            grouping={true}
+                            groupPaging={true}
+                        />
+                    )}
 
                     <FilterRow visible={showFilterRow} applyFilter={true} />
 
@@ -198,7 +205,7 @@ class GridViewComponent extends React.Component {
                     <Sorting mode='multiple' />
 
                     <Selection
-                        mode={showSelection ? (multiSelection ? 'multiple' : 'single') : 'none'}
+                        mode={this.selectionMode()}
                         selectAllMode='allPages'
                         showCheckBoxesMode='always'
                         allowSelectAll={allowSelectAll}
@@ -226,6 +233,15 @@ class GridViewComponent extends React.Component {
             </React.Fragment>
         );
     }
+    selectionMode() {
+        if (this.props.cellModeEnabled) {
+            return 'none';
+        }
+        const showSelection = this.waitForSuccess() ? false : this.props.showSelection;
+        const multiSelect = this.props.parsedGridView?.gridOptions?.multiSelect;
+        const multiSelection = multiSelect === undefined || multiSelect === null || !!multiSelect;
+        return showSelection ? (multiSelection ? 'multiple' : 'single') : 'none';
+    }
 
     postCustomizeColumns = (columns) => {
         let INDEX_COLUMN = 0;
@@ -245,6 +261,9 @@ class GridViewComponent extends React.Component {
                         if (columnDefinitionArray) {
                             const columnDefinition = columnDefinitionArray[0];
                             if (columnDefinition) {
+                                const editable = columnDefinition?.edit || columnDefinition?.selectionList;
+
+                                column.allowEditing = editable;
                                 column.visible = columnDefinition?.visible;
                                 column.allowFiltering = columnDefinition?.isFilter;
                                 column.allowFixing = true;
@@ -262,7 +281,10 @@ class GridViewComponent extends React.Component {
                                 column.caption = columnDefinition?.label;
                                 column.dataType = DataGridUtils.specifyColumnType(columnDefinition?.type);
                                 column.format = DataGridUtils.specifyColumnFormat(columnDefinition?.type);
-                                column.cellTemplate = DataGridUtils.cellTemplate(columnDefinition);
+                                column.cellTemplate = DataGridUtils.cellTemplate(
+                                    columnDefinition,
+                                    this.canOverrideCellRender(columnDefinition)
+                                );
                                 column.fixed =
                                     columnDefinition.freeze !== undefined && columnDefinition?.freeze !== null
                                         ? columnDefinition?.freeze?.toLowerCase() === 'left' ||
@@ -502,6 +524,14 @@ class GridViewComponent extends React.Component {
         }
     };
 
+    canOverrideCellRender(columnDefinition) {
+        return (
+            this.isSpecialCell(columnDefinition) &&
+            this.props.cellModeEnabled &&
+            (columnDefinition?.edit || columnDefinition?.selectionList)
+        );
+    }
+
     subViewHref(viewId, recordId, parentId, currentBreadcrumb) {
         parentId = StringUtils.isBlank(parentId) ? 0 : parentId;
         return `/#/grid-view/${viewId}${
@@ -516,17 +546,58 @@ class GridViewComponent extends React.Component {
             if (!!columnDefinition?.sortIndex && columnDefinition?.sortIndex > 0 && !!columnDefinition?.sortOrder) {
                 sortOrder = columnDefinition?.sortOrder?.toLowerCase();
             }
-            columns.push(
-                <Column
-                    key={INDEX_COLUMN}
-                    dataField={columnDefinition.fieldName}
-                    sortOrder={sortOrder}
-                    sortIndex={columnDefinition?.sortIndex}
-                    groupCellTemplate={this.groupCellTemplate}
-                />
-            );
+            columns.push(this.generateCustomizeColumn(INDEX_COLUMN, sortOrder, columnDefinition));
         });
         return columns;
+    }
+    isSpecialCell(columnDefinition) {
+        const type = columnDefinition?.type;
+        try {
+            switch (type) {
+                case 'H':
+                case 'B':
+                case 'L':
+                case 'C':
+                case 'O':
+                case 'I':
+                case 'IM':
+                    return true;
+                default:
+                    return false;
+            }
+        } catch (ex) {}
+        return false;
+    }
+
+    generateCustomizeColumn(keyIndex, sortOrder, columnDefinition) {
+        return this.canOverrideCellRender(columnDefinition) ? (
+            <Column
+                key={keyIndex}
+                dataField={columnDefinition.fieldName}
+                sortOrder={sortOrder}
+                sortIndex={columnDefinition?.sortIndex}
+                // editorOptions={{showAnalogClock: false}}
+                editCellRender={(cellInfo) =>
+                    this.editCellRender(cellInfo, columnDefinition, () => {
+                        if (columnDefinition.type === 'B' || columnDefinition.type === 'L') {
+                            this.setState({rerenderFlag: !this.state?.rerenderFlag});
+                        } else {
+                            this.editListVisible(cellInfo.row?.data?.ID, columnDefinition.id);
+                        }
+                    })
+                }
+                groupCellTemplate={this.groupCellTemplate}
+            />
+        ) : (
+            <Column
+                key={keyIndex}
+                dataField={columnDefinition.fieldName}
+                sortOrder={sortOrder}
+                // editorOptions={{showAnalogClock: false}}
+                sortIndex={columnDefinition?.sortIndex}
+                groupCellTemplate={this.groupCellTemplate}
+            />
+        );
     }
 }
 
@@ -545,6 +616,7 @@ GridViewComponent.defaultProps = {
     dataGridStoreSuccess: true,
     focusedRowEnabled: false,
     hoverStateEnabled: false,
+    cellModeEnabled: false,
     allowSelectAll: true,
     selectionDeferred: false,
 };
@@ -568,6 +640,7 @@ GridViewComponent.propTypes = {
     handleSelectedRowKeys: PropTypes.func,
     handleSelectAll: PropTypes.func,
     selectionDeferred: PropTypes.bool,
+    cellModeEnabled: PropTypes.bool,
 
     //buttons
     handleArchiveRow: PropTypes.func,

@@ -367,7 +367,6 @@ class DashboardContainer extends BaseContainer {
         const recordId = UrlUtils.getURLParameter('recordId');
         const cardId = this.state.dashboard?.headerData ? this.state.dashboard?.headerData[0]?.ID : null;
         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
-        console.log(this.state.dashboard?.headerData);
 
         return (
             <React.Fragment>

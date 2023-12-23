@@ -60,6 +60,17 @@ body {
     height: 100%;
     width: 100%;
 }
+#save-editor-button {
+    background: $button-color;
+    color: white;
+    height: 38px;
+}
+#editor-dialog {
+    .dx-toolbar-before {
+        display: flex;
+        flex-wrap: wrap;
+    }
+}
 
 //menu
 @import 'menu';

@@ -553,9 +553,7 @@ class TreeViewComponent extends React.Component {
                             column.width = columnDefinition?.width || 100;
                             column.name = columnDefinition?.fieldName;
                             column.caption = columnDefinition?.label;
-
                             column.dataType = TreeListUtils.specifyColumnType(columnDefinition?.type);
-
                             column.format = TreeListUtils.specifyColumnFormat(columnDefinition?.type);
                             if (this.isFakeColumnWithoutIndex(columnDefinition)) {
                                 column.index = 0;
@@ -930,7 +928,6 @@ class TreeViewComponent extends React.Component {
                                     <div>
                                         <div>
                                             <img
-                                                id='xd123'
                                                 alt={''}
                                                 height={100}
                                                 src={`data:image/jpeg;base64,${img}`}

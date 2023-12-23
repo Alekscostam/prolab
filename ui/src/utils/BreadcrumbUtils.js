@@ -203,9 +203,12 @@ export class Breadcrumb {
         );
     }
 
+    static shouldHaveBreadCrumb() {
+        return !UrlUtils.batchIdParamExist();
+    }
     static currentBreadcrumbAsUrlParam() {
         const currentBredcrump = UrlUtils.getURLParameter(BREADCRUMB_URL_PARAM_NAME);
-        if (currentBredcrump) {
+        if (currentBredcrump && this.shouldHaveBreadCrumb()) {
             return `&${BREADCRUMB_URL_PARAM_NAME}=${currentBredcrump}`;
         }
         return '';

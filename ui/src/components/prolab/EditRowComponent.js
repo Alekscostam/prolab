@@ -131,7 +131,6 @@ export class EditRowComponent extends BaseRowComponent {
                     id='right-sidebar'
                     visible={visibleEditPanel}
                     modal={true}
-                    style={{width: '45%'}}
                     onCustomClose={() => {
                         this.props.onCloseCustom();
                     }}
