@@ -248,7 +248,7 @@ export default class DataGridStore extends BaseService {
 
     modifiedIfIsNoSelectAll(loadOptions) {
         const filterIds = JSON.stringify(loadOptions['filter']);
-        const selectionIds = filterIds.match(/-?\d+/g).map((id) => ({"'ID'": id}));
+        const selectionIds = filterIds.match(/-?\d+/g).map((id) => ({ID: id}));
         if (selectionIds instanceof Array && selectionIds.length > 0) {
             let selectionIdsResponse = {
                 data: selectionIds,
@@ -263,6 +263,7 @@ export default class DataGridStore extends BaseService {
     modifiedIfIsSelectAll(loadOptions) {
         const filterIds = JSON.stringify(loadOptions['filter']);
         const selectionIds = filterIds.match(/-?\d+/g).map((id) => ({ID: id}));
+        debugger;
         let data = this.cachedFromSelectAll.data;
         selectionIds.forEach((selectionId) => {
             data = data.filter((el) => {
