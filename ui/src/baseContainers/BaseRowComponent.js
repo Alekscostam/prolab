@@ -108,8 +108,8 @@ export class BaseRowComponent extends BaseContainer {
     renderField(field, fieldIndex, groupName) {
         const visibleDocumentCriteria = this.props?.visibleDocumentPanel;
 
-        const {onChange} = this.props;
-        const {onBlur} = this.props;
+        const onChange = this.getOnChange();
+        const onBlur = this.getOnBlur();
         const required = field.requiredValue && field.visible && !field.hidden;
         let validationMsg = this.validator
             ? this.validator.message(
@@ -169,6 +169,20 @@ export class BaseRowComponent extends BaseContainer {
                 ) : null}
             </React.Fragment>
         );
+    }
+    getOnChange() {
+        return this.props.onChange
+            ? this.props.onChange
+            : (text, event, groupName, info) => {
+                  this.onChange(text, event, groupName, info);
+              };
+    }
+    getOnBlur() {
+        return this.props.onBlur
+            ? this.props.onBlur
+            : (text, event, groupName, info) => {
+                  this.onBlur(text, event, groupName, info);
+              };
     }
     editListVisible(field) {
         ConsoleHelper('EditRowComponent::editListVisible');

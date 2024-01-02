@@ -39,7 +39,7 @@ export class EditSpecContainer extends BaseContainer {
         this.messages = React.createRef();
         this.state = {
             loading: true,
-            isChanged: undefined,
+            expandAll: undefined,
             levelId: undefined,
             visibleAddSpec: false,
             elementParentId: null,
@@ -127,16 +127,16 @@ export class EditSpecContainer extends BaseContainer {
         this._isMounted = false;
     }
 
-    downloadData(viewId, parentId, recordId, filterId, isChanged) {
+    downloadData(viewId, parentId, recordId, filterId, expandAll) {
         if (!window.location.href.includes('grid-view')) {
             ConsoleHelper(
-                `EditSpecContainer::downloadData: viewId=${viewId}, parentId=${parentId}, recordId=${recordId}, filterId=${filterId} isChanged=${isChanged}`
+                `EditSpecContainer::downloadData: viewId=${viewId}, parentId=${parentId}, recordId=${recordId}, filterId=${filterId} expandAll=${expandAll}`
             );
-            this.getViewById(viewId, parentId, recordId, filterId, isChanged);
+            this.getViewById(viewId, parentId, recordId, filterId, expandAll);
         }
     }
 
-    getViewById(viewId, parentId, recordId, filterId, isChanged) {
+    getViewById(viewId, parentId, recordId, filterId, expandAll) {
         this.setState({loading: true}, () => {
             this.viewService
                 .getViewSpec(viewId, parentId)
@@ -163,7 +163,7 @@ export class EditSpecContainer extends BaseContainer {
                         listColumns: undefined,
                         listOptions: undefined,
                     };
-                    this.processingViewResponse(refactorResponseView, parentId, recordId, isChanged);
+                    this.processingViewResponse(refactorResponseView, parentId, recordId, expandAll);
                 })
                 .catch((err) => {
                     console.error('Error getViewSpec in EditSpec. Exception = ', err);
@@ -177,7 +177,7 @@ export class EditSpecContainer extends BaseContainer {
         });
     }
 
-    processingViewResponse(responseView, parentId, recordId, isChanged) {
+    processingViewResponse(responseView, parentId, recordId, expandAll) {
         if (this._isMounted) {
             ViewValidatorUtils.validation(responseView);
             let id = UrlUtils.getViewIdFromURL();
@@ -234,7 +234,7 @@ export class EditSpecContainer extends BaseContainer {
                     documentsList: documentsListTmp,
                     batchesList: batchesListTmp,
                     filtersList: filtersListTmp,
-                    isChanged: isChanged,
+                    expandAll: expandAll,
                 }),
                 () => {
                     //const initFilterId = responseView?.viewInfo?.filterdId;
@@ -704,10 +704,10 @@ export class EditSpecContainer extends BaseContainer {
                                 id={this.props.id}
                                 handleIsChanged={() => {
                                     this.setState({
-                                        isChanged: false,
+                                        expandAll: false,
                                     });
                                 }}
-                                isChanged={this.state.isChanged}
+                                expandAll={this.state.expandAll}
                                 elementParentId={this.state.elementParentId}
                                 elementRecordId={this.state.elementRecordId}
                                 handleOnTreeList={(ref) => (this.refTreeList = ref)}
@@ -726,6 +726,9 @@ export class EditSpecContainer extends BaseContainer {
                                     this.setState({
                                         parsedData: replacedParsedData,
                                     });
+                                }}
+                                onCloseEditList={() => {
+                                    this.forceUpdate();
                                 }}
                                 allowUpdating={true}
                                 gridViewColumns={this.state.columns}
@@ -788,9 +791,11 @@ export class EditSpecContainer extends BaseContainer {
                         {this.state.visibleAddSpec ? (
                             <AddSpecContainer
                                 parsedGridViewData={parsedData}
-                                ref={this.addSpecContainer}
                                 lastId={this.getLastId()}
                                 id={this.props.id}
+                                createObjectToSave={() => {
+                                    return this.createObjectToSave(parsedData);
+                                }}
                                 visibleAddSpec={this.state.visibleAddSpec}
                                 levelId={this.state.levelId}
                                 handleAddElements={(el) => this.handleAddElements(el)}

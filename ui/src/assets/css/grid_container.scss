@@ -91,7 +91,6 @@ $table-selection: #dde6ff;
 .dx-datagrid-rowsview .dx-select-checkboxes-hidden > tbody > tr > td > .dx-select-checkbox {
     display: inline-block !important;
 }
-
 .dx-datagrid-rowsview .dx-select-checkboxes-hidden > tbody > tr > td > .dx-select-checkbox {
     display: grid;
 }
@@ -137,6 +136,22 @@ $table-selection: #dde6ff;
 .grid-button-panel {
     font-size: 15px;
     padding: 0 0.4rem;
+    min-width: 0;
+    height: 26px;
+
+    &.normal {
+        background-color: $button-text-color;
+        color: $button-color;
+    }
+
+    &.inverse {
+        background-color: $button-color;
+        color: $button-text-color;
+    }
+}
+.grid-button-panel-big {
+    font-size: 18px;
+    padding: 1rem;
     min-width: 0;
     height: 26px;
 

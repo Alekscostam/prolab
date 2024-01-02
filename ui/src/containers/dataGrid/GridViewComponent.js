@@ -40,6 +40,7 @@ class GridViewComponent extends CellEditComponent {
         this.crudService = new CrudService();
         this.state = {
             editListVisible: false,
+            editorDialogVisisble: false,
         };
         ConsoleHelper('GridViewComponent -> constructor');
     }
@@ -110,7 +111,7 @@ class GridViewComponent extends CellEditComponent {
         return (
             <React.Fragment>
                 {this.state.editListVisible && this.editListComponent()}
-
+                {this.state.editorDialogVisisble && this.editorComponent()}
                 {/* <div className='dx-container'> */}
                 <DataGrid
                     id='grid-container'
@@ -216,6 +217,7 @@ class GridViewComponent extends CellEditComponent {
                         mode='virtual'
                         rowRenderingMode={'standard'}
                         preloadEnabled={false}
+                        // useNative={true}
                         useNative={this.isGroupModeEnabled()}
                     />
 
@@ -548,6 +550,7 @@ class GridViewComponent extends CellEditComponent {
             }
             columns.push(this.generateCustomizeColumn(INDEX_COLUMN, sortOrder, columnDefinition));
         });
+
         return columns;
     }
     isSpecialCell(columnDefinition) {

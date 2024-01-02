@@ -136,28 +136,30 @@ export class AddSpecContainer extends BaseContainer {
         const title = this.state.parsedView?.info?.title;
         return (
             <React.Fragment>
-                <Popup
-                    showTitle={true}
-                    id='popup'
-                    visible={this.props.visibleAddSpec}
-                    className={'col-12 col-6'}
-                    dragEnabled={true}
-                    hideOnOutsideClick={true}
-                    showCloseButton={true}
-                    onHiding={this.props.onHide}
-                    title={LocUtils.loc(this.props.labels, 'add_spec_parameters', title)}
-                    container='.dx-viewport'
-                >
-                    <div className='mb-4'>
-                        <div className='row ' style={{flaot: 'right!important'}}>
-                            <div className='col-lg-6 col-md-12'>{this.renderHeaderLeft()}</div>
-                            <span className='col-lg-6 col-md-12'>{this.renderHeaderRight()}</span>
+                {this.props.visibleAddSpec && (
+                    <Popup
+                        showTitle={true}
+                        id='popup'
+                        visible={this.props.visibleAddSpec}
+                        className={'col-12 col-6'}
+                        dragEnabled={true}
+                        hideOnOutsideClick={true}
+                        showCloseButton={true}
+                        onHiding={this.props.onHide}
+                        title={LocUtils.loc(this.props.labels, 'add_spec_parameters', title)}
+                        container='.dx-viewport'
+                    >
+                        <div className='mb-4'>
+                            <div className='row ' style={{flaot: 'right!important'}}>
+                                <div className='col-lg-6 col-md-12'>{this.renderHeaderLeft()}</div>
+                                <span className='col-lg-6 col-md-12'>{this.renderHeaderRight()}</span>
+                            </div>
                         </div>
-                    </div>
 
-                    {this.renderHeadPanel()}
-                    {this.renderContent()}
-                </Popup>
+                        {this.renderHeadPanel()}
+                        {this.renderContent()}
+                    </Popup>
+                )}
             </React.Fragment>
         );
     }
@@ -169,7 +171,7 @@ export class AddSpecContainer extends BaseContainer {
         });
     }
 
-    getViewAddSpec(viewId, parentId, recordId, type, header, headerId, isChanged) {
+    getViewAddSpec(viewId, parentId, recordId, type, header, headerId) {
         if (this.isGridViewUrlExist()) {
             parentId = UrlUtils.getURLParameter('recordId');
         }
@@ -196,7 +198,7 @@ export class AddSpecContainer extends BaseContainer {
                     ],
                     gridOptions: responseView.viewOptions,
                 };
-                this.processingViewResponse(refactorResponseView, parentId, recordId, isChanged);
+                this.processingViewResponse(refactorResponseView, parentId, recordId);
             })
             .catch((err) => {
                 console.error('Error getViewSpec in EditSpec. Exception = ', err);
@@ -211,7 +213,7 @@ export class AddSpecContainer extends BaseContainer {
     // TODO:
     processingViewResponseBatch(responseView, batchId) {}
 
-    processingViewResponse(responseView, parentId, recordId, isChanged) {
+    processingViewResponse(responseView, parentId, recordId) {
         if (this._isMounted) {
             ViewValidatorUtils.validation(responseView);
             let id = UrlUtils.getViewIdFromURL();
@@ -269,7 +271,7 @@ export class AddSpecContainer extends BaseContainer {
                     batchesList: batchesListTmp,
                     filtersList: filtersListTmp,
                     tabs: this.createValidTabs(responseView.tabs),
-                    isChanged: isChanged,
+                    expandAll: responseView.gridOptions.groupExpandAll,
                 }),
                 () => {
                     //const initFilterId = responseView?.viewInfo?.filterdId;
@@ -354,8 +356,8 @@ export class AddSpecContainer extends BaseContainer {
                                                 elementRecordId,
                                                 tab.type,
                                                 header,
-                                                headerId,
-                                                true
+                                                headerId
+                                                // true
                                             );
                                             this.setState({
                                                 selectedIndex: args.value,
@@ -384,7 +386,6 @@ export class AddSpecContainer extends BaseContainer {
 
         let opAdd = DataGridUtils.containsOperationsButton(operations, 'OP_ADDSPEC_ADD');
         let opCount = DataGridUtils.containsOperationsButton(operations, 'OP_ADDSPEC_COUNT');
-
         return (
             <div>
                 <div className='mt-2 ml-4 text-end number-of-copies-header'>
@@ -430,22 +431,37 @@ export class AddSpecContainer extends BaseContainer {
         ConsoleHelper(
             `handleExecSpec: viewId = ${viewId} parentId = ${parentId}  parentId = ${type}  parentId = ${headerId}  parentId = ${header}`
         );
-        const saveElement = {listId: this.state.selectedRowKeys};
-        ConsoleHelper(`handleExecSpec: element to save = ${JSON.stringify(saveElement)}`);
-        this.specExec(viewId, parentId, saveElement, type, headerId, header);
+        this.specExec(viewId, parentId, type, headerId, header);
     }
+
     isGridViewUrlExist() {
         return UrlUtils.urlParamExsits('grid-view');
     }
+
+    createObjectToSave() {
+        if (this.props.createObjectToSave) {
+            return this.props.createObjectToSave();
+        }
+        return null;
+    }
     //override
-    specExec = (viewId, parentId, saveElement, type, headerId, header) => {
+    specExec = (viewId, parentId, type, headerId, header) => {
         const numberOfCopies = this.numberOfCopies?.current?.element.children[0]?.value;
         this.blockUi();
         if (this.isGridViewUrlExist()) {
             parentId = UrlUtils.getURLParameter('recordId');
         }
         this.crudService
-            .executeSpec(viewId, parentId, saveElement, type, headerId, header, numberOfCopies)
+            .executeSpec(
+                viewId,
+                parentId,
+                type,
+                headerId,
+                header,
+                this.state.selectedRowKeys,
+                this.createObjectToSave(this.props?.parsedGridViewData),
+                numberOfCopies
+            )
             .then((saveResponse) => {
                 this.setParents(type, header, saveResponse);
                 let validArray = this.createValidArray(saveResponse.data);
@@ -582,7 +598,22 @@ export class AddSpecContainer extends BaseContainer {
             if (!!callbackAction) callbackAction();
         });
     }
-
+    shouldComponentUpdate(nextProps, nextState) {
+        const changedElementStates =
+            nextState.elementParentId !== this.state.elementParentId ||
+            nextState.elementRecordId !== this.state.elementRecordId;
+        const changedElementId = nextState.elementId !== this.state.elementId;
+        const changedParsedView = nextState.parsedView !== this.state.parsedView;
+        const changedParsedData = nextState.parsedData !== this.state.parsedData;
+        const changedSelectedRowKeys = nextState.selectedRowKeys !== this.state.selectedRowKeys;
+        const shouldBeRerendered =
+            changedElementStates ||
+            changedElementId ||
+            changedParsedView ||
+            changedParsedData ||
+            changedSelectedRowKeys;
+        return shouldBeRerendered;
+    }
     //override
     renderContent = () => {
         let parsedData = this.state?.parsedData;
@@ -601,10 +632,10 @@ export class AddSpecContainer extends BaseContainer {
                                 }}
                                 handleIsChanged={() => {
                                     this.setState({
-                                        isChanged: false,
+                                        expandAll: false,
                                     });
                                 }}
-                                isChanged={this.state.isChanged}
+                                expandAll={this.state.expandAll}
                                 ref={this.refTreeList}
                                 id={this.props.id}
                                 allowOperations={false}
@@ -644,7 +675,6 @@ export class AddSpecContainer extends BaseContainer {
                                 handleUnblockUi={() => this.unblockUi()}
                                 handleShowEditPanel={(editDataResponse) => this.handleShowEditPanel(editDataResponse)}
                                 handleSelectedRowKeys={(e, rerenderColorAfterClickCheckbox) => {
-                                    this.blockUi();
                                     this.setState(
                                         (prevState) => {
                                             return {
@@ -653,7 +683,6 @@ export class AddSpecContainer extends BaseContainer {
                                             };
                                         },
                                         () => {
-                                            this.unblockUi();
                                             if (rerenderColorAfterClickCheckbox) {
                                                 rerenderColorAfterClickCheckbox();
                                             }
@@ -711,6 +740,7 @@ export class AddSpecContainer extends BaseContainer {
 AddSpecContainer.defaultProps = {
     viewMode: 'VIEW',
     visibleAddSpec: false,
+    createObjectToSave: undefined,
 };
 
 AddSpecContainer.propTypes = {
@@ -718,4 +748,6 @@ AddSpecContainer.propTypes = {
     labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
     collapsed: PropTypes.bool.isRequired,
     visibleAddSpec: PropTypes.bool.isRequired,
+    createObjectToSave: PropTypes.func,
 };
+export default AddSpecContainer;

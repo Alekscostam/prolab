@@ -12,8 +12,6 @@ import BlockUi from '../components/waitPanel/BlockUi';
 import {Toast} from 'primereact/toast';
 import {Message} from 'primereact/message';
 import AppPrefixUtils from '../utils/AppPrefixUtils';
-import {confirmDialog} from 'primereact/confirmdialog';
-import {localeOptions} from 'primereact/api';
 import EditRowUtils from '../utils/EditRowUtils';
 import ConsoleHelper from '../utils/ConsoleHelper';
 import {LoadIndicator} from 'devextreme-react';
@@ -1056,7 +1054,7 @@ class BaseContainer extends React.Component {
 
     handleEditRowSave(viewId, recordId, parentId, token) {
         ConsoleHelper(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`);
-        const saveElement = this.crudService.createObjectToSave(this.state);
+        const saveElement = this.crudService.createObjectToSave(UrlUtils.isEditRowView() ? this.props : this.state);
         ConsoleHelper(`handleEditRowSave: element to save = ${JSON.stringify(saveElement)}`);
         this.rowSave(viewId, recordId, parentId, saveElement, false, token);
         if (!this.state?.copyData) {
@@ -1151,6 +1149,7 @@ class BaseContainer extends React.Component {
                 ResponseUtils.run(
                     saveResponse,
                     () => this.batchSave(viewId, parentId, saveElement, true),
+                    () => {},
                     (res) => {
                         this.showErrorMessages(res);
                     },
@@ -1204,6 +1203,7 @@ class BaseContainer extends React.Component {
                 ResponseUtils.run(
                     saveResponse,
                     () => this.specSave(viewId, parentId, saveElement, true),
+                    () => {},
                     (res) => {
                         this.showErrorMessages(res);
                     },
@@ -1225,23 +1225,34 @@ class BaseContainer extends React.Component {
             });
     };
 
+    kindOperationForRow() {
+        if (UrlUtils.isEditRowView()) {
+            return 'Edit';
+        }
+        return this.state.editData.editInfo?.kindOperation ? this.state.editData.editInfo?.kindOperation : undefined;
+    }
+
     rowSave = (viewId, recordId, parentId, saveElement, confirmSave, token) => {
         this.blockUi();
         const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
-        const kindOperation = this.state.editData.editInfo?.kindOperation
-            ? this.state.editData.editInfo?.kindOperation
-            : undefined;
+        const kindOperation = this.kindOperationForRow();
         this.crudService
             .save(viewId, recordId, parentId, kindView, kindOperation, saveElement, confirmSave, token)
             .then((saveResponse) => {
                 ResponseUtils.run(
                     saveResponse,
                     () => () => this.rowSave(viewId, recordId, parentId, saveElement, true),
+                    () => {
+                        this.setState({visibleEditPanel: false});
+                        UrlUtils.removeEditRowParamsFromUrlIfPossible();
+                    },
                     (res) => {
                         this.showErrorMessages(res);
+                        UrlUtils.removeEditRowParamsFromUrlIfPossible();
                     },
                     (res) => {
                         this.showResponseErrorMessage(res);
+                        UrlUtils.removeEditRowParamsFromUrlIfPossible();
                     }
                 );
                 let refresh = true;
@@ -1255,6 +1266,7 @@ class BaseContainer extends React.Component {
                 if (this.state?.attachmentFiles?.length) {
                     this.uploadAttachemnt(this.state.parsedGridView, this.state.attachmentFiles[0]);
                 }
+
                 if (refresh && saveResponse.status !== 'NOK') {
                     let attachmentDialog = document.getElementById('attachmentDialog');
                     if (attachmentDialog) {
@@ -1317,15 +1329,14 @@ class BaseContainer extends React.Component {
     rowCancel = (viewId, recordId, parentId, saveElement) => {
         this.blockUi();
         const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
-        const kindOperation = this.state.editData.editInfo?.kindOperation
-            ? this.state.editData.editInfo?.kindOperation
-            : undefined;
+        const kindOperation = this.kindOperationForRow();
         this.crudService
             .cancel(viewId, recordId, parentId, kindView, kindOperation, saveElement)
             .then(() => {
                 this.refreshView();
                 this.unselectAllDataGrid();
                 this.unblockUi();
+                UrlUtils.removeEditRowParamsFromUrlIfPossible();
             })
             .catch((err) => {
                 this.showGlobalErrorMessage(err);
@@ -2174,11 +2185,11 @@ class BaseContainer extends React.Component {
         ConsoleHelper(`handleEditListRowChange = `, JSON.stringify(editListData));
         try {
             this.blockUi();
-            let editData = this.state.editData;
+            let editData = UrlUtils.isEditRowView() ? this.props.editData : this.state.editData;
             editListData.forEach((element) => {
                 EditRowUtils.searchAndAutoFill(editData, element.fieldEdit, element.fieldValue);
             });
-            this.setState({editData: editData, modifyEditData: true});
+            this.setEditData(editData);
             if (editInfo?.field?.refreshFieldVisibility) {
                 this.refreshFieldVisibility(editInfo);
             }
@@ -2194,16 +2205,18 @@ class BaseContainer extends React.Component {
             `handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId} parentId = ${kindView}`
         );
         this.blockUi();
-        const autofillBodyRequest = this.crudService.createObjectToAutoFill(this.state);
+        const autofillBodyRequest = this.crudService.createObjectToAutoFill(
+            UrlUtils.isEditRowView() ? this.props : this.state
+        );
         this.crudService
             .editAutoFill(viewId, recordId, parentId, kindView, autofillBodyRequest)
             .then((editAutoFillResponse) => {
                 let arrayTmp = editAutoFillResponse?.data;
-                let editData = this.state.editData;
+                let editData = UrlUtils.isEditRowView() ? this.props.editData : this.state.editData;
                 arrayTmp.forEach((element) => {
                     EditRowUtils.searchAndAutoFill(editData, element.fieldName, element.value);
                 });
-                this.setState({editData: editData, modifyEditData: true});
+                this.setEditData(editData);
                 this.unblockUi();
             })
             .catch((err) => {
@@ -2213,7 +2226,7 @@ class BaseContainer extends React.Component {
 
     handleCancelRowChange(viewId, recordId, parentId) {
         ConsoleHelper(`handleCancelRowChange: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`);
-        const cancelElement = this.crudService.createObjectToSave(this.state);
+        const cancelElement = this.crudService.createObjectToSave(UrlUtils.isEditRowView() ? this.props : this.state);
         ConsoleHelper(`handleCancelRowChange: element to cancel = ${JSON.stringify(cancelElement)}`);
         this.rowCancel(viewId, recordId, parentId, cancelElement, false);
     }
@@ -2248,7 +2261,7 @@ class BaseContainer extends React.Component {
     // TUUUU
     handleEditRowChange(inputType, event, groupName, info) {
         ConsoleHelper(`handleEditRowChange inputType=${inputType} groupName=${groupName}`);
-        let editData = this.state.editData;
+        let editData = UrlUtils.isEditRowView() ? this.props.editData : this.state.editData;
         let groupData = editData?.editFields?.filter((obj) => {
             return obj.groupName === groupName;
         });
@@ -2271,12 +2284,18 @@ class BaseContainer extends React.Component {
             if (this.isGanttView()) {
                 this.replaceEmptyValuesFromParent(editData);
             }
-            this.setState({editData: editData, modifyEditData: true});
+            this.setEditData(editData);
         } else {
             ConsoleHelper('handleEditRowChange implementation error');
         }
     }
-
+    setEditData(editData) {
+        if (UrlUtils.isEditRowView()) {
+            this.props.editDataChange(editData);
+        } else {
+            this.setState({editData: editData, modifyEditData: true});
+        }
+    }
     setVariableFromEvent(inputType, event) {
         let varName;
         let varValue;
@@ -2347,17 +2366,22 @@ class BaseContainer extends React.Component {
 
     refreshFieldVisibility(info) {
         this.blockUi();
-        const refreshObject = this.crudService.createObjectToRefresh(this.state);
+        const isEditRowView = UrlUtils.isEditRowView();
+        const refreshObject = this.crudService.createObjectToRefresh(isEditRowView ? this.props : this.state);
         const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
         this.crudService
             .refreshFieldVisibility(info.viewId, info.recordId, info.parentId, kindView, refreshObject)
             .then((editRefreshResponse) => {
                 let arrayTmp = editRefreshResponse?.data;
-                let editData = this.state.editData;
+                let editData = isEditRowView ? this.props.editData : this.state.editData;
                 arrayTmp.forEach((element) => {
                     EditRowUtils.searchAndRefreshVisibility(editData, element.fieldName, element.hidden);
                 });
-                this.setState({editData: editData});
+                if (isEditRowView) {
+                    this.props.editDataChange(editData);
+                } else {
+                    this.setState({editData: editData});
+                }
             })
             .catch((err) => {
                 this.showGlobalErrorMessage(err);

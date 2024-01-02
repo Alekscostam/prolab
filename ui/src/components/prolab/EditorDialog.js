@@ -1,10 +1,9 @@
 import {Button} from 'devextreme-react';
 import {Dialog} from 'primereact/dialog';
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useRef, useState, useMemo} from 'react';
 
 import PropTypes from 'prop-types';
 import HtmlEditor, {Item, MediaResizing, Toolbar} from 'devextreme-react/html-editor';
-import {EditorFixUtils} from '../../utils/EditorFixUtils';
 
 export const EditorDialog = (props) => {
     const {onSave, onHide, header} = props;
@@ -26,9 +25,7 @@ export const EditorDialog = (props) => {
     const headerValues = [false, 1, 2, 3, 4, 5];
 
     useEffect(() => {
-        return () => {
-            EditorFixUtils.clearAllLinkedDialogsWithEditor();
-        };
+        return () => {};
     }, [props, value]);
 
     const hideDialog = () => {
@@ -104,44 +101,8 @@ export const EditorDialog = (props) => {
                             <Item locateInMenu='auto' name='orderedList' />
                             <Item locateInMenu='auto' name='bulletList' />
                             <Item locateInMenu='auto' name='separator' />
-                            <Item
-                                locateInMenu='auto'
-                                name='color'
-                                onClick={() => {
-                                    setTimeout(function () {
-                                        const dialogc = document.getElementsByClassName('dx-popup-normal');
-                                        const dialogs = document.getElementsByClassName('p-dialog');
-                                        if (dialogc.length !== 0) {
-                                            Array.from(dialogc).forEach((el) => EditorFixUtils.overideEventClick(el));
-                                        }
-                                        if (dialogs.length !== 0) {
-                                            Array.from(dialogs).forEach((el) =>
-                                                EditorFixUtils.removeAllEventListeners(el)
-                                            );
-                                            Array.from(dialogs).forEach((el) => EditorFixUtils.overideEventClick(el));
-                                        }
-                                    }, 300);
-                                }}
-                            />
-                            <Item
-                                name='background'
-                                onClick={() => {
-                                    setTimeout(function () {
-                                        const dialogc = document.getElementsByClassName('dx-popup-normal');
-                                        const dialogs = document.getElementsByClassName('p-dialog');
-                                        if (dialogc.length !== 0) {
-                                            Array.from(dialogc).forEach((el) => EditorFixUtils.overideEventClick(el));
-                                        }
-                                        if (dialogs.length !== 0) {
-                                            Array.from(dialogs).forEach((el) =>
-                                                EditorFixUtils.removeAllEventListeners(el)
-                                            );
-
-                                            Array.from(dialogs).forEach((el) => EditorFixUtils.overideEventClick(el));
-                                        }
-                                    }, 300);
-                                }}
-                            />
+                            <Item locateInMenu='auto' name='color' />
+                            <Item locateInMenu='auto' name='background' />
                             <Item locateInMenu='auto' name='separator' />
                             <Item locateInMenu='auto' name='insertTable' />
                             <Item locateInMenu='auto' name='deleteTable' />

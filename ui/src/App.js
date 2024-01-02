@@ -26,10 +26,10 @@ import {Toast} from 'primereact/toast';
 import LocUtils from './utils/LocUtils';
 import {EditSpecContainer} from './containers/EditSpecContainer';
 import moment from 'moment';
-import {Dialog} from 'primereact/dialog';
-import {Button} from 'react-bootstrap';
 import {StringUtils} from './utils/StringUtils';
 import {BatchContainer} from './containers/BatchContainer';
+import {TickerSessionDialog} from './components/prolab/TickerSessionDialog';
+import EditRowViewComponent from './components/prolab/EditRowViewComponent';
 
 let clickEventSeesion = null;
 class App extends Component {
@@ -45,6 +45,7 @@ class App extends Component {
         this.editSpecContainer = React.createRef();
         this.state = {
             loadedConfiguration: false,
+            editData: undefined,
             configUrl: null,
             user: this.authService.getProfile(),
             langs: [],
@@ -86,56 +87,14 @@ class App extends Component {
         this.handleCollapseChange = this.handleCollapseChange.bind(this);
     }
 
-    // componentDidMount() {
-    //     let browseUrl = window.location.href;
-    //     const id = browseUrl.indexOf('/#');
-    //     if (id > 0) {
-    //         browseUrl = browseUrl.substring(0, id + 1);
-    //     }
-    //     let configUrl;
-    //     const urlPrefixCookie = readObjFromCookieGlobal('REACT_APP_URL_PREFIX');
-    //     if (urlPrefixCookie === undefined || urlPrefixCookie == null || urlPrefixCookie === '') {
-    //         configUrl = browseUrl;
-    //         // .trim()
-    //         // .replaceAll("/#/", "/")
-    //         // .replaceAll("/#", "")
-    //         // .replaceAll("#/", "");
-    //     } else {
-    //         configUrl = browseUrl.trim().match('^(?:https?:)?(?:\\/\\/)?([^\\/\\?]+)', '')[0] + '/' + urlPrefixCookie;
-    //     }
-
-    //     this.readConfigAndSaveInCookie(configUrl).catch((err) => {
-    //         console.error('Error start application = ', err);
-    //     });
-
-    //     this.timer = setInterval(() => {
-    //         const sessionTimeout = Date.parse(localStorage.getItem('session_timeout'));
-    //         let t = new Date();
-    //         t.setSeconds(t.getSeconds() + 30);
-    //         console.log(!this.state?.rednerSessionTimeoutDialog);
-    //         if (sessionTimeout < t && !this.state?.rednerSessionTimeoutDialog) {
-    //             // this.setState({rednerSessionTimeoutDialog: true});
-    //             // this.handleLogoutByTokenExpired();
-    //         }
-    //     }, 1000);
-
-    //     const root = document.getElementById('root');
-    //     const clickEventForSession = function () {
-    //         const user = localStorage.getItem('logged_user');
-    //         if (user) {
-    //             const timeInMinutes = localStorage.getItem('session_timeout_in_minutes');
-    //             if (timeInMinutes && !this.state?.rednerSessionTimeoutDialog) {
-    //                 const sessionTimeout = moment(new Date()).add(timeInMinutes, 'm').toString();
-    //                 localStorage.setItem('session_timeout', sessionTimeout);
-    //             }
-    //         }
-    //         return true;
-    //     };
-    //     clickEventSeesion = clickEventForSession;
-    //     root.addEventListener('click', clickEventForSession);
-    // }
-
+    setFakeSeesionTimeout() {
+        let myDate = new Date();
+        myDate.setSeconds(myDate.getSeconds() + 60);
+        localStorage.setItem('session_timeout', myDate);
+        localStorage.setItem('session_timeout_in_minutes', 1);
+    }
     componentDidMount() {
+        // this.setFakeSeesionTimeout();
         let browseUrl = window.location.href;
         const id = browseUrl.indexOf('/#');
         if (id > 0) {
@@ -145,44 +104,58 @@ class App extends Component {
         const urlPrefixCookie = readObjFromCookieGlobal('REACT_APP_URL_PREFIX');
         if (urlPrefixCookie === undefined || urlPrefixCookie == null || urlPrefixCookie === '') {
             configUrl = browseUrl;
-            // .trim()
-            // .replaceAll("/#/", "/")
-            // .replaceAll("/#", "")
-            // .replaceAll("#/", "");
         } else {
             configUrl = browseUrl.trim().match('^(?:https?:)?(?:\\/\\/)?([^\\/\\?]+)', '')[0] + '/' + urlPrefixCookie;
         }
 
+        this.showSessionTimeout();
+        this.prelongSeesionByRootClick();
+
         this.readConfigAndSaveInCookie(configUrl).catch((err) => {
             console.error('Error start application = ', err);
         });
+    }
 
-        this.timer = setInterval(() => {
-            const sessionTimeout = Date.parse(localStorage.getItem('session_timeout'));
-            if (sessionTimeout < new Date()) {
-                this.handleLogoutByTokenExpired();
-            }
-        }, 3000);
-
+    prelongSeesionByRootClick() {
         const root = document.getElementById('root');
-        const clickEventForSession = function () {
-            const user = localStorage.getItem('logged_user');
-            if (user) {
-                const timeInMinutes = localStorage.getItem('session_timeout_in_minutes');
-                if (timeInMinutes) {
-                    const sessionTimeout = moment(new Date()).add(timeInMinutes, 'm').toString();
-                    localStorage.setItem('session_timeout', sessionTimeout);
-                }
-            }
+        const clickEventForSession = () => {
+            this.prelongSessionIfUserExist();
             return true;
         };
         clickEventSeesion = clickEventForSession;
         root.addEventListener('click', clickEventForSession);
     }
+    showSessionTimeout() {
+        this.timer = setInterval(() => {
+            const loggedIn = this.authService.loggedIn();
+            // TODO: przetestuj wygasniecie sesji na loggedIn
+            if (loggedIn) {
+                const sessionTimeout = Date.parse(localStorage.getItem('session_timeout'));
+                const now = new Date();
+                now.setSeconds(now.getSeconds() + 45);
+                if (sessionTimeout < now && !this.state?.rednerSessionTimeoutDialog) {
+                    console.log('render tiocker');
+                    this.setState({rednerSessionTimeoutDialog: true});
+                }
+            }
+        }, 1000);
+    }
+    prelongSessionIfUserExist(fromDialogSession) {
+        const loggedIn = this.authService.loggedIn();
+        if (loggedIn) {
+            const timeInMinutes = localStorage.getItem('session_timeout_in_minutes');
+            const canPrelongSession =
+                (timeInMinutes && fromDialogSession) || (timeInMinutes && !this.state?.rednerSessionTimeoutDialog);
+            if (canPrelongSession) {
+                const sessionTimeout = moment(new Date()).add(timeInMinutes, 'm').toString();
+                localStorage.setItem('session_timeout', sessionTimeout);
+            }
+        }
+    }
+
     componentWillUnmount() {
         this.unregisteredClickEventForSession();
         clearTimeout(this.timer);
-        // clearTimeout(this.tickerForEndSession);
     }
     unregisteredClickEventForSession() {
         const root = document.getElementById('root');
@@ -223,7 +196,6 @@ class App extends Component {
         this.authService.logout();
         if (this.state.user) {
             this.setState({user: null, renderNoRefreshContent: false});
-            window.location.href = AppPrefixUtils.locationHrefUrl('/#/');
             if (!forceByButton) {
                 this.messages?.show({
                     severity: 'error',
@@ -251,8 +223,15 @@ class App extends Component {
     getLocalization(configUrl) {
         this.localizationService.reConfigureDomain();
         if (this.authService.loggedIn()) {
-            const language = JSON.parse(localStorage.getItem('logged_user')).lang.toLowerCase();
-            this.getTranslations(configUrl, language);
+            try {
+                const language = JSON.parse(localStorage.getItem('logged_user')).lang.toLowerCase();
+                this.getTranslations(configUrl, language);
+            } catch (ex) {
+                console.log(ex);
+                if (localStorage.getItem('logged_user') === null) {
+                    this.authService.logout();
+                }
+            }
         } else {
             this.getTranslations(configUrl, 'pl');
         }
@@ -322,23 +301,6 @@ class App extends Component {
         this.setState({collapsed: collapsed});
     }
 
-    // renderTickerForEndSession() {
-    //     let seconds = 60;
-    //     if (localStorage.getItem('ticker-startc') !== 'true') {
-    //         localStorage.setItem('ticker-startc', 'true');
-    //         this.tickerForEndSession = setInterval(() => {
-    //             seconds--;
-    //             document.getElementById('time-ticker').innerText = seconds;
-    //             if (seconds <= 0) {
-    //                 clearInterval(this.tickerForEndSession);
-    //                 localStorage.setItem('ticker-startc', 'false');
-    //                 this.setState({rednerSessionTimeoutDialog: false});
-    //                 this.handleLogoutByTokenExpired();
-    //             }
-    //         }, 1000);
-    //     }
-    // }
-
     haveSubViewColumns() {
         const {subView} = this.state;
         return !!subView && !StringUtils.isBlank(subView.headerColumns);
@@ -348,47 +310,41 @@ class App extends Component {
         const authService = this.authService;
         const {labels} = this.state;
         const loggedIn = authService.loggedIn();
+        // const userProfile = authService.getProfile();
+
         let opADD = DataGridUtils.containsOperationsButton(this.state.operations, 'OP_ADD');
         return (
             <React.Fragment>
-                {/* {this.state.rednerSessionTimeoutDialog && (
-                    <Dialog
-                        id='sessionTimeoutDialog'
-                        header={'Sesja wygasa'}
-                        footer={
-                            <React.Fragment>
-                                <div>
-                                    <Button
-                                        type='button'
-                                        onClick={() => {
-                                            const timeInMinutes = localStorage.getItem('session_timeout_in_minutes');
-                                            if (timeInMinutes && !this.state?.rednerSessionTimeoutDialog) {
-                                                const sessionTimeout = moment(new Date())
-                                                    .add(timeInMinutes, 'm')
-                                                    .toString();
-                                                localStorage.setItem('session_timeout', sessionTimeout);
-                                            }
-                                            this.onHide();
-                                        }}
-                                        label={LocUtils.loc(this.props.labels, 'Publish_next', 'Dalej')}
-                                    >
-                                        Przedłuż
-                                    </Button>
-                                </div>
-                            </React.Fragment>
-                        }
-                        minX={'1200px'}
+                {this.state.rednerSessionTimeoutDialog && (
+                    <TickerSessionDialog
+                        labels={labels}
                         visible={this.state.rednerSessionTimeoutDialog}
-                        resizable={false}
-                        breakpoints={{'1260px': '75vw', '840px': '100vw'}}
-                        onHide={() => this.onHide()}
-                    >
-                        {this.renderTickerForEndSession()}
-                        Czas do wygaśniecia sesji <span id='time-ticker '>23</span>
-                    </Dialog>
-                )} */}
+                        onProlongSession={() => {
+                            this.setState(
+                                {
+                                    rednerSessionTimeoutDialog: false,
+                                },
+                                () => {
+                                    this.prelongSessionIfUserExist(true);
+                                }
+                            );
+                        }}
+                        onLogout={() => {
+                            authService.removeLoginCookies();
+                            this.setState(
+                                {
+                                    rednerSessionTimeoutDialog: false,
+                                },
+                                () => {
+                                    this.handleLogoutByTokenExpired(true, labels);
+                                }
+                            );
+                        }}
+                    ></TickerSessionDialog>
+                )}
 
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
+                {/* <ConfirmationEditExistDialog labels={labels}></ConfirmationEditExistDialog> */}
                 {this.state.loadedConfiguration ? (
                     <HashRouter
                         history={this.historyBrowser}
@@ -455,6 +411,30 @@ class App extends Component {
                                     <Switch>
                                         <Route exact path='/' render={(props) => this.renderLoginContainer(props)} />
                                         <Route path='/login' render={(props) => this.renderLoginContainer(props)} />
+                                        <Route
+                                            path='/edit-row-view/:id'
+                                            render={(props) => {
+                                                return (
+                                                    <AuthComponent
+                                                        viewMode={'VIEW'}
+                                                        historyBrowser={this.historyBrowser}
+                                                        handleLogout={(forceByButton) =>
+                                                            this.handleLogoutUser(forceByButton)
+                                                        }
+                                                    >
+                                                        <EditRowViewComponent
+                                                            labels={labels}
+                                                            editData={this.state.editData}
+                                                            editDataChange={(editData) => {
+                                                                this.setState({
+                                                                    editData: editData,
+                                                                });
+                                                            }}
+                                                        ></EditRowViewComponent>
+                                                    </AuthComponent>
+                                                );
+                                            }}
+                                        />
                                         <Route
                                             path='/start'
                                             render={() => {

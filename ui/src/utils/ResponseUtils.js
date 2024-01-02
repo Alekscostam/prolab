@@ -2,7 +2,7 @@ import {confirmDialog} from 'primereact/confirmdialog';
 import {localeOptions} from 'primereact/api';
 
 export class ResponseUtils {
-    static run(response, acceptFnc, errMessage, resErrorMessage) {
+    static run(response, nokAcceptFnc, okAcceptFnc, errMessage, resErrorMessage) {
         switch (response.status) {
             case 'OK':
                 if (!!response.message) {
@@ -14,10 +14,12 @@ export class ResponseUtils {
                         rejectClassName: 'hidden',
                         acceptLabel: 'OK',
                         rejectLabel: undefined,
-                        accept: () => {},
+                        accept: () => okAcceptFnc(),
                     });
                 } else if (!!response.error) {
                     resErrorMessage(response);
+                } else {
+                    okAcceptFnc();
                 }
                 break;
             case 'NOK':
@@ -29,7 +31,7 @@ export class ResponseUtils {
                         icon: 'pi pi-question-circle',
                         acceptLabel: localeOptions('accept'),
                         rejectLabel: localeOptions('reject'),
-                        accept: () => acceptFnc(),
+                        accept: () => nokAcceptFnc(),
                         reject: () => undefined,
                     });
                 } else if (!!response.message) {

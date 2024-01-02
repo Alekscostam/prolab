@@ -3,6 +3,7 @@ import moment from 'moment';
 import EditRowUtils from '../utils/EditRowUtils';
 import {saveAs} from 'file-saver';
 import UrlUtils from '../utils/UrlUtils';
+import {StringUtils} from '../utils/StringUtils';
 /*
 Kontroler do edycji danych.
  */
@@ -78,6 +79,7 @@ export default class CrudService extends BaseService {
             }
         )
             .then((editDataEntryResponse) => {
+                this.addEditRowParamsToUrl(recordId, parentId, kindView);
                 return Promise.resolve(editDataEntryResponse);
             })
             .catch((err) => {
@@ -142,14 +144,17 @@ export default class CrudService extends BaseService {
         });
     }
 
-    executeSpec(viewId, parentId, listId, type, headerId, header, count) {
+    executeSpec(viewId, parentId, type, headerId, header, listId, data, count) {
         let url = `${this.getDomain()}/${this.path}/${viewId}/addspec/${parentId}/execute?count=${count}`;
         if (type !== 'DEF') {
             url += `&type=${type}&header=${header}&headerId=${headerId}`;
         }
         return this.fetch(url, {
             method: 'POST',
-            body: JSON.stringify(listId),
+            body: JSON.stringify({
+                listId: listId,
+                data: data,
+            }),
         }).catch((err) => {
             throw err;
         });
@@ -718,6 +723,27 @@ export default class CrudService extends BaseService {
             });
         });
         return {data: arrayTmp};
+    }
+
+    addEditRowParamsToUrl(recordId, parentId, kindView) {
+        let queryStringTmp = [];
+        if (!!parentId && StringUtils.isBlank(UrlUtils.getURLParameter('editParentId'))) {
+            queryStringTmp.push(`editParentId=${parentId}`);
+        }
+        if (!!recordId && StringUtils.isBlank(UrlUtils.getURLParameter('editRecordId'))) {
+            queryStringTmp.push(`editRecordId=${recordId}`);
+        }
+        if (!!kindView && StringUtils.isBlank(UrlUtils.getURLParameter('editKindView'))) {
+            queryStringTmp.push(`editKindView=${kindView}`);
+        }
+
+        let currenturl = window.location.href;
+        const lastChar = currenturl.slice(-1);
+
+        if (lastChar !== '?') {
+            currenturl = currenturl + '?';
+        }
+        window.location.href = currenturl + `${queryStringTmp.join('&')}`;
     }
 
     createObjectToEditList(editData) {

@@ -8,7 +8,6 @@ import {Panel} from 'primereact/panel';
 import ShortcutButton from './ShortcutButton';
 import {DataGridUtils} from '../../utils/component/DataGridUtils';
 import SimpleReactValidator from '../validator';
-import {Sidebar} from 'primereact/sidebar';
 import ConsoleHelper from '../../utils/ConsoleHelper';
 import EditListComponent from './EditListComponent';
 import {Toast} from 'primereact/toast';
@@ -16,10 +15,10 @@ import EditListDataStore from '../../containers/dao/EditListDataStore';
 import EditListUtils from '../../utils/EditListUtils';
 import CrudService from '../../services/CrudService';
 import BaseRowComponent from '../../baseContainers/BaseRowComponent';
-import LocUtils from '../../utils/LocUtils';
+import UrlUtils from '../../utils/UrlUtils';
+import {EntryResponseUtils} from '../../utils/EntryResponseUtils';
 
-let copyDataGlobalTop = null;
-export class EditRowComponent extends BaseRowComponent {
+export class EditRowViewComponent extends BaseRowComponent {
     constructor(props) {
         super(props);
         this.service = new CrudService();
@@ -48,26 +47,48 @@ export class EditRowComponent extends BaseRowComponent {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        const visibleEditPanelPrevious = prevProps.visibleEditPanel;
-        const visibleEditPanel = this.props.visibleEditPanel;
-        console.log('visibleEditPanelPrevious %s %visibleEditPanel', visibleEditPanelPrevious, visibleEditPanel);
-        //wykrycie eventu wysunięcia panelu z edycją
-        if (visibleEditPanelPrevious === false && visibleEditPanel === true) {
-            this.setState({preventSave: false});
-        }
-
-        window.sidebarRef = this.sidebarRef;
         super.componentDidUpdate();
     }
 
     componentDidMount() {
+        this.openEditRow();
         super.componentDidMount();
+    }
+
+    openEditRow() {
+        const viewId = UrlUtils.getIdFromUrl();
+        const editParentId = UrlUtils.getURLParameter('editParentId');
+        const editRecordId = UrlUtils.getURLParameter('editRecordId');
+        const editKindView = UrlUtils.getURLParameter('editKindView');
+        this.crudService
+            .editEntry(viewId, editRecordId, editParentId, editKindView, '')
+            .then((entryResponse) => {
+                EntryResponseUtils.run(
+                    entryResponse,
+                    () => {
+                        if (!!entryResponse.next) {
+                            this.crudService
+                                .edit(viewId, editRecordId, editParentId, editKindView)
+                                .then((editDataResponse) => {
+                                    this.props.editDataChange(editDataResponse);
+                                })
+                                .catch((err) => {
+                                    this.showErrorMessages(err);
+                                });
+                        } else {
+                            this.unblockUi();
+                        }
+                    },
+                    () => this.unblockUi()
+                );
+            })
+            .catch((err) => {
+                this.showErrorMessages(err);
+            });
     }
 
     componentWillUnmount() {
         super.componentWillUnmount();
-        window.sidebarRef = null;
-        copyDataGlobalTop = null;
     }
     handleSelectedRowData(selectedRowData) {
         ConsoleHelper('EditRowComponent::handleSelectedRowData obj=' + JSON.stringify(selectedRowData));
@@ -84,19 +105,19 @@ export class EditRowComponent extends BaseRowComponent {
         }
         this.setState({selectedRowData: transformedRowsData, defaultSelectedRowKeys: transformedRowsCRC});
     }
-
+    onBlur(inputType, event, groupName, info) {
+        this.handleEditRowBlur(inputType, event, groupName, info);
+    }
+    onChange(inputType, event, groupName, info) {
+        this.handleEditRowChange(inputType, event, groupName, info);
+    }
     render() {
         const operations = this.props.editData?.operations;
-        const kindOperation = this.props.editData?.editInfo?.kindOperation;
         const opSave = DataGridUtils.containsOperationsButton(operations, 'OP_SAVE');
         const opFill = DataGridUtils.containsOperationsButton(operations, 'OP_FILL');
         const opCancel = DataGridUtils.containsOperationsButton(operations, 'OP_CANCEL');
-        const visibleEditPanel = this.props.visibleEditPanel;
         let editData = this.props.editData;
-        let editListVisible = this.state.editListVisible;
-        if (this.props?.copyData) {
-            copyDataGlobalTop = this.props.copyData;
-        }
+        const editListVisible = this.state.editListVisible;
         return (
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
@@ -118,87 +139,55 @@ export class EditRowComponent extends BaseRowComponent {
                         ConsoleHelper('EditRowComponent::handleOnChosen = ', JSON.stringify(editListData));
                         let editInfo = this.props.editData?.editInfo;
                         editInfo.field = field;
-                        this.props.onEditList(editInfo, editListData);
+                        this.handleEditListRowChange(editInfo, editListData);
                     }}
-                    showErrorMessages={(err) => this.props.showErrorMessages(err)}
+                    showErrorMessages={(err) => this.showErrorMessages(err)}
                     dataGridStoreSuccess={this.state.dataGridStoreSuccess}
                     selectedRowData={this.state.selectedRowData}
                     defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
                     handleSelectedRowData={(e) => this.handleSelectedRowData(e)}
                     labels={this.props.labels}
                 />
-                <Sidebar
-                    ref={this.sidebarRef}
-                    id='right-sidebar'
-                    visible={visibleEditPanel}
-                    modal={true}
-                    onCustomClose={() => {
-                        this.props.onCloseCustom();
-                    }}
-                    position='right'
-                    onHide={() => {
-                        let editInfo = this.props.editData?.editInfo;
-                        if (editInfo) {
-                            this.props.onHide(!visibleEditPanel, editInfo.viewId, editInfo.recordId, editInfo.parentId);
-                        }
-                    }}
-                    icons={() => (
-                        <React.Fragment>
-                            <div className='row ' style={{flex: 'auto'}}>
-                                <div id='label' className='label col-lg-12'>
-                                    {editData?.editInfo?.viewName}
-                                </div>
-                                {kindOperation?.toUpperCase() === 'COPY' ? (
-                                    <div id='label' className='label col-lg-12' style={{fontSize: '1em'}}>
-                                        {LocUtils.loc(this.props.labels, 'Copied_Label', 'Kopiowanie')}{' '}
-                                        {copyDataGlobalTop?.copyCounter?.counter} /{' '}
-                                        {copyDataGlobalTop?.copyOptions?.numberOfCopy}{' '}
-                                    </div>
-                                ) : null}
-                            </div>
 
-                            <div id='buttons' style={{textAlign: 'right'}}>
-                                <ShortcutButton
-                                    id={'opSave'}
-                                    className={`grid-button-panel inverse mt-1 mb-1 mr-1`}
-                                    handleClick={this.handleFormSubmit}
-                                    title={opSave?.label}
-                                    label={opSave?.label}
-                                    rendered={opSave}
-                                />
-                                <ShortcutButton
-                                    id={'opFill'}
-                                    className={`grid-button-panel inverse mt-1 mb-1 mr-1`}
-                                    handleClick={this.handleAutoFill}
-                                    title={opFill?.label}
-                                    label={opFill?.label}
-                                    rendered={opFill}
-                                />
-                                <ShortcutButton
-                                    id={'opCancel'}
-                                    className={`grid-button-panel inverse mt-1 mb-1 mr-1`}
-                                    handleClick={this.handleCancel}
-                                    title={opCancel?.label}
-                                    label={opCancel?.label}
-                                    rendered={opCancel}
-                                />
-                            </div>
-                        </React.Fragment>
-                    )}
-                >
-                    <form onSubmit={this.handleFormSubmit} noValidate>
-                        <div id='row-edit' className='row-edit-container'>
-                            {this.state.preventSave ? (
-                                <div id='validation-panel' className='validation-panel'>
-                                    {this.fieldsMandatoryLabel}
-                                </div>
-                            ) : null}
-                            {editData?.editFields?.map((group, index) => {
-                                return this.renderGroup(group, index);
-                            })}
+                <form onSubmit={this.handleFormSubmit} noValidate>
+                    <div id='row-edit' className=' justify-content-center row'>
+                        <div className='col-12 '>
+                            <ShortcutButton
+                                id={'opSave'}
+                                className={`grid-button-panel-big inverse mt-1 mb-1 mr-1 `}
+                                handleClick={this.handleFormSubmit}
+                                title={opSave?.label}
+                                label={opSave?.label}
+                                rendered={opSave}
+                            />
+                            <ShortcutButton
+                                id={'opFill'}
+                                className={`grid-button-panel-big inverse mt-1 mb-1 mr-1 `}
+                                handleClick={this.handleAutoFill}
+                                title={opFill?.label}
+                                label={opFill?.label}
+                                rendered={opFill}
+                            />
+                            <ShortcutButton
+                                id={'opCancel'}
+                                className={`grid-button-panel-big inverse mt-1 mb-1 mr-1 `}
+                                handleClick={this.handleCancel}
+                                title={opCancel?.label}
+                                label={opCancel?.label}
+                                rendered={opCancel}
+                            />
                         </div>
-                    </form>
-                </Sidebar>
+
+                        {this.state.preventSave ? (
+                            <div id='validation-panel' className='validation-panel'>
+                                {this.fieldsMandatoryLabel}
+                            </div>
+                        ) : null}
+                        {editData?.editFields?.map((group, index) => {
+                            return this.renderGroup(group, index);
+                        })}
+                    </div>
+                </form>
             </React.Fragment>
         );
     }
@@ -214,7 +203,7 @@ export class EditRowComponent extends BaseRowComponent {
         } else {
             this.setState({preventSave: true}, () => {
                 this.validator.showMessages();
-                this.props.showErrorMessages(this.fieldsMandatoryLabel);
+                this.showErrorMessages(this.fieldsMandatoryLabel);
                 // rerender to show messages for the first time
                 this.scrollToError = true;
                 this.preventSave = true;
@@ -223,21 +212,21 @@ export class EditRowComponent extends BaseRowComponent {
         }
     }
 
+    // TODO: blockUi nie działa
     handleValidForm() {
         let editInfo = this.props.editData?.editInfo;
-        this.props.onSave(editInfo.viewId, editInfo.recordId, editInfo.parentId);
-        this.refreshView();
+        this.handleEditRowSave(editInfo.viewId, editInfo.recordId, editInfo.parentId);
     }
 
     handleAutoFill() {
         let editInfo = this.props.editData?.editInfo;
-        let kindView = this.props.kindView;
-        this.props.onAutoFill(editInfo.viewId, editInfo.recordId, editInfo.parentId, kindView);
+        let kindView = this.state.kindView;
+        this.handleAutoFillRowChange(editInfo.viewId, editInfo.recordId, editInfo.parentId, kindView);
     }
 
     handleCancel() {
         let editInfo = this.props.editData?.editInfo;
-        this.props.onCancel(editInfo.viewId, editInfo.recordId, editInfo.parentId);
+        this.handleCancelRowChange(editInfo.viewId, editInfo.recordId, editInfo.parentId);
     }
 
     renderGroup(group, groupIndex) {
@@ -245,7 +234,7 @@ export class EditRowComponent extends BaseRowComponent {
             <React.Fragment>
                 <Panel
                     id={`group_${groupIndex}`}
-                    className={'mb-6'}
+                    className={'col-xl-6 col-lg-6 col-md-8 col-sm-12 '}
                     header={group.groupName}
                     toggleable={group.isExpanded}
                 >
@@ -260,24 +249,16 @@ export class EditRowComponent extends BaseRowComponent {
     }
 }
 
-EditRowComponent.defaultProps = {};
+EditRowViewComponent.defaultProps = {};
 
-EditRowComponent.propTypes = {
-    visibleEditPanel: PropTypes.bool.isRequired,
+EditRowViewComponent.propTypes = {
     editData: PropTypes.object.isRequired,
     kindView: PropTypes.string,
-    showErrorMessages: PropTypes.func.isRequired,
-    onAfterStateChange: PropTypes.func,
     onChange: PropTypes.func.isRequired,
-    onBlur: PropTypes.func,
-    onSave: PropTypes.func.isRequired,
-    onAutoFill: PropTypes.func.isRequired,
-    onCancel: PropTypes.func.isRequired,
-    onEditList: PropTypes.func,
-    onHide: PropTypes.func.isRequired,
+    onEditList: PropTypes.func.isRequired,
+    editDataChange: PropTypes.func.isRequired,
     validator: PropTypes.instanceOf(SimpleReactValidator).isRequired,
-    onError: PropTypes.func,
     labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
 };
 
-export default EditRowComponent;
+export default EditRowViewComponent;

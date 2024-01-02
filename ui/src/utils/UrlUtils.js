@@ -1,3 +1,5 @@
+import {StringUtils} from './StringUtils';
+
 class UrlUtils {
     static getURLParameter(paramName) {
         let sURL = window.document.URL.toString();
@@ -39,6 +41,22 @@ class UrlUtils {
     static urlParamExsits(param) {
         return window.location.href.includes(param);
     }
+    static isEditRowOpen() {
+        const editParentId = UrlUtils.getURLParameter('editParentId');
+        const editRecordId = UrlUtils.getURLParameter('editRecordId');
+        const editKindView = UrlUtils.getURLParameter('editKindView');
+        return (
+            !StringUtils.isBlank(editParentId) ||
+            !StringUtils.isBlank(editRecordId) ||
+            !StringUtils.isBlank(editKindView)
+        );
+    }
+    static isEditRowView() {
+        return window.location.href.includes('edit-row-view');
+    }
+    static isEditSpec() {
+        return window.location.href.includes('edit-row-view');
+    }
     // TODO: pewnie mozna lepiej
     static getIdFromUrl() {
         let splittedUrlByWildcard = window.location.href.split('?')[0];
@@ -48,6 +66,22 @@ class UrlUtils {
 
     static mainViewUrl() {
         return window.location.href.split('?')[0];
+    }
+
+    static removeEditRowParamsFromUrlIfPossible() {
+        if (!this.isEditRowView()) {
+            const currentUrl = window.location.href;
+            const paramsToRemove = [
+                'editParentId=' + UrlUtils.getURLParameter('editParentId'),
+                'editRecordId=' + UrlUtils.getURLParameter('editRecordId'),
+                'editKindView=' + UrlUtils.getURLParameter('editKindView'),
+            ];
+            const url = currentUrl;
+            const parts = url.split('?');
+            const filteredParts = parts.filter((part) => !paramsToRemove.includes(part));
+            const newUrl = filteredParts.join('?');
+            window.history.replaceState({}, document.title, newUrl);
+        }
     }
 
     static deleteParameterFromURL(url, paramName) {

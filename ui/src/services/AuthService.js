@@ -234,12 +234,6 @@ export default class AuthService {
     }
 
     setToken(idToken, expirationToken, loggedUser, idRefreshToken, sessionTimeoutInMinutes) {
-        // Saves user token to localStorage
-        // debugger;
-
-        // const xd = decode(idToken).exp;
-        // const xd2 = decode(idRefreshToken).exp;
-        // debugger;
         localStorage.setItem('id_token', idToken);
         localStorage.setItem('expiration_token', decode(idToken).exp);
         localStorage.setItem('logged_user', JSON.stringify(loggedUser));
@@ -272,7 +266,7 @@ export default class AuthService {
         return localStorage.getItem('expiration_token');
     }
 
-    logout() {
+    logout(reload) {
         if (localStorage.getItem('id_token') === undefined || localStorage.getItem('id_token') === null) {
             this.removeLoginCookies();
         } else {
@@ -300,7 +294,7 @@ export default class AuthService {
             }
         }
         window.location.href = AppPrefixUtils.locationHrefUrl('/#/');
-        window.location.reload();
+        // if (reload !== false) window.location.reload();
 
         // Clear user token and profile data from localStorage
     }

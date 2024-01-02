@@ -11,6 +11,10 @@ export default class DataGridStore extends BaseService {
         this.path = 'viewdata';
         // chyba depraced
         this.cachedLoadOptions = null;
+        this.cachedFromSelectAll = {
+            selectAll: false,
+            data: [],
+        };
     }
 
     getSelectAllDataGridStore(
@@ -88,6 +92,13 @@ export default class DataGridStore extends BaseService {
             method: 'POST',
             body: JSON.stringify(requestBody),
         }).then((res) => {
+            this.cachedFromSelectAll = {
+                selectAll: res.totalCount === res.data.length,
+                data: res.data,
+                skip: res.skip,
+                take: res.take,
+                totalCount: res.totalCount,
+            };
             return Promise.resolve(res);
         });
     }
@@ -116,7 +127,7 @@ export default class DataGridStore extends BaseService {
             keyExpr: 'ID',
             load: (loadOptions) => {
                 if (loadOptions?.take === undefined || loadOptions?.take === null) {
-                    // Tu wchodiz tylko dla opcji grupowania, initial value na 60
+                    // Tu wchodiz tylko dla opcji grupowania, initial value na 60 oraz selectiona
                     loadOptions.take = 60;
                 }
                 this.cachedLoadOptions = loadOptions;
@@ -161,23 +172,19 @@ export default class DataGridStore extends BaseService {
                 let addSelectAllParam = false;
                 if (!!onStartCallback) {
                     let result = onStartCallback();
+
+                    // console.log(loadOptions['skip']);
+                    // console.log(loadOptions['take']);
                     if (result?.select || result?.selectAll) {
                         addSelectAllParam = true;
+                        // TODO: zatrzymac przeiwjanie w góre. ODP to naprawi nowa wersja komponentu devextereme
                         // return;
-                        // TODO można tak przerobić, żeby select nie pukał w backend, ale trzeba jeszcze popracować nad selectAll
-                        // const filterIds = JSON.stringify(loadOptions['filter']);
-                        // const selectionIds = filterIds.match(/-?\d+/g).map((id) => ({"'ID'": id}));
-                        // if (selectionIds instanceof Array && selectionIds.length > 0) {
-                        //     console.log(selectionIds);
-                        //     let selectionIdsResponse = {
-                        //         data: selectionIds,
-                        //         skip: 0,
-                        //         take: selectionIds.length,
-                        //         totalCount: selectionIds.length,
-                        //     };
-                        //     console.log(selectionIdsResponse);
-                        //     return Promise.resolve(selectionIdsResponse);
-                        // }
+                        return this.modifiedRows(loadOptions);
+                    } else {
+                        this.cachedFromSelectAll = {
+                            selectAll: false,
+                            data: [],
+                        };
                     }
                 }
                 const filterIdParam = !!filterIdArg ? `&filterId=${filterIdArg}` : '';
@@ -226,5 +233,63 @@ export default class DataGridStore extends BaseService {
                     });
             },
         });
+    }
+    modifiedRows(loadOptions) {
+        if (this.cachedFromSelectAll.selectAll === true) {
+            const filter = loadOptions['filter'];
+            if (filter === null) {
+                return this.chooseAll();
+            }
+            return this.modifiedIfIsSelectAll(loadOptions);
+        } else {
+            return this.modifiedIfIsNoSelectAll(loadOptions);
+        }
+    }
+
+    modifiedIfIsNoSelectAll(loadOptions) {
+        const filterIds = JSON.stringify(loadOptions['filter']);
+        const selectionIds = filterIds.match(/-?\d+/g).map((id) => ({"'ID'": id}));
+        if (selectionIds instanceof Array && selectionIds.length > 0) {
+            let selectionIdsResponse = {
+                data: selectionIds,
+                // skip: loadOptions['skip'],
+                // take: loadOptions['take'],
+                totalCount: selectionIds.length,
+            };
+            return Promise.resolve(selectionIdsResponse);
+        }
+    }
+
+    modifiedIfIsSelectAll(loadOptions) {
+        const filterIds = JSON.stringify(loadOptions['filter']);
+        const selectionIds = filterIds.match(/-?\d+/g).map((id) => ({ID: id}));
+        let data = this.cachedFromSelectAll.data;
+        selectionIds.forEach((selectionId) => {
+            data = data.filter((el) => {
+                return el.ID !== Number(selectionId.ID);
+            });
+        });
+        if (selectionIds instanceof Array && selectionIds.length > 0) {
+            let selectionIdsResponse = {
+                data: data,
+                // skip: 0,
+                // take: 20,
+                totalCount: this.cachedFromSelectAll.totalCount,
+            };
+            return Promise.resolve(selectionIdsResponse);
+        }
+        return data;
+    }
+
+    chooseAll() {
+        let selectionIdsResponse = {
+            data: this.cachedFromSelectAll.data,
+            // skip: this.cachedFromSelectAll.skip,
+            // take: 20,
+            totalCount: this.cachedFromSelectAll.totalCount,
+        };
+        debugger;
+        // console.log(selectionIdsResponse);
+        return Promise.resolve(selectionIdsResponse);
     }
 }

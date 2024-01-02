@@ -1,9 +1,10 @@
-import React from 'react';
+import React, {PureComponent} from 'react';
 import EditRowUtils from '../utils/EditRowUtils';
 
 import ConsoleHelper from '../utils/ConsoleHelper';
 import EditListUtils from '../utils/EditListUtils';
 import CrudService from '../services/CrudService';
+import PropTypes from 'prop-types';
 import UploadMultiImageFileBase64 from '../components/prolab/UploadMultiImageFileBase64';
 import {
     MemoizedBoolInput,
@@ -18,17 +19,18 @@ import EditListDataStore from './dao/EditListDataStore';
 import EditListComponent from '../components/prolab/EditListComponent';
 import UrlUtils from '../utils/UrlUtils';
 import {EditorDialog} from '../components/prolab/EditorDialog';
+import {StringUtils} from '../utils/StringUtils';
 
 class CellEditComponent extends React.Component {
     // editListDataStore = new EditListComponent();
     constructor(props) {
         super(props);
-        // TODO: tłumaczenia do componentu EditDialog
         this.labels = this.props;
         this.dataGrid = null;
         this.editListDataStore = new EditListDataStore();
         this.crudService = new CrudService();
         this.state = {
+            cellInfo: undefined,
             editListVisible: false,
             editListField: undefined,
             editListRecordId: undefined,
@@ -43,6 +45,31 @@ class CellEditComponent extends React.Component {
     render() {
         return <React.Fragment></React.Fragment>;
     }
+    editorComponent() {
+        //TODO: meyjbe should be here this.state.editorDialogVisisble &&
+        return (
+            <EditorDialog
+                value={this.state.cellInfo.value}
+                visible={this.state.editorDialogVisisble}
+                onHide={() => {
+                    document.getElementById('header-left').click();
+                    this.setState({editorDialogVisisble: false});
+                }}
+                onSave={(el) => {
+                    document.getElementById('header-left').click();
+                    let cellInfo = this.state.cellInfo;
+                    cellInfo.setValue(el);
+                    setTimeout(function () {
+                        const elements = Array.from(
+                            document.querySelectorAll(`td[aria-describedby=${cellInfo.column.headerId}]`)
+                        ).filter((el) => !el.classList.contains('dx-editor-cell'));
+                        elements[cellInfo.rowIndex].children[0].innerText = StringUtils.textFromHtmlString(el);
+                    }, 0);
+                    this.setState({editorDialogVisisble: false});
+                }}
+            ></EditorDialog>
+        );
+    }
     editListComponent() {
         return (
             this.state.editListVisible && (
@@ -53,7 +80,8 @@ class CellEditComponent extends React.Component {
                     parsedGridView={this.state.parsedEditListView}
                     parsedGridViewData={this.state.parsedEditListViewData}
                     gridViewColumns={this.state.editViewColumns}
-                    onHide={() => this.setState({editListVisible: false})}
+                    // TODO: onHide zamyka widok paintRow
+                    onHide={() => this.setState({editListVisible: false}, this.props.onCloseEditList())}
                     handleBlockUi={() => {
                         this.handleBlockUi();
                         return true;
@@ -215,7 +243,7 @@ class CellEditComponent extends React.Component {
                         );
                     })
                     .catch((err) => {
-                        console.error('Error getEditList in TreeViewComponent. Exception = ', err);
+                        console.error('Error getEditList in EditableComponent. Exception = ', err);
                         this.props.showErrorMessages(err);
                     });
             }
@@ -377,19 +405,11 @@ class CellEditComponent extends React.Component {
                     />
                 );
             case 'O': //O – Opisowe
-                return (
-                    <EditorDialog
-                        visible={true}
-                        value={cellInfo.value}
-                        onHide={() => {
-                            document.getElementById('header-left').click();
-                        }}
-                        onSave={(value) => {
-                            cellInfo.setValue(value);
-                            document.getElementById('header-left').click();
-                        }}
-                    />
-                );
+                if (!this.state.editorDialogVisisble) {
+                    this.setState({editorDialogVisisble: true, cellInfo: cellInfo});
+                }
+                return null;
+
             case 'IM': //IM – Obrazek multi
                 return (
                     <React.Fragment>
@@ -492,8 +512,12 @@ class CellEditComponent extends React.Component {
     };
 }
 
-CellEditComponent.defaultProps = {};
+CellEditComponent.defaultProps = {
+    onCloseEditList: () => {},
+};
 
-CellEditComponent.propTypes = {};
+CellEditComponent.propTypes = {
+    onCloseEditList: PropTypes.func,
+};
 
 export default CellEditComponent;

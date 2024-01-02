@@ -119,7 +119,9 @@ export class DataGridUtils extends ViewDataCompUtils {
                                     setTimeout(function () {
                                         const id = `${EditRowUtils.getType(column?.type)}${column.id}`;
                                         const checkbox = document.getElementById(id);
-                                        checkbox.click();
+                                        if (checkbox) {
+                                            checkbox.click();
+                                        }
                                     }, 100);
                                 }}
                                 readOnly={true}
@@ -147,7 +149,7 @@ export class DataGridUtils extends ViewDataCompUtils {
                                     setTimeout(function () {
                                         const id = `${EditRowUtils.getType(column?.type)}${column.id}`;
                                         const checkbox = document.getElementById(id);
-                                        checkbox.click();
+                                        if (checkbox) checkbox.click();
                                     }, 100);
                                 }}
                                 checked={DataGridUtils.conditionForTrueValueForLogicType(info.text)}
