@@ -11,12 +11,25 @@ export default class DataGridStore extends BaseService {
         this.path = 'viewdata';
         // chyba depraced
         this.cachedLoadOptions = null;
+        this.lastCachedGrid = null;
         this.cachedFromSelectAll = {
             selectAll: false,
             data: [],
         };
     }
 
+    clearCache() {
+        this.cachedFromSelectAll = {
+            selectAll: false,
+            data: [],
+        };
+    }
+    clearCacheIfPossible() {
+        if (this.lastCachedGrid !== window.dataGrid) {
+            this.clearCache();
+            this.lastCachedGrid = window.dataGrid;
+        }
+    }
     getSelectAllDataGridStore(
         viewIdArg,
         viewTypeArg,
@@ -170,21 +183,19 @@ export default class DataGridStore extends BaseService {
                     params += 'viewType=' + viewTypeArg;
                 }
                 let addSelectAllParam = false;
+                if (this.lastCachedGrid === null) {
+                    this.lastCachedGrid = window.dataGrid;
+                }
                 if (!!onStartCallback) {
                     let result = onStartCallback();
-
                     // console.log(loadOptions['skip']);
                     // console.log(loadOptions['take']);
                     if (result?.select || result?.selectAll) {
                         addSelectAllParam = true;
                         // TODO: zatrzymac przeiwjanie w góre. ODP to naprawi nowa wersja komponentu devextereme
-                        // return;
                         return this.modifiedRows(loadOptions);
                     } else {
-                        this.cachedFromSelectAll = {
-                            selectAll: false,
-                            data: [],
-                        };
+                        this.clearCacheIfPossible();
                     }
                 }
                 const filterIdParam = !!filterIdArg ? `&filterId=${filterIdArg}` : '';
@@ -240,30 +251,27 @@ export default class DataGridStore extends BaseService {
             if (filter === null) {
                 return this.chooseAll();
             }
-            return this.modifiedIfIsSelectAll(loadOptions);
+            return this.selectWhenIsSelectAll(loadOptions);
         } else {
-            return this.modifiedIfIsNoSelectAll(loadOptions);
+            return this.selectWhenIsNotSelectAll(loadOptions);
         }
     }
 
-    modifiedIfIsNoSelectAll(loadOptions) {
+    selectWhenIsNotSelectAll(loadOptions) {
         const filterIds = JSON.stringify(loadOptions['filter']);
         const selectionIds = filterIds.match(/-?\d+/g).map((id) => ({ID: id}));
         if (selectionIds instanceof Array && selectionIds.length > 0) {
             let selectionIdsResponse = {
                 data: selectionIds,
-                // skip: loadOptions['skip'],
-                // take: loadOptions['take'],
                 totalCount: selectionIds.length,
             };
             return Promise.resolve(selectionIdsResponse);
         }
     }
 
-    modifiedIfIsSelectAll(loadOptions) {
+    selectWhenIsSelectAll(loadOptions) {
         const filterIds = JSON.stringify(loadOptions['filter']);
         const selectionIds = filterIds.match(/-?\d+/g).map((id) => ({ID: id}));
-        debugger;
         let data = this.cachedFromSelectAll.data;
         selectionIds.forEach((selectionId) => {
             data = data.filter((el) => {
@@ -273,8 +281,6 @@ export default class DataGridStore extends BaseService {
         if (selectionIds instanceof Array && selectionIds.length > 0) {
             let selectionIdsResponse = {
                 data: data,
-                // skip: 0,
-                // take: 20,
                 totalCount: this.cachedFromSelectAll.totalCount,
             };
             return Promise.resolve(selectionIdsResponse);
@@ -285,12 +291,8 @@ export default class DataGridStore extends BaseService {
     chooseAll() {
         let selectionIdsResponse = {
             data: this.cachedFromSelectAll.data,
-            // skip: this.cachedFromSelectAll.skip,
-            // take: 20,
             totalCount: this.cachedFromSelectAll.totalCount,
         };
-        debugger;
-        // console.log(selectionIdsResponse);
         return Promise.resolve(selectionIdsResponse);
     }
 }

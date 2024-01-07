@@ -428,12 +428,7 @@ export default class CrudService extends BaseService {
         });
     }
     calculateFormula(viewId, parentId, recordId, fieldsToCalculate) {
-        let point = 'editspec';
-        if (UrlUtils.batchIdParamExist()) {
-            point = 'batch';
-            parentId = UrlUtils.getBatchIdParam();
-        }
-        let url = `${this.getDomain()}/${this.path}/${viewId}/${point}/${parentId}/calculate`;
+        let url = `${this.getDomain()}/${this.path}/${viewId}/editspec/${parentId}/calculate`;
         if (recordId) {
             url = `${url}?recordId=${recordId}`;
         }

@@ -17,6 +17,7 @@ import CrudService from '../../services/CrudService';
 import BaseRowComponent from '../../baseContainers/BaseRowComponent';
 import UrlUtils from '../../utils/UrlUtils';
 import {EntryResponseUtils} from '../../utils/EntryResponseUtils';
+import BlockUi from '../waitPanel/BlockUi';
 
 export class EditRowViewComponent extends BaseRowComponent {
     constructor(props) {
@@ -111,6 +112,7 @@ export class EditRowViewComponent extends BaseRowComponent {
     onChange(inputType, event, groupName, info) {
         this.handleEditRowChange(inputType, event, groupName, info);
     }
+
     render() {
         const operations = this.props.editData?.operations;
         const opSave = DataGridUtils.containsOperationsButton(operations, 'OP_SAVE');
@@ -121,73 +123,80 @@ export class EditRowViewComponent extends BaseRowComponent {
         return (
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
-                <EditListComponent
-                    visible={editListVisible}
-                    field={this.state.editListField}
-                    parsedGridView={this.state.parsedGridView}
-                    parsedGridViewData={this.state.parsedGridViewData}
-                    gridViewColumns={this.state.gridViewColumns}
-                    onHide={() => {
-                        this.setState({editListVisible: false});
-                    }}
-                    handleBlockUi={() => {
-                        this.blockUi();
-                        return true;
-                    }}
-                    handleUnblockUi={() => this.unblockUi}
-                    handleOnChosen={(editListData, field) => {
-                        ConsoleHelper('EditRowComponent::handleOnChosen = ', JSON.stringify(editListData));
-                        let editInfo = this.props.editData?.editInfo;
-                        editInfo.field = field;
-                        this.handleEditListRowChange(editInfo, editListData);
-                    }}
-                    showErrorMessages={(err) => this.showErrorMessages(err)}
-                    dataGridStoreSuccess={this.state.dataGridStoreSuccess}
-                    selectedRowData={this.state.selectedRowData}
-                    defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
-                    handleSelectedRowData={(e) => this.handleSelectedRowData(e)}
-                    labels={this.props.labels}
-                />
-
-                <form onSubmit={this.handleFormSubmit} noValidate>
-                    <div id='row-edit' className=' justify-content-center row'>
-                        <div className='col-12 '>
-                            <ShortcutButton
-                                id={'opSave'}
-                                className={`grid-button-panel-big inverse mt-1 mb-1 mr-1 `}
-                                handleClick={this.handleFormSubmit}
-                                title={opSave?.label}
-                                label={opSave?.label}
-                                rendered={opSave}
-                            />
-                            <ShortcutButton
-                                id={'opFill'}
-                                className={`grid-button-panel-big inverse mt-1 mb-1 mr-1 `}
-                                handleClick={this.handleAutoFill}
-                                title={opFill?.label}
-                                label={opFill?.label}
-                                rendered={opFill}
-                            />
-                            <ShortcutButton
-                                id={'opCancel'}
-                                className={`grid-button-panel-big inverse mt-1 mb-1 mr-1 `}
-                                handleClick={this.handleCancel}
-                                title={opCancel?.label}
-                                label={opCancel?.label}
-                                rendered={opCancel}
-                            />
-                        </div>
-
-                        {this.state.preventSave ? (
-                            <div id='validation-panel' className='validation-panel'>
-                                {this.fieldsMandatoryLabel}
+                <BlockUi
+                    tag='div'
+                    className=''
+                    blocking={this.state.blocking}
+                    loader={this.loader}
+                    renderBlockUi={this.state.gridViewType !== 'dashboard'}
+                >
+                    <EditListComponent
+                        visible={editListVisible}
+                        field={this.state.editListField}
+                        parsedGridView={this.state.parsedGridView}
+                        parsedGridViewData={this.state.parsedGridViewData}
+                        gridViewColumns={this.state.gridViewColumns}
+                        onHide={() => {
+                            this.setState({editListVisible: false});
+                        }}
+                        handleBlockUi={() => {
+                            this.blockUi();
+                            return true;
+                        }}
+                        handleUnblockUi={() => this.unblockUi}
+                        handleOnChosen={(editListData, field) => {
+                            ConsoleHelper('EditRowComponent::handleOnChosen = ', JSON.stringify(editListData));
+                            let editInfo = this.props.editData?.editInfo;
+                            editInfo.field = field;
+                            this.handleEditListRowChange(editInfo, editListData);
+                        }}
+                        showErrorMessages={(err) => this.showErrorMessages(err)}
+                        dataGridStoreSuccess={this.state.dataGridStoreSuccess}
+                        selectedRowData={this.state.selectedRowData}
+                        defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
+                        handleSelectedRowData={(e) => this.handleSelectedRowData(e)}
+                        labels={this.props.labels}
+                    />
+                    <form onSubmit={this.handleFormSubmit} noValidate>
+                        <div id='row-edit' className=' justify-content-center row'>
+                            <div className='col-12 '>
+                                <ShortcutButton
+                                    id={'opSave'}
+                                    className={`grid-button-panel-big inverse mt-1 mb-1 mr-1 `}
+                                    handleClick={this.handleFormSubmit}
+                                    title={opSave?.label}
+                                    label={opSave?.label}
+                                    rendered={opSave}
+                                />
+                                <ShortcutButton
+                                    id={'opFill'}
+                                    className={`grid-button-panel-big inverse mt-1 mb-1 mr-1 `}
+                                    handleClick={this.handleAutoFill}
+                                    title={opFill?.label}
+                                    label={opFill?.label}
+                                    rendered={opFill}
+                                />
+                                <ShortcutButton
+                                    id={'opCancel'}
+                                    className={`grid-button-panel-big inverse mt-1 mb-1 mr-1 `}
+                                    handleClick={this.handleCancel}
+                                    title={opCancel?.label}
+                                    label={opCancel?.label}
+                                    rendered={opCancel}
+                                />
                             </div>
-                        ) : null}
-                        {editData?.editFields?.map((group, index) => {
-                            return this.renderGroup(group, index);
-                        })}
-                    </div>
-                </form>
+
+                            {this.state.preventSave ? (
+                                <div id='validation-panel' className='validation-panel'>
+                                    {this.fieldsMandatoryLabel}
+                                </div>
+                            ) : null}
+                            {editData?.editFields?.map((group, index) => {
+                                return this.renderGroup(group, index);
+                            })}
+                        </div>
+                    </form>
+                </BlockUi>
             </React.Fragment>
         );
     }
@@ -212,7 +221,6 @@ export class EditRowViewComponent extends BaseRowComponent {
         }
     }
 
-    // TODO: blockUi nie działa
     handleValidForm() {
         let editInfo = this.props.editData?.editInfo;
         this.handleEditRowSave(editInfo.viewId, editInfo.recordId, editInfo.parentId);

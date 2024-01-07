@@ -26,6 +26,7 @@ import {EditSpecUtils} from '../../utils/EditSpecUtils';
 import {compress} from 'int-compress-string';
 import CellEditComponent from '../CellEditComponent';
 import {StringUtils} from '../../utils/StringUtils';
+import Image from '../../components/Image';
 
 //
 //    https://js.devexpress.com/Documentation/Guide/UI_Components/TreeList/Getting_Started_with_TreeList/
@@ -39,7 +40,6 @@ class TreeViewComponent extends CellEditComponent {
         this.ref = React.createRef();
         this.refDateTime = React.createRef();
         this.editListDataStore = new EditListDataStore();
-        ConsoleHelper('TreeViewComponent -> constructor');
         this.state = {
             editListVisible: false,
             editorDialogVisisble: false,
@@ -54,7 +54,6 @@ class TreeViewComponent extends CellEditComponent {
             preInitializedColumns: [],
         };
     }
-    // TODO tworzy zla kolejnosc dlatego kolumny sa w złem kolejnosci!!!
     createFakeColumn() {
         const gridViewColumns = this.props.gridViewColumns;
         if (!gridViewColumns[0]) {
@@ -234,7 +233,6 @@ class TreeViewComponent extends CellEditComponent {
                     {/*- virtual działa szybko ale wyżera heap przeglądarki
                         - normal długo wczytuje ale heap jest stabilniejszy
                     */}
-
                     <Scrolling
                         mode='virtual'
                         useNative={false}
@@ -728,34 +726,21 @@ class TreeViewComponent extends CellEditComponent {
                 case 'I':
                     try {
                         return !!cellInfo?.text ? (
-                            cellInfo?.text?.split(',').map((img) => {
+                            cellInfo?.text?.split(',').map(() => {
                                 return (
                                     <div>
-                                        <div>
-                                            <img
-                                                alt={''}
-                                                height={100}
-                                                src={`data:image/jpeg;base64,${img}`}
-                                                className='mb-1'
-                                            />
-                                        </div>
-                                        <div>
-                                            <i
-                                                onClick={(el) => {
+                                        <Image
+                                            onRemove={() => {
+                                                setTimeout(function () {
+                                                    document.getElementById('trash-button').click();
                                                     setTimeout(function () {
-                                                        document.getElementById('trash-button').click();
-                                                        setTimeout(function () {
-                                                            document.getElementById('grid-selection-panel').click();
-                                                        }, 0);
+                                                        document.getElementById('grid-selection-panel').click();
                                                     }, 0);
-                                                }}
-                                                style={{
-                                                    cursor: 'pointer',
-                                                    fontSize: '25px',
-                                                }}
-                                                className='icon mdi mdi-trash-can mdi-trash-background trash-icon-treeview'
-                                            ></i>
-                                        </div>
+                                                }, 0);
+                                            }}
+                                            canRemove={cellInfo?.text.length > 0}
+                                            base64={cellInfo?.text}
+                                        ></Image>
                                     </div>
                                 );
                                 // return ;

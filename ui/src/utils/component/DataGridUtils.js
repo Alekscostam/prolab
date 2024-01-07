@@ -177,7 +177,6 @@ export class DataGridUtils extends ViewDataCompUtils {
                             element
                         );
                     } else {
-                        const imageStyle = isEditableCell ? {maxHeight: '76px'} : {maxHeight: '26px'};
                         return ReactDOM.render(
                             <div
                                 style={{
@@ -198,7 +197,6 @@ export class DataGridUtils extends ViewDataCompUtils {
                                         }, 300);
                                     }}
                                     canRemove={isEditableCell && info.text?.length > 0}
-                                    style={imageStyle}
                                     base64={info.text}
                                 />
                             </div>,

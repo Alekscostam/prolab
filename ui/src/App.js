@@ -30,6 +30,11 @@ import {StringUtils} from './utils/StringUtils';
 import {BatchContainer} from './containers/BatchContainer';
 import {TickerSessionDialog} from './components/prolab/TickerSessionDialog';
 import EditRowViewComponent from './components/prolab/EditRowViewComponent';
+import UrlUtils from './utils/UrlUtils';
+
+export const reStateApp = (forceUpdate) => {
+    if (forceUpdate) forceUpdate();
+};
 
 let clickEventSeesion = null;
 class App extends Component {
@@ -64,6 +69,7 @@ class App extends Component {
         this.handleLogoutUser = this.handleLogoutUser.bind(this);
         this.handleLogoutBySideBar = this.handleLogoutBySideBar.bind(this);
         this.getTranslations = this.getTranslations.bind(this);
+        this.canShowSidebar = this.canShowSidebar.bind(this);
         //primereact config
         PrimeReact.ripple = true;
         PrimeReact.zIndex = {
@@ -128,7 +134,6 @@ class App extends Component {
     showSessionTimeout() {
         this.timer = setInterval(() => {
             const loggedIn = this.authService.loggedIn();
-            // TODO: przetestuj wygasniecie sesji na loggedIn
             if (loggedIn) {
                 const sessionTimeout = Date.parse(localStorage.getItem('session_timeout'));
                 const now = new Date();
@@ -306,12 +311,23 @@ class App extends Component {
         return !!subView && !StringUtils.isBlank(subView.headerColumns);
     }
 
+    // TODO: fixuj auth service
+    canShowSidebar() {
+        const authService = this.authService;
+        const loggedIn = authService.loggedIn();
+        if (UrlUtils.isEditRowView()) {
+            return false;
+        }
+        if (!loggedIn) {
+            return false;
+        }
+        return true;
+    }
+
     render() {
         const authService = this.authService;
         const {labels} = this.state;
         const loggedIn = authService.loggedIn();
-        // const userProfile = authService.getProfile();
-
         let opADD = DataGridUtils.containsOperationsButton(this.state.operations, 'OP_ADD');
         return (
             <React.Fragment>
@@ -355,7 +371,7 @@ class App extends Component {
                         }}
                     >
                         <div className={`${loggedIn ? 'app' : ''}`}>
-                            {loggedIn ? (
+                            {this.canShowSidebar() && (
                                 <Sidebar
                                     authService={this.authService}
                                     historyBrowser={this.historyBrowser}
@@ -366,7 +382,7 @@ class App extends Component {
                                     collapsed={this.state.collapsed}
                                     handleCollapseChange={(e) => this.handleCollapseChange(e)}
                                 />
-                            ) : null}
+                            )}
                             <main>
                                 <div className={`${loggedIn ? 'container-fluid' : ''}`}>
                                     {this.state.renderNoRefreshContent ? (

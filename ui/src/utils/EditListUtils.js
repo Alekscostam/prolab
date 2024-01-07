@@ -1,6 +1,5 @@
 import hash from 'object-hash';
 import ConsoleHelper from './ConsoleHelper';
-
 export class EditListUtils {
     //data structure from API
     static transformBySetFields(rowData, setFields) {

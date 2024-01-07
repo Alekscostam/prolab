@@ -51,19 +51,20 @@ class UrlUtils {
             !StringUtils.isBlank(editKindView)
         );
     }
-    static isEditRowView() {
-        return window.location.href.includes('edit-row-view');
-    }
-    static isEditSpec() {
-        return window.location.href.includes('edit-row-view');
-    }
-    // TODO: pewnie mozna lepiej
     static getIdFromUrl() {
         let splittedUrlByWildcard = window.location.href.split('?')[0];
         let elements = splittedUrlByWildcard.split('/');
         return elements[elements.length - 1];
     }
-
+    static isEditRowView() {
+        return window.location.href.includes('edit-row-view');
+    }
+    static isEditSpec() {
+        return window.location.href.includes('edit-spec');
+    }
+    static isBatch() {
+        return window.location.href.includes('batch');
+    }
     static mainViewUrl() {
         return window.location.href.split('?')[0];
     }

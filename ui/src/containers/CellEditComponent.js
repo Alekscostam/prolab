@@ -45,18 +45,23 @@ class CellEditComponent extends React.Component {
     render() {
         return <React.Fragment></React.Fragment>;
     }
-    editorComponent() {
+
+    onHideEditor(callBack) {
+        document.getElementById('header-left').click();
+        this.setState({editorDialogVisisble: false});
+        if (callBack) callBack();
+    }
+
+    editorComponent = () => {
         //TODO: meyjbe should be here this.state.editorDialogVisisble &&
         return (
             <EditorDialog
                 value={this.state.cellInfo.value}
                 visible={this.state.editorDialogVisisble}
                 onHide={() => {
-                    document.getElementById('header-left').click();
-                    this.setState({editorDialogVisisble: false});
+                    this.onHideEditor(this.props.onHideEditorCallback);
                 }}
                 onSave={(el) => {
-                    document.getElementById('header-left').click();
                     let cellInfo = this.state.cellInfo;
                     cellInfo.setValue(el);
                     setTimeout(function () {
@@ -65,12 +70,12 @@ class CellEditComponent extends React.Component {
                         ).filter((el) => !el.classList.contains('dx-editor-cell'));
                         elements[cellInfo.rowIndex].children[0].innerText = StringUtils.textFromHtmlString(el);
                     }, 0);
-                    this.setState({editorDialogVisisble: false});
+                    this.onHideEditor();
                 }}
             ></EditorDialog>
         );
-    }
-    editListComponent() {
+    };
+    editListComponent = () => {
         return (
             this.state.editListVisible && (
                 <EditListComponent
@@ -81,7 +86,12 @@ class CellEditComponent extends React.Component {
                     parsedGridViewData={this.state.parsedEditListViewData}
                     gridViewColumns={this.state.editViewColumns}
                     // TODO: onHide zamyka widok paintRow
-                    onHide={() => this.setState({editListVisible: false}, this.props.onCloseEditList())}
+                    onHide={() => {
+                        this.setState({editListVisible: false});
+                        if (this.props.onCloseEditList) {
+                            this.props.onCloseEditList();
+                        }
+                    }}
                     handleBlockUi={() => {
                         this.handleBlockUi();
                         return true;
@@ -116,9 +126,9 @@ class CellEditComponent extends React.Component {
                 />
             )
         );
-    }
+    };
 
-    handleSelectedRowData(selectedRowDataEditList) {
+    handleSelectedRowData = (selectedRowDataEditList) => {
         ConsoleHelper('EditableComponent::handleSelectedRowData obj=' + JSON.stringify(selectedRowDataEditList));
         const setFields = this.state.parsedEditListView.setFields;
         let transformedRowsData = [];
@@ -132,16 +142,16 @@ class CellEditComponent extends React.Component {
             transformedRowsCRC.push(CALC_CRC);
         }
         this.setState({selectedRowDataEditList: transformedRowsData, defaultSelectedRowKeys: transformedRowsCRC});
-    }
+    };
 
-    findRowDataById(recordId) {
+    findRowDataById = (recordId) => {
         let editData = this.props.parsedGridViewData.filter((item) => {
             return item.ID === recordId;
         });
         return editData[0];
-    }
+    };
 
-    editListVisible(recordId, fieldId) {
+    editListVisible = (recordId, fieldId) => {
         ConsoleHelper('EditableComponent::editListVisible');
         this.props.handleBlockUi();
         this.setState(
@@ -248,9 +258,9 @@ class CellEditComponent extends React.Component {
                     });
             }
         );
-    }
+    };
 
-    editCellRender = (cellInfo, columnDefinition, onClickEditListCallback) => {
+    editCellRender = (cellInfo, columnDefinition, onOperationClick) => {
         //mock
         //columnDefinition.edit = true;
         const field = columnDefinition;
@@ -268,6 +278,7 @@ class CellEditComponent extends React.Component {
         const validate = !!validationMsg ? 'p-invalid' : '';
         const validateCheckbox = !!validationMsg ? 'p-invalid-checkbox' : '';
         const autoFill = field?.autoFill ? 'autofill-border' : '';
+        const downFill = field?.downFill;
         const autoFillCheckbox = field?.autoFill ? 'autofill-border-checkbox' : '';
         const selectionList = field?.selectionList ? 'p-inputgroup' : null;
         //const refreshFieldVisibility = !!field?.refreshFieldVisibility;
@@ -285,7 +296,8 @@ class CellEditComponent extends React.Component {
                             required={required}
                             validate={validate}
                             selectionList={selectionList}
-                            onClickEditListCallback={onClickEditListCallback}
+                            onOperationClick={onOperationClick}
+                            downFill={downFill}
                         />
                     );
                 }
@@ -301,7 +313,8 @@ class CellEditComponent extends React.Component {
                         required={required}
                         validate={validate}
                         selectionList={selectionList}
-                        onClickEditListCallback={onClickEditListCallback}
+                        onOperationClick={onOperationClick}
+                        downFill={downFill}
                     />
                 );
             case 'P': //P - hasło
@@ -317,7 +330,8 @@ class CellEditComponent extends React.Component {
                         required={required}
                         validate={validate}
                         selectionList={selectionList}
-                        onClickEditListCallback={onClickEditListCallback}
+                        onOperationClick={onOperationClick}
+                        downFill={downFill}
                     />
                 );
             case 'N': //N – Numeryczny/Liczbowy
@@ -332,7 +346,8 @@ class CellEditComponent extends React.Component {
                         required={required}
                         validate={validate}
                         selectionList={selectionList}
-                        onClickEditListCallback={onClickEditListCallback}
+                        onOperationClick={onOperationClick}
+                        downFill={downFill}
                     />
                 );
             case 'B': //B – Logiczny (0/1)
@@ -346,7 +361,7 @@ class CellEditComponent extends React.Component {
                         autoFillCheckbox={autoFillCheckbox}
                         required={required}
                         validateCheckbox={validateCheckbox}
-                        callback={onClickEditListCallback}
+                        onOperationClick={onOperationClick}
                     />
                 );
             case 'L': //L – Logiczny (T/N)
@@ -360,7 +375,7 @@ class CellEditComponent extends React.Component {
                         autoFillCheckbox={autoFillCheckbox}
                         required={required}
                         validateCheckbox={validateCheckbox}
-                        callback={onClickEditListCallback}
+                        onOperationClick={onOperationClick}
                     />
                 );
             case 'D': //D – Data
@@ -503,7 +518,8 @@ class CellEditComponent extends React.Component {
                         required={required}
                         validate={validate}
                         selectionList={selectionList}
-                        onClickEditListCallback={onClickEditListCallback}
+                        downFill={downFill}
+                        onOperationClick={onOperationClick}
                     />
                 );
             default:
@@ -518,6 +534,7 @@ CellEditComponent.defaultProps = {
 
 CellEditComponent.propTypes = {
     onCloseEditList: PropTypes.func,
+    onHideEditorCallback: PropTypes.func,
 };
 
 export default CellEditComponent;

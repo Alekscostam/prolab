@@ -55,7 +55,6 @@ export class EditRowComponent extends BaseRowComponent {
         if (visibleEditPanelPrevious === false && visibleEditPanel === true) {
             this.setState({preventSave: false});
         }
-
         window.sidebarRef = this.sidebarRef;
         super.componentDidUpdate();
     }

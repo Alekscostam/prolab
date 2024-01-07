@@ -28,6 +28,8 @@ import {compress} from 'int-compress-string/src';
 import {TreeListUtils} from '../../utils/component/TreeListUtils';
 import {StringUtils} from '../../utils/StringUtils';
 import CellEditComponent from '../CellEditComponent';
+import OperationCell from '../../utils/OperationCell';
+import UrlUtils from '../../utils/UrlUtils';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -39,9 +41,11 @@ class GridViewComponent extends CellEditComponent {
         this.dataGrid = null;
         this.crudService = new CrudService();
         this.state = {
+            allRowsShow: false,
             editListVisible: false,
             editorDialogVisisble: false,
         };
+        this.rowRenderingMode = UrlUtils.isBatch() ? 'standard' : 'virtual';
         ConsoleHelper('GridViewComponent -> constructor');
     }
 
@@ -57,45 +61,46 @@ class GridViewComponent extends CellEditComponent {
         );
     }
 
-    hasSelectClass(e) {
+    hasSelectClass = (e) => {
         return e.cellElement?.className?.includes('dx-command-select');
-    }
+    };
 
-    selectAllEvent(e) {
+    selectAllEvent = (e) => {
         const value = e?.cellElement?.children[0]?.children[0]?.value;
         return value === 'true' || value === true;
-    }
+    };
 
-    groupCellTemplate(element, data) {
+    groupCellTemplate = (element, data) => {
         var span = document.createElement('span');
         span.innerHTML = data.column.caption + ': ' + data.text;
         element.append(span);
-    }
+    };
 
     waitForSuccess() {
         return this.props.dataGridStoreSuccess === false || this.props.gridViewColumns?.length === 0;
     }
 
-    isGroupModeEnabled() {
+    isGroupModeEnabled = () => {
         return document.getElementsByClassName('dx-group-panel-item').length !== 0;
-    }
-
+    };
+    getPackageCount = () => {
+        const result =
+            !!this.props.packageRows || this.props.packageRows === 0
+                ? Constants.DEFAULT_DATA_PACKAGE_COUNT
+                : this.props.packageRows;
+        if (this.props.cellModeEnabled && this.state.allRowsShow) {
+            return this.props.packageRows;
+        }
+        return result;
+    };
     render() {
         const showGroupPanel = this.props.gridFromDashboard
             ? false
             : this.props.parsedGridView?.gridOptions?.showGroupPanel || false;
-
         const groupExpandAll = this.props.parsedGridView?.gridOptions?.groupExpandAll || false;
         const columnAutoWidth = this.props.parsedGridView?.gridOptions?.columnAutoWidth || true;
         const rowAutoHeight = this.props.parsedGridView?.gridOptions?.rowAutoHeight || false;
         const headerAutoHeight = this.props.parsedGridView?.gridOptions?.headerAutoHeight || false;
-        //odkomentowac dla mock
-        //const multiSelect = true;
-        //multiSelect dla podpowiedzi
-        const packageCount =
-            !!this.props.packageRows || this.props.packageRows === 0
-                ? Constants.DEFAULT_DATA_PACKAGE_COUNT
-                : this.props.packageRows;
         const showColumnHeaders = this.props.showColumnHeaders;
         const showColumnLines = this.props.showColumnLines;
         const showRowLines = this.props.showRowLines;
@@ -107,7 +112,7 @@ class GridViewComponent extends CellEditComponent {
         const allowSelectAll = selectAll === undefined || selectAll === null || !!selectAll;
         const defaultSelectedRowKeys = this.props.defaultSelectedRowKeys;
         const selectedRowKeys = this.props.selectedRowKeys;
-
+        const packageCount = this.getPackageCount();
         return (
             <React.Fragment>
                 {this.state.editListVisible && this.editListComponent()}
@@ -169,20 +174,6 @@ class GridViewComponent extends CellEditComponent {
                     onInitialized={(ref) => {
                         if (!!this.props.handleOnInitialized) this.props.handleOnInitialized(ref);
                     }}
-                    onContentReady={(e) => {
-                        //myczek na rozjezdzajace sie linie wierszy w dataGrid
-                        // $(document).ready(function () {
-
-                        if (e.component.shouldSkipNextReady) {
-                            e.component.shouldSkipNextReady = false;
-                        } else {
-                            e.component.shouldSkipNextReady = true;
-                            e.component.columnOption('command:select', 'width', 30);
-                            e.component.updateDimensions();
-                        }
-                        e.component.resize();
-                        // });
-                    }}
                 >
                     {this.props.cellModeEnabled ? (
                         <Editing mode='cell' allowUpdating={true} />
@@ -215,7 +206,7 @@ class GridViewComponent extends CellEditComponent {
 
                     <Scrolling
                         mode='virtual'
-                        rowRenderingMode={'standard'}
+                        rowRenderingMode={this.rowRenderingMode}
                         preloadEnabled={false}
                         // useNative={true}
                         useNative={this.isGroupModeEnabled()}
@@ -225,7 +216,7 @@ class GridViewComponent extends CellEditComponent {
 
                     <LoadPanel
                         enabled={true}
-                        showIndicator={true}
+                        showIndicator={false}
                         shadingColor='rgba(0,0,0,0.4)'
                         showPane={false}
                         position='absolute'
@@ -235,7 +226,7 @@ class GridViewComponent extends CellEditComponent {
             </React.Fragment>
         );
     }
-    selectionMode() {
+    selectionMode = () => {
         if (this.props.cellModeEnabled) {
             return 'none';
         }
@@ -243,7 +234,7 @@ class GridViewComponent extends CellEditComponent {
         const multiSelect = this.props.parsedGridView?.gridOptions?.multiSelect;
         const multiSelection = multiSelect === undefined || multiSelect === null || !!multiSelect;
         return showSelection ? (multiSelection ? 'multiple' : 'single') : 'none';
-    }
+    };
 
     postCustomizeColumns = (columns) => {
         let INDEX_COLUMN = 0;
@@ -277,7 +268,6 @@ class GridViewComponent extends CellEditComponent {
                                 column.visibleIndex = columnDefinition?.columnOrder;
                                 column.headerId =
                                     'column_' + INDEX_COLUMN + '_' + columnDefinition?.fieldName?.toLowerCase();
-                                //TODO zmienić
                                 column.width = columnDefinition?.width || 100;
                                 column.name = columnDefinition?.fieldName;
                                 column.caption = columnDefinition?.label;
@@ -497,6 +487,9 @@ class GridViewComponent extends CellEditComponent {
                                         handleHistory={() => {
                                             this.props.handleHistoryLogRow(recordId);
                                         }}
+                                        handleFill={() => {
+                                            this.props.handleFillRow(recordId);
+                                        }}
                                         handleBlockUi={() => {
                                             this.props.handleBlockUi();
                                         }}
@@ -526,22 +519,22 @@ class GridViewComponent extends CellEditComponent {
         }
     };
 
-    canOverrideCellRender(columnDefinition) {
+    canOverrideCellRender = (columnDefinition) => {
         return (
             this.isSpecialCell(columnDefinition) &&
             this.props.cellModeEnabled &&
             (columnDefinition?.edit || columnDefinition?.selectionList)
         );
-    }
+    };
 
-    subViewHref(viewId, recordId, parentId, currentBreadcrumb) {
+    subViewHref = (viewId, recordId, parentId, currentBreadcrumb) => {
         parentId = StringUtils.isBlank(parentId) ? 0 : parentId;
         return `/#/grid-view/${viewId}${
             !!recordId ? `?recordId=${recordId}` : ``
         }&parentId=${parentId}${currentBreadcrumb}`;
-    }
+    };
 
-    preGenerateColumnsDefinition() {
+    preGenerateColumnsDefinition = () => {
         let columns = [];
         this.props.gridViewColumns?.forEach((columnDefinition, INDEX_COLUMN) => {
             let sortOrder;
@@ -552,8 +545,8 @@ class GridViewComponent extends CellEditComponent {
         });
 
         return columns;
-    }
-    isSpecialCell(columnDefinition) {
+    };
+    isSpecialCell = (columnDefinition) => {
         const type = columnDefinition?.type;
         try {
             switch (type) {
@@ -570,9 +563,53 @@ class GridViewComponent extends CellEditComponent {
             }
         } catch (ex) {}
         return false;
+    };
+
+    // TODO: Czasami karzacyz sie grid, w sensie ostatnia kolumna nie posowuje sie do pierwszej duzej
+    // Dokończ fillDown
+    downFill(ci, cd) {
+        this.props.handleBlockUi();
+        const {value, rowIndex} = ci;
+        const {fieldName} = cd;
+        this.props.handleMaxPackgeCount();
+        this.setState(
+            {
+                allRowsShow: true,
+            },
+            () => {
+                const refGrid = this.props.getRef();
+                refGrid.instance.getDataSource().reload();
+                setTimeout(() => {
+                    this.dawnFillParsedData(rowIndex, fieldName, value);
+                }, 100);
+            }
+        );
     }
 
-    generateCustomizeColumn(keyIndex, sortOrder, columnDefinition) {
+    dawnFillParsedData = (selectedRowIndex, fieldName, value) => {
+        const refGrid = this.props.getRef();
+        const elementToKeysToEdit = [];
+        this.props.parsedGridViewData.forEach((row) => {
+            const key = row.ID; // Klucz identyfikacyjny
+            const rIndex = refGrid.instance.getRowIndexByKey(key);
+            if (rIndex > selectedRowIndex) {
+                row[fieldName] = value;
+            }
+            if (key) elementToKeysToEdit.push(row);
+        });
+        this.props.handleFillDownParsedData(elementToKeysToEdit);
+        this.setState(
+            {
+                allRowsShow: false,
+            },
+            () => {
+                this.props.handleUnblockUi();
+                refGrid.instance.getDataSource().reload();
+            }
+        );
+    };
+
+    generateCustomizeColumn = (keyIndex, sortOrder, columnDefinition) => {
         return this.canOverrideCellRender(columnDefinition) ? (
             <Column
                 key={keyIndex}
@@ -581,11 +618,20 @@ class GridViewComponent extends CellEditComponent {
                 sortIndex={columnDefinition?.sortIndex}
                 // editorOptions={{showAnalogClock: false}}
                 editCellRender={(cellInfo) =>
-                    this.editCellRender(cellInfo, columnDefinition, () => {
+                    this.editCellRender(cellInfo, columnDefinition, (operation) => {
                         if (columnDefinition.type === 'B' || columnDefinition.type === 'L') {
                             this.setState({rerenderFlag: !this.state?.rerenderFlag});
                         } else {
-                            this.editListVisible(cellInfo.row?.data?.ID, columnDefinition.id);
+                            switch (operation) {
+                                case OperationCell.EDIT_LIST:
+                                    this.editListVisible(cellInfo.row?.data?.ID, columnDefinition.id);
+                                    break;
+                                case OperationCell.FILL_DOWN:
+                                    this.downFill(cellInfo, columnDefinition);
+                                    break;
+                                default:
+                                    break;
+                            }
                         }
                     })
                 }
@@ -596,12 +642,11 @@ class GridViewComponent extends CellEditComponent {
                 key={keyIndex}
                 dataField={columnDefinition.fieldName}
                 sortOrder={sortOrder}
-                // editorOptions={{showAnalogClock: false}}
                 sortIndex={columnDefinition?.sortIndex}
                 groupCellTemplate={this.groupCellTemplate}
             />
         );
-    }
+    };
 }
 
 GridViewComponent.defaultProps = {
@@ -656,6 +701,7 @@ GridViewComponent.propTypes = {
     handleRestoreRow: PropTypes.func,
     handlePublishRow: PropTypes.func,
     handleHistoryLogRow: PropTypes.func,
+    handleFillRow: PropTypes.func,
     //other
     handleBlockUi: PropTypes.func.isRequired,
     handleUnblockUi: PropTypes.func.isRequired,
@@ -669,6 +715,8 @@ GridViewComponent.propTypes = {
     dataGridHeight: PropTypes.number,
     dataGridStoreSuccess: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
     allowSelectAll: PropTypes.bool,
+    handleMaxPackgeCount: PropTypes.func,
+    handleFillDownParsedData: PropTypes.func,
 
     gridFromDashboard: PropTypes.bool,
 };

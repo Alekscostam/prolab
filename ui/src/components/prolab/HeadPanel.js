@@ -81,6 +81,7 @@ export const HeadPanel = (props) => {
                                         props.handleBatch(e);
                                     }}
                                     handleRestore={(e) => props.handleRestore(e)}
+                                    handleFill={(e) => props.handleFill(e)}
                                     handleDownload={(e) => props.handleDownload(e)}
                                     handleDelete={(e) => props.handleDelete(e)}
                                     handlePublish={(e) => props.handlePublish(e)}
@@ -124,6 +125,7 @@ export const HeadPanel = (props) => {
                                         handleSpecEdit(e, props, viewId, parentId, currentBreadcrumb);
                                     }}
                                     inverseColor={false}
+                                    handleFill={(e) => props.handleFill(e)}
                                     buttonShadow={true}
                                     handleBlockUi={() => {
                                         props.handleBlockUi();
@@ -152,17 +154,17 @@ HeadPanel.propTypes = {
     elementRecordId: PropTypes.string, // nie musi byc required jednak
     elementKindView: PropTypes.string,
     labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
-    selectedRowKeys: PropTypes.array.isRequired,
-    operations: PropTypes.array.isRequired,
-    handleDelete: PropTypes.func.isRequired,
-    handleRestore: PropTypes.func.isRequired,
-    handleCopy: PropTypes.func.isRequired,
-    handleArchive: PropTypes.func.isRequired,
-    handleFormula: PropTypes.func.isRequired,
-    handleAttachments: PropTypes.func.isRequired,
-    handleBlockUi: PropTypes.func.isRequired,
-    handleUnblockUi: PropTypes.func.isRequired,
-    showErrorMessages: PropTypes.func.isRequired,
+    selectedRowKeys: PropTypes.array,
+    operations: PropTypes.array,
+    handleDelete: PropTypes.func,
+    handleRestore: PropTypes.func,
+    handleCopy: PropTypes.func,
+    handleArchive: PropTypes.func,
+    handleFormula: PropTypes.func,
+    handleAttachments: PropTypes.func,
+    handleBlockUi: PropTypes.func,
+    handleUnblockUi: PropTypes.func,
+    showErrorMessages: PropTypes.func,
     elementSubViewId: PropTypes.string,
     leftContent: PropTypes.any,
     rightContent: PropTypes.any,

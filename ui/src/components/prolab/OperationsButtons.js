@@ -13,15 +13,9 @@ export const OperationsButtons = (props) => {
         const info = props.info;
         const margin = props.margin;
         const inverseColor = props.inverseColor;
-        const isFromHeader = props.isFromHeader;
         const buttonShadow = props.buttonShadow;
         const atLeastOneSelected = props.atLeastOneSelected;
-        let showOperation = true;
-        if (isFromHeader && !!atLeastOneSelected) {
-            showOperation = !operations.showAlways;
-        } else {
-            showOperation = !!atLeastOneSelected;
-        }
+
         if (operations && !!operations.type) {
             switch (operations.type?.toUpperCase()) {
                 case 'OP_EDIT':
@@ -204,7 +198,7 @@ export const OperationsButtons = (props) => {
                         );
                     break;
                 case 'OP_FORMULA':
-                    if (showOperation)
+                    if (shouldShowOpFormula(operations))
                         return (
                             <React.Fragment>
                                 <ShortcutButton
@@ -301,10 +295,39 @@ export const OperationsButtons = (props) => {
                             </React.Fragment>
                         );
                     break;
+                case 'OP_FILL':
+                    if (!!atLeastOneSelected || !!operations.showAlways)
+                        return (
+                            <React.Fragment>
+                                <ShortcutButton
+                                    className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
+                                    handleClick={(e) => props.handleFill(e)}
+                                    iconName={operations?.iconCode || 'mdi-arrow-down-thin'}
+                                    iconColor={`${inverseColor ? `white` : `blue`}`}
+                                    buttonShadow={buttonShadow}
+                                    iconSide='left'
+                                    title={operations?.label}
+                                />
+                            </React.Fragment>
+                        );
+                    break;
                 default:
                     return null;
             }
         }
+    };
+
+    const shouldShowOpFormula = (operations) => {
+        const atLeastOneSelected = props.atLeastOneSelected;
+        const isFromHeader = props.isFromHeader;
+        let showOperation = !!atLeastOneSelected;
+        if (isFromHeader && !!atLeastOneSelected) {
+            showOperation = !operations.showAlways;
+        }
+        if (operations.showAlways) {
+            return true;
+        }
+        return showOperation;
     };
 
     const menuItems = props.operationList.map((i) => {
@@ -365,6 +388,8 @@ export const OperationsButtons = (props) => {
                         return props.handleUp();
                     case 'OP_DOWN':
                         return props.handleDown();
+                    case 'OP_FILL':
+                        return props.handleFill();
                     default:
                         return null;
                 }
@@ -414,6 +439,7 @@ OperationsButtons.defaultProps = {
     handleDocuments: () => {},
     handlePlugins: () => {},
     handleAttachments: () => {},
+    handleFill: () => {},
     inverseColor: false,
     isFromHeader: false,
     buttonShadow: true,
@@ -445,6 +471,7 @@ OperationsButtons.propTypes = {
     handleAddLevel: PropTypes.func,
     handleUp: PropTypes.func,
     handleDown: PropTypes.func,
+    handleFill: PropTypes.func,
     margin: PropTypes.string,
     atLeastOneSelected: PropTypes.bool,
     isFromHeader: PropTypes.bool,

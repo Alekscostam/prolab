@@ -217,7 +217,7 @@ export default class AuthService {
         const token = this.getToken();
         try {
             const decoded = decode(token);
-            let seconds = moment().diff(new Date(decoded.created), 'seconds');
+            const seconds = moment().diff(new Date(decoded.created), 'seconds');
             return seconds > 30;
         } catch (err) {
             return false;

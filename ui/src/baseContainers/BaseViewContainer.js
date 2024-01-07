@@ -182,12 +182,7 @@ export class BaseViewContainer extends BaseContainer {
         );
     }
 
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        let id = UrlUtils.getViewIdFromURL();
-        if (id === undefined) {
-            id = this.props.id;
-        }
-        // TODO: moze bylo by łądniejsze miesce na to
+    removeAttachementReferenceIfPossible() {
         const prevDataGridGlobalReference = this.state.prevDataGridGlobalReference;
         if (!!prevDataGridGlobalReference && !this.state.isAttachement) {
             window.dataGrid = prevDataGridGlobalReference;
@@ -196,7 +191,13 @@ export class BaseViewContainer extends BaseContainer {
                 prevDataGridGlobalReference: null,
             });
         }
-
+    }
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        let id = UrlUtils.getIdFromUrl();
+        if (id === undefined) {
+            id = this.props.id;
+        }
+        this.removeAttachementReferenceIfPossible();
         const subViewId = UrlUtils.getURLParameter('subview');
         const recordId = this.props.recordId || UrlUtils.getURLParameter('recordId');
         const filterId = UrlUtils.getURLParameter('filterId');
@@ -260,7 +261,7 @@ export class BaseViewContainer extends BaseContainer {
     }
 
     componentWillUnmount() {
-        this._isMounted = false;
+        super.componentWillUnmount();
         if (window?.dataGrid) {
             delete window?.dataGrid;
         }
@@ -1006,15 +1007,13 @@ export class BaseViewContainer extends BaseContainer {
     onInitialize(e) {
         dataGrid = e.component;
         window.dataGrid = dataGrid;
-        //umożliwa filrowanie po niepełniej dacie (która się nie parsuje) i naciśnięciu Enter
-        // $(document).on('keyup', function (event) {
-        //     debugger;
-        // });
         $(document).keyup((event) => {
             try {
                 const keycode = event.keyCode || event.which;
-
-                if (!this.isEnter(keycode)) {
+                if (!this.isCalendarDateBox(event)) {
+                    this.dataGridStore.clearCache();
+                }
+                if (this.isNotEnter(keycode)) {
                     return;
                 }
                 if (!this.isCalendarDateBox(event)) {
@@ -1040,6 +1039,7 @@ export class BaseViewContainer extends BaseContainer {
                         }
                     }
                 }
+                this.dataGridStore.clearCache();
                 if (filterArray.length > 0) {
                     this.getRefGridView()?.instance?.filter(filterArray);
                 } else {
@@ -1054,8 +1054,8 @@ export class BaseViewContainer extends BaseContainer {
         const inputValue = event.target.value;
         return inputValue === undefined || inputValue === null || inputValue === '' || inputValue.includes('*');
     }
-    isEnter(keyCode) {
-        return keyCode === 13;
+    isNotEnter(keyCode) {
+        return keyCode !== 13;
     }
     getCurrentDataGridByEvent(event) {
         return event?.target?.parentElement?.parentElement?.parentElement?.parentElement?.parentElement?.parentElement
@@ -1155,6 +1155,7 @@ export class BaseViewContainer extends BaseContainer {
                     select: false,
                 },
                 () => {
+                    this.dataGridStore.clearCache();
                     this.getRefGridView()?.instance?.deselectAll();
                     this.getRefGridView()?.instance?.clearSelection();
                     this.setState(

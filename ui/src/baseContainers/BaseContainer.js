@@ -84,15 +84,7 @@ class BaseContainer extends React.Component {
         this._isMounted = true;
         if (!this.jwtRefreshBlocked && this.authService.loggedIn()) {
             if (this.authService.isTokenExpiredDate()) {
-                this.jwtRefreshBlocked = true;
-                this.authService
-                    .refresh()
-                    .then(() => {
-                        this.jwtRefreshBlocked = false;
-                    })
-                    .catch((err) => {
-                        this.jwtRefreshBlocked = false;
-                    });
+                this.refreshFromAuthService();
             }
         }
         this.scrollToError = false;
@@ -100,6 +92,24 @@ class BaseContainer extends React.Component {
         $(window).off('beforeunload');
         // eslint-disable-next-line no-undef
         $(window).unbind();
+    }
+
+    refreshJwtToken() {
+        if (!this.jwtRefreshBlocked && this.authService.loggedIn() && this.authService.isTokenValidForRefresh()) {
+            this.refreshFromAuthService();
+        }
+    }
+
+    refreshFromAuthService() {
+        this.jwtRefreshBlocked = true;
+        this.authService
+            .refresh()
+            .then(() => {
+                this.jwtRefreshBlocked = false;
+            })
+            .catch((err) => {
+                this.jwtRefreshBlocked = false;
+            });
     }
 
     getTranslationParam(language, param) {
@@ -123,23 +133,8 @@ class BaseContainer extends React.Component {
         }
     }
 
-    refreshJwtToken() {
-        if (!this.jwtRefreshBlocked && this.authService.loggedIn() && this.authService.isTokenValidForRefresh()) {
-            this.jwtRefreshBlocked = true;
-            this.authService
-                .refresh()
-                .then(() => {
-                    this.jwtRefreshBlocked = false;
-                })
-                .catch((err) => {
-                    this.jwtRefreshBlocked = false;
-                });
-        }
-    }
-
     handleLogoutUser() {
         this.authService.logout();
-        window.location.href = AppPrefixUtils.locationHrefUrl('/#/');
     }
 
     componentWillUnmount() {
@@ -943,9 +938,11 @@ class BaseContainer extends React.Component {
                 () => (callBack !== undefined && callBack instanceof Function ? callBack() : null)
             );
         } else {
-            this.setState({blocking: true}, () =>
-                callBack !== undefined && callBack instanceof Function ? callBack() : null
-            );
+            if (this._isMounted) {
+                this.setState({blocking: true}, () =>
+                    callBack !== undefined && callBack instanceof Function ? callBack() : null
+                );
+            }
         }
     }
 
@@ -1057,9 +1054,12 @@ class BaseContainer extends React.Component {
         const saveElement = this.crudService.createObjectToSave(UrlUtils.isEditRowView() ? this.props : this.state);
         ConsoleHelper(`handleEditRowSave: element to save = ${JSON.stringify(saveElement)}`);
         this.rowSave(viewId, recordId, parentId, saveElement, false, token);
-        if (!this.state?.copyData) {
+        if (this.shloudUnselectOnEditRowSave()) {
             this.unselectAllDataGrid();
         }
+    }
+    shloudUnselectOnEditRowSave() {
+        return !this.state?.copyData && !UrlUtils.isEditRowView();
     }
 
     refreshView() {
@@ -1266,19 +1266,11 @@ class BaseContainer extends React.Component {
                 if (this.state?.attachmentFiles?.length) {
                     this.uploadAttachemnt(this.state.parsedGridView, this.state.attachmentFiles[0]);
                 }
-
                 if (refresh && saveResponse.status !== 'NOK') {
-                    let attachmentDialog = document.getElementById('attachmentDialog');
-                    if (attachmentDialog) {
-                        this.refreshView(saveElement);
-                    } else {
-                        if (readValueCookieGlobal('refreshSubView') && kindOperation.toUpperCase() !== 'COPY') {
-                            this.refreshSubView();
-                            this.refreshView(saveElement);
-                        } else {
-                            this.refreshView(saveElement);
-                        }
+                    if (this.shouldRefreshSubView(kindOperation)) {
+                        this.refreshSubView();
                     }
+                    this.refreshView(saveElement);
                 }
                 this.unblockUi();
             })
@@ -1286,6 +1278,10 @@ class BaseContainer extends React.Component {
                 this.showGlobalErrorMessage(err);
             });
     };
+    shouldRefreshSubView(kindOperation) {
+        const attachmentDialog = document.getElementById('attachmentDialog');
+        return !attachmentDialog && readValueCookieGlobal('refreshSubView') && kindOperation.toUpperCase() !== 'COPY';
+    }
     copyAfterSave = (saveResponse) => {
         let {copyOptions, copyCounter} = this.state.copyData;
         let selectedRowKeys = this.state.selectedRowKeys;
@@ -1426,7 +1422,6 @@ class BaseContainer extends React.Component {
     }
 
     /** Metoda już typowo pod plugin. executePlugin wykonuje się w momencie przejscia z pierwszego do drugiego kroku*/
-    // TODO: ogolnie to programsityczni slabo ze to jest w BaseContainer hmmm...
     isDashboardView() {
         return this.state.subView === null && this.state?.gridViewType === 'dashboard';
     }
@@ -1891,7 +1886,7 @@ class BaseContainer extends React.Component {
         );
     }
 
-    prepareCalculateFormula(id) {
+    prepareCalculateFormula(rowId) {
         ConsoleHelper('handlePrepareCalculateFormula');
         this.blockUi();
 
@@ -1908,20 +1903,22 @@ class BaseContainer extends React.Component {
             }
         }
         const fieldsToCalculate = this.createObjectToCalculate(datas);
-        this.calculateFormula(viewId, parentId, id, fieldsToCalculate);
+        this.calculateFormula(viewId, parentId, rowId, fieldsToCalculate);
     }
 
-    calculateFormula(viewId, parentId, id, fieldsToCalculate) {
+    calculateFormula(viewId, parentId, rowId, fieldsToCalculate) {
         this.blockUi();
         ConsoleHelper('calculateFormula');
         const selectedRowKeys = this.state.selectedRowKeys;
-        if (window.location.href.includes('edit-spec')) {
-            this.calculateFormulaForEditSpec(viewId, parentId, id, fieldsToCalculate);
+        if (UrlUtils.isEditSpec()) {
+            this.calculateFormulaForEditSpec(viewId, parentId, rowId, fieldsToCalculate);
+        } else if (UrlUtils.isBatch()) {
+            this.calculateFormulaForBatch(viewId, parentId, rowId, fieldsToCalculate);
         } else if (this.state.elementKindView && this.state.elementKindView.toUpperCase() === 'VIEWSPEC') {
             parentId = UrlUtils.getURLParameter('recordId');
             let params = '';
-            if (!!id) {
-                params = `&specId=${id}`;
+            if (!!rowId) {
+                params = `&specId=${rowId}`;
             } else {
                 if (selectedRowKeys.length !== 0) {
                     selectedRowKeys.forEach((rowKey) => {
@@ -1932,31 +1929,23 @@ class BaseContainer extends React.Component {
             this.calculateFormulaForView(viewId, parentId, params);
         } else {
             let params = '';
-            if (!!id) {
-                params = `?recordId=${id}`;
+            if (!!rowId) {
+                params = `?recordId=${rowId}`;
             } else {
                 if (selectedRowKeys.length !== 0) {
-                    let first = true;
-                    selectedRowKeys.forEach((rowKey) => {
-                        if (first) {
-                            first = false;
-                            params = params + `?recordId=${rowKey.ID}`;
-                        } else {
-                            params = params + `&recordId=${rowKey.ID}`;
-                        }
+                    selectedRowKeys.forEach((rowKey, index) => {
+                        params = index === 0 ? params + `?recordId=${rowKey.ID}` : params + `&recordId=${rowKey.ID}`;
                     });
                 }
             }
             this.calculateFormulaForView(viewId, parentId, params);
         }
     }
+
     changeWart(calcultedFormula, oldFormula) {
-        if (parseInt(calcultedFormula[0].value) === parseInt(oldFormula.data.ID)) {
-            oldFormula.data.WART = calcultedFormula[1].value;
+        if (parseInt(calcultedFormula[0].value) === parseInt(oldFormula.ID)) {
+            oldFormula.WART = calcultedFormula[1].value;
         }
-        oldFormula.children.forEach((child) => {
-            this.changeWart(calcultedFormula, child);
-        });
     }
 
     calculateFormulaForEditSpec(viewId, parentId, id, fieldsToCalculate) {
@@ -1964,22 +1953,11 @@ class BaseContainer extends React.Component {
             .calculateFormula(viewId, parentId, id, fieldsToCalculate)
             .then((res) => {
                 res?.data?.forEach((calcultedFormula) => {
-                    this.refTreeList.instance.getDataSource()._items.forEach((item) => {
+                    this.state?.parsedData.forEach((item) => {
                         this.changeWart(calcultedFormula, item);
                     });
                 });
-
-                const msg = res.message;
-                if (!!msg) {
-                    this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title);
-                } else if (!!res.error) {
-                    this.showResponseErrorMessage(res);
-                }
-                if (this.refTreeList?.instance) {
-                    this.refTreeList?.instance?.refresh();
-                } else {
-                    this.refreshView();
-                }
+                this.responseMessage(res);
                 this.unblockUi();
             })
             .catch((err) => {
@@ -1990,17 +1968,28 @@ class BaseContainer extends React.Component {
             });
     }
 
-    calculateFormulaForView(viewId, parentId, params) {
+    calculateFormulaForBatch(viewId, batchId, id, fieldsToCalculate) {
+        this.crudService
+            .calculateFormula(viewId, batchId, id, fieldsToCalculate)
+            .then((res) => {
+                this.responseMessage(res);
+                this.refreshView();
+                this.unblockUi();
+            })
+            .catch((err) => {
+                this.showGlobalErrorMessage(err);
+            })
+            .finally(() => {
+                this.unselectAllDataGrid();
+            });
+    }
+
+    calculateFormulaForView(viewId, recordId, params) {
         this.blockUi();
         this.crudService
-            .calculateFormulaForView(viewId, parentId, params)
+            .calculateFormulaForView(viewId, recordId, params)
             .then((res) => {
-                if (res.message) {
-                    this.showSuccessMessage(res.message.text, 1000, res.message.title);
-                } else {
-                    this.showResponseErrorMessage(res);
-                }
-
+                this.responseMessage(res);
                 this.refreshView();
                 this.refreshSubView(true);
             })
@@ -2008,6 +1997,15 @@ class BaseContainer extends React.Component {
                 this.unblockUi();
                 this.unselectAllDataGrid();
             });
+    }
+
+    responseMessage(res) {
+        const msg = res.message;
+        if (!!msg) {
+            this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title);
+        } else if (!!res.error) {
+            this.showResponseErrorMessage(res);
+        }
     }
 
     createObjectToCalculate(datas) {

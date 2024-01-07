@@ -15,9 +15,9 @@ export default class UploadFileDialog extends React.Component {
     }
 
     onSelect = (e) => {
-        let asd = [...this.state.selectedFiles, ...e.files];
+        let selectedFiles = [...this.state.selectedFiles, ...e.files];
         this.setState({
-            selectedFiles: asd,
+            selectedFiles: selectedFiles,
         });
     };
 

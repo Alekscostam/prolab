@@ -11,6 +11,7 @@ import {compress} from 'int-compress-string/src';
 import {EditSpecUtils} from '../EditSpecUtils';
 import CrudService from '../../services/CrudService';
 import UrlUtils from '../UrlUtils';
+import OperationCell from '../OperationCell';
 
 const sizeValues = ['8pt', '10pt', '12pt', '14pt', '18pt', '24pt', '36pt'];
 const fontValues = [
@@ -26,6 +27,29 @@ const fontValues = [
 const headerValues = [false, 1, 2, 3, 4, 5];
 //P - Hasło
 
+export const MemoizedOperations = React.memo(({editListVisible, fillDownVisible, onOperationClick}) => {
+    return (
+        <React.Fragment>
+            {editListVisible && (
+                <Button
+                    type='button'
+                    onClick={() => onOperationClick(OperationCell.EDIT_LIST)}
+                    icon='mdi mdi-format-list-bulleted'
+                    className='p-button-secondary'
+                />
+            )}
+            {fillDownVisible && (
+                <Button
+                    type='button'
+                    onClick={() => onOperationClick(OperationCell.FILL_DOWN)}
+                    icon='mdi mdi-sort-bool-ascending'
+                    className='p-button-secondary'
+                />
+            )}
+        </React.Fragment>
+    );
+});
+
 export const MemoizedText = React.memo(
     ({
         field,
@@ -33,17 +57,16 @@ export const MemoizedText = React.memo(
         inputValue,
         fieldIndex,
         mode,
-        editable,
-        autoFill,
         required,
         validate,
         selectionList,
-        onClickEditListCallback,
+        onOperationClick,
+        downFill,
+        onFillDownClick,
     }) => {
         return (
             <React.Fragment>
                 <div className={`${selectionList}`}>
-                    {/*${editable} ${autoFill}*/}
                     <TextBox
                         id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                         className={`${validate}`}
@@ -71,18 +94,12 @@ export const MemoizedText = React.memo(
                             </Validator>
                         ) : null}
                     </TextBox>
-                    {/*{mode === 'link' ?*/}
-                    {/*    <a href={field.value} style={{float: 'right'}}>*/}
-                    {/*        {field.label}*/}
-                    {/*    </a> : null}*/}
-                    {!!selectionList ? (
-                        <Button
-                            type='button'
-                            onClick={onClickEditListCallback}
-                            icon='pi pi-question-circle'
-                            className='p-button-secondary selectionList'
-                        />
-                    ) : null}
+                    <MemoizedOperations
+                        editListVisible={!!selectionList}
+                        onOperationClick={onOperationClick}
+                        fillDownVisible={!!downFill}
+                        onFillDownClick={onFillDownClick}
+                    />
                 </div>
             </React.Fragment>
         );
@@ -90,25 +107,10 @@ export const MemoizedText = React.memo(
 );
 //N – Numeryczny/Liczbowy
 export const MemoizedNumericInput = React.memo(
-    ({
-        field,
-        cellInfo,
-        inputValue,
-        fieldIndex,
-        editable,
-        autoFill,
-        required,
-        validate,
-        selectionList,
-        fontColorFinal,
-        onChangeCallback,
-        onBlurCallback,
-        onClickEditListCallback,
-    }) => {
+    ({field, cellInfo, inputValue, fieldIndex, required, validate, selectionList, onOperationClick, downFill}) => {
         return (
             <React.Fragment>
                 <div className={`${selectionList}`}>
-                    {/*${editable} ${autoFill}*/}
                     <NumberBox
                         id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                         className={`${validate}`}
@@ -135,14 +137,11 @@ export const MemoizedNumericInput = React.memo(
                             </Validator>
                         ) : null}
                     </NumberBox>
-                    {!!selectionList ? (
-                        <Button
-                            type='button'
-                            onClick={onClickEditListCallback}
-                            icon='pi pi-question-circle'
-                            className='p-button-secondary'
-                        />
-                    ) : null}
+                    <MemoizedOperations
+                        editListVisible={!!selectionList}
+                        onOperationClick={onOperationClick}
+                        fillDownVisible={!!downFill}
+                    />
                 </div>
             </React.Fragment>
         );
@@ -150,7 +149,7 @@ export const MemoizedNumericInput = React.memo(
 );
 //B – Logiczny (0/1)
 export const MemoizedBoolInput = React.memo(
-    ({field, cellInfo, inputValue, fieldIndex, editable, autoFillCheckbox, required, validateCheckbox, callback}) => {
+    ({field, cellInfo, inputValue, fieldIndex, required, validateCheckbox, onOperationClick}) => {
         return (
             <React.Fragment>
                 <div style={{display: 'inline-block'}} className={`${validateCheckbox}`}>
@@ -162,7 +161,7 @@ export const MemoizedBoolInput = React.memo(
                                 if (e.event) {
                                     const res = e.value === true ? '1' : '0';
                                     cellInfo.setValue(res);
-                                    callback(e.value);
+                                    onOperationClick(e.value);
                                 }
                             } else {
                                 if (e.event) {
@@ -180,20 +179,10 @@ export const MemoizedBoolInput = React.memo(
         );
     }
 );
+
 //L – Logiczny (T/N)
 export const MemoizedLogicInput = React.memo(
-    ({
-        field,
-        cellInfo,
-        inputValue,
-        fieldIndex,
-        editable,
-        autoFillCheckbox,
-        required,
-        validateCheckbox,
-        onChangeCallback,
-        callback,
-    }) => {
+    ({field, cellInfo, inputValue, fieldIndex, required, validateCheckbox, onOperationClick}) => {
         return (
             <React.Fragment>
                 <div style={{display: 'inline-block'}} className={`${validateCheckbox}`}>
@@ -205,7 +194,7 @@ export const MemoizedLogicInput = React.memo(
                                 if (e.event) {
                                     const res = e.value === true ? 'T' : 'N';
                                     cellInfo.setValue(res);
-                                    callback(e.value);
+                                    onOperationClick(e.value);
                                 }
                             } else {
                                 if (e.event) {
@@ -225,33 +214,31 @@ export const MemoizedLogicInput = React.memo(
 );
 
 //D – Data
-export const MemoizedDateInput = React.memo(
-    ({field, cellInfo, inputValue, fieldIndex, editable, autoFill, required, validate}) => {
-        return (
-            <React.Fragment>
-                <DateBox
-                    id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
-                    name={field.fieldName}
-                    // ${autoFill} ${editable}
-                    className={`${validate}`}
-                    onValueChanged={(e) => {
-                        cellInfo.setValue(e.component.option('text'));
-                    }}
-                    defaultValue={inputValue}
-                    style={{width: '100%'}}
-                    disabled={!field.edit}
-                    required={required}
-                    type='date'
-                    useMaskBehavior={true}
-                    displayFormat={'yyyy-MM-dd'}
-                ></DateBox>
-            </React.Fragment>
-        );
-    }
-);
+export const MemoizedDateInput = React.memo(({field, cellInfo, inputValue, fieldIndex, required, validate}) => {
+    return (
+        <React.Fragment>
+            <DateBox
+                id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
+                name={field.fieldName}
+                // ${autoFill} ${editable}
+                className={`${validate}`}
+                onValueChanged={(e) => {
+                    cellInfo.setValue(e.component.option('text'));
+                }}
+                defaultValue={inputValue}
+                style={{width: '100%'}}
+                disabled={!field.edit}
+                required={required}
+                type='date'
+                useMaskBehavior={true}
+                displayFormat={'yyyy-MM-dd'}
+            ></DateBox>
+        </React.Fragment>
+    );
+});
 //E – Data + czas
 export const MemoizedDateTimeInput = React.memo(
-    ({field, cellInfo, inputValue, fieldIndex, editable, autoFill, required, validate, refDateTime, labels}) => {
+    ({field, cellInfo, fieldIndex, required, validate, refDateTime, labels}) => {
         return (
             <React.Fragment>
                 <DateBox
@@ -315,131 +302,125 @@ export const MemoizedDateTimeInput = React.memo(
 );
 
 //T – Czas
-export const MemoizedTimeInput = React.memo(
-    ({field, cellInfo, inputValue, fieldIndex, editable, autoFill, required, validate}) => {
-        return (
-            <React.Fragment>
-                <DateBox
-                    id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
-                    name={field.fieldName}
-                    // ${autoFill} ${editable}
-                    className={`${validate}`}
+export const MemoizedTimeInput = React.memo(({field, cellInfo, fieldIndex, required, validate}) => {
+    return (
+        <React.Fragment>
+            <DateBox
+                id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
+                name={field.fieldName}
+                className={`${validate}`}
+                onValueChanged={(e) => {
+                    cellInfo.setValue(e.component.option('text'));
+                }}
+                style={{width: '100%'}}
+                disabled={!field.edit}
+                required={required}
+                type='time'
+                useMaskBehavior={true}
+                displayFormat={'HH:mm'}
+            />
+        </React.Fragment>
+    );
+});
+//O – Opisowe
+export const MemoizedEditorDescription = React.memo(({field, cellInfo, inputValue, fieldIndex, required, validate}) => {
+    return (
+        <React.Fragment>
+            <div aria-live='assertive'>
+                <HtmlEditor
+                    id={`editor_${fieldIndex}`}
+                    className={`editor ${validate}`}
+                    defaultValue={inputValue}
                     onValueChanged={(e) => {
-                        cellInfo.setValue(e.component.option('text'));
+                        // dostosowanie pierwszej doklejonej kolumny
+                        const rowIndex = cellInfo.rowIndex;
+                        const realRowIndex = rowIndex + 1;
+                        const elements = document.querySelectorAll('td[aria-describedby=column_0_undefined-fixed]');
+                        const row = document.querySelectorAll(
+                            'tr[aria-rowindex="' + realRowIndex + '"][class*="dx-column-lines"]'
+                        )[0];
+                        const element = elements[realRowIndex];
+                        if (element) {
+                            element.style.height = row.clientHeight + 'px';
+                        }
+                        cellInfo.setValue(e.value);
                     }}
-                    style={{width: '100%'}}
+                    validationMessageMode='always'
                     disabled={!field.edit}
                     required={required}
-                    type='time'
-                    useMaskBehavior={true}
-                    displayFormat={'HH:mm'}
-                />
-            </React.Fragment>
-        );
-    }
-);
-//O – Opisowe
-export const MemoizedEditorDescription = React.memo(
-    ({field, cellInfo, inputValue, fieldIndex, editable, autoFill, required, validate}) => {
-        return (
-            <React.Fragment>
-                <div aria-live='assertive'>
-                    <HtmlEditor
-                        id={`editor_${fieldIndex}`}
-                        // ${autoFill} ${editable}
-                        className={`editor ${validate}`}
-                        defaultValue={inputValue}
-                        onValueChanged={(e) => {
-                            // dostosowanie pierwszej doklejonej kolumny
-                            const rowIndex = cellInfo.rowIndex;
-                            const realRowIndex = rowIndex + 1;
-                            const elements = document.querySelectorAll('td[aria-describedby=column_0_undefined-fixed]');
-                            const row = document.querySelectorAll(
-                                'tr[aria-rowindex="' + realRowIndex + '"][class*="dx-column-lines"]'
-                            )[0];
-                            const element = elements[realRowIndex];
-                            if (element) {
-                                element.style.height = row.clientHeight + 'px';
-                            }
-                            cellInfo.setValue(e.value);
-                        }}
-                        validationMessageMode='always'
-                        disabled={!field.edit}
-                        required={required}
-                    >
-                        {' '}
-                        {required ? (
-                            <Validator>
-                                <RequiredRule message={`Pole jest wymagane`} />
-                            </Validator>
-                        ) : null}
-                        <MediaResizing enabled={true} />
-                        <Toolbar multiline={false}>
-                            <Item name='undo' />
-                            <Item name='redo' />
-                            <Item name='separator' />
-                            <Item name='size' acceptedValues={sizeValues} />
-                            <Item name='font' acceptedValues={fontValues} />
-                            <Item name='header' acceptedValues={headerValues} />
-                            <Item name='separator' />
-                            <Item name='bold' />
-                            <Item name='italic' />
-                            <Item name='strike' />
-                            <Item name='underline' />
-                            <Item name='subscript' />
-                            <Item name='superscript' />
-                            <Item name='separator' />
-                            <Item name='alignLeft' />
-                            <Item name='alignCenter' />
-                            <Item name='alignRight' />
-                            <Item name='alignJustify' />
-                            <Item name='separator' />
-                            <Item name='orderedList' />
-                            <Item name='bulletList' />
-                            <Item name='separator' />
-                            <Item
-                                name='color'
-                                onClick={() => {
-                                    const dialog = document.getElementsByClassName('dx-popup-normal')[1];
-                                    if (dialog) {
-                                        overideEventClick(dialog);
-                                    }
-                                }}
-                            />
-                            <Item
-                                name='background'
-                                onClick={() => {
-                                    const dialog = document.getElementsByClassName('dx-popup-normal')[1];
-                                    if (dialog) {
-                                        overideEventClick(dialog);
-                                    }
-                                }}
-                            />
-                            <Item name='separator' />
-                            <Item
-                                name='insertTable'
-                                onClick={() => {
-                                    const dialog = document.getElementsByClassName('dx-popup-normal')[1];
-                                    if (dialog) {
-                                        overideEventClick(dialog);
-                                    }
-                                }}
-                            />
+                >
+                    {' '}
+                    {required ? (
+                        <Validator>
+                            <RequiredRule message={`Pole jest wymagane`} />
+                        </Validator>
+                    ) : null}
+                    <MediaResizing enabled={true} />
+                    <Toolbar multiline={false}>
+                        <Item name='undo' />
+                        <Item name='redo' />
+                        <Item name='separator' />
+                        <Item name='size' acceptedValues={sizeValues} />
+                        <Item name='font' acceptedValues={fontValues} />
+                        <Item name='header' acceptedValues={headerValues} />
+                        <Item name='separator' />
+                        <Item name='bold' />
+                        <Item name='italic' />
+                        <Item name='strike' />
+                        <Item name='underline' />
+                        <Item name='subscript' />
+                        <Item name='superscript' />
+                        <Item name='separator' />
+                        <Item name='alignLeft' />
+                        <Item name='alignCenter' />
+                        <Item name='alignRight' />
+                        <Item name='alignJustify' />
+                        <Item name='separator' />
+                        <Item name='orderedList' />
+                        <Item name='bulletList' />
+                        <Item name='separator' />
+                        <Item
+                            name='color'
+                            onClick={() => {
+                                const dialog = document.getElementsByClassName('dx-popup-normal')[1];
+                                if (dialog) {
+                                    overideEventClick(dialog);
+                                }
+                            }}
+                        />
+                        <Item
+                            name='background'
+                            onClick={() => {
+                                const dialog = document.getElementsByClassName('dx-popup-normal')[1];
+                                if (dialog) {
+                                    overideEventClick(dialog);
+                                }
+                            }}
+                        />
+                        <Item name='separator' />
+                        <Item
+                            name='insertTable'
+                            onClick={() => {
+                                const dialog = document.getElementsByClassName('dx-popup-normal')[1];
+                                if (dialog) {
+                                    overideEventClick(dialog);
+                                }
+                            }}
+                        />
 
-                            <Item name='deleteTable' />
-                            <Item name='insertRowAbove' />
-                            <Item name='insertRowBelow' />
-                            <Item name='deleteRow' />
-                            <Item name='insertColumnLeft' />
-                            <Item name='insertColumnRight' />
-                            <Item name='deleteColumn' />
-                        </Toolbar>
-                    </HtmlEditor>
-                </div>
-            </React.Fragment>
-        );
-    }
-);
+                        <Item name='deleteTable' />
+                        <Item name='insertRowAbove' />
+                        <Item name='insertRowBelow' />
+                        <Item name='deleteRow' />
+                        <Item name='insertColumnLeft' />
+                        <Item name='insertColumnRight' />
+                        <Item name='deleteColumn' />
+                    </Toolbar>
+                </HtmlEditor>
+            </div>
+        </React.Fragment>
+    );
+});
 
 const classListContainsButton = (element) => {
     try {

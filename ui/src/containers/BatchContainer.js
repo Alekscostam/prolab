@@ -11,7 +11,6 @@ import UrlUtils from '../utils/UrlUtils';
 import Constants from '../utils/Constants';
 import ConsoleHelper from '../utils/ConsoleHelper';
 import DataTreeStore from './dao/DataTreeStore';
-import {SelectBox} from 'devextreme-react';
 import AppPrefixUtils from '../utils/AppPrefixUtils';
 import ActionButton from '../components/ActionButton';
 import DivContainer from '../components/DivContainer';
@@ -19,7 +18,6 @@ import GridViewComponent from './dataGrid/GridViewComponent';
 import BatchService from '../services/BatchService';
 import {EntryResponseUtils} from '../utils/EntryResponseUtils';
 import {ViewResponseUtils} from '../utils/ViewResponseUtils';
-import {removeCookieGlobal} from '../utils/Cookie';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -39,6 +37,7 @@ export class BatchContainer extends BaseContainer {
         this.state = {
             loading: true,
             isChanged: undefined,
+            packageRows: 30,
             levelId: undefined,
             visibleAddSpec: false,
             elementParentId: null,
@@ -51,7 +50,6 @@ export class BatchContainer extends BaseContainer {
         };
         this.getViewById = this.getViewById.bind(this);
         this.downloadData = this.downloadData.bind(this);
-        this.getMaxViewid = this.getMaxViewid.bind(this);
         this.handleSelectedRowData = this.handleSelectedRowData.bind(this);
         this.blockUi();
     }
@@ -205,72 +203,24 @@ export class BatchContainer extends BaseContainer {
                     columns: columnsTmp,
                 }),
                 () => {
-                    // this.props.handleViewInfoName(responseView.editInfo?.viewName);
                     const viewIdArg = this.state.elementId;
                     this.batchService.getData(viewIdArg, parentId).then((res) => {
-                        this.setState({
-                            loading: false,
-                            dataGridStoreSuccess: true,
-                            parsedData: res.data,
-                        });
+                        this.handleResponseFromGetData(res);
                     });
                 }
             );
         }
     }
 
-    componentWillUnmount() {
-        this._isMounted = false;
-        removeCookieGlobal('refreshSubView');
+    handleResponseFromGetData(res) {
+        this.setState({
+            loading: false,
+            dataGridStoreSuccess: true,
+            parsedData: res.data,
+        });
     }
-
-    renderButton(operation, index) {
-        const margin = Constants.DEFAULT_MARGIN_BETWEEN_BUTTONS;
-        if (!!operation.type) {
-            switch (operation.type?.toUpperCase()) {
-                case 'OP_FILTER':
-                    return (
-                        <React.Fragment>
-                            {this.state.filtersList?.length > 0 ? (
-                                <SelectBox
-                                    id={`combo_filters` + index}
-                                    items={this.state.filtersList}
-                                    className={`filter-combo ${margin}`}
-                                    wrapItemText={true}
-                                    displayExpr='label'
-                                    valueExpr='id'
-                                    value={parseInt(
-                                        this.state.elementFilterId || this.state.parsedView?.viewInfo?.filterdId
-                                    )}
-                                    onValueChanged={(e) => {
-                                        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
-                                        if (!!e.value && e.value !== e.previousValue) {
-                                            const filterId = parseInt(e.value);
-                                            const parentId =
-                                                UrlUtils.getURLParameter('parentId') || this.state.elementParentId;
-                                            const recordId =
-                                                UrlUtils.getURLParameter('recordId') || this.state.elementRecordId;
-                                            const breadCrumbs = UrlUtils.getURLParameter('bc');
-                                            if (!breadCrumbs) return;
-                                            ConsoleHelper(
-                                                `Redirect -> Id =  ${this.state.elementId} ParentId = ${parentId} RecordId = ${recordId} FilterId = ${filterId}`
-                                            );
-                                            if (filterId) {
-                                                window.location.href = AppPrefixUtils.locationHrefUrl(
-                                                    `/#/edit-spec/${this.state.elementId}/?parentId=${parentId}&recordId=${recordId}&filterId=${filterId}${currentBreadcrumb}`
-                                                );
-                                            }
-                                        }
-                                    }}
-                                    stylingMode='underlined'
-                                />
-                            ) : null}
-                        </React.Fragment>
-                    );
-                default:
-                    return null;
-            }
-        }
+    componentWillUnmount() {
+        super.componentWillUnmount();
     }
 
     // //override
@@ -345,15 +295,23 @@ export class BatchContainer extends BaseContainer {
         return this.state.parsedData.filter((el) => el.NAG_ID === nagId);
     }
 
-    booleanShouldBeZero(row, el) {
-        return row[el] === '0' || row[el] === 0 || row[el] === undefined || row[el] === null || row[el] === false;
+    shouldBeNegative(el) {
+        return el === '0' || el === 0 || el === undefined || el === null || el === false || el === '';
     }
     //override
     createObjectToSave(rowArray) {
         const booleanLogicColumns = this.state.columns.filter((el) => el.type === 'L');
         const booleanNumberColumns = this.state.columns.filter((el) => el.type === 'B');
+        const imageColumns = this.state.columns.filter((el) => el.type === 'I');
         let arrayTmp = [];
         for (let row of rowArray) {
+            Object.keys(row).forEach((el) => {
+                imageColumns.forEach((image) => {
+                    if (image.fieldName === el) {
+                        row[el] = this.shouldBeNegative(row[el]) ? null : row[el];
+                    }
+                });
+            });
             Object.keys(row).forEach((el) => {
                 booleanLogicColumns.forEach((bool) => {
                     if (bool.fieldName === el) {
@@ -366,7 +324,7 @@ export class BatchContainer extends BaseContainer {
             Object.keys(row).forEach((el) => {
                 booleanNumberColumns.forEach((bool) => {
                     if (bool.fieldName === el) {
-                        row[el] = this.booleanShouldBeZero(row, el) ? 0 : 1;
+                        row[el] = this.shouldBeNegative(row[el]) ? 0 : 1;
                     }
                 });
             });
@@ -383,46 +341,42 @@ export class BatchContainer extends BaseContainer {
     renderHeaderContent() {
         return <React.Fragment />;
     }
+    leftHeadPanelContent = () => {
+        return <React.Fragment />;
+    };
 
-    //override
+    rightHeadPanelContent = () => {
+        return (
+            <React.Fragment>
+                <ShortcutsButton
+                    handleClick={(e) => this.handleRightHeadPanelContent(e)}
+                    items={this.state.parsedView?.shortcutButtons}
+                    maxShortcutButtons={5}
+                />
+            </React.Fragment>
+        );
+    };
     renderHeadPanel = () => {
         return (
             <React.Fragment>
                 <HeadPanel
                     elementId={this.state.elementId}
-                    elementRecordId={
-                        this.state.elementRecordId ? this.state.elementRecordId : UrlUtils.getBatchIdParam()
-                    }
-                    elementSubViewId={null}
+                    elementRecordId={this.state.elementRecordId}
+                    elementSubViewId={this.state.elementSubViewId}
                     elementKindView={this.state.elementKindView}
+                    labels={this.props.labels}
                     selectedRowKeys={this.state.selectedRowKeys}
                     operations={this.state.parsedView?.operations}
-                    labels={this.props.labels}
-                    leftContent={
-                        <React.Fragment>
-                            {this.state.parsedView?.operations.map((operation, index) => {
-                                return <div key={index}>{this.renderButton(operation, index)}</div>;
-                            })}
-                        </React.Fragment>
-                    }
-                    rightContent={
-                        <React.Fragment>
-                            <ShortcutsButton items={this.state.parsedView?.shortcutButtons} maxShortcutButtons={5} />
-                        </React.Fragment>
-                    }
-                    handleDelete={() => this.delete()}
-                    handleFormula={(e) => {
-                        this.prepareCalculateFormula();
+                    leftContent={this.leftHeadPanelContent()}
+                    rightContent={this.rightHeadPanelContent()}
+                    handleFormula={() => {
+                        alert('Czekamy na API dla Calculate');
+                        // this.prepareCalculateFormula();
                     }}
-                    // handleBatch{()=>{}}
-                    handleAddLevel={() => this.publish()}
-                    handleUp={() => this.up()}
-                    handleDown={() => this.down()}
-                    handleRestore={() => this.restore()}
-                    handleCopy={() => this.copyEntry()}
-                    handleArchive={() => this.archive()}
-                    handleAttachments={() => this.attachment()}
-                    handlePublish={() => this.publishEntry()}
+                    handleFill={() => {
+                        alert('Czekamy na API dla FILL');
+                        // this.fill();
+                    }}
                     handleUnblockUi={() => this.unblockUi()}
                     showErrorMessages={(err) => this.showErrorMessages(err)}
                     handleBlockUi={() => this.blockUi()}
@@ -430,35 +384,6 @@ export class BatchContainer extends BaseContainer {
             </React.Fragment>
         );
     };
-
-    //metoda przenosi rekord o poziom wyżej
-
-    updateData(dataToUpdate, callbackAction) {
-        this.setState({parsedData: dataToUpdate}, () => {
-            if (!!callbackAction) callbackAction();
-        });
-    }
-
-    getMaxViewid() {}
-
-    //metoda usuwa wszytkie sortowania z kolumn
-    disableAllSort() {
-        this.refTreeList?.instance?.clearSorting();
-    }
-
-    //metoda pobiera aktualne stan danych komponentu
-    getData() {
-        return this.state.parsedData;
-    }
-
-    getLastId() {
-        return this.state.parsedData.length === 0 ? 0 : Math.max(...this.state.parsedData.map((el) => el._ID));
-    }
-
-    refreshTable(callbackAction) {
-        this.refTreeList?.instance?.refresh();
-        if (!!callbackAction) callbackAction();
-    }
 
     handleSelectedRowData(selectedRowData) {
         this.setState({selectedRowKeys: selectedRowData.selectedRowKeys});
@@ -480,18 +405,29 @@ export class BatchContainer extends BaseContainer {
                             parsedGridViewData={this.state.parsedData}
                             gridViewColumns={this.state.columns}
                             cellModeEnabled={true}
+                            handleMaxPackgeCount={() => {
+                                this.setState({packageRows: 500});
+                            }}
+                            handleFillDownParsedData={(parsedData) => {
+                                this.setState({
+                                    parsedData,
+                                    packageRows: Constants.DEFAULT_DATA_PACKAGE_COUNT,
+                                });
+                            }}
+                            packageRows={this.state.packageRows}
                             labels={this.props.labels}
                             focusedRowEnabled={true}
                             hoverStateEnabled={true}
                             modifyParsedGridViewData={(newCopyRow) => {
-                                let {parsedData} = this.state;
-                                parsedData.forEach((el) => {
+                                const replacedParsedData = [];
+                                this.state.parsedData.forEach((el) => {
                                     if (el.ID === newCopyRow.ID) {
                                         el = newCopyRow;
                                     }
+                                    replacedParsedData.push(el);
                                 });
                                 this.setState({
-                                    parsedData,
+                                    parsedData: replacedParsedData,
                                 });
                             }}
                             handleBlockUi={() => {
@@ -511,6 +447,14 @@ export class BatchContainer extends BaseContainer {
                             showErrorMessages={(err) => this.showErrorMessages(err)}
                             dataGridStoreSuccess={this.state.dataGridStoreSuccess}
                             allowSelectAll={false}
+                            handleFormulaRow={(id) => {
+                                alert('Czekamy na API dla Calculate');
+                                // this.prepareCalculateFormula(id);
+                            }}
+                            handleFillRow={(id) => {
+                                alert('Czekamy na API dla FILL');
+                                // this.fill(id);
+                            }}
                         />
                     </React.Fragment>
                 )}
@@ -520,12 +464,6 @@ export class BatchContainer extends BaseContainer {
 
     //override
     handleEditRowChange(inputType, event, rowId, info) {}
-
-    //override
-    handleEditRowBlur(inputType, event, groupName, viewInfo, field) {
-        ConsoleHelper(`handleEditRowBlur inputType=${inputType} groupName=${groupName}`);
-        this.handleEditRowChange(inputType, event, groupName, viewInfo, field);
-    }
 
     getMessages() {
         return this.messages;

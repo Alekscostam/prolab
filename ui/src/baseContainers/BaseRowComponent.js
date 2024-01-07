@@ -382,7 +382,7 @@ export class BaseRowComponent extends BaseContainer {
                                         <Button
                                             type='button'
                                             onClick={onClickEditList}
-                                            icon='pi pi-question-circle'
+                                            icon='mdi mdi-format-list-bulleted'
                                             className='p-button-secondary'
                                         />
                                     ) : null}
@@ -420,7 +420,7 @@ export class BaseRowComponent extends BaseContainer {
                                 <Button
                                     type='button'
                                     onClick={onClickEditList}
-                                    icon='pi pi-question-circle'
+                                    icon='mdi mdi-format-list-bulleted'
                                     className='p-button-secondary'
                                 />
                             ) : null}
@@ -500,7 +500,7 @@ export class BaseRowComponent extends BaseContainer {
                                         <Button
                                             type='button'
                                             onClick={onClickEditList}
-                                            icon='pi pi-question-circle'
+                                            icon='mdi mdi-format-list-bulleted'
                                             className='p-button-secondary'
                                         />
                                     ) : null}

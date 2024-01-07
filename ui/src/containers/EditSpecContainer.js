@@ -707,6 +707,9 @@ export class EditSpecContainer extends BaseContainer {
                                         expandAll: false,
                                     });
                                 }}
+                                onHideEditorCallback={() => {
+                                    this.forceUpdate();
+                                }}
                                 expandAll={this.state.expandAll}
                                 elementParentId={this.state.elementParentId}
                                 elementRecordId={this.state.elementRecordId}

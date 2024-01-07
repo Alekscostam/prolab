@@ -15,10 +15,9 @@ export const Image = (props) => {
         }
         if (rendered) {
             return (
-                <div>
-                    <img style={style} className={className} alt={alt} src={base64Tmp} />
+                <div className='row'>
                     {canRemove && (
-                        <div className='mt-2'>
+                        <div className='ml-3 mr-2' style={{marginTop: '6px'}}>
                             <i
                                 onClick={() => {
                                     if (onRemove) {
@@ -27,12 +26,13 @@ export const Image = (props) => {
                                 }}
                                 style={{
                                     cursor: 'pointer',
-                                    fontSize: '25px',
+                                    fontSize: '22px',
                                 }}
                                 className='icon mdi mdi-trash-can mdi-trash-background trash-icon-treeview'
                             ></i>
                         </div>
                     )}
+                    <img style={style} className={className} alt={alt} src={base64Tmp} />
                 </div>
             );
         } else {
@@ -45,6 +45,7 @@ export const Image = (props) => {
 Image.defaultProps = {
     rendered: true,
     alt: '',
+    style: {maxHeight: '26px'},
 };
 
 Image.propTypes = {
