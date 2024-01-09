@@ -96,7 +96,7 @@ class Sidebar extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        const viewId = UrlUtils.getViewIdFromURL();
+        const viewId = UrlUtils.getIdFromUrl();
         ConsoleHelper('sidebar => componentDidUpdate', viewId, prevState.viewId);
 
         if (prevState.viewId !== viewId) {

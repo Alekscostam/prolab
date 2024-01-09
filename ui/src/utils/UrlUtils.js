@@ -51,6 +51,9 @@ class UrlUtils {
             !StringUtils.isBlank(editKindView)
         );
     }
+    static notDefinedPrefix(urlPrefix) {
+        return urlPrefix === undefined || urlPrefix == null || urlPrefix === '';
+    }
     static getIdFromUrl() {
         let splittedUrlByWildcard = window.location.href.split('?')[0];
         let elements = splittedUrlByWildcard.split('/');

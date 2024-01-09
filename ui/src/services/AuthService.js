@@ -3,6 +3,7 @@ import moment from 'moment';
 import {readObjFromCookieGlobal} from '../utils/Cookie';
 import ConsoleHelper from '../utils/ConsoleHelper';
 import AppPrefixUtils from '../utils/AppPrefixUtils';
+import {reStateApp} from '../App';
 
 /*
 Żądanie POST służy do uwierzytelnienia użytkownika i uzyskania tokena, który służy do weryfikacji innego interfejsu API
@@ -186,6 +187,9 @@ export default class AuthService {
         )
             .then((res) => {
                 this.setRefreshedToken(res.accessToken, res.refreshToken); // Setting the token in localStorage
+                if (reStateApp) {
+                    reStateApp();
+                }
                 return Promise.resolve(res);
             })
             .catch((err) => {
@@ -293,10 +297,8 @@ export default class AuthService {
                 this.removeLoginCookies();
             }
         }
+        this.removeLoginCookies();
         window.location.href = AppPrefixUtils.locationHrefUrl('/#/');
-        // if (reload !== false) window.location.reload();
-
-        // Clear user token and profile data from localStorage
     }
     removeLoginCookies() {
         localStorage.removeItem('id_token');

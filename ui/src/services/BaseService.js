@@ -106,7 +106,6 @@ export default class BaseService {
                             })
                             .catch((error) => {
                                 this.auth.logout();
-                                window.location.href = AppPrefixUtils.locationHrefUrl('/#/');
                                 reject(error);
                             });
                     } else {

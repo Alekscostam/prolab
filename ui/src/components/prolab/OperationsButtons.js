@@ -324,9 +324,6 @@ export const OperationsButtons = (props) => {
         if (isFromHeader && !!atLeastOneSelected) {
             showOperation = !operations.showAlways;
         }
-        if (operations.showAlways) {
-            return true;
-        }
         return showOperation;
     };
 

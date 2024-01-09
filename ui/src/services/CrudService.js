@@ -4,6 +4,7 @@ import EditRowUtils from '../utils/EditRowUtils';
 import {saveAs} from 'file-saver';
 import UrlUtils from '../utils/UrlUtils';
 import {StringUtils} from '../utils/StringUtils';
+import {reStateApp, renderNoRefreshContentFnc} from '../App';
 /*
 Kontroler do edycji danych.
  */
@@ -97,6 +98,12 @@ export default class CrudService extends BaseService {
             }
         )
             .then((editDataResponse) => {
+                if (editDataResponse.editInfo.editFormType.toUpperCase() === 'FULLSCREEN') {
+                    window.location.href = window.location.href.replace('grid-view', 'edit-row-view');
+                    if (renderNoRefreshContentFnc) {
+                        renderNoRefreshContentFnc();
+                    }
+                }
                 return Promise.resolve(EditRowUtils.convertEditResponse(editDataResponse));
             })
             .catch((err) => {

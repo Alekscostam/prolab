@@ -6,34 +6,38 @@ import LocUtils from '../../utils/LocUtils';
 import {Button} from 'primereact/button';
 
 const maxValue = 30;
-
 function statusFormat() {
     return ``;
 }
 
 const elementAttr = {'aria-label': 'Progress Bar'};
-let intervalId;
 
 export const TickerSessionDialog = (props) => {
+    let intervalId = undefined;
+
     const {onLogout, onProlongSession, visible} = props;
 
     const [seconds, setSeconds] = useState(null);
     const progressBar = useRef();
 
     useEffect(() => {
+        onCounterInit();
         return () => {
             clearInterval(intervalId);
         };
     }, [props]);
 
     const onCounterInit = () => {
-        intervalId = setInterval(() => {
-            setSeconds((prevValue) => prevValue + 1);
-            if (progressBar.current?.instance?.option('value') === 0) {
-                clearInterval(intervalId);
-                onLogout();
-            }
-        }, 1000);
+        if (intervalId === undefined) {
+            console.log(intervalId, 'intervalId');
+            intervalId = setInterval(() => {
+                setSeconds((prevValue) => prevValue + 1);
+                if (progressBar.current?.instance?.option('value') === 0) {
+                    clearInterval(intervalId);
+                    onLogout();
+                }
+            }, 1000);
+        }
     };
 
     return (
@@ -68,7 +72,6 @@ export const TickerSessionDialog = (props) => {
                     className={seconds === 0 ? 'complete' : ''}
                     width='90%'
                     min={0}
-                    onInitialized={onCounterInit}
                     max={maxValue}
                     elementAttr={elementAttr}
                     statusFormat={statusFormat}

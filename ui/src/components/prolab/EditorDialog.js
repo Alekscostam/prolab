@@ -1,6 +1,6 @@
 import {Button} from 'devextreme-react';
 import {Dialog} from 'primereact/dialog';
-import {useEffect, useRef, useState, useMemo} from 'react';
+import {useEffect, useRef, useState} from 'react';
 
 import PropTypes from 'prop-types';
 import HtmlEditor, {Item, MediaResizing, Toolbar} from 'devextreme-react/html-editor';

@@ -8,4 +8,7 @@ export class StringUtils {
     static isBlank(value) {
         return value !== undefined && value !== null ? false : true;
     }
+    static isNumber(value) {
+        return !isNaN(parseFloat(value)) && isFinite(value);
+    }
 }
