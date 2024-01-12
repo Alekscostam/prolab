@@ -50,10 +50,8 @@ export class ActionButtonWithMenu extends React.Component {
                     handleClick={(event) => {
                         const content = document.getElementById('header-left');
                         if (content) content.click();
-                        if (this.props.formula) {
-                            if (customEventClick) {
-                                customEventClick();
-                            }
+                        if (customEventClick) {
+                            customEventClick();
                             return;
                         }
                         this.handleClick(event);
@@ -75,7 +73,6 @@ export class ActionButtonWithMenu extends React.Component {
 ActionButtonWithMenu.defaultProps = {
     id: 'action-button-menu',
     className: null,
-    formula: false,
 };
 
 ActionButtonWithMenu.propTypes = {
@@ -95,7 +92,6 @@ ActionButtonWithMenu.propTypes = {
     iconSize: PropTypes.string,
     params: PropTypes.object,
     rendered: PropTypes.bool,
-    formula: PropTypes.bool,
 };
 
 export default ActionButtonWithMenu;

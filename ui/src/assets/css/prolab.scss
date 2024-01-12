@@ -459,11 +459,25 @@ label {
     padding: 0.5rem 0.75rem;
     min-width: 1rem;
 }
-
+#session-time-out-component-ref{
+    color: $label-color;
+}
 .dx-datagrid-filter-panel .dx-datagrid-filter-panel-clear-filter,
 .dx-datagrid-filter-panel .dx-datagrid-filter-panel-text,
 .dx-datagrid-filter-panel .dx-icon-filter {
     color: $link-color !important;
+}
+
+.custom-overlay{
+            position: "fixed";
+            top: 0;
+            left: 0;
+            width: "100vw";
+            height: "100vh";
+            z-index: 1000;
+            background: 'black';
+            opacity: 0.7;
+            pointer-events: none;
 }
 
 body main div.container-fluid {
@@ -489,6 +503,7 @@ body main div.container-fluid {
         flex-shrink: 1;
 
         .base-container-div {
+           
             height: 100%;
             display: flex;
             width: 100%;

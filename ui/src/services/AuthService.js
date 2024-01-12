@@ -171,7 +171,13 @@ export default class AuthService {
         });
     }
 
+    isAlreadyTokenNotExist(){
+        return  (localStorage.getItem('id_token') === undefined || localStorage.getItem('id_token') === null);
+    }
     refresh() {
+        if(this.isAlreadyTokenNotExist()){
+            window.location.href = AppPrefixUtils.locationHrefUrl('/#/');
+        }
         // Get a token from api server using the fetch api
         return this.fetch(
             `${this.domain}/auth/refreshToken`,
@@ -193,7 +199,9 @@ export default class AuthService {
                 return Promise.resolve(res);
             })
             .catch((err) => {
-                throw err;
+                console.log(err)
+                this.removeLoginCookies();
+                // window.location.href = AppPrefixUtils.locationHrefUrl('/#/');
             });
     }
 
@@ -216,7 +224,9 @@ export default class AuthService {
         const token = this.getToken(); // Getting token from localstorage
         return !!token && !this.isTokenExpiredDate(); // Handwaiving here
     }
-
+    isLoggedUser(){
+        return !!localStorage.getItem('logged_user');
+    }
     isTokenValidForRefresh() {
         const token = this.getToken();
         try {
@@ -270,10 +280,8 @@ export default class AuthService {
         return localStorage.getItem('expiration_token');
     }
 
-    logout(reload) {
-        if (localStorage.getItem('id_token') === undefined || localStorage.getItem('id_token') === null) {
-            this.removeLoginCookies();
-        } else {
+    logout() {
+        if (!this.isAlreadyTokenNotExist()) {
             try {
                 this.fetch(
                     `${this.domain}/auth/logout`,
@@ -296,6 +304,9 @@ export default class AuthService {
             } catch (err) {
                 this.removeLoginCookies();
             }
+        } 
+        if(reStateApp){
+            reStateApp()
         }
         this.removeLoginCookies();
         window.location.href = AppPrefixUtils.locationHrefUrl('/#/');

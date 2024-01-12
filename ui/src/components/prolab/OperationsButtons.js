@@ -296,7 +296,7 @@ export const OperationsButtons = (props) => {
                         );
                     break;
                 case 'OP_FILL':
-                    if (!!atLeastOneSelected || !!operations.showAlways)
+                    if (!!atLeastOneSelected )
                         return (
                             <React.Fragment>
                                 <ShortcutButton

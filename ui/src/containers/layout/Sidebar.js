@@ -1,7 +1,7 @@
 /***********************************************************************
  Documentations = https://github.com/azouaoui-med/pro-sidebar-template
  ************************************************************************/
-import $ from 'jquery';
+import $, { Callbacks } from 'jquery';
 import {Button} from 'primereact/button';
 import * as PropTypes from 'prop-types';
 import React from 'react';
@@ -21,7 +21,9 @@ import UrlUtils from '../../utils/UrlUtils';
 import Avatar from '../../components/prolab/Avatar';
 import ConsoleHelper from '../../utils/ConsoleHelper';
 import AuthService from '../../services/AuthService';
-
+import LocUtils from '../../utils/LocUtils';
+import { Dialog } from 'primereact/dialog';
+// TODO po wyswietlenieu dialog scrollbar sie rusza 
 class Sidebar extends React.Component {
     constructor(props) {
         super(props);
@@ -32,6 +34,9 @@ class Sidebar extends React.Component {
             filteredMenu: [],
             filterValue: '',
             collapsed: false,
+            onClickReactionAlreadyInitialized:false,
+            editConfirmationDialog:false,
+            menuItemIdClicked:undefined,
             toggled: false,
             versionAPI: null,
             menuState: [],
@@ -42,6 +47,7 @@ class Sidebar extends React.Component {
                 buildTime: process.env.REACT_APP_BUILD_TIME,
             },
         };
+        this.menuItemsRef = [];
         this.doNotUpdate = false;
         this.menuService = new MenuService();
         this.viewService = new ViewService();
@@ -65,13 +71,6 @@ class Sidebar extends React.Component {
                     },
                     () => {
                         this.handleFilter('');
-                        //rozwinięcie submenu przy wejściu z linka
-                        // const viewId = UrlUtils.getViewIdFromURL();
-                        // if (!!viewId) {
-                        //     setTimeout(() => {
-                        //         const menuItem = $('#menu_item_id_' + viewId);
-                        //     }, 10);
-                        // }
                     }
                 );
             })
@@ -125,9 +124,9 @@ class Sidebar extends React.Component {
         if ($('nav.pro-menu.shaped.circle').length === 1) {
             return true;
         }
-        // if (!!window.performance && !!performance.navigation && performance.navigation.type === 1) {
-        //     return true;
-        // }
+        if(this.state.editConfirmationDialog !== nextState.editConfirmationDialog){
+            return true;
+        }
         const currentUrl = window.location.href;
         if (
             this.doNotUpdate === true ||
@@ -246,7 +245,37 @@ class Sidebar extends React.Component {
             return <FaAngleRight />;
         }
     }
-
+    onClickReactionEnabled(){
+        return  this.props.onClickReactionEnabled && UrlUtils.isEditRowOpen() && !this.state.onClickReactionAlreadyInitialized
+    }
+    onAfterAcceptQuitConfirmationEditDialog(){
+        this.setState({
+            editConfirmationDialog: false,
+        }, ()=>{
+            const menuItemIdClicked = this.state.menuItemIdClicked;
+            const menuItemToClick =  this.menuItemsRef[menuItemIdClicked];
+            menuItemToClick.current.click();
+            this.setState({
+                onClickReactionAlreadyInitialized:false,
+                menuItemIdClicked:undefined
+            })
+            
+        })
+    }
+    onCloseQuitConfirmationEditDialog(){
+        this.setState({
+            editConfirmationDialog: false,
+            onClickReactionAlreadyInitialized: false,
+            menuItemIdClicked : undefined
+        })
+    }
+    onShowQuitConfirmationEditDialog(menuItemIdClicked){
+        this.setState({
+            editConfirmationDialog: true,
+            onClickReactionAlreadyInitialized: true,
+            menuItemIdClicked
+        })
+    }
     render() {
         ConsoleHelper('sidebar => render', this.state.viewId);
         let {authService} = this.props;
@@ -273,6 +302,7 @@ class Sidebar extends React.Component {
             return loggedIn ? (
                 <Menu key='menu' iconShape='circle' popperArrow='false'>
                     {items?.map((item) => {
+                        this.menuItemsRef[item.id] = React.createRef();
                         const activeItem = containsViewId(item, this.state.viewId, item.id);
                         return item.type === 'View' ? (
                             <li key={`menu_item_g_key_${item.id}`}>
@@ -287,14 +317,22 @@ class Sidebar extends React.Component {
                                 >
                                     <div className='menu_arrow_active' />
                                     <a
+                                        ref={this.menuItemsRef[item.id]}
                                         href={AppPrefixUtils.locationHrefUrl(
                                             `/#/grid-view/${item.id}?force=${timestamp}`
                                         )}
                                         className='title'
                                         style={{fontSize: '14px', fontWeight: 'normal'}}
                                         onClick={(e) => {
-                                            let href = e.target.href;
-                                            e.target.href = UrlUtils.addParameterToURL(href, 'force', Date.now());
+                                            const href = e.target.href;
+                                            const targetHref = UrlUtils.addParameterToURL(href, 'force', Date.now());
+                                            if(this.onClickReactionEnabled()){
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                this.onShowQuitConfirmationEditDialog(item.id);
+                                            }else{
+                                                e.target.href = targetHref;
+                                            }
                                         }}
                                     >
                                         <div className='title'>{item?.name}</div>
@@ -349,12 +387,39 @@ class Sidebar extends React.Component {
             return null;
         }
         const {labels} = this.props;
-
         return (
             <React.Fragment>
                 <div className='btn-toggle' onClick={() => this.handleToggleSidebar()}>
                     <FaBars />
                 </div>
+                {this.state.editConfirmationDialog &&<Dialog
+                    id='quitEditDialog'
+                    header={LocUtils.loc(this.props.labels, 'Confirm_Label_quit_edit', 'Czy na pewno chcesz opuścić edycję?')}
+                    footer={
+                        <React.Fragment>
+                                <div>
+                                    <Button
+                                        type='button'
+                                        onClick={() => {
+                                            this.onAfterAcceptQuitConfirmationEditDialog();
+                                        }}
+                                        label={LocUtils.loc(
+                                            this.props.labels,
+                                            'Confirm_yes',
+                                            'Tak'
+                                        )}
+                                    />
+                                </div>
+                           
+                        </React.Fragment>
+                    }
+                    visible={this.state.editConfirmationDialog}
+                    resizable={false}
+                    breakpoints={{'960px': '75vw', '640px': '100vw'}}
+                    onHide={() => this.onCloseQuitConfirmationEditDialog()}
+                >
+		        </Dialog> }
+                
                 <ProSidebar
                     collapsed={this.state.collapsed}
                     toggled={this.state.toggled}
@@ -483,6 +548,7 @@ Sidebar.propTypes = {
     labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
     handleCollapseChange: PropTypes.func.isRequired,
     loggedUser: PropTypes.any,
+    onClickReactionEnabled: PropTypes.bool,
     handleLogoutUser: PropTypes.any,
     authService: PropTypes.any,
     historyBrowser: PropTypes.any,

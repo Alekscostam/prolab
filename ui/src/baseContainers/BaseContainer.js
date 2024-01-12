@@ -1244,7 +1244,9 @@ class BaseContainer extends React.Component {
                     () => () => this.rowSave(viewId, recordId, parentId, saveElement, true),
                     () => {
                         this.setState({visibleEditPanel: false});
-                        UrlUtils.removeEditRowParamsFromUrlIfPossible();
+                        UrlUtils.removeEditRowParamsFromUrl();
+                        window.location.href = window.location.href.replace('edit-row-view', 'grid-view');
+
                     },
                     (res) => {
                         this.showErrorMessages(res);

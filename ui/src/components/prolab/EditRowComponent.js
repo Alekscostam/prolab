@@ -17,6 +17,7 @@ import EditListUtils from '../../utils/EditListUtils';
 import CrudService from '../../services/CrudService';
 import BaseRowComponent from '../../baseContainers/BaseRowComponent';
 import LocUtils from '../../utils/LocUtils';
+import { addCustomOverlayToElement, removeCustomOverlayToElement } from '../../PageContext';
 
 let copyDataGlobalTop = null;
 export class EditRowComponent extends BaseRowComponent {
@@ -61,13 +62,27 @@ export class EditRowComponent extends BaseRowComponent {
 
     componentDidMount() {
         super.componentDidMount();
+        this.addOverlay()
     }
 
     componentWillUnmount() {
         super.componentWillUnmount();
+        this.removeOverlay();
         window.sidebarRef = null;
         copyDataGlobalTop = null;
     }
+
+    addOverlay(){
+        addCustomOverlayToElement('base-container-div');
+        addCustomOverlayToElement('breadcrumb-link');
+        addCustomOverlayToElement('header-left');
+    }
+    removeOverlay(){
+        removeCustomOverlayToElement('base-container-div');
+        removeCustomOverlayToElement('breadcrumb-link');
+        removeCustomOverlayToElement('header-left');
+    }
+
     handleSelectedRowData(selectedRowData) {
         ConsoleHelper('EditRowComponent::handleSelectedRowData obj=' + JSON.stringify(selectedRowData));
         const setFields = this.state.parsedGridView.setFields;

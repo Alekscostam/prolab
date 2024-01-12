@@ -74,18 +74,22 @@ class UrlUtils {
 
     static removeEditRowParamsFromUrlIfPossible() {
         if (!this.isEditRowView()) {
-            const currentUrl = window.location.href;
-            const paramsToRemove = [
-                'editParentId=' + UrlUtils.getURLParameter('editParentId'),
-                'editRecordId=' + UrlUtils.getURLParameter('editRecordId'),
-                'editKindView=' + UrlUtils.getURLParameter('editKindView'),
-            ];
-            const url = currentUrl;
-            const parts = url.split('?');
-            const filteredParts = parts.filter((part) => !paramsToRemove.includes(part));
-            const newUrl = filteredParts.join('?');
-            window.history.replaceState({}, document.title, newUrl);
+            this.removeEditRowParamsFromUrl();
         }
+    }
+
+   static removeEditRowParamsFromUrl(){
+        const currentUrl = window.location.href;
+        const paramsToRemove = [
+            'editParentId=' + UrlUtils.getURLParameter('editParentId'),
+            'editRecordId=' + UrlUtils.getURLParameter('editRecordId'),
+            'editKindView=' + UrlUtils.getURLParameter('editKindView'),
+        ];
+        const url = currentUrl;
+        const parts = url.split('?');
+        const filteredParts = parts.filter((part) => !paramsToRemove.includes(part));
+        const newUrl = filteredParts.join('?');
+        window.history.replaceState({}, document.title, newUrl);
     }
 
     static deleteParameterFromURL(url, paramName) {

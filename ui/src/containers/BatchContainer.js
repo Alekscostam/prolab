@@ -18,6 +18,7 @@ import GridViewComponent from './dataGrid/GridViewComponent';
 import BatchService from '../services/BatchService';
 import {EntryResponseUtils} from '../utils/EntryResponseUtils';
 import {ViewResponseUtils} from '../utils/ViewResponseUtils';
+import ActionButtonWithMenu from '../components/prolab/ActionButtonWithMenu';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -342,9 +343,14 @@ export class BatchContainer extends BaseContainer {
         return <React.Fragment />;
     }
     leftHeadPanelContent = () => {
-        return <React.Fragment />;
+        return (
+            <React.Fragment>
+                {this.state.parsedView?.operations?.map((operation, index) => {
+                    return <div key={index}>{this.renderButton(operation, index)}</div>;
+                })}
+            </React.Fragment>
+        );
     };
-
     rightHeadPanelContent = () => {
         return (
             <React.Fragment>
@@ -356,6 +362,48 @@ export class BatchContainer extends BaseContainer {
             </React.Fragment>
         );
     };
+
+    renderButton(operation, index) {
+        const margin = Constants.DEFAULT_MARGIN_BETWEEN_BUTTONS;
+        if (!!operation.type) {
+            switch (operation.type?.toUpperCase()) {
+                case "OP_FORMULA":
+                    return (
+                        <React.Fragment>
+                            {operation.showAlways && (
+                                <ActionButtonWithMenu
+                                    id={`button_formula_` + index}
+                                    className={`${margin}`}
+                                    customEventClick={() => 
+                                        alert('Czekamy na API dla Calculate')
+                                    }
+                                    iconName={operation?.iconCode || 'mdi-cogs'}
+                                    title={operation?.label}
+                                />
+                            )}
+                        </React.Fragment>
+                    );
+                case "OP_FILL":
+                    return (
+                        <React.Fragment>
+                            {operation.showAlways && (
+                                <ActionButtonWithMenu
+                                    id={`button_fill_` + index}
+                                    className={`${margin}`}
+                                    customEventClick={() => 
+                                        alert('Czekamy na API dla fill')
+                                    }
+                                    iconName={operation?.iconCode || 'mdi-cogs'}
+                                    title={operation?.label}
+                                />
+                            )}
+                        </React.Fragment>
+                    );
+                default:
+                    return null;
+            }
+        }
+    }
     renderHeadPanel = () => {
         return (
             <React.Fragment>

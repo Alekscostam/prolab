@@ -31,6 +31,7 @@ import {BatchContainer} from './containers/BatchContainer';
 import {TickerSessionDialog} from './components/prolab/TickerSessionDialog';
 import EditRowViewComponent from './components/prolab/EditRowViewComponent';
 import UrlUtils from './utils/UrlUtils';
+import { PageViewUtils } from './utils/parser/PageViewUtils';
 
 // export const
 
@@ -39,7 +40,9 @@ export let renderNoRefreshContentFnc;
 
 let clickEventSeesion = null;
 
+
 class App extends Component {
+    
     constructor() {
         super();
         this.history = createBrowserHistory();
@@ -66,14 +69,11 @@ class App extends Component {
             shortcutButtons: null,
             collapsed: false,
             timer: null,
-            // tickerForEndSession: null,
             sessionTimeOut: null,
         };
         this.handleLogoutUser = this.handleLogoutUser.bind(this);
         this.handleLogoutBySideBar = this.handleLogoutBySideBar.bind(this);
         this.getTranslations = this.getTranslations.bind(this);
-        this.canShowSidebar = this.canShowSidebar.bind(this);
-        //primereact config
         PrimeReact.ripple = true;
         PrimeReact.zIndex = {
             modal: 1100, // dialog, sidebar
@@ -109,6 +109,9 @@ class App extends Component {
             console.error('Error start application = ', err);
         });
     }
+    componentDidUpdate(){
+        this.showSessionTimeout();
+    }
 
     makeConfigUrl(urlPrefix) {
         let browseUrl = window.location.href;
@@ -126,7 +129,6 @@ class App extends Component {
             this.forceUpdate();
         };
     }
-
     setRenderNoRefreshContent() {
         renderNoRefreshContentFnc = () => {
             this.setState({
@@ -134,6 +136,7 @@ class App extends Component {
             });
         };
     }
+   
     prelongSeesionByRootClick() {
         const root = document.getElementById('root');
         const clickEventForSession = () => {
@@ -144,17 +147,34 @@ class App extends Component {
         root.addEventListener('click', clickEventForSession);
     }
     showSessionTimeout() {
-        this.timer = setInterval(() => {
-            const loggedIn = this.authService.loggedIn();
-            if (loggedIn) {
-                const sessionTimeout = Date.parse(localStorage.getItem('session_timeout'));
-                const now = new Date();
-                now.setSeconds(now.getSeconds() + 45);
-                if (sessionTimeout < now && !this.state?.rednerSessionTimeoutDialog) {
-                    this.setState({rednerSessionTimeoutDialog: true});
+        if(this.timer === undefined || this.timer === null){
+            this.timer = setInterval(() => {
+                const loggedUser = this.authService.isLoggedUser();
+                if (loggedUser) {
+                    const sessionTimeout = Date.parse(localStorage.getItem('session_timeout'));
+                    const now = new Date();
+                    const tickerPopUpDate = new Date();
+                    tickerPopUpDate.setSeconds(tickerPopUpDate.getSeconds() + 45);
+                    const duration = moment.duration( sessionTimeout  - now);
+                    const timeToLeaveSession = {
+                            hours: duration.hours(),
+                            minutes: duration.minutes(),
+                            seconds: duration.seconds(),
+                    };
+                    const  sessionTimeOutComponentRef =  document.getElementById("session-time-out-component-ref");
+                    if(sessionTimeOutComponentRef){
+                        sessionTimeOutComponentRef.innerText = PageViewUtils.tickerSessionTimeoutFormat(timeToLeaveSession);
+                    }
+                    if (sessionTimeout < tickerPopUpDate && !this.state?.rednerSessionTimeoutDialog) {
+                        this.setState({rednerSessionTimeoutDialog: true});
+                    }else{
+                        if(sessionTimeout < now){
+                            this.authService.logout();
+                        }
+                    }
                 }
-            }
-        }, 1000);
+            }, 1000);
+        }
     }
     prelongSessionIfUserExist(fromDialogSession) {
         const loggedIn = this.authService.loggedIn();
@@ -321,8 +341,7 @@ class App extends Component {
         return !!subView && !StringUtils.isBlank(subView.headerColumns);
     }
 
-    // TODO: fixuj auth service
-    canShowSidebar = () => {
+    fullScreenDisabled = () => {
         const authService = this.authService;
         const loggedIn = authService.loggedIn();
         if (UrlUtils.isEditRowView()) {
@@ -334,6 +353,12 @@ class App extends Component {
         return true;
     };
 
+    sessionTimeOutComponent(){
+        if(this.fullScreenDisabled()){
+            return  <h6><div className='float-right float-end mr-3'><b id='session-time-out-component-ref' ></b></div></h6>
+        }
+        return null
+    }
     render() {
         const authService = this.authService;
         const {labels} = this.state;
@@ -370,37 +395,38 @@ class App extends Component {
                 )}
 
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
-                {/* <ConfirmationEditExistDialog labels={labels}></ConfirmationEditExistDialog> */}
                 {this.state.loadedConfiguration ? (
                     <HashRouter
                         history={this.historyBrowser}
                         getUserConfirmation={(message, callback) => {
-                            // this is the default behavior
                             const allowTransition = window.confirm(message);
                             callback(allowTransition);
                         }}
                     >
                         <div className={`${loggedIn ? 'app' : ''}`}>
-                            {this.canShowSidebar() && (
+                            {this.fullScreenDisabled() && (
                                 <Sidebar
                                     authService={this.authService}
                                     historyBrowser={this.historyBrowser}
                                     handleLogoutUser={(forceByButton) =>
                                         this.handleLogoutBySideBar(forceByButton, this.state.labels)
                                     }
+                                    onClickReactionEnabled={true}
                                     labels={this.state.labels}
                                     collapsed={this.state.collapsed}
                                     handleCollapseChange={(e) => this.handleCollapseChange(e)}
                                 />
                             )}
                             <main>
+                            {this.sessionTimeOutComponent()}
+                                
                                 <div className={`${loggedIn ? 'container-fluid' : ''}`}>
                                     {this.state.renderNoRefreshContent ? (
                                         <React.Fragment>
                                             {Breadcrumb.render(labels)}
                                             <DivContainer colClass='row base-container-header'>
                                                 <DivContainer id='header-left' colClass='col-11'>
-                                                    <div className='font-medium mb-4'> {this.state.viewInfoName}</div>
+                                                    <div className='font-medium mb-2'> {this.state.viewInfoName}</div>
                                                 </DivContainer>
                                                 <DivContainer id='header-right' colClass='col-1 to-right'>
                                                     <ActionButton
@@ -425,7 +451,6 @@ class App extends Component {
                                                             saveValueToCookieGlobal('refreshSubView', true);
                                                         }}
                                                         handleOnEditClick={(e) => {
-                                                            //TODO antypattern :P
                                                             this.viewContainer?.current?.editSubView(e);
                                                             saveValueToCookieGlobal('refreshSubView', true);
                                                         }}

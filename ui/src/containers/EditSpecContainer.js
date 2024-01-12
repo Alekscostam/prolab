@@ -362,7 +362,6 @@ export class EditSpecContainer extends BaseContainer {
                             <ActionButtonWithMenu
                                 id={`button_formula_` + index}
                                 className={`${margin}`}
-                                formula={true}
                                 customEventClick={() => this.prepareCalculateFormula()}
                                 iconName={operation?.iconCode || 'mdi-cogs'}
                                 title={operation?.label}

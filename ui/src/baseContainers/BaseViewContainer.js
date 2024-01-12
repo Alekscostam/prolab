@@ -922,7 +922,6 @@ export class BaseViewContainer extends BaseContainer {
                                 <ActionButtonWithMenu
                                     id={`button_formula_` + index}
                                     className={`${margin}`}
-                                    formula={true}
                                     customEventClick={() => this.prepareCalculateFormula()}
                                     iconName={operation?.iconCode || 'mdi-cogs'}
                                     title={operation?.label}
@@ -1022,22 +1021,7 @@ export class BaseViewContainer extends BaseContainer {
                     return;
                 }
                 const tr = this.getCurrentDataGridByEvent(event);
-                let filterArray = [];
-                for (let index = 0; index < tr.children.length; index++) {
-                    const child = tr.children[index];
-                    if (this.isValidChildForFilter(child)) {
-                        const inputValue = this.getValueFromChild(child);
-                        if (this.isValidValueFromChild(inputValue)) {
-                            let ariaDescribedby = child?.getAttribute('aria-describedby');
-                            let columnName =
-                                '' + ariaDescribedby?.replace(new RegExp('column_[0-9]+_'), '')?.toUpperCase();
-                            if (filterArray.length > 0) {
-                                filterArray.push('and');
-                            }
-                            filterArray.push([columnName, 'contains', inputValue]);
-                        }
-                    }
-                }
+                const filterArray = this.filterArrayFromInitialize(tr);
                 this.dataGridStore.clearCache();
                 if (filterArray.length > 0) {
                     this.getRefGridView()?.instance?.filter(filterArray);
@@ -1049,6 +1033,27 @@ export class BaseViewContainer extends BaseContainer {
             }
         });
     }
+
+    filterArrayFromInitialize(tr){
+        let filterArray = [];
+        for (let index = 0; index < tr.children.length; index++) {
+            const child = tr.children[index];
+            if (this.isValidChildForFilter(child)) {
+                const inputValue = this.getValueFromChild(child);
+                if (this.isValidValueFromChild(inputValue)) {
+                    let ariaDescribedby = child?.getAttribute('aria-describedby');
+                    let columnName =
+                        '' + ariaDescribedby?.replace(new RegExp('column_[0-9]+_'), '')?.toUpperCase();
+                    if (filterArray.length > 0) {
+                        filterArray.push('and');
+                    }
+                    filterArray.push([columnName, 'contains', inputValue]);
+                }
+            }
+        }
+        return filterArray;
+    }
+
     isCalendarDateBoxValidForFilter(event) {
         const inputValue = event.target.value;
         return inputValue === undefined || inputValue === null || inputValue === '' || inputValue.includes('*');
