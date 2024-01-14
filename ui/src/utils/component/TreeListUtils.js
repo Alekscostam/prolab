@@ -12,6 +12,7 @@ import {EditSpecUtils} from '../EditSpecUtils';
 import CrudService from '../../services/CrudService';
 import UrlUtils from '../UrlUtils';
 import OperationCell from '../OperationCell';
+import EditSpecService from '../../services/EditSpecService';
 
 const sizeValues = ['8pt', '10pt', '12pt', '14pt', '18pt', '24pt', '36pt'];
 const fontValues = [
@@ -454,10 +455,10 @@ const overideEventClick = (element) => {
     });
 };
 export class TreeListUtils extends ViewDataCompUtils {
-    static crudService = new CrudService();
+    static editSpecService = new EditSpecService();
 
-    static getCrudService() {
-        return TreeListUtils.crudService;
+    static getEditSpecService() {
+        return TreeListUtils.editSpecService;
     }
 
     static conditionForTrueValue(value) {
@@ -545,8 +546,8 @@ export class TreeListUtils extends ViewDataCompUtils {
         handleUnblockUiCallback,
         showErrorMessagesCallback
     ) => {
-        TreeListUtils.getCrudService()
-            .saveSpecEntry(viewId, parentId, recordIds, null)
+        TreeListUtils.getEditSpecService()
+            .getViewEntry(viewId, parentId, recordIds, null)
             .then((entryResponse) => {
                 EntryResponseUtils.run(
                     entryResponse,

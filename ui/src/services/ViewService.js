@@ -60,33 +60,6 @@ export default class ViewService extends BaseService {
             });
     }
 
-    getViewSpec(viewId, parentId) {
-        if (UrlUtils.batchIdParamExist()) {
-            let batchId = UrlUtils.getBatchIdParam();
-            const selectedRowKeys = readObjFromCookieGlobal('selectedRowKeys');
-            const idRowKeys = selectedRowKeys.map((el) => el.ID);
-            const requestBody = {
-                listId: idRowKeys,
-            };
-            let url = `${this.domain}/${this.path}/${viewId}/batch/${batchId}`;
-            if (parentId) {
-                url = url + `?parentId=${parentId}`;
-            }
-            return this.fetch(`${url}`, {
-                method: 'POST',
-                body: JSON.stringify(requestBody),
-            }).catch((err) => {
-                throw err;
-            });
-        } else {
-            return this.fetch(`${this.domain}/${this.path}/${viewId}/editspec/${parentId}`, {
-                method: 'GET',
-            }).catch((err) => {
-                throw err;
-            });
-        }
-    }
-
     getViewAddSpec(viewId, parentId, type, header, headerId) {
         let url = `${this.domain}/${this.path}/${viewId}/addspec/${parentId}`;
         if (type !== 'DEF') {

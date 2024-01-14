@@ -10,7 +10,6 @@ let _bgColor = null;
 let _fontcolor = null;
 
 export class DataGridUtils extends ViewDataCompUtils {
-    // TODO: jesli chcemy tu utilsa to musi byc czyszczenie, bo np. let _rowIndex = null nie sa constami!!!
     static clearProperties() {
         _rowIndex = null;
         _bgColor = null;

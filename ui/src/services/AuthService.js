@@ -171,11 +171,11 @@ export default class AuthService {
         });
     }
 
-    isAlreadyTokenNotExist(){
-        return  (localStorage.getItem('id_token') === undefined || localStorage.getItem('id_token') === null);
+    isAlreadyTokenNotExist() {
+        return localStorage.getItem('id_token') === undefined || localStorage.getItem('id_token') === null;
     }
     refresh() {
-        if(this.isAlreadyTokenNotExist()){
+        if (this.isAlreadyTokenNotExist()) {
             window.location.href = AppPrefixUtils.locationHrefUrl('/#/');
         }
         // Get a token from api server using the fetch api
@@ -199,9 +199,9 @@ export default class AuthService {
                 return Promise.resolve(res);
             })
             .catch((err) => {
-                console.log(err)
+                console.log(err);
                 this.removeLoginCookies();
-                // window.location.href = AppPrefixUtils.locationHrefUrl('/#/');
+                window.location.reload();
             });
     }
 
@@ -224,7 +224,7 @@ export default class AuthService {
         const token = this.getToken(); // Getting token from localstorage
         return !!token && !this.isTokenExpiredDate(); // Handwaiving here
     }
-    isLoggedUser(){
+    isLoggedUser() {
         return !!localStorage.getItem('logged_user');
     }
     isTokenValidForRefresh() {
@@ -304,9 +304,9 @@ export default class AuthService {
             } catch (err) {
                 this.removeLoginCookies();
             }
-        } 
-        if(reStateApp){
-            reStateApp()
+        }
+        if (reStateApp) {
+            reStateApp();
         }
         this.removeLoginCookies();
         window.location.href = AppPrefixUtils.locationHrefUrl('/#/');

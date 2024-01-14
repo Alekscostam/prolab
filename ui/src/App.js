@@ -31,31 +31,32 @@ import {BatchContainer} from './containers/BatchContainer';
 import {TickerSessionDialog} from './components/prolab/TickerSessionDialog';
 import EditRowViewComponent from './components/prolab/EditRowViewComponent';
 import UrlUtils from './utils/UrlUtils';
-import { PageViewUtils } from './utils/parser/PageViewUtils';
+import {PageViewUtils} from './utils/parser/PageViewUtils';
+import {ConfirmationEditQuitDialog} from './components/prolab/ConfirmationEditQuitDialog';
 
 // export const
 
 export let reStateApp;
 export let renderNoRefreshContentFnc;
-
-let clickEventSeesion = null;
-
+export let clickEventSeesion = null;
+// TODO: czasami w editspec rozmiar szerokosci sidebar nie jest zgodny z szerokoscia grida. Prawdopodobnie sztuczny restate w checkerze  fullScreenDisabled pomoze
 
 class App extends Component {
-    
     constructor() {
         super();
         this.history = createBrowserHistory();
         this.authService = new AuthService();
         this.historyBrowser = this.history;
         this.selectedDataGrid = React.createRef();
-        // this.progressBarRef = React.createRef();
         this.localizationService = new LocalizationService();
         this.viewContainer = React.createRef();
         this.editSpecContainer = React.createRef();
         this.state = {
             loadedConfiguration: false,
             editData: undefined,
+            menuItemClickedId: undefined,
+            renderEditQuitConfirmDialog: false,
+            sidebarClickItemReactionEnabled: true,
             sessionMock: false,
             configUrl: null,
             user: this.authService.getProfile(),
@@ -109,7 +110,7 @@ class App extends Component {
             console.error('Error start application = ', err);
         });
     }
-    componentDidUpdate(){
+    componentDidUpdate() {
         this.showSessionTimeout();
     }
 
@@ -136,7 +137,7 @@ class App extends Component {
             });
         };
     }
-   
+
     prelongSeesionByRootClick() {
         const root = document.getElementById('root');
         const clickEventForSession = () => {
@@ -147,7 +148,7 @@ class App extends Component {
         root.addEventListener('click', clickEventForSession);
     }
     showSessionTimeout() {
-        if(this.timer === undefined || this.timer === null){
+        if (this.timer === undefined || this.timer === null) {
             this.timer = setInterval(() => {
                 const loggedUser = this.authService.isLoggedUser();
                 if (loggedUser) {
@@ -155,20 +156,21 @@ class App extends Component {
                     const now = new Date();
                     const tickerPopUpDate = new Date();
                     tickerPopUpDate.setSeconds(tickerPopUpDate.getSeconds() + 45);
-                    const duration = moment.duration( sessionTimeout  - now);
+                    const duration = moment.duration(sessionTimeout - now);
                     const timeToLeaveSession = {
-                            hours: duration.hours(),
-                            minutes: duration.minutes(),
-                            seconds: duration.seconds(),
+                        hours: duration.hours(),
+                        minutes: duration.minutes(),
+                        seconds: duration.seconds(),
                     };
-                    const  sessionTimeOutComponentRef =  document.getElementById("session-time-out-component-ref");
-                    if(sessionTimeOutComponentRef){
-                        sessionTimeOutComponentRef.innerText = PageViewUtils.tickerSessionTimeoutFormat(timeToLeaveSession);
+                    const sessionTimeOutComponentRef = document.getElementById('session-time-out-component-ref');
+                    if (sessionTimeOutComponentRef) {
+                        sessionTimeOutComponentRef.innerText =
+                            PageViewUtils.tickerSessionTimeoutFormat(timeToLeaveSession);
                     }
                     if (sessionTimeout < tickerPopUpDate && !this.state?.rednerSessionTimeoutDialog) {
                         this.setState({rednerSessionTimeoutDialog: true});
-                    }else{
-                        if(sessionTimeout < now){
+                    } else {
+                        if (sessionTimeout < now) {
                             this.authService.logout();
                         }
                     }
@@ -177,8 +179,8 @@ class App extends Component {
         }
     }
     prelongSessionIfUserExist(fromDialogSession) {
-        const loggedIn = this.authService.loggedIn();
-        if (loggedIn) {
+        const loggedUser = this.authService.isLoggedUser();
+        if (loggedUser) {
             const timeInMinutes = localStorage.getItem('session_timeout_in_minutes');
             const canPrelongSession =
                 (timeInMinutes && fromDialogSession) || (timeInMinutes && !this.state?.rednerSessionTimeoutDialog);
@@ -341,23 +343,39 @@ class App extends Component {
         return !!subView && !StringUtils.isBlank(subView.headerColumns);
     }
 
-    fullScreenDisabled = () => {
+    fullScreenDisabled() {
         const authService = this.authService;
-        const loggedIn = authService.loggedIn();
+        const isLoggedUser = authService.isLoggedUser();
         if (UrlUtils.isEditRowView()) {
+            console.log('fullScreenDisabled', false);
             return false;
         }
-        if (!loggedIn) {
+        if (!isLoggedUser) {
+            console.log('fullScreenDisabled', false);
             return false;
         }
-        return true;
-    };
 
-    sessionTimeOutComponent(){
-        if(this.fullScreenDisabled()){
-            return  <h6><div className='float-right float-end mr-3'><b id='session-time-out-component-ref' ></b></div></h6>
+        console.log('fullScreenDisabled', true);
+        return true;
+    }
+
+    onShowEditQuitConfirmDialog(menuItemClickedId) {
+        this.setState(() => ({
+            menuItemClickedId,
+            renderEditQuitConfirmDialog: true,
+        }));
+    }
+    sessionTimeOutComponent() {
+        if (this.fullScreenDisabled()) {
+            return (
+                <h6>
+                    <div className='float-right float-end mr-3'>
+                        <b id='session-time-out-component-ref'></b>
+                    </div>
+                </h6>
+            );
         }
-        return null
+        return null;
     }
     render() {
         const authService = this.authService;
@@ -371,14 +389,10 @@ class App extends Component {
                         labels={labels}
                         visible={this.state.rednerSessionTimeoutDialog}
                         onProlongSession={() => {
-                            this.setState(
-                                {
-                                    rednerSessionTimeoutDialog: false,
-                                },
-                                () => {
-                                    this.prelongSessionIfUserExist(true);
-                                }
-                            );
+                            this.prelongSessionIfUserExist(true);
+                            this.setState({
+                                rednerSessionTimeoutDialog: false,
+                            });
                         }}
                         onLogout={() => {
                             authService.removeLoginCookies();
@@ -392,6 +406,37 @@ class App extends Component {
                             );
                         }}
                     ></TickerSessionDialog>
+                )}
+
+                {this.state.renderEditQuitConfirmDialog && (
+                    <ConfirmationEditQuitDialog
+                        onHide={() => {
+                            this.setState({
+                                renderEditQuitConfirmDialog: false,
+                                menuItemClickedId: undefined,
+                            });
+                        }}
+                        onAccept={() => {
+                            const menuItemClickedId = this.state.menuItemClickedId;
+                            this.setState(
+                                {
+                                    renderEditQuitConfirmDialog: false,
+                                    sidebarClickItemReactionEnabled: false,
+                                    menuItemClickedId: undefined,
+                                },
+                                () => {
+                                    const itemToClick = document.getElementById(`menu_link_item_${menuItemClickedId}`);
+                                    itemToClick.click();
+                                    this.setState({
+                                        sidebarClickItemReactionEnabled: true,
+                                    });
+                                }
+                            );
+                        }}
+                        visible={this.state.renderEditQuitConfirmDialog}
+                        labels={labels}
+                        menuItemId={this.state.menuItemClickedId}
+                    />
                 )}
 
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
@@ -411,15 +456,18 @@ class App extends Component {
                                     handleLogoutUser={(forceByButton) =>
                                         this.handleLogoutBySideBar(forceByButton, this.state.labels)
                                     }
-                                    onClickReactionEnabled={true}
+                                    onShowEditQuitConfirmDialog={(menuItemClickedId) =>
+                                        this.onShowEditQuitConfirmDialog(menuItemClickedId)
+                                    }
+                                    onClickItemHrefReactionEnabled={this.state.sidebarClickItemReactionEnabled}
                                     labels={this.state.labels}
                                     collapsed={this.state.collapsed}
                                     handleCollapseChange={(e) => this.handleCollapseChange(e)}
                                 />
                             )}
                             <main>
-                            {this.sessionTimeOutComponent()}
-                                
+                                {this.sessionTimeOutComponent()}
+
                                 <div className={`${loggedIn ? 'container-fluid' : ''}`}>
                                     {this.state.renderNoRefreshContent ? (
                                         <React.Fragment>
@@ -465,8 +513,9 @@ class App extends Component {
                                         {this.state.user && (
                                             <React.Fragment>
                                                 <Route
+                                                    key={`edit-row-view`}
                                                     path='/edit-row-view/:id'
-                                                    render={(props) => {
+                                                    render={() => {
                                                         return (
                                                             <AuthComponent
                                                                 viewMode={'VIEW'}
@@ -477,6 +526,7 @@ class App extends Component {
                                                             >
                                                                 <EditRowViewComponent
                                                                     labels={labels}
+                                                                    historyBrowser={this.historyBrowser}
                                                                     editData={this.state.editData}
                                                                     editDataChange={(editData) => {
                                                                         this.setState({
@@ -588,7 +638,7 @@ class App extends Component {
                                                 />
                                                 <Route
                                                     path='/batch/:id'
-                                                    key={new Date()}
+                                                    key={`batch`}
                                                     render={(props) => {
                                                         return (
                                                             <AuthComponent

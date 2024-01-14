@@ -241,6 +241,7 @@ export class EditRowViewComponent extends BaseRowComponent {
         return (
             <React.Fragment>
                 <Panel
+                    key={`edit-row-panel${groupIndex}`}
                     id={`group_${groupIndex}`}
                     className={'col-xl-6 col-lg-6 col-md-8 col-sm-12 '}
                     header={group.groupName}
@@ -265,7 +266,6 @@ EditRowViewComponent.propTypes = {
     onChange: PropTypes.func.isRequired,
     onEditList: PropTypes.func.isRequired,
     editDataChange: PropTypes.func.isRequired,
-    validator: PropTypes.instanceOf(SimpleReactValidator).isRequired,
     labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
 };
 

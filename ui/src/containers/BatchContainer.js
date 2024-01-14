@@ -19,6 +19,7 @@ import BatchService from '../services/BatchService';
 import {EntryResponseUtils} from '../utils/EntryResponseUtils';
 import {ViewResponseUtils} from '../utils/ViewResponseUtils';
 import ActionButtonWithMenu from '../components/prolab/ActionButtonWithMenu';
+import {ConfirmationEditQuitDialog} from '../components/prolab/ConfirmationEditQuitDialog';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -40,6 +41,7 @@ export class BatchContainer extends BaseContainer {
             isChanged: undefined,
             packageRows: 30,
             levelId: undefined,
+            renderConfirmationEditQuitDialog: false,
             visibleAddSpec: false,
             elementParentId: null,
             elementBatchId: null,
@@ -270,12 +272,8 @@ export class BatchContainer extends BaseContainer {
                         label={opCancel?.label}
                         className='ml-2'
                         handleClick={() => {
-                            const viewIdArg = this.state.elementId;
-                            const parentIdArg = this.state.elementParentId;
-                            const ids = this.state.parsedData.map((el) => el.ID);
-                            this.batchCancel(viewIdArg, parentIdArg, ids, () => {
-                                const backUrl = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewIdArg}`);
-                                window.location.href = backUrl;
+                            this.setState({
+                                renderConfirmationEditQuitDialog: true,
                             });
                         }}
                     />
@@ -295,7 +293,6 @@ export class BatchContainer extends BaseContainer {
     getByNagId(nagId) {
         return this.state.parsedData.filter((el) => el.NAG_ID === nagId);
     }
-
     shouldBeNegative(el) {
         return el === '0' || el === 0 || el === undefined || el === null || el === false || el === '';
     }
@@ -367,32 +364,28 @@ export class BatchContainer extends BaseContainer {
         const margin = Constants.DEFAULT_MARGIN_BETWEEN_BUTTONS;
         if (!!operation.type) {
             switch (operation.type?.toUpperCase()) {
-                case "OP_FORMULA":
+                case 'OP_FORMULA':
                     return (
                         <React.Fragment>
                             {operation.showAlways && (
                                 <ActionButtonWithMenu
                                     id={`button_formula_` + index}
                                     className={`${margin}`}
-                                    customEventClick={() => 
-                                        alert('Czekamy na API dla Calculate')
-                                    }
+                                    customEventClick={() => alert('Czekamy na API dla Calculate')}
                                     iconName={operation?.iconCode || 'mdi-cogs'}
                                     title={operation?.label}
                                 />
                             )}
                         </React.Fragment>
                     );
-                case "OP_FILL":
+                case 'OP_FILL':
                     return (
                         <React.Fragment>
                             {operation.showAlways && (
                                 <ActionButtonWithMenu
                                     id={`button_fill_` + index}
                                     className={`${margin}`}
-                                    customEventClick={() => 
-                                        alert('Czekamy na API dla fill')
-                                    }
+                                    customEventClick={() => alert('Czekamy na API dla fill')}
                                     iconName={operation?.iconCode || 'mdi-cogs'}
                                     title={operation?.label}
                                 />
@@ -442,7 +435,18 @@ export class BatchContainer extends BaseContainer {
             <React.Fragment>
                 {this.state.loading ? null : (
                     <React.Fragment>
-                        {/*{this.state.parsedData.map((el) => el.ID).join(", ")}*/}
+                        <ConfirmationEditQuitDialog
+                            onHide={() => {
+                                this.setState({
+                                    renderConfirmationEditQuitDialog: false,
+                                });
+                            }}
+                            visible={this.state.renderConfirmationEditQuitDialog}
+                            labels={this.props.labels}
+                            onAccept={() => {
+                                this.batchCancel();
+                            }}
+                        />
                         <GridViewComponent
                             id={this.props.id}
                             elementParentId={this.state.elementParentId}
@@ -509,7 +513,26 @@ export class BatchContainer extends BaseContainer {
             </React.Fragment>
         );
     };
-
+    batchCancel = () => {
+        this.blockUi();
+        const viewIdArg = this.state.elementId;
+        const parentIdArg = this.state.elementParentId;
+        const ids = this.state.parsedData.map((el) => el.ID);
+        this.setState({
+            renderConfirmationEditQuitDialog: false,
+        });
+        this.batchService
+            .cancel(viewIdArg, parentIdArg, ids)
+            .then(() => {
+                window.history.back();
+            })
+            .catch((err) => {
+                this.showGlobalErrorMessage(err);
+            })
+            .finally(() => {
+                this.unblockUi();
+            });
+    };
     //override
     handleEditRowChange(inputType, event, rowId, info) {}
 

@@ -106,7 +106,7 @@ export default class BaseService {
                             })
                             .catch((error) => {
                                 this.auth.logout();
-                                reject(error);
+                                // reject(error);
                             });
                     } else {
                         if (method === 'POST' || method === 'PUT') {

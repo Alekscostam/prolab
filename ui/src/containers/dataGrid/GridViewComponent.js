@@ -30,6 +30,7 @@ import {StringUtils} from '../../utils/StringUtils';
 import CellEditComponent from '../CellEditComponent';
 import OperationCell from '../../utils/OperationCell';
 import UrlUtils from '../../utils/UrlUtils';
+import EditSpecService from '../../services/EditSpecService';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -40,6 +41,7 @@ class GridViewComponent extends CellEditComponent {
         this.labels = this.props;
         this.dataGrid = null;
         this.crudService = new CrudService();
+        this.editSpecService = new EditSpecService();
         this.state = {
             allRowsShow: false,
             editListVisible: false,
@@ -346,8 +348,8 @@ class GridViewComponent extends CellEditComponent {
                                         info={info}
                                         handleEdit={() => {
                                             if (TreeListUtils.isKindViewSpec(this.props.parsedGridView)) {
-                                                this.crudService
-                                                    .saveSpecEntry(viewId, parentId, [recordId], kindView, null)
+                                                this.editSpecService
+                                                    .getViewEntry(viewId, parentId, [recordId], kindView, null)
                                                     .then((entryResponse) => {
                                                         EntryResponseUtils.run(
                                                             entryResponse,

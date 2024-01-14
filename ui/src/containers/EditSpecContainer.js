@@ -22,10 +22,13 @@ import ActionButtonWithMenuUtils from '../utils/ActionButtonWithMenuUtils';
 import {AddSpecContainer} from './AddSpecContainer';
 import SubGridViewComponent from './dataGrid/SubGridViewComponent';
 import {TreeListUtils} from '../utils/component/TreeListUtils';
+import {ConfirmationEditQuitDialog} from '../components/prolab/ConfirmationEditQuitDialog';
+import EditSpecService from '../services/EditSpecService';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
+// TODO: zrobic SpecSerivice
 export class EditSpecContainer extends BaseContainer {
     _isMounted = false;
 
@@ -33,6 +36,7 @@ export class EditSpecContainer extends BaseContainer {
         ConsoleHelper('EditSpecContainer -> constructor');
         super(props);
         this.viewService = new ViewService();
+        this.editSpecService = new EditSpecService();
         this.crudService = new CrudService();
         this.dataTreeStore = new DataTreeStore();
         this.refTreeList = React.createRef();
@@ -42,6 +46,7 @@ export class EditSpecContainer extends BaseContainer {
             expandAll: undefined,
             levelId: undefined,
             visibleAddSpec: false,
+            renderConfirmationEditQuitDialog: false,
             elementParentId: null,
             elementRecordId: null,
             elementFilterId: null,
@@ -138,8 +143,8 @@ export class EditSpecContainer extends BaseContainer {
 
     getViewById(viewId, parentId, recordId, filterId, expandAll) {
         this.setState({loading: true}, () => {
-            this.viewService
-                .getViewSpec(viewId, parentId)
+            this.editSpecService
+                .getView(viewId, parentId)
                 .then((responseView) => {
                     let refactorResponseView = {
                         ...responseView,
@@ -397,27 +402,26 @@ export class EditSpecContainer extends BaseContainer {
 
     //override
     renderHeaderRight() {
-        let operations = [];
+        const operations = [];
         operations.push({type: 'OP_SAVE', label: 'Zapisz'});
         operations.push({type: 'OP_ADD_SPEC', label: 'Dodaj'});
+        operations.push({type: 'OP_CANCEL', label: 'Anuluj'});
 
-        let opAdd = DataGridUtils.containsOperationsButton(operations, 'OP_ADD_SPEC');
-        let opSave = DataGridUtils.containsOperationsButton(operations, 'OP_SAVE');
+        const opAdd = DataGridUtils.containsOperationsButton(operations, 'OP_ADD_SPEC');
+        const opSave = DataGridUtils.containsOperationsButton(operations, 'OP_SAVE');
+        const opCancel = DataGridUtils.containsOperationsButton(operations, 'OP_CANCEL');
 
         return (
             <React.Fragment>
                 <div id='global-top-components'>
-                    {!UrlUtils.batchIdParamExist('batchId') && (
-                        <ActionButton
-                            rendered={!!opAdd}
-                            label={opAdd?.label}
-                            className='ml-2'
-                            handleClick={(e) => {
-                                this.showAddSpecDialog();
-                            }}
-                        />
-                    )}
-
+                    <ActionButton
+                        rendered={!!opAdd}
+                        label={opAdd?.label}
+                        className='ml-2'
+                        handleClick={(e) => {
+                            this.showAddSpecDialog();
+                        }}
+                    />
                     <ActionButton
                         rendered={!!opSave}
                         label={opSave?.label}
@@ -436,6 +440,16 @@ export class EditSpecContainer extends BaseContainer {
                                     this.refreshView();
                                     this.refreshTable();
                                 }
+                            });
+                        }}
+                    />
+                    <ActionButton
+                        rendered={!!opCancel}
+                        label={opCancel?.label}
+                        className='ml-2'
+                        handleClick={() => {
+                            this.setState({
+                                renderConfirmationEditQuitDialog: true,
                             });
                         }}
                     />
@@ -504,8 +518,6 @@ export class EditSpecContainer extends BaseContainer {
         });
         this.unblockUi();
     }
-    //override
-
     //override
     renderHeaderContent() {
         const {parsedView} = this.state;
@@ -667,12 +679,10 @@ export class EditSpecContainer extends BaseContainer {
 
     getMaxViewid() {}
 
-    //metoda usuwa wszytkie sortowania z kolumn
     disableAllSort() {
         this.refTreeList?.instance?.clearSorting();
     }
 
-    //metoda pobiera aktualne stan danych komponentu
     getData() {
         return this.state.parsedData;
     }
@@ -697,7 +707,18 @@ export class EditSpecContainer extends BaseContainer {
             <React.Fragment>
                 {this.state.loading ? null : (
                     <React.Fragment>
-                        {/*{this.state.parsedData.map((el) => el.ID).join(", ")}*/}
+                        <ConfirmationEditQuitDialog
+                            onHide={() => {
+                                this.setState({
+                                    renderConfirmationEditQuitDialog: false,
+                                });
+                            }}
+                            visible={this.state.renderConfirmationEditQuitDialog}
+                            labels={this.props.labels}
+                            onAccept={() => {
+                                this.cancelSpec();
+                            }}
+                        />
                         <div id='spec-edit'>
                             <TreeViewComponent
                                 id={this.props.id}
@@ -815,10 +836,29 @@ export class EditSpecContainer extends BaseContainer {
         );
     };
 
-    //override
+    cancelSpec = () => {
+        this.blockUi();
+        const viewIdArg = this.state.elementId;
+        const parentIdArg = this.state.elementParentId;
+        const ids = this.state.parsedData.map((el) => el.ID);
+        this.setState({
+            renderConfirmationEditQuitDialog: false,
+        });
+        this.editSpecService
+            .cancel(viewIdArg, parentIdArg, ids)
+            .then(() => {
+                window.history.back();
+            })
+            .catch((err) => {
+                this.showGlobalErrorMessage(err);
+            })
+            .finally(() => {
+                this.unblockUi();
+            });
+    };
+
     handleEditRowChange(inputType, event, rowId, info) {}
 
-    //override
     handleEditRowBlur(inputType, event, groupName, viewInfo, field) {
         ConsoleHelper(`handleEditRowBlur inputType=${inputType} groupName=${groupName}`);
         this.handleEditRowChange(inputType, event, groupName, viewInfo, field);

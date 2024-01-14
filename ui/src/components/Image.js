@@ -15,24 +15,28 @@ export const Image = (props) => {
         }
         if (rendered) {
             return (
-                <div className='row'>
-                    {canRemove && (
-                        <div className='ml-3 mr-2' style={{marginTop: '6px'}}>
-                            <i
-                                onClick={() => {
-                                    if (onRemove) {
-                                        onRemove();
-                                    }
-                                }}
-                                style={{
-                                    cursor: 'pointer',
-                                    fontSize: '22px',
-                                }}
-                                className='icon mdi mdi-trash-can mdi-trash-background trash-icon-treeview'
-                            ></i>
+                <div>
+                    {canRemove ? (
+                        <div className='row'>
+                            <div className='ml-3 mr-2' style={{marginTop: '6px'}}>
+                                <i
+                                    onClick={() => {
+                                        if (onRemove) {
+                                            onRemove();
+                                        }
+                                    }}
+                                    style={{
+                                        cursor: 'pointer',
+                                        fontSize: '22px',
+                                    }}
+                                    className='icon mdi mdi-trash-can mdi-trash-background trash-icon-treeview'
+                                ></i>
+                            </div>
+                            <img style={style} className={className} alt={alt} src={base64Tmp} />
                         </div>
+                    ) : (
+                        <img style={style} className={className} alt={alt} src={base64Tmp} />
                     )}
-                    <img style={style} className={className} alt={alt} src={base64Tmp} />
                 </div>
             );
         } else {

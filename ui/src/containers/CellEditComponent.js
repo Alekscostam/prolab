@@ -21,6 +21,8 @@ import UrlUtils from '../utils/UrlUtils';
 import {EditorDialog} from '../components/prolab/EditorDialog';
 import {StringUtils} from '../utils/StringUtils';
 
+// TODO: na komponencie typu checkbox po kliknieicu jest jakis double ckick na treeliscie
+
 class CellEditComponent extends React.Component {
     // editListDataStore = new EditListComponent();
     constructor(props) {

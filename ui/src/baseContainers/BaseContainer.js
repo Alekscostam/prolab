@@ -25,6 +25,7 @@ import LocalizationService from '../services/LocalizationService';
 import DataHistoryLogStore from '../containers/dao/DataHistoryLogStore';
 import BatchService from '../services/BatchService';
 import {ResponseUtils} from '../utils/ResponseUtils';
+import EditSpecService from '../services/EditSpecService';
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -34,6 +35,7 @@ class BaseContainer extends React.Component {
         this.authService = new AuthService(this.props.backendUrl);
         this.crudService = new CrudService();
         this.batchService = new BatchService();
+        this.editSpecService = new EditSpecService();
         this.scrollToFirstError = this.scrollToFirstError.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleFormSubmit = this.handleFormSubmit.bind(this);
@@ -1173,7 +1175,8 @@ class BaseContainer extends React.Component {
         this.blockUi();
         this.batchService
             .cancel(viewId, parentId, listIds)
-            .then((res) => {
+            .then(() => {
+                // TODO: czy tu musi byc tyle refreshow?
                 this.refreshView();
                 this.unselectAllDataGrid();
                 this.unblockUi();
@@ -1197,8 +1200,8 @@ class BaseContainer extends React.Component {
                 }
             });
         });
-        this.crudService
-            .saveSpec(viewId, parentId, saveElement, confirmSave)
+        this.editSpecService
+            .save(viewId, parentId, saveElement, confirmSave)
             .then((saveResponse) => {
                 ResponseUtils.run(
                     saveResponse,
@@ -1246,7 +1249,6 @@ class BaseContainer extends React.Component {
                         this.setState({visibleEditPanel: false});
                         UrlUtils.removeEditRowParamsFromUrl();
                         window.location.href = window.location.href.replace('edit-row-view', 'grid-view');
-
                     },
                     (res) => {
                         this.showErrorMessages(res);
@@ -1907,7 +1909,7 @@ class BaseContainer extends React.Component {
         const fieldsToCalculate = this.createObjectToCalculate(datas);
         this.calculateFormula(viewId, parentId, rowId, fieldsToCalculate);
     }
-
+    // TODO:  tutaj powinien byc jakis refactoring
     calculateFormula(viewId, parentId, rowId, fieldsToCalculate) {
         this.blockUi();
         ConsoleHelper('calculateFormula');
