@@ -242,7 +242,6 @@ export class EditSpecContainer extends BaseContainer {
                     expandAll: expandAll,
                 }),
                 () => {
-                    //const initFilterId = responseView?.viewInfo?.filterdId;
                     const dataPackageSize = responseView.viewInfo?.packageCount;
                     const viewIdArg = this.state.elementId;
                     const parentIdArg = this.state.elementParentId;
@@ -251,7 +250,6 @@ export class EditSpecContainer extends BaseContainer {
                         !!dataPackageSize || dataPackageSize === 0
                             ? Constants.DEFAULT_DATA_PACKAGE_COUNT
                             : dataPackageSize;
-                    //const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId;
                     this.dataTreeStore
                         .getDataTreeStoreDirect(viewIdArg, parentIdArg, recordIdArg, packageCount)
                         .then((res) => {
@@ -403,6 +401,7 @@ export class EditSpecContainer extends BaseContainer {
     //override
     renderHeaderRight() {
         const operations = [];
+
         operations.push({type: 'OP_SAVE', label: 'Zapisz'});
         operations.push({type: 'OP_ADD_SPEC', label: 'Dodaj'});
         operations.push({type: 'OP_CANCEL', label: 'Anuluj'});
@@ -534,7 +533,7 @@ export class EditSpecContainer extends BaseContainer {
             headerColumns: parsedView?.headerColumns,
         };
         return (
-            <div>
+            <div style={{marginLeft: '2px'}}>
                 <SubGridViewComponent
                     key={'sub'}
                     handleOnInitialized={(ref) => (this.selectedDataGrid = ref)}
@@ -699,7 +698,6 @@ export class EditSpecContainer extends BaseContainer {
     move(array, initialIndex, finalIndex) {
         return array.splice(finalIndex, 0, array.splice(initialIndex, 1)[0]);
     }
-
     //override
     renderContent = () => {
         let parsedData = this.state?.parsedData?.filter((el) => el._STATUS !== 'deleted');
@@ -707,30 +705,27 @@ export class EditSpecContainer extends BaseContainer {
             <React.Fragment>
                 {this.state.loading ? null : (
                     <React.Fragment>
-                        <ConfirmationEditQuitDialog
-                            onHide={() => {
-                                this.setState({
-                                    renderConfirmationEditQuitDialog: false,
-                                });
-                            }}
-                            visible={this.state.renderConfirmationEditQuitDialog}
-                            labels={this.props.labels}
-                            onAccept={() => {
-                                this.cancelSpec();
-                            }}
-                        />
+                        {this.state.renderConfirmationEditQuitDialog && (
+                            <ConfirmationEditQuitDialog
+                                onHide={() => {
+                                    this.setState({
+                                        renderConfirmationEditQuitDialog: false,
+                                    });
+                                }}
+                                visible={this.state.renderConfirmationEditQuitDialog}
+                                labels={this.props.labels}
+                                onAccept={() => {
+                                    this.cancelSpec();
+                                }}
+                            />
+                        )}
+
                         <div id='spec-edit'>
                             <TreeViewComponent
                                 id={this.props.id}
-                                handleIsChanged={() => {
-                                    this.setState({
-                                        expandAll: false,
-                                    });
-                                }}
                                 onHideEditorCallback={() => {
                                     this.forceUpdate();
                                 }}
-                                expandAll={this.state.expandAll}
                                 elementParentId={this.state.elementParentId}
                                 elementRecordId={this.state.elementRecordId}
                                 handleOnTreeList={(ref) => (this.refTreeList = ref)}
@@ -771,11 +766,8 @@ export class EditSpecContainer extends BaseContainer {
                                 handleSelectedRowKeys={(e) => {
                                     this.blockUi();
                                     this.setState(
-                                        (prevState) => {
-                                            return {
-                                                ...prevState,
-                                                selectedRowKeys: e,
-                                            };
+                                        {
+                                            selectedRowKeys: e,
                                         },
                                         () => {
                                             this.unblockUi();

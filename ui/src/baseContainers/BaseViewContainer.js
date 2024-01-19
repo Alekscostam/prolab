@@ -220,14 +220,6 @@ export class BaseViewContainer extends BaseContainer {
             fromSubviewToFirstSubView ||
             !DataGridUtils.equalNumbers(this.state.elementFilterId, filterId) ||
             !DataGridUtils.equalNumbers(this.state.elementRecordId, recordId);
-        ConsoleHelper(
-            'BaseViewContainer::componentDidUpdate -> updatePage={%s id={%s} id={%s} type={%s} type={%s}',
-            updatePage,
-            prevProps.id,
-            this.props.id,
-            prevState.gridViewType,
-            this.state.gridViewType
-        );
         if (updatePage || this.state?.attachmentCloseWindow) {
             const newUrl = UrlUtils.deleteParameterFromURL(window.document.URL.toString(), 'force');
             window.history.replaceState('', '', newUrl);
@@ -254,8 +246,6 @@ export class BaseViewContainer extends BaseContainer {
                     );
                 }
             );
-        } else {
-            ConsoleHelper('BaseViewContainer::componentDidUpdate -> not updating !');
         }
     }
 
@@ -817,7 +807,6 @@ export class BaseViewContainer extends BaseContainer {
                                     displayExpr='label'
                                     valueExpr='id'
                                     onValueChanged={(e) => {
-                                        ConsoleHelper('onValueChanged:', e);
                                         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
                                         if (!!e.value && e.value !== e.previousValue) {
                                             const filterId = parseInt(e.value);
@@ -846,7 +835,7 @@ export class BaseViewContainer extends BaseContainer {
                                                 );
                                                 if (filterId) {
                                                     window.location.href = AppPrefixUtils.locationHrefUrl(
-                                                        `/#/grid-view/${this.state.elementId}/?filterId=${filterId}&viewType=${viewType}${currentBreadcrumb}`
+                                                        `/#/grid-view/${this.state.elementId}?filterId=${filterId}&viewType=${viewType}${currentBreadcrumb}`
                                                     );
                                                 }
                                             }
@@ -1034,7 +1023,7 @@ export class BaseViewContainer extends BaseContainer {
         });
     }
 
-    filterArrayFromInitialize(tr){
+    filterArrayFromInitialize(tr) {
         let filterArray = [];
         for (let index = 0; index < tr.children.length; index++) {
             const child = tr.children[index];
@@ -1042,8 +1031,7 @@ export class BaseViewContainer extends BaseContainer {
                 const inputValue = this.getValueFromChild(child);
                 if (this.isValidValueFromChild(inputValue)) {
                     let ariaDescribedby = child?.getAttribute('aria-describedby');
-                    let columnName =
-                        '' + ariaDescribedby?.replace(new RegExp('column_[0-9]+_'), '')?.toUpperCase();
+                    let columnName = '' + ariaDescribedby?.replace(new RegExp('column_[0-9]+_'), '')?.toUpperCase();
                     if (filterArray.length > 0) {
                         filterArray.push('and');
                     }
@@ -1345,18 +1333,31 @@ export class BaseViewContainer extends BaseContainer {
         this.blockUi();
         const parentId = e.parentId || this.state.elementRecordId;
         const kindView = this.state.elementKindView;
-        this.crudService
-            .edit(e.viewId, e.recordId, parentId, kindView)
-            .then((editDataResponse) => {
-                this.setState({
-                    visibleEditPanel: true,
-                    editData: editDataResponse,
-                });
-                this.unblockUi();
-            })
-            .catch((err) => {
-                this.showGlobalErrorMessage(err);
-            });
+        this.crudService.editEntry(e.viewId, e.recordId, parentId, kindView).then((entryResponse) => {
+            EntryResponseUtils.run(
+                entryResponse,
+                () => {
+                    if (!!entryResponse.next) {
+                        this.crudService
+                            .edit(e.viewId, e.recordId, parentId, kindView)
+                            .then((editDataResponse) => {
+                                this.setState({
+                                    visibleEditPanel: true,
+                                    editData: editDataResponse,
+                                });
+                                this.unblockUi();
+                            })
+
+                            .catch((err) => {
+                                this.showGlobalErrorMessage(err);
+                            });
+                    } else {
+                        this.handleUnblockUi();
+                    }
+                },
+                () => this.unblockUi()
+            );
+        });
     }
 
     refreshGanttData() {

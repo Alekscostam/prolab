@@ -27,11 +27,13 @@ import {compress} from 'int-compress-string';
 import CellEditComponent from '../CellEditComponent';
 import {StringUtils} from '../../utils/StringUtils';
 import Image from '../../components/Image';
+import { getExpandAllInitialized, setExpandAllInitialized} from '../AddSpecContainer';
 
 //
 //    https://js.devexpress.com/Documentation/Guide/UI_Components/TreeList/Getting_Started_with_TreeList/
 //
 let clearSelection = false;
+
 class TreeViewComponent extends CellEditComponent {
     constructor(props) {
         super(props);
@@ -43,11 +45,12 @@ class TreeViewComponent extends CellEditComponent {
         this.state = {
             editListVisible: false,
             editorDialogVisisble: false,
-            groupExpandAll: undefined,
+            groupExpandAll: this.props.parsedGridView?.gridOptions?.groupExpandAll || false,
             editListRecordId: null,
             mode: 'cell',
             parsedGridView: {},
             parsedGridViewData: {},
+            rowRenderingMode: this.props.parsedGridView?.gridOptions?.groupExpandAll ? 'standard' : 'virtual',
             gridViewColumns: [],
             selectedRowData: [],
             defaultSelectedRowKeys: [],
@@ -79,6 +82,7 @@ class TreeViewComponent extends CellEditComponent {
     }
     componentWillUnmount() {
         clearSelection = false;
+        setExpandAllInitialized(false);
     }
     isSpecialCell(columnDefinition) {
         const type = columnDefinition?.type;
@@ -100,7 +104,6 @@ class TreeViewComponent extends CellEditComponent {
 
     render() {
         const columnAutoWidth = this.props.parsedGridView?.gridOptions?.columnAutoWidth || true;
-        // const groupExpandAll = this.props.parsedGridView?.gridOptions?.groupExpandAll || false;
         const rowAutoHeight = this.props.parsedGridView?.gridOptions?.rowAutoHeight || false;
         const headerAutoHeight = this.props.parsedGridView?.gridOptions?.headerAutoHeight || false;
         const multiSelect = this.props.parsedGridView?.gridOptions?.multiSelect;
@@ -145,19 +148,16 @@ class TreeViewComponent extends CellEditComponent {
                         }
                     }}
                     onContentReady={(e) => {
-                        if (this.shouldBeExpanded()) {
-                            this.setState({expandAll: false});
-                            this.props.handleIsChanged(false);
+                        const editListDialog = document.getElementById('editListDialog');
+                        // ze wzgledów optymalizacyjnych
+                        if (!getExpandAllInitialized() && this.state.groupExpandAll &&  this.ref !== null) {
+                            setExpandAllInitialized(true);
                             const treeList = this.ref.instance;
                             const data = this.props.parsedGridViewData;
                             setTimeout(function () {
                                 data.forEach((el) => treeList.expandRow(el.ID));
                             }, 0);
                         }
-
-                        const editListDialog = document.getElementById('editListDialog');
-                        // ze wzgledów optymalizacyjnych
-                        // TODO: EditRowList zamyka kolory drzewek!!!
                         if (!editListDialog) {
                             this.rerenderRows(e);
                             return;
@@ -265,13 +265,6 @@ class TreeViewComponent extends CellEditComponent {
         );
     }
 
-    shouldBeExpanded() {
-        return (
-            ((this.props.expandAll || this.state.expandAll) &&
-                this.props.parsedGridView?.gridOptions?.groupExpandAll) ||
-            (this.props.expandAll && !this.props.isAddSpec && this.props.parsedGridView?.gridOptions?.groupExpandAll)
-        );
-    }
     rerenderRows(e) {
         const rowDatas = e.component.getVisibleRows();
         this.paintLineIfPossible(rowDatas);
@@ -529,10 +522,6 @@ class TreeViewComponent extends CellEditComponent {
                                             }
                                         }}
                                         handleAddSpecSpec={() => {
-                                            if (this.props?.handleChaningTab) {
-                                                this.setState({expandAll: true});
-                                                this.props?.handleChaningTab();
-                                            }
                                             this.props.handleAddSpecSpec(recordId);
                                         }}
                                         handleArchive={() => {
@@ -834,7 +823,6 @@ TreeViewComponent.propTypes = {
     handleAttachmentRow: PropTypes.func.isRequired,
     handleAttachments: PropTypes.func.isRequired,
     handleCopyRow: PropTypes.func.isRequired,
-    handleChaningTab: PropTypes.func,
     handleDeleteRow: PropTypes.func.isRequired,
     handleRestoreRow: PropTypes.func.isRequired, //other
     handleAddLevel: PropTypes.func.isRequired,

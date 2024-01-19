@@ -139,7 +139,7 @@ class LoginContainer extends BaseContainer {
             this.blockUi();
             this.authService
                 .login(this.state.username, this.state.password)
-                .then((res) => {
+                .then(() => {
                     if (this.props.onAfterLogin) {
                         this.props.onAfterLogin();
                     }

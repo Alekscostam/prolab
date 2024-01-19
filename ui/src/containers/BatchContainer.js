@@ -443,9 +443,7 @@ export class BatchContainer extends BaseContainer {
                             }}
                             visible={this.state.renderConfirmationEditQuitDialog}
                             labels={this.props.labels}
-                            onAccept={() => {
-                                this.batchCancel();
-                            }}
+                            onAccept={this.batchCancel}
                         />
                         <GridViewComponent
                             id={this.props.id}

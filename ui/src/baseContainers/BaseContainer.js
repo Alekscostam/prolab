@@ -1171,25 +1171,6 @@ class BaseContainer extends React.Component {
             });
     };
 
-    batchCancel = (viewId, parentId, listIds, callBack) => {
-        this.blockUi();
-        this.batchService
-            .cancel(viewId, parentId, listIds)
-            .then(() => {
-                // TODO: czy tu musi byc tyle refreshow?
-                this.refreshView();
-                this.unselectAllDataGrid();
-                this.unblockUi();
-                if (callBack) {
-                    callBack();
-                }
-            })
-            .catch((err) => {
-                this.showGlobalErrorMessage(err);
-                this.unblockUi();
-            });
-    };
-
     specSave = (viewId, parentId, saveElement, confirmSave, fncRedirect) => {
         this.blockUi();
         saveElement.forEach((array) => {
@@ -1247,8 +1228,14 @@ class BaseContainer extends React.Component {
                     () => () => this.rowSave(viewId, recordId, parentId, saveElement, true),
                     () => {
                         this.setState({visibleEditPanel: false});
-                        UrlUtils.removeEditRowParamsFromUrl();
-                        window.location.href = window.location.href.replace('edit-row-view', 'grid-view');
+                        // TODO: refactor this najlepiej by bylo gdyby
+                        if (UrlUtils.isEditRowView()) {
+                            window.history.back();
+                            window.history.back();
+                            if (!UrlUtils.haveKindView()) {
+                                window.history.back();
+                            }
+                        }
                     },
                     (res) => {
                         this.showErrorMessages(res);

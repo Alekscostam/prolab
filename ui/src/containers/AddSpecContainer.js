@@ -19,10 +19,19 @@ import {Tabs} from 'devextreme-react';
 import {InputNumber} from 'primereact/inputnumber';
 import {Popup} from 'devextreme-react/popup';
 import {TreeListUtils} from '../utils/component/TreeListUtils';
+import { sessionPrelongFnc } from '../App';
 
-//
-//    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
-//
+let expandAllInitialized = false;
+let itemTabIndexClicked = undefined;
+const autOfRangeIndex = 6;
+
+export const setExpandAllInitialized = (bool) => {
+    expandAllInitialized = bool;
+};
+export const getExpandAllInitialized = () => {
+    return expandAllInitialized;
+};
+
 export class AddSpecContainer extends BaseContainer {
     _isMounted = false;
     constructor(props) {
@@ -57,6 +66,7 @@ export class AddSpecContainer extends BaseContainer {
 
     componentDidMount() {
         this._isMounted = true;
+        itemTabIndexClicked = 0;
         let id = UrlUtils.getViewIdFromURL();
         if (id === undefined) {
             id = this.props.id;
@@ -118,6 +128,7 @@ export class AddSpecContainer extends BaseContainer {
     }
 
     componentWillUnmount() {
+        itemTabIndexClicked = 0;
         this._isMounted = false;
     }
 
@@ -329,42 +340,26 @@ export class AddSpecContainer extends BaseContainer {
                                 style={{maxHeight: '300px'}}
                                 dataSource={this.state.tabs}
                                 selectedIndex={this.state.selectedIndex}
+                                onItemClick={(event) => {
+                                    if (sessionPrelongFnc) {
+                                        sessionPrelongFnc();
+                                    }
+                                    setExpandAllInitialized(false);
+                                    itemTabIndexClicked = event.itemIndex;
+                                    if (this.state.selectedIndex === autOfRangeIndex) {
+                                        this.onItemTabClick(event.itemIndex);
+                                    }
+                                }}
                                 onOptionChanged={(args, e, b, d) => {
                                     if (args.name === 'selectedIndex') {
                                         if (this.state.isSubView) {
-                                            this.setState({isSubView: false, selectedIndex: 6});
+                                            this.setState({
+                                                isSubView: false,
+                                                selectedIndex: autOfRangeIndex,
+                                            });
                                         }
                                         if (args.value !== -1 && args.previousValue !== -1) {
-                                            let id = UrlUtils.getViewIdFromURL();
-                                            if (id === undefined) {
-                                                id = this.props.id;
-                                            }
-                                            const elementId = this.state.elementId;
-                                            const elementParentId = this.state.elementParentId;
-                                            const elementRecordId = this.state.elementRecordId;
-                                            const headerId = this.state.parsedView?.info?.headerId;
-                                            const tab = this.state.tabs[args.value];
-                                            let header = tab.header;
-                                            if (tab.type === 'METHODS' || tab.type === 'TEMPLATES') {
-                                                header = true;
-                                            }
-                                            this.getViewAddSpec(
-                                                elementId,
-                                                elementParentId,
-                                                elementRecordId,
-                                                tab.type,
-                                                header,
-                                                headerId
-                                                // true
-                                            );
-                                            this.setState({
-                                                selectedIndex: args.value,
-                                                changingTab: true,
-                                            });
-                                            this.unselectAllDataGrid();
-                                            this.setState(() => ({
-                                                numberOfCopies: 1,
-                                            }));
+                                            this.onItemTabClick(args.value);
                                         }
                                     }
                                 }}
@@ -376,6 +371,30 @@ export class AddSpecContainer extends BaseContainer {
                 </DivContainer>
             </React.Fragment>
         );
+    }
+    onItemTabClick(index) {
+        if (index !== autOfRangeIndex) {
+            let id = UrlUtils.getViewIdFromURL();
+            if (id === undefined) {
+                id = this.props.id;
+            }
+            const elementId = this.state.elementId;
+            const elementParentId = this.state.elementParentId;
+            const elementRecordId = this.state.elementRecordId;
+            const headerId = this.state.parsedView?.info?.headerId;
+            const tab = this.state.tabs[index];
+            let header = tab.header;
+            if (tab.type === 'METHODS' || tab.type === 'TEMPLATES') {
+                header = true;
+            }
+            this.getViewAddSpec(elementId, elementParentId, elementRecordId, tab.type, header, headerId);
+            this.setState({
+                selectedIndex: index,
+                changingTab: true,
+                numberOfCopies: 1,
+            });
+            this.unselectAllDataGrid();
+        }
     }
 
     //override
@@ -395,6 +414,11 @@ export class AddSpecContainer extends BaseContainer {
                                     ref={this.numberOfCopies}
                                     id='numberOsfCopy'
                                     name='numberOfCopy'
+                                    onChange={()=>{
+                                        if(sessionPrelongFnc){
+                                            sessionPrelongFnc();
+                                        }
+                                    }}
                                     className='p-inputtext-sm mr-2'
                                     min={1}
                                     style={{maxHeight: '43px'}}
@@ -620,20 +644,8 @@ export class AddSpecContainer extends BaseContainer {
                 {!this.state.loading && (
                     <React.Fragment>
                         {this.renderHeaderLeft}
-
                         <div id='spec-edit-dialog'>
                             <TreeViewComponent
-                                handleChaningTab={() => {
-                                    this.setState({
-                                        changingTab: !this.state.changingTab,
-                                    });
-                                }}
-                                handleIsChanged={() => {
-                                    this.setState({
-                                        expandAll: false,
-                                    });
-                                }}
-                                expandAll={this.state.expandAll}
                                 ref={this.refTreeList}
                                 id={this.props.id}
                                 allowOperations={false}

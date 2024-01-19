@@ -65,6 +65,9 @@ class UrlUtils {
     static isEditSpec() {
         return window.location.href.includes('edit-spec');
     }
+    static haveKindView() {
+        return window.location.href.includes('editKindView');
+    }
     static isBatch() {
         return window.location.href.includes('batch');
     }
@@ -78,7 +81,7 @@ class UrlUtils {
         }
     }
 
-   static removeEditRowParamsFromUrl(){
+    static removeEditRowParamsFromUrl() {
         const currentUrl = window.location.href;
         const paramsToRemove = [
             'editParentId=' + UrlUtils.getURLParameter('editParentId'),
@@ -90,6 +93,21 @@ class UrlUtils {
         const filteredParts = parts.filter((part) => !paramsToRemove.includes(part));
         const newUrl = filteredParts.join('?');
         window.history.replaceState({}, document.title, newUrl);
+    }
+
+    static getUrlWithoutGridViewParams() {
+        // Utwórz obiekt URL z żądanego URL-a
+        const currentUrl = window.location.href;
+        const paramsToRemove = [
+            '?recordId=' + UrlUtils.getURLParameter('recordId'),
+            '&parentId=' + UrlUtils.getURLParameter('parentId'),
+            '&bc=' + UrlUtils.getURLParameter('bc') + '=',
+        ];
+        const url = currentUrl
+            .replace(paramsToRemove[0], '')
+            .replace(paramsToRemove[1], '')
+            .replace(paramsToRemove[2], '');
+        return url;
     }
 
     static deleteParameterFromURL(url, paramName) {

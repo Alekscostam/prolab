@@ -567,8 +567,6 @@ class GridViewComponent extends CellEditComponent {
         return false;
     };
 
-    // TODO: Czasami karzacyz sie grid, w sensie ostatnia kolumna nie posowuje sie do pierwszej duzej
-    // Dokończ fillDown
     downFill(ci, cd) {
         this.props.handleBlockUi();
         const {value, rowIndex} = ci;

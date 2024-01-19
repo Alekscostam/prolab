@@ -28,7 +28,6 @@ class SubGridViewComponent extends React.Component {
 
     //very important !!!
     shouldComponentUpdate(nextProps, nextState, nextContext) {
-        // TODO: robilem na wiele sposobów i wychodiz tylko to niestety
         const refreshSubView = readValueCookieGlobal('refreshSubView');
         if (refreshSubView) {
             return true;

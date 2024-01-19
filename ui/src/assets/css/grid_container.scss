@@ -650,6 +650,9 @@ body .grid-container {
     top: 50%;
     transform: translateY(-50%); /* or try 50% */
 }
+.dx-overlay-wrapper{
+    z-index: 999!important;
+}
 #sessionTimeoutDialog {
     width: 500px;
 }

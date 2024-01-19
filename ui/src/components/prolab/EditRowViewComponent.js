@@ -261,7 +261,7 @@ export class EditRowViewComponent extends BaseRowComponent {
 EditRowViewComponent.defaultProps = {};
 
 EditRowViewComponent.propTypes = {
-    editData: PropTypes.object.isRequired,
+    editData: PropTypes.object,
     kindView: PropTypes.string,
     onChange: PropTypes.func.isRequired,
     onEditList: PropTypes.func.isRequired,

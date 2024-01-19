@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {PureComponent} from 'react';
 import EditRowUtils from '../utils/EditRowUtils';
 
 import ConsoleHelper from '../utils/ConsoleHelper';
@@ -20,8 +20,6 @@ import EditListComponent from '../components/prolab/EditListComponent';
 import UrlUtils from '../utils/UrlUtils';
 import {EditorDialog} from '../components/prolab/EditorDialog';
 import {StringUtils} from '../utils/StringUtils';
-
-// TODO: na komponencie typu checkbox po kliknieicu jest jakis double ckick na treeliscie
 
 class CellEditComponent extends React.Component {
     // editListDataStore = new EditListComponent();
@@ -87,7 +85,6 @@ class CellEditComponent extends React.Component {
                     parsedGridView={this.state.parsedEditListView}
                     parsedGridViewData={this.state.parsedEditListViewData}
                     gridViewColumns={this.state.editViewColumns}
-                    // TODO: onHide zamyka widok paintRow
                     onHide={() => {
                         this.setState({editListVisible: false});
                         if (this.props.onCloseEditList) {
@@ -170,7 +167,7 @@ class CellEditComponent extends React.Component {
 
                 const editListBodyObject = EditListUtils.createBodyToEditList(currentEditListRow[0]);
                 this.crudService
-                    .editSpecList(viewId, paramId, fieldId, editListBodyObject)
+                    .getListOfHints(viewId, paramId, fieldId, editListBodyObject)
                     .then((responseView) => {
                         const setFields = responseView.setFields;
                         const separatorJoin = responseView.options?.separatorJoin || ',';
@@ -283,7 +280,7 @@ class CellEditComponent extends React.Component {
         const downFill = field?.downFill;
         const autoFillCheckbox = field?.autoFill ? 'autofill-border-checkbox' : '';
         const selectionList = field?.selectionList ? 'p-inputgroup' : null;
-        //const refreshFieldVisibility = !!field?.refreshFieldVisibility;
+
         switch (field?.type) {
             case 'C':
                 if (cellInfo.column.dataField?.includes('WART') && cellInfo.data?.PIERW_TYP?.includes('N')) {
@@ -449,7 +446,6 @@ class CellEditComponent extends React.Component {
                                                 'td[aria-describedby=column_0_undefined-fixed]'
                                             );
                                             const realRowIndex = rowIndex + 1;
-
                                             const row = document.querySelectorAll(
                                                 'tr[aria-rowindex="' + realRowIndex + '"][class*="dx-column-lines"]'
                                             )[0];

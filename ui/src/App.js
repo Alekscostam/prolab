@@ -35,11 +35,9 @@ import {PageViewUtils} from './utils/parser/PageViewUtils';
 import {ConfirmationEditQuitDialog} from './components/prolab/ConfirmationEditQuitDialog';
 
 // export const
-
 export let reStateApp;
 export let renderNoRefreshContentFnc;
-export let clickEventSeesion = null;
-// TODO: czasami w editspec rozmiar szerokosci sidebar nie jest zgodny z szerokoscia grida. Prawdopodobnie sztuczny restate w checkerze  fullScreenDisabled pomoze
+export let sessionPrelongFnc = null;
 
 class App extends Component {
     constructor() {
@@ -77,12 +75,12 @@ class App extends Component {
         this.getTranslations = this.getTranslations.bind(this);
         PrimeReact.ripple = true;
         PrimeReact.zIndex = {
-            modal: 1100, // dialog, sidebar
-            overlay: 1000, // dropdown, overlaypanel
-            menu: 1000, // overlay menus
-            tooltip: 1100, // tooltip
+            modal: 1100,
+            overlay: 1000,
+            menu: 1000,
+            tooltip: 1100,
         };
-        PrimeReact.appendTo = 'self'; // Default value is null(document.body).
+        PrimeReact.appendTo = 'self';
         config({
             editorStylingMode: 'underlined',
         });
@@ -91,7 +89,7 @@ class App extends Component {
     }
 
     setFakeSeesionTimeout() {
-        let myDate = new Date();
+        const myDate = new Date();
         myDate.setSeconds(myDate.getSeconds() + 60);
         localStorage.setItem('session_timeout', myDate);
         localStorage.setItem('session_timeout_in_minutes', 1);
@@ -102,7 +100,7 @@ class App extends Component {
         }
         const urlPrefixCookie = readObjFromCookieGlobal('REACT_APP_URL_PREFIX');
         const configUrl = this.makeConfigUrl(urlPrefixCookie);
-        this.showSessionTimeout();
+        this.showSessionTimeoutIfPossible();
         this.prelongSeesionByRootClick();
         this.setRestateApp();
         this.setRenderNoRefreshContent();
@@ -111,7 +109,7 @@ class App extends Component {
         });
     }
     componentDidUpdate() {
-        this.showSessionTimeout();
+        this.showSessionTimeoutIfPossible();
     }
 
     makeConfigUrl(urlPrefix) {
@@ -137,47 +135,52 @@ class App extends Component {
             });
         };
     }
-
     prelongSeesionByRootClick() {
         const root = document.getElementById('root');
-        const clickEventForSession = () => {
-            this.prelongSessionIfUserExist();
+        const eventForSessionPrelong = () => {
+            if (this.authService.isLoggedUser()) this.prelongSessionIfUserExist();
             return true;
         };
-        clickEventSeesion = clickEventForSession;
-        root.addEventListener('click', clickEventForSession);
+        sessionPrelongFnc = eventForSessionPrelong;
+        root.addEventListener('click', eventForSessionPrelong);
+        root.addEventListener('keydown', eventForSessionPrelong);
     }
-    showSessionTimeout() {
+    showSessionTimeoutIfPossible() {
         if (this.timer === undefined || this.timer === null) {
             this.timer = setInterval(() => {
                 const loggedUser = this.authService.isLoggedUser();
                 if (loggedUser) {
-                    const sessionTimeout = Date.parse(localStorage.getItem('session_timeout'));
-                    const now = new Date();
-                    const tickerPopUpDate = new Date();
-                    tickerPopUpDate.setSeconds(tickerPopUpDate.getSeconds() + 45);
-                    const duration = moment.duration(sessionTimeout - now);
-                    const timeToLeaveSession = {
-                        hours: duration.hours(),
-                        minutes: duration.minutes(),
-                        seconds: duration.seconds(),
-                    };
-                    const sessionTimeOutComponentRef = document.getElementById('session-time-out-component-ref');
-                    if (sessionTimeOutComponentRef) {
-                        sessionTimeOutComponentRef.innerText =
-                            PageViewUtils.tickerSessionTimeoutFormat(timeToLeaveSession);
-                    }
-                    if (sessionTimeout < tickerPopUpDate && !this.state?.rednerSessionTimeoutDialog) {
-                        this.setState({rednerSessionTimeoutDialog: true});
-                    } else {
-                        if (sessionTimeout < now) {
-                            this.authService.logout();
-                        }
-                    }
+                    this.showSessionTimedOut();
                 }
             }, 1000);
         }
     }
+
+    showSessionTimedOut() {
+        const textAfterHash = window.location.href.split('/#/')[1];
+        const notFoundTextAfterHash = !(textAfterHash && textAfterHash.trim() !== '');
+        const sessionTimeout = Date.parse(localStorage.getItem('session_timeout'));
+        const now = new Date();
+        const tickerPopUpDate = new Date();
+        tickerPopUpDate.setSeconds(tickerPopUpDate.getSeconds() + 45);
+        const duration = moment.duration(sessionTimeout - now);
+        const timeToLeaveSession = {
+            hours: duration.hours(),
+            minutes: duration.minutes(),
+            seconds: duration.seconds(),
+        };
+        const sessionTimeOutComponentRef = document.getElementById('session-time-out-component-ref');
+        if (sessionTimeOutComponentRef) {
+            sessionTimeOutComponentRef.innerText = PageViewUtils.tickerSessionTimeoutFormat(timeToLeaveSession);
+        }
+        if (notFoundTextAfterHash) {
+            this.authService.logout();
+        }
+        if (sessionTimeout < tickerPopUpDate && !this.state?.rednerSessionTimeoutDialog) {
+            this.setState({rednerSessionTimeoutDialog: true});
+        }
+    }
+
     prelongSessionIfUserExist(fromDialogSession) {
         const loggedUser = this.authService.isLoggedUser();
         if (loggedUser) {
@@ -192,14 +195,16 @@ class App extends Component {
     }
 
     componentWillUnmount() {
-        this.unregisteredClickEventForSession();
+        this.unregisteredEventForSession();
         clearTimeout(this.timer);
+        this.authService.removeLoginCookies();
     }
-    unregisteredClickEventForSession() {
+    unregisteredEventForSession() {
         const root = document.getElementById('root');
         try {
-            if (clickEventSeesion) {
-                root.removeEventListener('click', clickEventSeesion);
+            if (sessionPrelongFnc) {
+                root.removeEventListener('click', sessionPrelongFnc);
+                root.removeEventListener('keydown', sessionPrelongFnc);
             }
         } catch (err) {
             console.log(err);
@@ -304,7 +309,7 @@ class App extends Component {
     }
 
     readTextFile(file, callback) {
-        var rawFile = new XMLHttpRequest();
+        let rawFile = new XMLHttpRequest();
         rawFile.overrideMimeType('application/json');
         rawFile.open('GET', file, true);
         rawFile.onreadystatechange = function () {
@@ -326,6 +331,9 @@ class App extends Component {
                             collapsed: false,
                         },
                         () => {
+                            if (this.state.sessionMock) {
+                                this.setFakeSeesionTimeout();
+                            }
                             this.getLocalization(this.state.configUrl);
                         }
                     );
@@ -347,15 +355,11 @@ class App extends Component {
         const authService = this.authService;
         const isLoggedUser = authService.isLoggedUser();
         if (UrlUtils.isEditRowView()) {
-            console.log('fullScreenDisabled', false);
             return false;
         }
         if (!isLoggedUser) {
-            console.log('fullScreenDisabled', false);
             return false;
         }
-
-        console.log('fullScreenDisabled', true);
         return true;
     }
 
@@ -387,6 +391,7 @@ class App extends Component {
                 {this.state.rednerSessionTimeoutDialog && (
                     <TickerSessionDialog
                         labels={labels}
+                        authService={this.authService}
                         visible={this.state.rednerSessionTimeoutDialog}
                         onProlongSession={() => {
                             this.prelongSessionIfUserExist(true);

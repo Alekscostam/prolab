@@ -69,7 +69,7 @@ export default class CrudService extends BaseService {
                 throw err;
             });
     }
-
+    // TODO: tu trzeba porpawic
     editEntry(viewId, recordId, parentId, kindView) {
         return this.fetch(
             `${this.getDomain()}/${this.path}/${viewId}/Edit/${recordId}/Entry${
@@ -99,7 +99,7 @@ export default class CrudService extends BaseService {
         )
             .then((editDataResponse) => {
                 if (editDataResponse.editInfo.editFormType.toUpperCase() === 'FULLSCREEN') {
-                    window.location.href = window.location.href.replace('grid-view', 'edit-row-view');
+                    window.location.href = UrlUtils.getUrlWithoutGridViewParams().replace('grid-view', 'edit-row-view');
                     if (renderNoRefreshContentFnc) {
                         renderNoRefreshContentFnc();
                     }
@@ -139,11 +139,9 @@ export default class CrudService extends BaseService {
         });
     }
 
-    editSpecList(viewId, paramId, fieldId, element) {
-        const url = UrlUtils.batchIdParamExist()
-            ? `${this.getDomain()}/${this.path}/${viewId}/batch/${paramId}/list/${fieldId}`
-            : `${this.getDomain()}/${this.path}/${viewId}/editspec/${paramId}/list/${fieldId}`;
-        return this.fetch(`${url}`, {
+    getListOfHints(viewId, paramId, fieldId, element) {
+        const partOfUrl = UrlUtils.batchIdParamExist() ? 'batch' : 'editspec';
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/${partOfUrl}/${paramId}/list/${fieldId}`, {
             method: 'POST',
             body: JSON.stringify(element),
         }).catch((err) => {

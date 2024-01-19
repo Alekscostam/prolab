@@ -4,6 +4,7 @@ import {useEffect, useRef, useState} from 'react';
 import PropTypes from 'prop-types';
 import LocUtils from '../../utils/LocUtils';
 import {Button} from 'primereact/button';
+import AuthService from '../../services/AuthService';
 
 const maxValue = 30;
 function statusFormat() {
@@ -14,7 +15,7 @@ const elementAttr = {'aria-label': 'Progress Bar'};
 
 export const TickerSessionDialog = (props) => {
     let intervalId = undefined;
-
+    const authService = new AuthService();
     const {onLogout, onProlongSession, visible} = props;
 
     const [seconds, setSeconds] = useState(null);
@@ -32,6 +33,10 @@ export const TickerSessionDialog = (props) => {
             console.log(intervalId, 'intervalId');
             intervalId = setInterval(() => {
                 setSeconds((prevValue) => prevValue + 1);
+                if (!authService.isLoggedUser()) {
+                    clearInterval(intervalId);
+                    onLogout();
+                }
                 if (progressBar.current?.instance?.option('value') === 0) {
                     clearInterval(intervalId);
                     onLogout();

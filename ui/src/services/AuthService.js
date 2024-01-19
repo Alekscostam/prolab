@@ -305,11 +305,13 @@ export default class AuthService {
                 this.removeLoginCookies();
             }
         }
-        if (reStateApp) {
-            reStateApp();
-        }
         this.removeLoginCookies();
         window.location.href = AppPrefixUtils.locationHrefUrl('/#/');
+        setTimeout(() => {
+            if (reStateApp) {
+                reStateApp();
+            }
+        }, 100);
     }
     removeLoginCookies() {
         localStorage.removeItem('id_token');

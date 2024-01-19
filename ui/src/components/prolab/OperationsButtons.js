@@ -6,7 +6,8 @@ import PropTypes from 'prop-types';
 import ShortcutButton from './ShortcutButton';
 import Constants from '../../utils/Constants';
 import ActionButtonWithMenu from './ActionButtonWithMenu';
-import {clickEventSeesion} from '../../App';
+import {sessionPrelongFnc} from '../../App';
+import {setExpandAllInitialized} from '../../containers/AddSpecContainer';
 //Komponent do wyświetlania dynamicznego przycisków - po zaznaczaniu rekordów i przy szczegółach rekordów
 export const OperationsButtons = (props) => {
     //metoda wykorzystywana do wyświetlania przycisków na górnym panelu po zaznaczeniu rekordów
@@ -53,6 +54,7 @@ export const OperationsButtons = (props) => {
                                     hrefSpecView={props.hrefSpecView}
                                     handleClick={(e) => {
                                         e.selectAll = !atLeastOneSelected && !!operations.showAlways;
+
                                         return afterClickOperation(props.handleEditSpec(e));
                                     }}
                                 />
@@ -75,6 +77,7 @@ export const OperationsButtons = (props) => {
                                     title={operations.label}
                                     handleClick={(e) => {
                                         e.selectAll = !atLeastOneSelected && !!operations.showAlways;
+                                        setExpandAllInitialized(false);
                                         return afterClickOperation(props.handleAddSpecSpec(e));
                                     }}
                                 />
@@ -319,8 +322,8 @@ export const OperationsButtons = (props) => {
     };
 
     const afterClickOperation = (operationSelectedFnc) => {
-        if (clickEventSeesion) {
-            clickEventSeesion();
+        if (sessionPrelongFnc) {
+            sessionPrelongFnc();
         }
         if (operationSelectedFnc) {
             operationSelectedFnc();

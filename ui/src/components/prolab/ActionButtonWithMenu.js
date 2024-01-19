@@ -5,7 +5,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ShortcutButton from './ShortcutButton';
 import {Menu} from 'primereact/menu';
-import {clickEventSeesion} from '../../App';
+import {sessionPrelongFnc} from '../../App';
 
 export class ActionButtonWithMenu extends React.Component {
     handleClick = (event) => {
@@ -49,8 +49,8 @@ export class ActionButtonWithMenu extends React.Component {
                     className={`action-button-with-menu ${className}`}
                     disabled={disabled}
                     handleClick={(event) => {
-                        if (clickEventSeesion) {
-                            clickEventSeesion();
+                        if (sessionPrelongFnc) {
+                            sessionPrelongFnc();
                         }
                         const content = document.getElementById('header-left');
                         if (content) content.click();
