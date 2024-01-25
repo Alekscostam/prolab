@@ -1228,22 +1228,13 @@ class BaseContainer extends React.Component {
                     () => () => this.rowSave(viewId, recordId, parentId, saveElement, true),
                     () => {
                         this.setState({visibleEditPanel: false});
-                        // TODO: refactor this najlepiej by bylo gdyby
-                        if (UrlUtils.isEditRowView()) {
-                            window.history.back();
-                            window.history.back();
-                            if (!UrlUtils.haveKindView()) {
-                                window.history.back();
-                            }
-                        }
+                        this.returnFromRowEdit();
                     },
                     (res) => {
                         this.showErrorMessages(res);
-                        UrlUtils.removeEditRowParamsFromUrlIfPossible();
                     },
                     (res) => {
                         this.showResponseErrorMessage(res);
-                        UrlUtils.removeEditRowParamsFromUrlIfPossible();
                     }
                 );
                 let refresh = true;
@@ -1323,12 +1314,13 @@ class BaseContainer extends React.Component {
                 this.refreshView();
                 this.unselectAllDataGrid();
                 this.unblockUi();
-                UrlUtils.removeEditRowParamsFromUrlIfPossible();
+                this.returnFromRowEdit();
             })
             .catch((err) => {
                 this.showGlobalErrorMessage(err);
             });
     };
+
 
     delete(id) {
         ConsoleHelper('handleDelete');
@@ -2446,6 +2438,12 @@ class BaseContainer extends React.Component {
     }
     isGridViewBody(recordId) {
         return this.isBody(recordId) && this.isChoosenKindView('View');
+    }
+    returnFromRowEdit(){
+        window.location.href = UrlUtils.getUrlWithoutEditRowParams().replace(
+            'edit-row-view',
+            'grid-view'
+        );
     }
 }
 

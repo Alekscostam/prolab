@@ -17,7 +17,7 @@ import EditListUtils from '../../utils/EditListUtils';
 import CrudService from '../../services/CrudService';
 import BaseRowComponent from '../../baseContainers/BaseRowComponent';
 import LocUtils from '../../utils/LocUtils';
-import { addCustomOverlayToElement, removeCustomOverlayToElement } from '../../PageContext';
+import {addCustomOverlayToElement, removeCustomOverlayToElement} from '../../PageContext';
 
 let copyDataGlobalTop = null;
 export class EditRowComponent extends BaseRowComponent {
@@ -62,7 +62,7 @@ export class EditRowComponent extends BaseRowComponent {
 
     componentDidMount() {
         super.componentDidMount();
-        this.addOverlay()
+        this.addOverlay();
     }
 
     componentWillUnmount() {
@@ -72,12 +72,12 @@ export class EditRowComponent extends BaseRowComponent {
         copyDataGlobalTop = null;
     }
 
-    addOverlay(){
+    addOverlay() {
         addCustomOverlayToElement('base-container-div');
         addCustomOverlayToElement('breadcrumb-link');
         addCustomOverlayToElement('header-left');
     }
-    removeOverlay(){
+    removeOverlay() {
         removeCustomOverlayToElement('base-container-div');
         removeCustomOverlayToElement('breadcrumb-link');
         removeCustomOverlayToElement('header-left');
@@ -100,7 +100,9 @@ export class EditRowComponent extends BaseRowComponent {
     }
 
     render() {
-        const operations = this.props.editData?.operations;
+        const labels = this.props?.labels;
+        const operations = this.props?.editData?.operations || [];
+        operations.push({type: 'OP_CANCEL', label:  LocUtils.loc(labels, 'OP_CANCEL', 'Anuluj')});
         const kindOperation = this.props.editData?.editInfo?.kindOperation;
         const opSave = DataGridUtils.containsOperationsButton(operations, 'OP_SAVE');
         const opFill = DataGridUtils.containsOperationsButton(operations, 'OP_FILL');
@@ -139,7 +141,7 @@ export class EditRowComponent extends BaseRowComponent {
                     selectedRowData={this.state.selectedRowData}
                     defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
                     handleSelectedRowData={(e) => this.handleSelectedRowData(e)}
-                    labels={this.props.labels}
+                    labels={labels}
                 />
                 <Sidebar
                     ref={this.sidebarRef}
@@ -150,12 +152,7 @@ export class EditRowComponent extends BaseRowComponent {
                         this.props.onCloseCustom();
                     }}
                     position='right'
-                    onHide={() => {
-                        let editInfo = this.props.editData?.editInfo;
-                        if (editInfo) {
-                            this.props.onHide(!visibleEditPanel, editInfo.viewId, editInfo.recordId, editInfo.parentId);
-                        }
-                    }}
+                   
                     icons={() => (
                         <React.Fragment>
                             <div className='row ' style={{flex: 'auto'}}>
@@ -164,23 +161,27 @@ export class EditRowComponent extends BaseRowComponent {
                                 </div>
                                 {kindOperation?.toUpperCase() === 'COPY' ? (
                                     <div id='label' className='label col-lg-12' style={{fontSize: '1em'}}>
-                                        {LocUtils.loc(this.props.labels, 'Copied_Label', 'Kopiowanie')}{' '}
+                                        {LocUtils.loc(labels, 'Copied_Label', 'Kopiowanie')}{' '}
                                         {copyDataGlobalTop?.copyCounter?.counter} /{' '}
                                         {copyDataGlobalTop?.copyOptions?.numberOfCopy}{' '}
                                     </div>
                                 ) : null}
                             </div>
-
-                            <div id='buttons' style={{textAlign: 'right'}}>
-                                <ShortcutButton
-                                    id={'opSave'}
-                                    className={`grid-button-panel inverse mt-1 mb-1 mr-1`}
-                                    handleClick={this.handleFormSubmit}
-                                    title={opSave?.label}
-                                    label={opSave?.label}
-                                    rendered={opSave}
+                            <div id='buttons' style={{textAlign: 'right'}} className='mr-3'>
+                            <ShortcutButton
+                                    id={'opCancel'}
+                                    className={`grid-button-panel normal mt-1 mb-1 mr-1 col-lg-12`}
+                                    handleClick={()=>{
+                                        const editInfo = this.props.editData?.editInfo;
+                                        if (editInfo) {
+                                            this.props.onHide(!visibleEditPanel, editInfo.viewId, editInfo.recordId, editInfo.parentId);
+                                        }
+                                    }}
+                                    title={opCancel?.label}
+                                    label={opCancel?.label}
+                                    rendered={opCancel}
                                 />
-                                <ShortcutButton
+                            <ShortcutButton
                                     id={'opFill'}
                                     className={`grid-button-panel inverse mt-1 mb-1 mr-1`}
                                     handleClick={this.handleAutoFill}
@@ -188,13 +189,13 @@ export class EditRowComponent extends BaseRowComponent {
                                     label={opFill?.label}
                                     rendered={opFill}
                                 />
-                                <ShortcutButton
-                                    id={'opCancel'}
+                            <ShortcutButton
+                                    id={'opSave'}
                                     className={`grid-button-panel inverse mt-1 mb-1 mr-1`}
-                                    handleClick={this.handleCancel}
-                                    title={opCancel?.label}
-                                    label={opCancel?.label}
-                                    rendered={opCancel}
+                                    handleClick={this.handleFormSubmit}
+                                    title={opSave?.label}
+                                    label={opSave?.label}
+                                    rendered={opSave}
                                 />
                             </div>
                         </React.Fragment>
@@ -238,19 +239,19 @@ export class EditRowComponent extends BaseRowComponent {
     }
 
     handleValidForm() {
-        let editInfo = this.props.editData?.editInfo;
+        const editInfo = this.props.editData?.editInfo;
         this.props.onSave(editInfo.viewId, editInfo.recordId, editInfo.parentId);
         this.refreshView();
     }
 
     handleAutoFill() {
-        let editInfo = this.props.editData?.editInfo;
-        let kindView = this.props.kindView;
+        const editInfo = this.props.editData?.editInfo;
+        const kindView = this.props.kindView;
         this.props.onAutoFill(editInfo.viewId, editInfo.recordId, editInfo.parentId, kindView);
     }
 
     handleCancel() {
-        let editInfo = this.props.editData?.editInfo;
+        const editInfo = this.props.editData?.editInfo;
         this.props.onCancel(editInfo.viewId, editInfo.recordId, editInfo.parentId);
     }
 
@@ -258,6 +259,7 @@ export class EditRowComponent extends BaseRowComponent {
         return (
             <React.Fragment>
                 <Panel
+                    key={`key_group_${groupIndex}`}
                     id={`group_${groupIndex}`}
                     className={'mb-6'}
                     header={group.groupName}

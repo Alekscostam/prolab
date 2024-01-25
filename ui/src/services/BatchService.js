@@ -49,7 +49,6 @@ export default class BatchService extends BaseService {
         if (!!parentId) {
             paramArrays.push(`parentId=${parentId}`);
         }
-
         const parameters = paramArrays.length > 0 ? '?' + paramArrays.join('&') : '';
         let url = `${this.domain}/${this.path}/${viewId}/batch/${batchId}/entry${parameters}`;
         return this.fetch(`${url}`, {
@@ -98,6 +97,47 @@ export default class BatchService extends BaseService {
                 }),
             }
         ).catch((err) => {
+            throw err;
+        });
+    } 
+    
+    fill(viewId, parentId, data) {
+        const batchId = UrlUtils.getBatchIdParam();
+        return this.fetch(
+            `${this.getDomain()}/${this.path}/${viewId}/batch/${batchId}/autofill?parentId=${parentId}`,
+            {
+                method: 'POST',
+                body: JSON.stringify({
+                    data,
+                }),
+            }
+        )
+        .then((res) => {
+            return Promise.resolve(res);
+        }).catch((err) => {
+            throw err;
+        });
+    }
+    
+    calculate(viewId, returnId, data) {
+        let paramArrays = [];
+        if (!!returnId) {
+            paramArrays.push(`returnId=${returnId}`);
+        }
+        const parameters = paramArrays.length > 0 ? '?' + paramArrays.join('&') : '';
+        const batchId = UrlUtils.getBatchIdParam();
+        return this.fetch(
+            `${this.getDomain()}/${this.path}/${viewId}/batch/${batchId}/calculate${parameters}`,
+            {
+                method: 'POST',
+                body: JSON.stringify({
+                    data,
+                }),
+            }
+        )
+        .then((res) => {
+            return Promise.resolve(res);
+        }).catch((err) => {
             throw err;
         });
     }

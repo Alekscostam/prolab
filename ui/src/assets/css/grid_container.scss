@@ -3,6 +3,7 @@ $header-label: #707890;
 $data-label: #182d67;
 $table-border: #d5d5d5;
 $table-selection: #dde6ff;
+$button-color: #0e49eb;
 
 .dx-datagrid-headers tr > td {
     text-align: left;
@@ -142,6 +143,9 @@ $table-selection: #dde6ff;
     &.normal {
         background-color: $button-text-color;
         color: $button-color;
+        span{
+            color: $button-color!important;
+        }
     }
 
     &.inverse {
@@ -150,14 +154,16 @@ $table-selection: #dde6ff;
     }
 }
 .grid-button-panel-big {
-    font-size: 18px;
+    font-size: 16px;
     padding: 1rem;
     min-width: 0;
     height: 26px;
-
     &.normal {
         background-color: $button-text-color;
         color: $button-color;
+        span{
+            color: $button-color!important;
+        }
     }
 
     &.inverse {
@@ -380,6 +386,9 @@ $table-selection: #dde6ff;
     .pi-times {
         color: white;
     }
+}
+.p-sidebar-close.p-sidebar-icon.p-link {
+    display: none;
 }
 .p-dialog .p-dialog-header .p-dialog-header-icon:hover {
     background: #0e49eb !important;

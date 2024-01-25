@@ -328,7 +328,7 @@ class CookieConsent extends Component {
 				</div>
 			</ConditionalWrapper>
 		);
-	}
+	} 
 }
 
 CookieConsent.propTypes = {

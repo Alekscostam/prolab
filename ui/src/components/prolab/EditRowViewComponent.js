@@ -18,6 +18,7 @@ import BaseRowComponent from '../../baseContainers/BaseRowComponent';
 import UrlUtils from '../../utils/UrlUtils';
 import {EntryResponseUtils} from '../../utils/EntryResponseUtils';
 import BlockUi from '../waitPanel/BlockUi';
+import LocUtils from '../../utils/LocUtils';
 
 export class EditRowViewComponent extends BaseRowComponent {
     constructor(props) {
@@ -114,10 +115,11 @@ export class EditRowViewComponent extends BaseRowComponent {
     }
 
     render() {
-        const operations = this.props.editData?.operations;
-        const opSave = DataGridUtils.containsOperationsButton(operations, 'OP_SAVE');
-        const opFill = DataGridUtils.containsOperationsButton(operations, 'OP_FILL');
-        const opCancel = DataGridUtils.containsOperationsButton(operations, 'OP_CANCEL');
+        const labels = this.props.labels;
+        const operations = [];
+        const opSave = DataGridUtils.putToOperationsButtonIfNeccessery(operations,labels, 'OP_SAVE', "Zapisz");
+        const opFill = DataGridUtils.putToOperationsButtonIfNeccessery(operations, labels, 'OP_FILL', 'Wypełnij');
+        const opCancel = DataGridUtils.putToOperationsButtonIfNeccessery(operations,labels, 'OP_CANCEL', 'Anuluj');
         let editData = this.props.editData;
         const editListVisible = this.state.editListVisible;
         return (
@@ -155,7 +157,7 @@ export class EditRowViewComponent extends BaseRowComponent {
                         selectedRowData={this.state.selectedRowData}
                         defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
                         handleSelectedRowData={(e) => this.handleSelectedRowData(e)}
-                        labels={this.props.labels}
+                        labels={labels}
                     />
                     <form onSubmit={this.handleFormSubmit} noValidate>
                         <div id='row-edit' className=' justify-content-center row'>
@@ -176,9 +178,9 @@ export class EditRowViewComponent extends BaseRowComponent {
                                     label={opFill?.label}
                                     rendered={opFill}
                                 />
-                                <ShortcutButton
+                               <ShortcutButton
                                     id={'opCancel'}
-                                    className={`grid-button-panel-big inverse mt-1 mb-1 mr-1 `}
+                                    className={`grid-button-panel-big normal mt-1 mb-1 mr-1 `}
                                     handleClick={this.handleCancel}
                                     title={opCancel?.label}
                                     label={opCancel?.label}
@@ -222,18 +224,18 @@ export class EditRowViewComponent extends BaseRowComponent {
     }
 
     handleValidForm() {
-        let editInfo = this.props.editData?.editInfo;
+        const editInfo = this.props.editData?.editInfo;
         this.handleEditRowSave(editInfo.viewId, editInfo.recordId, editInfo.parentId);
     }
 
     handleAutoFill() {
-        let editInfo = this.props.editData?.editInfo;
-        let kindView = this.state.kindView;
+        const editInfo = this.props.editData?.editInfo;
+        const kindView = this.state.kindView;
         this.handleAutoFillRowChange(editInfo.viewId, editInfo.recordId, editInfo.parentId, kindView);
     }
 
     handleCancel() {
-        let editInfo = this.props.editData?.editInfo;
+        const editInfo = this.props.editData?.editInfo;
         this.handleCancelRowChange(editInfo.viewId, editInfo.recordId, editInfo.parentId);
     }
 
@@ -241,6 +243,7 @@ export class EditRowViewComponent extends BaseRowComponent {
         return (
             <React.Fragment>
                 <Panel
+
                     key={`edit-row-panel${groupIndex}`}
                     id={`group_${groupIndex}`}
                     className={'col-xl-6 col-lg-6 col-md-8 col-sm-12 '}
@@ -263,8 +266,6 @@ EditRowViewComponent.defaultProps = {};
 EditRowViewComponent.propTypes = {
     editData: PropTypes.object,
     kindView: PropTypes.string,
-    onChange: PropTypes.func.isRequired,
-    onEditList: PropTypes.func.isRequired,
     editDataChange: PropTypes.func.isRequired,
     labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
 };

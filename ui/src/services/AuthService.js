@@ -48,7 +48,7 @@ export default class AuthService {
         if (shouldAddAuthorization === undefined || shouldAddAuthorization == null) {
             shouldAddAuthorization = true;
         }
-        if (shouldAddAuthorization && this.loggedIn()) {
+        if (shouldAddAuthorization && this.isLoggedUser()) {
             headers['Authorization'] = this.getToken();
         }
         if (method === 'POST' || method === 'PUT') {

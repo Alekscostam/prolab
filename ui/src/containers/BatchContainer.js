@@ -20,6 +20,7 @@ import {EntryResponseUtils} from '../utils/EntryResponseUtils';
 import {ViewResponseUtils} from '../utils/ViewResponseUtils';
 import ActionButtonWithMenu from '../components/prolab/ActionButtonWithMenu';
 import {ConfirmationEditQuitDialog} from '../components/prolab/ConfirmationEditQuitDialog';
+import { ResponseUtils } from '../utils/ResponseUtils';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -90,8 +91,8 @@ export class BatchContainer extends BaseContainer {
         const s1 = !DataGridUtils.equalNumbers(this.state.elementId, id);
         const s2 = !DataGridUtils.equalNumbers(this.state.elementFilterId, filterId);
         const s3 = !DataGridUtils.equalString(this.state.elementBatchId, batchId);
-
-        const updatePage = s1 || s2 || s3;
+        const isBatch =  UrlUtils.isBatch()
+        const updatePage = (s1 || s2 || s3) && isBatch;
         ConsoleHelper(
             'BatchContainer::componentDidUpdate -> updateData={%s} updatePage={%s} id={%s} id={%s} s1={%s} s2={%s} s3={%s}',
             updatePage,
@@ -244,11 +245,10 @@ export class BatchContainer extends BaseContainer {
 
     //override
     renderHeaderRight() {
+        const {labels} = this.props;
         const operations = [];
-        operations.push({type: 'OP_SAVE', label: 'Zapisz'});
-        operations.push({type: 'OP_CANCEL', label: 'Anuluj'});
-        const opSave = DataGridUtils.containsOperationsButton(operations, 'OP_SAVE');
-        const opCancel = DataGridUtils.containsOperationsButton(operations, 'OP_CANCEL');
+        const opSave = DataGridUtils.putToOperationsButtonIfNeccessery(operations,labels, 'OP_SAVE', "Zapisz");
+        const opCancel = DataGridUtils.putToOperationsButtonIfNeccessery(operations,labels, 'OP_CANCEL', 'Anuluj');
         return (
             <React.Fragment>
                 <div id='global-top-components'>
@@ -284,9 +284,7 @@ export class BatchContainer extends BaseContainer {
 
     handleBatchSave(viewId, parentId, fncRedirect) {
         this.blockUi();
-        ConsoleHelper(`handlebatchSave: viewId = ${viewId} parentId = ${parentId}`);
         const saveElement = this.createObjectToSave(this.state.parsedData);
-        ConsoleHelper(`handlebatchSave: element to save = ${JSON.stringify(saveElement)}`);
         this.batchSave(viewId, parentId, saveElement, false, fncRedirect);
     }
 
@@ -361,6 +359,8 @@ export class BatchContainer extends BaseContainer {
     };
 
     renderButton(operation, index) {
+        const viewIdArg = this.state.elementId;
+        const parentIdArg = this.state.elementParentId;
         const margin = Constants.DEFAULT_MARGIN_BETWEEN_BUTTONS;
         if (!!operation.type) {
             switch (operation.type?.toUpperCase()) {
@@ -371,7 +371,7 @@ export class BatchContainer extends BaseContainer {
                                 <ActionButtonWithMenu
                                     id={`button_formula_` + index}
                                     className={`${margin}`}
-                                    customEventClick={() => alert('Czekamy na API dla Calculate')}
+                                    customEventClick={() => this.calculateData()}
                                     iconName={operation?.iconCode || 'mdi-cogs'}
                                     title={operation?.label}
                                 />
@@ -385,7 +385,9 @@ export class BatchContainer extends BaseContainer {
                                 <ActionButtonWithMenu
                                     id={`button_fill_` + index}
                                     className={`${margin}`}
-                                    customEventClick={() => alert('Czekamy na API dla fill')}
+                                    customEventClick={() => {
+                                        this.fillData();
+                                    }}
                                     iconName={operation?.iconCode || 'mdi-cogs'}
                                     title={operation?.label}
                                 />
@@ -398,6 +400,8 @@ export class BatchContainer extends BaseContainer {
         }
     }
     renderHeadPanel = () => {
+        const viewIdArg = this.state.elementId;
+        const parentIdArg = this.state.elementParentId;
         return (
             <React.Fragment>
                 <HeadPanel
@@ -411,12 +415,12 @@ export class BatchContainer extends BaseContainer {
                     leftContent={this.leftHeadPanelContent()}
                     rightContent={this.rightHeadPanelContent()}
                     handleFormula={() => {
+                        this.calculateData();
                         alert('Czekamy na API dla Calculate');
                         // this.prepareCalculateFormula();
                     }}
                     handleFill={() => {
-                        alert('Czekamy na API dla FILL');
-                        // this.fill();
+                      this.fillData();
                     }}
                     handleUnblockUi={() => this.unblockUi()}
                     showErrorMessages={(err) => this.showErrorMessages(err)}
@@ -429,6 +433,87 @@ export class BatchContainer extends BaseContainer {
     handleSelectedRowData(selectedRowData) {
         this.setState({selectedRowKeys: selectedRowData.selectedRowKeys});
     }
+    valueIsEqualToId(newObject,oldData ){
+        return (parseInt(newObject[0].value) === parseInt(oldData.ID));
+    }
+
+    fillData(id){
+        this.blockUi();
+        const {parsedData} = this.state;
+        const viewIdArg = this.state.elementId;
+        const parentIdArg = this.state.elementParentId;
+        const selectedParsedData = id ? parsedData.filter(el=> el.ID === id) : parsedData; 
+        const saveElement = this.createObjectToSave(selectedParsedData);
+        this.batchService
+            .fill(viewIdArg, parentIdArg, saveElement)
+            .then((saveResponse)=>{
+                const parsedDataAfterFill = this.state.parsedData;
+                saveResponse?.data?.forEach((cf) => {
+                    parsedDataAfterFill.forEach((item) => {
+                        item = this.changeFill(cf, item);
+                    });
+                });
+                this.setState({
+                    parsedData: parsedDataAfterFill
+                },()=>{
+                     this.refDataGrid?.instance?.getDataSource()?.reload();
+                })
+            })
+            .catch((err)=>{
+                this.showGlobalErrorMessage(err);
+            }).finally(()=>{
+                this.unblockUi();
+            }) 
+    }
+    changeFill(filledData, oldData){
+        if (this.valueIsEqualToId(filledData,oldData)) {
+            oldData[filledData[1].fieldName] = filledData[1].value;
+            return oldData;
+        }
+    }
+    calculateData(id){
+        this.blockUi();
+        const {parsedData} = this.state;
+        const viewIdArg = this.state.elementId;
+        let returnId = undefined;
+        let selectedParsedData =  parsedData; 
+        if(id){
+          const foundedElement = parsedData.find(el=>el.ID === id);
+          selectedParsedData = parsedData.filter(el=>el.NAG_ID === foundedElement.NAG_ID) ;
+          returnId=foundedElement.ID;
+        }
+        const saveElement = this.createObjectToSave(selectedParsedData);
+        this.batchService
+            .calculate(viewIdArg, returnId, saveElement)
+            .then((saveResponse)=>{
+                const parsedDataAfterCalculate = this.state.parsedData;
+                saveResponse?.data?.forEach((cf) => {
+                    parsedDataAfterCalculate.forEach((item) => {
+                        item = this.changeWart(cf, item);
+                    });
+                });
+                this.setState({
+                    parsedData: parsedDataAfterCalculate
+                },()=>{
+                     this.refDataGrid?.instance?.getDataSource()?.reload();
+                })
+                this.showSuccessMessage(saveResponse.message);
+            })
+            .catch((err)=>{
+                this.showGlobalErrorMessage(err);
+            }).finally(()=>{
+                this.unblockUi();
+            }) 
+    }
+    changeWart(calcultedFormula, oldFormula) {
+        if (this.valueIsEqualToId(calcultedFormula, oldFormula)) {
+            oldFormula[calcultedFormula[1].fieldName] = calcultedFormula[1].value;
+            oldFormula._CALC_OK = calcultedFormula[2].value;
+            return oldFormula;
+        }
+    }
+
+    // afterCalculated
     //override
     renderContent = () => {
         return (
@@ -498,12 +583,10 @@ export class BatchContainer extends BaseContainer {
                             dataGridStoreSuccess={this.state.dataGridStoreSuccess}
                             allowSelectAll={false}
                             handleFormulaRow={(id) => {
-                                alert('Czekamy na API dla Calculate');
-                                // this.prepareCalculateFormula(id);
+                                this.calculateData(id);
                             }}
                             handleFillRow={(id) => {
-                                alert('Czekamy na API dla FILL');
-                                // this.fill(id);
+                                this.fillData(id);
                             }}
                         />
                     </React.Fragment>
@@ -516,20 +599,20 @@ export class BatchContainer extends BaseContainer {
         const viewIdArg = this.state.elementId;
         const parentIdArg = this.state.elementParentId;
         const ids = this.state.parsedData.map((el) => el.ID);
-        this.setState({
-            renderConfirmationEditQuitDialog: false,
-        });
         this.batchService
-            .cancel(viewIdArg, parentIdArg, ids)
-            .then(() => {
-                window.history.back();
-            })
-            .catch((err) => {
-                this.showGlobalErrorMessage(err);
-            })
-            .finally(() => {
-                this.unblockUi();
-            });
+        .cancel(viewIdArg, parentIdArg, ids)
+        .then(() => {
+            
+            window.location.href = AppPrefixUtils.locationHrefUrl(
+                `/#/grid-view/${viewIdArg}`
+            );
+        })
+        .catch((err) => {
+            this.showGlobalErrorMessage(err);
+        })
+        .finally(() => {
+            this.unblockUi();
+        });
     };
     //override
     handleEditRowChange(inputType, event, rowId, info) {}

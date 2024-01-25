@@ -35,6 +35,12 @@ class UrlUtils {
         const recordId = this.getURLParameter('recordId');
         return recordId !== undefined && recordId !== null;
     }
+    static isBcParamExist() {
+        return window.location.href.includes('bc');
+    }
+    static isKindViewParamExist() {
+        return window.location.href.includes('editKindView');
+    }
     static getBatchIdParam() {
         return this.getURLParameter('batchId');
     }
@@ -65,9 +71,6 @@ class UrlUtils {
     static isEditSpec() {
         return window.location.href.includes('edit-spec');
     }
-    static haveKindView() {
-        return window.location.href.includes('editKindView');
-    }
     static isBatch() {
         return window.location.href.includes('batch');
     }
@@ -75,41 +78,57 @@ class UrlUtils {
         return window.location.href.split('?')[0];
     }
 
-    static removeEditRowParamsFromUrlIfPossible() {
-        if (!this.isEditRowView()) {
-            this.removeEditRowParamsFromUrl();
-        }
-    }
-
-    static removeEditRowParamsFromUrl() {
+    static getUrlWithoutEditRowParams() {
         const currentUrl = window.location.href;
         const paramsToRemove = [
-            'editParentId=' + UrlUtils.getURLParameter('editParentId'),
-            'editRecordId=' + UrlUtils.getURLParameter('editRecordId'),
-            'editKindView=' + UrlUtils.getURLParameter('editKindView'),
+            '?editParentId=' + UrlUtils.getURLParameter('editParentId'),
+            '&editParentId=' + UrlUtils.getURLParameter('editParentId'),
+            '?editRecordId=' + UrlUtils.getURLParameter('editRecordId'),
+            '&editRecordId=' + UrlUtils.getURLParameter('editRecordId'),
+            '?editKindView=' + UrlUtils.getURLParameter('editKindView'),
+            '&editKindView=' + UrlUtils.getURLParameter('editKindView'),
         ];
-        const url = currentUrl;
-        const parts = url.split('?');
-        const filteredParts = parts.filter((part) => !paramsToRemove.includes(part));
-        const newUrl = filteredParts.join('?');
-        window.history.replaceState({}, document.title, newUrl);
-    }
-
-    static getUrlWithoutGridViewParams() {
-        // Utwórz obiekt URL z żądanego URL-a
-        const currentUrl = window.location.href;
-        const paramsToRemove = [
-            '?recordId=' + UrlUtils.getURLParameter('recordId'),
-            '&parentId=' + UrlUtils.getURLParameter('parentId'),
-            '&bc=' + UrlUtils.getURLParameter('bc') + '=',
-        ];
-        const url = currentUrl
+        let urlWithRemovedParams = currentUrl
             .replace(paramsToRemove[0], '')
             .replace(paramsToRemove[1], '')
-            .replace(paramsToRemove[2], '');
-        return url;
+            .replace(paramsToRemove[2], '')
+            .replace(paramsToRemove[3], '')
+            .replace(paramsToRemove[4], '')
+            .replace(paramsToRemove[5], '');
+        return urlWithRemovedParams;
     }
 
+    static getUrlWithEditRowParams(recordId, parentId, kindView) {
+        let queryStringTmp = [];
+        const firstChar = UrlUtils.isBcParamExist() ? '&' : '?';
+        if (!!parentId && StringUtils.isBlank(UrlUtils.getURLParameter('editParentId'))) {
+            queryStringTmp.push(`editParentId=${parentId}`);
+        }
+        if (!!recordId && StringUtils.isBlank(UrlUtils.getURLParameter('editRecordId'))) {
+            queryStringTmp.push(`editRecordId=${recordId}`);
+        }
+        if (!!kindView && StringUtils.isBlank(UrlUtils.getURLParameter('editKindView'))) {
+            queryStringTmp.push(`editKindView=${kindView}`);
+        }
+        if (queryStringTmp.length !== 0) {
+            queryStringTmp[0] = `${firstChar}` + queryStringTmp[0];
+        }
+        const currenturl = window.location.href;
+        return currenturl + `${queryStringTmp.join('&')}`;
+    }
+    // chyba do string utils
+    static notExistsQuestionMark(str) {
+        return !str.includes('?');
+    }
+
+    static replaceFirstAmpersand(str) {
+        const idx = str.indexOf('&');
+        if (idx !== -1) {
+            return str.slice(0, idx) + '?' + str.slice(idx + 1);
+        } else {
+            return str;
+        }
+    }
     static deleteParameterFromURL(url, paramName) {
         let rtn = url.split('?')[0],
             param,

@@ -149,12 +149,13 @@ export class BaseViewContainer extends BaseContainer {
         if (id === undefined) {
             id = this.props.id;
         }
-        this.openEditRowIfPossible();
         ConsoleHelper(
             `BaseViewContainer::componentDidMount -> id=${id}, subViewId = ${subViewId}, recordId = ${recordId}, filterId = ${filterId}, viewType=${viewType}`
         );
         const newUrl = UrlUtils.deleteParameterFromURL(window.document.URL.toString(), 'force');
         window.history.replaceState('', '', newUrl);
+        this.openEditRowIfPossible();
+
         this.setState(
             {
                 elementViewType: viewType,
@@ -1283,42 +1284,44 @@ export class BaseViewContainer extends BaseContainer {
 
     openEditRowIfPossible() {
         if (UrlUtils.isEditRowOpen()) {
-            const viewId = UrlUtils.getIdFromUrl();
-            const editParentId = UrlUtils.getURLParameter('editParentId');
-            const editRecordId = UrlUtils.getURLParameter('editRecordId');
-            const editKindView = UrlUtils.getURLParameter('editKindView');
-            this.crudService
-                .editEntry(viewId, editRecordId, editParentId, editKindView, '')
-                .then((entryResponse) => {
-                    EntryResponseUtils.run(
-                        entryResponse,
-                        () => {
-                            if (!!entryResponse.next) {
-                                this.crudService
-                                    .edit(viewId, editRecordId, editParentId, editKindView)
-                                    .then((editDataResponse) => {
-                                        this.setState(
-                                            {
-                                                editData: editDataResponse,
-                                            },
-                                            () => {
-                                                this.handleShowEditPanel(editDataResponse);
-                                            }
-                                        );
-                                    })
-                                    .catch((err) => {
-                                        this.showErrorMessages(err);
-                                    });
-                            } else {
-                                this.unblockUi();
-                            }
-                        },
-                        () => this.unblockUi()
-                    );
-                })
-                .catch((err) => {
-                    this.props.showErrorMessages(err);
-                });
+            setTimeout(() => {
+                const viewId = UrlUtils.getIdFromUrl();
+                const editParentId = UrlUtils.getURLParameter('editParentId');
+                const editRecordId = UrlUtils.getURLParameter('editRecordId');
+                const editKindView = UrlUtils.getURLParameter('editKindView');
+                this.crudService
+                    .editEntry(viewId, editRecordId, editParentId, editKindView)
+                    .then((entryResponse) => {
+                        EntryResponseUtils.run(
+                            entryResponse,
+                            () => {
+                                if (!!entryResponse.next) {
+                                    this.crudService
+                                        .edit(viewId, editRecordId, editParentId, editKindView)
+                                        .then((editDataResponse) => {
+                                            this.setState(
+                                                {
+                                                    editData: editDataResponse,
+                                                },
+                                                () => {
+                                                    this.handleShowEditPanel(editDataResponse);
+                                                }
+                                            );
+                                        })
+                                        .catch((err) => {
+                                            this.showErrorMessages(err);
+                                        });
+                                } else {
+                                    this.unblockUi();
+                                }
+                            },
+                            () => this.unblockUi()
+                        );
+                    })
+                    .catch((err) => {
+                        this.props.showErrorMessages(err);
+                    });
+            }, 1000);
         }
     }
 

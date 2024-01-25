@@ -69,7 +69,6 @@ export default class CrudService extends BaseService {
                 throw err;
             });
     }
-    // TODO: tu trzeba porpawic
     editEntry(viewId, recordId, parentId, kindView) {
         return this.fetch(
             `${this.getDomain()}/${this.path}/${viewId}/Edit/${recordId}/Entry${
@@ -80,7 +79,7 @@ export default class CrudService extends BaseService {
             }
         )
             .then((editDataEntryResponse) => {
-                this.addEditRowParamsToUrl(recordId, parentId, kindView);
+                window.location.href = UrlUtils.getUrlWithEditRowParams(recordId, parentId, kindView);
                 return Promise.resolve(editDataEntryResponse);
             })
             .catch((err) => {
@@ -99,7 +98,7 @@ export default class CrudService extends BaseService {
         )
             .then((editDataResponse) => {
                 if (editDataResponse.editInfo.editFormType.toUpperCase() === 'FULLSCREEN') {
-                    window.location.href = UrlUtils.getUrlWithoutGridViewParams().replace('grid-view', 'edit-row-view');
+                    window.location.href = window.location.href.replace('grid-view', 'edit-row-view');
                     if (renderNoRefreshContentFnc) {
                         renderNoRefreshContentFnc();
                     }
@@ -655,27 +654,6 @@ export default class CrudService extends BaseService {
             });
         });
         return {data: arrayTmp};
-    }
-
-    addEditRowParamsToUrl(recordId, parentId, kindView) {
-        let queryStringTmp = [];
-        if (!!parentId && StringUtils.isBlank(UrlUtils.getURLParameter('editParentId'))) {
-            queryStringTmp.push(`editParentId=${parentId}`);
-        }
-        if (!!recordId && StringUtils.isBlank(UrlUtils.getURLParameter('editRecordId'))) {
-            queryStringTmp.push(`editRecordId=${recordId}`);
-        }
-        if (!!kindView && StringUtils.isBlank(UrlUtils.getURLParameter('editKindView'))) {
-            queryStringTmp.push(`editKindView=${kindView}`);
-        }
-
-        let currenturl = window.location.href;
-        const lastChar = currenturl.slice(-1);
-
-        if (lastChar !== '?') {
-            currenturl = currenturl + '?';
-        }
-        window.location.href = currenturl + `${queryStringTmp.join('&')}`;
     }
 
     createObjectToEditList(editData) {

@@ -148,21 +148,32 @@ class App extends Component {
     showSessionTimeoutIfPossible() {
         if (this.timer === undefined || this.timer === null) {
             this.timer = setInterval(() => {
-                const loggedUser = this.authService.isLoggedUser();
-                if (loggedUser) {
-                    this.showSessionTimedOut();
+                const isExpired = this.authService.isTokenExpiredDate();
+                const textAfterHash = window.location.href.split('/#/')[1];
+                const onLogoutUrl = !(textAfterHash && textAfterHash.trim() !== '');
+                // TODO: tu refactoring
+                if (isExpired) {
+                    if (this.authService.isLoggedUser()) {
+                        if(onLogoutUrl){
+                            this.authService.removeLoginCookies();
+                        }
+                    }
+                } else {
+                    if (this.authService.isLoggedUser()) {
+                        this.showSessionTimedOut();
+                    } else {
+                        this.authService.logout();
+                    }
                 }
             }, 1000);
         }
     }
 
     showSessionTimedOut() {
-        const textAfterHash = window.location.href.split('/#/')[1];
-        const notFoundTextAfterHash = !(textAfterHash && textAfterHash.trim() !== '');
         const sessionTimeout = Date.parse(localStorage.getItem('session_timeout'));
         const now = new Date();
-        const tickerPopUpDate = new Date();
-        tickerPopUpDate.setSeconds(tickerPopUpDate.getSeconds() + 45);
+        const tickerPopupDate = new Date();
+        tickerPopupDate.setSeconds(tickerPopupDate.getSeconds() + 45);
         const duration = moment.duration(sessionTimeout - now);
         const timeToLeaveSession = {
             hours: duration.hours(),
@@ -171,13 +182,19 @@ class App extends Component {
         };
         const sessionTimeOutComponentRef = document.getElementById('session-time-out-component-ref');
         if (sessionTimeOutComponentRef) {
+            if(timeToLeaveSession.hours === 24){
+                // TODO: to trrzeba lepiej czas sie przekreca
+                this.authService.logout();
+            }
             sessionTimeOutComponentRef.innerText = PageViewUtils.tickerSessionTimeoutFormat(timeToLeaveSession);
         }
-        if (notFoundTextAfterHash) {
-            this.authService.logout();
-        }
-        if (sessionTimeout < tickerPopUpDate && !this.state?.rednerSessionTimeoutDialog) {
-            this.setState({rednerSessionTimeoutDialog: true});
+        if (sessionTimeout < tickerPopupDate && !this.state?.rednerSessionTimeoutDialog) {
+            this.setState({rednerSessionTimeoutDialog: true}, () => {
+                setTimeout(() => {
+                    // czasami buguje sie w podiwdoku wiec taki restate
+                    this.forceUpdate();
+                }, 10);
+            });
         }
     }
 
@@ -188,6 +205,7 @@ class App extends Component {
             const canPrelongSession =
                 (timeInMinutes && fromDialogSession) || (timeInMinutes && !this.state?.rednerSessionTimeoutDialog);
             if (canPrelongSession) {
+                // ten fetch raczej niepotrzebny
                 const sessionTimeout = moment(new Date()).add(timeInMinutes, 'm').toString();
                 localStorage.setItem('session_timeout', sessionTimeout);
             }
@@ -353,11 +371,11 @@ class App extends Component {
 
     fullScreenDisabled() {
         const authService = this.authService;
-        const isLoggedUser = authService.isLoggedUser();
+        const tokenExpired = authService.isTokenExpiredDate();
         if (UrlUtils.isEditRowView()) {
             return false;
         }
-        if (!isLoggedUser) {
+        if (tokenExpired) {
             return false;
         }
         return true;
@@ -394,10 +412,12 @@ class App extends Component {
                         authService={this.authService}
                         visible={this.state.rednerSessionTimeoutDialog}
                         onProlongSession={() => {
-                            this.prelongSessionIfUserExist(true);
-                            this.setState({
-                                rednerSessionTimeoutDialog: false,
-                            });
+                            this.authService.refresh().then(()=>{
+                                this.prelongSessionIfUserExist(true);
+                                this.setState({
+                                    rednerSessionTimeoutDialog: false,
+                                });
+                            })
                         }}
                         onLogout={() => {
                             authService.removeLoginCookies();
@@ -474,7 +494,7 @@ class App extends Component {
                                 {this.sessionTimeOutComponent()}
 
                                 <div className={`${loggedIn ? 'container-fluid' : ''}`}>
-                                    {this.state.renderNoRefreshContent ? (
+                                    {this.state.renderNoRefreshContent && this.fullScreenDisabled() ? (
                                         <React.Fragment>
                                             {Breadcrumb.render(labels)}
                                             <DivContainer colClass='row base-container-header'>
@@ -530,6 +550,7 @@ class App extends Component {
                                                                 }
                                                             >
                                                                 <EditRowViewComponent
+                                                                    key={"edit-row-component"}
                                                                     labels={labels}
                                                                     historyBrowser={this.historyBrowser}
                                                                     editData={this.state.editData}
