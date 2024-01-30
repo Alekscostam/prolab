@@ -1,4 +1,5 @@
 import AppPrefixUtils from './AppPrefixUtils';
+import UrlUtils from './UrlUtils';
 
 export class EditSpecUtils {
     static navToEditSpec(viewId, parentId, recordIdsParams, currentBreadcrumb) {
@@ -7,7 +8,7 @@ export class EditSpecUtils {
     }
     static editSpecUrl(viewId, parentId, recordIdsParams, currentBreadcrumb) {
         return AppPrefixUtils.locationHrefUrl(
-            `/#/edit-spec/${viewId}?parentId=${parentId}&recordId=${recordIdsParams}${currentBreadcrumb}`
+            `/#/edit-spec/${viewId}?parentId=${parentId}&recordId=${recordIdsParams}&prevParentId=${UrlUtils.getURLParameter("parentId")}${currentBreadcrumb}`
         );
     }
 }

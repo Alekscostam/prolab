@@ -41,32 +41,25 @@ class DashboardContainer extends BaseContainer {
         super.componentDidMount();
         this.props.handleRenderNoRefreshContent(false);
         if (!!this.props.dashboard) {
-            this.setState(
-                {
-                    dashboard: this.props.dashboard,
-                    loading: false,
-                },
-                () => {
-                    this.prepareCardView();
-                    this.unblockUi();
-                    this.forceUpdate();
-                }
-            );
-            this.unblockUi();
+            this.restateDashboard();
         } else {
             this.initializeDashboard();
         }
     }
 
     refreshDashboard(savedElement) {
-        let dashboard = this.props.dashboard;
         if (savedElement) {
             this.downloadDashboardData();
             return;
         }
+       this.restateDashboard();
+    }
+
+    restateDashboard(){
+        this.blockUi();
         this.setState(
             {
-                dashboard: dashboard,
+                dashboard: this.props.dashboard,
                 loading: false,
             },
             () => {
@@ -77,12 +70,16 @@ class DashboardContainer extends BaseContainer {
     }
 
     downloadDashboardData = () => {
+        UrlUtils.isStartPage() ? this.initializeDashboard() : this.getSubViewEntry();
+    };
+
+    getSubViewEntry(){
         const {dashboard} = this.props;
-        const id = dashboard.viewInfo.id;
+        const id = dashboard?.viewInfo?.id;
         const recordId = UrlUtils.getURLParameter('recordId');
         const parentId = UrlUtils.getURLParameter('parentId');
-
-        this.viewService
+        if(id){   
+            this.viewService
             .subViewEntry(id, recordId, parentId)
             .then((entryResponse) => {
                 EntryResponseUtils.run(
@@ -117,8 +114,9 @@ class DashboardContainer extends BaseContainer {
             })
             .catch((err) => {
                 this.showGlobalErrorMessage(err);
-            });
-    };
+            });}
+     
+    }
 
     initializeDashboard = () => {
         this.dashboardService
@@ -204,7 +202,7 @@ class DashboardContainer extends BaseContainer {
     renderGlobalTop() {
         return (
             <React.Fragment>
-                <EditRowComponent
+                {this.state.visibleEditPanel && <EditRowComponent
                     visibleEditPanel={this.state.visibleEditPanel}
                     editData={this.state.editData}
                     onChange={this.handleEditRowChange}
@@ -220,8 +218,10 @@ class DashboardContainer extends BaseContainer {
                             visibleEditPanel: false,
                         });
                     }}
-                    onHide={(e, viewId, recordId, parentId) =>
-                        !!this.state.modifyEditData
+                    onHide={(e, viewId, recordId, parentId) =>{ 
+                        (
+                            
+                            !!this.state.modifyEditData
                             ? confirmDialog({
                                   appendTo: document.body,
                                   message: LocUtils.loc(
@@ -241,12 +241,13 @@ class DashboardContainer extends BaseContainer {
                               })
                             : this.setState({visibleEditPanel: e}, () => {
                                   this.handleCancelRowChange(viewId, recordId, parentId);
-                              })
+                              }))}
                     }
                     onError={(e) => this.showErrorMessage(e)}
                     labels={this.props.labels}
                     showErrorMessages={(err) => this.showErrorMessages(err)}
-                />
+                />}
+                
                 {this.state.visibleHistoryLogPanel ? (
                     <HistoryLogListComponent
                         visible={this.state.visibleHistoryLogPanel}

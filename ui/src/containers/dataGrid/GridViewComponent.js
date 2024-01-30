@@ -95,6 +95,18 @@ class GridViewComponent extends CellEditComponent {
         }
         return result;
     };
+    findRowDataById(recordId){
+        let editData = this.props.parsedGridViewData.filter((item) => {
+            return item.ID === recordId;
+        });
+        return editData[0];
+    }
+    currentEditListRow(recordId){
+        const currentEditListRow = this.props.parsedGridViewData.filter((item) => {
+              return item.ID === recordId;
+        }); 
+        return currentEditListRow
+    }
     render() {
         const showGroupPanel = this.props.gridFromDashboard
             ? false

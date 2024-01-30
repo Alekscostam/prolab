@@ -188,8 +188,6 @@ export default class DataGridStore extends BaseService {
                 }
                 if (!!onStartCallback) {
                     let result = onStartCallback();
-                    // console.log(loadOptions['skip']);
-                    // console.log(loadOptions['take']);
                     if (result?.select || result?.selectAll) {
                         addSelectAllParam = true;
                         // TODO: zatrzymac przeiwjanie w góre. ODP to naprawi nowa wersja komponentu devextereme
@@ -289,7 +287,7 @@ export default class DataGridStore extends BaseService {
     }
 
     chooseAll() {
-        let selectionIdsResponse = {
+        const selectionIdsResponse = {
             data: this.cachedFromSelectAll.data,
             totalCount: this.cachedFromSelectAll.totalCount,
         };

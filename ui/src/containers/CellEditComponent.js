@@ -143,12 +143,17 @@ class CellEditComponent extends React.Component {
         this.setState({selectedRowDataEditList: transformedRowsData, defaultSelectedRowKeys: transformedRowsCRC});
     };
 
-    findRowDataById = (recordId) => {
-        let editData = this.props.parsedGridViewData.filter((item) => {
-            return item.ID === recordId;
-        });
-        return editData[0];
-    };
+
+    // to overide 
+    findRowDataById(recordId){
+    }
+
+
+    // to overide 
+    currentEditListRow(recordId){
+
+    }
+
 
     editListVisible = (recordId, fieldId) => {
         ConsoleHelper('EditableComponent::editListVisible');
@@ -161,10 +166,7 @@ class CellEditComponent extends React.Component {
             () => {
                 const viewId = this.props.id;
                 const paramId = UrlUtils.batchIdParamExist() ? UrlUtils.getBatchIdParam() : this.props.elementParentId;
-                const currentEditListRow = this.props.parsedGridViewData.filter((item) => {
-                    return item.ID === recordId;
-                });
-
+                const currentEditListRow = this.currentEditListRow(recordId);
                 const editListBodyObject = EditListUtils.createBodyToEditList(currentEditListRow[0]);
                 this.crudService
                     .getListOfHints(viewId, paramId, fieldId, editListBodyObject)

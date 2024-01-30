@@ -8,6 +8,7 @@ import Constants from '../../utils/Constants';
 import ActionButtonWithMenu from './ActionButtonWithMenu';
 import {sessionPrelongFnc} from '../../App';
 import {setExpandAllInitialized} from '../../containers/AddSpecContainer';
+import { OperationType } from '../../model/OperationType';
 //Komponent do wyświetlania dynamicznego przycisków - po zaznaczaniu rekordów i przy szczegółach rekordów
 export const OperationsButtons = (props) => {
     //metoda wykorzystywana do wyświetlania przycisków na górnym panelu po zaznaczeniu rekordów
@@ -20,7 +21,7 @@ export const OperationsButtons = (props) => {
 
         if (operations && !!operations.type) {
             switch (operations.type?.toUpperCase()) {
-                case 'OP_EDIT':
+                case OperationType.OP_EDIT:
                     if (!!atLeastOneSelected)
                         return (
                             <React.Fragment>
@@ -38,7 +39,7 @@ export const OperationsButtons = (props) => {
                             </React.Fragment>
                         );
                     break;
-                case 'OP_EDIT_SPEC':
+                case OperationType.OP_EDIT_SPEC:
                     if (!!atLeastOneSelected || (!atLeastOneSelected && !!operations.showAlways)) {
                         return (
                             <React.Fragment>
@@ -62,7 +63,7 @@ export const OperationsButtons = (props) => {
                         );
                     }
                     break;
-                case 'OP_ADDSPEC_SPEC':
+                case OperationType.OP_ADDSPEC_SPEC:
                     if (!!atLeastOneSelected || (!atLeastOneSelected && !!operations.showAlways)) {
                         return (
                             <React.Fragment>
@@ -85,7 +86,7 @@ export const OperationsButtons = (props) => {
                         );
                     }
                     break;
-                case 'OP_SUBVIEWS':
+                case OperationType.OP_SUBVIEWS:
                     if (!!atLeastOneSelected)
                         return (
                             <React.Fragment>
@@ -104,7 +105,7 @@ export const OperationsButtons = (props) => {
                             </React.Fragment>
                         );
                     break;
-                case 'OP_DELETE':
+                case OperationType.OP_DELETE:
                     if (!!atLeastOneSelected)
                         return (
                             <React.Fragment>
@@ -120,7 +121,7 @@ export const OperationsButtons = (props) => {
                             </React.Fragment>
                         );
                     break;
-                case 'OP_DOWNLOAD':
+                case OperationType.OP_DOWNLOAD:
                     if (!!atLeastOneSelected)
                         return (
                             <React.Fragment>
@@ -136,7 +137,7 @@ export const OperationsButtons = (props) => {
                             </React.Fragment>
                         );
                     break;
-                case 'OP_RESTORE':
+                case OperationType.OP_RESTORE:
                     if (!!atLeastOneSelected)
                         return (
                             <React.Fragment>
@@ -153,7 +154,7 @@ export const OperationsButtons = (props) => {
                         );
                     break;
 
-                case 'OP_COPY':
+                case OperationType.OP_COPY:
                     if (!!atLeastOneSelected)
                         return (
                             <React.Fragment>
@@ -169,7 +170,7 @@ export const OperationsButtons = (props) => {
                             </React.Fragment>
                         );
                     break;
-                case 'OP_ARCHIVE':
+                case OperationType.OP_ARCHIVE:
                     if (!!atLeastOneSelected)
                         return (
                             <React.Fragment>
@@ -185,7 +186,7 @@ export const OperationsButtons = (props) => {
                             </React.Fragment>
                         );
                     break;
-                case 'OP_PUBLISH':
+                case OperationType.OP_PUBLISH:
                     if (!!atLeastOneSelected)
                         return (
                             <React.Fragment>
@@ -201,7 +202,7 @@ export const OperationsButtons = (props) => {
                             </React.Fragment>
                         );
                     break;
-                case 'OP_FORMULA':
+                case OperationType.OP_FORMULA:
                     if (shouldShowOpFormula(operations))
                         return (
                             <React.Fragment>
@@ -219,7 +220,7 @@ export const OperationsButtons = (props) => {
                             </React.Fragment>
                         );
                     break;
-                case 'OP_HISTORY':
+                case OperationType.OP_HISTORY:
                     if (!!atLeastOneSelected)
                         return (
                             <React.Fragment>
@@ -235,7 +236,7 @@ export const OperationsButtons = (props) => {
                             </React.Fragment>
                         );
                     break;
-                case 'OP_ATTACHMENTS':
+                case OperationType.OP_ATTACHMENTS:
                     if (!!atLeastOneSelected)
                         return (
                             <React.Fragment>
@@ -251,7 +252,7 @@ export const OperationsButtons = (props) => {
                             </React.Fragment>
                         );
                     break;
-                case 'OP_ADD_LEVEL':
+                case OperationType.OP_ADD_LEVEL:
                     if (!!atLeastOneSelected)
                         return (
                             <React.Fragment>
@@ -267,7 +268,7 @@ export const OperationsButtons = (props) => {
                             </React.Fragment>
                         );
                     break;
-                case 'OP_UP':
+                case OperationType.OP_UP:
                     if (!!atLeastOneSelected)
                         return (
                             <React.Fragment>
@@ -283,7 +284,7 @@ export const OperationsButtons = (props) => {
                             </React.Fragment>
                         );
                     break;
-                case 'OP_DOWN':
+                case OperationType.OP_DOWN:
                     if (!!atLeastOneSelected)
                         return (
                             <React.Fragment>
@@ -299,7 +300,7 @@ export const OperationsButtons = (props) => {
                             </React.Fragment>
                         );
                     break;
-                case 'OP_FILL':
+                case OperationType.OP_FILL:
                     if (!!atLeastOneSelected)
                         return (
                             <React.Fragment>
@@ -342,10 +343,10 @@ export const OperationsButtons = (props) => {
     const menuItems = props.operationList.map((i) => {
         let url = undefined;
         switch (i.type?.toUpperCase()) {
-            case 'OP_EDIT_SPEC':
+            case OperationType.OP_EDIT_SPEC:
                 url = props.hrefSpecView;
                 break;
-            case 'OP_SUBVIEWS':
+            case OperationType.OP_SUBVIEWS:
                 url = props.hrefSubview;
                 break;
             default:
@@ -358,45 +359,45 @@ export const OperationsButtons = (props) => {
             url: url,
             command: () => {
                 switch (i.type?.toUpperCase()) {
-                    case 'OP_EDIT':
+                    case OperationType.OP_EDIT:
                         return props.handleEdit();
-                    case 'OP_EDIT_SPEC':
+                    case OperationType.OP_EDIT_SPEC:
                         return props.handleEditSpec();
-                    case 'OP_ADDSPEC_SPEC':
+                    case OperationType.OP_ADDSPEC_SPEC:
                         return props.handleAddSpecSpec();
-                    case 'OP_SUBVIEWS':
+                    case OperationType.OP_SUBVIEWS:
                         return props.handleHrefSubview();
-                    case 'OP_DELETE':
+                    case OperationType.OP_DELETE:
                         return props.handleDelete();
-                    case 'OP_RESTORE':
+                    case OperationType.OP_RESTORE:
                         return props.handleRestore();
-                    case 'OP_COPY':
+                    case OperationType.OP_COPY:
                         return props.handleCopy();
-                    case 'SK_DOCUMENT':
+                    case OperationType.SK_DOCUMENT:
                         return props.handleDocuments(i);
-                    case 'SK_PLUGIN':
+                    case OperationType.SK_PLUGIN:
                         return props.handlePlugins(i);
-                    case 'OP_ARCHIVE':
+                    case OperationType.OP_ARCHIVE:
                         return props.handleArchive();
-                    case 'OP_PUBLISH':
+                    case OperationType.OP_PUBLISH:
                         return props.handlePublish();
-                    case 'OP_FORMULA':
+                    case OperationType.OP_FORMULA:
                         return props.handleFormula(i);
-                    case 'OP_DOWNLOAD':
+                    case OperationType.OP_DOWNLOAD:
                         return props.handleDownload();
-                    case 'OP_HISTORY':
+                    case OperationType.OP_HISTORY:
                         return props.handleHistory();
-                    case 'OP_ATTACHMENTS':
+                    case OperationType.OP_ATTACHMENTS:
                         return props.handleAttachments();
-                    case 'OP_BATCH':
+                    case OperationType.OP_BATCH:
                         return props.handleBatch(i);
-                    case 'OP_ADD_LEVEL':
+                    case OperationType.OP_ADD_LEVEL:
                         return props.handleAddLevel();
-                    case 'OP_UP':
+                    case OperationType.OP_UP:
                         return props.handleUp();
-                    case 'OP_DOWN':
+                    case OperationType.OP_DOWN:
                         return props.handleDown();
-                    case 'OP_FILL':
+                    case OperationType.OP_FILL:
                         return props.handleFill();
                     default:
                         return null;

@@ -23,6 +23,11 @@ class UrlUtils {
             return null;
         }
     }
+    static removeAndAddParam(paramName, idToReplace, url){
+       let deleteParamFromUrl =  this.deleteParameterFromURL(url, paramName)
+       let addParamToUrl = this.addParameterToURL(deleteParamFromUrl, paramName, idToReplace);
+       return addParamToUrl;
+    }
     static batchIdParamExist() {
         const batchId = this.getURLParameter('batchId');
         return batchId !== undefined && batchId !== null;
@@ -40,6 +45,9 @@ class UrlUtils {
     }
     static isKindViewParamExist() {
         return window.location.href.includes('editKindView');
+    }
+    static isStartPage() {
+        return window.location.href.includes('start');
     }
     static getBatchIdParam() {
         return this.getURLParameter('batchId');

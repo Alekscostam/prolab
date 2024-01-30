@@ -26,6 +26,7 @@ import DataHistoryLogStore from '../containers/dao/DataHistoryLogStore';
 import BatchService from '../services/BatchService';
 import {ResponseUtils} from '../utils/ResponseUtils';
 import EditSpecService from '../services/EditSpecService';
+import { OperationType } from '../model/OperationType';
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -1311,7 +1312,7 @@ class BaseContainer extends React.Component {
         this.crudService
             .cancel(viewId, recordId, parentId, kindView, kindOperation, saveElement)
             .then(() => {
-                this.refreshView();
+                this.refreshView(saveElement);
                 this.unselectAllDataGrid();
                 this.unblockUi();
                 this.returnFromRowEdit();
@@ -1565,23 +1566,23 @@ class BaseContainer extends React.Component {
     handleRightHeadPanelContent(element) {
         const elementId = `${element?.id}`;
         switch (element.type) {
-            case 'OP_PLUGINS':
-            case 'SK_PLUGIN':
+            case OperationType.OP_PLUGINS:
+            case OperationType.SK_PLUGIN:
                 this.plugin(elementId);
                 break;
-            case 'OP_ATTACHMENTS':
+            case OperationType.OP_ATTACHMENTS:
                 this.attachment(elementId);
                 break;
-            case 'OP_DOCUMENTS':
-            case 'SK_DOCUMENT':
+            case OperationType.OP_DOCUMENTS:
+            case OperationType.SK_DOCUMENT:
                 this.generate(elementId);
                 break;
-            case 'OP_PUBLISH':
-            case 'SK_PUBLISH':
+            case OperationType.OP_PUBLISH:
+            case OperationType.SK_PUBLISH:
                 this.publishEntry();
                 break;
-            case 'OP_HISTORY':
-            case 'SK_HISTORY':
+            case OperationType.OP_HISTORY:
+            case OperationType.SK_HISTORY:
                 this.historyLog(elementId);
                 break;
             default:

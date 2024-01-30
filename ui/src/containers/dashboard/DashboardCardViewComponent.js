@@ -11,6 +11,7 @@ import PropTypes from 'prop-types';
 import CrudService from '../../services/CrudService';
 import ConsoleHelper from '../../utils/ConsoleHelper';
 import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils';
+import { OperationType } from '../../model/OperationType';
 
 class DashboardCardViewComponent extends React.Component {
     constructor(props) {
@@ -65,12 +66,12 @@ class DashboardCardViewComponent extends React.Component {
                     let menuItems = [];
                     if (this.props.parsedGridView?.operations) {
                         this.props.parsedGridView?.operations.forEach((operation) => {
-                            showEditButton = showEditButton || operation.type === 'OP_EDIT';
-                            showSubviewButton = showSubviewButton || operation.type === 'OP_SUBVIEWS';
+                            showEditButton = showEditButton || operation.type === OperationType.OP_EDIT;
+                            showSubviewButton = showSubviewButton || operation.type === OperationType.OP_SUBVIEWS;
                             if (
-                                operation.type === 'OP_PUBLIC' ||
-                                operation.type === 'OP_HISTORY' ||
-                                operation.type === 'OP_ATTACHMENTS'
+                                operation.type === OperationType.OP_PUBLIC||
+                                operation.type === OperationType.OP_HISTORY ||
+                                operation.type ===  OperationType.OP_ATTACHMENTS
                             ) {
                                 menuItems.push(operation);
                             }
@@ -79,11 +80,11 @@ class DashboardCardViewComponent extends React.Component {
                     }
                     let oppEdit = DataGridUtils.containsOperationsButton(
                         this.props.parsedGridView?.operations,
-                        'OP_EDIT'
+                        OperationType.OP_EDIT
                     );
                     let oppSubview = DataGridUtils.containsOperationsButton(
                         this.props.parsedGridView?.operations,
-                        'OP_SUBVIEWS'
+                        OperationType.OP_SUBVIEWS
                     );
                     const elementSubViewId = this.props.elementSubViewId;
                     const elementKindView = this.props.elementKindView;

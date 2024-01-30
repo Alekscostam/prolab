@@ -73,12 +73,24 @@ export class EditRowComponent extends BaseRowComponent {
     }
 
     addOverlay() {
-        addCustomOverlayToElement('base-container-div');
-        addCustomOverlayToElement('breadcrumb-link');
-        addCustomOverlayToElement('header-left');
+        const visibleEditPanel = this.props.visibleEditPanel;
+        if(visibleEditPanel){
+            addCustomOverlayToElement('grid-selection-panel');
+            addCustomOverlayToElement('title-dashboard');
+            addCustomOverlayToElement('dx-tileview');
+            addCustomOverlayToElement('view-info-name');
+            addCustomOverlayToElement('grid-container');
+            addCustomOverlayToElement('breadcrumb-link');
+            addCustomOverlayToElement('header-left');
+        }
     }
     removeOverlay() {
-        removeCustomOverlayToElement('base-container-div');
+        
+        removeCustomOverlayToElement('grid-selection-panel');
+        removeCustomOverlayToElement('title-dashboard');
+        removeCustomOverlayToElement('dx-tileview');
+        removeCustomOverlayToElement('grid-container');
+        removeCustomOverlayToElement('view-info-name');
         removeCustomOverlayToElement('breadcrumb-link');
         removeCustomOverlayToElement('header-left');
     }
@@ -175,6 +187,7 @@ export class EditRowComponent extends BaseRowComponent {
                                         const editInfo = this.props.editData?.editInfo;
                                         if (editInfo) {
                                             this.props.onHide(!visibleEditPanel, editInfo.viewId, editInfo.recordId, editInfo.parentId);
+                                            
                                         }
                                     }}
                                     title={opCancel?.label}

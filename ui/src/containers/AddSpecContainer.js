@@ -296,11 +296,11 @@ export class AddSpecContainer extends BaseContainer {
                     this.dataTreeStore
                         .getAddSpecDataTreeStoreDirect(viewIdArg, parentIdArg, type, headerId, header)
                         .then((res) => {
+                            res.data.forEach((el) => {
+                                el._ID_PARENT = el.ID_PARENT;
+                                el._ID = el.ID;
+                            });
                             if (header === false) {
-                                res.data.forEach((el) => {
-                                    el._ID_PARENT = el[responseView.info.fieldParent];
-                                    el._ID = el[responseView.info.fieldKey];
-                                });
                                 res.data = TreeListUtils.paintDatas(res.data);
                             }
                             this.setState({
@@ -507,7 +507,7 @@ export class AddSpecContainer extends BaseContainer {
                 this.showGlobalErrorMessage(err);
             });
     };
-
+   
     setParents(type, header, res) {
         const responseView = this.state.parsedView;
         if (header === false) {
@@ -548,7 +548,7 @@ export class AddSpecContainer extends BaseContainer {
             for (let y = 0; y < clonedArray.length; y++) {
                 if (array[x]._ID === clonedArray[y]._ID) {
                     clonedArray[y]._ID = startElementId;
-                    clonedArray[y].ID = startElementId;
+                    clonedArray[y].ID = null;
                 }
                 if (array[x]._ID === clonedArray[y]._ID_PARENT) {
                     clonedArray[y]._ID_PARENT = startElementId;
@@ -701,7 +701,7 @@ export class AddSpecContainer extends BaseContainer {
                                 }}
                                 modifyParsedGridViewData={(newCopyRow) => {
                                     parsedData.forEach((el) => {
-                                        if (el.ID === newCopyRow.ID) {
+                                        if (el._ID === newCopyRow._ID) {
                                             el = newCopyRow;
                                         }
                                     });

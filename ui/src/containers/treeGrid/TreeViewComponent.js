@@ -74,15 +74,21 @@ class TreeViewComponent extends CellEditComponent {
         return prevProps.id !== prevState.id && prevProps.elementRecordId !== prevState.elementRecordId;
     }
 
-    findRowDataById(recordId) {
-        let editData = this.props.parsedGridViewData.filter((item) => {
-            return item.ID === recordId;
-        });
-        return editData[0];
-    }
     componentWillUnmount() {
         clearSelection = false;
         setExpandAllInitialized(false);
+    }
+    findRowDataById(recordId){
+        let editData = this.props.parsedGridViewData.filter((item) => {
+            return item._ID === recordId;
+        });
+        return editData[0];
+    }
+    currentEditListRow(recordId){
+        const currentEditListRow = this.props.parsedGridViewData.filter((item) => {
+              return item._ID === recordId;
+        }); 
+        return currentEditListRow
     }
     isSpecialCell(columnDefinition) {
         const type = columnDefinition?.type;
@@ -125,7 +131,7 @@ class TreeViewComponent extends CellEditComponent {
                 {this.state.editorDialogVisisble && this.editorComponent()}
                 <TreeList
                     id='spec-edit'
-                    keyExpr='ID'
+                    keyExpr="_ID"
                     className={`tree-container${headerAutoHeight ? ' tree-header-auto-height' : ''}`}
                     ref={(ref) => {
                         this.ref = ref;
@@ -155,7 +161,7 @@ class TreeViewComponent extends CellEditComponent {
                             const treeList = this.ref.instance;
                             const data = this.props.parsedGridViewData;
                             setTimeout(function () {
-                                data.forEach((el) => treeList.expandRow(el.ID));
+                                data.forEach((el) => treeList.expandRow(el._ID));
                             }, 0);
                         }
                         if (!editListDialog) {
@@ -204,7 +210,7 @@ class TreeViewComponent extends CellEditComponent {
                         // return;
                         if (e?.column?.ownOnlySelectList) {
                             // this.setState({editListVisible: true});
-                            this.editListVisible(e.data.ID, e.column.ownFieldId);
+                            this.editListVisible(e.data._ID, e.column.ownFieldId);
                         }
                     }}
                 >
@@ -327,7 +333,7 @@ class TreeViewComponent extends CellEditComponent {
                     }
                     editCellRender={(cellInfo) =>
                         this.editCellRender(cellInfo, columnDefinition, () => {
-                            this.editListVisible(cellInfo.row?.data?.ID, columnDefinition.id);
+                            this.editListVisible(cellInfo.row?.data?._ID, columnDefinition.id);
                         })
                     }
                 />
@@ -425,7 +431,7 @@ class TreeViewComponent extends CellEditComponent {
                             element.append(el);
                             const subViewId = this.props.elementSubViewId;
                             const kindView = this.props.elementKindView;
-                            const recordId = info.row?.data?.ID;
+                            const recordId = info.row?.data?._ID;
                             const parentId = this.props.elementRecordId;
                             const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
                             let viewId = this.props.id;

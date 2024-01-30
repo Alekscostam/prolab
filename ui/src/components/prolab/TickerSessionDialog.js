@@ -6,7 +6,7 @@ import LocUtils from '../../utils/LocUtils';
 import {Button} from 'primereact/button';
 import AuthService from '../../services/AuthService';
 
-const maxValue = 30;
+// const maxValue = 30;
 function statusFormat() {
     return ``;
 }
@@ -16,13 +16,15 @@ const elementAttr = {'aria-label': 'Progress Bar'};
 export const TickerSessionDialog = (props) => {
     let intervalId = undefined;
     const authService = new AuthService();
-    const {onLogout, onProlongSession, visible} = props;
-
+    const {onLogout, onProlongSession, visible, secondsToPopup} = props;
+    let counterStart = true; 
     const [seconds, setSeconds] = useState(null);
     const progressBar = useRef();
 
     useEffect(() => {
-        onCounterInit();
+        if(counterStart){
+            onCounterInit();
+        }
         return () => {
             clearInterval(intervalId);
         };
@@ -30,7 +32,6 @@ export const TickerSessionDialog = (props) => {
 
     const onCounterInit = () => {
         if (intervalId === undefined) {
-            console.log(intervalId, 'intervalId');
             intervalId = setInterval(() => {
                 setSeconds((prevValue) => prevValue + 1);
                 if (!authService.isLoggedUser()) {
@@ -47,6 +48,7 @@ export const TickerSessionDialog = (props) => {
 
     return (
         <div>
+            {secondsToPopup !=null && secondsToPopup !=undefined && secondsToPopup != 0 &&
             <Dialog
                 id='sessionTimeoutDialog'
                 header={LocUtils.loc(props.labels, 'Session_expired', 'Sesja wygasa')}
@@ -57,6 +59,7 @@ export const TickerSessionDialog = (props) => {
                             <Button
                                 type='button'
                                 onClick={() => {
+                                    counterStart = false;
                                     onProlongSession();
                                     clearInterval(intervalId);
                                 }}
@@ -77,12 +80,15 @@ export const TickerSessionDialog = (props) => {
                     className={seconds === 0 ? 'complete' : ''}
                     width='90%'
                     min={0}
-                    max={maxValue}
+                    max={secondsToPopup}
                     elementAttr={elementAttr}
                     statusFormat={statusFormat}
-                    value={maxValue - seconds}
+                    value={secondsToPopup - seconds}
                 />
             </Dialog>
+            
+            }
+           
         </div>
     );
 };
@@ -92,6 +98,7 @@ TickerSessionDialog.defaultProps = {
     onLogout: undefined,
     visible: true,
     value: '',
+    secondsToPopup: 45,
 };
 
 TickerSessionDialog.propTypes = {
@@ -99,4 +106,5 @@ TickerSessionDialog.propTypes = {
     onLogout: PropTypes.func,
     visible: PropTypes.bool,
     value: PropTypes.string,
+    secondsToPopup: PropTypes.number,
 };

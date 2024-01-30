@@ -615,19 +615,19 @@ export class EditSpecContainer extends BaseContainer {
     //usunięcie pojedyńczego rekordu
     deleteSingleRow(id) {
         let data = this.getData();
-        let el = data.find((x) => x.ID === id);
+        let el = data.find((x) => x._ID === id);
         if (el._STATUS === 'inserted') {
-            const index = data.findIndex((x) => x.ID === id);
+            const index = data.findIndex((x) => x._ID === id);
             if (index !== undefined) {
                 data.splice(index, 1);
             }
         } else {
             el._STATUS = 'deleted';
         }
-        let elements = data.filter((x) => x._ID_PARENT === el.ID);
+        let elements = data.filter((x) => x._ID_PARENT === el._ID);
 
         elements.forEach((e) => {
-            this.delete(e.ID);
+            this.delete(e._ID);
         });
 
         if (elements.length === 0) {
@@ -648,28 +648,31 @@ export class EditSpecContainer extends BaseContainer {
     }
 
     moveItem(id, shiftNumber) {
-        this.refTreeList?.instance?.beginCustomLoading();
-        let data = this.getData();
+        this.refTreeList?.instance?.beginCustomLoading(); 
+        let data = this.getData().sort((a, b) => a._ORDER - b._ORDER);;
         const index = data.findIndex((x) => x._ID === id);
         const currentElement = data.find((el) => el._ID === id);
         const prevElement = data[index + shiftNumber];
         if (prevElement) {
-            const currentOrder = currentElement._ORDER;
-            const prevOrder = prevElement._ORDER;
-            currentElement._ORDER = prevOrder;
-            prevElement._ORDER = currentOrder;
             if (index !== undefined) {
-                this.move(data, index, index + shiftNumber);
-                this.updateData(data, () => {
-                    this.disableAllSort();
-                    this.refreshTable();
-                });
-            }
+               if(!this.isChildOfElement(currentElement,prevElement)){
+                const currentOrder = currentElement._ORDER;
+                const prevOrder = prevElement._ORDER;
+                currentElement._ORDER = prevOrder;
+                prevElement._ORDER = currentOrder;
+                    this.move(data, index, index + shiftNumber);
+                    this.updateData(data, () => {
+                        this.disableAllSort();
+                        this.refreshTable();
+                    });
+                }
+            } 
         }
-
         this.refTreeList?.instance?.endCustomLoading();
     }
-
+    isChildOfElement(child , parent){
+        return  child._ID_PARENT === parent._ID;
+      }
     updateData(dataToUpdate, callbackAction) {
         this.setState({parsedData: dataToUpdate}, () => {
             if (!!callbackAction) callbackAction();
@@ -695,8 +698,8 @@ export class EditSpecContainer extends BaseContainer {
         if (!!callbackAction) callbackAction();
     }
 
-    move(array, initialIndex, finalIndex) {
-        return array.splice(finalIndex, 0, array.splice(initialIndex, 1)[0]);
+    move(array, currentIndex, nextIndex) {
+        return array.splice(nextIndex, 0, array.splice(currentIndex, 1)[0]);
     }
     //override
     renderContent = () => {
@@ -736,7 +739,7 @@ export class EditSpecContainer extends BaseContainer {
                                 modifyParsedGridViewData={(newCopyRow) => {
                                     const replacedParsedData = [];
                                     parsedData.forEach((el) => {
-                                        if (el.ID === newCopyRow.ID) {
+                                        if (el._ID === newCopyRow._ID) {
                                             el = newCopyRow;
                                         }
                                         replacedParsedData.push(el);
@@ -832,14 +835,20 @@ export class EditSpecContainer extends BaseContainer {
         this.blockUi();
         const viewIdArg = this.state.elementId;
         const parentIdArg = this.state.elementParentId;
-        const ids = this.state.parsedData.map((el) => el.ID);
+        const ids = this.state.parsedData.map((el) => el._ID);
         this.setState({
             renderConfirmationEditQuitDialog: false,
         });
         this.editSpecService
             .cancel(viewIdArg, parentIdArg, ids)
             .then(() => {
-                window.history.back();
+                let prevUrl = window.location.href;
+                prevUrl = prevUrl.replace('edit-spec', 'grid-view');
+                prevUrl = UrlUtils.removeAndAddParam("parentId", UrlUtils.getURLParameter("prevParentId"), prevUrl)
+                prevUrl = UrlUtils.removeAndAddParam("recordId", UrlUtils.getURLParameter("parentId"), prevUrl)
+                prevUrl = UrlUtils.removeAndAddParam("bc", UrlUtils.getURLParameter("bc"), prevUrl);
+                prevUrl = UrlUtils.deleteParameterFromURL(prevUrl, "prevParentId");
+                window.location.href = prevUrl;
             })
             .catch((err) => {
                 this.showGlobalErrorMessage(err);

@@ -52,6 +52,7 @@ class App extends Component {
         this.state = {
             loadedConfiguration: false,
             editData: undefined,
+            secondsToPopupTicker: undefined,
             menuItemClickedId: undefined,
             renderEditQuitConfirmDialog: false,
             sidebarClickItemReactionEnabled: true,
@@ -151,7 +152,6 @@ class App extends Component {
                 const isExpired = this.authService.isTokenExpiredDate();
                 const textAfterHash = window.location.href.split('/#/')[1];
                 const onLogoutUrl = !(textAfterHash && textAfterHash.trim() !== '');
-                // TODO: tu refactoring
                 if (isExpired) {
                     if (this.authService.isLoggedUser()) {
                         if(onLogoutUrl){
@@ -182,14 +182,13 @@ class App extends Component {
         };
         const sessionTimeOutComponentRef = document.getElementById('session-time-out-component-ref');
         if (sessionTimeOutComponentRef) {
-            if(timeToLeaveSession.hours === 24){
-                // TODO: to trrzeba lepiej czas sie przekreca
-                this.authService.logout();
-            }
             sessionTimeOutComponentRef.innerText = PageViewUtils.tickerSessionTimeoutFormat(timeToLeaveSession);
         }
+        if(duration.seconds() < 0){
+            this.authService.logout();
+        }
         if (sessionTimeout < tickerPopupDate && !this.state?.rednerSessionTimeoutDialog) {
-            this.setState({rednerSessionTimeoutDialog: true}, () => {
+            this.setState({rednerSessionTimeoutDialog: true, secondsToPopupTicker: duration.seconds()}, () => {
                 setTimeout(() => {
                     // czasami buguje sie w podiwdoku wiec taki restate
                     this.forceUpdate();
@@ -198,16 +197,18 @@ class App extends Component {
         }
     }
 
-    prelongSessionIfUserExist(fromDialogSession) {
+    prelongSessionIfUserExist(fromDialogSession, callBack) {
         const loggedUser = this.authService.isLoggedUser();
         if (loggedUser) {
             const timeInMinutes = localStorage.getItem('session_timeout_in_minutes');
             const canPrelongSession =
                 (timeInMinutes && fromDialogSession) || (timeInMinutes && !this.state?.rednerSessionTimeoutDialog);
             if (canPrelongSession) {
-                // ten fetch raczej niepotrzebny
                 const sessionTimeout = moment(new Date()).add(timeInMinutes, 'm').toString();
                 localStorage.setItem('session_timeout', sessionTimeout);
+                if(callBack){
+                    callBack();
+                }
             }
         }
     }
@@ -408,15 +409,18 @@ class App extends Component {
             <React.Fragment>
                 {this.state.rednerSessionTimeoutDialog && (
                     <TickerSessionDialog
+                        secondsToPopup = {this.state.secondsToPopupTicker}    
                         labels={labels}
                         authService={this.authService}
                         visible={this.state.rednerSessionTimeoutDialog}
                         onProlongSession={() => {
                             this.authService.refresh().then(()=>{
-                                this.prelongSessionIfUserExist(true);
-                                this.setState({
-                                    rednerSessionTimeoutDialog: false,
+                                this.prelongSessionIfUserExist(true, ()=>{
+                                    this.setState({
+                                        rednerSessionTimeoutDialog: false,
+                                    });
                                 });
+                                
                             })
                         }}
                         onLogout={() => {
@@ -430,7 +434,7 @@ class App extends Component {
                                 }
                             );
                         }}
-                    ></TickerSessionDialog>
+                    />
                 )}
 
                 {this.state.renderEditQuitConfirmDialog && (
@@ -499,7 +503,7 @@ class App extends Component {
                                             {Breadcrumb.render(labels)}
                                             <DivContainer colClass='row base-container-header'>
                                                 <DivContainer id='header-left' colClass='col-11'>
-                                                    <div className='font-medium mb-2'> {this.state.viewInfoName}</div>
+                                                    <div className='font-medium mb-2 view-info-name'> {this.state.viewInfoName}</div>
                                                 </DivContainer>
                                                 <DivContainer id='header-right' colClass='col-1 to-right'>
                                                     <ActionButton
