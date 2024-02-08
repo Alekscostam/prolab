@@ -10,7 +10,7 @@ import './assets/quill/quill.bubble.scss';
 import './assets/quill/quill.core.scss';
 import './assets/quill/quill.snow.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'devextreme/dist/css/dx.material.blue.light.css';
+// import 'devextreme/dist/css/dx.material.blue.light.css';
 
 import './App.scss';
 import App from './App';

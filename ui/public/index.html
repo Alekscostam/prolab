@@ -1,17 +1,23 @@
 <!DOCTYPE html>
 <html lang="pl">
-<head>
-    <meta charset="utf-8"/>
-    <link rel="shortcut icon" href="%PUBLIC_URL%/images/favicon.ico"/>
-    <!--
+    <head>
+        <meta charset="utf-8" />
+        <link rel="shortcut icon" href="%PUBLIC_URL%/images/favicon.ico" />
+        <!-- <link rel="dx-theme" data-theme="material.blue.light" href="css/dx.material.blue.light.css" data-active="true"> -->
+        <link
+            href="https://cdnjs.cloudflare.com/ajax/libs/devextreme/21.2.15/css/dx.material.blue.light.compact.css"
+            rel="stylesheet"
+        />
+
+        <!--
     <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"/>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
     -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-    <meta name="theme-color" content="#000000"/>
+        <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="theme-color" content="#000000" />
 
-    <!--
+        <!--
   Notice the use of %PUBLIC_URL% in the tags above.
   It will be replaced with the URL of the `public` folder during the build.
   Only files inside the `public` folder can be referenced from the HTML.
@@ -20,35 +26,35 @@
   work correctly both with client-side routing and a non-root public URL.
   Learn how to configure a non-root public URL by running `npm run build`.
    -->
-    <title>PROLAB</title>
-</head>
+        <title>PROLAB</title>
+    </head>
 
-<script type="text/javascript">
-    function changeCssToProdModeForce() {
-        if (document.body.classList.contains('dx-theme-generic') == true) {
-            document.body.classList.remove('dx-theme-generic');
-            if (!document.body.classList.contains('dx-theme-material') == true) {
-                document.body.classList.add('dx-theme-material');
+    <script type="text/javascript">
+        function changeCssToProdModeForce() {
+            if (document.body.classList.contains('dx-theme-generic') == true) {
+                document.body.classList.remove('dx-theme-generic');
+                if (!document.body.classList.contains('dx-theme-material') == true) {
+                    document.body.classList.add('dx-theme-material');
+                }
             }
-        }
-        if (document.body.classList.contains('dx-theme-generic-typography') == true) {
-            document.body.classList.remove('dx-theme-generic-typography');
-            if (!document.body.classList.contains('dx-theme-material-typography') == true) {
-                document.body.classList.add('dx-theme-material-typography');
+            if (document.body.classList.contains('dx-theme-generic-typography') == true) {
+                document.body.classList.remove('dx-theme-generic-typography');
+                if (!document.body.classList.contains('dx-theme-material-typography') == true) {
+                    document.body.classList.add('dx-theme-material-typography');
+                }
             }
+            document.body.classList.add('test');
         }
-        document.body.classList.add('test');
-    }
 
-    window.onload = changeCssToProdModeForce;
-</script>
+        window.onload = changeCssToProdModeForce;
+    </script>
 
-<body class="dx-viewport dx-theme-material dx-theme-material-typography">
-<!-- <body class="dx-viewport"> -->
-<div id="root">
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <body class="dx-viewport dx-theme-material dx-theme-material-typography">
+        <!-- <body class="dx-viewport"> -->
+        <div id="root">
+            <noscript>You need to enable JavaScript to run this app.</noscript>
 
-    <!--
+            <!--
 This HTML file is a template.
 If you open it directly in the browser, you will see an empty page.
 
@@ -58,6 +64,6 @@ The build step will place the bundled scripts into the <body> tag.
 To begin the development, run `npm start` or `yarn start`.
 To create a production bundle, use `npm run build` or `yarn build`.
     -->
-</div>
-</body>
+        </div>
+    </body>
 </html>
