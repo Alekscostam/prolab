@@ -112,7 +112,9 @@ class Sidebar extends React.Component {
             });
         }
     }
-
+    sessionTimeOutComponent() {
+        return <b id='session-time-out-component-ref'></b>;
+    }
     //very important !!!
     shouldComponentUpdate(nextProps, nextState, nextContext) {
         if ($('nav.pro-menu.shaped.circle').length === 1) {
@@ -468,6 +470,9 @@ class Sidebar extends React.Component {
                                 <FaSignOutAlt />
                                 <span>{labels['Menu_Logout']}</span>
                             </div>
+                        </div>
+                        <div className='to-right' style={{marginRight: '5px'}}>
+                            {this.sessionTimeOutComponent()}
                         </div>
                         {!collapsed ? (
                             <div

@@ -466,9 +466,12 @@ label {
 }
 #session-time-out-component-ref {
     color: white;
+    font-size: 12px;
     font-weight: 400;
 }
-
+#version {
+    font-size: 12px;
+}
 .dx-closebutton {
     background: $base-color !important;
     height: 35px;

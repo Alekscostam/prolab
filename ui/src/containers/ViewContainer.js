@@ -36,7 +36,7 @@ export class ViewContainer extends BaseViewContainer {
         this.unselectAllDataGrid();
         this.setState({visibleAddSpec: true, levelId: recordId});
     }
-
+    // TODO: tu postaw addButton
     renderHeaderRight() {
         let opADD = DataGridUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_ADD_SPEC');
         return (
