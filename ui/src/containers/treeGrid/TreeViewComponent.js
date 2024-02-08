@@ -27,12 +27,13 @@ import {compress} from 'int-compress-string';
 import CellEditComponent from '../CellEditComponent';
 import {StringUtils} from '../../utils/StringUtils';
 import Image from '../../components/Image';
-import { getExpandAllInitialized, setExpandAllInitialized} from '../AddSpecContainer';
+import {getExpandAllInitialized, setExpandAllInitialized} from '../AddSpecContainer';
 
 //
 //    https://js.devexpress.com/Documentation/Guide/UI_Components/TreeList/Getting_Started_with_TreeList/
 //
 let clearSelection = false;
+let notUpdate = false;
 
 class TreeViewComponent extends CellEditComponent {
     constructor(props) {
@@ -57,7 +58,7 @@ class TreeViewComponent extends CellEditComponent {
             preInitializedColumns: [],
         };
     }
-    createFakeColumn() {
+    createCheckboxColumn() {
         const gridViewColumns = this.props.gridViewColumns;
         if (!gridViewColumns[0]) {
             return;
@@ -67,7 +68,7 @@ class TreeViewComponent extends CellEditComponent {
         }
     }
     componentDidMount() {
-        this.createFakeColumn();
+        this.createCheckboxColumn();
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -78,17 +79,17 @@ class TreeViewComponent extends CellEditComponent {
         clearSelection = false;
         setExpandAllInitialized(false);
     }
-    findRowDataById(recordId){
+    findRowDataById(recordId) {
         let editData = this.props.parsedGridViewData.filter((item) => {
             return item._ID === recordId;
         });
         return editData[0];
     }
-    currentEditListRow(recordId){
+    currentEditListRow(recordId) {
         const currentEditListRow = this.props.parsedGridViewData.filter((item) => {
-              return item._ID === recordId;
-        }); 
-        return currentEditListRow
+            return item._ID === recordId;
+        });
+        return currentEditListRow;
     }
     isSpecialCell(columnDefinition) {
         const type = columnDefinition?.type;
@@ -129,9 +130,10 @@ class TreeViewComponent extends CellEditComponent {
             <React.Fragment>
                 {this.state.editListVisible && this.editListComponent()}
                 {this.state.editorDialogVisisble && this.editorComponent()}
+                {this.imageViewerComponent()}
                 <TreeList
                     id='spec-edit'
-                    keyExpr="_ID"
+                    keyExpr='_ID'
                     className={`tree-container${headerAutoHeight ? ' tree-header-auto-height' : ''}`}
                     ref={(ref) => {
                         this.ref = ref;
@@ -156,7 +158,7 @@ class TreeViewComponent extends CellEditComponent {
                     onContentReady={(e) => {
                         const editListDialog = document.getElementById('editListDialog');
                         // ze wzgledów optymalizacyjnych
-                        if (!getExpandAllInitialized() && this.state.groupExpandAll &&  this.ref !== null) {
+                        if (!getExpandAllInitialized() && this.state.groupExpandAll && this.ref !== null) {
                             setExpandAllInitialized(true);
                             const treeList = this.ref.instance;
                             const data = this.props.parsedGridViewData;
@@ -164,6 +166,7 @@ class TreeViewComponent extends CellEditComponent {
                                 data.forEach((el) => treeList.expandRow(el._ID));
                             }, 0);
                         }
+
                         if (!editListDialog) {
                             this.rerenderRows(e);
                             return;
@@ -199,6 +202,7 @@ class TreeViewComponent extends CellEditComponent {
                     }}
                     selectedRowKeys={selectedRowKeys}
                     onSelectionChanged={(e) => {
+                        notUpdate = true;
                         this.props.handleSelectedRowKeys(e.selectedRowKeys, this.rerenderColorAfterClickCheckbox());
                     }}
                     renderAsync={true}
@@ -207,7 +211,6 @@ class TreeViewComponent extends CellEditComponent {
                     rootValue={0}
                     parentIdExpr='_ID_PARENT'
                     onCellClick={(e) => {
-                        // return;
                         if (e?.column?.ownOnlySelectList) {
                             // this.setState({editListVisible: true});
                             this.editListVisible(e.data._ID, e.column.ownFieldId);
@@ -310,7 +313,7 @@ class TreeViewComponent extends CellEditComponent {
     }
 
     preGenerateColumnsDefinition() {
-        this.createFakeColumn();
+        this.createCheckboxColumn();
         let columns = [];
         this.props.gridViewColumns?.forEach((columnDefinition, INDEX_COLUMN) => {
             let sortOrder;
@@ -681,7 +684,6 @@ class TreeViewComponent extends CellEditComponent {
                             <span
                                 style={{
                                     color: fontColorFinal,
-                                    // background: _bgColor,
                                 }}
                                 // eslint-disable-next-line
                                 dangerouslySetInnerHTML={{__html: cellInfo?.text}}
@@ -765,7 +767,7 @@ class TreeViewComponent extends CellEditComponent {
         );
         return columnDefinitionArray[0];
     }
-    // doklejamy style
+
     paintLineIfPossible = (datas) => {
         Array.from(document.querySelectorAll('td[aria-describedby=column_0_undefined-fixed]')).forEach((row) => {
             const rowIndex = row.parentNode.rowIndex;

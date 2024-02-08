@@ -15,6 +15,7 @@ import {
 } from '../../utils/Cookie';
 import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils';
 import UrlUtils from '../../utils/UrlUtils';
+import ImageViewerComponent from '../../components/ImageViewerComponent';
 
 class SubGridViewComponent extends React.Component {
     constructor(props) {
@@ -23,6 +24,11 @@ class SubGridViewComponent extends React.Component {
         let minimizeCache = readObjFromCookieGlobal('SUB_GRID_VIEW_MINIMIZE');
         this.state = {
             minimize: minimizeCache === true,
+            imageViewer: {
+                imageViewDialogVisisble: false,
+                editable: false,
+                imageBase64: undefined,
+            },
         };
     }
 
@@ -55,6 +61,7 @@ class SubGridViewComponent extends React.Component {
         removeCookieGlobal('refreshSubView');
     }
     render() {
+        const {imageViewer} = this.state;
         //TODO jak będzie potrzeba przepiąć guziki na OperationsRecordButtons
         const {labels} = this.props;
         let showEditButton = false;
@@ -90,6 +97,24 @@ class SubGridViewComponent extends React.Component {
             });
         return (
             <React.Fragment>
+                {imageViewer?.imageViewDialogVisisble && (
+                    <ImageViewerComponent
+                        editable={imageViewer.editable}
+                        onHide={() => {
+                            this.setState({
+                                imageViewer: {
+                                    imageViewDialogVisisble: false,
+                                    editable: false,
+                                    imageBase64: undefined,
+                                },
+                            });
+                        }}
+                        base64={imageViewer.imageBase64}
+                        labels={this.labels}
+                        visible
+                    />
+                )}
+
                 {subViewMode ? (
                     <div id='selection-row' className='float-left width-100'>
                         {this.state.minimize ? (
@@ -124,7 +149,15 @@ class SubGridViewComponent extends React.Component {
                                                     caption={c.label}
                                                     dataType={DataGridUtils.specifyColumnType(c?.type)}
                                                     format={DataGridUtils.specifyColumnFormat(c?.type)}
-                                                    cellTemplate={DataGridUtils.cellTemplate(c)}
+                                                    cellTemplate={DataGridUtils.cellTemplate(c, null, (base64) => {
+                                                        this.setState({
+                                                            imageViewer: {
+                                                                imageViewDialogVisisble: true,
+                                                                editable: false,
+                                                                imageBase64: base64,
+                                                            },
+                                                        });
+                                                    })}
                                                     dataField={c.fieldName}
                                                 />
                                             );

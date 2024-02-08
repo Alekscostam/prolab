@@ -74,8 +74,9 @@ export class EditRowComponent extends BaseRowComponent {
 
     addOverlay() {
         const visibleEditPanel = this.props.visibleEditPanel;
-        if(visibleEditPanel){
+        if (visibleEditPanel) {
             addCustomOverlayToElement('grid-selection-panel');
+            addCustomOverlayToElement('dx-tabs-wrapper');
             addCustomOverlayToElement('title-dashboard');
             addCustomOverlayToElement('dx-tileview');
             addCustomOverlayToElement('view-info-name');
@@ -85,8 +86,8 @@ export class EditRowComponent extends BaseRowComponent {
         }
     }
     removeOverlay() {
-        
         removeCustomOverlayToElement('grid-selection-panel');
+        removeCustomOverlayToElement('dx-tabs-wrapper');
         removeCustomOverlayToElement('title-dashboard');
         removeCustomOverlayToElement('dx-tileview');
         removeCustomOverlayToElement('grid-container');
@@ -114,7 +115,7 @@ export class EditRowComponent extends BaseRowComponent {
     render() {
         const labels = this.props?.labels;
         const operations = this.props?.editData?.operations || [];
-        operations.push({type: 'OP_CANCEL', label:  LocUtils.loc(labels, 'OP_CANCEL', 'Anuluj')});
+        operations.push({type: 'OP_CANCEL', label: LocUtils.loc(labels, 'OP_CANCEL', 'Anuluj')});
         const kindOperation = this.props.editData?.editInfo?.kindOperation;
         const opSave = DataGridUtils.containsOperationsButton(operations, 'OP_SAVE');
         const opFill = DataGridUtils.containsOperationsButton(operations, 'OP_FILL');
@@ -128,6 +129,7 @@ export class EditRowComponent extends BaseRowComponent {
         return (
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
+
                 <EditListComponent
                     visible={editListVisible}
                     field={this.state.editListField}
@@ -164,7 +166,6 @@ export class EditRowComponent extends BaseRowComponent {
                         this.props.onCloseCustom();
                     }}
                     position='right'
-                   
                     icons={() => (
                         <React.Fragment>
                             <div className='row ' style={{flex: 'auto'}}>
@@ -180,21 +181,15 @@ export class EditRowComponent extends BaseRowComponent {
                                 ) : null}
                             </div>
                             <div id='buttons' style={{textAlign: 'right'}} className='mr-3'>
-                            <ShortcutButton
-                                    id={'opCancel'}
-                                    className={`grid-button-panel normal mt-1 mb-1 mr-1 col-lg-12`}
-                                    handleClick={()=>{
-                                        const editInfo = this.props.editData?.editInfo;
-                                        if (editInfo) {
-                                            this.props.onHide(!visibleEditPanel, editInfo.viewId, editInfo.recordId, editInfo.parentId);
-                                            
-                                        }
-                                    }}
-                                    title={opCancel?.label}
-                                    label={opCancel?.label}
-                                    rendered={opCancel}
+                                <ShortcutButton
+                                    id={'opSave'}
+                                    className={`grid-button-panel inverse mt-1 mb-1 mr-1`}
+                                    handleClick={this.handleFormSubmit}
+                                    title={opSave?.label}
+                                    label={opSave?.label}
+                                    rendered={opSave}
                                 />
-                            <ShortcutButton
+                                <ShortcutButton
                                     id={'opFill'}
                                     className={`grid-button-panel inverse mt-1 mb-1 mr-1`}
                                     handleClick={this.handleAutoFill}
@@ -202,13 +197,23 @@ export class EditRowComponent extends BaseRowComponent {
                                     label={opFill?.label}
                                     rendered={opFill}
                                 />
-                            <ShortcutButton
-                                    id={'opSave'}
-                                    className={`grid-button-panel inverse mt-1 mb-1 mr-1`}
-                                    handleClick={this.handleFormSubmit}
-                                    title={opSave?.label}
-                                    label={opSave?.label}
-                                    rendered={opSave}
+                                <ShortcutButton
+                                    id={'opCancel'}
+                                    className={`grid-button-panel normal mt-1 mb-1 mr-1 col-lg-12`}
+                                    handleClick={() => {
+                                        const editInfo = this.props.editData?.editInfo;
+                                        if (editInfo) {
+                                            this.props.onHide(
+                                                !visibleEditPanel,
+                                                editInfo.viewId,
+                                                editInfo.recordId,
+                                                editInfo.parentId
+                                            );
+                                        }
+                                    }}
+                                    title={opCancel?.label}
+                                    label={opCancel?.label}
+                                    rendered={opCancel}
                                 />
                             </div>
                         </React.Fragment>

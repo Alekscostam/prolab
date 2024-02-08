@@ -117,9 +117,9 @@ export class EditRowViewComponent extends BaseRowComponent {
     render() {
         const labels = this.props.labels;
         const operations = [];
-        const opSave = DataGridUtils.putToOperationsButtonIfNeccessery(operations,labels, 'OP_SAVE', "Zapisz");
+        const opSave = DataGridUtils.putToOperationsButtonIfNeccessery(operations, labels, 'OP_SAVE', 'Zapisz');
         const opFill = DataGridUtils.putToOperationsButtonIfNeccessery(operations, labels, 'OP_FILL', 'Wypełnij');
-        const opCancel = DataGridUtils.putToOperationsButtonIfNeccessery(operations,labels, 'OP_CANCEL', 'Anuluj');
+        const opCancel = DataGridUtils.putToOperationsButtonIfNeccessery(operations, labels, 'OP_CANCEL', 'Anuluj');
         let editData = this.props.editData;
         const editListVisible = this.state.editListVisible;
         return (
@@ -160,8 +160,13 @@ export class EditRowViewComponent extends BaseRowComponent {
                         labels={labels}
                     />
                     <form onSubmit={this.handleFormSubmit} noValidate>
-                        <div id='row-edit' className=' justify-content-center row'>
-                            <div className='col-12 '>
+                        <div className='row no-gutters'>
+                            <div id='view-name' className='col-lg-6 col-md-12'>
+                                <div id='label' className='label'>
+                                    {this.props.editData?.editInfo?.viewName}
+                                </div>
+                            </div>
+                            <div className='col-lg-6 col-md-12 text-right'>
                                 <ShortcutButton
                                     id={'opSave'}
                                     className={`grid-button-panel-big inverse mt-1 mb-1 mr-1 `}
@@ -178,7 +183,7 @@ export class EditRowViewComponent extends BaseRowComponent {
                                     label={opFill?.label}
                                     rendered={opFill}
                                 />
-                               <ShortcutButton
+                                <ShortcutButton
                                     id={'opCancel'}
                                     className={`grid-button-panel-big normal mt-1 mb-1 mr-1 `}
                                     handleClick={this.handleCancel}
@@ -187,7 +192,8 @@ export class EditRowViewComponent extends BaseRowComponent {
                                     rendered={opCancel}
                                 />
                             </div>
-
+                        </div>
+                        <div id='row-edit' className='mt-4 justify-content-center row'>
                             {this.state.preventSave ? (
                                 <div id='validation-panel' className='validation-panel'>
                                     {this.fieldsMandatoryLabel}
@@ -243,7 +249,6 @@ export class EditRowViewComponent extends BaseRowComponent {
         return (
             <React.Fragment>
                 <Panel
-
                     key={`edit-row-panel${groupIndex}`}
                     id={`group_${groupIndex}`}
                     className={'col-xl-6 col-lg-6 col-md-8 col-sm-12 '}

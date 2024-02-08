@@ -4,7 +4,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 export const Image = (props) => {
-    const {alt, base64, rendered, style, className, canRemove, onRemove} = props;
+    const {alt, base64, rendered, style, className, canRemove, onRemove, onImageClick} = props;
     if (!!base64) {
         let base64Tmp;
         let indexOfComa = base64?.toString().indexOf('data:image');
@@ -35,7 +35,17 @@ export const Image = (props) => {
                             <img style={style} className={className} alt={alt} src={base64Tmp} />
                         </div>
                     ) : (
-                        <img style={style} className={className} alt={alt} src={base64Tmp} />
+                        <img
+                            style={style}
+                            className={className}
+                            alt={alt}
+                            src={base64Tmp}
+                            onClick={() => {
+                                if (onImageClick) {
+                                    onImageClick(base64Tmp);
+                                }
+                            }}
+                        />
                     )}
                 </div>
             );

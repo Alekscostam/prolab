@@ -12,6 +12,7 @@ export default class DataGridStore extends BaseService {
         // chyba depraced
         this.cachedLoadOptions = null;
         this.lastCachedGrid = null;
+        this.lastFetchedData = null;
         this.cachedFromSelectAll = {
             selectAll: false,
             data: [],
@@ -142,7 +143,19 @@ export default class DataGridStore extends BaseService {
                 if (loadOptions?.take === undefined || loadOptions?.take === null) {
                     // Tu wchodiz tylko dla opcji grupowania, initial value na 60 oraz selectiona
                     loadOptions.take = 60;
+                } else {
+                    //TODO: CZASAMI pobiera dwa razy
+                    // if (loadOptions.take === 60) {
+                    //     return Promise.resolve({
+                    //         totalCount: this.lastFetchedData.totalCount,
+                    //         data: this.lastFetchedData.data,
+                    //         skip: 0,
+                    //         take: 60,
+                    //         selectAll: false,
+                    //     });
+                    // }
                 }
+
                 this.cachedLoadOptions = loadOptions;
                 let params = '?';
                 const filter = loadOptions?.filter;
@@ -226,12 +239,13 @@ export default class DataGridStore extends BaseService {
                         if (onSuccessCallback) {
                             onSuccessCallback();
                         }
-                        return {
+                        this.lastFetchedData = {
                             data: response.data,
                             totalCount: response.totalCount,
                             summary: response.summary || [],
                             groupCount: response.groupCount || 0,
                         };
+                        return this.lastFetchedData;
                     })
                     .catch((err) => {
                         ConsoleHelper('Error fetch data grid store for view id={%s}. Error = ', viewIdArg, err);

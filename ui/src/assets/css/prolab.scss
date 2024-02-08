@@ -4,13 +4,17 @@ font-weight: 500; //medium
 font-weight: 700; //bold
 */
 /*Constans*/
+$autofill-background: #effff4;
+$validation-panel-color: #cb0a2f;
+$invalid-background-color: #cb0a2f;
+$base-color: #0e49eb;
+$not-editable-background: #f3f3f3;
 $text-color: #182d67;
 $text-color-highlighted: #30dbce;
 $text-bg: #ffffff;
-$link-color: #0e49eb;
+$dropdown-hover: #707890;
 $link-color-highlighted: #03a9f4;
 $label-color: #717a93;
-$button-color: #0e49eb;
 $button-text-color: #ffffff;
 $shadow-color: #0000004e;
 $menu-bg-light: transparent linear-gradient(90deg, #edf2fb 0, #fbfbfd 26%, #ffffff 53%, #fafbfd 77%, #ecf2fb 100%) 0 0
@@ -21,7 +25,6 @@ $info-color: #25a9b4;
 $warn-color: #ce8e0f;
 $danger-color: #cb0a2f;
 //prosidebar
-
 $sidebar-bg-color: $menu-bg-dark;
 $submenu-bg-color: rgba(255, 255, 255, 0.05);
 $sidebar-color: white;
@@ -33,6 +36,7 @@ $breakpoint-sm: 576px !default;
 $breakpoint-md: 768px !default;
 $breakpoint-lg: 992px !default;
 $breakpoint-xl: 1200px !default;
+
 @import '~react-pro-sidebar/dist/scss/styles.scss';
 
 html,
@@ -61,7 +65,7 @@ body {
     width: 100%;
 }
 #save-editor-button {
-    background: $button-color;
+    background: $base-color;
     color: white;
     height: 38px;
 }
@@ -213,7 +217,7 @@ body {
 }
 
 .login .bg-color {
-    background: #1246d3 0 0 no-repeat padding-box;
+    background: $base-color 0 0 no-repeat padding-box;
 }
 
 .login-left-bg {
@@ -275,7 +279,7 @@ a {
 }
 
 a {
-    color: $link-color;
+    color: $base-color;
 }
 
 .p-inputtext {
@@ -303,7 +307,7 @@ label {
     font-weight: normal;
     letter-spacing: 0;
     padding: 0.514rem 1rem;
-    background-color: $button-color;
+    background-color: $base-color;
     color: $button-text-color;
 }
 
@@ -326,13 +330,13 @@ label {
 }
 
 .p-dropdown:hover {
-    border: 1px solid #707890;
-    color: #707890;
+    border: 1px solid $dropdown-hover;
+    color: $dropdown-hover;
 }
 
 .p-dropdown.p-component.p-inputwrapper.p-dropdown-clearable.p-inputwrapper-focus {
-    border: 2px solid #1750e7;
-    color: #1750e7;
+    border: 2px solid $base-color;
+    color: $base-color;
 }
 
 /*------------------*/
@@ -381,7 +385,7 @@ label {
 }
 
 .card-text:hover {
-    color: $link-color;
+    color: $base-color;
 }
 
 .prolab-logo {
@@ -395,18 +399,18 @@ label {
 }
 
 .pro-sidebar .pro-menu .pro-menu-item.active > .pro-inner-item span {
-    color: #30dbce;
+    color: $text-color-highlighted;
 }
 
 .breadcrumb-link a {
     font-size: 12px;
-    color: $link-color;
+    color: $base-color;
 }
 
 .breadcrumb-link span {
     font-size: 12px;
     font-weight: bold;
-    color: $link-color;
+    color: $base-color;
 }
 
 .breadcrumb-final.p-link {
@@ -444,6 +448,8 @@ label {
 
 //tree container
 @import 'tree_container';
+//gantt container
+@import 'gantt_container';
 /*------------------*/
 
 //dashboard
@@ -458,25 +464,38 @@ label {
     padding: 0.5rem 0.75rem;
     min-width: 1rem;
 }
-#session-time-out-component-ref{
-    color: $label-color;
+#session-time-out-component-ref {
+    color: white;
+    font-weight: 400;
+}
+
+.dx-closebutton {
+    background: $base-color !important;
+    height: 35px;
+    .dx-icon-close {
+        color: white !important;
+    }
+}
+.dx-popup-title {
+    margin-top: 10px;
+    border-bottom: none !important;
 }
 .dx-datagrid-filter-panel .dx-datagrid-filter-panel-clear-filter,
 .dx-datagrid-filter-panel .dx-datagrid-filter-panel-text,
 .dx-datagrid-filter-panel .dx-icon-filter {
-    color: $link-color !important;
+    color: $base-color !important;
 }
 
-.custom-overlay{
-            position: "fixed";
-            top: 0;
-            left: 0;
-            width: "100vw";
-            height: "100vh";
-            z-index: 1000;
-            background: 'black';
-            opacity: 0.7;
-            pointer-events: none;
+.custom-overlay {
+    position: 'fixed';
+    top: 0;
+    left: 0;
+    width: '100vw';
+    height: '100vh';
+    z-index: 1000;
+    background: 'black';
+    opacity: 0.7;
+    pointer-events: none;
 }
 
 body main div.container-fluid {
@@ -502,7 +521,6 @@ body main div.container-fluid {
         flex-shrink: 1;
 
         .base-container-div {
-           
             height: 100%;
             display: flex;
             width: 100%;
@@ -571,7 +589,7 @@ body main div.container-fluid {
 
 .p-button.p-component.p-confirm-dialog-reject.p-button-text {
     box-shadow: 0 2px 8px 3px rgba(0, 0, 0, 0.1) !important;
-    color: $button-color !important;
+    color: $base-color !important;
 }
 
 .p-button.p-component.p-confirm-dialog-reject.p-button-text:hover {
@@ -624,6 +642,10 @@ iframe {
     -webkit-appearance: none !important;
     outline: none !important;
     box-shadow: none;
+}
+.dx-htmleditor.dx-htmleditor-outlined .dx-htmleditor-content {
+    margin: 1px 1px 1px 1px;
+    border: 1px solid silver;
 }
 
 @import 'edit_spec_field';

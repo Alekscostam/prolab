@@ -243,7 +243,6 @@ class Sidebar extends React.Component {
             (UrlUtils.isEditRowOpen() || UrlUtils.isBatch() || UrlUtils.isEditSpec())
         );
     }
-
     render() {
         ConsoleHelper('sidebar => render', this.state.viewId);
         let {authService} = this.props;

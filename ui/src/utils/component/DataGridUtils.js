@@ -15,7 +15,7 @@ export class DataGridUtils extends ViewDataCompUtils {
         _bgColor = null;
         _fontcolor = null;
     }
-    static cellTemplate(column, isEditableCell) {
+    static cellTemplate(column, isEditableCell, onImageClick) {
         return function (element, info) {
             let bgColorFinal = undefined;
             let rowSelected = null;
@@ -94,7 +94,7 @@ export class DataGridUtils extends ViewDataCompUtils {
                             title={info.text}
                         >
                             <a href={info.value} rel='noopener noreferrer' target='_blank'>
-                                {info.text}{' '}
+                                {info.text}
                             </a>
                         </div>,
                         element
@@ -161,6 +161,7 @@ export class DataGridUtils extends ViewDataCompUtils {
                     if (Array.isArray(info.text) && info.text?.length > 0) {
                         return ReactDOM.render(
                             <div
+                                className='cursor-pointer'
                                 style={{
                                     display: 'inline',
                                     backgroundColor: bgColorFinal,
@@ -170,7 +171,18 @@ export class DataGridUtils extends ViewDataCompUtils {
                                 }}
                             >
                                 {info.text?.map((i, index) => {
-                                    return <Image style={{maxWidth: '100%'}} key={index} base64={info.text} />;
+                                    return (
+                                        <Image
+                                            onImageClick={(base64) => {
+                                                if (onImageClick) {
+                                                    onImageClick(base64);
+                                                }
+                                            }}
+                                            style={{maxWidth: '100%'}}
+                                            key={index}
+                                            base64={info.text}
+                                        />
+                                    );
                                 })}
                             </div>,
                             element
@@ -178,6 +190,7 @@ export class DataGridUtils extends ViewDataCompUtils {
                     } else {
                         return ReactDOM.render(
                             <div
+                                className='cursor-pointer'
                                 style={{
                                     display: 'inline',
                                     backgroundColor: bgColorFinal,
@@ -187,6 +200,11 @@ export class DataGridUtils extends ViewDataCompUtils {
                                 }}
                             >
                                 <Image
+                                    onImageClick={(base64) => {
+                                        if (onImageClick) {
+                                            onImageClick(base64);
+                                        }
+                                    }}
                                     onRemove={() => {
                                         setTimeout(function () {
                                             const trashButton = document.getElementById('trash-button');

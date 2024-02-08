@@ -3,7 +3,7 @@ $header-label: #707890;
 $data-label: #182d67;
 $table-border: #d5d5d5;
 $table-selection: #dde6ff;
-$button-color: #0e49eb;
+// $base-color: #0e49eb;
 
 .dx-datagrid-headers tr > td {
     text-align: left;
@@ -42,7 +42,9 @@ $button-color: #0e49eb;
 .round {
     background-color: var(--background);
 }
-
+.cursor-pointer {
+    cursor: pointer;
+}
 .dx-datagrid-rowsview .dx-selection > td,
 .dx-datagrid-rowsview .dx-selection > tr > td,
 .dx-datagrid-rowsview .dx-selection > td,
@@ -60,7 +62,7 @@ $button-color: #0e49eb;
 
 .dx-command-select .dx-checkbox-checked .dx-checkbox-icon {
     color: white;
-    background-color: #0e49eb;
+    background-color: $base-color;
 }
 
 .dx-datagrid
@@ -115,11 +117,11 @@ $button-color: #0e49eb;
 
 .grid-selection-panel-non-selection {
     background-color: $button-text-color;
-    color: $button-color;
+    color: $base-color;
 }
 
 .grid-selection-panel-selection {
-    background-color: $button-color;
+    background-color: $base-color;
     color: $button-text-color;
 }
 
@@ -142,14 +144,14 @@ $button-color: #0e49eb;
 
     &.normal {
         background-color: $button-text-color;
-        color: $button-color;
-        span{
-            color: $button-color!important;
+        color: $base-color;
+        span {
+            color: $base-color !important;
         }
     }
 
     &.inverse {
-        background-color: $button-color;
+        background-color: $base-color;
         color: $button-text-color;
     }
 }
@@ -160,20 +162,20 @@ $button-color: #0e49eb;
     height: 26px;
     &.normal {
         background-color: $button-text-color;
-        color: $button-color;
-        span{
-            color: $button-color!important;
+        color: $base-color;
+        span {
+            color: $base-color !important;
         }
     }
 
     &.inverse {
-        background-color: $button-color;
+        background-color: $base-color;
         color: $button-text-color;
     }
 }
 
 .blue {
-    color: $button-color !important;
+    color: $base-color !important;
 }
 
 .white {
@@ -237,11 +239,14 @@ $button-color: #0e49eb;
 
 .dx-item.dx-tile .dx-tile-image {
     height: 100%;
-    border-radius: 10px;
+    border-radius: 5px;
+    .card-grid-body {
+        padding: 3px;
+    }
 }
 
 .dx-item.dx-tile .dx-tile-image.card-grid-selected {
-    border: 2px solid #0e49eb;
+    border: 2px solid $base-color;
 }
 
 .dx-item.dx-tile .dx-tile-image > .row {
@@ -251,7 +256,7 @@ $button-color: #0e49eb;
     margin: 0;
     display: flex;
     flex-direction: column;
-    padding: 6px 0;
+    padding: 3px 0;
 }
 
 .card-grid-header,
@@ -293,7 +298,16 @@ $button-color: #0e49eb;
         padding-right: 10px;
     }
 }
-
+.dashboard {
+    .dx-tile-image {
+        .card-grid-body-image {
+            border-radius: 50%;
+        }
+        .card-grid-header {
+            padding: 3px;
+        }
+    }
+}
 .card-grid-header {
     min-height: 30px;
     max-height: 30px;
@@ -381,7 +395,7 @@ $button-color: #0e49eb;
     }
 }
 .p-dialog .p-dialog-header .p-dialog-header-icon {
-    background: #0e49eb;
+    background: $base-color;
     margin-left: 10px;
     .pi-times {
         color: white;
@@ -391,7 +405,7 @@ $button-color: #0e49eb;
     display: none;
 }
 .p-dialog .p-dialog-header .p-dialog-header-icon:hover {
-    background: #0e49eb !important;
+    background: $base-color !important;
 }
 .grid-container .shortcut.p-button,
 .card-grid-header .shortcut.p-button {
@@ -408,7 +422,7 @@ $button-color: #0e49eb;
     .dx-datagrid-rowsview .dx-row-focused:hover > td,
     .dx-datagrid-rowsview .dx-row-focused > tr > td,
     .dx-datagrid-rowsview .dx-row-focused:hover > tr > td {
-        background-color: #0e49eb !important;
+        background-color: $base-color !important;
         .trash-icon-treeview {
             color: white !important;
         }
@@ -436,7 +450,7 @@ body #subviews-panel .dx-tabs {
         padding-right: 5px;
 
         .subview-tab-item {
-            color: #182d67;
+            color: $data-label;
             text-transform: none;
             font-size: 14px;
             font-weight: bold;
@@ -446,7 +460,7 @@ body #subviews-panel .dx-tabs {
         .subview-tab-item-href {
             display: contents;
             position: relative;
-            color: #182d67;
+            color: $data-label;
             text-transform: none;
             font-size: 14px;
             font-weight: bold;
@@ -455,7 +469,7 @@ body #subviews-panel .dx-tabs {
     }
 
     .dx-tab.dx-tab-selected::before {
-        background-color: #0e49eb;
+        background-color: $base-color;
     }
 
     .dx-tab.dx-tab-selected::after {
@@ -465,17 +479,13 @@ body #subviews-panel .dx-tabs {
 
 body .grid-container .dx-datagrid-headers .dx-header-row > td > .dx-datagrid-text-content {
     white-space: unset;
+    display: flex;
+    justify-content: center;
 }
 
 body .grid-container.grid-header-auto-height .dx-datagrid-headers .dx-header-row > td > .dx-datagrid-text-content {
-    white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
-    white-space: -o-pre-wrap; /* Opera 7 */
-    white-space: pre-wrap; /* css-3 */
-    word-wrap: break-word; /* Internet Explorer 5.5+ */
-    word-break: break-all;
-    white-space: normal;
-    white-space: -pre-wrap; /* Opera 4-6 */
-    white-space: -webkit-pre-wrap; /* Newer versions of Chrome/Safari*/
+    display: flex;
+    justify-content: center;
 }
 
 .dx-row.dx-data-row.dx-row-lines.dx-column-lines {
@@ -515,7 +525,7 @@ body .grid-container {
     }
 
     .dx-checkbox-checked .dx-checkbox-icon {
-        color: $link-color !important;
+        color: $base-color !important;
     }
 }
 
@@ -541,14 +551,14 @@ body .grid-container {
                 padding-top: 4px;
 
                 .dx-icon {
-                    color: #0e49eb;
+                    color: $base-color;
                 }
             }
         }
 
         .dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-item-selected,
         .dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-item-selected.dx-state-hover {
-            background-color: #0e49eb;
+            background-color: $base-color;
 
             .dx-icon {
                 color: white;
@@ -556,8 +566,9 @@ body .grid-container {
         }
 
         .dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-state-hover {
-            background-color: rgba(63, 81, 181, 0.92);
-
+            // background-color: rgba(63, 81, 181, 0.92);
+            background-color: $base-color;
+            opacity: 92%;
             .dx-icon {
                 color: white;
             }
@@ -581,7 +592,9 @@ body .grid-container {
         }
 
         .dx-selectbox-container {
-            background-color: rgba(63, 81, 181, 0.92);
+            // background-color: rgba(63, 81, 181, 0.92);
+            background-color: $base-color;
+            opacity: 92%;
             color: white;
         }
 
@@ -608,14 +621,14 @@ body .grid-container {
 
         .dx-dropdowneditor-icon {
             background-color: transparent;
-            color: #0e49eb;
+            color: $base-color;
         }
 
         .dx-selectbox-container {
             border-radius: 4px;
             border: 1px solid #ddd;
             background-color: white;
-            color: #0e49eb;
+            color: $base-color;
 
             .dx-texteditor-container {
                 .dx-texteditor-input-container {
@@ -625,7 +638,7 @@ body .grid-container {
                         padding: 0 10px;
                         height: 26px;
                         min-height: 26px;
-                        color: #0e49eb;
+                        color: $base-color;
                         font-family: 'Roboto', sans-serif;
                         font-size: 12px;
                         font-weight: bold;
@@ -641,7 +654,7 @@ body .grid-container {
         .dx-dropdowneditor-button {
             width: 18px;
             min-width: 18px;
-            color: #0e49eb;
+            color: $base-color;
         }
     }
 }
@@ -659,8 +672,8 @@ body .grid-container {
     top: 50%;
     transform: translateY(-50%); /* or try 50% */
 }
-.dx-overlay-wrapper{
-    z-index: 999!important;
+.dx-overlay-wrapper {
+    z-index: 999 !important;
 }
 #sessionTimeoutDialog {
     width: 500px;
@@ -740,7 +753,7 @@ body .grid-container {
     width: 0;
     height: 0;
     border-bottom: 10px solid transparent;
-    border-left: 10px solid blue;
+    border-left: 10px solid $base-color;
     display: inline-block;
     position: absolute;
     right: 3px;
@@ -752,7 +765,7 @@ body .grid-container {
     width: 0;
     height: 0;
     border-top: 10px solid transparent;
-    border-right: 10px solid blue;
+    border-right: 10px solid $base-color;
     position: absolute;
     bottom: 3px;
     right: 5px;

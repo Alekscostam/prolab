@@ -27,11 +27,11 @@
 }
 
 .active-shortcut-link {
-    border-bottom: 2px solid $link-color;
+    border-bottom: 2px solid $base-color;
 }
 
 .shortcut > .shortcut-text {
-    color: $button-color;
+    color: $base-color;
 }
 
 .grid-buttons-fragment {
@@ -52,11 +52,11 @@
 
     &.normal {
         background-color: $button-text-color;
-        color: $button-color;
+        color: $base-color;
     }
 
     &.inverse {
-        background-color: $button-color;
+        background-color: $base-color;
         color: $button-text-color;
     }
 }
@@ -84,7 +84,7 @@
 .action-button-with-menu-popup .p-menuitem-link,
 .action-button-with-menu-popup .p-menuitem-link span {
     padding: 0.2rem 0.5rem;
-    color: $button-color !important;
+    color: $base-color !important;
     font-size: 14px;
 }
 
@@ -94,7 +94,7 @@
 }
 
 .active-shortcut-button {
-    background: $link-color;
+    background: $base-color;
     border-color: transparent;
 }
 

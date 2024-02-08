@@ -1,7 +1,5 @@
 /*Edycja specyfikacji*/
 
-$primary-color: #0e49eb;
-
 #spec-edit,
 #spec-edit-dialog {
     width: 100%;
@@ -11,11 +9,11 @@ $primary-color: #0e49eb;
     }
 
     .autofill-border {
-        outline: 3px solid yellow !important;
+        background-color: $autofill-background !important;
     }
 
     .editable-border {
-        border: 4px solid $button-color !important;
+        border: 4px solid $base-color !important;
     }
 
     /* Firefox */
@@ -52,7 +50,7 @@ $primary-color: #0e49eb;
     }
 
     button {
-        background: $button-color !important;
+        background: $base-color !important;
 
         &.selectionList {
             float: right;
@@ -61,7 +59,7 @@ $primary-color: #0e49eb;
 
     .dx-checkbox-checked .dx-checkbox-icon {
         color: $button-text-color !important;
-        background-color: $button-color !important;
+        background-color: $base-color !important;
     }
 
     table {
@@ -123,7 +121,7 @@ $primary-color: #0e49eb;
     font-size: 20px;
 }
 .dx-button-today {
-    background: $primary-color !important;
+    background: $base-color !important;
     .dx-button-content {
         .dx-button-text {
             color: white;
@@ -131,7 +129,7 @@ $primary-color: #0e49eb;
     }
 }
 .dx-button-default {
-    background: $primary-color !important;
+    background: $base-color !important;
     border-radius: 4px !important;
     .dx-button-content {
         .dx-button-text {

@@ -33,12 +33,15 @@ import EditRowViewComponent from './components/prolab/EditRowViewComponent';
 import UrlUtils from './utils/UrlUtils';
 import {PageViewUtils} from './utils/parser/PageViewUtils';
 import {ConfirmationEditQuitDialog} from './components/prolab/ConfirmationEditQuitDialog';
+import AppContext from './context/AppContext';
 
 // export const
 export let reStateApp;
 export let renderNoRefreshContentFnc;
 export let sessionPrelongFnc = null;
-
+export let addBtn = null;
+// TODO: pole logiczne w działa zle w grupwoaniu na hederek
+// TODO nie ma blok UI na widok kafelek
 class App extends Component {
     constructor() {
         super();
@@ -154,7 +157,7 @@ class App extends Component {
                 const onLogoutUrl = !(textAfterHash && textAfterHash.trim() !== '');
                 if (isExpired) {
                     if (this.authService.isLoggedUser()) {
-                        if(onLogoutUrl){
+                        if (onLogoutUrl) {
                             this.authService.removeLoginCookies();
                         }
                     }
@@ -184,7 +187,8 @@ class App extends Component {
         if (sessionTimeOutComponentRef) {
             sessionTimeOutComponentRef.innerText = PageViewUtils.tickerSessionTimeoutFormat(timeToLeaveSession);
         }
-        if(duration.seconds() < 0){
+
+        if (duration.seconds() < 0) {
             this.authService.logout();
         }
         if (sessionTimeout < tickerPopupDate && !this.state?.rednerSessionTimeoutDialog) {
@@ -206,7 +210,7 @@ class App extends Component {
             if (canPrelongSession) {
                 const sessionTimeout = moment(new Date()).add(timeInMinutes, 'm').toString();
                 localStorage.setItem('session_timeout', sessionTimeout);
-                if(callBack){
+                if (callBack) {
                     callBack();
                 }
             }
@@ -370,7 +374,7 @@ class App extends Component {
         return !!subView && !StringUtils.isBlank(subView.headerColumns);
     }
 
-    fullScreenDisabled() {
+    enabledSidebar() {
         const authService = this.authService;
         const tokenExpired = authService.isTokenExpiredDate();
         if (UrlUtils.isEditRowView()) {
@@ -388,18 +392,21 @@ class App extends Component {
             renderEditQuitConfirmDialog: true,
         }));
     }
-    sessionTimeOutComponent() {
-        if (this.fullScreenDisabled()) {
-            return (
-                <h6>
-                    <div className='float-right float-end mr-3'>
-                        <b id='session-time-out-component-ref'></b>
-                    </div>
-                </h6>
-            );
-        }
-        return null;
-    }
+
+    addButton = () => {
+        const {labels} = this.state;
+        const opADD = DataGridUtils.putToOperationsButtonIfNeccessery(this.state.operations, labels, 'OP_ADD', 'Dodaj');
+        return (
+            <ActionButton
+                rendered={opADD}
+                label={opADD?.label}
+                handleClick={(e) => {
+                    this.viewContainer?.current?.addView(e);
+                }}
+            />
+        );
+    };
+
     render() {
         const authService = this.authService;
         const {labels} = this.state;
@@ -407,307 +414,316 @@ class App extends Component {
         const opADD = DataGridUtils.containsOperationsButton(this.state.operations, 'OP_ADD');
         return (
             <React.Fragment>
-                {this.state.rednerSessionTimeoutDialog && (
-                    <TickerSessionDialog
-                        secondsToPopup = {this.state.secondsToPopupTicker}    
-                        labels={labels}
-                        authService={this.authService}
-                        visible={this.state.rednerSessionTimeoutDialog}
-                        onProlongSession={() => {
-                            this.authService.refresh().then(()=>{
-                                this.prelongSessionIfUserExist(true, ()=>{
-                                    this.setState({
-                                        rednerSessionTimeoutDialog: false,
+                <AppContext.Provider
+                    value={{
+                        addButton: this.addButton,
+                    }}
+                >
+                    {this.state.rednerSessionTimeoutDialog && (
+                        <TickerSessionDialog
+                            secondsToPopup={this.state.secondsToPopupTicker}
+                            labels={labels}
+                            authService={this.authService}
+                            visible={this.state.rednerSessionTimeoutDialog}
+                            onProlongSession={() => {
+                                this.authService.refresh().then(() => {
+                                    this.prelongSessionIfUserExist(true, () => {
+                                        this.setState({
+                                            rednerSessionTimeoutDialog: false,
+                                        });
                                     });
                                 });
-                                
-                            })
-                        }}
-                        onLogout={() => {
-                            authService.removeLoginCookies();
-                            this.setState(
-                                {
-                                    rednerSessionTimeoutDialog: false,
-                                },
-                                () => {
-                                    this.handleLogoutByTokenExpired(true, labels);
-                                }
-                            );
-                        }}
-                    />
-                )}
+                            }}
+                            onLogout={() => {
+                                authService.removeLoginCookies();
+                                this.setState(
+                                    {
+                                        rednerSessionTimeoutDialog: false,
+                                    },
+                                    () => {
+                                        this.handleLogoutByTokenExpired(true, labels);
+                                    }
+                                );
+                            }}
+                        />
+                    )}
 
-                {this.state.renderEditQuitConfirmDialog && (
-                    <ConfirmationEditQuitDialog
-                        onHide={() => {
-                            this.setState({
-                                renderEditQuitConfirmDialog: false,
-                                menuItemClickedId: undefined,
-                            });
-                        }}
-                        onAccept={() => {
-                            const menuItemClickedId = this.state.menuItemClickedId;
-                            this.setState(
-                                {
+                    {this.state.renderEditQuitConfirmDialog && (
+                        <ConfirmationEditQuitDialog
+                            onHide={() => {
+                                this.setState({
                                     renderEditQuitConfirmDialog: false,
-                                    sidebarClickItemReactionEnabled: false,
                                     menuItemClickedId: undefined,
-                                },
-                                () => {
-                                    const itemToClick = document.getElementById(`menu_link_item_${menuItemClickedId}`);
-                                    itemToClick.click();
-                                    this.setState({
-                                        sidebarClickItemReactionEnabled: true,
-                                    });
-                                }
-                            );
-                        }}
-                        visible={this.state.renderEditQuitConfirmDialog}
-                        labels={labels}
-                        menuItemId={this.state.menuItemClickedId}
-                    />
-                )}
-
-                <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
-                {this.state.loadedConfiguration ? (
-                    <HashRouter
-                        history={this.historyBrowser}
-                        getUserConfirmation={(message, callback) => {
-                            const allowTransition = window.confirm(message);
-                            callback(allowTransition);
-                        }}
-                    >
-                        <div className={`${loggedIn ? 'app' : ''}`}>
-                            {this.fullScreenDisabled() && (
-                                <Sidebar
-                                    authService={this.authService}
-                                    historyBrowser={this.historyBrowser}
-                                    handleLogoutUser={(forceByButton) =>
-                                        this.handleLogoutBySideBar(forceByButton, this.state.labels)
+                                });
+                            }}
+                            onAccept={() => {
+                                const menuItemClickedId = this.state.menuItemClickedId;
+                                this.setState(
+                                    {
+                                        renderEditQuitConfirmDialog: false,
+                                        sidebarClickItemReactionEnabled: false,
+                                        menuItemClickedId: undefined,
+                                    },
+                                    () => {
+                                        const itemToClick = document.getElementById(
+                                            `menu_link_item_${menuItemClickedId}`
+                                        );
+                                        itemToClick.click();
+                                        this.setState({
+                                            sidebarClickItemReactionEnabled: true,
+                                        });
                                     }
-                                    onShowEditQuitConfirmDialog={(menuItemClickedId) =>
-                                        this.onShowEditQuitConfirmDialog(menuItemClickedId)
-                                    }
-                                    onClickItemHrefReactionEnabled={this.state.sidebarClickItemReactionEnabled}
-                                    labels={this.state.labels}
-                                    collapsed={this.state.collapsed}
-                                    handleCollapseChange={(e) => this.handleCollapseChange(e)}
-                                />
-                            )}
-                            <main>
-                                {this.sessionTimeOutComponent()}
+                                );
+                            }}
+                            visible={this.state.renderEditQuitConfirmDialog}
+                            labels={labels}
+                            menuItemId={this.state.menuItemClickedId}
+                        />
+                    )}
 
-                                <div className={`${loggedIn ? 'container-fluid' : ''}`}>
-                                    {this.state.renderNoRefreshContent && this.fullScreenDisabled() ? (
-                                        <React.Fragment>
-                                            {Breadcrumb.render(labels)}
-                                            <DivContainer colClass='row base-container-header'>
-                                                <DivContainer id='header-left' colClass='col-11'>
-                                                    <div className='font-medium mb-2 view-info-name'> {this.state.viewInfoName}</div>
-                                                </DivContainer>
-                                                <DivContainer id='header-right' colClass='col-1 to-right'>
-                                                    <ActionButton
-                                                        rendered={opADD}
-                                                        label={opADD?.label}
-                                                        handleClick={(e) => {
-                                                            this.viewContainer?.current?.addView(e);
-                                                        }}
-                                                    />
-                                                </DivContainer>
-                                                <DivContainer id='header-content' colClass='col-12'></DivContainer>
-                                            </DivContainer>
-                                            <div style={{marginRight: '30px'}}>
-                                                {this.haveSubViewColumns() ? (
-                                                    <SubGridViewComponent
-                                                        key={'sub'}
-                                                        handleOnInitialized={(ref) => (this.selectedDataGrid = ref)}
-                                                        subView={this.state.subView}
-                                                        labels={labels}
-                                                        handleRightHeadPanelContent={(e) => {
-                                                            this.viewContainer?.current?.handleRightHeadPanelContent(e);
-                                                            saveValueToCookieGlobal('refreshSubView', true);
-                                                        }}
-                                                        handleOnEditClick={(e) => {
-                                                            this.viewContainer?.current?.editSubView(e);
-                                                            saveValueToCookieGlobal('refreshSubView', true);
-                                                        }}
-                                                    />
-                                                ) : null}
-                                            </div>
-                                        </React.Fragment>
-                                    ) : null}
-                                    <Switch>
-                                        <Route exact path='/' render={(props) => this.renderLoginContainer(props)} />
-                                        <Route path='/login' render={(props) => this.renderLoginContainer(props)} />
-                                        {this.state.user && (
+                    <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
+                    {this.state.loadedConfiguration ? (
+                        <HashRouter
+                            history={this.historyBrowser}
+                            getUserConfirmation={(message, callback) => {
+                                const allowTransition = window.confirm(message);
+                                callback(allowTransition);
+                            }}
+                        >
+                            <div className={`${loggedIn ? 'app' : ''}`}>
+                                {this.enabledSidebar() && (
+                                    <Sidebar
+                                        authService={this.authService}
+                                        historyBrowser={this.historyBrowser}
+                                        handleLogoutUser={(forceByButton) =>
+                                            this.handleLogoutBySideBar(forceByButton, this.state.labels)
+                                        }
+                                        onShowEditQuitConfirmDialog={(menuItemClickedId) =>
+                                            this.onShowEditQuitConfirmDialog(menuItemClickedId)
+                                        }
+                                        onClickItemHrefReactionEnabled={this.state.sidebarClickItemReactionEnabled}
+                                        labels={this.state.labels}
+                                        collapsed={this.state.collapsed}
+                                        handleCollapseChange={(e) => this.handleCollapseChange(e)}
+                                    />
+                                )}
+                                <main>
+                                    {/* {this.sessionTimeOutComponent()} */}
+                                    <div className={`${loggedIn ? 'container-fluid' : ''}`}>
+                                        {this.state.renderNoRefreshContent && this.enabledSidebar() ? (
                                             <React.Fragment>
-                                                <Route
-                                                    key={`edit-row-view`}
-                                                    path='/edit-row-view/:id'
-                                                    render={() => {
-                                                        return (
-                                                            <AuthComponent
-                                                                viewMode={'VIEW'}
-                                                                historyBrowser={this.historyBrowser}
-                                                                handleLogout={(forceByButton) =>
-                                                                    this.handleLogoutUser(forceByButton)
-                                                                }
-                                                            >
-                                                                <EditRowViewComponent
-                                                                    key={"edit-row-component"}
-                                                                    labels={labels}
-                                                                    historyBrowser={this.historyBrowser}
-                                                                    editData={this.state.editData}
-                                                                    editDataChange={(editData) => {
-                                                                        this.setState({
-                                                                            editData: editData,
-                                                                        });
-                                                                    }}
-                                                                ></EditRowViewComponent>
-                                                            </AuthComponent>
-                                                        );
-                                                    }}
-                                                />
-                                                <Route
-                                                    path='/start'
-                                                    render={() => {
-                                                        return (
-                                                            <AuthComponent
-                                                                viewMode={'VIEW'}
-                                                                historyBrowser={this.historyBrowser}
-                                                                handleLogout={(forceByButton) =>
-                                                                    this.handleLogoutUser(forceByButton)
-                                                                }
-                                                            >
-                                                                <DashboardContainer
-                                                                    labels={labels}
-                                                                    handleRenderNoRefreshContent={(
-                                                                        renderNoRefreshContent
-                                                                    ) => {
-                                                                        this.setState({
-                                                                            renderNoRefreshContent:
-                                                                                renderNoRefreshContent,
-                                                                        });
-                                                                    }}
-                                                                />
-                                                            </AuthComponent>
-                                                        );
-                                                    }}
-                                                />
-                                                <Route
-                                                    path='/grid-view/:id'
-                                                    render={(props) => {
-                                                        return (
-                                                            <AuthComponent
-                                                                viewMode={'VIEW'}
-                                                                historyBrowser={this.historyBrowser}
-                                                                handleLogout={(forceByButton) =>
-                                                                    this.handleLogoutUser(forceByButton)
-                                                                }
-                                                            >
-                                                                <ViewContainer
-                                                                    ref={this.viewContainer}
-                                                                    id={props.match.params.id}
-                                                                    labels={labels}
-                                                                    handleRenderNoRefreshContent={(
-                                                                        renderNoRefreshContent
-                                                                    ) => {
-                                                                        this.setState({
-                                                                            renderNoRefreshContent:
-                                                                                renderNoRefreshContent,
-                                                                        });
-                                                                    }}
-                                                                    handleViewInfoName={(viewInfoName) => {
-                                                                        this.setState({viewInfoName: viewInfoName});
-                                                                    }}
-                                                                    handleSubView={(subView) => {
-                                                                        this.setState({subView: subView});
-                                                                    }}
-                                                                    handleOperations={(operations) => {
-                                                                        this.setState({operations: operations});
-                                                                    }}
-                                                                    handleShortcutButtons={(shortcutButtons) => {
-                                                                        this.setState({
-                                                                            shortcutButtons: shortcutButtons,
-                                                                        });
-                                                                    }}
-                                                                    collapsed={this.state.collapsed}
-                                                                />
-                                                            </AuthComponent>
-                                                        );
-                                                    }}
-                                                />
-                                                <Route
-                                                    path='/edit-spec/:id'
-                                                    render={(props) => {
-                                                        return (
-                                                            <AuthComponent
-                                                                viewMode={'VIEW'}
-                                                                historyBrowser={this.historyBrowser}
-                                                                handleLogout={(forceByButton) =>
-                                                                    this.handleLogoutUser(forceByButton)
-                                                                }
-                                                            >
-                                                                <EditSpecContainer
-                                                                    ref={this.editSpecContainer}
-                                                                    id={props.match.params.id}
-                                                                    labels={labels}
-                                                                    collapsed={this.state.collapsed}
-                                                                    handleRenderNoRefreshContent={(
-                                                                        renderNoRefreshContent
-                                                                    ) => {
-                                                                        this.setState({
-                                                                            renderNoRefreshContent:
-                                                                                renderNoRefreshContent,
-                                                                        });
-                                                                    }}
-                                                                />
-                                                            </AuthComponent>
-                                                        );
-                                                    }}
-                                                />
-                                                <Route
-                                                    path='/batch/:id'
-                                                    key={`batch`}
-                                                    render={(props) => {
-                                                        return (
-                                                            <AuthComponent
-                                                                viewMode={'VIEW'}
-                                                                historyBrowser={this.historyBrowser}
-                                                                handleLogout={(forceByButton) =>
-                                                                    this.handleLogoutUser(forceByButton)
-                                                                }
-                                                            >
-                                                                <BatchContainer
-                                                                    ref={this.editSpecContainer}
-                                                                    id={props.match.params.id}
-                                                                    handleRenderNoRefreshContent={(
-                                                                        renderNoRefreshContent
-                                                                    ) => {
-                                                                        this.setState({
-                                                                            renderNoRefreshContent:
-                                                                                renderNoRefreshContent,
-                                                                        });
-                                                                    }}
-                                                                    labels={labels}
-                                                                    collapsed={this.state.collapsed}
-                                                                />
-                                                            </AuthComponent>
-                                                        );
-                                                    }}
-                                                />
+                                                {Breadcrumb.render(labels)}
+                                                <DivContainer colClass='row base-container-header'>
+                                                    <DivContainer id='header-left' colClass='col-11'>
+                                                        <div className='font-medium mb-2 view-info-name'>
+                                                            {' '}
+                                                            {this.state.viewInfoName}
+                                                        </div>
+                                                    </DivContainer>
+
+                                                    <DivContainer id='header-content' colClass='col-12'></DivContainer>
+                                                </DivContainer>
+                                                <div style={{marginRight: '30px'}}>
+                                                    {this.haveSubViewColumns() ? (
+                                                        <SubGridViewComponent
+                                                            key={'sub'}
+                                                            handleOnInitialized={(ref) => (this.selectedDataGrid = ref)}
+                                                            subView={this.state.subView}
+                                                            labels={labels}
+                                                            handleRightHeadPanelContent={(e) => {
+                                                                this.viewContainer?.current?.handleRightHeadPanelContent(
+                                                                    e
+                                                                );
+                                                                saveValueToCookieGlobal('refreshSubView', true);
+                                                            }}
+                                                            handleOnEditClick={(e) => {
+                                                                this.viewContainer?.current?.editSubView(e);
+                                                                saveValueToCookieGlobal('refreshSubView', true);
+                                                            }}
+                                                        />
+                                                    ) : null}
+                                                </div>
                                             </React.Fragment>
-                                        )}
-                                    </Switch>
-                                </div>
-                            </main>
-                        </div>
-                    </HashRouter>
-                ) : (
-                    <React.Fragment>
-                        {LocUtils.loc(labels, 'App_Loading', 'Proszę czekać, trwa ładowanie aplikacji....')}
-                    </React.Fragment>
-                )}
+                                        ) : null}
+                                        <Switch>
+                                            <Route
+                                                exact
+                                                path='/'
+                                                render={(props) => this.renderLoginContainer(props)}
+                                            />
+                                            <Route path='/login' render={(props) => this.renderLoginContainer(props)} />
+                                            {this.state.user && (
+                                                <React.Fragment>
+                                                    <Route
+                                                        key={`edit-row-view`}
+                                                        path='/edit-row-view/:id'
+                                                        render={() => {
+                                                            return (
+                                                                <AuthComponent
+                                                                    viewMode={'VIEW'}
+                                                                    historyBrowser={this.historyBrowser}
+                                                                    handleLogout={(forceByButton) =>
+                                                                        this.handleLogoutUser(forceByButton)
+                                                                    }
+                                                                >
+                                                                    <EditRowViewComponent
+                                                                        key={'edit-row-component'}
+                                                                        labels={labels}
+                                                                        historyBrowser={this.historyBrowser}
+                                                                        editData={this.state.editData}
+                                                                        editDataChange={(editData) => {
+                                                                            this.setState({
+                                                                                editData: editData,
+                                                                            });
+                                                                        }}
+                                                                    ></EditRowViewComponent>
+                                                                </AuthComponent>
+                                                            );
+                                                        }}
+                                                    />
+                                                    <Route
+                                                        path='/start'
+                                                        render={() => {
+                                                            return (
+                                                                <AuthComponent
+                                                                    viewMode={'VIEW'}
+                                                                    historyBrowser={this.historyBrowser}
+                                                                    handleLogout={(forceByButton) =>
+                                                                        this.handleLogoutUser(forceByButton)
+                                                                    }
+                                                                >
+                                                                    <DashboardContainer
+                                                                        labels={labels}
+                                                                        handleRenderNoRefreshContent={(
+                                                                            renderNoRefreshContent
+                                                                        ) => {
+                                                                            this.setState({
+                                                                                renderNoRefreshContent:
+                                                                                    renderNoRefreshContent,
+                                                                            });
+                                                                        }}
+                                                                    />
+                                                                </AuthComponent>
+                                                            );
+                                                        }}
+                                                    />
+
+                                                    <Route
+                                                        path='/grid-view/:id'
+                                                        render={(props) => {
+                                                            return (
+                                                                <AuthComponent
+                                                                    viewMode={'VIEW'}
+                                                                    historyBrowser={this.historyBrowser}
+                                                                    handleLogout={(forceByButton) =>
+                                                                        this.handleLogoutUser(forceByButton)
+                                                                    }
+                                                                >
+                                                                    <ViewContainer
+                                                                        ref={this.viewContainer}
+                                                                        id={props.match.params.id}
+                                                                        labels={labels}
+                                                                        handleRenderNoRefreshContent={(
+                                                                            renderNoRefreshContent
+                                                                        ) => {
+                                                                            this.setState({
+                                                                                renderNoRefreshContent:
+                                                                                    renderNoRefreshContent,
+                                                                            });
+                                                                        }}
+                                                                        handleViewInfoName={(viewInfoName) => {
+                                                                            this.setState({viewInfoName: viewInfoName});
+                                                                        }}
+                                                                        handleSubView={(subView) => {
+                                                                            this.setState({subView: subView});
+                                                                        }}
+                                                                        handleOperations={(operations) => {
+                                                                            this.setState({operations: operations});
+                                                                        }}
+                                                                        handleShortcutButtons={(shortcutButtons) => {
+                                                                            this.setState({
+                                                                                shortcutButtons: shortcutButtons,
+                                                                            });
+                                                                        }}
+                                                                        collapsed={this.state.collapsed}
+                                                                    />
+                                                                </AuthComponent>
+                                                            );
+                                                        }}
+                                                    />
+
+                                                    <Route
+                                                        path='/edit-spec/:id'
+                                                        render={(props) => {
+                                                            return (
+                                                                <AuthComponent
+                                                                    viewMode={'VIEW'}
+                                                                    historyBrowser={this.historyBrowser}
+                                                                    handleLogout={(forceByButton) =>
+                                                                        this.handleLogoutUser(forceByButton)
+                                                                    }
+                                                                >
+                                                                    <EditSpecContainer
+                                                                        ref={this.editSpecContainer}
+                                                                        id={props.match.params.id}
+                                                                        labels={labels}
+                                                                        collapsed={this.state.collapsed}
+                                                                        handleRenderNoRefreshContent={(
+                                                                            renderNoRefreshContent
+                                                                        ) => {
+                                                                            this.setState({
+                                                                                renderNoRefreshContent:
+                                                                                    renderNoRefreshContent,
+                                                                            });
+                                                                        }}
+                                                                    />
+                                                                </AuthComponent>
+                                                            );
+                                                        }}
+                                                    />
+                                                    <Route
+                                                        path='/batch/:id'
+                                                        key={`batch`}
+                                                        render={(props) => {
+                                                            return (
+                                                                <AuthComponent
+                                                                    viewMode={'VIEW'}
+                                                                    historyBrowser={this.historyBrowser}
+                                                                    handleLogout={(forceByButton) =>
+                                                                        this.handleLogoutUser(forceByButton)
+                                                                    }
+                                                                >
+                                                                    <BatchContainer
+                                                                        ref={this.editSpecContainer}
+                                                                        id={props.match.params.id}
+                                                                        handleRenderNoRefreshContent={(
+                                                                            renderNoRefreshContent
+                                                                        ) => {
+                                                                            this.setState({
+                                                                                renderNoRefreshContent:
+                                                                                    renderNoRefreshContent,
+                                                                            });
+                                                                        }}
+                                                                        labels={labels}
+                                                                        collapsed={this.state.collapsed}
+                                                                    />
+                                                                </AuthComponent>
+                                                            );
+                                                        }}
+                                                    />
+                                                </React.Fragment>
+                                            )}
+                                        </Switch>
+                                    </div>
+                                </main>
+                            </div>
+                        </HashRouter>
+                    ) : (
+                        <React.Fragment>
+                            {LocUtils.loc(labels, 'App_Loading', 'Proszę czekać, trwa ładowanie aplikacji....')}
+                        </React.Fragment>
+                    )}
+                </AppContext.Provider>
             </React.Fragment>
         );
     }

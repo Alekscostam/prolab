@@ -46,6 +46,7 @@ class GanttViewComponent extends React.Component {
         super(props);
         this.crudService = new CrudService();
         this.ganttRef = React.createRef();
+        this.selectAllRef = React.createRef();
         this.dataGanttStore = new DataGanttStore();
         this.labels = this.props;
 
@@ -62,16 +63,14 @@ class GanttViewComponent extends React.Component {
             resourceAssignments: [],
             columnCount: 1,
         };
-
-        this.repaint = () => {
-            this?.gantt?.repaint();
-        };
-
-        /** Custom refresh, bo na gancie działa tylko .repaint() pomimo tego iż taka funkcja istnieje w dokumentacji dla tego komponentu */
-        /** być może podbicie wersji mogłoby pomóc */
         this.refresh = () => {
             this.props.handleRefreshData();
         };
+        this.refreshRef =() =>{
+            if(this.ganttRef?.current?.instance){
+                this.ganttRef.current.instance._treeList.refresh();
+            }
+        }
     }
 
     /** Wylicza ilość parentów dla danych */
@@ -129,9 +128,8 @@ class GanttViewComponent extends React.Component {
                 this.setState({
                     data: value,
                 });
-
                 this.datasInitialization(value);
-                this.repaint();
+                this.refreshRef();
                 this.generateColumns();
             });
         }
@@ -175,9 +173,10 @@ class GanttViewComponent extends React.Component {
             rowElementsStorage: store,
             tasks: this.state.tasks,
         });
-        this.repaint();
+        
+        // this?.gantt?.repaint();
+       this.refreshRef();
     }
-
     render() {
         const showRowLines = this.props.showRowLines;
         const showColumnHeaders = this.props.showColumnHeaders;
@@ -277,7 +276,6 @@ class GanttViewComponent extends React.Component {
                     <ContextMenu enabled={false} />
                     {this.state.columns}
                     <StripLine start={currentDate} title='Current Time' cssClass='current-time' />
-
                     <Editing enabled={isEditing} />
                     <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'} />
                 </Gantt>
@@ -287,23 +285,26 @@ class GanttViewComponent extends React.Component {
 
     //* Zastępczy selection, bo gantt nie ma go w zestawie */
     renderCustomSelection(columns, selectedRowKeys) {
+        // TODO: tu trzeb zaimplementowac key 
         return this.isSelectionEnabled()
             ? columns.push(
                   <Column
-                      headerCellTemplate={(element, info) => {
-                          let el = document.createElement('div');
+                        key={"column-gant-key-"}
+                         headerCellTemplate={(element, info) => {
+                          const el = document.createElement('div');
                           element.append(el);
+                          element.parentNode.classList.add("parent-checkbox-area")
                           ReactDOM.render(
                               <label className={`container-checkbox`}>
                                   <input
+                                    ref={this.selectAllRef}
                                       type='checkbox'
-                                      checked={this.state.allElementsSelector}
                                       className='dx-datagrid-checkbox-size dx-show-invalid-badge dx-checkbox dx-widget'
                                       onChange={(e) => {
                                           this.selectAll(e);
                                       }}
                                   />
-                                  <span class='checkmark'></span>
+                                  <span className='checkmark'></span>
                               </label>,
                               element
                           );
@@ -356,11 +357,7 @@ class GanttViewComponent extends React.Component {
             ];
             store.set(key, array);
         }
-
-        this.setState({
-            allElementsSelector: !this.state.allElementsSelector,
-        });
-
+        this.selectAllRef.current.checked = e.target.checked;
         this.props.handleSelectAll(e.target.checked, selectedRowKeys);
         this.datasRefreshSelector(store);
     }
@@ -383,13 +380,12 @@ class GanttViewComponent extends React.Component {
             }
         }
 
-        var index = selectedRowKeys.findIndex((item) => item.ID === recordId);
+        let index = selectedRowKeys.findIndex((item) => item.ID === recordId);
         if (index !== -1) {
             selectedRowKeys.splice(index, 1);
         } else {
             selectedRowKeys.push({ID: recordId});
         }
-
         this.props.handleSelectedRowKeys(selectedRowKeys);
         this.datasRefreshSelector(store);
     }
@@ -397,9 +393,10 @@ class GanttViewComponent extends React.Component {
     generateColumns() {
         let columns = [];
 
-        let selectedRowKeys = this.props.selectedRowKeys;
-        let operationsRecord = this.props.parsedGanttView?.operationsRecord;
-        let operationsRecordList = this.props.parsedGanttView?.operationsRecordList;
+        const selectedRowKeys = this.props.selectedRowKeys;
+        const operationsRecord = this.props.parsedGanttView?.operationsRecord;
+        const operationsRecordList = this.props.parsedGanttView?.operationsRecordList;
+        
         if (!(operationsRecord instanceof Array)) {
             operationsRecord = [];
             operationsRecord.push(this.props.parsedGanttView?.operationsRecord);
@@ -813,7 +810,7 @@ GanttViewComponent.defaultProps = {
 };
 
 GanttViewComponent.propTypes = {
-    id: PropTypes.number.isRequired,
+    id: PropTypes.string.isRequired,
     elementSubViewId: PropTypes.number,
     elementRecordId: PropTypes.number,
     elementKindView: PropTypes.string,
@@ -821,7 +818,7 @@ GanttViewComponent.propTypes = {
     packageRows: PropTypes.number,
     handleShowEditPanel: PropTypes.func,
     //selection
-    selectedRowKeys: PropTypes.object.isRequired,
+    selectedRowKeys: PropTypes.array.isRequired,
     handleSelectedRowKeys: PropTypes.func,
     handleSelectAll: PropTypes.func,
     selectionDeferred: PropTypes.bool,

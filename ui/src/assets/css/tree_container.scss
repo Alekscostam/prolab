@@ -55,43 +55,62 @@ $table-selection: #dde6ff;
 .dx-gridbase-container > .dx-treelist-rowsview.dx-scrollable {
     .line-treelist-90 {
         left: 0;
-        background-color: #0e49eb;
+        background-color: $base-color;
+        opacity: 90%;
     }
     .line-treelist-80 {
         left: 15px;
-        background-color: rgba(14, 73, 235, 0.9); /* Obniżenie cieni o połowę */
+        // background-color: rgba(14, 73, 235, 0.9); /* Obniżenie cieni o połowę */
+        background-color: $base-color;
+        opacity: 80%;
     }
     .line-treelist-70 {
         left: 30px;
-        background-color: rgba(14, 73, 235, 0.8);
+        // background-color: rgba(14, 73, 235, 0.8);
+        background-color: $base-color;
+        opacity: 70%;
     }
     .line-treelist-60 {
         left: 45px;
-        background-color: rgba(14, 73, 235, 0.7);
+        // background-color: rgba(14, 73, 235, 0.7);
+        background-color: $base-color;
+        opacity: 60%;
     }
     .line-treelist-50 {
         left: 60px;
-        background-color: rgba(14, 73, 235, 0.6);
+        // background-color: rgba(14, 73, 235, 0.6);
+        background-color: $base-color;
+        opacity: 50%;
     }
     .line-treelist-40 {
         left: 75px;
-        background-color: rgba(14, 73, 235, 0.5);
+        // background-color: rgba(14, 73, 235, 0.5);
+        background-color: $base-color;
+        opacity: 40%;
     }
     .line-treelist-30 {
         left: 90px;
-        background-color: rgba(14, 73, 235, 0.4);
+        // background-color: rgba(14, 73, 235, 0.4);
+        background-color: $base-color;
+        opacity: 30%;
     }
     .line-treelist-20 {
         left: 105px;
-        background-color: rgba(14, 73, 235, 0.3);
+        // background-color: rgba(14, 73, 235, 0.3);
+        background-color: $base-color;
+        opacity: 20%;
     }
     .line-treelist-10 {
         left: 120px;
-        background-color: rgba(14, 73, 235, 0.2);
+        // background-color: rgba(14, 73, 235, 0.2);
+        background-color: $base-color;
+        opacity: 10%;
     }
     .line-treelist-0 {
         left: 135px;
-        background-color: rgba(14, 73, 235, 0.1);
+        // background-color: rgba(14, 73, 235, 0.1);
+        background-color: $base-color;
+        opacity: 0%;
     }
 }
 .dx-treelist-headers,
@@ -127,13 +146,13 @@ $table-selection: #dde6ff;
 .dx-treelist-rowsview .dx-row-focused:hover > td,
 .dx-treelist-rowsview .dx-row-focused > tr > td,
 .dx-treelist-rowsview .dx-row-focused:hover > tr > td {
-    background-color: #0e49eb !important;
+    background-color: $base-color !important;
     .trash-icon-treeview {
         color: white !important;
     }
 }
 .trash-icon-treeview {
-    color: #0e49eb;
+    color: $base-color;
 }
 .dx-treelist-rowsview .dx-state-hover > td,
 .dx-treelist-rowsview .dx-state-hover:hover > td,
@@ -144,7 +163,7 @@ $table-selection: #dde6ff;
 
 .dx-command-select .dx-checkbox-checked .dx-checkbox-icon {
     color: white;
-    background-color: #0e49eb;
+    background-color: $base-color;
 }
 
 .dx-datagrid
@@ -190,11 +209,11 @@ $table-selection: #dde6ff;
 
 .grid-selection-panel-non-selection {
     background-color: $button-text-color;
-    color: $button-color;
+    color: $base-color;
 }
 
 .grid-selection-panel-selection {
-    background-color: $button-color;
+    background-color: $base-color;
     color: $button-text-color;
 }
 
@@ -220,17 +239,17 @@ $table-selection: #dde6ff;
 
     &.normal {
         background-color: $button-text-color;
-        color: $button-color;
+        color: $base-color;
     }
 
     &.inverse {
-        background-color: $button-color;
+        background-color: $base-color;
         color: $button-text-color;
     }
 }
 
 .blue {
-    color: $button-color !important;
+    color: $base-color !important;
 }
 
 .white {
@@ -292,13 +311,8 @@ $table-selection: #dde6ff;
     padding: 0;
 }
 
-.dx-item.dx-tile .dx-tile-image {
-    height: 100%;
-    border-radius: 10px;
-}
-
 .dx-item.dx-tile .dx-tile-image.card-grid-selected {
-    border: 2px solid #0e49eb;
+    border: 2px solid $base-color;
 }
 .number-of-copies-header {
     text-align: right;
@@ -312,23 +326,6 @@ $table-selection: #dde6ff;
     input {
         width: 130px;
     }
-}
-.dx-item.dx-tile .dx-tile-image > .row {
-    height: 100%;
-    width: 100%;
-    border-radius: 10px;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    padding: 6px 0;
-}
-
-.card-grid-header,
-.card-grid-body,
-.card-grid-footer {
-    min-height: 30px;
-    width: 100%;
-    padding: 0 5px;
 }
 
 .card-grid-footer {
@@ -464,7 +461,7 @@ $table-selection: #dde6ff;
 .dx-treelist-rowsview .dx-row-focused:hover > td,
 .dx-treelist-rowsview .dx-row-focused > tr > td,
 .dx-treelist-rowsview .dx-row-focused:hover > tr > td {
-    background-color: #0e49eb !important;
+    background-color: $base-color !important;
 }
 
 .disabled-background {
@@ -492,7 +489,7 @@ body #subviews-panel .dx-tabs {
         padding-right: 5px;
 
         .subview-tab-item {
-            color: #182d67;
+            color: $text-color;
             text-transform: none;
             font-size: 14px;
             font-weight: bold;
@@ -502,7 +499,7 @@ body #subviews-panel .dx-tabs {
         .subview-tab-item-href {
             display: contents;
             position: relative;
-            color: #182d67;
+            color: $text-color;
             text-transform: none;
             font-size: 14px;
             font-weight: bold;
@@ -511,7 +508,7 @@ body #subviews-panel .dx-tabs {
     }
 
     .dx-tab.dx-tab-selected::before {
-        background-color: #0e49eb;
+        background-color: $base-color;
     }
 
     .dx-tab.dx-tab-selected::after {
@@ -575,7 +572,7 @@ body .grid-container {
     }
 
     .dx-checkbox-checked .dx-checkbox-icon {
-        color: $link-color !important;
+        color: $base-color !important;
     }
 }
 
@@ -601,14 +598,14 @@ body .grid-container {
                 padding-top: 4px;
 
                 .dx-icon {
-                    color: #0e49eb;
+                    color: $base-color;
                 }
             }
         }
 
         .dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-item-selected,
         .dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-item-selected.dx-state-hover {
-            background-color: #0e49eb;
+            background-color: $base-color;
 
             .dx-icon {
                 color: white;
@@ -616,8 +613,9 @@ body .grid-container {
         }
 
         .dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-state-hover {
-            background-color: rgba(63, 81, 181, 0.92);
-
+            // background-color: rgba(63, 81, 181, 0.92);
+            background-color: $base-color;
+            opacity: 92%;
             .dx-icon {
                 color: white;
             }
@@ -641,7 +639,9 @@ body .grid-container {
         }
 
         .dx-selectbox-container {
-            background-color: rgba(63, 81, 181, 0.92);
+            // background-color: rgba(63, 81, 181, 0.92);
+            background-color: #0e49eb;
+            opacity: 92%;
             color: white;
         }
 
@@ -668,14 +668,14 @@ body .grid-container {
 
         .dx-dropdowneditor-icon {
             background-color: transparent;
-            color: #0e49eb;
+            color: $base-color;
         }
 
         .dx-selectbox-container {
             border-radius: 4px;
             border: 1px solid #ddd;
             background-color: white;
-            color: #0e49eb;
+            color: $base-color;
 
             .dx-texteditor-container {
                 .dx-texteditor-input-container {
@@ -685,7 +685,7 @@ body .grid-container {
                         padding: 0 10px;
                         height: 26px;
                         min-height: 26px;
-                        color: #0e49eb;
+                        color: $base-color;
                         font-family: 'Roboto', sans-serif;
                         font-size: 12px;
                         font-weight: bold;
@@ -701,7 +701,7 @@ body .grid-container {
         .dx-dropdowneditor-button {
             width: 18px;
             min-width: 18px;
-            color: #0e49eb;
+            color: $base-color;
         }
     }
 }
@@ -748,6 +748,9 @@ body .grid-container {
 #column_0_undefined-fixed {
     .dx-column-indicators {
         display: none;
+    }
+    .dx-checkbox {
+        margin-top: 7px;
     }
 }
 

@@ -24,11 +24,15 @@ import SubGridViewComponent from './dataGrid/SubGridViewComponent';
 import {TreeListUtils} from '../utils/component/TreeListUtils';
 import {ConfirmationEditQuitDialog} from '../components/prolab/ConfirmationEditQuitDialog';
 import EditSpecService from '../services/EditSpecService';
+import {OperationType} from '../model/OperationType';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
 // TODO: zrobic SpecSerivice
+
+export let operationClicked = false;
+
 export class EditSpecContainer extends BaseContainer {
     _isMounted = false;
 
@@ -268,7 +272,7 @@ export class EditSpecContainer extends BaseContainer {
         const margin = Constants.DEFAULT_MARGIN_BETWEEN_BUTTONS;
         if (!!operation.type) {
             switch (operation.type?.toUpperCase()) {
-                case 'OP_FILTER':
+                case OperationType.OP_FILTER:
                     return (
                         <React.Fragment>
                             {this.state.filtersList?.length > 0 ? (
@@ -307,7 +311,7 @@ export class EditSpecContainer extends BaseContainer {
                             ) : null}
                         </React.Fragment>
                     );
-                case 'OP_BATCH':
+                case OperationType.OP_BATCH:
                     return (
                         <React.Fragment>
                             {/*{this.state.batchesList?.length > 0 ? (*/}
@@ -321,7 +325,7 @@ export class EditSpecContainer extends BaseContainer {
                             {/*) : null}*/}
                         </React.Fragment>
                     );
-                case 'OP_DOCUMENTS':
+                case OperationType.OP_DOCUMENTS:
                     return (
                         <React.Fragment>
                             {/*{this.state.documentsList?.length > 0 ? (*/}
@@ -340,7 +344,7 @@ export class EditSpecContainer extends BaseContainer {
                             {/*) : null}*/}
                         </React.Fragment>
                     );
-                case 'OP_PLUGINS':
+                case OperationType.OP_PLUGINS:
                     return (
                         <React.Fragment>
                             {this.state.pluginsList?.length > 0 ? (
@@ -359,7 +363,7 @@ export class EditSpecContainer extends BaseContainer {
                             ) : null}
                         </React.Fragment>
                     );
-                case 'OP_FORMULA':
+                case OperationType.OP_FORMULA:
                     return (
                         <React.Fragment>
                             <ActionButtonWithMenu
@@ -387,6 +391,7 @@ export class EditSpecContainer extends BaseContainer {
         return (
             <React.Fragment>
                 <DivContainer id='header-left'>
+                    {Breadcrumb.render(this.props.labels)}
                     <div className='font-medium mb-4'>{this.state.parsedView?.viewInfo?.name}</div>
                 </DivContainer>
             </React.Fragment>
@@ -601,20 +606,27 @@ export class EditSpecContainer extends BaseContainer {
 
     //override
     delete(id) {
+        // this.blockUi();
+        let data = this.getData();
         this.refTreeList?.instance?.beginCustomLoading();
         if (!!id) {
-            this.deleteSingleRow(id);
+            data = this.deleteSingleRow(id, data);
         } else {
             this.state.selectedRowKeys.forEach((id) => {
-                this.deleteSingleRow(id);
+                data = this.deleteSingleRow(id, data);
             });
         }
+        if (data != null) {
+            this.updateData(data, () => {
+                this.refreshTable();
+            });
+        }
+
         this.refTreeList?.instance?.endCustomLoading();
     }
 
     //usunięcie pojedyńczego rekordu
-    deleteSingleRow(id) {
-        let data = this.getData();
+    deleteSingleRow(id, data) {
         let el = data.find((x) => x._ID === id);
         if (el._STATUS === 'inserted') {
             const index = data.findIndex((x) => x._ID === id);
@@ -629,12 +641,10 @@ export class EditSpecContainer extends BaseContainer {
         elements.forEach((e) => {
             this.delete(e._ID);
         });
-
         if (elements.length === 0) {
-            this.updateData(data, () => {
-                this.refreshTable();
-            });
+            return data;
         }
+        return null;
     }
 
     //metoda przenosi rekord o poziom wyżej
@@ -648,37 +658,36 @@ export class EditSpecContainer extends BaseContainer {
     }
 
     moveItem(id, shiftNumber) {
-        this.refTreeList?.instance?.beginCustomLoading(); 
-        let data = this.getData().sort((a, b) => a._ORDER - b._ORDER);;
+        this.refTreeList?.instance?.beginCustomLoading();
+        let data = this.getData().sort((a, b) => a._ORDER - b._ORDER);
         const index = data.findIndex((x) => x._ID === id);
         const currentElement = data.find((el) => el._ID === id);
         const prevElement = data[index + shiftNumber];
         if (prevElement) {
             if (index !== undefined) {
-               if(!this.isChildOfElement(currentElement,prevElement)){
-                const currentOrder = currentElement._ORDER;
-                const prevOrder = prevElement._ORDER;
-                currentElement._ORDER = prevOrder;
-                prevElement._ORDER = currentOrder;
+                if (!this.isChildOfElement(currentElement, prevElement)) {
+                    const currentOrder = currentElement._ORDER;
+                    const prevOrder = prevElement._ORDER;
+                    currentElement._ORDER = prevOrder;
+                    prevElement._ORDER = currentOrder;
                     this.move(data, index, index + shiftNumber);
                     this.updateData(data, () => {
                         this.disableAllSort();
                         this.refreshTable();
                     });
                 }
-            } 
+            }
         }
         this.refTreeList?.instance?.endCustomLoading();
     }
-    isChildOfElement(child , parent){
-        return  child._ID_PARENT === parent._ID;
-      }
+    isChildOfElement(child, parent) {
+        return child._ID_PARENT === parent._ID;
+    }
     updateData(dataToUpdate, callbackAction) {
         this.setState({parsedData: dataToUpdate}, () => {
             if (!!callbackAction) callbackAction();
         });
     }
-
     getMaxViewid() {}
 
     disableAllSort() {
@@ -767,13 +776,13 @@ export class EditSpecContainer extends BaseContainer {
                                 handleUnblockUi={() => this.unblockUi()}
                                 handleShowEditPanel={(editDataResponse) => this.handleShowEditPanel(editDataResponse)}
                                 handleSelectedRowKeys={(e) => {
-                                    this.blockUi();
+                                    // this.blockUi();
                                     this.setState(
                                         {
                                             selectedRowKeys: e,
                                         },
                                         () => {
-                                            this.unblockUi();
+                                            // this.unblockUi();
                                         }
                                     );
                                 }}
@@ -844,10 +853,10 @@ export class EditSpecContainer extends BaseContainer {
             .then(() => {
                 let prevUrl = window.location.href;
                 prevUrl = prevUrl.replace('edit-spec', 'grid-view');
-                prevUrl = UrlUtils.removeAndAddParam("parentId", UrlUtils.getURLParameter("prevParentId"), prevUrl)
-                prevUrl = UrlUtils.removeAndAddParam("recordId", UrlUtils.getURLParameter("parentId"), prevUrl)
-                prevUrl = UrlUtils.removeAndAddParam("bc", UrlUtils.getURLParameter("bc"), prevUrl);
-                prevUrl = UrlUtils.deleteParameterFromURL(prevUrl, "prevParentId");
+                prevUrl = UrlUtils.removeAndAddParam('parentId', UrlUtils.getURLParameter('prevParentId'), prevUrl);
+                prevUrl = UrlUtils.removeAndAddParam('recordId', UrlUtils.getURLParameter('parentId'), prevUrl);
+                prevUrl = UrlUtils.removeAndAddParam('bc', UrlUtils.getURLParameter('bc'), prevUrl);
+                prevUrl = UrlUtils.deleteParameterFromURL(prevUrl, 'prevParentId');
                 window.location.href = prevUrl;
             })
             .catch((err) => {

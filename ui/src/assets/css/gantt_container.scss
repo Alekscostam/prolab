@@ -1,6 +1,10 @@
 /** COPY STYLES OF CHECKBOX FROM DEVEXTREME */
+
+$base-color: #0e49eb;
+
 #gantt-container {
     z-index: 0;
+    
     .container-checkbox {
         display: block;
         position: relative;
@@ -37,11 +41,11 @@
 
     .container-checkbox:hover input ~ .checkmark {
         background-color: white;
-        border: 1px solid #0075ff;
+        border: 1px solid $base-color;
     }
 
     .container-checkbox input:checked ~ .checkmark {
-        background-color: #0075ff;
+        background-color: $base-color;
     }
 
     .checkmark:after {
@@ -66,13 +70,11 @@
         -ms-transform: rotate(45deg);
         transform: rotate(45deg);
     }
-
+.parent-checkbox-area{
+    border-bottom: 2px solid #e0e0e0;    
+}
     /** END COPY OF CHECKBOX */
 }
-.dx-gantt .dx-row {
-    background-color: white;
-}
-
 .dx-gantt-altRow {
     background-color: white !important;
 }

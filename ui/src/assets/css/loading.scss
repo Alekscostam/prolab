@@ -1,3 +1,6 @@
+$loading-bullet: #02a17c;
+$cover-spin-after: #1c3275;
+
 .loading-indicator {
   text-align: center;
 }
@@ -6,7 +9,7 @@
   display: inline-block;
   opacity: 0;
   font-size: 2em;
-  color: #02a17c;
+  color: $loading-bullet;
 }
 
 .block-ui {
@@ -261,7 +264,7 @@
   width: 40px;
   height: 40px;
   border-style: solid;
-  border-color: #1c3275;
+  border-color: $cover-spin-after;
   border-top-color: transparent;
   border-width: 4px;
   border-radius: 50%;

@@ -15,6 +15,7 @@ export const OperationType = {
     OP_RESTORE: 'OP_RESTORE',
     OP_DELETE: 'OP_DELETE',
     OP_COPY: 'OP_COPY',
+    OP_FILTER: 'OP_FILTER',
     SK_DOCUMENT: 'SK_DOCUMENT',
     SK_PLUGIN: 'SK_PLUGIN',
     OP_FORMULA: 'OP_FORMULA',

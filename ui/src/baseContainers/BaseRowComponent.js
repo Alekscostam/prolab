@@ -317,7 +317,7 @@ export class BaseRowComponent extends BaseContainer {
         field.visible = MockService.getFieldEnableDisableOrMock(field.visible, 'visible');
         //end mock functionality
         const autoFill = field?.autoFill ? 'autofill-border' : '';
-        const editable = field?.edit ? 'editable-border' : '';
+        const editable = field?.edit ? 'editable-border' : 'not-editable';
         const validate = !!validatorMsgs ? 'p-invalid' : '';
         const autoFillCheckbox = field?.autoFill ? 'autofill-border-checkbox' : '';
         const validateCheckbox = !!validatorMsgs ? 'p-invalid-checkbox' : '';

@@ -53,13 +53,6 @@ export default class PluginListComponent extends React.Component {
                                     <Button
                                         type='button'
                                         onClick={() => {
-                                            this.onHide();
-                                        }}
-                                        label={LocUtils.loc(this.props.labels, 'Cancle_plugin_grid_dialog', 'Anuluj')}
-                                    />
-                                    <Button
-                                        type='button'
-                                        onClick={() => {
                                             const idRowKeys = this.props.selectedRowKeys.map((el) => el.ID);
                                             const pluginId = this.props.pluginId;
                                             const idCurrentRowKeys = this.state.selectedRowKeys;

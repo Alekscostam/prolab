@@ -20,6 +20,7 @@ import EditListComponent from '../components/prolab/EditListComponent';
 import UrlUtils from '../utils/UrlUtils';
 import {EditorDialog} from '../components/prolab/EditorDialog';
 import {StringUtils} from '../utils/StringUtils';
+import ImageViewerComponent from '../components/ImageViewerComponent';
 
 class CellEditComponent extends React.Component {
     // editListDataStore = new EditListComponent();
@@ -38,6 +39,11 @@ class CellEditComponent extends React.Component {
             parsedEditListView: undefined,
             selectedRowDataEditList: undefined,
             parsedEditListViewData: undefined,
+            imageViewer: {
+                imageViewDialogVisisble: false,
+                imageBase64: undefined,
+                editable: false,
+            },
         };
         ConsoleHelper('CellEditComponent -> constructor');
     }
@@ -53,7 +59,6 @@ class CellEditComponent extends React.Component {
     }
 
     editorComponent = () => {
-        //TODO: meyjbe should be here this.state.editorDialogVisisble &&
         return (
             <EditorDialog
                 value={this.state.cellInfo.value}
@@ -73,6 +78,28 @@ class CellEditComponent extends React.Component {
                     this.onHideEditor();
                 }}
             ></EditorDialog>
+        );
+    };
+    imageViewerComponent = () => {
+        const {imageViewer} = this.state;
+        return (
+            imageViewer?.imageViewDialogVisisble && (
+                <ImageViewerComponent
+                    editable={imageViewer.editable}
+                    onHide={() => {
+                        this.setState({
+                            imageViewer: {
+                                imageViewDialogVisisble: false,
+                                editable: false,
+                                imageBase64: undefined,
+                            },
+                        });
+                    }}
+                    base64={imageViewer.imageBase64}
+                    labels={this.labels}
+                    visible
+                />
+            )
         );
     };
     editListComponent = () => {
@@ -143,17 +170,11 @@ class CellEditComponent extends React.Component {
         this.setState({selectedRowDataEditList: transformedRowsData, defaultSelectedRowKeys: transformedRowsCRC});
     };
 
+    // to overide
+    findRowDataById(recordId) {}
 
-    // to overide 
-    findRowDataById(recordId){
-    }
-
-
-    // to overide 
-    currentEditListRow(recordId){
-
-    }
-
+    // to overide
+    currentEditListRow(recordId) {}
 
     editListVisible = (recordId, fieldId) => {
         ConsoleHelper('EditableComponent::editListVisible');

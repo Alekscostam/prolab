@@ -31,6 +31,8 @@ import CellEditComponent from '../CellEditComponent';
 import OperationCell from '../../utils/OperationCell';
 import UrlUtils from '../../utils/UrlUtils';
 import EditSpecService from '../../services/EditSpecService';
+import ImageViewerComponent from '../../components/ImageViewerComponent';
+import AppContext from '../../context/AppContext';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -45,6 +47,11 @@ class GridViewComponent extends CellEditComponent {
         this.state = {
             allRowsShow: false,
             editListVisible: false,
+            imageViewer: {
+                imageViewDialogVisisble: false,
+                imageBase64: undefined,
+                editable: false,
+            },
             editorDialogVisisble: false,
         };
         this.rowRenderingMode = UrlUtils.isBatch() ? 'standard' : 'virtual';
@@ -95,17 +102,17 @@ class GridViewComponent extends CellEditComponent {
         }
         return result;
     };
-    findRowDataById(recordId){
+    findRowDataById(recordId) {
         let editData = this.props.parsedGridViewData.filter((item) => {
             return item.ID === recordId;
         });
         return editData[0];
     }
-    currentEditListRow(recordId){
+    currentEditListRow(recordId) {
         const currentEditListRow = this.props.parsedGridViewData.filter((item) => {
-              return item.ID === recordId;
-        }); 
-        return currentEditListRow
+            return item.ID === recordId;
+        });
+        return currentEditListRow;
     }
     render() {
         const showGroupPanel = this.props.gridFromDashboard
@@ -127,11 +134,12 @@ class GridViewComponent extends CellEditComponent {
         const defaultSelectedRowKeys = this.props.defaultSelectedRowKeys;
         const selectedRowKeys = this.props.selectedRowKeys;
         const packageCount = this.getPackageCount();
+
         return (
             <React.Fragment>
                 {this.state.editListVisible && this.editListComponent()}
                 {this.state.editorDialogVisisble && this.editorComponent()}
-                {/* <div className='dx-container'> */}
+                {this.imageViewerComponent()}
                 <DataGrid
                     id='grid-container'
                     keyExpr='ID'
@@ -207,9 +215,7 @@ class GridViewComponent extends CellEditComponent {
                     <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'} />
                     <Grouping autoExpandAll={groupExpandAll} allowCollapsing={true} contextMenuEnabled={true} />
                     <GroupPanel visible={showGroupPanel} />
-
                     <Sorting mode='multiple' />
-
                     <Selection
                         mode={this.selectionMode()}
                         selectAllMode='allPages'
@@ -217,7 +223,6 @@ class GridViewComponent extends CellEditComponent {
                         allowSelectAll={allowSelectAll}
                         deferred={this.props.selectionDeferred}
                     />
-
                     <Scrolling
                         mode='virtual'
                         rowRenderingMode={this.rowRenderingMode}
@@ -225,9 +230,7 @@ class GridViewComponent extends CellEditComponent {
                         // useNative={true}
                         useNative={this.isGroupModeEnabled()}
                     />
-
                     <Paging defaultPageSize={packageCount} pageSize={packageCount} />
-
                     <LoadPanel
                         enabled={true}
                         showIndicator={false}
@@ -249,8 +252,12 @@ class GridViewComponent extends CellEditComponent {
         const multiSelection = multiSelect === undefined || multiSelect === null || !!multiSelect;
         return showSelection ? (multiSelection ? 'multiple' : 'single') : 'none';
     };
-
+    renderTitleHeader = (data) => {
+        return <p style={{fontSize: '16px'}}>XXX</p>;
+    };
     postCustomizeColumns = (columns) => {
+        const {addButton} = this.context;
+
         let INDEX_COLUMN = 0;
         if (columns?.length > 0) {
             //when viewData respond a lot of data
@@ -289,7 +296,16 @@ class GridViewComponent extends CellEditComponent {
                                 column.format = DataGridUtils.specifyColumnFormat(columnDefinition?.type);
                                 column.cellTemplate = DataGridUtils.cellTemplate(
                                     columnDefinition,
-                                    this.canOverrideCellRender(columnDefinition)
+                                    this.isEditableCell(columnDefinition),
+                                    (base64) => {
+                                        this.setState({
+                                            imageViewer: {
+                                                imageViewDialogVisisble: true,
+                                                imageBase64: base64,
+                                                editable: this.isEditableCell(columnDefinition),
+                                            },
+                                        });
+                                    }
                                 );
                                 column.fixed =
                                     columnDefinition.freeze !== undefined && columnDefinition?.freeze !== null
@@ -338,6 +354,10 @@ class GridViewComponent extends CellEditComponent {
                     columns?.push({
                         caption: '',
                         fixed: true,
+                        headerCellTemplate: (element) => {
+                            ReactDOM.render(addButton(), element);
+                        },
+
                         width: 10 + (33 * operationsRecord.length + (operationsRecordList?.length > 0 ? 33 : 0)),
                         fixedPosition: 'right',
                         cellTemplate: (element, info) => {
@@ -351,6 +371,7 @@ class GridViewComponent extends CellEditComponent {
                             const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
                             let viewId = this.props.id;
                             viewId = DataGridUtils.getRealViewId(subViewId, viewId);
+
                             ReactDOM.render(
                                 <div style={{textAlign: 'center', display: 'flex'}}>
                                     <OperationsButtons
@@ -533,7 +554,7 @@ class GridViewComponent extends CellEditComponent {
         }
     };
 
-    canOverrideCellRender = (columnDefinition) => {
+    isEditableCell = (columnDefinition) => {
         return (
             this.isSpecialCell(columnDefinition) &&
             this.props.cellModeEnabled &&
@@ -622,7 +643,7 @@ class GridViewComponent extends CellEditComponent {
     };
 
     generateCustomizeColumn = (keyIndex, sortOrder, columnDefinition) => {
-        return this.canOverrideCellRender(columnDefinition) ? (
+        return this.isEditableCell(columnDefinition) ? (
             <Column
                 key={keyIndex}
                 dataField={columnDefinition.fieldName}
@@ -732,5 +753,6 @@ GridViewComponent.propTypes = {
 
     gridFromDashboard: PropTypes.bool,
 };
+GridViewComponent.contextType = AppContext; // Określamy kontekst dla komponentu klasowego
 
 export default GridViewComponent;
