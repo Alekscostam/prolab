@@ -31,8 +31,8 @@ import CellEditComponent from '../CellEditComponent';
 import OperationCell from '../../utils/OperationCell';
 import UrlUtils from '../../utils/UrlUtils';
 import EditSpecService from '../../services/EditSpecService';
-import ImageViewerComponent from '../../components/ImageViewerComponent';
-import AppContext from '../../context/AppContext';
+import ActionButton from '../../components/ActionButton';
+import LocUtils from '../../utils/LocUtils';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -113,6 +113,19 @@ class GridViewComponent extends CellEditComponent {
             return item.ID === recordId;
         });
         return currentEditListRow;
+    }
+    addButton() {
+        return (
+            !UrlUtils.isBatch() && (
+                <ActionButton
+                    rendered={true}
+                    label={LocUtils.loc(this.props.labels, 'Add_button', 'Dodaj')}
+                    handleClick={(e) => {
+                        this.props.addButtonFunction(e);
+                    }}
+                />
+            )
+        );
     }
     render() {
         const showGroupPanel = this.props.gridFromDashboard
@@ -252,12 +265,7 @@ class GridViewComponent extends CellEditComponent {
         const multiSelection = multiSelect === undefined || multiSelect === null || !!multiSelect;
         return showSelection ? (multiSelection ? 'multiple' : 'single') : 'none';
     };
-    renderTitleHeader = (data) => {
-        return <p style={{fontSize: '16px'}}>XXX</p>;
-    };
     postCustomizeColumns = (columns) => {
-        const {addButton} = this.context;
-
         let INDEX_COLUMN = 0;
         if (columns?.length > 0) {
             //when viewData respond a lot of data
@@ -355,9 +363,8 @@ class GridViewComponent extends CellEditComponent {
                         caption: '',
                         fixed: true,
                         headerCellTemplate: (element) => {
-                            ReactDOM.render(addButton(), element);
+                            ReactDOM.render(this.addButton(), element);
                         },
-
                         width: 10 + (33 * operationsRecord.length + (operationsRecordList?.length > 0 ? 33 : 0)),
                         fixedPosition: 'right',
                         cellTemplate: (element, info) => {
@@ -753,6 +760,5 @@ GridViewComponent.propTypes = {
 
     gridFromDashboard: PropTypes.bool,
 };
-GridViewComponent.contextType = AppContext; // Określamy kontekst dla komponentu klasowego
 
 export default GridViewComponent;

@@ -30,13 +30,14 @@ $table-selection: #dde6ff;
     font-variant: normal;
     font-weight: 500;
 }
-
-.line-treelist {
-    content: '';
-    position: absolute;
-    height: 100%; /* Wysokość paska */
-    top: 0;
-    width: 15px; /* Szerokość paska */
+#spec-edit {
+    .line-treelist {
+        content: '';
+        position: absolute;
+        height: 100%; /* Wysokość paska */
+        top: 0;
+        width: 15px; /* Szerokość paska */
+    }
 }
 
 .dx-treelist-rowsview .dx-treelist-expanded span::before {
@@ -52,7 +53,7 @@ $table-selection: #dde6ff;
     margin-left: 0px;
 }
 
-.dx-gridbase-container > .dx-treelist-rowsview.dx-scrollable {
+#spec-edit .dx-gridbase-container > .dx-treelist-rowsview.dx-scrollable {
     .line-treelist-90 {
         left: 0;
         background-color: $base-color;
@@ -166,55 +167,12 @@ $table-selection: #dde6ff;
     background-color: $base-color;
 }
 
-.dx-datagrid
-    .dx-datagrid-content
-    .dx-datagrid-table
-    .dx-row
-    > td.dx-cell-modified:not(.dx-field-item-content):not(.dx-validation-pending):first-of-type,
-.dx-datagrid
-    .dx-datagrid-content
-    .dx-datagrid-table
-    .dx-row
-    > td.dx-datagrid-invalid:not(.dx-field-item-content):not(.dx-validation-pending):not(.dx-datagrid-select-all):first-of-type,
-.dx-datagrid
-    .dx-datagrid-content
-    .dx-datagrid-table
-    .dx-row
-    > td:not(.dx-validation-pending):not(.dx-datagrid-select-all):first-of-type {
-    padding-left: 0;
-}
-
 .dx-datagrid-rowsview .dx-select-checkboxes-hidden > tbody > tr > td > .dx-select-checkbox {
     display: inline-block !important;
 }
 
 .dx-datagrid-rowsview .dx-select-checkboxes-hidden > tbody > tr > td > .dx-select-checkbox {
     display: grid;
-}
-
-.grid-selection-panel {
-    font-size: 12px;
-    line-height: 14px;
-    letter-spacing: 0;
-    font-style: normal;
-    font-variant: normal;
-    font-weight: 500;
-    padding-left: 5px;
-    padding-right: 5px;
-    margin-top: 5px;
-    margin-bottom: 5px;
-    min-height: 36px;
-    vertical-align: middle;
-}
-
-.grid-selection-panel-non-selection {
-    background-color: $button-text-color;
-    color: $base-color;
-}
-
-.grid-selection-panel-selection {
-    background-color: $base-color;
-    color: $button-text-color;
 }
 
 .grid-count-fragment {
@@ -264,21 +222,12 @@ $table-selection: #dde6ff;
     background-color: rgba(0, 0, 0, 0.17);
 }
 
-// .dx-editor-with-menu,
-// .dx-checkbox-icon,
-// .dx-datagrid-columns-separator.dx-datagrid-columns-separator-transparent {
-//     z-index: 0;
-// }
-
 .dx-datagrid.dx-gridbase-container {
     z-index: 0;
 
     .dx-loadpanel {
         position: fixed;
         left: 50%;
-
-        .dx-loadpanel-wrapper {
-        }
     }
 }
 
@@ -467,75 +416,23 @@ $table-selection: #dde6ff;
 .disabled-background {
     background-color: whitesmoke !important;
 }
-// dx-row dx-data-row dx-row-lines dx-column-lines dx-selection
-body #subviews-panel .dx-tabs {
-    width: auto;
-    max-width: 100%;
-    border: none;
-    background: none;
 
-    .dx-tabs-scrollable .dx-tab::before {
-        height: 2px;
-    }
-
-    .dx-tabs-wrapper {
-        border: none;
-    }
-
-    .dx-tab {
-        background-color: transparent;
-        padding-bottom: 2px;
-        padding-left: 5px;
-        padding-right: 5px;
-
-        .subview-tab-item {
-            color: $text-color;
-            text-transform: none;
-            font-size: 14px;
-            font-weight: bold;
-            letter-spacing: 0;
-        }
-
-        .subview-tab-item-href {
-            display: contents;
-            position: relative;
-            color: $text-color;
-            text-transform: none;
-            font-size: 14px;
-            font-weight: bold;
-            letter-spacing: 0;
-        }
-    }
-
-    .dx-tab.dx-tab-selected::before {
-        background-color: $base-color;
-    }
-
-    .dx-tab.dx-tab-selected::after {
-        border: none;
-    }
+body
+    .base-container-content
+    .tree-container.tree-header-auto-height
+    .dx-header-row
+    > td:last-child
+    > .dx-treelist-text-content {
+    justify-content: center;
+    display: flex;
 }
-
-body .grid-container .dx-datagrid-headers .dx-header-row > td > .dx-datagrid-text-content {
-    white-space: unset;
+.base-container-content .dx-treelist-headers .dx-treelist-table .dx-row > td:last-child {
+    border-bottom: none;
+    background-color: white;
 }
-
-body .grid-container.grid-header-auto-height .dx-datagrid-headers .dx-header-row > td > .dx-datagrid-text-content {
-    white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
-    white-space: -o-pre-wrap; /* Opera 7 */
-    white-space: pre-wrap; /* css-3 */
-    word-wrap: break-word; /* Internet Explorer 5.5+ */
-    word-break: break-all;
-    white-space: normal;
-    white-space: -pre-wrap; /* Opera 4-6 */
-    white-space: -webkit-pre-wrap; /* Newer versions of Chrome/Safari*/
+.base-container-content .dx-treelist-headers .dx-treelist-table .dx-row > td:last-child:hover {
+    background-color: white !important;
 }
-
-// .dx-treelist-table {
-//     .dx-dropdowneditor-icon {
-//         min-width: 32px !important;
-//     }
-// }
 .dx-dropdowneditor-icon {
     min-width: 32px !important;
 }
@@ -587,38 +484,6 @@ body .grid-container {
 
         a:last-child {
             margin-right: 0;
-        }
-    }
-
-    .dx-buttongroup {
-        .dx-buttongroup-item.dx-button.dx-button-mode-outlined {
-            background-color: white;
-
-            .dx-button-content {
-                padding-top: 4px;
-
-                .dx-icon {
-                    color: $base-color;
-                }
-            }
-        }
-
-        .dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-item-selected,
-        .dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-item-selected.dx-state-hover {
-            background-color: $base-color;
-
-            .dx-icon {
-                color: white;
-            }
-        }
-
-        .dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-state-hover {
-            // background-color: rgba(63, 81, 181, 0.92);
-            background-color: $base-color;
-            opacity: 92%;
-            .dx-icon {
-                color: white;
-            }
         }
     }
 

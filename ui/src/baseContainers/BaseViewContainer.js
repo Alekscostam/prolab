@@ -43,6 +43,7 @@ import {StringUtils} from '../utils/StringUtils';
 import {saveObjToCookieGlobal} from '../utils/Cookie';
 import DataHistoryLogStore from '../containers/dao/DataHistoryLogStore';
 import HistoryLogListComponent from '../components/prolab/HistoryLogListComponent';
+import {TreeListUtils} from '../utils/component/TreeListUtils';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -378,7 +379,6 @@ export class BaseViewContainer extends BaseContainer {
             );
         }
     }
-
     handleRightHeadPanelContent(element) {
         let parentIdArg =
             this.state.subView == null ? UrlUtils.getURLParameter('parentId') : this.state.elementRecordId;
@@ -763,6 +763,10 @@ export class BaseViewContainer extends BaseContainer {
 
     //override
     renderHeaderLeft() {
+        return <React.Fragment />;
+    }
+    //to ovveride
+    addButtonFunction() {
         return <React.Fragment />;
     }
 
@@ -1455,6 +1459,7 @@ export class BaseViewContainer extends BaseContainer {
                                             selectedRowKeys: [],
                                         });
                                     }}
+                                    addButtonFunction={this.addButtonFunction}
                                     handleUnblockUi={() => this.unblockUi()}
                                     showErrorMessages={(err) => this.showErrorMessages(err)}
                                     packageRows={this.state.packageRows}
@@ -1604,6 +1609,7 @@ export class BaseViewContainer extends BaseContainer {
                                     handleSelectedRowKeys={(e) => {
                                         this.setState({selectedRowKeys: e});
                                     }}
+                                    addButtonFunction={this.addButtonFunction}
                                     dataGridStoreSuccess={this.state.dataGridStoreSuccess}
                                     selectionDeferred={true}
                                     handlePluginRow={(id) => this.plugin(id)}

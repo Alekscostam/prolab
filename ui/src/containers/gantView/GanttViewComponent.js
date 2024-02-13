@@ -31,6 +31,8 @@ import {EditSpecUtils} from '../../utils/EditSpecUtils';
 import {compress} from 'int-compress-string';
 import {StringUtils} from '../../utils/StringUtils';
 import Image from '../../components/Image';
+import ActionButton from '../../components/ActionButton.js';
+import LocUtils from '../../utils/LocUtils.js';
 
 let _selectionClassName = 'checkBoxSelection';
 
@@ -66,16 +68,16 @@ class GanttViewComponent extends React.Component {
         this.refresh = () => {
             this.props.handleRefreshData();
         };
-        this.refreshRef =() =>{
-            if(this.ganttRef?.current?.instance){
+        this.refreshRef = () => {
+            if (this.ganttRef?.current?.instance) {
                 this.ganttRef.current.instance._treeList.refresh();
             }
-        }
+        };
     }
 
     /** Wylicza ilość parentów dla danych */
     setSelectionWidth(data) {
-        let allDatas = data.map((el) => new ParentModel(el.ID, el.ID_PARENT));
+        const allDatas = data.map((el) => new ParentModel(el.ID, el.ID_PARENT));
         let parents = allDatas.filter((el) => el.idParent === null);
         let childrens = allDatas.filter((el) => el.idParent != null);
         let resultLength = 0;
@@ -114,7 +116,9 @@ class GanttViewComponent extends React.Component {
         }
         return duplicates;
     }
-
+    componentDidUpdate() {
+        console.log('sd');
+    }
     componentDidMount() {
         if (this.props.selectedRowKeys.length !== 0) {
             this.props.unselectAll();
@@ -125,6 +129,8 @@ class GanttViewComponent extends React.Component {
         ) {
             this.props.parsedGanttViewData.then((value) => {
                 this.setSelectionWidth(value.data);
+                const data = GanttUtils.paintDatas(value.data);
+                value.data = data;
                 this.setState({
                     data: value,
                 });
@@ -173,9 +179,9 @@ class GanttViewComponent extends React.Component {
             rowElementsStorage: store,
             tasks: this.state.tasks,
         });
-        
+
         // this?.gantt?.repaint();
-       this.refreshRef();
+        this.refreshRef();
     }
     render() {
         const showRowLines = this.props.showRowLines;
@@ -213,91 +219,107 @@ class GanttViewComponent extends React.Component {
         const keyResourceAssigment = 'ID';
         const resourceIdResourceAssigment = this.props.parsedGanttView?.resourceAssignmentFields?.resourceId;
         const taskIdResourceAssigment = this.props.parsedGanttView?.resourceAssignmentFields?.taskId;
-
         return (
-            <React.Fragment>
-                <Gantt
-                    id='gantt-container'
-                    keyExpr='ID'
-                    ref={this.ganttRef}
-                    scaleType={scaleType}
-                    activeStateEnabled={true}
-                    taskListWidth={taskListWidth}
-                    taskTitlePosition={taskTitlePosition}
-                    startDateRange={startDateRange}
-                    endDateRange={endDateRange}
-                    rowAlternationEnabled={false}
-                    // allowSorting={true}
-                    width={width}
-                    onSelectionChanged={this.onVisibleIndexChange}
-                    // Jesli robimy checkboxy to allowSelection w tym miejscu musi byc false
-                    allowSelection={false}
-                    editing={isEditing}
-                    showColumnHeaders={showColumnHeaders}
-                    showResources={isResources}
-                    showDependencies={isDependencies}
-                    showRowLines={showRowLines}
-                    height={'100%'}
-                    rootValue={-1}
-                >
-                    <Tasks
-                        onTaskClick
-                        keyExpr={keyTask}
-                        dataSource={this.state.tasks}
-                        parentIdExpr={parentIdTask}
-                        titleExpr={titleTask}
-                        progressExpr={progressTask}
-                        startExpr={startTask}
-                        endExpr={endTask}
-                        colorExpr={colorTask}
-                    />
-                    <Dependencies
-                        enabled={isDependencies}
-                        dataSource={this.state.dependencies}
-                        keyExpr={keyDependency}
-                        typeExpr={typeDependency}
-                        predecessorIdExpr={predecessorIdDependency}
-                        successorIdExpr={successorIdDependency}
-                    />
-                    <Resources
-                        keyExpr={keyResource}
-                        enabled={isResources}
-                        dataSource={this.state.resources}
-                        textExpr={textResource}
-                        color={colorResource}
-                    />
-                    <ResourceAssignments
-                        keyExpr={keyResourceAssigment}
-                        enabled={this.state.resourceAssignments !== (null || undefined)}
-                        dataSource={this.state.resourceAssignments}
-                        taskIdExpr={taskIdResourceAssigment}
-                        resourceIdExpr={resourceIdResourceAssigment}
-                    />
-                    <ContextMenu enabled={false} />
-                    {this.state.columns}
-                    <StripLine start={currentDate} title='Current Time' cssClass='current-time' />
-                    <Editing enabled={isEditing} />
-                    <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'} />
-                </Gantt>
-            </React.Fragment>
+            this.state.tasks.length > 0 && (
+                <React.Fragment>
+                    <Gantt
+                        id='gantt-container'
+                        keyExpr='ID'
+                        ref={this.ganttRef}
+                        scaleType={scaleType}
+                        activeStateEnabled={true}
+                        taskListWidth={taskListWidth}
+                        taskTitlePosition={taskTitlePosition}
+                        startDateRange={startDateRange}
+                        endDateRange={endDateRange}
+                        rowAlternationEnabled={false}
+                        width={width}
+                        // Jesli robimy checkboxy to allowSelection w tym miejscu musi byc false
+                        allowSelection={false}
+                        editing={isEditing}
+                        showColumnHeaders={showColumnHeaders}
+                        showResources={isResources}
+                        showDependencies={isDependencies}
+                        showRowLines={showRowLines}
+                        height={'100%'}
+                        rootValue={-1}
+                    >
+                        <Tasks
+                            onTaskClick
+                            keyExpr={keyTask}
+                            dataSource={this.state.tasks}
+                            parentIdExpr={parentIdTask}
+                            titleExpr={titleTask}
+                            progressExpr={progressTask}
+                            startExpr={startTask}
+                            endExpr={endTask}
+                            colorExpr={colorTask}
+                        />
+                        <Dependencies
+                            enabled={isDependencies}
+                            dataSource={this.state.dependencies}
+                            keyExpr={keyDependency}
+                            typeExpr={typeDependency}
+                            predecessorIdExpr={predecessorIdDependency}
+                            successorIdExpr={successorIdDependency}
+                        />
+                        <Resources
+                            keyExpr={keyResource}
+                            enabled={isResources}
+                            dataSource={this.state.resources}
+                            textExpr={textResource}
+                            color={colorResource}
+                        />
+                        <ResourceAssignments
+                            keyExpr={keyResourceAssigment}
+                            enabled={this.state.resourceAssignments !== (null || undefined)}
+                            dataSource={this.state.resourceAssignments}
+                            taskIdExpr={taskIdResourceAssigment}
+                            resourceIdExpr={resourceIdResourceAssigment}
+                        />
+                        <ContextMenu enabled={false} />
+                        {this.state.columns}
+                        <StripLine start={currentDate} title='Current Time' cssClass='current-time' />
+                        <Editing enabled={isEditing} />
+                        <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'} />
+                    </Gantt>
+                </React.Fragment>
+            )
         );
     }
-
+    // rerenderLine = () => {
+    //     setTimeout(() => {
+    //         const rowDatas = this.state.tasks;
+    //         this.paintLineIfPossible(rowDatas);
+    //     }, 300);
+    // };
+    addButton() {
+        return (
+            <ActionButton
+                rendered={true}
+                className={'justify-content-center'}
+                label={LocUtils.loc(this.props.labels, 'Add_button', 'Dodaj')}
+                handleClick={(e) => {
+                    this.props.addButtonFunction(e);
+                }}
+            />
+        );
+    }
     //* Zastępczy selection, bo gantt nie ma go w zestawie */
     renderCustomSelection(columns, selectedRowKeys) {
-        // TODO: tu trzeb zaimplementowac key 
+        // TODO: tu trzeb zaimplementowac key
         return this.isSelectionEnabled()
             ? columns.push(
                   <Column
-                        key={"column-gant-key-"}
-                         headerCellTemplate={(element, info) => {
+                      key={'column-gant-key-'}
+                      headerCellTemplate={(element, info) => {
                           const el = document.createElement('div');
                           element.append(el);
-                          element.parentNode.classList.add("parent-checkbox-area")
+                          element.parentNode.classList.add('parent-checkbox-area');
                           ReactDOM.render(
                               <label className={`container-checkbox`}>
                                   <input
-                                    ref={this.selectAllRef}
+                                      ref={this.selectAllRef}
                                       type='checkbox'
                                       className='dx-datagrid-checkbox-size dx-show-invalid-badge dx-checkbox dx-widget'
                                       onChange={(e) => {
@@ -313,18 +335,28 @@ class GanttViewComponent extends React.Component {
                       width={this.state.selectionColumnWidth}
                       fixedPosition={'left'}
                       cellTemplate={(element, info) => {
+                          const gradients = info.data?._LINE_COLOR_GRADIENT;
+                          gradients.forEach((el) => {
+                              const divElement = document.createElement('div');
+                              const classLine = 'line-treelist-' + el;
+                              divElement.classList.add(classLine);
+                              divElement.classList.add('line-treelist');
+                              element.parentNode.appendChild(divElement);
+                          });
                           let el = document.createElement('div');
                           el.id = `actions-${info.column.headerId}-${info.rowIndex}`;
                           element.append(el);
                           const recordId = info.row?.data?.ID;
                           ReactDOM.render(
-                              <label className={`container-checkbox`}>
+                              <label className={`container-checkbox `}>
                                   <input
                                       key={'checkbox' + recordId}
                                       type='checkbox'
                                       checked={this.state.rowElementsStorage.get(recordId)[1].value}
                                       className={_selectionClassName}
-                                      onChange={() => this.selectSingleRow(selectedRowKeys, recordId)}
+                                      onChange={() => {
+                                          this.selectSingleRow(selectedRowKeys, recordId);
+                                      }}
                                   />{' '}
                                   <span class='checkmark'></span>
                               </label>,
@@ -335,6 +367,7 @@ class GanttViewComponent extends React.Component {
               )
             : null;
     }
+    // doklejamy style
 
     selectAll(e) {
         let selectedRowKeys = [];
@@ -394,9 +427,9 @@ class GanttViewComponent extends React.Component {
         let columns = [];
 
         const selectedRowKeys = this.props.selectedRowKeys;
-        const operationsRecord = this.props.parsedGanttView?.operationsRecord;
+        let operationsRecord = this.props.parsedGanttView?.operationsRecord;
         const operationsRecordList = this.props.parsedGanttView?.operationsRecordList;
-        
+
         if (!(operationsRecord instanceof Array)) {
             operationsRecord = [];
             operationsRecord.push(this.props.parsedGanttView?.operationsRecord);
@@ -424,6 +457,7 @@ class GanttViewComponent extends React.Component {
                         allowFiltering={columnDefinition?.isFilter}
                         allowFixing={true}
                         allowReordering={true}
+                        className='xd'
                         allowResizing={true}
                         renderAsync={true}
                         allowSorting={columnDefinition?.isSort}
@@ -448,6 +482,9 @@ class GanttViewComponent extends React.Component {
                         fixed={true}
                         width={10 + (33 * operationsRecord.length + (operationsRecordList?.length > 0 ? 33 : 0))}
                         fixedPosition={'right'}
+                        headerCellTemplate={(element) => {
+                            ReactDOM.render(this.addButton(), element);
+                        }}
                         cellTemplate={(element, info) => {
                             let el = document.createElement('div');
                             el.id = `actions-${info.column.headerId}-${info.rowIndex}`;

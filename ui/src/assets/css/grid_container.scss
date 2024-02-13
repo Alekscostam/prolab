@@ -3,6 +3,7 @@ $header-label: #707890;
 $data-label: #182d67;
 $table-border: #d5d5d5;
 $table-selection: #dde6ff;
+$selected-text-row-color: white;
 // $base-color: #0e49eb;
 
 .dx-datagrid-headers tr > td {
@@ -74,7 +75,9 @@ $table-selection: #dde6ff;
     .dx-datagrid-content
     .dx-datagrid-table
     .dx-row
-    > td.dx-datagrid-invalid:not(.dx-field-item-content):not(.dx-validation-pending):not(.dx-datagrid-select-all):first-of-type,
+    > td.dx-datagrid-invalid:not(.dx-field-item-content):not(.dx-validation-pending):not(
+        .dx-datagrid-select-all
+    ):first-of-type,
 .dx-datagrid
     .dx-datagrid-content
     .dx-datagrid-table
@@ -256,7 +259,7 @@ $table-selection: #dde6ff;
     margin: 0;
     display: flex;
     flex-direction: column;
-    padding: 3px 0;
+    padding: 0;
 }
 
 .card-grid-header,
@@ -264,7 +267,7 @@ $table-selection: #dde6ff;
 .card-grid-footer {
     min-height: 30px;
     width: 100%;
-    padding: 0 5px;
+    padding: 3px;
 }
 
 .card-grid-footer {
@@ -411,6 +414,7 @@ $table-selection: #dde6ff;
 .card-grid-header .shortcut.p-button {
     box-shadow: none;
 }
+
 .grid-container {
     .dx-datagrid-rowsview .dx-state-hover > td,
     .dx-datagrid-rowsview .dx-state-hover:hover > td,
@@ -427,8 +431,20 @@ $table-selection: #dde6ff;
             color: white !important;
         }
     }
+    .dx-row-focused {
+        td {
+            div {
+                color: $selected-text-row-color !important;
+            }
+        }
+    }
 }
-
+#popup-add-spec {
+    .dx-popup-content,
+    .dx-popup-content-scrollable {
+        overflow: hidden !important;
+    }
+}
 body #subviews-panel .dx-tabs {
     width: auto;
     max-width: 100%;
@@ -440,7 +456,10 @@ body #subviews-panel .dx-tabs {
     }
 
     .dx-tabs-wrapper {
-        border: none;
+        margin-top: 5px;
+        z-index: 0;
+        background: white;
+        width: auto;
     }
 
     .dx-tab {
@@ -477,15 +496,34 @@ body #subviews-panel .dx-tabs {
     }
 }
 
-body .grid-container .dx-datagrid-headers .dx-header-row > td > .dx-datagrid-text-content {
+body
+    .base-container-content
+    .grid-container
+    .dx-datagrid-headers
+    .dx-header-row
+    > td:last-child
+    > .dx-datagrid-text-content {
     white-space: unset;
     display: flex;
     justify-content: center;
 }
-
-body .grid-container.grid-header-auto-height .dx-datagrid-headers .dx-header-row > td > .dx-datagrid-text-content {
-    display: flex;
+body
+    .base-container-content
+    .grid-container.grid-header-auto-height
+    .dx-datagrid-headers
+    .dx-header-row
+    > td:last-child
+    > .dx-datagrid-text-content {
     justify-content: center;
+    display: flex;
+}
+
+.base-container-content .dx-datagrid-headers .dx-datagrid-table .dx-row > td:last-child {
+    border-bottom: none;
+    background-color: white;
+}
+.base-container-content .dx-datagrid-headers .dx-datagrid-table .dx-row > td:last-child:hover {
+    background-color: white !important;
 }
 
 .dx-row.dx-data-row.dx-row-lines.dx-column-lines {
@@ -548,8 +586,6 @@ body .grid-container {
             background-color: white;
 
             .dx-button-content {
-                padding-top: 4px;
-
                 .dx-icon {
                     color: $base-color;
                 }

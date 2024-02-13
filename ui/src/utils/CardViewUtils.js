@@ -1,6 +1,7 @@
 import {CheckBox} from 'devextreme-react';
 import React from 'react';
 import Image from '../components/Image';
+import CardImage from '../components/CardImage';
 
 export class CardViewUtils {
     static cellTemplate(fieldDefinition, rowData, className, type) {
@@ -15,7 +16,7 @@ export class CardViewUtils {
                         rowData[fieldDefinition.fieldName]?.length > 0
                     ) {
                         return (
-                            <Image
+                            <CardImage
                                 alt={rowData[fieldDefinition.title]}
                                 style={{
                                     backgroundColor: bgColor === undefined ? rowData._BGCOLOR : bgColor,
@@ -29,7 +30,7 @@ export class CardViewUtils {
                         );
                     } else {
                         return (
-                            <Image
+                            <CardImage
                                 alt={rowData[fieldDefinition.title]}
                                 style={{
                                     backgroundColor: bgColor === undefined ? rowData._BGCOLOR : bgColor,

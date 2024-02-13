@@ -11,6 +11,7 @@ import {DataGridUtils} from '../utils/component/DataGridUtils';
 import ActionButton from '../components/ActionButton';
 import {AddSpecContainer} from './AddSpecContainer';
 import UrlUtils from '../utils/UrlUtils';
+import AppContext from '../context/AppContext';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -25,7 +26,6 @@ export class ViewContainer extends BaseViewContainer {
         this.getDataByViewResponse = this.getDataByViewResponse.bind(this);
         this.additionalTopComponents = this.additionalTopComponents.bind(this);
         this.showAddSpecDialog = this.showAddSpecDialog.bind(this);
-        this.getLastId = this.getLastId.bind(this);
         this.handleAddElements = this.handleAddElements.bind(this);
         this.state = {
             prevDataGridGlobalReference: null,
@@ -36,27 +36,18 @@ export class ViewContainer extends BaseViewContainer {
         this.unselectAllDataGrid();
         this.setState({visibleAddSpec: true, levelId: recordId});
     }
-    // TODO: tu postaw addButton
+
     renderHeaderRight() {
-        let opADD = DataGridUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_ADD_SPEC');
-        return (
-            <React.Fragment>
-                <div>
-                    <ActionButton
-                        rendered={opADD}
-                        className='mt-3 mr-3'
-                        label={opADD?.label}
-                        handleClick={(e) => {
-                            this.showAddSpecDialog();
-                        }}
-                    />
-                </div>
-            </React.Fragment>
-        );
+        return <React.Fragment />;
     }
-    getLastId() {
-        return 0;
-    }
+
+    addButtonFunction = (e) => {
+        const addSpecFunction = () => this.showAddSpecDialog();
+        const addFunction = (e) => this.addView(e);
+        DataGridUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_ADD_SPEC')
+            ? addSpecFunction()
+            : addFunction(e);
+    };
 
     //override
     createObjectToSave(rowArray) {
@@ -396,7 +387,6 @@ export class ViewContainer extends BaseViewContainer {
                 {this.state.visibleAddSpec ? (
                     <AddSpecContainer
                         parsedGridView={this.state?.parsedGridView}
-                        lastId={this.getLastId()}
                         id={this.props.id}
                         visibleAddSpec={this.state.visibleAddSpec}
                         levelId={this.state.levelId}
@@ -427,6 +417,7 @@ export class ViewContainer extends BaseViewContainer {
     render() {
         return <React.Fragment>{super.render()}</React.Fragment>;
     }
+    // Określamy kontekst dla komponentu klasowego
 }
 
 ViewContainer.defaultProps = {

@@ -19,17 +19,17 @@ class UploadMultiImageFileBase64 extends React.Component {
         if (initBase64) {
             Array.from(initBase64).forEach((imageBase64) => {
                 if (this.props.preview === true && !!imageBase64) {
-                    var imagePreviewRegion = document.getElementById('image-preview');
+                    let imagePreviewRegion = document.getElementById('image-preview');
                     // container
-                    var imgView = document.createElement('div');
+                    let imgView = document.createElement('div');
                     imgView.className = 'image-view';
                     imagePreviewRegion.appendChild(imgView);
                     // create preview image
-                    var img = document.createElement('img');
+                    let img = document.createElement('img');
                     img.src = `data:image/jpeg;base64,${imageBase64}`;
                     imgView.appendChild(img);
                     // progress overlay
-                    var overlay = document.createElement('div');
+                    let overlay = document.createElement('div');
                     overlay.className = 'overlay';
                     imgView.appendChild(overlay);
                 }
@@ -38,7 +38,7 @@ class UploadMultiImageFileBase64 extends React.Component {
     }
 
     makeDropRegion() {
-        var dropRegion = document.getElementById('drop-region');
+        let dropRegion = document.getElementById('drop-region');
         dropRegion.addEventListener('dragenter', this.preventDefault, false);
         dropRegion.addEventListener('dragleave', this.preventDefault, false);
         dropRegion.addEventListener('dragover', this.preventDefault, false);
@@ -47,18 +47,18 @@ class UploadMultiImageFileBase64 extends React.Component {
     }
 
     makeFakeInput() {
-        var dropRegion = document.getElementById('drop-region');
+        let dropRegion = document.getElementById('drop-region');
         // open file selector when clicked on the drop region
-        var fakeInput = document.createElement('input');
+        let fakeInput = document.createElement('input');
         fakeInput.type = 'file';
         fakeInput.accept = this.props.accept;
         fakeInput.multiple = this.props.multiple;
         dropRegion.addEventListener('click', function () {
             fakeInput.click();
         });
-        var that = this;
+        let that = this;
         fakeInput.addEventListener('change', function () {
-            var files = fakeInput.files;
+            let files = fakeInput.files;
             that.handleFiles(files);
         });
     }
@@ -74,7 +74,7 @@ class UploadMultiImageFileBase64 extends React.Component {
             Array.from(imageFiles).forEach((imageFile) => {
                 // check the type
                 if (!!imageFile) {
-                    var validTypes = this.props.validTypes;
+                    let validTypes = this.props.validTypes;
                     if (validTypes.indexOf(imageFile?.type) === -1) {
                         if (this.props.onError !== undefined) {
                             this.props.onError(this.props.invalidFileTypeText);
@@ -82,7 +82,7 @@ class UploadMultiImageFileBase64 extends React.Component {
                         throw BreakException;
                     }
                     // check the size
-                    var maxSizeInBytes = this.props.maxSize;
+                    let maxSizeInBytes = this.props.maxSize;
                     if (!!maxSizeInBytes && imageFile?.size > maxSizeInBytes) {
                         if (this.props.onError !== undefined) {
                             this.props.onError(this.props.tooLargeFileText);
@@ -224,7 +224,7 @@ class UploadMultiImageFileBase64 extends React.Component {
                     <a
                         id='trash-button'
                         type='button'
-                        onClick={(e) => {
+                        onClick={() => {
                             const imagePreview = document.getElementById('image-preview');
                             const img = imagePreview?.children[0]?.children[0];
                             if (img) {

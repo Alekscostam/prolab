@@ -16,14 +16,13 @@ export class ViewDataCompUtils {
         }
         return null;
     }
-    
     static putToOperationsButtonIfNeccessery(operations, labels, type, alternativeText) {
-        const result =  this.containsOperationsButton(operations,type);
-        if(result){
+        const result = this.containsOperationsButton(operations, type);
+        if (result) {
             return result;
         }
-        operations.push({type: type, label:  LocUtils.loc(labels, type, alternativeText)});
-        return  this.containsOperationsButton(operations, type)
+        operations.push({type: type, label: LocUtils.loc(labels, type, alternativeText)});
+        return this.containsOperationsButton(operations, type);
     }
 
     static getURLParameters(paramName) {

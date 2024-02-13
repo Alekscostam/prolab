@@ -7,6 +7,7 @@ font-weight: 700; //bold
 $autofill-background: #effff4;
 $validation-panel-color: #cb0a2f;
 $invalid-background-color: #cb0a2f;
+$calculated-cell-bakcground: #93ffb8;
 $base-color: #0e49eb;
 $not-editable-background: #f3f3f3;
 $text-color: #182d67;
@@ -311,6 +312,18 @@ label {
     color: $button-text-color;
 }
 
+.font-button,
+.p-button.inverse {
+    text-align: center;
+    font-weight: normal;
+    // font-weight: 600;
+    letter-spacing: 0;
+    padding: 0.514rem 1rem;
+    background-color: white;
+    color: $base-color !important;
+    box-shadow: 0 2px 8px 3px rgba(0, 0, 0, 0.1);
+}
+
 .p-dropdown,
 .p-dropdown .p-dropdown-label {
     background-color: $text-bg;
@@ -475,6 +488,7 @@ label {
 .dx-closebutton {
     background: $base-color !important;
     height: 35px;
+    margin-right: 20px;
     .dx-icon-close {
         color: white !important;
     }
@@ -649,6 +663,9 @@ iframe {
 .dx-htmleditor.dx-htmleditor-outlined .dx-htmleditor-content {
     margin: 1px 1px 1px 1px;
     border: 1px solid silver;
+}
+.calculated-cell-bakcground {
+    background-color: $calculated-cell-bakcground;
 }
 
 @import 'edit_spec_field';

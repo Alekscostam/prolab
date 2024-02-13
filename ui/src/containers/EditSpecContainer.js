@@ -25,6 +25,7 @@ import {TreeListUtils} from '../utils/component/TreeListUtils';
 import {ConfirmationEditQuitDialog} from '../components/prolab/ConfirmationEditQuitDialog';
 import EditSpecService from '../services/EditSpecService';
 import {OperationType} from '../model/OperationType';
+import LocUtils from '../utils/LocUtils';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -402,7 +403,17 @@ export class EditSpecContainer extends BaseContainer {
         this.unselectAllDataGrid();
         this.setState({visibleAddSpec: true, levelId: recordId});
     }
-
+    addButton() {
+        return (
+            <ActionButton
+                rendered={true}
+                label={LocUtils.loc(this.props.labels, 'Add_button', 'Dodaj')}
+                handleClick={(e) => {
+                    this.showAddSpecDialog();
+                }}
+            />
+        );
+    }
     //override
     renderHeaderRight() {
         const operations = [];
@@ -411,21 +422,12 @@ export class EditSpecContainer extends BaseContainer {
         operations.push({type: 'OP_ADD_SPEC', label: 'Dodaj'});
         operations.push({type: 'OP_CANCEL', label: 'Anuluj'});
 
-        const opAdd = DataGridUtils.containsOperationsButton(operations, 'OP_ADD_SPEC');
         const opSave = DataGridUtils.containsOperationsButton(operations, 'OP_SAVE');
         const opCancel = DataGridUtils.containsOperationsButton(operations, 'OP_CANCEL');
 
         return (
             <React.Fragment>
                 <div id='global-top-components'>
-                    <ActionButton
-                        rendered={!!opAdd}
-                        label={opAdd?.label}
-                        className='ml-2'
-                        handleClick={(e) => {
-                            this.showAddSpecDialog();
-                        }}
-                    />
                     <ActionButton
                         rendered={!!opSave}
                         label={opSave?.label}
@@ -450,7 +452,7 @@ export class EditSpecContainer extends BaseContainer {
                     <ActionButton
                         rendered={!!opCancel}
                         label={opCancel?.label}
-                        className='ml-2'
+                        className='ml-2 inverse'
                         handleClick={() => {
                             this.setState({
                                 renderConfirmationEditQuitDialog: true,
@@ -738,6 +740,7 @@ export class EditSpecContainer extends BaseContainer {
                                 onHideEditorCallback={() => {
                                     this.forceUpdate();
                                 }}
+                                addButton={() => this.addButton()}
                                 elementParentId={this.state.elementParentId}
                                 elementRecordId={this.state.elementRecordId}
                                 handleOnTreeList={(ref) => (this.refTreeList = ref)}

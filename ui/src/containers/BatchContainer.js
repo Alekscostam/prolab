@@ -20,7 +20,7 @@ import {EntryResponseUtils} from '../utils/EntryResponseUtils';
 import {ViewResponseUtils} from '../utils/ViewResponseUtils';
 import ActionButtonWithMenu from '../components/prolab/ActionButtonWithMenu';
 import {ConfirmationEditQuitDialog} from '../components/prolab/ConfirmationEditQuitDialog';
-import { ResponseUtils } from '../utils/ResponseUtils';
+import {ResponseUtils} from '../utils/ResponseUtils';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -91,7 +91,7 @@ export class BatchContainer extends BaseContainer {
         const s1 = !DataGridUtils.equalNumbers(this.state.elementId, id);
         const s2 = !DataGridUtils.equalNumbers(this.state.elementFilterId, filterId);
         const s3 = !DataGridUtils.equalString(this.state.elementBatchId, batchId);
-        const isBatch =  UrlUtils.isBatch()
+        const isBatch = UrlUtils.isBatch();
         const updatePage = (s1 || s2 || s3) && isBatch;
         ConsoleHelper(
             'BatchContainer::componentDidUpdate -> updateData={%s} updatePage={%s} id={%s} id={%s} s1={%s} s2={%s} s3={%s}',
@@ -247,8 +247,8 @@ export class BatchContainer extends BaseContainer {
     renderHeaderRight() {
         const {labels} = this.props;
         const operations = [];
-        const opSave = DataGridUtils.putToOperationsButtonIfNeccessery(operations,labels, 'OP_SAVE', "Zapisz");
-        const opCancel = DataGridUtils.putToOperationsButtonIfNeccessery(operations,labels, 'OP_CANCEL', 'Anuluj');
+        const opSave = DataGridUtils.putToOperationsButtonIfNeccessery(operations, labels, 'OP_SAVE', 'Zapisz');
+        const opCancel = DataGridUtils.putToOperationsButtonIfNeccessery(operations, labels, 'OP_CANCEL', 'Anuluj');
         return (
             <React.Fragment>
                 <div id='global-top-components'>
@@ -270,7 +270,7 @@ export class BatchContainer extends BaseContainer {
                     <ActionButton
                         rendered={!!opCancel}
                         label={opCancel?.label}
-                        className='ml-2'
+                        className='ml-2 inverse'
                         handleClick={() => {
                             this.setState({
                                 renderConfirmationEditQuitDialog: true,
@@ -359,8 +359,6 @@ export class BatchContainer extends BaseContainer {
     };
 
     renderButton(operation, index) {
-        const viewIdArg = this.state.elementId;
-        const parentIdArg = this.state.elementParentId;
         const margin = Constants.DEFAULT_MARGIN_BETWEEN_BUTTONS;
         if (!!operation.type) {
             switch (operation.type?.toUpperCase()) {
@@ -420,7 +418,7 @@ export class BatchContainer extends BaseContainer {
                         // this.prepareCalculateFormula();
                     }}
                     handleFill={() => {
-                      this.fillData();
+                        this.fillData();
                     }}
                     handleUnblockUi={() => this.unblockUi()}
                     showErrorMessages={(err) => this.showErrorMessages(err)}
@@ -433,77 +431,85 @@ export class BatchContainer extends BaseContainer {
     handleSelectedRowData(selectedRowData) {
         this.setState({selectedRowKeys: selectedRowData.selectedRowKeys});
     }
-    valueIsEqualToId(newObject,oldData ){
-        return (parseInt(newObject[0].value) === parseInt(oldData.ID));
+    valueIsEqualToId(newObject, oldData) {
+        return parseInt(newObject[0].value) === parseInt(oldData.ID);
     }
 
-    fillData(id){
+    fillData(id) {
         this.blockUi();
         const {parsedData} = this.state;
         const viewIdArg = this.state.elementId;
         const parentIdArg = this.state.elementParentId;
-        const selectedParsedData = id ? parsedData.filter(el=> el.ID === id) : parsedData; 
+        const selectedParsedData = id ? parsedData.filter((el) => el.ID === id) : parsedData;
         const saveElement = this.createObjectToSave(selectedParsedData);
         this.batchService
             .fill(viewIdArg, parentIdArg, saveElement)
-            .then((saveResponse)=>{
+            .then((saveResponse) => {
                 const parsedDataAfterFill = this.state.parsedData;
                 saveResponse?.data?.forEach((cf) => {
                     parsedDataAfterFill.forEach((item) => {
                         item = this.changeFill(cf, item);
                     });
                 });
-                this.setState({
-                    parsedData: parsedDataAfterFill
-                },()=>{
-                     this.refDataGrid?.instance?.getDataSource()?.reload();
-                })
+                this.setState(
+                    {
+                        parsedData: parsedDataAfterFill,
+                    },
+                    () => {
+                        this.refDataGrid?.instance?.getDataSource()?.reload();
+                    }
+                );
             })
-            .catch((err)=>{
+            .catch((err) => {
                 this.showGlobalErrorMessage(err);
-            }).finally(()=>{
+            })
+            .finally(() => {
                 this.unblockUi();
-            }) 
+            });
     }
-    changeFill(filledData, oldData){
-        if (this.valueIsEqualToId(filledData,oldData)) {
+    changeFill(filledData, oldData) {
+        if (this.valueIsEqualToId(filledData, oldData)) {
             oldData[filledData[1].fieldName] = filledData[1].value;
             return oldData;
         }
     }
-    calculateData(id){
+    calculateData(id) {
         this.blockUi();
         const {parsedData} = this.state;
         const viewIdArg = this.state.elementId;
         let returnId = undefined;
-        let selectedParsedData =  parsedData; 
-        if(id){
-          const foundedElement = parsedData.find(el=>el.ID === id);
-          selectedParsedData = parsedData.filter(el=>el.NAG_ID === foundedElement.NAG_ID) ;
-          returnId=foundedElement.ID;
+        let selectedParsedData = parsedData;
+        if (id) {
+            const foundedElement = parsedData.find((el) => el.ID === id);
+            selectedParsedData = parsedData.filter((el) => el.NAG_ID === foundedElement.NAG_ID);
+            returnId = foundedElement.ID;
         }
         const saveElement = this.createObjectToSave(selectedParsedData);
         this.batchService
             .calculate(viewIdArg, returnId, saveElement)
-            .then((saveResponse)=>{
+            .then((saveResponse) => {
                 const parsedDataAfterCalculate = this.state.parsedData;
                 saveResponse?.data?.forEach((cf) => {
                     parsedDataAfterCalculate.forEach((item) => {
                         item = this.changeWart(cf, item);
                     });
                 });
-                this.setState({
-                    parsedData: parsedDataAfterCalculate
-                },()=>{
-                     this.refDataGrid?.instance?.getDataSource()?.reload();
-                })
+                this.setState(
+                    {
+                        parsedData: parsedDataAfterCalculate,
+                    },
+                    () => {
+                        this.refDataGrid?.instance?.getDataSource()?.reload();
+                    }
+                );
                 this.showSuccessMessage(saveResponse.message);
             })
-            .catch((err)=>{
+            .catch((err) => {
                 this.showGlobalErrorMessage(err);
-            }).finally(()=>{
+            })
+            .finally(() => {
                 this.unblockUi();
-            }) 
+            });
     }
     changeWart(calcultedFormula, oldFormula) {
         if (this.valueIsEqualToId(calcultedFormula, oldFormula)) {
@@ -600,19 +606,16 @@ export class BatchContainer extends BaseContainer {
         const parentIdArg = this.state.elementParentId;
         const ids = this.state.parsedData.map((el) => el.ID);
         this.batchService
-        .cancel(viewIdArg, parentIdArg, ids)
-        .then(() => {
-            
-            window.location.href = AppPrefixUtils.locationHrefUrl(
-                `/#/grid-view/${viewIdArg}`
-            );
-        })
-        .catch((err) => {
-            this.showGlobalErrorMessage(err);
-        })
-        .finally(() => {
-            this.unblockUi();
-        });
+            .cancel(viewIdArg, parentIdArg, ids)
+            .then(() => {
+                window.location.href = AppPrefixUtils.locationHrefUrl(`/#/grid-view/${viewIdArg}`);
+            })
+            .catch((err) => {
+                this.showGlobalErrorMessage(err);
+            })
+            .finally(() => {
+                this.unblockUi();
+            });
     };
     //override
     handleEditRowChange(inputType, event, rowId, info) {}

@@ -28,12 +28,12 @@ import CellEditComponent from '../CellEditComponent';
 import {StringUtils} from '../../utils/StringUtils';
 import Image from '../../components/Image';
 import {getExpandAllInitialized, setExpandAllInitialized} from '../AddSpecContainer';
+import {ViewDataCompUtils} from '../../utils/component/ViewDataCompUtils';
 
 //
 //    https://js.devexpress.com/Documentation/Guide/UI_Components/TreeList/Getting_Started_with_TreeList/
 //
 let clearSelection = false;
-let notUpdate = false;
 
 class TreeViewComponent extends CellEditComponent {
     constructor(props) {
@@ -108,7 +108,14 @@ class TreeViewComponent extends CellEditComponent {
         } catch (ex) {}
         return false;
     }
-
+    // const onSelectionChanged = useCallback(
+    //     (e) => {
+    //       const selectedData = e.component.getSelectedRowsData(selectionMode);
+    //       setSelectedRowKeys(e.selectedRowKeys);
+    //       setSelectedEmployeeNames(getEmployeeNames(selectedData));
+    //     },
+    //     [selectionMode, getEmployeeNames],
+    //   );
     render() {
         const columnAutoWidth = this.props.parsedGridView?.gridOptions?.columnAutoWidth || true;
         const rowAutoHeight = this.props.parsedGridView?.gridOptions?.rowAutoHeight || false;
@@ -126,6 +133,7 @@ class TreeViewComponent extends CellEditComponent {
         const selectAll = this.props.allowSelectAll;
         const allowSelectAll = selectAll === undefined || selectAll === null || !!selectAll;
         const selectedRowKeys = this.props.selectedRowKeys;
+        console.log(selectedRowKeys);
         return (
             <React.Fragment>
                 {this.state.editListVisible && this.editListComponent()}
@@ -133,7 +141,7 @@ class TreeViewComponent extends CellEditComponent {
                 {this.imageViewerComponent()}
                 <TreeList
                     id='spec-edit'
-                    keyExpr='_ID'
+                    keyExpr='ID'
                     className={`tree-container${headerAutoHeight ? ' tree-header-auto-height' : ''}`}
                     ref={(ref) => {
                         this.ref = ref;
@@ -147,6 +155,7 @@ class TreeViewComponent extends CellEditComponent {
                     wordWrapEnabled={rowAutoHeight}
                     columnAutoWidth={columnAutoWidth}
                     columnResizingMode='widget'
+                    // autoExpandAll={this.state.groupExpandAll}
                     onOptionChanged={(e) => {
                         if (e.fullName.includes('filterValue') && e.name === 'columns') {
                             if (this.ref) {
@@ -166,7 +175,6 @@ class TreeViewComponent extends CellEditComponent {
                                 data.forEach((el) => treeList.expandRow(el._ID));
                             }, 0);
                         }
-
                         if (!editListDialog) {
                             this.rerenderRows(e);
                             return;
@@ -202,7 +210,6 @@ class TreeViewComponent extends CellEditComponent {
                     }}
                     selectedRowKeys={selectedRowKeys}
                     onSelectionChanged={(e) => {
-                        notUpdate = true;
                         this.props.handleSelectedRowKeys(e.selectedRowKeys, this.rerenderColorAfterClickCheckbox());
                     }}
                     renderAsync={true}
@@ -217,7 +224,7 @@ class TreeViewComponent extends CellEditComponent {
                         }
                     }}
                 >
-                    <Editing allowUpdating={this.props.allowUpdating} mode='cell' />
+                    <Editing allowUpdating={this.props.allowUpdating} mode={this.state.mode} />
                     <RemoteOperations
                         filtering={false}
                         summary={false}
@@ -426,6 +433,12 @@ class TreeViewComponent extends CellEditComponent {
                     columns?.push({
                         caption: '',
                         fixed: true,
+                        headerCellTemplate: (element) => {
+                            if (this.props?.addButton) {
+                                ReactDOM.render(this.props?.addButton(), element);
+                            }
+                            return;
+                        },
                         width: 10 + (33 * operationsRecord.length + (operationsRecordList?.length > 0 ? 33 : 0)),
                         fixedPosition: 'right',
                         cellTemplate: (element, info) => {
@@ -615,7 +628,7 @@ class TreeViewComponent extends CellEditComponent {
                 });
                 const element = elements[cellInfo.rowIndex];
                 if (element.parentNode.rowIndex === cellInfo.rowIndex) {
-                    element.style.backgroundColor = 'yellow';
+                    element.classList.add('calculated-cell-bakcground');
                 }
             } else {
                 _bgColor = cellInfo.data['_BGCOLOR'];
@@ -768,11 +781,15 @@ class TreeViewComponent extends CellEditComponent {
         return columnDefinitionArray[0];
     }
 
+    // doklejamy style
     paintLineIfPossible = (datas) => {
-        Array.from(document.querySelectorAll('td[aria-describedby=column_0_undefined-fixed]')).forEach((row) => {
-            const rowIndex = row.parentNode.rowIndex;
-            datas.forEach((idata) => {
-                if (idata.rowIndex === rowIndex) {
+        const elements = Array.from(document.querySelectorAll('td[aria-describedby=column_0_undefined-fixed]'));
+        if (datas.length !== elements.length) {
+            elements.shift();
+        }
+        Array.from(elements).forEach((row, elementIndex) => {
+            datas.forEach((idata, dataIndex) => {
+                if (elementIndex === dataIndex) {
                     const gradients = idata.data?._LINE_COLOR_GRADIENT;
                     if (gradients) {
                         if (!(row.children.length > gradients.length + 1)) {
@@ -809,6 +826,7 @@ TreeViewComponent.defaultProps = {
     isAddSpec: false,
     allowUpdating: false,
     allowSelectAll: true,
+    addButton: undefined,
 };
 
 TreeViewComponent.propTypes = {
@@ -825,6 +843,7 @@ TreeViewComponent.propTypes = {
     handleOnTreeList: PropTypes.func.isRequired,
     handleOnInitialized: PropTypes.func,
     handleSelectedRowKeys: PropTypes.func,
+    addButton: PropTypes.object,
     handleArchiveRow: PropTypes.func.isRequired,
     handleDownload: PropTypes.func.isRequired,
     handleDownloadRow: PropTypes.func.isRequired,

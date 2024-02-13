@@ -55,13 +55,6 @@ export default class CopyDialogComponent extends React.Component {
                                 <Button
                                     type='button'
                                     onClick={() => {
-                                        this.onHide();
-                                    }}
-                                    label={LocUtils.loc(this.props.labels, 'Cancle_button', 'Anuluj')}
-                                />
-                                <Button
-                                    type='button'
-                                    onClick={() => {
                                         this.props.handleCopy(this.state);
                                         this.props.onHide();
                                     }}

@@ -19,7 +19,7 @@ import {Tabs} from 'devextreme-react';
 import {InputNumber} from 'primereact/inputnumber';
 import {Popup} from 'devextreme-react/popup';
 import {TreeListUtils} from '../utils/component/TreeListUtils';
-import { sessionPrelongFnc } from '../App';
+import {sessionPrelongFnc} from '../App';
 
 let expandAllInitialized = false;
 let itemTabIndexClicked = undefined;
@@ -44,7 +44,7 @@ export class AddSpecContainer extends BaseContainer {
         this.numberOfCopies = React.createRef();
         this.messages = React.createRef();
         this.state = {
-            lastElementId: this.props.lastId,
+            lastElementId: 0,
             // loading: true,
             selectedIndex: 0,
             tabs: 0,
@@ -139,10 +139,6 @@ export class AddSpecContainer extends BaseContainer {
         this.getViewById(viewId, parentId, recordId, filterId);
     }
 
-    render() {
-        return <React.Fragment>{super.render()}</React.Fragment>;
-    }
-
     renderView() {
         const title = this.state.parsedView?.info?.title;
         return (
@@ -150,9 +146,9 @@ export class AddSpecContainer extends BaseContainer {
                 {this.props.visibleAddSpec && (
                     <Popup
                         showTitle={true}
-                        id='popup'
+                        wrapperAttr={{id: 'popup-add-spec'}}
                         visible={this.props.visibleAddSpec}
-                        className={'col-12 col-6'}
+                        cssClass={'col-12 popup-add-spec col-6'}
                         dragEnabled={true}
                         hideOnOutsideClick={true}
                         showCloseButton={true}
@@ -166,7 +162,6 @@ export class AddSpecContainer extends BaseContainer {
                                 <span className='col-lg-6 col-md-12'>{this.renderHeaderRight()}</span>
                             </div>
                         </div>
-
                         {this.renderHeadPanel()}
                         {this.renderContent()}
                     </Popup>
@@ -174,7 +169,7 @@ export class AddSpecContainer extends BaseContainer {
             </React.Fragment>
         );
     }
-
+    //
     getViewById(viewId, parentId, recordId, filterId) {
         const defaultTypeArg = 'DEF';
         this.setState({loading: true}, () => {
@@ -414,8 +409,8 @@ export class AddSpecContainer extends BaseContainer {
                                     ref={this.numberOfCopies}
                                     id='numberOsfCopy'
                                     name='numberOfCopy'
-                                    onChange={()=>{
-                                        if(sessionPrelongFnc){
+                                    onChange={() => {
+                                        if (sessionPrelongFnc) {
                                             sessionPrelongFnc();
                                         }
                                     }}
@@ -507,7 +502,7 @@ export class AddSpecContainer extends BaseContainer {
                 this.showGlobalErrorMessage(err);
             });
     };
-   
+
     setParents(type, header, res) {
         const responseView = this.state.parsedView;
         if (header === false) {

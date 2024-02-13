@@ -33,14 +33,7 @@ class CardViewInfiniteComponent extends React.Component {
         ConsoleHelper('CardViewComponent -> constructor');
     }
 
-    componentDidMount() {
-        $(document).on('mousedown', '.dx-item.dx-tile', function () {
-            $(this).addClass('dx-state-active');
-        });
-        $(document).on('click', '.dx-item.dx-tile', function () {
-            $(this).removeClass('dx-state-active');
-        });
-    }
+    componentDidMount() {}
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (this.props.collapsed !== prevProps.collapsed) {
@@ -268,7 +261,7 @@ class CardViewInfiniteComponent extends React.Component {
                     className={`dx-item dx-tile`}
                     onClick={() => {
                         if (this.isSelectionEnabled()) {
-                            var index = selectedRowKeys.findIndex((item) => item.ID === rowData.ID);
+                            const index = selectedRowKeys.findIndex((item) => item.ID === rowData.ID);
                             if (index !== -1) {
                                 selectedRowKeys.splice(index, 1);
                             } else {

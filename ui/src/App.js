@@ -411,14 +411,9 @@ class App extends Component {
         const authService = this.authService;
         const {labels} = this.state;
         const loggedIn = authService.loggedIn();
-        const opADD = DataGridUtils.containsOperationsButton(this.state.operations, 'OP_ADD');
         return (
             <React.Fragment>
-                <AppContext.Provider
-                    value={{
-                        addButton: this.addButton,
-                    }}
-                >
+                <AppContext.Provider value={{}}>
                     {this.state.rednerSessionTimeoutDialog && (
                         <TickerSessionDialog
                             secondsToPopup={this.state.secondsToPopupTicker}
@@ -508,7 +503,6 @@ class App extends Component {
                                     />
                                 )}
                                 <main>
-                                    {/* {this.sessionTimeOutComponent()} */}
                                     <div className={`${loggedIn ? 'container-fluid' : ''}`}>
                                         {this.state.renderNoRefreshContent && this.enabledSidebar() ? (
                                             <React.Fragment>
@@ -516,11 +510,9 @@ class App extends Component {
                                                 <DivContainer colClass='row base-container-header'>
                                                     <DivContainer id='header-left' colClass='col-11'>
                                                         <div className='font-medium mb-2 view-info-name'>
-                                                            {' '}
                                                             {this.state.viewInfoName}
                                                         </div>
                                                     </DivContainer>
-
                                                     <DivContainer id='header-content' colClass='col-12'></DivContainer>
                                                 </DivContainer>
                                                 <div style={{marginRight: '30px'}}>

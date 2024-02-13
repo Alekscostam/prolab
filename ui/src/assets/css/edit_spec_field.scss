@@ -92,6 +92,25 @@
         border: none;
     }
 }
+.dx-quill-container {
+    border-radius: 6px;
+    border: 1px solid white;
+}
+.dx-state-disabled.dx-htmleditor.dx-htmleditor-underlined {
+    border-radius: 6px;
+    border: 1px solid rgb(37, 37, 37) !important;
+    .dx-htmleditor-toolbar-wrapper {
+        display: none;
+    }
+}
+.dx-htmleditor.dx-htmleditor-underlined {
+    border: 1px solid darkgray !important;
+}
+.dx-quill-container:hover,
+.dx-quill-container:active,
+.dx-quill-container:focus {
+    border: 1px solid $base-color;
+}
 #spec-edit-dialog {
     height: 83%;
 }

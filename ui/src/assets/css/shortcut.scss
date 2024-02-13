@@ -29,6 +29,19 @@
 .active-shortcut-link {
     border-bottom: 2px solid $base-color;
 }
+.grid-selection-panel-selection {
+    #grid-buttons-fragment {
+        div {
+            a {
+                span {
+                    i {
+                        margin-left: -8px;
+                    }
+                }
+            }
+        }
+    }
+}
 
 .shortcut > .shortcut-text {
     color: $base-color;
