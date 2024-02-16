@@ -214,7 +214,7 @@
     font-weight: bold;
     background: $invalid-background-color 0% 0% no-repeat padding-box;
     border-radius: 4px;
-    color: $validation-panel-color;
+    color: $validation-edit-row-color;
     margin-bottom: 0.5rem;
     padding: 0.8rem;
 }
@@ -227,11 +227,8 @@
     background-color: $autofill-background !important;
 }
 
-#row-edit .editable-border {
-    // border: 2px solid $base-color !important;
-}
 #row-edit .not-editable {
-    background-color: $not-editable-background !important;
+    background-color: $disabled-background !important;
 }
 #row-edit label {
     margin-bottom: 0.1rem;

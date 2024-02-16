@@ -193,6 +193,7 @@ export class BaseViewContainer extends BaseContainer {
             });
         }
     }
+
     componentDidUpdate(prevProps, prevState, snapshot) {
         let id = UrlUtils.getIdFromUrl();
         if (id === undefined) {

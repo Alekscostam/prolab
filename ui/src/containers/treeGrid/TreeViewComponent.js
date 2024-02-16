@@ -28,7 +28,6 @@ import CellEditComponent from '../CellEditComponent';
 import {StringUtils} from '../../utils/StringUtils';
 import Image from '../../components/Image';
 import {getExpandAllInitialized, setExpandAllInitialized} from '../AddSpecContainer';
-import {ViewDataCompUtils} from '../../utils/component/ViewDataCompUtils';
 
 //
 //    https://js.devexpress.com/Documentation/Guide/UI_Components/TreeList/Getting_Started_with_TreeList/
@@ -64,8 +63,36 @@ class TreeViewComponent extends CellEditComponent {
             return;
         }
         if (gridViewColumns[0].id !== undefined && gridViewColumns[0].id !== null) {
-            gridViewColumns.unshift({width: '60'});
+            gridViewColumns.unshift({width: this.calculateWidthOfSelectionColumn()});
         }
+    }
+    calculateWidthOfSelectionColumn() {
+        const longestBranch = this.findLongestBranchLength(this.props.parsedGridViewData);
+        if (longestBranch === 0 || longestBranch === 1 || longestBranch === 2) {
+            return '60px';
+        }
+        return longestBranch * 25 + 'px';
+    }
+    findLongestBranchLength(nodes) {
+        const nodeMap = new Map(nodes.map((node) => [node._ID, node]));
+        const pathLengths = new Array(nodes.length).fill(0);
+        function findPathLength(nodeId) {
+            const node = nodeMap.get(nodeId);
+            if (!node._ID_PARENT) {
+                return 1;
+            }
+            const parentPathLength = findPathLength(node._ID_PARENT);
+            return parentPathLength + 1;
+        }
+        nodes.forEach((node) => (pathLengths[node._ID] = findPathLength(node._ID)));
+        let highestValue = null;
+        for (const key in pathLengths) {
+            const value = pathLengths[key];
+            if (highestValue === null || value > highestValue) {
+                highestValue = value;
+            }
+        }
+        return highestValue;
     }
     componentDidMount() {
         this.createCheckboxColumn();
@@ -108,14 +135,7 @@ class TreeViewComponent extends CellEditComponent {
         } catch (ex) {}
         return false;
     }
-    // const onSelectionChanged = useCallback(
-    //     (e) => {
-    //       const selectedData = e.component.getSelectedRowsData(selectionMode);
-    //       setSelectedRowKeys(e.selectedRowKeys);
-    //       setSelectedEmployeeNames(getEmployeeNames(selectedData));
-    //     },
-    //     [selectionMode, getEmployeeNames],
-    //   );
+
     render() {
         const columnAutoWidth = this.props.parsedGridView?.gridOptions?.columnAutoWidth || true;
         const rowAutoHeight = this.props.parsedGridView?.gridOptions?.rowAutoHeight || false;
@@ -141,7 +161,7 @@ class TreeViewComponent extends CellEditComponent {
                 {this.imageViewerComponent()}
                 <TreeList
                     id='spec-edit'
-                    keyExpr='ID'
+                    keyExpr='_ID'
                     className={`tree-container${headerAutoHeight ? ' tree-header-auto-height' : ''}`}
                     ref={(ref) => {
                         this.ref = ref;
@@ -424,7 +444,6 @@ class TreeViewComponent extends CellEditComponent {
                 operationsRecord = [];
                 operationsRecord.push(this.props.parsedGridView?.operationsRecord);
             }
-
             if (operationsRecord[0] || (operationsRecordList instanceof Array && operationsRecordList.length > 0)) {
                 if (
                     operationsRecord instanceof Array &&

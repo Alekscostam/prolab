@@ -17,12 +17,11 @@ import DivContainer from '../components/DivContainer';
 import LocUtils from '../utils/LocUtils';
 import {Tabs} from 'devextreme-react';
 import {InputNumber} from 'primereact/inputnumber';
-import {Popup} from 'devextreme-react/popup';
 import {TreeListUtils} from '../utils/component/TreeListUtils';
 import {sessionPrelongFnc} from '../App';
+import {Dialog} from 'primereact/dialog';
 
 let expandAllInitialized = false;
-let itemTabIndexClicked = undefined;
 const autOfRangeIndex = 6;
 
 export const setExpandAllInitialized = (bool) => {
@@ -44,7 +43,7 @@ export class AddSpecContainer extends BaseContainer {
         this.numberOfCopies = React.createRef();
         this.messages = React.createRef();
         this.state = {
-            lastElementId: 0,
+            lastElementId: this.props.lastId,
             // loading: true,
             selectedIndex: 0,
             tabs: 0,
@@ -66,7 +65,6 @@ export class AddSpecContainer extends BaseContainer {
 
     componentDidMount() {
         this._isMounted = true;
-        itemTabIndexClicked = 0;
         let id = UrlUtils.getViewIdFromURL();
         if (id === undefined) {
             id = this.props.id;
@@ -108,6 +106,7 @@ export class AddSpecContainer extends BaseContainer {
         if (updatePage) {
             this.setState(
                 {
+                    loading: true,
                     elementId: id,
                     elementParentId: parentId,
                     elementRecordId: recordId,
@@ -128,7 +127,6 @@ export class AddSpecContainer extends BaseContainer {
     }
 
     componentWillUnmount() {
-        itemTabIndexClicked = 0;
         this._isMounted = false;
     }
 
@@ -140,31 +138,32 @@ export class AddSpecContainer extends BaseContainer {
     }
 
     renderView() {
-        const title = this.state.parsedView?.info?.title;
         return (
             <React.Fragment>
                 {this.props.visibleAddSpec && (
-                    <Popup
-                        showTitle={true}
-                        wrapperAttr={{id: 'popup-add-spec'}}
-                        visible={this.props.visibleAddSpec}
-                        cssClass={'col-12 popup-add-spec col-6'}
-                        dragEnabled={true}
-                        hideOnOutsideClick={true}
-                        showCloseButton={true}
-                        onHiding={this.props.onHide}
-                        title={LocUtils.loc(this.props.labels, 'add_spec_parameters', title)}
-                        container='.dx-viewport'
-                    >
-                        <div className='mb-4'>
-                            <div className='row ' style={{flaot: 'right!important'}}>
-                                <div className='col-lg-6 col-md-12'>{this.renderHeaderLeft()}</div>
-                                <span className='col-lg-6 col-md-12'>{this.renderHeaderRight()}</span>
+                    <Dialog
+                        id={'popup-add-spec'}
+                        key={`popup-add-spec`}
+                        blockScroll={true}
+                        draggable
+                        onHide={this.props.onHide}
+                        style={{maxWidth: '1500px', maxHeight: '800px', height: '800px', overflow: 'none'}}
+                        ariaCloseIconLabel='Zamknij okno dialogowe'
+                        breakpoints={{'960px': '75vw', '640px': '100vw'}}
+                        header={
+                            <div className='mb-4'>
+                                <div className='row ' style={{flaot: 'right!important'}}>
+                                    <div className='col-lg-6 col-md-12'>{this.renderHeaderLeft()}</div>
+                                    <span className='col-lg-6 col-md-12'>{this.renderHeaderRight()}</span>
+                                </div>
                             </div>
-                        </div>
+                        }
+                        resizable={false}
+                        visible={true}
+                    >
                         {this.renderHeadPanel()}
                         {this.renderContent()}
-                    </Popup>
+                    </Dialog>
                 )}
             </React.Fragment>
         );
@@ -329,7 +328,7 @@ export class AddSpecContainer extends BaseContainer {
         return (
             <React.Fragment>
                 <DivContainer id='header-left ' style={{maxWidth: '400px'}}>
-                    <div id='subviews-panel' className='ml-2'>
+                    <div id='subviews-panel'>
                         {this.state.tabs?.length > 0 ? (
                             <Tabs
                                 style={{maxHeight: '300px'}}
@@ -340,7 +339,6 @@ export class AddSpecContainer extends BaseContainer {
                                         sessionPrelongFnc();
                                     }
                                     setExpandAllInitialized(false);
-                                    itemTabIndexClicked = event.itemIndex;
                                     if (this.state.selectedIndex === autOfRangeIndex) {
                                         this.onItemTabClick(event.itemIndex);
                                     }
@@ -400,7 +398,7 @@ export class AddSpecContainer extends BaseContainer {
         let opCount = DataGridUtils.containsOperationsButton(operations, 'OP_ADDSPEC_COUNT');
         return (
             <div>
-                <div className='mt-2 ml-4 text-end number-of-copies-header'>
+                <div className='ml-4 text-end number-of-copies-header'>
                     <div>
                         {!!opCount ? (
                             <React.Fragment>
@@ -434,7 +432,6 @@ export class AddSpecContainer extends BaseContainer {
                                 const type = parsedView.info?.type;
                                 const headerId = parsedView.info?.headerId;
                                 const header = parsedView.info?.header;
-
                                 this.handleExecSpec(viewIdArg, parentIdArg, type, headerId, header);
                             }}
                         />
@@ -480,21 +477,20 @@ export class AddSpecContainer extends BaseContainer {
                 numberOfCopies
             )
             .then((saveResponse) => {
-                this.setParents(type, header, saveResponse);
-                let validArray = this.createValidArray(saveResponse.data);
-                let res = this.setFakeIds(validArray);
+                const validArray = this.createValidArray(saveResponse.data);
+                let result = this.setFakeIds(validArray);
                 const parsedGridViewData = this.props?.parsedGridViewData;
                 if (parsedGridViewData) {
                     const foundedElementToSetLine = parsedGridViewData.find((el) => {
-                        return parseInt(el._ID) === parseInt(res[0]._ID_PARENT);
+                        return parseInt(el._ID) === parseInt(result[0]._ID_PARENT);
                     });
                     foundedElementToSetLine
-                        ? this.setLinesForChild(res, foundedElementToSetLine._LINE_COLOR_GRADIENT)
-                        : this.setLinesForChild(res);
+                        ? this.setLinesForChild(result, foundedElementToSetLine._LINE_COLOR_GRADIENT)
+                        : this.setLinesForChild(result);
                 } else {
-                    this.setLinesForChild(res);
+                    this.setLinesForChild(result);
                 }
-                this.props.handleAddElements(res);
+                this.props.handleAddElements(result);
                 this.props.onHide();
                 this.unblockUi();
             })
@@ -502,18 +498,6 @@ export class AddSpecContainer extends BaseContainer {
                 this.showGlobalErrorMessage(err);
             });
     };
-
-    setParents(type, header, res) {
-        const responseView = this.state.parsedView;
-        if (header === false) {
-            res.data.forEach((el) => {
-                el._ID_PARENT = el[responseView.info.fieldParent];
-                el.ID_PARENT = el._ID_PARENT;
-                el._ID = el[responseView.info.fieldKey];
-            });
-            res.data = TreeListUtils.paintDatas(res.data);
-        }
-    }
 
     setLinesForChild(array, prevGradients) {
         const clonedPrevGradients = structuredClone(prevGradients);
@@ -551,9 +535,6 @@ export class AddSpecContainer extends BaseContainer {
             }
             startElementId = ++startElementId;
         }
-        this.setState({
-            lastElementId: startElementId,
-        });
         return clonedArray;
     }
 
@@ -564,7 +545,9 @@ export class AddSpecContainer extends BaseContainer {
             } else {
                 el._ID_PARENT = el.ID_PARENT;
             }
-            el._ID = el.ID;
+            if (!el._ID) {
+                el._ID = el.ID;
+            }
             el._STATUS = 'inserted';
         });
         return array;
@@ -638,10 +621,9 @@ export class AddSpecContainer extends BaseContainer {
             <React.Fragment>
                 {!this.state.loading && (
                     <React.Fragment>
-                        {this.renderHeaderLeft}
-                        <div id='spec-edit-dialog'>
+                        <div id='spec-edit-dialog' className='spec-edit-dialog'>
                             <TreeViewComponent
-                                ref={this.refTreeList}
+                                ref={this?.refTreeList}
                                 id={this.props.id}
                                 allowOperations={false}
                                 elementParentId={this.state.elementParentId}

@@ -3,7 +3,6 @@ $header-label: #707890;
 $data-label: #182d67;
 $table-border: #d5d5d5;
 $table-selection: #dde6ff;
-$selected-text-row-color: white;
 // $base-color: #0e49eb;
 
 .dx-datagrid-headers tr > td {
@@ -160,7 +159,7 @@ $selected-text-row-color: white;
 }
 .grid-button-panel-big {
     font-size: 16px;
-    padding: 1rem;
+    padding: 1rem !important;
     min-width: 0;
     height: 26px;
     &.normal {
@@ -434,7 +433,7 @@ $selected-text-row-color: white;
     .dx-row-focused {
         td {
             div {
-                color: $selected-text-row-color !important;
+                color: $table-selection !important;
             }
         }
     }

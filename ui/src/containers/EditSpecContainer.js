@@ -26,6 +26,7 @@ import {ConfirmationEditQuitDialog} from '../components/prolab/ConfirmationEditQ
 import EditSpecService from '../services/EditSpecService';
 import {OperationType} from '../model/OperationType';
 import LocUtils from '../utils/LocUtils';
+import {StringUtils} from '../utils/StringUtils';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -92,7 +93,6 @@ export class EditSpecContainer extends BaseContainer {
         if (id === undefined) {
             id = this.props.id;
         }
-
         const parentId = UrlUtils.getURLParameter('parentId');
         const recordId = UrlUtils.getURLParameter('recordId');
         const filterId = UrlUtils.getURLParameter('filterId');
@@ -464,17 +464,15 @@ export class EditSpecContainer extends BaseContainer {
         );
     }
 
-    handleAddElements(elements) {
-        let addParsedView = (this.state.parsedData || []).concat(elements);
+    handleAddElements = (elements) => {
+        const addParsedView = (this.state.parsedData || []).concat(elements);
         this.setState(
             {
                 parsedData: addParsedView,
             },
-            () => {
-                this.refreshTable();
-            }
+            this.refreshTable()
         );
-    }
+    };
 
     handleEditSpecSave(viewId, parentId, fncRedirect) {
         this.blockUi();
@@ -842,7 +840,15 @@ export class EditSpecContainer extends BaseContainer {
             </React.Fragment>
         );
     };
-
+    findSelectedRowFromPrevGrid() {
+        const elements = this.state.parsedData
+            .filter((el) => !StringUtils.isBlank(el.ID))
+            .filter((el) => el._ID_PARENT === 0);
+        if (elements.length === 1) {
+            return elements[0];
+        }
+        return null;
+    }
     cancelSpec = () => {
         this.blockUi();
         const viewIdArg = this.state.elementId;
@@ -860,6 +866,14 @@ export class EditSpecContainer extends BaseContainer {
                 prevUrl = UrlUtils.removeAndAddParam('recordId', UrlUtils.getURLParameter('parentId'), prevUrl);
                 prevUrl = UrlUtils.removeAndAddParam('bc', UrlUtils.getURLParameter('bc'), prevUrl);
                 prevUrl = UrlUtils.deleteParameterFromURL(prevUrl, 'prevParentId');
+                const selectedElementFromPrevGrid = this.findSelectedRowFromPrevGrid();
+                if (selectedElementFromPrevGrid) {
+                    prevUrl = UrlUtils.addParameterToURL(
+                        prevUrl,
+                        'selectedFromPrevGrid',
+                        selectedElementFromPrevGrid.ID
+                    );
+                }
                 window.location.href = prevUrl;
             })
             .catch((err) => {

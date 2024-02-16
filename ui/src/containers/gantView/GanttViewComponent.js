@@ -180,7 +180,6 @@ class GanttViewComponent extends React.Component {
             tasks: this.state.tasks,
         });
 
-        // this?.gantt?.repaint();
         this.refreshRef();
     }
     render() {
@@ -287,12 +286,6 @@ class GanttViewComponent extends React.Component {
             )
         );
     }
-    // rerenderLine = () => {
-    //     setTimeout(() => {
-    //         const rowDatas = this.state.tasks;
-    //         this.paintLineIfPossible(rowDatas);
-    //     }, 300);
-    // };
     addButton() {
         return (
             <ActionButton

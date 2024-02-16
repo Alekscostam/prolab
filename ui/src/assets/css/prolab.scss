@@ -5,11 +5,11 @@ font-weight: 700; //bold
 */
 /*Constans*/
 $autofill-background: #effff4;
-$validation-panel-color: #cb0a2f;
+$validation-edit-row-color: #cb0a2f;
 $invalid-background-color: #cb0a2f;
 $calculated-cell-bakcground: #93ffb8;
 $base-color: #0e49eb;
-$not-editable-background: #f3f3f3;
+$disabled-background: #f3f3f3;
 $text-color: #182d67;
 $text-color-highlighted: #30dbce;
 $text-bg: #ffffff;
@@ -17,7 +17,6 @@ $dropdown-hover: #707890;
 $link-color-highlighted: #03a9f4;
 $label-color: #717a93;
 $button-text-color: #ffffff;
-$shadow-color: #0000004e;
 $menu-bg-light: transparent linear-gradient(90deg, #edf2fb 0, #fbfbfd 26%, #ffffff 53%, #fafbfd 77%, #ecf2fb 100%) 0 0
     no-repeat padding-box;
 $menu-bg-dark: transparent linear-gradient(270deg, #1246d3 0, #0b3cc1 100%) 0 0 no-repeat padding-box;
@@ -29,8 +28,8 @@ $danger-color: #cb0a2f;
 $sidebar-bg-color: $menu-bg-dark;
 $submenu-bg-color: rgba(255, 255, 255, 0.05);
 $sidebar-color: white;
-$highlight-color: #d8d8d8;
 $icon-bg-color: rgba(255, 255, 255, 0.05);
+$highlight-color: #d8d8d8;
 $icon-size: 35px;
 $breakpoint-xs: 480px !default;
 $breakpoint-sm: 576px !default;
@@ -667,6 +666,23 @@ iframe {
 .calculated-cell-bakcground {
     background-color: $calculated-cell-bakcground;
 }
-
+.dx-datebox-wrapper-calendar {
+    z-index: 1501 !important;
+    .dx-calendar-navigator-previous-view,
+    .dx-calendar-navigator-next-view,
+    .dx-calendar-caption-button {
+        border-radius: 0px !important;
+        .dx-icon-chevronright,
+        .dx-icon-chevronleft {
+            margin-top: -2px;
+        }
+        .dx-button-content {
+            background-color: white;
+            .dx-button-text {
+                color: black;
+            }
+        }
+    }
+}
 @import 'edit_spec_field';
 @import 'edit_row';

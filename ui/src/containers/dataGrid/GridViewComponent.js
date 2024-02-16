@@ -46,6 +46,9 @@ class GridViewComponent extends CellEditComponent {
         this.editSpecService = new EditSpecService();
         this.state = {
             allRowsShow: false,
+            focusedRowKey: UrlUtils.getURLParameter('selectedFromPrevGrid')
+                ? parseInt(UrlUtils.getURLParameter('selectedFromPrevGrid'))
+                : undefined,
             editListVisible: false,
             imageViewer: {
                 imageViewDialogVisisble: false,
@@ -155,10 +158,14 @@ class GridViewComponent extends CellEditComponent {
                 {this.imageViewerComponent()}
                 <DataGrid
                     id='grid-container'
+                    focusedRowKey={this.state.focusedRowKey}
                     keyExpr='ID'
                     className={`grid-container${headerAutoHeight ? ' grid-header-auto-height' : ''}`}
                     ref={(ref) => {
                         this.props.handleOnDataGrid(ref);
+                    }}
+                    onFocusedRowChanged={(e) => {
+                        this.setState({focusedRowKey: e.row.data.ID});
                     }}
                     dataSource={this.props.parsedGridViewData}
                     customizeColumns={this?.postCustomizeColumns}
@@ -559,6 +566,8 @@ class GridViewComponent extends CellEditComponent {
                 }
             });
         }
+        const currentUrl = window.location.href;
+        window.location.href = UrlUtils.deleteParameterFromURL(currentUrl, 'selectedFromPrevGrid');
     };
 
     isEditableCell = (columnDefinition) => {

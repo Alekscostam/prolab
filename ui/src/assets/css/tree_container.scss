@@ -405,7 +405,6 @@ $table-selection: #dde6ff;
     float: none;
     background-color: white;
 }
-
 .dx-treelist-rowsview .dx-row-focused > td,
 .dx-treelist-rowsview .dx-row-focused:hover > td,
 .dx-treelist-rowsview .dx-row-focused > tr > td,
@@ -419,6 +418,7 @@ $table-selection: #dde6ff;
 
 body
     .base-container-content
+    #spec-edit
     .tree-container.tree-header-auto-height
     .dx-header-row
     > td:last-child
@@ -426,12 +426,19 @@ body
     justify-content: center;
     display: flex;
 }
-.base-container-content .dx-treelist-headers .dx-treelist-table .dx-row > td:last-child {
+.base-container-content #spec-edit .dx-treelist-headers .dx-treelist-table .dx-row > td:last-child {
     border-bottom: none;
     background-color: white;
 }
-.base-container-content .dx-treelist-headers .dx-treelist-table .dx-row > td:last-child:hover {
+.base-container-content #spec-edit .dx-treelist-headers .dx-treelist-table .dx-row > td:last-child:hover {
     background-color: white !important;
+}
+.dx-dropdowneditor-icon {
+    min-width: 32px !important;
+}
+.base-container-content #spec-edit-dialog #spec-edit .dx-treelist-headers .dx-treelist-table .dx-row > td:last-child {
+    border-bottom: 1px solid #cfcfcf;
+    background-color: white;
 }
 .dx-dropdowneditor-icon {
     min-width: 32px !important;
