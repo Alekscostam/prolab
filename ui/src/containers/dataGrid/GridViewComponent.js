@@ -33,6 +33,8 @@ import UrlUtils from '../../utils/UrlUtils';
 import EditSpecService from '../../services/EditSpecService';
 import ActionButton from '../../components/ActionButton';
 import LocUtils from '../../utils/LocUtils';
+import {MenuWithButtons} from '../../components/prolab/MenuWithButtons';
+
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -43,6 +45,7 @@ class GridViewComponent extends CellEditComponent {
         this.labels = this.props;
         this.dataGrid = null;
         this.crudService = new CrudService();
+        this.menu = React.createRef();
         this.editSpecService = new EditSpecService();
         this.state = {
             allRowsShow: false,
@@ -55,12 +58,31 @@ class GridViewComponent extends CellEditComponent {
                 imageBase64: undefined,
                 editable: false,
             },
+            selectedRecordId: undefined,
             editorDialogVisisble: false,
         };
         this.rowRenderingMode = UrlUtils.isBatch() ? 'standard' : 'virtual';
         ConsoleHelper('GridViewComponent -> constructor');
     }
-
+    showMenu(e) {
+        const menu = this.menu.current;
+        const actionButtonWithMenuContant = document.getElementById('action-button-with-menu-contant');
+        if (actionButtonWithMenuContant) {
+            actionButtonWithMenuContant.click();
+        }
+        if (menu !== null && e.row.rowType === 'data') {
+            const mouseX = e.event.clientX;
+            const mouseY = e.event.clientY;
+            e.event.stopPropagation();
+            e.event.preventDefault();
+            this.menu.current.toggle(e.event);
+            this.setState({selectedRecordId: e.row.data.ID}, () => {
+                const menu = document.getElementById('menu-with-buttons');
+                menu.style.left = mouseX + 'px';
+                menu.style.top = mouseY + 'px';
+            });
+        }
+    }
     ifSelectAllEvent(e) {
         return e.cellElement?.className?.includes(
             'dx-command-select dx-cell-focus-disabled dx-editor-cell dx-editor-inline-block'
@@ -151,12 +173,21 @@ class GridViewComponent extends CellEditComponent {
         const selectedRowKeys = this.props.selectedRowKeys;
         const packageCount = this.getPackageCount();
 
+        const kindView = this.props.elementKindView;
+        const subViewId = this.props.elementSubViewId;
+        const selectedRecordId = this.state.selectedRecordId;
+        const parentId = this.props.elementRecordId;
+        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+        let viewId = this.props.id;
+        viewId = DataGridUtils.getRealViewId(subViewId, viewId);
+
         return (
             <React.Fragment>
                 {this.state.editListVisible && this.editListComponent()}
                 {this.state.editorDialogVisisble && this.editorComponent()}
                 {this.imageViewerComponent()}
                 <DataGrid
+                    onContextMenuPreparing={(e) => this.showMenu(e)}
                     id='grid-container'
                     focusedRowKey={this.state.focusedRowKey}
                     keyExpr='ID'
@@ -260,9 +291,30 @@ class GridViewComponent extends CellEditComponent {
                     />
                     {this.preGenerateColumnsDefinition()}
                 </DataGrid>
+                <MenuWithButtons
+                    handleSaveAction={() => this.props.handleSaveAction()}
+                    handleHrefSubview={() => this.handleHrefSubview(viewId, selectedRecordId, currentBreadcrumb)}
+                    handleEdit={() => this.handleEdit(viewId, parentId, kindView, selectedRecordId, currentBreadcrumb)}
+                    handleEditSpec={() => this.handleEditSpec(viewId, parentId, selectedRecordId, currentBreadcrumb)}
+                    handleCopy={() => this.props.handleCopyRow(selectedRecordId)}
+                    handleArchive={() => this.props.handleArchiveRow(selectedRecordId)}
+                    handlePublish={() => this.props.handlePublishRow(selectedRecordId)}
+                    handleDocuments={(el) => this.props.handleDocumentRow(el.id)}
+                    handlePlugins={(el) => this.props.handlePluginRow(el.id)}
+                    handleDownload={() => this.props.handleDownloadRow(selectedRecordId)}
+                    handleAttachments={() => this.props.handleAttachmentRow(selectedRecordId)}
+                    handleDelete={() => this.props.handleDeleteRow(selectedRecordId)}
+                    handleRestore={() => this.props.handleRestoreRow(selectedRecordId)}
+                    handleFormula={() => this.props.handleFormulaRow(selectedRecordId)}
+                    handleHistory={() => this.props.handleHistoryLogRow(selectedRecordId)}
+                    handleFill={() => this.props.handleFillRow(selectedRecordId)}
+                    operationList={this.props.parsedGridView.operationsPPM}
+                    menu={this.menu}
+                />
             </React.Fragment>
         );
     }
+    closePrevMenu() {}
     selectionMode = () => {
         if (this.props.cellModeEnabled) {
             return 'none';
@@ -342,7 +394,6 @@ class GridViewComponent extends CellEditComponent {
                                             columnDefinition
                                         );
                                 }
-
                                 column.headerFilter = {groupInterval: null};
                                 column.renderAsync = true;
                                 INDEX_COLUMN++;
@@ -393,89 +444,11 @@ class GridViewComponent extends CellEditComponent {
                                         operations={operationsRecord}
                                         operationList={operationsRecordList}
                                         info={info}
-                                        handleEdit={() => {
-                                            if (TreeListUtils.isKindViewSpec(this.props.parsedGridView)) {
-                                                this.editSpecService
-                                                    .getViewEntry(viewId, parentId, [recordId], kindView, null)
-                                                    .then((entryResponse) => {
-                                                        EntryResponseUtils.run(
-                                                            entryResponse,
-                                                            () => {
-                                                                if (!!entryResponse.next) {
-                                                                    const compressedRecordId = compress([recordId]);
-                                                                    EditSpecUtils.navToEditSpec(
-                                                                        viewId,
-                                                                        parentId,
-                                                                        compressedRecordId,
-                                                                        currentBreadcrumb
-                                                                    );
-                                                                } else {
-                                                                    this.props.handleUnblockUi();
-                                                                }
-                                                            },
-                                                            () => this.props.handleUnblockUi()
-                                                        );
-                                                    })
-                                                    .catch((err) => {
-                                                        this.props.showErrorMessages(err);
-                                                    });
-                                            } else {
-                                                let result = this.props.handleBlockUi();
-                                                if (result) {
-                                                    this.crudService
-                                                        .editEntry(viewId, recordId, parentId, kindView, '')
-                                                        .then((entryResponse) => {
-                                                            EntryResponseUtils.run(
-                                                                entryResponse,
-                                                                () => {
-                                                                    if (!!entryResponse.next) {
-                                                                        this.crudService
-                                                                            .edit(viewId, recordId, parentId, kindView)
-                                                                            .then((editDataResponse) => {
-                                                                                this.setState(
-                                                                                    {
-                                                                                        editData: editDataResponse,
-                                                                                    },
-                                                                                    () => {
-                                                                                        this.props.handleShowEditPanel(
-                                                                                            editDataResponse
-                                                                                        );
-                                                                                    }
-                                                                                );
-                                                                            })
-                                                                            .catch((err) => {
-                                                                                this.props.showErrorMessages(err);
-                                                                            });
-                                                                    } else {
-                                                                        this.props.handleUnblockUi();
-                                                                    }
-                                                                },
-                                                                () => this.props.handleUnblockUi()
-                                                            );
-                                                        })
-                                                        .catch((err) => {
-                                                            this.props.showErrorMessages(err);
-                                                        });
-                                                }
-                                            }
-                                        }}
+                                        handleEdit={() =>
+                                            this.handleEdit(viewId, parentId, kindView, recordId, currentBreadcrumb)
+                                        }
                                         handleEditSpec={() => {
-                                            //edycja pojedynczego rekordu lub
-                                            //edycja dla wszystkich rekordów, wywoływana krok wcześniej
-                                            let prevUrl = window.location.href;
-                                            sessionStorage.setItem('prevUrl', prevUrl);
-                                            TreeListUtils.openEditSpec(
-                                                viewId,
-                                                TreeListUtils.isKindViewSpec(this.props.parsedGridView)
-                                                    ? parentId
-                                                    : recordId,
-                                                TreeListUtils.isKindViewSpec(this.props.parsedGridView)
-                                                    ? [recordId]
-                                                    : [],
-                                                currentBreadcrumb,
-                                                () => this.props.handleUnblockUi(),
-                                                (err) => this.props.showErrorMessages(err)
-                                            );
+                                            this.handleEditSpec(viewId, parentId, recordId, currentBreadcrumb);
                                         }}
                                         hrefSubview={AppPrefixUtils.locationHrefUrl(
                                             this.subViewHref(viewId, recordId, parentId, currentBreadcrumb)
@@ -492,56 +465,22 @@ class GridViewComponent extends CellEditComponent {
                                             ),
                                             currentBreadcrumb
                                         )}
-                                        handleHrefSubview={() => {
-                                            let result = this.props.handleBlockUi();
-                                            if (result) {
-                                                let newUrl = AppPrefixUtils.locationHrefUrl(
-                                                    `/#/grid-view/${viewId}${
-                                                        !!recordId ? `?recordId=${recordId}` : ``
-                                                    }${!!currentBreadcrumb ? currentBreadcrumb : ``}`
-                                                );
-                                                window.location.assign(newUrl);
-                                            }
-                                        }}
-                                        handleArchive={() => {
-                                            this.props.handleArchiveRow(recordId);
-                                        }}
-                                        handlePublish={() => {
-                                            this.props.handlePublishRow(recordId);
-                                        }}
-                                        handleCopy={() => {
-                                            this.props.handleCopyRow(recordId);
-                                        }}
-                                        handleDocuments={(el) => {
-                                            this.props.handleDocumentRow(el.id);
-                                        }}
-                                        handlePlugins={(el) => {
-                                            this.props.handlePluginRow(el.id);
-                                        }}
-                                        handleDownload={() => {
-                                            this.props.handleDownloadRow(recordId);
-                                        }}
-                                        handleAttachments={() => {
-                                            this.props.handleAttachmentRow(recordId);
-                                        }}
-                                        handleDelete={() => {
-                                            this.props.handleDeleteRow(recordId);
-                                        }}
-                                        handleRestore={() => {
-                                            this.props.handleRestoreRow(recordId);
-                                        }}
-                                        handleFormula={() => {
-                                            this.props.handleFormulaRow(recordId);
-                                        }}
-                                        handleHistory={() => {
-                                            this.props.handleHistoryLogRow(recordId);
-                                        }}
-                                        handleFill={() => {
-                                            this.props.handleFillRow(recordId);
-                                        }}
-                                        handleBlockUi={() => {
-                                            this.props.handleBlockUi();
-                                        }}
+                                        handleHrefSubview={() =>
+                                            this.handleHrefSubview(viewId, recordId, currentBreadcrumb)
+                                        }
+                                        handleArchive={() => this.props.handleArchiveRow(recordId)}
+                                        handlePublish={() => this.props.handlePublishRow(recordId)}
+                                        handleCopy={() => this.props.handleCopyRow(recordId)}
+                                        handleDocuments={(el) => this.props.handleDocumentRow(el.id)}
+                                        handlePlugins={(el) => this.props.handlePluginRow(el.id)}
+                                        handleDownload={() => this.props.handleDownloadRow(recordId)}
+                                        handleAttachments={() => this.props.handleAttachmentRow(recordId)}
+                                        handleDelete={() => this.props.handleDeleteRow(recordId)}
+                                        handleRestore={() => this.props.handleRestoreRow(recordId)}
+                                        handleFormula={() => this.props.handleFormulaRow(recordId)}
+                                        handleHistory={() => this.props.handleHistoryLogRow(recordId)}
+                                        handleFill={() => this.props.handleFillRow(recordId)}
+                                        handleBlockUi={() => this.props.handleBlockUi()}
                                     />
                                 </div>,
                                 element
@@ -570,6 +509,88 @@ class GridViewComponent extends CellEditComponent {
         window.location.href = UrlUtils.deleteParameterFromURL(currentUrl, 'selectedFromPrevGrid');
     };
 
+    handleHrefSubview(viewId, recordId, currentBreadcrumb) {
+        let result = this.props.handleBlockUi();
+        if (result) {
+            let newUrl = AppPrefixUtils.locationHrefUrl(
+                `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${
+                    !!currentBreadcrumb ? currentBreadcrumb : ``
+                }`
+            );
+            window.location.assign(newUrl);
+        }
+    }
+    handleEdit(viewId, parentId, kindView, recordId, currentBreadcrumb) {
+        if (TreeListUtils.isKindViewSpec(this.props.parsedGridView)) {
+            this.editSpecService
+                .getViewEntry(viewId, parentId, [recordId], kindView, null)
+                .then((entryResponse) => {
+                    EntryResponseUtils.run(
+                        entryResponse,
+                        () => {
+                            if (!!entryResponse.next) {
+                                const compressedRecordId = compress([recordId]);
+                                EditSpecUtils.navToEditSpec(viewId, parentId, compressedRecordId, currentBreadcrumb);
+                            } else {
+                                this.props.handleUnblockUi();
+                            }
+                        },
+                        () => this.props.handleUnblockUi()
+                    );
+                })
+                .catch((err) => {
+                    this.props.showErrorMessages(err);
+                });
+        } else {
+            let result = this.props.handleBlockUi();
+            if (result) {
+                this.crudService
+                    .editEntry(viewId, recordId, parentId, kindView, '')
+                    .then((entryResponse) => {
+                        EntryResponseUtils.run(
+                            entryResponse,
+                            () => {
+                                if (!!entryResponse.next) {
+                                    this.crudService
+                                        .edit(viewId, recordId, parentId, kindView)
+                                        .then((editDataResponse) => {
+                                            this.setState(
+                                                {
+                                                    editData: editDataResponse,
+                                                },
+                                                () => {
+                                                    this.props.handleShowEditPanel(editDataResponse);
+                                                }
+                                            );
+                                        })
+                                        .catch((err) => {
+                                            this.props.showErrorMessages(err);
+                                        });
+                                } else {
+                                    this.props.handleUnblockUi();
+                                }
+                            },
+                            () => this.props.handleUnblockUi()
+                        );
+                    })
+                    .catch((err) => {
+                        this.props.showErrorMessages(err);
+                    });
+            }
+        }
+    }
+    handleEditSpec(viewId, parentId, recordId, currentBreadcrumb) {
+        let prevUrl = window.location.href;
+        sessionStorage.setItem('prevUrl', prevUrl);
+        TreeListUtils.openEditSpec(
+            viewId,
+            TreeListUtils.isKindViewSpec(this.props.parsedGridView) ? parentId : recordId,
+            TreeListUtils.isKindViewSpec(this.props.parsedGridView) ? [recordId] : [],
+            currentBreadcrumb,
+            () => this.props.handleUnblockUi(),
+            (err) => this.props.showErrorMessages(err)
+        );
+    }
     isEditableCell = (columnDefinition) => {
         return (
             this.isSpecialCell(columnDefinition) &&

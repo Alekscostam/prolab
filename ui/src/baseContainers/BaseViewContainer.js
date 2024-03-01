@@ -425,25 +425,8 @@ export class BaseViewContainer extends BaseContainer {
 
     renderGlobalTop() {
         const {parsedPluginView} = this.state;
-        let operations = this.state.parsedGridView?.operations;
-        let opADDFile = DataGridUtils.containsOperationsButton(operations, 'OP_ADD_FILE');
         return (
             <React.Fragment>
-                {opADDFile && (
-                    <DivContainer id='header-right' colClass='to-right'>
-                        <ActionButton
-                            type='default'
-                            stylingMode='contained'
-                            rendered={true}
-                            label={opADDFile.label}
-                            handleClick={() => {
-                                this.setState({
-                                    visibleUploadFile: true,
-                                });
-                            }}
-                        />
-                    </DivContainer>
-                )}
                 {this.state.visibleEditPanel ? (
                     <EditRowComponent
                         visibleEditPanel={this.state.visibleEditPanel}
@@ -767,9 +750,9 @@ export class BaseViewContainer extends BaseContainer {
         return <React.Fragment />;
     }
     //to ovveride
-    addButtonFunction() {
+    addButtonFunction = () => {
         return <React.Fragment />;
-    }
+    };
 
     rightHeadPanelContent = () => {
         if (this.isDashboard()) {
@@ -1535,7 +1518,9 @@ export class BaseViewContainer extends BaseContainer {
                                     showErrorMessages={(err) => this.showErrorMessages(err)}
                                     handleBlockUi={() => {
                                         this.blockUi();
-                                        return true;
+                                    }}
+                                    handleUnblockUi={() => {
+                                        this.unblockUi();
                                     }}
                                     selectedRowKeys={this.state.selectedRowKeys}
                                     handleSelectedRowKeys={(e) => this.setState({selectedRowKeys: e})}

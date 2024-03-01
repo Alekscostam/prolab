@@ -58,6 +58,17 @@ class CellEditComponent extends React.Component {
         if (callBack) callBack();
     }
 
+    componentDidMount() {
+        document.addEventListener('contextmenu', (event) => {
+            if (event.target.classList.contains('dx-cell-focus-disabled')) {
+                event.preventDefault();
+            }
+            if (event.target?.offsetParent?.classList?.contains('dx-cell-focus-disabled')) {
+                event.preventDefault();
+            }
+        });
+    }
+
     editorComponent = () => {
         return (
             <EditorDialog

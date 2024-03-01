@@ -33,6 +33,8 @@ import {StringUtils} from '../../utils/StringUtils';
 import Image from '../../components/Image';
 import ActionButton from '../../components/ActionButton.js';
 import LocUtils from '../../utils/LocUtils.js';
+import {MenuWithButtons} from '../../components/prolab/MenuWithButtons.js';
+import {DataGridUtils} from '../../utils/component/DataGridUtils.js';
 
 let _selectionClassName = 'checkBoxSelection';
 
@@ -51,7 +53,7 @@ class GanttViewComponent extends React.Component {
         this.selectAllRef = React.createRef();
         this.dataGanttStore = new DataGanttStore();
         this.labels = this.props;
-
+        this.menu = React.createRef();
         this.state = {
             data: {},
             rowElementsStorage: new Map(),
@@ -59,6 +61,7 @@ class GanttViewComponent extends React.Component {
             columns: [],
             selectionColumnWidth: undefined,
             selectedRowKeys: [],
+            selectedRecordId: undefined,
             tasks: [],
             dependencies: [],
             resources: [],
@@ -74,7 +77,25 @@ class GanttViewComponent extends React.Component {
             }
         };
     }
-
+    showMenu(e) {
+        const menu = this.menu.current;
+        const actionButtonWithMenuContant = document.getElementById('action-button-with-menu-contant');
+        if (actionButtonWithMenuContant) {
+            actionButtonWithMenuContant.click();
+        }
+        if (menu !== null && e.targetType === 'task') {
+            const mouseX = e.event.clientX;
+            const mouseY = e.event.clientY;
+            e.event.stopPropagation();
+            e.event.preventDefault();
+            this.menu.current.toggle(e.event);
+            this.setState({selectedRecordId: e.data.ID}, () => {
+                const menu = document.getElementById('menu-with-buttons');
+                menu.style.left = mouseX + 'px';
+                menu.style.top = mouseY + 'px';
+            });
+        }
+    }
     /** Wylicza ilość parentów dla danych */
     setSelectionWidth(data) {
         const allDatas = data.map((el) => new ParentModel(el.ID, el.ID_PARENT));
@@ -218,10 +239,20 @@ class GanttViewComponent extends React.Component {
         const keyResourceAssigment = 'ID';
         const resourceIdResourceAssigment = this.props.parsedGanttView?.resourceAssignmentFields?.resourceId;
         const taskIdResourceAssigment = this.props.parsedGanttView?.resourceAssignmentFields?.taskId;
+
+        const kindView = this.props.elementKindView;
+        const subViewId = this.props.elementSubViewId;
+        const selectedRecordId = this.state.selectedRecordId;
+        const parentId = this.props.elementRecordId;
+        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+        let viewId = this.props.id;
+        viewId = DataGridUtils.getRealViewId(subViewId, viewId);
+
         return (
             this.state.tasks.length > 0 && (
                 <React.Fragment>
                     <Gantt
+                        onContextMenuPreparing={(e) => this.showMenu(e)}
                         id='gantt-container'
                         keyExpr='ID'
                         ref={this.ganttRef}
@@ -243,6 +274,7 @@ class GanttViewComponent extends React.Component {
                         height={'100%'}
                         rootValue={-1}
                     >
+                        {/* <ContextMenu items={undefined}></ContextMenu> */}
                         <Tasks
                             onTaskClick
                             keyExpr={keyTask}
@@ -276,15 +308,109 @@ class GanttViewComponent extends React.Component {
                             taskIdExpr={taskIdResourceAssigment}
                             resourceIdExpr={resourceIdResourceAssigment}
                         />
-                        <ContextMenu enabled={false} />
                         {this.state.columns}
                         <StripLine start={currentDate} title='Current Time' cssClass='current-time' />
                         <Editing enabled={isEditing} />
                         <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'} />
                     </Gantt>
+                    <MenuWithButtons
+                        handleSaveAction={() => this.props.handleSaveAction()}
+                        handleHrefSubview={() => this.handleHrefSubview(viewId, selectedRecordId, currentBreadcrumb)}
+                        handleEdit={() =>
+                            this.handleEdit(viewId, parentId, selectedRecordId, currentBreadcrumb, kindView)
+                        }
+                        handleEditSpec={() =>
+                            this.handleEditSpec(viewId, parentId, selectedRecordId, currentBreadcrumb)
+                        }
+                        handleCopy={() => this.props.handleCopyRow(selectedRecordId)}
+                        handleArchive={() => this.props.handleArchiveRow(selectedRecordId)}
+                        handlePublish={() => this.props.handlePublishRow(selectedRecordId)}
+                        handleDocuments={(el) => this.props.handleDocumentRow(el.id)}
+                        handlePlugins={(el) => this.props.handlePluginRow(el.id)}
+                        handleDownload={() => this.props.handleDownloadRow(selectedRecordId)}
+                        handleAttachments={() => this.props.handleAttachmentRow(selectedRecordId)}
+                        handleDelete={() => this.props.handleDeleteRow(selectedRecordId)}
+                        handleRestore={() => this.props.handleRestoreRow(selectedRecordId)}
+                        handleFormula={() => this.props.handleFormulaRow(selectedRecordId)}
+                        handleHistory={() => this.props.handleHistoryLogRow(selectedRecordId)}
+                        handleFill={() => this.props.handleFillRow(selectedRecordId)}
+                        operationList={this.props.parsedGanttView.operationsPPM}
+                        menu={this.menu}
+                    />
                 </React.Fragment>
             )
         );
+    }
+    handleEdit(viewId, parentId, recordId, currentBreadcrumb, kindView) {
+        if (TreeListUtils.isKindViewSpec(this.props.parsedGanttView)) {
+            TreeListUtils.openEditSpec(
+                viewId,
+                parentId,
+                [recordId],
+                currentBreadcrumb,
+                () => this.props.handleUnblockUi(),
+                (err) => this.props.showErrorMessages(err)
+            );
+        } else {
+            let result = this.props.handleBlockUi();
+            if (result) {
+                this.crudService
+                    .editEntry(viewId, recordId, parentId, kindView, '')
+                    .then((entryResponse) => {
+                        EntryResponseUtils.run(
+                            entryResponse,
+                            () => {
+                                if (!!entryResponse.next) {
+                                    this.crudService
+                                        .edit(viewId, recordId, parentId, kindView)
+                                        .then((editDataResponse) => {
+                                            this.setState(
+                                                {
+                                                    editData: editDataResponse,
+                                                },
+                                                () => {
+                                                    this.props.handleShowEditPanel(editDataResponse);
+                                                }
+                                            );
+                                        })
+                                        .catch((err) => {
+                                            this.props.showErrorMessages(err);
+                                        });
+                                } else {
+                                    this.props.handleUnblockUi();
+                                }
+                            },
+                            () => this.props.handleUnblockUi()
+                        );
+                    })
+                    .catch((err) => {
+                        this.props.showErrorMessages(err);
+                    });
+            }
+        }
+    }
+    handleEditSpec(viewId, parentId, recordId, currentBreadcrumb) {
+        let prevUrl = window.location.href;
+        sessionStorage.setItem('prevUrl', prevUrl);
+        TreeListUtils.openEditSpec(
+            viewId,
+            parentId,
+            [recordId],
+            currentBreadcrumb,
+            () => this.props.handleUnblockUi(),
+            (err) => this.props.showErrorMessages(err)
+        );
+    }
+    handleHrefSubview(viewId, recordId, currentBreadcrumb) {
+        let result = this.props.handleBlockUi();
+        if (result) {
+            let newUrl = AppPrefixUtils.locationHrefUrl(
+                `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${
+                    !!currentBreadcrumb ? currentBreadcrumb : ``
+                }`
+            );
+            window.location.assign(newUrl);
+        }
     }
     addButton() {
         return (
@@ -351,7 +477,7 @@ class GanttViewComponent extends React.Component {
                                           this.selectSingleRow(selectedRowKeys, recordId);
                                       }}
                                   />{' '}
-                                  <span class='checkmark'></span>
+                                  <span className='checkmark'></span>
                               </label>,
                               element
                           );
@@ -499,66 +625,10 @@ class GanttViewComponent extends React.Component {
                                         operationList={operationsRecordList}
                                         info={info}
                                         handleEdit={() => {
-                                            if (TreeListUtils.isKindViewSpec(this.props.parsedGanttView)) {
-                                                TreeListUtils.openEditSpec(
-                                                    viewId,
-                                                    parentId,
-                                                    [recordId],
-                                                    currentBreadcrumb,
-                                                    () => this.props.handleUnblockUi(),
-                                                    (err) => this.props.showErrorMessages(err)
-                                                );
-                                            } else {
-                                                let result = this.props.handleBlockUi();
-                                                if (result) {
-                                                    this.crudService
-                                                        .editEntry(viewId, recordId, parentId, kindView, '')
-                                                        .then((entryResponse) => {
-                                                            EntryResponseUtils.run(
-                                                                entryResponse,
-                                                                () => {
-                                                                    if (!!entryResponse.next) {
-                                                                        this.crudService
-                                                                            .edit(viewId, recordId, parentId, kindView)
-                                                                            .then((editDataResponse) => {
-                                                                                this.setState(
-                                                                                    {
-                                                                                        editData: editDataResponse,
-                                                                                    },
-                                                                                    () => {
-                                                                                        this.props.handleShowEditPanel(
-                                                                                            editDataResponse
-                                                                                        );
-                                                                                    }
-                                                                                );
-                                                                            })
-                                                                            .catch((err) => {
-                                                                                this.props.showErrorMessages(err);
-                                                                            });
-                                                                    } else {
-                                                                        this.props.handleUnblockUi();
-                                                                    }
-                                                                },
-                                                                () => this.props.handleUnblockUi()
-                                                            );
-                                                        })
-                                                        .catch((err) => {
-                                                            this.props.showErrorMessages(err);
-                                                        });
-                                                }
-                                            }
+                                            this.handleEdit(viewId, parentId, recordId, currentBreadcrumb, kindView);
                                         }}
                                         handleEditSpec={() => {
-                                            let prevUrl = window.location.href;
-                                            sessionStorage.setItem('prevUrl', prevUrl);
-                                            TreeListUtils.openEditSpec(
-                                                viewId,
-                                                parentId,
-                                                [recordId],
-                                                currentBreadcrumb,
-                                                () => this.props.handleUnblockUi(),
-                                                (err) => this.props.showErrorMessages(err)
-                                            );
+                                            this.handleEditSpec(viewId, parentId, recordId, currentBreadcrumb);
                                         }}
                                         hrefSubview={AppPrefixUtils.locationHrefUrl(
                                             `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${
@@ -572,15 +642,7 @@ class GanttViewComponent extends React.Component {
                                             currentBreadcrumb
                                         )}
                                         handleHrefSubview={() => {
-                                            let result = this.props.handleBlockUi();
-                                            if (result) {
-                                                let newUrl = AppPrefixUtils.locationHrefUrl(
-                                                    `/#/grid-view/${viewId}${
-                                                        !!recordId ? `?recordId=${recordId}` : ``
-                                                    }${!!currentBreadcrumb ? currentBreadcrumb : ``}`
-                                                );
-                                                window.location.assign(newUrl);
-                                            }
+                                            this.handleHrefSubview(viewId, recordId, currentBreadcrumb);
                                         }}
                                         handleDocuments={(el) => {
                                             this.props.handleDocumentRow(el.id);

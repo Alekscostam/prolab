@@ -8,7 +8,7 @@ import Constants from '../../utils/Constants';
 import ActionButtonWithMenu from './ActionButtonWithMenu';
 import {sessionPrelongFnc} from '../../App';
 import {setExpandAllInitialized} from '../../containers/AddSpecContainer';
-import { OperationType } from '../../model/OperationType';
+import {OperationType} from '../../model/OperationType';
 //Komponent do wyświetlania dynamicznego przycisków - po zaznaczaniu rekordów i przy szczegółach rekordów
 export const OperationsButtons = (props) => {
     //metoda wykorzystywana do wyświetlania przycisków na górnym panelu po zaznaczeniu rekordów
@@ -326,7 +326,7 @@ export const OperationsButtons = (props) => {
         if (sessionPrelongFnc) {
             sessionPrelongFnc();
         }
-        if (operationSelectedFnc) {
+        if (typeof operationSelectedFnc === 'function') {
             operationSelectedFnc();
         }
     };

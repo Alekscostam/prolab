@@ -26,12 +26,16 @@ export class AttachmentViewDialog extends BaseViewContainer {
             viewId = subviewId;
             parentId = UrlUtils.getURLParameter('recordId');
         }
-        // rerender
         this.setState({test: null, cardId: recordId}, () => {
-            // this.props.handleSubView(null);
             this.getViewById(viewId, recordId, filterId, parentId, viewType, false);
         });
     }
+
+    addButtonFunction = () => {
+        this.setState({
+            visibleUploadFile: true,
+        });
+    };
 
     // overide
     componentDidUpdate(prevProps, prevState, snapshot) {

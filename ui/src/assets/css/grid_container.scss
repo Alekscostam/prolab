@@ -494,7 +494,24 @@ body #subviews-panel .dx-tabs {
         border: none;
     }
 }
-
+#menu-with-buttons {
+    .p-menuitem {
+        margin-bottom: -10px;
+        margin-top: -10px;
+    }
+    .p-menuitem-link {
+        padding: 10px;
+    }
+    .p-menuitem-icon,
+    .p-menuitem-text {
+        color: $base-color;
+        font-size: 14px;
+        margin-left: 5px;
+    }
+    .p-menuitem-text {
+        margin-left: 18px;
+    }
+}
 body
     .base-container-content
     .grid-container

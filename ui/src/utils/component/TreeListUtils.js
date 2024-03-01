@@ -518,7 +518,18 @@ export class TreeListUtils extends ViewDataCompUtils {
             if (item.hasChildren) this.recursionUnpacking(item.children, set);
         });
     };
-
+    static findAllDescendants(tree, parentId) {
+        const descendants = [];
+        function findChildren(parentId) {
+            const children = tree.filter((node) => node._ID_PARENT === parentId);
+            children.forEach((child) => {
+                descendants.push(child);
+                findChildren(child._ID);
+            });
+        }
+        findChildren(parentId);
+        return descendants;
+    }
     static elementsToCalculate = (startIndex, allTheElements) => {
         const array = [];
         const parent = allTheElements.find((el) => {

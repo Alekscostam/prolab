@@ -89,6 +89,7 @@ class CardViewInfiniteComponent extends React.Component {
         const dataPackageSize = 30;
         const packageCount = !!dataPackageSize || dataPackageSize === 0 ? 30 : dataPackageSize;
         if (!this.state.isNextPageLoading) {
+            this.props.handleBlockUi();
             this.setState(
                 {
                     isNextPageLoading: true,
@@ -137,11 +138,16 @@ class CardViewInfiniteComponent extends React.Component {
                             });
                             console.timeEnd('reloadDataFromCardComponent');
                             items = items.concat(parsedCardViewData);
-                            this.setState((state) => ({
-                                hasNextPage: state.items.length < res.totalCount,
-                                isNextPageLoading: false,
-                                items: items,
-                            }));
+                            this.setState(
+                                (state) => ({
+                                    hasNextPage: state.items.length < res.totalCount,
+                                    isNextPageLoading: false,
+                                    items: items,
+                                }),
+                                () => {
+                                    this.props.handleUnblockUi();
+                                }
+                            );
                         });
                 }
             );
@@ -221,20 +227,6 @@ class CardViewInfiniteComponent extends React.Component {
         let cardBgColor1 = this.props.parsedCardView?.cardOptions?.bgColor1;
         let cardBgColor2 = this.props.parsedCardView?.cardOptions?.bgColor2;
         let fontColor = this.props.parsedCardView?.cardOptions?.fontColor;
-        // let showEditButton = false;
-        // let showSubviewButton = false;
-        // let showMenu = false;
-        // let menuItems = [];
-        // if (this.props.parsedCardView?.operations) {
-        //     this.props.parsedCardView?.operations.forEach((operation) => {
-        //         showEditButton = showEditButton || operation.type === 'OP_EDIT';
-        //         showSubviewButton = showSubviewButton || operation.type === 'OP_SUBVIEWS';
-        //         if (operation.type === 'OP_PUBLIC' || operation.type === 'OP_HISTORY' || operation.type === 'OP_ATTACHMENTS') {
-        //             menuItems.push(operation);
-        //         }
-        //     });
-        //     showMenu = menuItems.length > 0;
-        // }
         const {cardBody, cardHeader, cardImage, cardFooter} = this.props.parsedCardView;
         const elementSubViewId = this.props.elementSubViewId;
         const elementKindView = this.props.elementKindView;

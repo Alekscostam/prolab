@@ -403,17 +403,7 @@ export class EditSpecContainer extends BaseContainer {
         this.unselectAllDataGrid();
         this.setState({visibleAddSpec: true, levelId: recordId});
     }
-    addButton() {
-        return (
-            <ActionButton
-                rendered={true}
-                label={LocUtils.loc(this.props.labels, 'Add_button', 'Dodaj')}
-                handleClick={(e) => {
-                    this.showAddSpecDialog();
-                }}
-            />
-        );
-    }
+
     //override
     renderHeaderRight() {
         const operations = [];
@@ -433,20 +423,7 @@ export class EditSpecContainer extends BaseContainer {
                         label={opSave?.label}
                         className='ml-2'
                         handleClick={() => {
-                            const viewIdArg = this.state.elementId;
-                            const parentIdArg = this.state.elementParentId;
-                            const globalComponents = document.getElementById('global-top-components');
-                            globalComponents.click();
-                            this.handleEditSpecSave(viewIdArg, parentIdArg, () => {
-                                const prevUrl = sessionStorage.getItem('prevUrl');
-                                sessionStorage.removeItem('prevUrl');
-                                if (prevUrl) {
-                                    window.location.href = prevUrl;
-                                } else {
-                                    this.refreshView();
-                                    this.refreshTable();
-                                }
-                            });
+                            this.handleSaveAction();
                         }}
                     />
                     <ActionButton
@@ -463,7 +440,22 @@ export class EditSpecContainer extends BaseContainer {
             </React.Fragment>
         );
     }
-
+    handleSaveAction() {
+        const viewIdArg = this.state.elementId;
+        const parentIdArg = this.state.elementParentId;
+        const globalComponents = document.getElementById('global-top-components');
+        globalComponents.click();
+        this.handleEditSpecSave(viewIdArg, parentIdArg, () => {
+            const prevUrl = sessionStorage.getItem('prevUrl');
+            sessionStorage.removeItem('prevUrl');
+            if (prevUrl) {
+                window.location.href = prevUrl;
+            } else {
+                this.refreshView();
+                this.refreshTable();
+            }
+        });
+    }
     handleAddElements = (elements) => {
         const addParsedView = (this.state.parsedData || []).concat(elements);
         this.setState(
@@ -659,29 +651,34 @@ export class EditSpecContainer extends BaseContainer {
 
     moveItem(id, shiftNumber) {
         this.refTreeList?.instance?.beginCustomLoading();
+
         let data = this.getData().sort((a, b) => a._ORDER - b._ORDER);
         const index = data.findIndex((x) => x._ID === id);
         const currentElement = data.find((el) => el._ID === id);
         const prevElement = data[index + shiftNumber];
-        if (prevElement) {
-            if (index !== undefined) {
-                if (!this.isChildOfElement(currentElement, prevElement)) {
-                    const currentOrder = currentElement._ORDER;
-                    const prevOrder = prevElement._ORDER;
-                    currentElement._ORDER = prevOrder;
-                    prevElement._ORDER = currentOrder;
-                    this.move(data, index, index + shiftNumber);
-                    this.updateData(data, () => {
-                        this.disableAllSort();
-                        this.refreshTable();
-                    });
+        try {
+            if (prevElement) {
+                if (index !== undefined) {
+                    if (!this.isChildOfElement(currentElement, prevElement)) {
+                        const currentOrder = currentElement._ORDER;
+                        const prevOrder = prevElement._ORDER;
+                        currentElement._ORDER = prevOrder;
+                        prevElement._ORDER = currentOrder;
+                        this.move(data, index, index + shiftNumber);
+                        this.updateData(data, () => {
+                            this.disableAllSort();
+                            this.refreshTable();
+                        });
+                    }
                 }
             }
+        } catch (ex) {
+            this.showErrorMessage('cos z _ORDER lub _ID_PARENT mzoe ich brakuje?');
         }
         this.refTreeList?.instance?.endCustomLoading();
     }
     isChildOfElement(child, parent) {
-        return child._ID_PARENT === parent._ID;
+        return child?._ID_PARENT === parent?._ID;
     }
     updateData(dataToUpdate, callbackAction) {
         this.setState({parsedData: dataToUpdate}, () => {
@@ -738,7 +735,8 @@ export class EditSpecContainer extends BaseContainer {
                                 onHideEditorCallback={() => {
                                     this.forceUpdate();
                                 }}
-                                addButton={() => this.addButton()}
+                                handleSaveAction={() => this.handleSaveAction()}
+                                addButtonFunction={() => this.showAddSpecDialog()}
                                 elementParentId={this.state.elementParentId}
                                 elementRecordId={this.state.elementRecordId}
                                 handleOnTreeList={(ref) => (this.refTreeList = ref)}

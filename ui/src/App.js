@@ -41,7 +41,9 @@ export let renderNoRefreshContentFnc;
 export let sessionPrelongFnc = null;
 export let addBtn = null;
 // TODO: pole logiczne w działa zle w grupwoaniu na hederek
-// TODO nie ma blok UI na widok kafelek
+// TODO: nie ma block UI na widok kafelek
+// TODO: w załacnzikach usunąć doklejanie urla
+// TODO: zablokowac ekran w gancie w edycji
 class App extends Component {
     constructor() {
         super();
@@ -147,6 +149,7 @@ class App extends Component {
         };
         sessionPrelongFnc = eventForSessionPrelong;
         root.addEventListener('click', eventForSessionPrelong);
+        root.addEventListener('contextmenu', eventForSessionPrelong);
         root.addEventListener('keydown', eventForSessionPrelong);
     }
     showSessionTimeoutIfPossible() {
@@ -301,6 +304,7 @@ class App extends Component {
             this.getTranslations(configUrl, 'pl');
         }
     }
+
     getTranslations(configUrl, language) {
         const localizationService = new LocalizationService(configUrl);
         localizationService.getTranslationsFromFile('rd', language.toLowerCase()).then((res) => {
@@ -312,7 +316,6 @@ class App extends Component {
                 res.labels.forEach((label) => (labels[label.code] = label.caption));
             }
             this.setState({langs, labels});
-            /* init dev express translations */
             const shortLang = realLang.toLowerCase().substr(0, 2);
             localizationService.getTranslationsFromFile('dev', realLang).then((devExpressTranslation) => {
                 res.labels.forEach((label) => {
@@ -323,7 +326,6 @@ class App extends Component {
                 });
                 devExpressLocale(shortLang);
             });
-            /* init primereact translations */
             localizationService.getTranslationsFromFile('primi', realLang).then((primeReactTranslation) => {
                 addLocale(shortLang, primeReactTranslation[shortLang]);
                 primeReactLocale(shortLang);
@@ -364,16 +366,13 @@ class App extends Component {
             />
         );
     }
-
     handleCollapseChange(collapsed) {
         this.setState({collapsed: collapsed});
     }
-
     haveSubViewColumns() {
         const {subView} = this.state;
         return !!subView && !StringUtils.isBlank(subView.headerColumns);
     }
-
     enabledSidebar() {
         const authService = this.authService;
         const tokenExpired = authService.isTokenExpiredDate();
@@ -385,14 +384,12 @@ class App extends Component {
         }
         return true;
     }
-
     onShowEditQuitConfirmDialog(menuItemClickedId) {
         this.setState(() => ({
             menuItemClickedId,
             renderEditQuitConfirmDialog: true,
         }));
     }
-
     addButton = () => {
         const {labels} = this.state;
         const opADD = DataGridUtils.putToOperationsButtonIfNeccessery(this.state.operations, labels, 'OP_ADD', 'Dodaj');
@@ -463,7 +460,9 @@ class App extends Component {
                                         const itemToClick = document.getElementById(
                                             `menu_link_item_${menuItemClickedId}`
                                         );
-                                        itemToClick.click();
+                                        if (itemToClick) {
+                                            itemToClick.click();
+                                        }
                                         this.setState({
                                             sidebarClickItemReactionEnabled: true,
                                         });

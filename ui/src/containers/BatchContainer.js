@@ -257,14 +257,7 @@ export class BatchContainer extends BaseContainer {
                         label={opSave?.label}
                         className='ml-2'
                         handleClick={() => {
-                            const viewIdArg = this.state.elementId;
-                            const parentIdArg = this.state.elementParentId;
-                            const globalComponents = document.getElementById('global-top-components');
-                            globalComponents.click();
-                            this.handleBatchSave(viewIdArg, parentIdArg, () => {
-                                this.refreshView();
-                                this.refreshTable();
-                            });
+                            this.handleSaveAction();
                         }}
                     />
                     <ActionButton
@@ -280,6 +273,17 @@ export class BatchContainer extends BaseContainer {
                 </div>
             </React.Fragment>
         );
+    }
+
+    handleSaveAction() {
+        const viewIdArg = this.state.elementId;
+        const parentIdArg = this.state.elementParentId;
+        const globalComponents = document.getElementById('global-top-components');
+        globalComponents.click();
+        this.handleBatchSave(viewIdArg, parentIdArg, () => {
+            this.refreshView();
+            this.refreshTable();
+        });
     }
 
     handleBatchSave(viewId, parentId, fncRedirect) {
@@ -537,6 +541,7 @@ export class BatchContainer extends BaseContainer {
                             onAccept={this.batchCancel}
                         />
                         <GridViewComponent
+                            handleSaveAction={() => this.handleSaveAction()}
                             id={this.props.id}
                             elementParentId={this.state.elementParentId}
                             unblockUi={() => this.unblockUi()}
