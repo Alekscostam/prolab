@@ -25,16 +25,13 @@ import {TreeListUtils} from '../utils/component/TreeListUtils';
 import {ConfirmationEditQuitDialog} from '../components/prolab/ConfirmationEditQuitDialog';
 import EditSpecService from '../services/EditSpecService';
 import {OperationType} from '../model/OperationType';
-import LocUtils from '../utils/LocUtils';
 import {StringUtils} from '../utils/StringUtils';
-
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
 // TODO: zrobic SpecSerivice
 
 export let operationClicked = false;
-
 export class EditSpecContainer extends BaseContainer {
     _isMounted = false;
 
@@ -239,6 +236,7 @@ export class EditSpecContainer extends BaseContainer {
             this.setState(
                 () => ({
                     parsedView: responseView,
+                    viewInfo: responseView.viewInfo,
                     columns: columnsTmp,
                     pluginsList: pluginsListTmp,
                     documentsList: documentsListTmp,
@@ -638,48 +636,87 @@ export class EditSpecContainer extends BaseContainer {
         }
         return null;
     }
-
     //metoda przenosi rekord o poziom wyżej
     up(id) {
-        this.moveItem(id, -1);
-    }
-
-    //metoda przenosi rekord o poziom niżej
-    down(id) {
-        this.moveItem(id, 1);
-    }
-
-    moveItem(id, shiftNumber) {
-        this.refTreeList?.instance?.beginCustomLoading();
-
-        let data = this.getData().sort((a, b) => a._ORDER - b._ORDER);
-        const index = data.findIndex((x) => x._ID === id);
+        const ref = this.refTreeList?.instance;
+        let data = ref.getVisibleRows().map((el) => el.data);
+        const currentIndex = data.findIndex((x) => x._ID === id);
         const currentElement = data.find((el) => el._ID === id);
-        const prevElement = data[index + shiftNumber];
-        try {
-            if (prevElement) {
-                if (index !== undefined) {
-                    if (!this.isChildOfElement(currentElement, prevElement)) {
-                        const currentOrder = currentElement._ORDER;
-                        const prevOrder = prevElement._ORDER;
-                        currentElement._ORDER = prevOrder;
-                        prevElement._ORDER = currentOrder;
-                        this.move(data, index, index + shiftNumber);
-                        this.updateData(data, () => {
-                            this.disableAllSort();
-                            this.refreshTable();
-                        });
-                    }
-                }
+        const cuttedArray = data.slice(0, currentIndex);
+        let nextElement = undefined;
+        for (let index = cuttedArray.length; index >= 0; index--) {
+            const element = cuttedArray[index];
+            if (this.haveTheSameParents(currentElement, element)) {
+                nextElement = element;
+                break;
             }
-        } catch (ex) {
-            this.showErrorMessage('cos z _ORDER lub _ID_PARENT mzoe ich brakuje?');
         }
-        this.refTreeList?.instance?.endCustomLoading();
+        this.moveItem(id, currentElement, nextElement, data);
     }
-    isChildOfElement(child, parent) {
-        return child?._ID_PARENT === parent?._ID;
+    down(id) {
+        const ref = this.refTreeList?.instance;
+        let data = ref.getVisibleRows().map((el) => el.data);
+        const currentIndex = data.findIndex((x) => x._ID === id);
+        const currentElement = data.find((el) => el._ID === id);
+        const cuttedArray = data.slice(currentIndex + 1);
+        let nextElement = undefined;
+        for (let index = 0; index < cuttedArray.length; index++) {
+            const element = cuttedArray[index];
+            if (this.haveTheSameParents(currentElement, element)) {
+                nextElement = element;
+                break;
+            }
+        }
+        this.moveItem(id, currentElement, nextElement, data);
     }
+    isTheSameElement(foundedElement, currentElement) {
+        return foundedElement?._ID === currentElement?._ID;
+    }
+    moveItem(id, currentElement, nextElement, data) {
+        if (nextElement) {
+            if (!this.isTheSameElement(nextElement, currentElement)) {
+                const ref = this.refTreeList?.instance;
+                ref?.beginCustomLoading();
+                const currentIndex = data.findIndex((x) => x._ID === id);
+                const currentOrder = currentElement._ORDER;
+                const prevOrder = nextElement._ORDER;
+                currentElement._ORDER = prevOrder;
+                nextElement._ORDER = currentOrder;
+                const prevIndex = data.findIndex((x) => x._ID === nextElement._ID);
+                this.switchPositionOfElements(data, currentIndex, prevIndex);
+                this.updateData(data, () => {
+                    this.disableAllSort();
+                    this.refreshTable();
+                });
+                ref?.endCustomLoading();
+            }
+        }
+    }
+    switchPositionOfElements(data, indexFirst, indexSecond) {
+        const elementFirst = data[indexFirst];
+        const elementSecond = data[indexSecond];
+        data[indexFirst] = elementSecond;
+        data[indexSecond] = elementFirst;
+    }
+
+    haveTheSameParents(child, parent) {
+        return child?._ID_PARENT === parent?._ID_PARENT;
+    }
+    canBeSwitched(child, parent) {
+        const notTheSameRoot = child._ID_ROOT !== parent._ID_ROOT;
+        const notHaveParents =
+            (child?._ID_PARENT === undefined || child?._ID_PARENT === 0) &&
+            (parent._ID_PARENT === undefined || parent._ID_PARENT === 0);
+
+        if (notHaveParents) {
+            return true;
+        }
+        if (notTheSameRoot) {
+            return false;
+        }
+        return child?._ID_PARENT !== parent?._ID;
+    }
+
     updateData(dataToUpdate, callbackAction) {
         this.setState({parsedData: dataToUpdate}, () => {
             if (!!callbackAction) callbackAction();
@@ -702,10 +739,6 @@ export class EditSpecContainer extends BaseContainer {
     refreshTable(callbackAction) {
         this.refTreeList?.instance?.refresh();
         if (!!callbackAction) callbackAction();
-    }
-
-    move(array, currentIndex, nextIndex) {
-        return array.splice(nextIndex, 0, array.splice(currentIndex, 1)[0]);
     }
     //override
     renderContent = () => {
@@ -735,6 +768,7 @@ export class EditSpecContainer extends BaseContainer {
                                 onHideEditorCallback={() => {
                                     this.forceUpdate();
                                 }}
+                                viewInfo={this.state.viewInfo}
                                 handleSaveAction={() => this.handleSaveAction()}
                                 addButtonFunction={() => this.showAddSpecDialog()}
                                 elementParentId={this.state.elementParentId}

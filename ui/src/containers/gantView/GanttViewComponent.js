@@ -71,6 +71,14 @@ class GanttViewComponent extends React.Component {
         this.refresh = () => {
             this.props.handleRefreshData();
         };
+        this.uncheckAllData = () => {
+            const fakeEvent = {
+                target: {
+                    checked: false,
+                },
+            };
+            this.selectAll(fakeEvent);
+        };
         this.refreshRef = () => {
             if (this.ganttRef?.current?.instance) {
                 this.ganttRef.current.instance._treeList.refresh();
@@ -137,9 +145,6 @@ class GanttViewComponent extends React.Component {
         }
         return duplicates;
     }
-    componentDidUpdate() {
-        console.log('sd');
-    }
     componentDidMount() {
         if (this.props.selectedRowKeys.length !== 0) {
             this.props.unselectAll();
@@ -200,7 +205,6 @@ class GanttViewComponent extends React.Component {
             rowElementsStorage: store,
             tasks: this.state.tasks,
         });
-
         this.refreshRef();
     }
     render() {
@@ -212,6 +216,7 @@ class GanttViewComponent extends React.Component {
 
         const endDateRange = this.props?.parsedGanttView?.ganttOptions?.endDateRange;
         const startDateRange = this.props?.parsedGanttView?.ganttOptions?.startDateRange;
+
         const isDependencies = this.props?.parsedGanttView?.ganttOptions?.isDependencies;
         const scaleType = this.props?.parsedGanttView?.ganttOptions?.scaleType;
         const isResources = this.props?.parsedGanttView?.ganttOptions?.isResources;
@@ -255,6 +260,8 @@ class GanttViewComponent extends React.Component {
                         onContextMenuPreparing={(e) => this.showMenu(e)}
                         id='gantt-container'
                         keyExpr='ID'
+                        focusedRowEnabled={false}
+                        hoverStateEnabled={false}
                         ref={this.ganttRef}
                         scaleType={scaleType}
                         activeStateEnabled={true}
@@ -274,9 +281,7 @@ class GanttViewComponent extends React.Component {
                         height={'100%'}
                         rootValue={-1}
                     >
-                        {/* <ContextMenu items={undefined}></ContextMenu> */}
                         <Tasks
-                            onTaskClick
                             keyExpr={keyTask}
                             dataSource={this.state.tasks}
                             parentIdExpr={parentIdTask}
@@ -308,6 +313,7 @@ class GanttViewComponent extends React.Component {
                             taskIdExpr={taskIdResourceAssigment}
                             resourceIdExpr={resourceIdResourceAssigment}
                         />
+
                         {this.state.columns}
                         <StripLine start={currentDate} title='Current Time' cssClass='current-time' />
                         <Editing enabled={isEditing} />
@@ -442,6 +448,8 @@ class GanttViewComponent extends React.Component {
                                       type='checkbox'
                                       className='dx-datagrid-checkbox-size dx-show-invalid-badge dx-checkbox dx-widget'
                                       onChange={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
                                           this.selectAll(e);
                                       }}
                                   />
@@ -473,7 +481,9 @@ class GanttViewComponent extends React.Component {
                                       type='checkbox'
                                       checked={this.state.rowElementsStorage.get(recordId)[1].value}
                                       className={_selectionClassName}
-                                      onChange={() => {
+                                      onChange={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
                                           this.selectSingleRow(selectedRowKeys, recordId);
                                       }}
                                   />{' '}

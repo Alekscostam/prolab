@@ -35,10 +35,6 @@ import ActionButton from '../../components/ActionButton';
 import LocUtils from '../../utils/LocUtils';
 import {MenuWithButtons} from '../../components/prolab/MenuWithButtons';
 
-//
-//    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
-//
-
 class GridViewComponent extends CellEditComponent {
     constructor(props) {
         super(props);
@@ -105,7 +101,7 @@ class GridViewComponent extends CellEditComponent {
     };
 
     groupCellTemplate = (element, data) => {
-        var span = document.createElement('span');
+        const span = document.createElement('span');
         span.innerHTML = data.column.caption + ': ' + data.text;
         element.append(span);
     };

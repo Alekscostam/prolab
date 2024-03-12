@@ -158,17 +158,12 @@ export const MemoizedBoolInput = React.memo(
                         id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                         name={field.fieldName}
                         onValueChanged={(e) => {
-                            if (UrlUtils.batchIdParamExist()) {
-                                if (e.event) {
-                                    const res = e.value === true ? '1' : '0';
-                                    cellInfo.setValue(res);
-                                    onOperationClick(e.value);
-                                }
-                            } else {
-                                if (e.event) {
-                                    cellInfo.setValue(e.value);
-                                }
+                            let res = e.value;
+                            if (typeof e.value === 'boolean') {
+                                res = res === true ? '1' : '0';
                             }
+                            cellInfo.setValue(res);
+                            onOperationClick(e.value);
                         }}
                         defaultValue={inputValue === true || TreeListUtils.conditionForTrueValue(inputValue)}
                         value={inputValue === true || TreeListUtils.conditionForTrueValue(inputValue)}
@@ -191,17 +186,12 @@ export const MemoizedLogicInput = React.memo(
                         id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                         name={field.fieldName}
                         onValueChanged={(e) => {
-                            if (UrlUtils.batchIdParamExist()) {
-                                if (e.event) {
-                                    const res = e.value === true ? 'T' : 'N';
-                                    cellInfo.setValue(res);
-                                    onOperationClick(e.value);
-                                }
-                            } else {
-                                if (e.event) {
-                                    cellInfo.setValue(e.value);
-                                }
+                            let res = e.value;
+                            if (typeof e.value === 'boolean') {
+                                res = res === true ? 'T' : 'N';
                             }
+                            cellInfo.setValue(res);
+                            onOperationClick(e.value);
                         }}
                         disabled={!field.edit}
                         defaultValue={inputValue === true || TreeListUtils.conditionForTrueValue(inputValue)}
@@ -504,19 +494,6 @@ export class TreeListUtils extends ViewDataCompUtils {
                 this.recursionPainting(children, value - 10, datas);
             });
         }
-    };
-
-    static unpackAllElementsFromTreeListModel = (items) => {
-        const set = new Set();
-        TreeListUtils.recursionUnpacking(items, set);
-        return [...set];
-    };
-
-    static recursionUnpacking = (items, set) => {
-        items.forEach((item) => {
-            set.add(item);
-            if (item.hasChildren) this.recursionUnpacking(item.children, set);
-        });
     };
     static findAllDescendants(tree, parentId) {
         const descendants = [];

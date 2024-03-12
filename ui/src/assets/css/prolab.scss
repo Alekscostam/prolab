@@ -684,5 +684,21 @@ iframe {
         }
     }
 }
+.dx-tabs {
+    border-style: none !important;
+    border-width: 0px !important;
+    border: 0px !important;
+    border-block-start: none !important;
+    border-block-end: none !important;
+}
+.dx-tabpanel .dx-multiview-wrapper {
+    border: 0px !important;
+    border-block-start: none !important;
+    border-block-end: none !important;
+}
+.cursor-pointer {
+    cursor: pointer !important;
+}
+
 @import 'edit_spec_field';
 @import 'edit_row';

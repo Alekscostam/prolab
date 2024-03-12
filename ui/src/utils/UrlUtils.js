@@ -23,10 +23,15 @@ class UrlUtils {
             return null;
         }
     }
-    static removeAndAddParam(paramName, idToReplace, url){
-       let deleteParamFromUrl =  this.deleteParameterFromURL(url, paramName)
-       let addParamToUrl = this.addParameterToURL(deleteParamFromUrl, paramName, idToReplace);
-       return addParamToUrl;
+    static isLoginPage() {
+        const textAfterHash = window.location.href.split('/#/')[1];
+        const onLogoutUrl = !(textAfterHash && textAfterHash.trim() !== '');
+        return onLogoutUrl;
+    }
+    static removeAndAddParam(paramName, idToReplace, url) {
+        let deleteParamFromUrl = this.deleteParameterFromURL(url, paramName);
+        let addParamToUrl = this.addParameterToURL(deleteParamFromUrl, paramName, idToReplace);
+        return addParamToUrl;
     }
     static batchIdParamExist() {
         const batchId = this.getURLParameter('batchId');
@@ -56,10 +61,12 @@ class UrlUtils {
         return window.location.href.includes(param);
     }
     static isEditRowOpen() {
+        const editViewId = UrlUtils.getURLParameter('editViewId');
         const editParentId = UrlUtils.getURLParameter('editParentId');
         const editRecordId = UrlUtils.getURLParameter('editRecordId');
         const editKindView = UrlUtils.getURLParameter('editKindView');
         return (
+            !StringUtils.isBlank(editViewId) ||
             !StringUtils.isBlank(editParentId) ||
             !StringUtils.isBlank(editRecordId) ||
             !StringUtils.isBlank(editKindView)
@@ -95,6 +102,8 @@ class UrlUtils {
             '&editRecordId=' + UrlUtils.getURLParameter('editRecordId'),
             '?editKindView=' + UrlUtils.getURLParameter('editKindView'),
             '&editKindView=' + UrlUtils.getURLParameter('editKindView'),
+            '?editViewId=' + UrlUtils.getURLParameter('editViewId'),
+            '&editViewId=' + UrlUtils.getURLParameter('editViewId'),
         ];
         let urlWithRemovedParams = currentUrl
             .replace(paramsToRemove[0], '')
@@ -102,13 +111,18 @@ class UrlUtils {
             .replace(paramsToRemove[2], '')
             .replace(paramsToRemove[3], '')
             .replace(paramsToRemove[4], '')
-            .replace(paramsToRemove[5], '');
+            .replace(paramsToRemove[5], '')
+            .replace(paramsToRemove[6], '')
+            .replace(paramsToRemove[7], '');
         return urlWithRemovedParams;
     }
 
-    static getUrlWithEditRowParams(recordId, parentId, kindView) {
+    static getUrlWithEditRowParams(recordId, parentId, viewId, kindView) {
         let queryStringTmp = [];
         const firstChar = UrlUtils.isBcParamExist() ? '&' : '?';
+        if (!!viewId && StringUtils.isBlank(UrlUtils.getURLParameter('editViewId'))) {
+            queryStringTmp.push(`editViewId=${viewId}`);
+        }
         if (!!parentId && StringUtils.isBlank(UrlUtils.getURLParameter('editParentId'))) {
             queryStringTmp.push(`editParentId=${parentId}`);
         }

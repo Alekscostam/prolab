@@ -68,7 +68,6 @@ export default class EditListComponent extends React.Component {
                     style={{width: width, height: height}}
                     onHide={() => this.props.onHide()}
                 >
-                    
                     <GridViewComponent
                         id={this.props.id}
                         elementSubViewId={null}

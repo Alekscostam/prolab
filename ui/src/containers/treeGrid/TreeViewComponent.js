@@ -27,17 +27,12 @@ import {compress} from 'int-compress-string';
 import CellEditComponent from '../CellEditComponent';
 import {StringUtils} from '../../utils/StringUtils';
 import Image from '../../components/Image';
-import {getExpandAllInitialized, setExpandAllInitialized} from '../AddSpecContainer';
 import {MenuWithButtons} from '../../components/prolab/MenuWithButtons';
 import LocUtils from '../../utils/LocUtils';
 import ActionButton from '../../components/ActionButton';
 import {OperationType} from '../../model/OperationType';
-
-//
-//    https://js.devexpress.com/Documentation/Guide/UI_Components/TreeList/Getting_Started_with_TreeList/
-//
 let clearSelection = false;
-
+// TODO: listy podpwoiedzie w dodawnaiu parametrów
 class TreeViewComponent extends CellEditComponent {
     constructor(props) {
         super(props);
@@ -49,11 +44,16 @@ class TreeViewComponent extends CellEditComponent {
         this.modelRef = React.createRef([]);
         this.selectedRecordIdRef = React.createRef();
         this.editListDataStore = new EditListDataStore();
+        this.viewInfo = {
+            headerId: undefined,
+            type: undefined,
+        };
         this.state = {
             editListVisible: false,
             editorDialogVisisble: false,
             groupExpandAll: this.props.parsedGridView?.gridOptions?.groupExpandAll || false,
             editListRecordId: null,
+            expandedRowKeys: [],
             mode: 'cell',
             parsedGridView: {},
             operationsPPM: this.props.parsedGridView.operationsPPM,
@@ -65,6 +65,35 @@ class TreeViewComponent extends CellEditComponent {
             preInitializedColumns: [],
         };
     }
+
+    componentDidMount() {
+        super.componentDidMount();
+        this.putAdditionalOperations();
+        this.createCheckboxColumn();
+    }
+    putAdditionalOperations() {
+        const operationsPPM = this.state.operationsPPM;
+        if (operationsPPM.find((el) => el.type === OperationType.OP_CHECK_OR_UNCHECK)) {
+            return;
+        }
+        operationsPPM.push({
+            type: OperationType.OP_CHECK_OR_UNCHECK,
+            className: 'check-uncheck-operation',
+            iconCode: 'mdi-check-all',
+            label: LocUtils.loc(this.labels, 'Check_or_uncheck', 'Zaznacz/odznacz gałąź'),
+        });
+        operationsPPM.push({
+            type: OperationType.OP_EXPAND_OR_COLLAPSE,
+            className: 'expand-collapse-operation',
+            iconCode: 'mdi-check-all',
+            label: LocUtils.loc(this.labels, 'Expand_or_collapse', 'Zwiń/rozwiń gałąź'),
+        });
+        this.setState({operationsPPM});
+    }
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        return prevProps.id !== prevState.id && prevProps.elementRecordId !== prevState.elementRecordId;
+    }
+
     showMenu(e) {
         const menu = this.menu.current;
         const actionButtonWithMenuContant = document.getElementById('action-button-with-menu-contant');
@@ -83,6 +112,9 @@ class TreeViewComponent extends CellEditComponent {
                 const checkUncheck =
                     document.getElementsByClassName('check-uncheck-operation')[0].children[0].children[1];
                 checkUncheck.innerText = this.createLabelForCheckOrUnchack(e.row.data._ID);
+                const expandCollapse =
+                    document.getElementsByClassName('expand-collapse-operation')[0].children[0].children[1];
+                expandCollapse.innerText = this.createLabelForExpandOrCollapse();
                 menu.style.left = mouseX + 'px';
                 menu.style.top = mouseY + 'px';
             }
@@ -92,7 +124,14 @@ class TreeViewComponent extends CellEditComponent {
         const foundedItem = this.ref.instance.getSelectedRowKeys().find((id) => {
             return id === idClicked;
         });
-        return foundedItem ? 'Odznacz gałąź' : 'Zaznacz gałąź';
+        return foundedItem
+            ? LocUtils.loc(this.labels, 'Uncheck_branch', 'Odznacz gałąź')
+            : LocUtils.loc(this.labels, 'Check_branch', 'Zaznacz gałąź');
+    }
+    createLabelForExpandOrCollapse() {
+        return this.state.expandedRowKeys.length !== 0
+            ? LocUtils.loc(this.labels, 'Expand_tree', 'Zwiń drzewka')
+            : LocUtils.loc(this.labels, 'Collapse_tree', 'Rozwiń Drzewka');
     }
 
     createCheckboxColumn() {
@@ -101,7 +140,7 @@ class TreeViewComponent extends CellEditComponent {
             return;
         }
         if (gridViewColumns[0].id !== undefined && gridViewColumns[0].id !== null) {
-            gridViewColumns.unshift({width: this.calculateWidthOfSelectionColumn()});
+            gridViewColumns.unshift({width: this.calculateWidthOfSelectionColumn(), checkbox: true});
         }
     }
     calculateWidthOfSelectionColumn() {
@@ -132,35 +171,13 @@ class TreeViewComponent extends CellEditComponent {
         }
         return highestValue;
     }
-    componentDidMount() {
-        this.putAdditionalOperations();
-        this.createCheckboxColumn();
-    }
-    putAdditionalOperations() {
-        const operationsPPM = this.state.operationsPPM;
-        if (operationsPPM.find((el) => el.type === OperationType.OP_CHECK_OR_UNCHECK)) {
-            return;
-        }
-        const opSave = operationsPPM.find((element) => element.type === OperationType.OP_SAVE);
-        if (opSave) {
-            opSave.iconCode = 'mdi-plus';
-        }
-        operationsPPM.push({
-            type: OperationType.OP_CHECK_OR_UNCHECK,
-            className: 'check-uncheck-operation',
-            iconCode: 'mdi-check-all',
-            label: LocUtils.loc(this.labels, 'Check_or_uncheck', 'Zaznacz/odznacz gałąź'),
-        });
-        this.setState({operationsPPM: operationsPPM});
-    }
-
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        return prevProps.id !== prevState.id && prevProps.elementRecordId !== prevState.elementRecordId;
-    }
 
     componentWillUnmount() {
         clearSelection = false;
-        setExpandAllInitialized(false);
+        this.viewInfo = {
+            headerId: undefined,
+            type: undefined,
+        };
     }
     findRowDataById(recordId) {
         let editData = this.props.parsedGridViewData.filter((item) => {
@@ -176,6 +193,7 @@ class TreeViewComponent extends CellEditComponent {
     }
     isSpecialCell(columnDefinition) {
         const type = columnDefinition?.type;
+
         try {
             switch (type) {
                 case 'H':
@@ -190,6 +208,9 @@ class TreeViewComponent extends CellEditComponent {
             }
         } catch (ex) {}
         return false;
+    }
+    getAllRowsId() {
+        return this.props.parsedGridViewData.map((el) => el._ID);
     }
 
     render() {
@@ -234,6 +255,10 @@ class TreeViewComponent extends CellEditComponent {
                         this.ref = ref;
                         this.props.handleOnTreeList(this.ref);
                     }}
+                    onExpandedRowKeysChange={(e) => {
+                        this.setState({expandedRowKeys: e});
+                    }}
+                    expandedRowKeys={this.state.expandedRowKeys}
                     focusedRowEnabled={this.props.focusedRowEnabled}
                     hoverStateEnabled={this.props.hoverStateEnabled}
                     autoNavigateToFocusedRow={false}
@@ -242,7 +267,7 @@ class TreeViewComponent extends CellEditComponent {
                     wordWrapEnabled={rowAutoHeight}
                     columnAutoWidth={columnAutoWidth}
                     columnResizingMode='widget'
-                    // autoExpandAll={this.state.groupExpandAll}
+                    repaintChangesOnly={true}
                     onOptionChanged={(e) => {
                         if (e.fullName.includes('filterValue') && e.name === 'columns') {
                             if (this.ref) {
@@ -253,15 +278,7 @@ class TreeViewComponent extends CellEditComponent {
                     }}
                     onContentReady={(e) => {
                         const editListDialog = document.getElementById('editListDialog');
-                        // ze wzgledów optymalizacyjnych
-                        if (!getExpandAllInitialized() && this.state.groupExpandAll && this.ref !== null) {
-                            setExpandAllInitialized(true);
-                            const treeList = this.ref.instance;
-                            const data = this.props.parsedGridViewData;
-                            setTimeout(function () {
-                                data.forEach((el) => treeList.expandRow(el._ID));
-                            }, 0);
-                        }
+                        this.expandRows();
                         if (!editListDialog) {
                             this.rerenderRows(e);
                             return;
@@ -306,7 +323,6 @@ class TreeViewComponent extends CellEditComponent {
                     parentIdExpr='_ID_PARENT'
                     onCellClick={(e) => {
                         if (e?.column?.ownOnlySelectList) {
-                            // this.setState({editListVisible: true});
                             this.editListVisible(e.data._ID, e.column.ownFieldId);
                         }
                     }}
@@ -333,9 +349,6 @@ class TreeViewComponent extends CellEditComponent {
                         showCheckBoxesMode='always'
                         allowSelectAll={allowSelectAll}
                     />
-                    {/*- virtual działa szybko ale wyżera heap przeglądarki
-                        - normal długo wczytuje ale heap jest stabilniejszy
-                    */}
                     <Scrolling
                         mode='virtual'
                         useNative={false}
@@ -355,8 +368,8 @@ class TreeViewComponent extends CellEditComponent {
                         deferred={this.props.selectionDeferred}
                     />
                     <LoadPanel
-                        enabled={true}
-                        showIndicator={true}
+                        enabled={false}
+                        showIndicator={false}
                         shadingColor='rgba(0,0,0,0.4)'
                         showPane={false}
                         position='absolute'
@@ -365,7 +378,10 @@ class TreeViewComponent extends CellEditComponent {
                 </TreeList>
                 <MenuWithButtons
                     handleSaveAction={() => this.props.handleSaveAction()}
+                    handleAddSpecCount={() => this.props.handleAddSpecCount()}
+                    handleExpandOrCollapse={() => this.handleExpandOrCollapse()}
                     handleAddSpecSpec={() => this.props.handleAddSpecSpec(selectedRecordId)}
+                    handleExecSpec={() => this.props.handleExecSpec()}
                     handleAddSpec={() => this.props.addButtonFunction()}
                     handleHrefSubview={() => this.handleHrefSubview(viewId, selectedRecordId, currentBreadcrumb)}
                     handleEdit={() => this.handleEdit(viewId, parentId, kindView, selectedRecordId, currentBreadcrumb)}
@@ -382,9 +398,7 @@ class TreeViewComponent extends CellEditComponent {
                     handleFormula={() => this.props.handleFormulaRow(selectedRecordId)}
                     handleHistory={() => this.props.handleHistoryLogRow(selectedRecordId)}
                     handleFill={() => this.props.handleFillRow(selectedRecordId)}
-                    handleCheckOrUncheck={() => {
-                        this.checkOrUncheckEntireBranch(selectedRecordId);
-                    }}
+                    handleCheckOrUncheck={() => this.handleCheckOrUncheckEntireBranch(selectedRecordId)}
                     handleUp={() => {
                         this.forceUpdate();
                         this.props.handleUp(selectedRecordId);
@@ -400,8 +414,30 @@ class TreeViewComponent extends CellEditComponent {
             </React.Fragment>
         );
     }
-
-    checkOrUncheckEntireBranch() {
+    handleExpandOrCollapse() {
+        let expandedRowKeys = this.props.parsedGridViewData.map((el) => el._ID);
+        if (this.state.expandedRowKeys.length !== 0) {
+            expandedRowKeys = [];
+        }
+        this.setState({
+            expandedRowKeys,
+        });
+    }
+    expandRows() {
+        const viewInfo = this.props.viewInfo;
+        if (
+            this.state.groupExpandAll &&
+            (viewInfo.type !== this.viewInfo?.type || viewInfo.headerId !== this.viewInfo?.headerId)
+        ) {
+            const expandedRowKeys = this.props.parsedGridViewData.map((el) => el._ID);
+            this.setState({
+                expandedRowKeys: expandedRowKeys,
+            });
+        }
+        this.viewInfo.type = viewInfo.type;
+        this.viewInfo.headerId = viewInfo.headerId;
+    }
+    handleCheckOrUncheckEntireBranch() {
         const parentId = this.selectedRecordIdRef.current;
         const tree = this.props.parsedGridViewData;
         let descendants = TreeListUtils.findAllDescendants(tree, parentId);
@@ -558,7 +594,17 @@ class TreeViewComponent extends CellEditComponent {
                     }
                     editCellRender={(cellInfo) =>
                         this.editCellRender(cellInfo, columnDefinition, () => {
-                            this.editListVisible(cellInfo.row?.data?._ID, columnDefinition.id);
+                            switch (columnDefinition.type) {
+                                case 'C':
+                                    this.editListVisible(cellInfo.row?.data?._ID, columnDefinition.id);
+                                    break;
+                                case 'L':
+                                case 'B':
+                                    this.forceUpdate();
+                                    break;
+                                default:
+                                    break;
+                            }
                         })
                     }
                 />
@@ -570,6 +616,7 @@ class TreeViewComponent extends CellEditComponent {
     isFakeColumnWithoutIndex(columnDefinition) {
         return (
             columnDefinition?.fieldName === undefined &&
+            columnDefinition?.checkbox === true &&
             columnDefinition.index === undefined &&
             columnDefinition?.label === undefined
         );
@@ -606,8 +653,6 @@ class TreeViewComponent extends CellEditComponent {
                             column.format = TreeListUtils.specifyColumnFormat(columnDefinition?.type);
                             if (this.isFakeColumnWithoutIndex(columnDefinition)) {
                                 column.index = 0;
-                            }
-                            if (column.index === 0) {
                                 column.fixed = true;
                                 column.fixedPosition = 'left';
                             } else {
@@ -656,6 +701,10 @@ class TreeViewComponent extends CellEditComponent {
                         width: 10 + (33 * operationsRecord.length + (operationsRecordList?.length > 0 ? 33 : 0)),
                         fixedPosition: 'right',
                         cellTemplate: (element, info) => {
+                            // TODO: niech ebdzioe cursor pointer tam gdzie pownien
+                            // if (info.column.allowEditing) {
+                            //     element.classList.add('cursor-pointer');
+                            // }
                             let el = document.createElement('div');
                             el.id = `actions-${info.column.headerId}-${info.rowIndex}`;
                             element.append(el);
@@ -745,6 +794,15 @@ class TreeViewComponent extends CellEditComponent {
             />
         );
     }
+    onHideImageCallBack() {
+        const rowDatas = this.ref.instance.getVisibleRows();
+        this.paintLineIfPossible(rowDatas);
+    }
+    onHideEditorCallback() {
+        if (this.props.onHideEditorCallback) {
+            this.props.onHideEditorCallback();
+        }
+    }
     cellRenderSpecial(cellInfo) {
         try {
             let _bgColor;
@@ -805,6 +863,7 @@ class TreeViewComponent extends CellEditComponent {
                     try {
                         return (
                             <span
+                                className={`cursor-pointer`}
                                 style={{
                                     color: fontColorFinal,
                                     // background: bgColorFinal,
@@ -868,7 +927,8 @@ class TreeViewComponent extends CellEditComponent {
                                 return (
                                     <div>
                                         <Image
-                                            onRemove={() => {
+                                            onRemove={(e) => {
+                                                this.trashClicked.current = true;
                                                 setTimeout(function () {
                                                     document.getElementById('trash-button').click();
                                                     setTimeout(function () {
@@ -911,9 +971,14 @@ class TreeViewComponent extends CellEditComponent {
 
     // doklejamy style
     paintLineIfPossible = (datas) => {
-        const elements = Array.from(document.querySelectorAll('td[aria-describedby=column_0_undefined-fixed]'));
-        if (datas.length !== elements.length) {
-            elements.shift();
+        const elements = Array.from(document.querySelectorAll('td[aria-describedby=column_0_undefined-fixed]')).filter(
+            (el) => el.className !== 'dx-editor-cell'
+        );
+        if (elements.length - datas.length) {
+            const differenceInLength = elements.length - datas.length;
+            for (let index = 0; index < differenceInLength; index++) {
+                elements.shift();
+            }
         }
         Array.from(elements).forEach((row, elementIndex) => {
             datas.forEach((idata, dataIndex) => {

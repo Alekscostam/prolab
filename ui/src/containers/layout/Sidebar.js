@@ -1,7 +1,7 @@
 /***********************************************************************
  Documentations = https://github.com/azouaoui-med/pro-sidebar-template
  ************************************************************************/
-import $, {Callbacks} from 'jquery';
+import $ from 'jquery';
 import {Button} from 'primereact/button';
 import * as PropTypes from 'prop-types';
 import React from 'react';
@@ -32,7 +32,6 @@ class Sidebar extends React.Component {
             filteredMenu: [],
             filterValue: '',
             collapsed: false,
-
             toggled: false,
             versionAPI: null,
             menuState: [],
@@ -55,38 +54,42 @@ class Sidebar extends React.Component {
 
     componentDidMount() {
         ConsoleHelper('sidebar => componentDidMount');
-        this.menuService
-            .getMenu()
-            .then((data) => {
-                MenuValidatorUtils.validation(data.menu);
-                this.setState(
-                    {
-                        loading: false,
-                        menu: data.menu,
-                    },
-                    () => {
-                        this.handleFilter('');
-                    }
-                );
-            })
-            .catch((err) => {
-                console.error('Error initialized menu. Error = ', err);
-                this.setState({
-                    loading: false,
-                });
-            });
-
-        this.versionService
-            .getVersion()
-            .then((data) => {
-                this.setState(
-                    {
-                        versionAPI: data.VersionAPI,
-                    },
-                    () => {}
-                );
-            })
-            .catch(() => {});
+        if (sessionStorage.getItem('logged_in')) {
+            if (!localStorage.getItem('menu')) {
+                this.menuService
+                    .getMenu()
+                    .then((data) => {
+                        localStorage.setItem('menu', JSON.stringify(data.menu));
+                        MenuValidatorUtils.validation(data.menu);
+                        this.setState(
+                            {
+                                loading: false,
+                                menu: data.menu,
+                            },
+                            () => {
+                                this.handleFilter('');
+                            }
+                        );
+                    })
+                    .catch((err) => {
+                        console.error('Error initialized menu. Error = ', err);
+                        this.setState({
+                            loading: false,
+                        });
+                    });
+            } else {
+                this.handleFilter('');
+            }
+            if (!localStorage.getItem('versionAPI')) {
+                this.versionService
+                    .getVersion()
+                    .then((data) => {
+                        localStorage.setItem('versionAPI', JSON.stringify(data.VersionAPI));
+                        this.forceUpdate();
+                    })
+                    .catch(() => {});
+            }
+        }
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -182,7 +185,7 @@ class Sidebar extends React.Component {
     }
 
     handleFilter(filterValue) {
-        const menu = this.state.menu;
+        const menu = JSON.parse(localStorage.getItem('menu'));
         if (menu !== undefined && filterValue !== null) {
             if (filterValue === undefined || filterValue === null || filterValue === '') {
                 this.setState({filteredMenu: menu, filterValue});
@@ -475,11 +478,11 @@ class Sidebar extends React.Component {
                             {this.sessionTimeOutComponent()}
                         </div>
                         {!collapsed ? (
-                            <div
-                                id={'version'}
-                                className={'to-right'}
-                                style={{marginRight: '5px'}}
-                            >{`ver: ${packageJson.version}_${this.state.uiVersion?.buildNumber} api: ${this.state.versionAPI}`}</div>
+                            <div id={'version'} className={'to-right'} style={{marginRight: '5px'}}>{`ver: ${
+                                packageJson.version
+                            }_${this.state.uiVersion?.buildNumber} api: ${JSON.parse(
+                                localStorage.getItem('versionAPI')
+                            )}`}</div>
                         ) : null}
                     </SidebarFooter>
                 </ProSidebar>

@@ -77,6 +77,7 @@ export class EditRowComponent extends BaseRowComponent {
         if (visibleEditPanel) {
             addCustomOverlayToElement('grid-selection-panel');
             addCustomOverlayToElement('dx-tabs-wrapper');
+            addCustomOverlayToElement('dx-gantt');
             addCustomOverlayToElement('title-dashboard');
             addCustomOverlayToElement('dx-tileview');
             addCustomOverlayToElement('view-info-name');
@@ -88,6 +89,7 @@ export class EditRowComponent extends BaseRowComponent {
     removeOverlay() {
         removeCustomOverlayToElement('grid-selection-panel');
         removeCustomOverlayToElement('dx-tabs-wrapper');
+        removeCustomOverlayToElement('dx-gantt');
         removeCustomOverlayToElement('title-dashboard');
         removeCustomOverlayToElement('dx-tileview');
         removeCustomOverlayToElement('grid-container');

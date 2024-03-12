@@ -19,7 +19,7 @@ import LocUtils from '../../utils/LocUtils';
 import DashboardCardViewComponent from './DashboardCardViewComponent';
 import CrudService from '../../services/CrudService';
 import {EntryResponseUtils} from '../../utils/EntryResponseUtils';
-import HistoryLogListComponent from '../../components/prolab/HistoryLogListComponent';
+import HistoryLogDialogComponent from '../../components/prolab/HistoryLogDialogComponent';
 import {AttachmentViewDialog} from '../attachmentView/AttachmentViewDialog';
 
 class DashboardContainer extends BaseContainer {
@@ -52,10 +52,10 @@ class DashboardContainer extends BaseContainer {
             this.downloadDashboardData();
             return;
         }
-       this.restateDashboard();
+        this.restateDashboard();
     }
 
-    restateDashboard(){
+    restateDashboard() {
         this.blockUi();
         this.setState(
             {
@@ -73,49 +73,49 @@ class DashboardContainer extends BaseContainer {
         UrlUtils.isStartPage() ? this.initializeDashboard() : this.getSubViewEntry();
     };
 
-    getSubViewEntry(){
+    getSubViewEntry() {
         const {dashboard} = this.props;
         const id = dashboard?.viewInfo?.id;
         const recordId = UrlUtils.getURLParameter('recordId');
         const parentId = UrlUtils.getURLParameter('parentId');
-        if(id){   
+        if (id) {
             this.viewService
-            .subViewEntry(id, recordId, parentId)
-            .then((entryResponse) => {
-                EntryResponseUtils.run(
-                    entryResponse,
-                    () => {
-                        if (!!entryResponse.next) {
-                            this.viewService
-                                .getSubView(id, recordId, parentId)
-                                .then((subViewResponse) => {
-                                    if (subViewResponse.viewInfo?.type === 'dashboard') {
-                                        this.setState(
-                                            {
-                                                dashboard: subViewResponse,
-                                                loading: false,
-                                            },
-                                            () => {
-                                                this.prepareCardView();
-                                                this.unblockUi();
-                                            }
-                                        );
-                                    }
-                                })
-                                .catch((err) => {
-                                    this.showGlobalErrorMessage(err);
-                                });
-                        } else {
-                            this.unblockUi();
-                        }
-                    },
-                    () => this.unblockUi()
-                );
-            })
-            .catch((err) => {
-                this.showGlobalErrorMessage(err);
-            });}
-     
+                .subViewEntry(id, recordId, parentId)
+                .then((entryResponse) => {
+                    EntryResponseUtils.run(
+                        entryResponse,
+                        () => {
+                            if (!!entryResponse.next) {
+                                this.viewService
+                                    .getSubView(id, recordId, parentId)
+                                    .then((subViewResponse) => {
+                                        if (subViewResponse.viewInfo?.type === 'dashboard') {
+                                            this.setState(
+                                                {
+                                                    dashboard: subViewResponse,
+                                                    loading: false,
+                                                },
+                                                () => {
+                                                    this.prepareCardView();
+                                                    this.unblockUi();
+                                                }
+                                            );
+                                        }
+                                    })
+                                    .catch((err) => {
+                                        this.showGlobalErrorMessage(err);
+                                    });
+                            } else {
+                                this.unblockUi();
+                            }
+                        },
+                        () => this.unblockUi()
+                    );
+                })
+                .catch((err) => {
+                    this.showGlobalErrorMessage(err);
+                });
+        }
     }
 
     initializeDashboard = () => {
@@ -202,54 +202,54 @@ class DashboardContainer extends BaseContainer {
     renderGlobalTop() {
         return (
             <React.Fragment>
-                {this.state.visibleEditPanel && <EditRowComponent
-                    visibleEditPanel={this.state.visibleEditPanel}
-                    editData={this.state.editData}
-                    onChange={this.handleEditRowChange}
-                    onBlur={this.handleEditRowBlur}
-                    onSave={this.handleEditRowSave}
-                    onEditList={this.handleEditListRowChange}
-                    onAutoFill={this.handleAutoFillRowChange}
-                    onCancel={this.handleCancelRowChange}
-                    copyData={this.state?.copyData}
-                    validator={this.validator}
-                    onCloseCustom={() => {
-                        this.setState({
-                            visibleEditPanel: false,
-                        });
-                    }}
-                    onHide={(e, viewId, recordId, parentId) =>{ 
-                        (
-                            
+                {this.state.visibleEditPanel && (
+                    <EditRowComponent
+                        visibleEditPanel={this.state.visibleEditPanel}
+                        editData={this.state.editData}
+                        onChange={this.handleEditRowChange}
+                        onBlur={this.handleEditRowBlur}
+                        onSave={this.handleEditRowSave}
+                        onEditList={this.handleEditListRowChange}
+                        onAutoFill={this.handleAutoFillRowChange}
+                        onCancel={this.handleCancelRowChange}
+                        copyData={this.state?.copyData}
+                        validator={this.validator}
+                        onCloseCustom={() => {
+                            this.setState({
+                                visibleEditPanel: false,
+                            });
+                        }}
+                        onHide={(e, viewId, recordId, parentId) => {
                             !!this.state.modifyEditData
-                            ? confirmDialog({
-                                  appendTo: document.body,
-                                  message: LocUtils.loc(
-                                      this.props.labels,
-                                      'Question_Close_Edit',
-                                      'Czy na pewno chcesz zamknąć edycję?'
-                                  ),
-                                  header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
-                                  icon: 'pi pi-exclamation-triangle',
-                                  acceptLabel: localeOptions('accept'),
-                                  rejectLabel: localeOptions('reject'),
-                                  accept: () => {
+                                ? confirmDialog({
+                                      appendTo: document.body,
+                                      message: LocUtils.loc(
+                                          this.props.labels,
+                                          'Question_Close_Edit',
+                                          'Czy na pewno chcesz zamknąć edycję?'
+                                      ),
+                                      header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
+                                      icon: 'pi pi-exclamation-triangle',
+                                      acceptLabel: localeOptions('accept'),
+                                      rejectLabel: localeOptions('reject'),
+                                      accept: () => {
+                                          this.handleCancelRowChange(viewId, recordId, parentId);
+                                          this.setState({visibleEditPanel: e});
+                                      },
+                                      reject: () => undefined,
+                                  })
+                                : this.setState({visibleEditPanel: e}, () => {
                                       this.handleCancelRowChange(viewId, recordId, parentId);
-                                      this.setState({visibleEditPanel: e});
-                                  },
-                                  reject: () => undefined,
-                              })
-                            : this.setState({visibleEditPanel: e}, () => {
-                                  this.handleCancelRowChange(viewId, recordId, parentId);
-                              }))}
-                    }
-                    onError={(e) => this.showErrorMessage(e)}
-                    labels={this.props.labels}
-                    showErrorMessages={(err) => this.showErrorMessages(err)}
-                />}
-                
+                                  });
+                        }}
+                        onError={(e) => this.showErrorMessage(e)}
+                        labels={this.props.labels}
+                        showErrorMessages={(err) => this.showErrorMessages(err)}
+                    />
+                )}
+
                 {this.state.visibleHistoryLogPanel ? (
-                    <HistoryLogListComponent
+                    <HistoryLogDialogComponent
                         visible={this.state.visibleHistoryLogPanel}
                         field={this.state.editListField}
                         parsedHistoryLogView={this.state.parsedHistoryLogView}

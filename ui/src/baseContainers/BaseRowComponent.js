@@ -687,6 +687,10 @@ export class BaseRowComponent extends BaseContainer {
                         </label>
                         <HtmlEditor
                             id={`editor_${fieldIndex}`}
+                            onContentReady={(e) => {
+                                e.element.className =
+                                    'editor editable-border dx-show-invalid-badge dx-htmleditor dx-htmleditor-custom-underlined dx-widget';
+                            }}
                             className={`editor ${autoFill} ${editable} ${validate}`}
                             defaultValue={field.value}
                             onValueChange={(e) => {

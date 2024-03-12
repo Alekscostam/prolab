@@ -6,7 +6,7 @@ import {Button} from 'primereact/button';
 import LocUtils from '../../utils/LocUtils';
 import {Toast} from 'primereact/toast';
 
-export default class HistoryLogListComponent extends React.Component {
+export default class HistoryLogDialogComponent extends React.Component {
     constructor(props) {
         super(props);
         this.refDataGrid = {};
@@ -110,12 +110,12 @@ export default class HistoryLogListComponent extends React.Component {
     }
 }
 
-HistoryLogListComponent.defaultProps = {
+HistoryLogDialogComponent.defaultProps = {
     visible: true,
     dataPluginStoreSuccess: true,
 };
 
-HistoryLogListComponent.defaultProps = {
+HistoryLogDialogComponent.defaultProps = {
     id: PropTypes.number.isRequired,
     visible: PropTypes.bool.isRequired,
     onHide: PropTypes.func.isRequired,

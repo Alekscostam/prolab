@@ -58,19 +58,19 @@ export class EditRowViewComponent extends BaseRowComponent {
     }
 
     openEditRow() {
-        const viewId = UrlUtils.getIdFromUrl();
+        const editViewId = UrlUtils.getURLParameter('editViewId');
         const editParentId = UrlUtils.getURLParameter('editParentId');
         const editRecordId = UrlUtils.getURLParameter('editRecordId');
         const editKindView = UrlUtils.getURLParameter('editKindView');
         this.crudService
-            .editEntry(viewId, editRecordId, editParentId, editKindView, '')
+            .editEntry(editViewId, editRecordId, editParentId, editKindView, '')
             .then((entryResponse) => {
                 EntryResponseUtils.run(
                     entryResponse,
                     () => {
                         if (!!entryResponse.next) {
                             this.crudService
-                                .edit(viewId, editRecordId, editParentId, editKindView)
+                                .edit(editViewId, editRecordId, editParentId, editKindView)
                                 .then((editDataResponse) => {
                                     this.props.editDataChange(editDataResponse);
                                 })

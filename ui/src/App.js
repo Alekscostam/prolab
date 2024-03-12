@@ -41,9 +41,7 @@ export let renderNoRefreshContentFnc;
 export let sessionPrelongFnc = null;
 export let addBtn = null;
 // TODO: pole logiczne w działa zle w grupwoaniu na hederek
-// TODO: nie ma block UI na widok kafelek
-// TODO: w załacnzikach usunąć doklejanie urla
-// TODO: zablokowac ekran w gancie w edycji
+
 class App extends Component {
     constructor() {
         super();
@@ -174,13 +172,11 @@ class App extends Component {
             }, 1000);
         }
     }
-
     showSessionTimedOut() {
         const sessionTimeout = Date.parse(localStorage.getItem('session_timeout'));
-        const now = new Date();
         const tickerPopupDate = new Date();
         tickerPopupDate.setSeconds(tickerPopupDate.getSeconds() + 45);
-        const duration = moment.duration(sessionTimeout - now);
+        const duration = this.getDurationToLogout();
         const timeToLeaveSession = {
             hours: duration.hours(),
             minutes: duration.minutes(),
@@ -203,7 +199,11 @@ class App extends Component {
             });
         }
     }
-
+    getDurationToLogout() {
+        const sessionTimeout = Date.parse(localStorage.getItem('session_timeout'));
+        const now = new Date();
+        return moment.duration(sessionTimeout - now);
+    }
     prelongSessionIfUserExist(fromDialogSession, callBack) {
         const loggedUser = this.authService.isLoggedUser();
         if (loggedUser) {
@@ -219,7 +219,6 @@ class App extends Component {
             }
         }
     }
-
     componentWillUnmount() {
         this.unregisteredEventForSession();
         clearTimeout(this.timer);
@@ -350,6 +349,7 @@ class App extends Component {
             <Login
                 {...props}
                 onAfterLogin={() => {
+                    sessionStorage.setItem('logged_in', true);
                     this.setState(
                         {
                             user: this.authService.getProfile().sub,
@@ -380,7 +380,9 @@ class App extends Component {
             return false;
         }
         if (tokenExpired) {
-            return false;
+            const textAfterHash = window.location.href.split('/#/')[1];
+            const onLogoutUrl = !(textAfterHash && textAfterHash.trim() !== '');
+            return true;
         }
         return true;
     }
@@ -403,6 +405,17 @@ class App extends Component {
             />
         );
     };
+
+    showSidebar() {
+        if (!UrlUtils.isLoginPage() && !UrlUtils.isEditRowView()) {
+            const prosidebar = document.getElementsByClassName('pro-sidebar');
+            if (prosidebar.length === 0 && !UrlUtils.isStartPage()) {
+                this.authService.refresh();
+            }
+            return true;
+        }
+        return false;
+    }
 
     render() {
         const authService = this.authService;
@@ -485,7 +498,7 @@ class App extends Component {
                             }}
                         >
                             <div className={`${loggedIn ? 'app' : ''}`}>
-                                {this.enabledSidebar() && (
+                                {this.showSidebar() && (
                                     <Sidebar
                                         authService={this.authService}
                                         historyBrowser={this.historyBrowser}
@@ -497,7 +510,7 @@ class App extends Component {
                                         }
                                         onClickItemHrefReactionEnabled={this.state.sidebarClickItemReactionEnabled}
                                         labels={this.state.labels}
-                                        collapsed={this.state.collapsed}
+                                        collapsed={true}
                                         handleCollapseChange={(e) => this.handleCollapseChange(e)}
                                     />
                                 )}

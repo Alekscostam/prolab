@@ -15,14 +15,14 @@ export const Image = (props) => {
         }
         if (rendered) {
             return (
-                <div>
+                <div className='cursor-pointer'>
                     {canRemove ? (
                         <div className='row'>
                             <div className='ml-3 mr-2' style={{marginTop: '6px'}}>
                                 <i
-                                    onClick={() => {
+                                    onClick={(e) => {
                                         if (onRemove) {
-                                            onRemove();
+                                            onRemove(e);
                                         }
                                     }}
                                     style={{
@@ -32,7 +32,17 @@ export const Image = (props) => {
                                     className='icon mdi mdi-trash-can mdi-trash-background trash-icon-treeview'
                                 ></i>
                             </div>
-                            <img style={style} className={className} alt={alt} src={base64Tmp} />
+                            <img
+                                style={style}
+                                className={className}
+                                alt={alt}
+                                src={base64Tmp}
+                                onClick={(e) => {
+                                    if (onImageClick) {
+                                        onImageClick(base64Tmp, e);
+                                    }
+                                }}
+                            />
                         </div>
                     ) : (
                         <img
@@ -40,9 +50,9 @@ export const Image = (props) => {
                             className={className}
                             alt={alt}
                             src={base64Tmp}
-                            onClick={() => {
+                            onClick={(e) => {
                                 if (onImageClick) {
-                                    onImageClick(base64Tmp);
+                                    onImageClick(base64Tmp, e);
                                 }
                             }}
                         />
@@ -67,6 +77,7 @@ Image.propTypes = {
     base64: PropTypes.string.isRequired,
     className: PropTypes.string,
     rendered: PropTypes.bool,
+    onImageClick: PropTypes.func,
     style: PropTypes.object,
 };
 

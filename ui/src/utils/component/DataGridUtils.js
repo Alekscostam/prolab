@@ -17,8 +17,10 @@ export class DataGridUtils extends ViewDataCompUtils {
     }
     static cellTemplate(column, isEditableCell, onImageClick) {
         return function (element, info) {
+            const className = info?.data?.SKASOWANY === 1 ? 'deleted-row' : '';
             let bgColorFinal = undefined;
             let rowSelected = null;
+
             if (_rowIndex !== info.row.dataIndex) {
                 rowSelected =
                     info?.row?.cells?.filter((c) => c.column?.type === 'selection' && c.value === true).length > 0;
@@ -64,6 +66,7 @@ export class DataGridUtils extends ViewDataCompUtils {
                 case 'T':
                     return ReactDOM.render(
                         <div
+                            className={className}
                             style={{
                                 // display: 'inline',
                                 whiteSpace: info.column.allowWrapping ? 'wrap' : 'nowrap',
@@ -84,6 +87,7 @@ export class DataGridUtils extends ViewDataCompUtils {
                 case 'H':
                     return ReactDOM.render(
                         <div
+                            className={className}
                             style={{
                                 display: 'inline',
                                 backgroundColor: bgColorFinal,
@@ -103,6 +107,7 @@ export class DataGridUtils extends ViewDataCompUtils {
                 case 'B':
                     return ReactDOM.render(
                         <div
+                            className={className}
                             style={{
                                 display: 'inline',
                                 backgroundColor: bgColorFinal,
@@ -132,6 +137,7 @@ export class DataGridUtils extends ViewDataCompUtils {
                 case 'L':
                     return ReactDOM.render(
                         <div
+                            className={className}
                             style={{
                                 display: 'inline',
                                 backgroundColor: bgColorFinal,
@@ -223,6 +229,7 @@ export class DataGridUtils extends ViewDataCompUtils {
                 default:
                     return ReactDOM.render(
                         <div
+                            className={className}
                             style={{
                                 display: 'inline',
                                 backgroundColor: bgColorFinal,

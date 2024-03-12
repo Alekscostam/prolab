@@ -79,7 +79,7 @@ export default class CrudService extends BaseService {
             }
         )
             .then((editDataEntryResponse) => {
-                window.location.href = UrlUtils.getUrlWithEditRowParams(recordId, parentId, kindView);
+                window.location.href = UrlUtils.getUrlWithEditRowParams(recordId, parentId, viewId, kindView);
                 return Promise.resolve(editDataEntryResponse);
             })
             .catch((err) => {

@@ -1,4 +1,5 @@
-import BaseService from "./BaseService";
+import UrlUtils from '../utils/UrlUtils';
+import BaseService from './BaseService';
 
 /*
 GET wyświetlający strukturę menu, na którą składają się grupy widoków oraz widoki.
@@ -12,11 +13,12 @@ export default class MenuService extends BaseService {
     }
 
     getMenu() {
-        return this.fetch(`${this.domain}/${this.path}`, {
-            method: 'GET',
-        }).catch((err) => {
-            throw err;
-        });
+        if (!UrlUtils.isLoginPage()) {
+            return this.fetch(`${this.domain}/${this.path}`, {
+                method: 'GET',
+            }).catch((err) => {
+                throw err;
+            });
+        }
     }
-
 }

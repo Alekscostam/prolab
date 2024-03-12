@@ -13,7 +13,7 @@
     }
 
     .editable-border {
-        border: 4px solid $base-color !important;
+        border: 2px solid $base-color !important;
     }
 
     /* Firefox */
@@ -50,13 +50,17 @@
     }
 
     button {
-        background: $base-color !important;
-
         &.selectionList {
             float: right;
         }
     }
-
+    #area-for-image {
+        border: none;
+        // background: white;
+        // background: white;
+        width: 100%;
+        height: 100%;
+    }
     .dx-checkbox-checked .dx-checkbox-icon {
         color: $button-text-color !important;
         background-color: $base-color !important;
@@ -96,20 +100,23 @@
     border-radius: 6px;
     border: 1px solid white;
 }
-.dx-state-disabled.dx-htmleditor.dx-htmleditor-underlined {
+.dx-state-disabled.dx-htmleditor.dx-htmleditor-custom-underlined {
     border-radius: 6px;
     border: 1px solid rgb(37, 37, 37) !important;
     .dx-htmleditor-toolbar-wrapper {
         display: none;
     }
 }
-.dx-htmleditor.dx-htmleditor-underlined {
+.dx-htmleditor.dx-htmleditor-custom-underlined {
     border: 1px solid darkgray !important;
 }
+.dx-quill-container {
+    border: 2px solid white;
+}
 .dx-quill-container:hover,
-.dx-quill-container:active,
-.dx-quill-container:focus {
-    border: 1px solid $base-color;
+.dx-quill-container:focus,
+.dx-quill-container:active {
+    border: 2px solid $base-color;
 }
 #spec-edit-dialog {
     height: 83%;

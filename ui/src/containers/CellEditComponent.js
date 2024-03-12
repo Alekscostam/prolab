@@ -1,11 +1,10 @@
-import React, {PureComponent} from 'react';
+import React from 'react';
 import EditRowUtils from '../utils/EditRowUtils';
 
 import ConsoleHelper from '../utils/ConsoleHelper';
 import EditListUtils from '../utils/EditListUtils';
 import CrudService from '../services/CrudService';
 import PropTypes from 'prop-types';
-import UploadMultiImageFileBase64 from '../components/prolab/UploadMultiImageFileBase64';
 import {
     MemoizedBoolInput,
     MemoizedDateInput,
@@ -23,16 +22,17 @@ import {StringUtils} from '../utils/StringUtils';
 import ImageViewerComponent from '../components/ImageViewerComponent';
 
 class CellEditComponent extends React.Component {
-    // editListDataStore = new EditListComponent();
     constructor(props) {
         super(props);
         this.labels = this.props;
         this.dataGrid = null;
         this.editListDataStore = new EditListDataStore();
         this.crudService = new CrudService();
+        this.trashClicked = React.createRef(false);
         this.state = {
             cellInfo: undefined,
             editListVisible: false,
+            imageBtnClicked: false,
             editListField: undefined,
             editListRecordId: undefined,
             editViewColumns: undefined,
@@ -40,6 +40,7 @@ class CellEditComponent extends React.Component {
             selectedRowDataEditList: undefined,
             parsedEditListViewData: undefined,
             imageViewer: {
+                imageBtnClicked: false, //optional
                 imageViewDialogVisisble: false,
                 imageBase64: undefined,
                 editable: false,
@@ -52,10 +53,14 @@ class CellEditComponent extends React.Component {
         return <React.Fragment></React.Fragment>;
     }
 
-    onHideEditor(callBack) {
+    forceLeaveEditMode() {
         document.getElementById('header-left').click();
+    }
+
+    onHideEditor() {
+        this.forceLeaveEditMode();
         this.setState({editorDialogVisisble: false});
-        if (callBack) callBack();
+        this.onHideEditorCallback();
     }
 
     componentDidMount() {
@@ -75,7 +80,7 @@ class CellEditComponent extends React.Component {
                 value={this.state.cellInfo.value}
                 visible={this.state.editorDialogVisisble}
                 onHide={() => {
-                    this.onHideEditor(this.props.onHideEditorCallback);
+                    this.onHideEditor();
                 }}
                 onSave={(el) => {
                     let cellInfo = this.state.cellInfo;
@@ -91,6 +96,28 @@ class CellEditComponent extends React.Component {
             ></EditorDialog>
         );
     };
+
+    onHideImageViewer() {
+        this.forceLeaveEditMode();
+        setTimeout(() => {
+            this.setState(
+                {
+                    imageViewer: {
+                        imageViewDialogVisisble: false,
+                        editable: false,
+                        imageBase64: '',
+                    },
+                },
+                () => {
+                    this.onHideImageCallBack();
+                }
+            );
+        }, 0);
+    }
+    // to overdie
+    onHideEditorCallback() {}
+    // to overdie
+    onHideImageCallBack() {}
     imageViewerComponent = () => {
         const {imageViewer} = this.state;
         return (
@@ -98,15 +125,19 @@ class CellEditComponent extends React.Component {
                 <ImageViewerComponent
                     editable={imageViewer.editable}
                     onHide={() => {
-                        this.setState({
-                            imageViewer: {
-                                imageViewDialogVisisble: false,
-                                editable: false,
-                                imageBase64: undefined,
-                            },
-                        });
+                        this.onHideImageViewer();
                     }}
-                    base64={imageViewer.imageBase64}
+                    onApprove={(base64) => {
+                        const cellInfo = this.state.cellInfo;
+                        cellInfo.setValue(base64);
+                        this.onHideImageViewer();
+                    }}
+                    base64={
+                        StringUtils.isBlank(imageViewer.imageBase64)
+                            ? ''
+                            : imageViewer.imageBase64.replace('data:image/jpeg;base64,', '')
+                    }
+                    viewBase64={imageViewer.imageBase64}
                     labels={this.labels}
                     visible
                 />
@@ -248,7 +279,7 @@ class CellEditComponent extends React.Component {
                             }),
                             () => {
                                 try {
-                                    let res = this.editListDataStore.getEditListDataStore(
+                                    const res = this.editListDataStore.getEditListDataStore(
                                         viewId,
                                         'gridView',
                                         recordId,
@@ -314,7 +345,6 @@ class CellEditComponent extends React.Component {
         const downFill = field?.downFill;
         const autoFillCheckbox = field?.autoFill ? 'autofill-border-checkbox' : '';
         const selectionList = field?.selectionList ? 'p-inputgroup' : null;
-
         switch (field?.type) {
             case 'C':
                 if (cellInfo.column.dataField?.includes('WART') && cellInfo.data?.PIERW_TYP?.includes('N')) {
@@ -456,85 +486,30 @@ class CellEditComponent extends React.Component {
                 if (!this.state.editorDialogVisisble) {
                     this.setState({editorDialogVisisble: true, cellInfo: cellInfo});
                 }
+
                 return null;
-
-            case 'IM': //IM – Obrazek multi
-                return (
-                    <React.Fragment>
-                        <div className={`image-base ${autoFill} ${validate}`}>
-                            <UploadMultiImageFileBase64
-                                multiple={false}
-                                displayText={''}
-                                initBase64={cellInfo.value}
-                                whiteBtnColor={true}
-                                deleteBtn={true}
-                                onDeleteChange={() => {
-                                    cellInfo.setValue([]);
-                                }}
-                                onSuccessB64={(e) => {
-                                    const image = document.getElementsByClassName(`image-base ${autoFill} ${validate}`);
-                                    if (image) {
-                                        setTimeout(function () {
-                                            const rowIndex = cellInfo.rowIndex;
-                                            const elements = document.querySelectorAll(
-                                                'td[aria-describedby=column_0_undefined-fixed]'
-                                            );
-                                            const realRowIndex = rowIndex + 1;
-                                            const row = document.querySelectorAll(
-                                                'tr[aria-rowindex="' + realRowIndex + '"][class*="dx-column-lines"]'
-                                            )[0];
-                                            const element = elements[realRowIndex];
-                                            if (element) {
-                                                element.style.height = row.clientHeight + 'px';
-                                            }
-                                        }, 1);
-                                    }
-                                    cellInfo.setValue(e);
-                                }}
-                                onError={(e) => this.props.onError(e)}
-                            />
-                        </div>
-                    </React.Fragment>
-                );
+            case 'IM': //IM – Obrazki
             case 'I': //I – Obrazek
+                if (!this.trashClicked.current && !this.state?.imageViewer?.imageViewDialogVisisble) {
+                    this.setState({
+                        imageViewer: {
+                            imageViewDialogVisisble: true,
+                            imageBase64: cellInfo.value,
+                            editable: true,
+                        },
+                        cellInfo,
+                    });
+                }
                 return (
                     <React.Fragment>
-                        <div className={`image-base ${autoFill} ${validate}`}>
-                            <UploadMultiImageFileBase64
-                                multiple={false}
-                                displayText={''}
-                                deleteBtn={true}
-                                whiteBtnColor={true}
-                                onDeleteChange={() => {
-                                    cellInfo.setValue('');
-                                }}
-                                initBase64={cellInfo.value}
-                                onSuccessB64={(e) => {
-                                    const image = document.getElementsByClassName(
-                                        `image-base ${autoFill} ${validate}`
-                                    )[0];
-                                    if (image) {
-                                        setTimeout(function () {
-                                            const rowIndex = cellInfo.rowIndex;
-                                            const elements = document.querySelectorAll(
-                                                'td[aria-describedby=column_0_undefined-fixed]'
-                                            );
-                                            const realRowIndex = rowIndex + 1;
-
-                                            const row = document.querySelectorAll(
-                                                'tr[aria-rowindex="' + realRowIndex + '"][class*="dx-column-lines"]'
-                                            )[0];
-                                            const element = elements[realRowIndex];
-                                            if (element) {
-                                                element.style.height = row.clientHeight + 'px';
-                                            }
-                                        }, 1);
-                                    }
-                                    cellInfo.setValue(e[0]);
-                                }}
-                                onError={(e) => this.props.onError(e)}
-                            />
-                        </div>
+                        <div
+                            id='trash-button'
+                            onClick={() => {
+                                this.trashClicked.current = false;
+                                cellInfo.setValue('');
+                            }}
+                            className={`image-base ${autoFill} ${validate}`}
+                        ></div>
                     </React.Fragment>
                 );
             case 'H': //H - Hyperlink

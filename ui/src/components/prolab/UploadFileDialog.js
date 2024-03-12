@@ -29,7 +29,7 @@ export default class UploadFileDialog extends React.Component {
 
     onRemove = (e) => {
         let selectedFiles = this.state.selectedFiles;
-        var index = selectedFiles.indexOf(e.file);
+        let index = selectedFiles.indexOf(e.file);
         selectedFiles.splice(index, 1);
         this.setState({
             selectedFiles,

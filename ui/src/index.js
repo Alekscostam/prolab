@@ -17,7 +17,7 @@ import './App.scss';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import {ThroughProvider} from 'react-through';
-import './assets/css/mdi.scss';
+import '@mdi/font/css/materialdesignicons.min.css';
 
 const theApp = (
     <ThroughProvider>

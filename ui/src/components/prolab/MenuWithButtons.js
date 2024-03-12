@@ -71,8 +71,14 @@ export const MenuWithButtons = (props) => {
                               return props.handleSelect();
                           case OperationType.OP_CHECK_OR_UNCHECK:
                               return props.handleCheckOrUncheck();
+                          case OperationType.OP_ADDSPEC_ADD:
+                              return props.handleExecSpec();
+                          case OperationType.OP_ADDSPEC_COUNT:
+                              return props.handleAddSpecCount();
                           case OperationType.OP_SAVE:
                               return props.handleSaveAction();
+                          case OperationType.OP_EXPAND_OR_COLLAPSE:
+                              return props.handleExpandOrCollapse();
                           default:
                               return null;
                       }

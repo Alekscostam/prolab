@@ -110,6 +110,7 @@ class SubGridViewComponent extends React.Component {
                             });
                         }}
                         base64={imageViewer.imageBase64}
+                        viewBase64={imageViewer.imageBase64}
                         labels={this.labels}
                         visible
                     />

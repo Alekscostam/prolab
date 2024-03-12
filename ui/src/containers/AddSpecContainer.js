@@ -21,15 +21,7 @@ import {TreeListUtils} from '../utils/component/TreeListUtils';
 import {sessionPrelongFnc} from '../App';
 import {Dialog} from 'primereact/dialog';
 
-let expandAllInitialized = false;
 const autOfRangeIndex = 6;
-
-export const setExpandAllInitialized = (bool) => {
-    expandAllInitialized = bool;
-};
-export const getExpandAllInitialized = () => {
-    return expandAllInitialized;
-};
 
 export class AddSpecContainer extends BaseContainer {
     _isMounted = false;
@@ -269,6 +261,7 @@ export class AddSpecContainer extends BaseContainer {
                 () => ({
                     parsedView: responseView,
                     columns: columnsTmp,
+                    viewInfo: responseView.viewInfo,
                     pluginsList: pluginsListTmp,
                     documentsList: documentsListTmp,
                     batchesList: batchesListTmp,
@@ -291,7 +284,9 @@ export class AddSpecContainer extends BaseContainer {
                         .getAddSpecDataTreeStoreDirect(viewIdArg, parentIdArg, type, headerId, header)
                         .then((res) => {
                             res.data.forEach((el) => {
-                                el._ID_PARENT = el.ID_PARENT;
+                                if (el.ID_PARENT !== undefined) {
+                                    el._ID_PARENT = el.ID_PARENT;
+                                }
                                 el._ID = el.ID;
                             });
                             if (header === false) {
@@ -331,6 +326,11 @@ export class AddSpecContainer extends BaseContainer {
                     <div id='subviews-panel'>
                         {this.state.tabs?.length > 0 ? (
                             <Tabs
+                                onContentReady={(e) => {
+                                    if (e?.element) {
+                                        e.element.children[0].className = 'dx-wrapper';
+                                    }
+                                }}
                                 style={{maxHeight: '300px'}}
                                 dataSource={this.state.tabs}
                                 selectedIndex={this.state.selectedIndex}
@@ -338,7 +338,6 @@ export class AddSpecContainer extends BaseContainer {
                                     if (sessionPrelongFnc) {
                                         sessionPrelongFnc();
                                     }
-                                    setExpandAllInitialized(false);
                                     if (this.state.selectedIndex === autOfRangeIndex) {
                                         this.onItemTabClick(event.itemIndex);
                                     }
@@ -347,6 +346,7 @@ export class AddSpecContainer extends BaseContainer {
                                     if (args.name === 'selectedIndex') {
                                         if (this.state.isSubView) {
                                             this.setState({
+                                                blocking: true,
                                                 isSubView: false,
                                                 selectedIndex: autOfRangeIndex,
                                             });
@@ -393,9 +393,8 @@ export class AddSpecContainer extends BaseContainer {
     //override
     renderHeaderRight() {
         const operations = this.state.parsedView.operations;
-
-        let opAdd = DataGridUtils.containsOperationsButton(operations, 'OP_ADDSPEC_ADD');
-        let opCount = DataGridUtils.containsOperationsButton(operations, 'OP_ADDSPEC_COUNT');
+        const opAdd = DataGridUtils.containsOperationsButton(operations, 'OP_ADDSPEC_ADD');
+        const opCount = DataGridUtils.containsOperationsButton(operations, 'OP_ADDSPEC_COUNT');
         return (
             <div>
                 <div className='ml-4 text-end number-of-copies-header'>
@@ -426,13 +425,7 @@ export class AddSpecContainer extends BaseContainer {
                             disabled={this.state.selectedRowKeys.length === 0}
                             className=''
                             handleClick={() => {
-                                const viewIdArg = this.state.elementId;
-                                const parentIdArg = this.state.elementParentId;
-                                const parsedView = this.state.parsedView;
-                                const type = parsedView.info?.type;
-                                const headerId = parsedView.info?.headerId;
-                                const header = parsedView.info?.header;
-                                this.handleExecSpec(viewIdArg, parentIdArg, type, headerId, header);
+                                this.handleExecSpec();
                             }}
                         />
                     </div>
@@ -441,7 +434,21 @@ export class AddSpecContainer extends BaseContainer {
         );
     }
 
-    handleExecSpec(viewId, parentId, type, headerId, header) {
+    handleExecSpec() {
+        const viewId = this.state.elementId;
+        const parentId = this.state.elementParentId;
+        const parsedView = this.state.parsedView;
+        const type = parsedView.info?.type;
+        const headerId = parsedView.info?.headerId;
+        const header = parsedView.info?.header;
+        if (this.state.selectedRowKeys.length === 0) {
+            this.showErrorMessage(
+                LocUtils.loc(this.props.labels, 'Not_selected_row', 'Nie wybrano żadnych elementów'),
+                4000,
+                true
+            );
+            return;
+        }
         ConsoleHelper(
             `handleExecSpec: viewId = ${viewId} parentId = ${parentId}  parentId = ${type}  parentId = ${headerId}  parentId = ${header}`
         );
@@ -614,8 +621,12 @@ export class AddSpecContainer extends BaseContainer {
             changedSelectedRowKeys;
         return shouldBeRerendered;
     }
+    increaseNumberOfCopies() {
+        const inputRef = this.numberOfCopies.current.inputRef.current;
+        inputRef.value = (parseInt(inputRef.value) + 1).toString();
+    }
     //override
-    renderContent = () => {
+    renderContent() {
         let parsedData = this.state?.parsedData;
         return (
             <React.Fragment>
@@ -625,10 +636,13 @@ export class AddSpecContainer extends BaseContainer {
                             <TreeViewComponent
                                 ref={this?.refTreeList}
                                 id={this.props.id}
+                                viewInfo={this.state.viewInfo}
                                 allowOperations={false}
                                 elementParentId={this.state.elementParentId}
                                 isAddSpec={true}
                                 preloadEnabled={false}
+                                handleExecSpec={() => this.handleExecSpec()}
+                                handleAddSpecCount={() => this.increaseNumberOfCopies()}
                                 elementRecordId={this.state.elementRecordId}
                                 handleOnTreeList={(ref) => (this.refTreeList = ref)}
                                 parsedGridView={this.state.parsedView}
@@ -717,7 +731,7 @@ export class AddSpecContainer extends BaseContainer {
                 )}
             </React.Fragment>
         );
-    };
+    }
 
     getMessages() {
         return this.messages;

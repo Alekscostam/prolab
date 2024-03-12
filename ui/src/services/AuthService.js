@@ -200,8 +200,14 @@ export default class AuthService {
             })
             .catch((err) => {
                 console.log(err);
+
                 this.removeLoginCookies();
-                window.location.reload();
+                const textAfterHash = window.location.href.split('/#/')[1];
+                const onLogoutUrl = !(textAfterHash && textAfterHash.trim() !== '');
+                if (!onLogoutUrl) {
+                    window.location.reload();
+                }
+                return Promise.reject(err);
             });
     }
 
@@ -317,10 +323,13 @@ export default class AuthService {
         localStorage.removeItem('id_token');
         localStorage.removeItem('expiration_token');
         localStorage.removeItem('logged_user');
+        sessionStorage.removeItem('logged_in');
         localStorage.removeItem('real_lang');
         localStorage.removeItem('session_timeout');
         localStorage.removeItem('session_timeout_in_minutes');
         localStorage.removeItem('id_refresh_token');
+        localStorage.removeItem('menu');
+        localStorage.removeItem('versionAPI');
     }
 
     //TODO

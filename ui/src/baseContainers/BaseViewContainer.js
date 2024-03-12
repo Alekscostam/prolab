@@ -36,14 +36,11 @@ import DataTreeStore from '../containers/dao/DataTreeStore';
 import DashboardContainer from '../containers/dashboard/DashboardContainer';
 import GridViewComponent from '../containers/dataGrid/GridViewComponent';
 import DataCardStore from '../containers/dao/DataCardStore';
-import DivContainer from '../components/DivContainer';
-import ActionButton from '../components/ActionButton';
 import {ConfirmDialog, confirmDialog} from 'primereact/confirmdialog';
 import {StringUtils} from '../utils/StringUtils';
 import {saveObjToCookieGlobal} from '../utils/Cookie';
 import DataHistoryLogStore from '../containers/dao/DataHistoryLogStore';
-import HistoryLogListComponent from '../components/prolab/HistoryLogListComponent';
-import {TreeListUtils} from '../utils/component/TreeListUtils';
+import HistoryLogDialogComponent from '../components/prolab/HistoryLogDialogComponent';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -620,7 +617,7 @@ export class BaseViewContainer extends BaseContainer {
                 )}
 
                 {this.state.visibleHistoryLogPanel ? (
-                    <HistoryLogListComponent
+                    <HistoryLogDialogComponent
                         visible={this.state.visibleHistoryLogPanel}
                         field={this.state.editListField}
                         parsedHistoryLogView={this.state.parsedHistoryLogView}
@@ -1128,6 +1125,7 @@ export class BaseViewContainer extends BaseContainer {
     }
 
     unselectAllDataGrid(selectionValue) {
+        this.blockUi();
         if (this.isGridView()) {
             this.setState(
                 {
@@ -1151,10 +1149,23 @@ export class BaseViewContainer extends BaseContainer {
                     );
                 }
             );
+        } else if (this.isGanttView()) {
+            this.setState(
+                {
+                    selectedRowKeys: [],
+                },
+                () => {
+                    this.getRefGanttView().current.uncheckAllData();
+                    this.unblockUi();
+                }
+            );
         } else {
-            this.setState({
-                selectedRowKeys: [],
-            });
+            this.setState(
+                {
+                    selectedRowKeys: [],
+                },
+                this.unblockUi()
+            );
         }
     }
 
@@ -1171,6 +1182,11 @@ export class BaseViewContainer extends BaseContainer {
                     this.state.subView.subViews != null &&
                     this.state.subView.subViews.length > 0 ? (
                         <Tabs
+                            onContentReady={(e) => {
+                                if (e?.element) {
+                                    e.element.children[0].className = 'dx-wrapper';
+                                }
+                            }}
                             dataSource={this.state.subView.subViewsTabs}
                             selectedIndex={this.state.subViewTabIndex}
                             onOptionChanged={(args) => {
@@ -1273,19 +1289,19 @@ export class BaseViewContainer extends BaseContainer {
     openEditRowIfPossible() {
         if (UrlUtils.isEditRowOpen()) {
             setTimeout(() => {
-                const viewId = UrlUtils.getIdFromUrl();
+                const editViewId = UrlUtils.getURLParameter('editViewId');
                 const editParentId = UrlUtils.getURLParameter('editParentId');
                 const editRecordId = UrlUtils.getURLParameter('editRecordId');
                 const editKindView = UrlUtils.getURLParameter('editKindView');
                 this.crudService
-                    .editEntry(viewId, editRecordId, editParentId, editKindView)
+                    .editEntry(editViewId, editRecordId, editParentId, editKindView)
                     .then((entryResponse) => {
                         EntryResponseUtils.run(
                             entryResponse,
                             () => {
                                 if (!!entryResponse.next) {
                                     this.crudService
-                                        .edit(viewId, editRecordId, editParentId, editKindView)
+                                        .edit(editViewId, editRecordId, editParentId, editKindView)
                                         .then((editDataResponse) => {
                                             this.setState(
                                                 {
@@ -1296,8 +1312,10 @@ export class BaseViewContainer extends BaseContainer {
                                                 }
                                             );
                                         })
-                                        .catch((err) => {
-                                            this.showErrorMessages(err);
+                                        .catch((res) => {
+                                            res.error
+                                                ? this.showErrorMessage(res?.error?.message, 4000, true)
+                                                : this.showErrorMessages(res?.error);
                                         });
                                 } else {
                                     this.unblockUi();

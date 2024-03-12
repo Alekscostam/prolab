@@ -26,7 +26,7 @@ import DataHistoryLogStore from '../containers/dao/DataHistoryLogStore';
 import BatchService from '../services/BatchService';
 import {ResponseUtils} from '../utils/ResponseUtils';
 import EditSpecService from '../services/EditSpecService';
-import { OperationType } from '../model/OperationType';
+import {OperationType} from '../model/OperationType';
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -1095,7 +1095,7 @@ class BaseContainer extends React.Component {
         );
     }
 
-    incompatibleView() {
+    notValidTypeForRefresh() {
         return (
             UrlUtils.getURLParameter('viewType') === 'gridView' &&
             this.state.elementViewType === 'cardView' &&
@@ -1111,7 +1111,7 @@ class BaseContainer extends React.Component {
             ((this.state.kindView === 'ViewSpec' || this.state.kindView === 'View') && this.state.subView) ||
             forceReStateSubView
         ) {
-            if (!this.incompatibleView()) {
+            if (!this.notValidTypeForRefresh()) {
                 if (window?.dataGrid) {
                     if (this.state?.gridViewType !== 'cardView') window.dataGrid.clearSelection();
                 }
@@ -1312,16 +1312,15 @@ class BaseContainer extends React.Component {
         this.crudService
             .cancel(viewId, recordId, parentId, kindView, kindOperation, saveElement)
             .then(() => {
-                this.refreshView(saveElement);
                 this.unselectAllDataGrid();
                 this.unblockUi();
                 this.returnFromRowEdit();
+                // UrlUtils.getUrlWithoutEditRowParams()
             })
             .catch((err) => {
                 this.showGlobalErrorMessage(err);
             });
     };
-
 
     delete(id) {
         ConsoleHelper('handleDelete');
@@ -2440,11 +2439,8 @@ class BaseContainer extends React.Component {
     isGridViewBody(recordId) {
         return this.isBody(recordId) && this.isChoosenKindView('View');
     }
-    returnFromRowEdit(){
-        window.location.href = UrlUtils.getUrlWithoutEditRowParams().replace(
-            'edit-row-view',
-            'grid-view'
-        );
+    returnFromRowEdit() {
+        window.location.href = UrlUtils.getUrlWithoutEditRowParams().replace('edit-row-view', 'grid-view');
     }
 }
 

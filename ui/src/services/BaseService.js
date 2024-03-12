@@ -99,7 +99,7 @@ export default class BaseService {
                     if (error.status === 401) {
                         this.auth
                             .refresh()
-                            .then(() => {
+                            .then((res) => {
                                 return this.fetch(url, options, headers, token).then((el) => {
                                     return resolve(el);
                                 });

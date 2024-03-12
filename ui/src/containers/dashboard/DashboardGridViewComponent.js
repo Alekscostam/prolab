@@ -23,7 +23,7 @@ import {Toast} from 'primereact/toast';
 import {AttachmentViewDialog} from '../attachmentView/AttachmentViewDialog';
 import CopyDialogComponent from '../../components/prolab/CopyDialogComponent';
 import PluginListComponent from '../../components/prolab/PluginListComponent';
-import HistoryLogListComponent from '../../components/prolab/HistoryLogListComponent';
+import HistoryLogDialogComponent from '../../components/prolab/HistoryLogDialogComponent';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -399,7 +399,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                         />
                     )}
                     {this.state.visibleHistoryLogPanel ? (
-                        <HistoryLogListComponent
+                        <HistoryLogDialogComponent
                             visible={this.state.visibleHistoryLogPanel}
                             field={this.state.editListField}
                             parsedHistoryLogView={this.state.parsedHistoryLogView}

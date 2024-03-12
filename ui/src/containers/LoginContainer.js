@@ -103,6 +103,7 @@ class LoginContainer extends BaseContainer {
     }
 
     componentDidMount() {
+        this.authService.removeLoginCookies();
         super.componentDidMount();
         const values = queryString.parse(this.props.location.search);
         this.targetLocation = values.location;
