@@ -129,7 +129,6 @@ class DashboardContainer extends BaseContainer {
                     },
                     () => {
                         this.prepareCardView();
-                        // TODO: hmm czy force update potrzebny
                         this.forceUpdate();
                         this.unblockUi();
                     }

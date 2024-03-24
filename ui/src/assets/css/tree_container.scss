@@ -57,55 +57,55 @@ $table-selection: #dde6ff;
     .line-treelist-90 {
         left: 0;
         background-color: $base-color;
-        opacity: 90%;
+        opacity: 90% !important;
     }
     .line-treelist-80 {
         left: 15px;
         // background-color: rgba(14, 73, 235, 0.9); /* Obniżenie cieni o połowę */
         background-color: $base-color;
-        opacity: 80%;
+        opacity: 80% !important;
     }
     .line-treelist-70 {
         left: 30px;
         // background-color: rgba(14, 73, 235, 0.8);
         background-color: $base-color;
-        opacity: 70%;
+        opacity: 70% !important;
     }
     .line-treelist-60 {
         left: 45px;
         // background-color: rgba(14, 73, 235, 0.7);
         background-color: $base-color;
-        opacity: 60%;
+        opacity: 60% !important;
     }
     .line-treelist-50 {
         left: 60px;
         // background-color: rgba(14, 73, 235, 0.6);
         background-color: $base-color;
-        opacity: 50%;
+        opacity: 50% !important;
     }
     .line-treelist-40 {
         left: 75px;
         // background-color: rgba(14, 73, 235, 0.5);
         background-color: $base-color;
-        opacity: 40%;
+        opacity: 40% !important;
     }
     .line-treelist-30 {
         left: 90px;
         // background-color: rgba(14, 73, 235, 0.4);
         background-color: $base-color;
-        opacity: 30%;
+        opacity: 30% !important;
     }
     .line-treelist-20 {
         left: 105px;
         // background-color: rgba(14, 73, 235, 0.3);
         background-color: $base-color;
-        opacity: 20%;
+        opacity: 20% !important;
     }
     .line-treelist-10 {
         left: 120px;
         // background-color: rgba(14, 73, 235, 0.2);
         background-color: $base-color;
-        opacity: 10%;
+        opacity: 10% !important;
     }
     .line-treelist-0 {
         left: 135px;
@@ -423,8 +423,10 @@ body
     .dx-header-row
     > td:last-child
     > .dx-treelist-text-content {
+    position: absolute;
     justify-content: center;
     display: flex;
+    transform: translate(85%, 0%);
 }
 .base-container-content #spec-edit .dx-treelist-headers .dx-treelist-table .dx-row > td:last-child {
     border-bottom: none;
@@ -432,6 +434,7 @@ body
 }
 .base-container-content #spec-edit .dx-treelist-headers .dx-treelist-table .dx-row > td:last-child:hover {
     background-color: white !important;
+    cursor: default;
 }
 .dx-dropdowneditor-icon {
     min-width: 32px !important;
@@ -502,32 +505,6 @@ body .grid-container {
         border-bottom-style: none;
     }
 
-    .filter-combo.dx-texteditor.dx-state-hover,
-    .filter-combo.dx-texteditor.dx-state-focused,
-    .filter-combo.dx-texteditor.dx-state-active {
-        .dx-dropdowneditor-icon {
-            background-color: transparent;
-            color: white;
-        }
-
-        .dx-selectbox-container {
-            background-color: $base-color;
-            opacity: 92%;
-            color: white;
-        }
-
-        .dx-selectbox-container {
-            .dx-texteditor-container {
-                .dx-texteditor-input-container {
-                    .dx-placeholder,
-                    .dx-texteditor-input {
-                        color: white;
-                    }
-                }
-            }
-        }
-    }
-
     .filter-combo.dx-texteditor {
         // top: -1px;
         display: inline-block;
@@ -575,11 +552,31 @@ body .grid-container {
             color: $base-color;
         }
     }
-}
+    .filter-combo.dx-texteditor.dx-state-hover,
+    .filter-combo.dx-texteditor.dx-state-focused,
+    .filter-combo.dx-texteditor.dx-state-active {
+        .dx-dropdowneditor-icon {
+            background-color: transparent;
+            color: white !important;
+        }
 
-.dx-searchbox.dx-editor-underlined .dx-placeholder::before,
-.dx-searchbox.dx-editor-underlined .dx-texteditor-input {
-    padding-left: 30px;
+        .dx-selectbox-container {
+            background-color: $base-color !important;
+            opacity: 92%;
+            color: white !important;
+        }
+
+        .dx-selectbox-container {
+            .dx-texteditor-container {
+                .dx-texteditor-input-container {
+                    .dx-placeholder,
+                    .dx-texteditor-input {
+                        color: white !important;
+                    }
+                }
+            }
+        }
+    }
 }
 
 .center-outside-div {

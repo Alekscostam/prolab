@@ -33,6 +33,7 @@ import ActionButton from '../../components/ActionButton';
 import {OperationType} from '../../model/OperationType';
 let clearSelection = false;
 // TODO: listy podpwoiedzie w dodawnaiu parametrów
+// TODO: ZOBACZ CZY JEST MRUGNIECIE W parametrach w dodawniau parametrow na prod
 class TreeViewComponent extends CellEditComponent {
     constructor(props) {
         super(props);
@@ -49,12 +50,14 @@ class TreeViewComponent extends CellEditComponent {
             type: undefined,
         };
         this.state = {
+            initializedExpandAll: this.props?.initializedExpandAll,
             editListVisible: false,
             editorDialogVisisble: false,
             groupExpandAll: this.props.parsedGridView?.gridOptions?.groupExpandAll || false,
             editListRecordId: null,
             expandedRowKeys: [],
             mode: 'cell',
+            ssss: false,
             parsedGridView: {},
             operationsPPM: this.props.parsedGridView.operationsPPM,
             parsedGridViewData: {},
@@ -63,6 +66,14 @@ class TreeViewComponent extends CellEditComponent {
             selectedRowData: [],
             defaultSelectedRowKeys: [],
             preInitializedColumns: [],
+        };
+        this.reInitilizedExpandAll = () => {
+            this.setState(
+                {
+                    initializedExpandAll: false,
+                },
+                () => this.expandRows()
+            );
         };
     }
 
@@ -323,7 +334,9 @@ class TreeViewComponent extends CellEditComponent {
                     parentIdExpr='_ID_PARENT'
                     onCellClick={(e) => {
                         if (e?.column?.ownOnlySelectList) {
-                            this.editListVisible(e.data._ID, e.column.ownFieldId);
+                            if (!StringUtils.isBlank(e.data._ID)) {
+                                this.editListVisible(e.data._ID, e.column.ownFieldId);
+                            }
                         }
                     }}
                 >
@@ -368,10 +381,10 @@ class TreeViewComponent extends CellEditComponent {
                         deferred={this.props.selectionDeferred}
                     />
                     <LoadPanel
-                        enabled={false}
-                        showIndicator={false}
+                        enabled={this.props.isAddSpec ? true : false}
+                        showIndicator={this.props.isAddSpec ? true : false}
                         shadingColor='rgba(0,0,0,0.4)'
-                        showPane={false}
+                        showPane={this.props.isAddSpec ? true : false}
                         position='absolute'
                     />
                     {this.preGenerateColumnsDefinition()}
@@ -423,20 +436,20 @@ class TreeViewComponent extends CellEditComponent {
             expandedRowKeys,
         });
     }
-    expandRows() {
-        const viewInfo = this.props.viewInfo;
+    expandRows = () => {
         if (
             this.state.groupExpandAll &&
-            (viewInfo.type !== this.viewInfo?.type || viewInfo.headerId !== this.viewInfo?.headerId)
+            !this.state.initializedExpandAll &&
+            this.props.parsedGridViewData.length !== 0
         ) {
             const expandedRowKeys = this.props.parsedGridViewData.map((el) => el._ID);
+
             this.setState({
                 expandedRowKeys: expandedRowKeys,
+                initializedExpandAll: true,
             });
         }
-        this.viewInfo.type = viewInfo.type;
-        this.viewInfo.headerId = viewInfo.headerId;
-    }
+    };
     handleCheckOrUncheckEntireBranch() {
         const parentId = this.selectedRecordIdRef.current;
         const tree = this.props.parsedGridViewData;
@@ -701,10 +714,6 @@ class TreeViewComponent extends CellEditComponent {
                         width: 10 + (33 * operationsRecord.length + (operationsRecordList?.length > 0 ? 33 : 0)),
                         fixedPosition: 'right',
                         cellTemplate: (element, info) => {
-                            // TODO: niech ebdzioe cursor pointer tam gdzie pownien
-                            // if (info.column.allowEditing) {
-                            //     element.classList.add('cursor-pointer');
-                            // }
                             let el = document.createElement('div');
                             el.id = `actions-${info.column.headerId}-${info.rowIndex}`;
                             element.append(el);
@@ -742,7 +751,9 @@ class TreeViewComponent extends CellEditComponent {
                                         handleHrefSubview={() => {
                                             this.handleHrefSubview(viewId, recordId, currentBreadcrumb);
                                         }}
-                                        handleAddSpecSpec={() => this.props.handleAddSpecSpec(recordId)}
+                                        handleAddSpecSpec={() => {
+                                            this.props.handleAddSpecSpec(recordId);
+                                        }}
                                         handleArchive={() => this.props.handleArchiveRow(recordId)}
                                         handlePublish={() => this.props.handlePublish(recordId)}
                                         handleDownload={() => this.props.handleDownloadRow(recordId)}
@@ -863,7 +874,6 @@ class TreeViewComponent extends CellEditComponent {
                     try {
                         return (
                             <span
-                                className={`cursor-pointer`}
                                 style={{
                                     color: fontColorFinal,
                                     // background: bgColorFinal,
@@ -1011,6 +1021,7 @@ TreeViewComponent.defaultProps = {
     showBorders: true,
     showColumnHeaders: true,
     focusedRowEnabled: false,
+    initializedExpandAll: false,
     rowRenderingMode: 'standard',
     hoverStateEnabled: false,
     preloadEnabled: true,
@@ -1057,6 +1068,7 @@ TreeViewComponent.propTypes = {
     showColumnLines: PropTypes.bool,
     showRowLines: PropTypes.bool,
     preloadEnabled: PropTypes.bool,
+    initializedExpandAll: PropTypes.bool,
     rowRenderingMode: PropTypes.string,
     showBorders: PropTypes.bool,
     showFilterRow: PropTypes.bool,

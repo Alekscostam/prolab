@@ -51,11 +51,17 @@ class GridViewComponent extends CellEditComponent {
             editListVisible: false,
             imageViewer: {
                 imageViewDialogVisisble: false,
-                imageBase64: undefined,
                 editable: false,
+                imageBase64: undefined,
+                header: undefined,
+            },
+            editorViewer: {
+                editorDialogVisisble: false,
+                editable: false,
+                value: undefined,
+                header: undefined,
             },
             selectedRecordId: undefined,
-            editorDialogVisisble: false,
         };
         this.rowRenderingMode = UrlUtils.isBatch() ? 'standard' : 'virtual';
         ConsoleHelper('GridViewComponent -> constructor');
@@ -71,7 +77,7 @@ class GridViewComponent extends CellEditComponent {
             const mouseY = e.event.clientY;
             e.event.stopPropagation();
             e.event.preventDefault();
-            this.menu.current.toggle(e.event);
+            menu.toggle(e.event);
             this.setState({selectedRecordId: e.row.data.ID}, () => {
                 const menu = document.getElementById('menu-with-buttons');
                 menu.style.left = mouseX + 'px';
@@ -124,7 +130,7 @@ class GridViewComponent extends CellEditComponent {
         return result;
     };
     findRowDataById(recordId) {
-        let editData = this.props.parsedGridViewData.filter((item) => {
+        const editData = this.props.parsedGridViewData.filter((item) => {
             return item.ID === recordId;
         });
         return editData[0];
@@ -159,7 +165,6 @@ class GridViewComponent extends CellEditComponent {
         const showColumnHeaders = this.props.showColumnHeaders;
         const showColumnLines = this.props.showColumnLines;
         const showRowLines = this.props.showRowLines;
-        //myk zeby nie pojawiałą sie ramka tabelki przy wczytywaniu
         const showBorders = this.waitForSuccess() ? false : this.props.showBorders;
         const showFilterRow = this.props.showFilterRow;
         const dataGridHeight = this.props.dataGridHeight || false;
@@ -168,7 +173,6 @@ class GridViewComponent extends CellEditComponent {
         const defaultSelectedRowKeys = this.props.defaultSelectedRowKeys;
         const selectedRowKeys = this.props.selectedRowKeys;
         const packageCount = this.getPackageCount();
-
         const kindView = this.props.elementKindView;
         const subViewId = this.props.elementSubViewId;
         const selectedRecordId = this.state.selectedRecordId;
@@ -180,7 +184,8 @@ class GridViewComponent extends CellEditComponent {
         return (
             <React.Fragment>
                 {this.state.editListVisible && this.editListComponent()}
-                {this.state.editorDialogVisisble && this.editorComponent()}
+                {this.state.editorViewer.editorDialogVisisble &&
+                    this.editorComponent(UrlUtils.isBatch(), this.state.editorViewer)}
                 {this.imageViewerComponent()}
                 <DataGrid
                     onContextMenuPreparing={(e) => this.showMenu(e)}
@@ -213,6 +218,7 @@ class GridViewComponent extends CellEditComponent {
                             }
                         }
                     }}
+                    repaintChangesOnly={true}
                     allowColumnResizing={true}
                     showColumnLines={showColumnLines}
                     showRowLines={showRowLines}
@@ -256,9 +262,7 @@ class GridViewComponent extends CellEditComponent {
                             groupPaging={true}
                         />
                     )}
-
                     <FilterRow visible={showFilterRow} applyFilter={true} />
-
                     <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'} />
                     <Grouping autoExpandAll={groupExpandAll} allowCollapsing={true} contextMenuEnabled={true} />
                     <GroupPanel visible={showGroupPanel} />
@@ -274,7 +278,6 @@ class GridViewComponent extends CellEditComponent {
                         mode='virtual'
                         rowRenderingMode={this.rowRenderingMode}
                         preloadEnabled={false}
-                        // useNative={true}
                         useNative={this.isGroupModeEnabled()}
                     />
                     <Paging defaultPageSize={packageCount} pageSize={packageCount} />
@@ -328,10 +331,8 @@ class GridViewComponent extends CellEditComponent {
                 .filter((column) => column.visible === true)
                 ?.forEach((column) => {
                     if (column.name === '_ROWNUMBER') {
-                        //rule -> hide row with autonumber
                         column.visible = false;
                     } else {
-                        //match column after field name from view and viewData service
                         let columnDefinitionArray = this.props.gridViewColumns?.filter(
                             (value) => value.fieldName?.toUpperCase() === column.dataField?.toUpperCase()
                         );
@@ -339,7 +340,6 @@ class GridViewComponent extends CellEditComponent {
                             const columnDefinition = columnDefinitionArray[0];
                             if (columnDefinition) {
                                 const editable = columnDefinition?.edit || columnDefinition?.selectionList;
-
                                 column.allowEditing = editable;
                                 column.visible = columnDefinition?.visible;
                                 column.allowFiltering = columnDefinition?.isFilter;
@@ -355,21 +355,41 @@ class GridViewComponent extends CellEditComponent {
                                 column.width = columnDefinition?.width || 100;
                                 column.name = columnDefinition?.fieldName;
                                 column.caption = columnDefinition?.label;
-                                column.dataType = DataGridUtils.specifyColumnType(columnDefinition?.type);
-                                column.format = DataGridUtils.specifyColumnFormat(columnDefinition?.type);
+                                if (columnDefinition.type === 'B' || columnDefinition.type === 'L') {
+                                    column.headerCellTemplate = (element) => {
+                                        ReactDOM.render(<div>xd</div>, element);
+                                    };
+                                }
+
                                 column.cellTemplate = DataGridUtils.cellTemplate(
                                     columnDefinition,
                                     this.isEditableCell(columnDefinition),
-                                    (base64) => {
+                                    (value, header) => {
                                         this.setState({
                                             imageViewer: {
                                                 imageViewDialogVisisble: true,
-                                                imageBase64: base64,
                                                 editable: this.isEditableCell(columnDefinition),
+                                                imageBase64: value,
+                                                header: header,
+                                            },
+                                        });
+                                    },
+                                    (value, header) => {
+                                        if (UrlUtils.isBatch()) {
+                                            return;
+                                        }
+                                        this.setState({
+                                            editorViewer: {
+                                                editorDialogVisisble: true,
+                                                editable: false,
+                                                value: value,
+                                                header: header,
                                             },
                                         });
                                     }
                                 );
+                                column.dataType = DataGridUtils.specifyColumnType(columnDefinition?.type);
+                                column.format = DataGridUtils.specifyColumnFormat(columnDefinition?.type);
                                 column.fixed =
                                     columnDefinition.freeze !== undefined && columnDefinition?.freeze !== null
                                         ? columnDefinition?.freeze?.toLowerCase() === 'left' ||
@@ -449,18 +469,20 @@ class GridViewComponent extends CellEditComponent {
                                         hrefSubview={AppPrefixUtils.locationHrefUrl(
                                             this.subViewHref(viewId, recordId, parentId, currentBreadcrumb)
                                         )}
-                                        hrefSpecView={EditSpecUtils.editSpecUrl(
-                                            viewId,
-                                            TreeListUtils.isKindViewSpec(this.props.parsedGridView)
-                                                ? parentId
-                                                : recordId,
-                                            compress(
+                                        hrefSpecView={() => {
+                                            return EditSpecUtils.editSpecUrl(
+                                                viewId,
                                                 TreeListUtils.isKindViewSpec(this.props.parsedGridView)
-                                                    ? [recordId]
-                                                    : []
-                                            ),
-                                            currentBreadcrumb
-                                        )}
+                                                    ? parentId
+                                                    : recordId,
+                                                compress(
+                                                    TreeListUtils.isKindViewSpec(this.props.parsedGridView)
+                                                        ? [recordId]
+                                                        : []
+                                                ),
+                                                currentBreadcrumb
+                                            );
+                                        }}
                                         handleHrefSubview={() =>
                                             this.handleHrefSubview(viewId, recordId, currentBreadcrumb)
                                         }
@@ -603,7 +625,7 @@ class GridViewComponent extends CellEditComponent {
     };
 
     preGenerateColumnsDefinition = () => {
-        let columns = [];
+        const columns = [];
         this.props.gridViewColumns?.forEach((columnDefinition, INDEX_COLUMN) => {
             let sortOrder;
             if (!!columnDefinition?.sortIndex && columnDefinition?.sortIndex > 0 && !!columnDefinition?.sortOrder) {
@@ -682,7 +704,7 @@ class GridViewComponent extends CellEditComponent {
                 dataField={columnDefinition.fieldName}
                 sortOrder={sortOrder}
                 sortIndex={columnDefinition?.sortIndex}
-                // editorOptions={{showAnalogClock: false}}
+                groupCellTemplate={this.groupCellTemplate}
                 editCellRender={(cellInfo) =>
                     this.editCellRender(cellInfo, columnDefinition, (operation) => {
                         if (columnDefinition.type === 'B' || columnDefinition.type === 'L') {
@@ -701,7 +723,6 @@ class GridViewComponent extends CellEditComponent {
                         }
                     })
                 }
-                groupCellTemplate={this.groupCellTemplate}
             />
         ) : (
             <Column

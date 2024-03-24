@@ -34,13 +34,15 @@ export class AddSpecContainer extends BaseContainer {
         this.refTreeList = React.createRef();
         this.numberOfCopies = React.createRef();
         this.messages = React.createRef();
+        this.blocking = React.createRef(true);
         this.state = {
             lastElementId: this.props.lastId,
             // loading: true,
             selectedIndex: 0,
             tabs: 0,
             visibleAddSpec: false,
-            changingTab: false,
+            blocking: true,
+            initializedExpandAll: false,
             isSubView: false,
             arrayToAdd: [],
             elementParentId: null,
@@ -105,12 +107,7 @@ export class AddSpecContainer extends BaseContainer {
                     elementFilterId: filterId, //z dashboardu
                 },
                 () => {
-                    this.downloadData(
-                        id,
-                        this.state.elementParentId,
-                        this.state.elementRecordId,
-                        this.state.elementFilterId
-                    );
+                    this.downloadData(id, this.state.elementParentId, this.state.elementRecordId);
                 }
             );
         } else {
@@ -122,46 +119,46 @@ export class AddSpecContainer extends BaseContainer {
         this._isMounted = false;
     }
 
-    downloadData(viewId, parentId, recordId, filterId) {
-        ConsoleHelper(
-            `AddSpecContainer::downloadData: viewId=${viewId}, parentId=${parentId}, recordId=${recordId}, filterId=${filterId}`
-        );
-        this.getViewById(viewId, parentId, recordId, filterId);
+    downloadData(viewId, parentId, recordId) {
+        ConsoleHelper(`AddSpecContainer::downloadData: viewId=${viewId}, parentId=${parentId}, recordId=${recordId}`);
+        this.getViewById(viewId, parentId, recordId);
     }
 
     renderView() {
         return (
-            <React.Fragment>
-                {this.props.visibleAddSpec && (
-                    <Dialog
-                        id={'popup-add-spec'}
-                        key={`popup-add-spec`}
-                        blockScroll={true}
-                        draggable
-                        onHide={this.props.onHide}
-                        style={{maxWidth: '1500px', maxHeight: '800px', height: '800px', overflow: 'none'}}
-                        ariaCloseIconLabel='Zamknij okno dialogowe'
-                        breakpoints={{'960px': '75vw', '640px': '100vw'}}
-                        header={
-                            <div className='mb-4'>
-                                <div className='row ' style={{flaot: 'right!important'}}>
-                                    <div className='col-lg-6 col-md-12'>{this.renderHeaderLeft()}</div>
-                                    <span className='col-lg-6 col-md-12'>{this.renderHeaderRight()}</span>
+            <div>
+                <React.Fragment>
+                    {this.props.visibleAddSpec && (
+                        <Dialog
+                            id={'popup-add-spec '}
+                            key={`popup-add-spec`}
+                            blockScroll={true}
+                            draggable
+                            onHide={this.props.onHide}
+                            style={{maxWidth: '1500px', maxHeight: '800px', height: '800px', overflow: 'none'}}
+                            ariaCloseIconLabel='Zamknij okno dialogowe'
+                            breakpoints={{'960px': '75vw', '640px': '100vw'}}
+                            header={
+                                <div className='mb-4'>
+                                    <div className='row ' style={{flaot: 'right!important'}}>
+                                        <div className='col-lg-6 col-md-12'>{this.renderHeaderLeft()}</div>
+                                        <span className='col-lg-6 col-md-12'>{this.renderHeaderRight()}</span>
+                                    </div>
                                 </div>
-                            </div>
-                        }
-                        resizable={false}
-                        visible={true}
-                    >
-                        {this.renderHeadPanel()}
-                        {this.renderContent()}
-                    </Dialog>
-                )}
-            </React.Fragment>
+                            }
+                            resizable={false}
+                            visible={true}
+                        >
+                            {this.renderHeadPanel()}
+                            {this.renderContent()}
+                        </Dialog>
+                    )}
+                </React.Fragment>
+            </div>
         );
     }
     //
-    getViewById(viewId, parentId, recordId, filterId) {
+    getViewById(viewId, parentId, recordId) {
         const defaultTypeArg = 'DEF';
         this.setState({loading: true}, () => {
             this.getViewAddSpec(viewId, parentId, recordId, defaultTypeArg);
@@ -198,6 +195,7 @@ export class AddSpecContainer extends BaseContainer {
                 this.processingViewResponse(refactorResponseView, parentId, recordId);
             })
             .catch((err) => {
+                this.refTreeList?.instance?.endCustomLoading();
                 console.error('Error getViewSpec in EditSpec. Exception = ', err);
                 this.setState({loading: false}, () => {
                     this.showGlobalErrorMessage(err); //'Nie udało się pobrać danych strony o id: ' + viewId);
@@ -295,7 +293,6 @@ export class AddSpecContainer extends BaseContainer {
                             this.setState({
                                 loading: false,
                                 parsedData: res.data,
-                                changingTab: false,
                             });
                         });
                 }
@@ -352,6 +349,7 @@ export class AddSpecContainer extends BaseContainer {
                                             });
                                         }
                                         if (args.value !== -1 && args.previousValue !== -1) {
+                                            this.refTreeList?.instance?.beginCustomLoading();
                                             this.onItemTabClick(args.value);
                                         }
                                     }
@@ -383,10 +381,14 @@ export class AddSpecContainer extends BaseContainer {
             this.getViewAddSpec(elementId, elementParentId, elementRecordId, tab.type, header, headerId);
             this.setState({
                 selectedIndex: index,
-                changingTab: true,
                 numberOfCopies: 1,
+                initializedExpandAll: false,
             });
             this.unselectAllDataGrid();
+            setTimeout(() => {
+                this?.refTreeList?.current.reInitilizedExpandAll();
+                this.refTreeList?.instance?.endCustomLoading();
+            }, 1000);
         }
     }
 
@@ -632,11 +634,12 @@ export class AddSpecContainer extends BaseContainer {
             <React.Fragment>
                 {!this.state.loading && (
                     <React.Fragment>
-                        <div id='spec-edit-dialog' className='spec-edit-dialog'>
+                        <div id='spec-edit-dialog' className='spec-edit-dialog '>
                             <TreeViewComponent
                                 ref={this?.refTreeList}
                                 id={this.props.id}
                                 viewInfo={this.state.viewInfo}
+                                initializedExpandAll={this.state.initializedExpandAll}
                                 allowOperations={false}
                                 elementParentId={this.state.elementParentId}
                                 isAddSpec={true}
@@ -663,6 +666,10 @@ export class AddSpecContainer extends BaseContainer {
                                     }
                                     this.unselectAllDataGrid();
                                     this.getViewAddSpec(viewId, parentId, recordId, type, header, id);
+                                    setTimeout(() => {
+                                        this?.refTreeList?.current.reInitilizedExpandAll();
+                                        this.refTreeList?.instance?.endCustomLoading();
+                                    }, 1200);
                                 }}
                                 selectedRowKeys={this.state.selectedRowKeys}
                                 onChange={(type, e, rowId, info) => this.handleEditRowChange(type, e, rowId, info)}

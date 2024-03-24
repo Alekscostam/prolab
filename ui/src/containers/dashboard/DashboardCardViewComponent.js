@@ -11,7 +11,7 @@ import PropTypes from 'prop-types';
 import CrudService from '../../services/CrudService';
 import ConsoleHelper from '../../utils/ConsoleHelper';
 import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils';
-import { OperationType } from '../../model/OperationType';
+import {OperationType} from '../../model/OperationType';
 
 class DashboardCardViewComponent extends React.Component {
     constructor(props) {
@@ -69,9 +69,9 @@ class DashboardCardViewComponent extends React.Component {
                             showEditButton = showEditButton || operation.type === OperationType.OP_EDIT;
                             showSubviewButton = showSubviewButton || operation.type === OperationType.OP_SUBVIEWS;
                             if (
-                                operation.type === OperationType.OP_PUBLIC||
+                                operation.type === OperationType.OP_PUBLIC ||
                                 operation.type === OperationType.OP_HISTORY ||
-                                operation.type ===  OperationType.OP_ATTACHMENTS
+                                operation.type === OperationType.OP_ATTACHMENTS
                             ) {
                                 menuItems.push(operation);
                             }

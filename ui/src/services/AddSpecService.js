@@ -1,6 +1,4 @@
 import BaseService from './BaseService';
-import UrlUtils from '../utils/UrlUtils';
-import {readObjFromCookieGlobal} from '../utils/Cookie';
 
 /*
 GET zwracający dane potrzebne do wyrenderowania widoku: informacje ogólne o widoku, opcje

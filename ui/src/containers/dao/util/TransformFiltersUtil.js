@@ -1,5 +1,4 @@
 export default class TansformFiltersUtil {
-    // TODO: wymaga bardziej doglebnej analizy chyba...
     static filterValidTransform(loadOptions) {
         if (loadOptions.filter) {
             for (let index = 0; index < loadOptions.filter.length; index++) {

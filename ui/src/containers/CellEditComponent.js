@@ -42,8 +42,15 @@ class CellEditComponent extends React.Component {
             imageViewer: {
                 imageBtnClicked: false, //optional
                 imageViewDialogVisisble: false,
-                imageBase64: undefined,
                 editable: false,
+                imageBase64: undefined,
+                header: undefined,
+            },
+            editorViewer: {
+                editorDialogVisisble: false,
+                editable: false,
+                value: undefined,
+                header: undefined,
             },
         };
         ConsoleHelper('CellEditComponent -> constructor');
@@ -59,7 +66,14 @@ class CellEditComponent extends React.Component {
 
     onHideEditor() {
         this.forceLeaveEditMode();
-        this.setState({editorDialogVisisble: false});
+        this.setState({
+            editorViewer: {
+                editorDialogVisisble: false,
+                editable: false,
+                value: undefined,
+                header: undefined,
+            },
+        });
         this.onHideEditorCallback();
     }
 
@@ -74,26 +88,34 @@ class CellEditComponent extends React.Component {
         });
     }
 
-    editorComponent = () => {
+    editorComponent = (editable, eViewier) => {
+        const cellInfoValue = eViewier?.value ? eViewier.value : this.state.cellInfo.value;
+        const cellInfoHeader = eViewier?.header ? eViewier.header : this.state.cellInfo.value;
+        const {editorViewer} = this.state;
+
         return (
-            <EditorDialog
-                value={this.state.cellInfo.value}
-                visible={this.state.editorDialogVisisble}
-                onHide={() => {
-                    this.onHideEditor();
-                }}
-                onSave={(el) => {
-                    let cellInfo = this.state.cellInfo;
-                    cellInfo.setValue(el);
-                    setTimeout(function () {
-                        const elements = Array.from(
-                            document.querySelectorAll(`td[aria-describedby=${cellInfo.column.headerId}]`)
-                        ).filter((el) => !el.classList.contains('dx-editor-cell'));
-                        elements[cellInfo.rowIndex].children[0].innerText = StringUtils.textFromHtmlString(el);
-                    }, 0);
-                    this.onHideEditor();
-                }}
-            ></EditorDialog>
+            editorViewer?.editorDialogVisisble && (
+                <EditorDialog
+                    header={cellInfoHeader}
+                    editable={editable}
+                    value={cellInfoValue}
+                    visible={editorViewer?.editorDialogVisisble}
+                    onHide={() => {
+                        this.onHideEditor();
+                    }}
+                    onSave={(el) => {
+                        let cellInfo = this.state.cellInfo;
+                        cellInfo.setValue(el);
+                        setTimeout(function () {
+                            const elements = Array.from(
+                                document.querySelectorAll(`td[aria-describedby=${cellInfo.column.headerId}]`)
+                            ).filter((el) => !el.classList.contains('dx-editor-cell'));
+                            elements[cellInfo.rowIndex].children[0].innerText = StringUtils.textFromHtmlString(el);
+                        }, 0);
+                        this.onHideEditor();
+                    }}
+                />
+            )
         );
     };
 
@@ -124,6 +146,7 @@ class CellEditComponent extends React.Component {
             imageViewer?.imageViewDialogVisisble && (
                 <ImageViewerComponent
                     editable={imageViewer.editable}
+                    header={imageViewer.header}
                     onHide={() => {
                         this.onHideImageViewer();
                     }}
@@ -325,8 +348,6 @@ class CellEditComponent extends React.Component {
     };
 
     editCellRender = (cellInfo, columnDefinition, onOperationClick) => {
-        //mock
-        //columnDefinition.edit = true;
         const field = columnDefinition;
         const fieldIndex = field.id;
         const editable = field?.edit ? 'editable-border' : '';
@@ -483,8 +504,14 @@ class CellEditComponent extends React.Component {
                     />
                 );
             case 'O': //O – Opisowe
-                if (!this.state.editorDialogVisisble) {
-                    this.setState({editorDialogVisisble: true, cellInfo: cellInfo});
+                if (!this.state?.editorViewer?.editorDialogVisisble) {
+                    this.setState({
+                        editorViewer: {
+                            editorDialogVisisble: true,
+                            header: cellInfo.column?.caption,
+                        },
+                        cellInfo,
+                    });
                 }
 
                 return null;
@@ -496,6 +523,7 @@ class CellEditComponent extends React.Component {
                             imageViewDialogVisisble: true,
                             imageBase64: cellInfo.value,
                             editable: true,
+                            header: cellInfo.column?.caption,
                         },
                         cellInfo,
                     });

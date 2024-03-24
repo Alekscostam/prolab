@@ -432,11 +432,10 @@ class GanttViewComponent extends React.Component {
     }
     //* Zastępczy selection, bo gantt nie ma go w zestawie */
     renderCustomSelection(columns, selectedRowKeys) {
-        // TODO: tu trzeb zaimplementowac key
         return this.isSelectionEnabled()
             ? columns.push(
                   <Column
-                      key={'column-gant-key-'}
+                      key={'column-gantt-selection'}
                       headerCellTemplate={(element, info) => {
                           const el = document.createElement('div');
                           element.append(el);

@@ -2,6 +2,30 @@
 
 $base-color: #0e49eb;
 
+.dx-overlay-content {
+    .dx-popup-content {
+        .dx-list-select-all {
+            border-bottom: 0px;
+        }
+        .dx-scrollable-content {
+            .dx-treeview-select-all-item {
+                padding: 10px;
+            }
+            .dx-treeview-toggle-item-visibility {
+                margin-top: 8px;
+            }
+            .dx-item-content {
+                margin-top: 5px;
+                margin-left: 25px;
+            }
+            .dx-treeview-item {
+                .dx-treeview-expander-icon-stub {
+                    display: none;
+                }
+            }
+        }
+    }
+}
 #gantt-container {
     z-index: 0;
 

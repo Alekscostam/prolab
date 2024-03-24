@@ -332,7 +332,6 @@ export default class AuthService {
         localStorage.removeItem('versionAPI');
     }
 
-    //TODO
     getProfile() {
         try {
             return localStorage.getItem('logged_user');

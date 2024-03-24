@@ -1461,6 +1461,9 @@ export class BaseViewContainer extends BaseContainer {
                                             selectedRowKeys: [],
                                         });
                                     }}
+                                    refreshGrid={() => {
+                                        // TODO: roziazac problem checkboxa
+                                    }}
                                     addButtonFunction={this.addButtonFunction}
                                     handleUnblockUi={() => this.unblockUi()}
                                     showErrorMessages={(err) => this.showErrorMessages(err)}

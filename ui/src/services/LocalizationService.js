@@ -1,11 +1,8 @@
 import BaseService from './BaseService';
 
 export default class LocalizationService extends BaseService {
-    // Initializing important variables
-
     constructor(props) {
         super(props);
-
         this.path = '';
     }
 
@@ -28,8 +25,8 @@ export default class LocalizationService extends BaseService {
     }
 
     getTranslationsFromFile(frameworkTypeArg, langArg) {
-        let frameworkType = frameworkTypeArg.toLowerCase();
-        let lang = langArg.toLowerCase();
+        const frameworkType = frameworkTypeArg.toLowerCase();
+        const lang = langArg.toLowerCase();
         return this.fetch(`${this.domain}/lang/${frameworkType}_translations_${lang}.json`, {
             method: 'GET',
         }).catch((err) => {

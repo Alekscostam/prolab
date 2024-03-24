@@ -26,9 +26,7 @@ export const HeadPanel = (props) => {
                 () => props.handleUnblockUi(),
                 (err) => props.showErrorMessages(err)
             );
-        } else {
-            //TODO w przyszłości może trzeba będzie dodać normalną edycja wiersza, na razie nie jest wykorzystywana
-        }
+        } 
     };
 
     const handleSpecEdit = (e, props, viewId, parentId, currentBreadcrumb) => {

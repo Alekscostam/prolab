@@ -427,27 +427,28 @@ $table-selection: #dde6ff;
             color: white !important;
         }
     }
-    .dx-state-hover {
-        td {
-            .deleted-row {
-                color: red;
-            }
-        }
-    }
     .dx-row-focused {
         td {
             div {
-                color: $table-selection;
+                color: $table-selection !important;
                 .dx-dropdowneditor-icon {
                     color: $data-label !important;
                 }
             }
         }
     }
+
+    .dx-state-hover {
+        td {
+            .deleted-row {
+                color: red !important;
+            }
+        }
+    }
     .dx-row-focused {
         td {
             .deleted-row {
-                color: red;
+                color: red !important;
             }
         }
     }
@@ -752,10 +753,6 @@ body .grid-container {
     }
 }
 
-.dx-searchbox.dx-editor-underlined .dx-placeholder::before,
-.dx-searchbox.dx-editor-underlined .dx-texteditor-input {
-    padding-left: 30px;
-}
 .dx-overlay-wrapper.dx-header-filter-menu.dx-popup-wrapper {
     z-index: 1000000 !important;
 }

@@ -15,7 +15,7 @@ export class DataGridUtils extends ViewDataCompUtils {
         _bgColor = null;
         _fontcolor = null;
     }
-    static cellTemplate(column, isEditableCell, onImageClick) {
+    static cellTemplate(column, isEditableCell, onImageClick, onEditorClick) {
         return function (element, info) {
             const className = info?.data?.SKASOWANY === 1 ? 'deleted-row' : '';
             let bgColorFinal = undefined;
@@ -58,11 +58,38 @@ export class DataGridUtils extends ViewDataCompUtils {
                 }
             }
             switch (column?.type) {
+                case 'O':
+                    return ReactDOM.render(
+                        <div
+                            className={className}
+                            onClick={() => {
+                                if (StringUtils.isEmpty(info.text)) {
+                                    return;
+                                }
+                                if (onEditorClick) {
+                                    onEditorClick(info.text, info.column?.caption);
+                                }
+                            }}
+                            style={{
+                                cursor: StringUtils.isEmpty(info.text) ? 'default' : 'pointer',
+                                whiteSpace: info.column.allowWrapping ? 'wrap' : 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                backgroundColor: bgColorFinal,
+                                color: fontColorFinal,
+                                borderRadius: info.column.allowWrapping ? '18px' : '25px',
+                                padding: '2px 6px 2px 6px',
+                            }}
+                            title={StringUtils.textFromHtmlString(info.text)}
+                        >
+                            {StringUtils.textFromHtmlString(info.text)}
+                        </div>,
+                        element
+                    );
                 case 'C':
                 case 'N':
                 case 'D':
                 case 'E':
-                case 'O':
                 case 'T':
                     return ReactDOM.render(
                         <div
@@ -149,7 +176,6 @@ export class DataGridUtils extends ViewDataCompUtils {
                         >
                             <input
                                 type='checkbox'
-                                readOnly={true}
                                 onChange={(e) => {
                                     setTimeout(function () {
                                         const id = `${EditRowUtils.getType(column?.type)}${column.id}`;
@@ -157,6 +183,7 @@ export class DataGridUtils extends ViewDataCompUtils {
                                         if (checkbox) checkbox.click();
                                     }, 100);
                                 }}
+                                readOnly={true}
                                 checked={DataGridUtils.conditionForTrueValueForLogicType(info.text)}
                             />
                         </div>,
@@ -181,7 +208,7 @@ export class DataGridUtils extends ViewDataCompUtils {
                                         <Image
                                             onImageClick={(base64) => {
                                                 if (onImageClick) {
-                                                    onImageClick(base64);
+                                                    onImageClick(base64, info.column?.caption);
                                                 }
                                             }}
                                             style={{maxWidth: '100%'}}
@@ -208,7 +235,7 @@ export class DataGridUtils extends ViewDataCompUtils {
                                 <Image
                                     onImageClick={(base64) => {
                                         if (onImageClick) {
-                                            onImageClick(base64);
+                                            onImageClick(base64, info.column?.caption);
                                         }
                                     }}
                                     onRemove={() => {

@@ -140,14 +140,18 @@ class App extends Component {
         };
     }
     prelongSeesionByRootClick() {
+        const bodyApp = document.getElementById('body-app');
         const root = document.getElementById('root');
         const eventForSessionPrelong = () => {
             if (this.authService.isLoggedUser()) this.prelongSessionIfUserExist();
             return true;
         };
         sessionPrelongFnc = eventForSessionPrelong;
+        bodyApp.addEventListener('click', eventForSessionPrelong);
         root.addEventListener('click', eventForSessionPrelong);
+        bodyApp.addEventListener('contextmenu', eventForSessionPrelong);
         root.addEventListener('contextmenu', eventForSessionPrelong);
+        bodyApp.addEventListener('keydown', eventForSessionPrelong);
         root.addEventListener('keydown', eventForSessionPrelong);
     }
     showSessionTimeoutIfPossible() {
@@ -225,9 +229,12 @@ class App extends Component {
         this.authService.removeLoginCookies();
     }
     unregisteredEventForSession() {
+        const bodyApp = document.getElementById('body-app');
         const root = document.getElementById('root');
         try {
             if (sessionPrelongFnc) {
+                bodyApp.removeEventListener('click', sessionPrelongFnc);
+                bodyApp.removeEventListener('keydown', sessionPrelongFnc);
                 root.removeEventListener('click', sessionPrelongFnc);
                 root.removeEventListener('keydown', sessionPrelongFnc);
             }
@@ -236,11 +243,14 @@ class App extends Component {
         }
     }
 
-    readConfigAndSaveInCookie(configUrl) {
+    readConfigAndSaveInCookie(configUrl, afterSaveCookiesFnc) {
         return new ReadConfigService(configUrl).getConfiguration().then((configuration) => {
             saveObjToCookieGlobal('REACT_APP_BACKEND_URL', configuration.REACT_APP_BACKEND_URL);
             saveObjToCookieGlobal('REACT_APP_URL_PREFIX', configuration.REACT_APP_URL_PREFIX);
             saveObjToCookieGlobal('CONFIG_URL', configUrl);
+            if (afterSaveCookiesFnc) {
+                afterSaveCookiesFnc();
+            }
             this.setState(
                 {
                     loadedConfiguration: true,
@@ -349,19 +359,22 @@ class App extends Component {
             <Login
                 {...props}
                 onAfterLogin={() => {
-                    sessionStorage.setItem('logged_in', true);
-                    this.setState(
-                        {
-                            user: this.authService.getProfile().sub,
-                            collapsed: false,
-                        },
-                        () => {
-                            if (this.state.sessionMock) {
-                                this.setFakeSeesionTimeout();
+                    const configUrl = this.makeConfigUrl('');
+                    this.readConfigAndSaveInCookie(configUrl, () => {
+                        sessionStorage.setItem('logged_in', true);
+                        this.setState(
+                            {
+                                user: this.authService.getProfile().sub,
+                                collapsed: false,
+                            },
+                            () => {
+                                if (this.state.sessionMock) {
+                                    this.setFakeSeesionTimeout();
+                                }
+                                this.getLocalization(this.state.configUrl);
                             }
-                            this.getLocalization(this.state.configUrl);
-                        }
-                    );
+                        );
+                    });
                 }}
             />
         );

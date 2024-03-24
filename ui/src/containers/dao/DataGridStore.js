@@ -184,7 +184,6 @@ export default class DataGridStore extends BaseService {
                             (i === 'requireGroupCount' || i === 'requireTotalCount') &&
                             TansformFiltersUtil.isNotValidRequiredParam(loadOptions[i])
                         ) {
-                            // TODO: fix - czasami zdazało sie ze ten komponent zwracl; nierpawidlowe warotsic w requiredGroupCount i w requiredTotalCount
                             loadOptions[i] = false;
                         }
                         if (TansformFiltersUtil.notExcludedForFilter(i)) {
@@ -203,7 +202,6 @@ export default class DataGridStore extends BaseService {
                     let result = onStartCallback();
                     if (result?.select || result?.selectAll) {
                         addSelectAllParam = true;
-                        // TODO: zatrzymac przeiwjanie w góre. ODP to naprawi nowa wersja komponentu devextereme
                         return this.modifiedRows(loadOptions);
                     } else {
                         this.clearCacheIfPossible();

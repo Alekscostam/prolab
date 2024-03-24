@@ -1,7 +1,7 @@
-import {ArrayModel, ObjectModel} from "objectmodel";
+import {ArrayModel, ObjectModel} from 'objectmodel';
 
 export const ViewData = ObjectModel({
-    id: String,//TODO lol tak wynika z dokumentacji, warto wyprostować
+    id: String,
     code: String,
     name: String,
     description: String,

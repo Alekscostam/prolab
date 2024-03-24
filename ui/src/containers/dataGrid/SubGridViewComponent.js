@@ -16,11 +16,17 @@ import {
 import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils';
 import UrlUtils from '../../utils/UrlUtils';
 import ImageViewerComponent from '../../components/ImageViewerComponent';
+import {MenuWithButtons} from '../../components/prolab/MenuWithButtons';
+import {sessionPrelongFnc} from '../../App';
+import {EditorDialog} from '../../components/prolab/EditorDialog';
+import {OperationType} from '../../model/OperationType';
 
 class SubGridViewComponent extends React.Component {
     constructor(props) {
         super(props);
         ConsoleHelper('subGridViewComponent::constructor');
+
+        this.menuSubGrid = React.createRef();
         let minimizeCache = readObjFromCookieGlobal('SUB_GRID_VIEW_MINIMIZE');
         this.state = {
             minimize: minimizeCache === true,
@@ -28,10 +34,35 @@ class SubGridViewComponent extends React.Component {
                 imageViewDialogVisisble: false,
                 editable: false,
                 imageBase64: undefined,
+                header: undefined,
+            },
+            editorViewer: {
+                editorDialogVisisble: false,
+                editable: false,
+                value: undefined,
+                header: undefined,
             },
         };
     }
-
+    showMenu(e) {
+        const menu = this.menuSubGrid.current;
+        const actionButtonWithMenuContant = document.getElementById('action-button-with-menu-contant');
+        if (actionButtonWithMenuContant) {
+            actionButtonWithMenuContant.click();
+        }
+        if (menu !== null && e.row.rowType === 'data') {
+            const mouseX = e.event.clientX;
+            const mouseY = e.event.clientY;
+            e.event.stopPropagation();
+            e.event.preventDefault();
+            menu.toggle(e.event);
+            this.setState({selectedRecordId: e.row.data.ID}, () => {
+                const menu = document.getElementById('menu-with-buttons');
+                menu.style.left = mouseX + 'px';
+                menu.style.top = mouseY + 'px';
+            });
+        }
+    }
     //very important !!!
     shouldComponentUpdate(nextProps, nextState, nextContext) {
         const refreshSubView = readValueCookieGlobal('refreshSubView');
@@ -61,7 +92,7 @@ class SubGridViewComponent extends React.Component {
         removeCookieGlobal('refreshSubView');
     }
     render() {
-        const {imageViewer} = this.state;
+        const {imageViewer, editorViewer} = this.state;
         //TODO jak będzie potrzeba przepiąć guziki na OperationsRecordButtons
         const {labels} = this.props;
         let showEditButton = false;
@@ -77,7 +108,7 @@ class SubGridViewComponent extends React.Component {
             }
         });
 
-        let showMenu = menuItems.length > 0;
+        const showMenu = menuItems.length > 0;
         let widthTmp = 0;
         if (showMenu) {
             widthTmp += 38;
@@ -111,11 +142,29 @@ class SubGridViewComponent extends React.Component {
                         }}
                         base64={imageViewer.imageBase64}
                         viewBase64={imageViewer.imageBase64}
+                        header={imageViewer.header}
                         labels={this.labels}
                         visible
                     />
                 )}
-
+                {editorViewer?.editorDialogVisisble && (
+                    <EditorDialog
+                        header={editorViewer.header}
+                        editable={editorViewer.editable}
+                        value={editorViewer.value}
+                        visible={editorViewer?.editorDialogVisisble}
+                        onHide={() => {
+                            this.setState({
+                                editorViewer: {
+                                    editorDialogVisisble: false,
+                                    editable: false,
+                                    value: undefined,
+                                    header: undefined,
+                                },
+                            });
+                        }}
+                    />
+                )}
                 {subViewMode ? (
                     <div id='selection-row' className='float-left width-100'>
                         {this.state.minimize ? (
@@ -131,6 +180,7 @@ class SubGridViewComponent extends React.Component {
                         ) : (
                             <div className='maximalized-sub-view' style={{minHeight: this.props?.minHeight}}>
                                 <DataGrid
+                                    onContextMenuPreparing={(e) => this.showMenu(e)}
                                     id='selection-data-grid'
                                     // handleOnDataGrid={(ref) => (this.refDataGrid = ref)}
                                     ref={(ref) => this.props.handleOnInitialized(ref)}
@@ -150,15 +200,30 @@ class SubGridViewComponent extends React.Component {
                                                     caption={c.label}
                                                     dataType={DataGridUtils.specifyColumnType(c?.type)}
                                                     format={DataGridUtils.specifyColumnFormat(c?.type)}
-                                                    cellTemplate={DataGridUtils.cellTemplate(c, null, (base64) => {
-                                                        this.setState({
-                                                            imageViewer: {
-                                                                imageViewDialogVisisble: true,
-                                                                editable: false,
-                                                                imageBase64: base64,
-                                                            },
-                                                        });
-                                                    })}
+                                                    cellTemplate={DataGridUtils.cellTemplate(
+                                                        c,
+                                                        null,
+                                                        (base64, header) => {
+                                                            this.setState({
+                                                                imageViewer: {
+                                                                    imageViewDialogVisisble: true,
+                                                                    editable: false,
+                                                                    imageBase64: base64,
+                                                                    header: header,
+                                                                },
+                                                            });
+                                                        },
+                                                        (value, header) => {
+                                                            this.setState({
+                                                                editorViewer: {
+                                                                    editorDialogVisisble: true,
+                                                                    editable: false,
+                                                                    value: value,
+                                                                    header: header,
+                                                                },
+                                                            });
+                                                        }
+                                                    )}
                                                     dataField={c.fieldName}
                                                 />
                                             );
@@ -178,6 +243,9 @@ class SubGridViewComponent extends React.Component {
                                                             className={`action-button-with-menu`}
                                                             iconName={'mdi-pencil'}
                                                             handleClick={(e) => {
+                                                                if (sessionPrelongFnc) {
+                                                                    sessionPrelongFnc();
+                                                                }
                                                                 e.viewId = viewId;
                                                                 e.recordId = recordId;
                                                                 e.parentId = UrlUtils.getURLParameter('parentId');
@@ -206,6 +274,29 @@ class SubGridViewComponent extends React.Component {
                                         />
                                     ) : null}
                                 </DataGrid>
+                                <MenuWithButtons
+                                    handleEdit={() =>
+                                        this.props.handleOnEditClick({
+                                            e: {
+                                                viewId: viewId,
+                                                recordId: recordId,
+                                                parentId: UrlUtils.getURLParameter('parentId'),
+                                            },
+                                        })
+                                    }
+                                    handleAttachments={() =>
+                                        this.props.handleRightHeadPanelContent(
+                                            [].find((el) => el.type === OperationType.OP_ATTACHMENTS)
+                                        )
+                                    }
+                                    handleHistory={() =>
+                                        this.props.handleRightHeadPanelContent(
+                                            [].find((el) => el.type === OperationType.OP_HISTORY)
+                                        )
+                                    }
+                                    operationList={[]}
+                                    menu={this.menuSubGrid}
+                                />
                                 <div
                                     className='arrow-open'
                                     onClick={() => {

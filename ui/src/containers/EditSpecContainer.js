@@ -29,7 +29,6 @@ import {StringUtils} from '../utils/StringUtils';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
-// TODO: zrobic SpecSerivice
 
 export let operationClicked = false;
 export class EditSpecContainer extends BaseContainer {
@@ -675,20 +674,19 @@ export class EditSpecContainer extends BaseContainer {
     moveItem(id, currentElement, nextElement, data) {
         if (nextElement) {
             if (!this.isTheSameElement(nextElement, currentElement)) {
-                const ref = this.refTreeList?.instance;
-                ref?.beginCustomLoading();
-                const currentIndex = data.findIndex((x) => x._ID === id);
+                const currentIndex = data.findIndex((d) => d._ID === id);
                 const currentOrder = currentElement._ORDER;
                 const prevOrder = nextElement._ORDER;
                 currentElement._ORDER = prevOrder;
                 nextElement._ORDER = currentOrder;
                 const prevIndex = data.findIndex((x) => x._ID === nextElement._ID);
                 this.switchPositionOfElements(data, currentIndex, prevIndex);
-                this.updateData(data, () => {
+                let concatData = [...new Set([...data, ...this.state.parsedData])];
+
+                this.updateData(concatData, () => {
                     this.disableAllSort();
                     this.refreshTable();
                 });
-                ref?.endCustomLoading();
             }
         }
     }
@@ -701,20 +699,6 @@ export class EditSpecContainer extends BaseContainer {
 
     haveTheSameParents(child, parent) {
         return child?._ID_PARENT === parent?._ID_PARENT;
-    }
-    canBeSwitched(child, parent) {
-        const notTheSameRoot = child._ID_ROOT !== parent._ID_ROOT;
-        const notHaveParents =
-            (child?._ID_PARENT === undefined || child?._ID_PARENT === 0) &&
-            (parent._ID_PARENT === undefined || parent._ID_PARENT === 0);
-
-        if (notHaveParents) {
-            return true;
-        }
-        if (notTheSameRoot) {
-            return false;
-        }
-        return child?._ID_PARENT !== parent?._ID;
     }
 
     updateData(dataToUpdate, callbackAction) {
@@ -894,17 +878,23 @@ export class EditSpecContainer extends BaseContainer {
             .then(() => {
                 let prevUrl = window.location.href;
                 prevUrl = prevUrl.replace('edit-spec', 'grid-view');
-                prevUrl = UrlUtils.removeAndAddParam('parentId', UrlUtils.getURLParameter('prevParentId'), prevUrl);
-                prevUrl = UrlUtils.removeAndAddParam('recordId', UrlUtils.getURLParameter('parentId'), prevUrl);
-                prevUrl = UrlUtils.removeAndAddParam('bc', UrlUtils.getURLParameter('bc'), prevUrl);
-                prevUrl = UrlUtils.deleteParameterFromURL(prevUrl, 'prevParentId');
-                const selectedElementFromPrevGrid = this.findSelectedRowFromPrevGrid();
-                if (selectedElementFromPrevGrid) {
-                    prevUrl = UrlUtils.addParameterToURL(
-                        prevUrl,
-                        'selectedFromPrevGrid',
-                        selectedElementFromPrevGrid.ID
-                    );
+                if (!StringUtils.isBlank(UrlUtils.getURLParameter('prevParentId'))) {
+                    prevUrl = UrlUtils.removeAndAddParam('parentId', UrlUtils.getURLParameter('prevParentId'), prevUrl);
+                    prevUrl = UrlUtils.removeAndAddParam('recordId', UrlUtils.getURLParameter('parentId'), prevUrl);
+                    prevUrl = UrlUtils.removeAndAddParam('bc', UrlUtils.getURLParameter('bc'), prevUrl);
+                    prevUrl = UrlUtils.deleteParameterFromURL(prevUrl, 'prevParentId');
+                    const selectedElementFromPrevGrid = this.findSelectedRowFromPrevGrid();
+                    if (selectedElementFromPrevGrid) {
+                        prevUrl = UrlUtils.addParameterToURL(
+                            prevUrl,
+                            'selectedFromPrevGrid',
+                            selectedElementFromPrevGrid.ID
+                        );
+                    }
+                } else {
+                    prevUrl = UrlUtils.deleteParameterFromURL(prevUrl, 'parentId');
+                    prevUrl = UrlUtils.deleteParameterFromURL(prevUrl, 'recordId');
+                    prevUrl = UrlUtils.deleteParameterFromURL(prevUrl, 'bc');
                 }
                 window.location.href = prevUrl;
             })

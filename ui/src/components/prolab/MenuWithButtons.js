@@ -88,7 +88,7 @@ export const MenuWithButtons = (props) => {
         : [];
     return (
         <React.Fragment>
-            <span id='action-button-with-menu-contant'></span>
+            <span id='action-button-with-menu-contant' className='action-button-with-menu-contant'></span>
             <Menu
                 id='menu-with-buttons'
                 appendTo={document.body}

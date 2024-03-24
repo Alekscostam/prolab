@@ -10,12 +10,12 @@ import UploadMultiImageFileBase64 from './prolab/UploadMultiImageFileBase64';
 import {StringUtils} from '../utils/StringUtils';
 
 export const ImageViewerComponent = (props) => {
-    const {editable, base64, labels, visible, onHide, onApprove, viewBase64} = props;
+    const {editable, base64, labels, visible, onHide, onApprove, header, viewBase64} = props;
     const [imageSource, setImageSource] = useState(base64);
     return (
         <Dialog
             id='imageViewer'
-            header=''
+            header={header}
             visible={visible}
             resizable={false}
             footer={
@@ -62,6 +62,7 @@ ImageViewerComponent.defaultProps = {
     visible: false,
     labels: '',
     base64: '',
+    header: '',
     viewBase64: '',
     style: {maxHeight: '26px'},
     mode: 'EDIT',
@@ -71,6 +72,7 @@ ImageViewerComponent.propTypes = {
     labels: PropTypes.string.isRequired,
     viewBase64: PropTypes.string.isRequired,
     base64: PropTypes.string,
+    header: PropTypes.string,
     editable: PropTypes.bool,
     visible: PropTypes.bool,
     onHide: PropTypes.func,

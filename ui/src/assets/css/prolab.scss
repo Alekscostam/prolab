@@ -496,6 +496,12 @@ label {
     margin-top: 10px;
     border-bottom: none !important;
 }
+
+.maximalized-sub-view {
+    .action-button-with-menu-contant {
+        margin-right: 4px;
+    }
+}
 .dx-datagrid-filter-panel .dx-datagrid-filter-panel-clear-filter,
 .dx-datagrid-filter-panel .dx-datagrid-filter-panel-text,
 .dx-datagrid-filter-panel .dx-icon-filter {
@@ -508,7 +514,7 @@ label {
     left: 0;
     width: '100vw';
     height: '100vh';
-    z-index: 1000;
+    // z-index: 901;
     background: 'black';
     opacity: 0.7;
     pointer-events: none;
@@ -698,6 +704,48 @@ iframe {
 }
 .cursor-pointer {
     cursor: pointer !important;
+}
+td[aria-roledescription='Editable'] {
+    cursor: pointer;
+}
+.dx-texteditor-input-container {
+    .dx-icon-search {
+        margin-top: -9px !important;
+        margin-left: 7px;
+    }
+}
+.dx-searchbox.dx-editor-underlined .dx-placeholder::before,
+.dx-searchbox.dx-editor-underlined .dx-texteditor-input {
+    padding-left: 35px;
+}
+.dx-calendar-body {
+    margin-top: 10px;
+}
+.dx-widget.dx-button.dx-button-mode-text.dx-button-default.dx-button-has-text.dx-popup-cancel {
+    box-shadow: 0 2px 8px 3px rgba(0, 0, 0, 0.1);
+    .dx-button-content {
+        background: white;
+        box-shadow: 0 2px 8px 3px rgba(0, 0, 0, 0.1);
+        .dx-button-text {
+            color: $base-color;
+        }
+    }
+}
+.dx-toolbar-after {
+    .dx-item.dx-toolbar-item.dx-toolbar-button:last-child {
+        .dx-item-content.dx-toolbar-item-content {
+            .dx-widget.dx-button.dx-button-mode-text.dx-button-default.dx-button-has-text {
+                box-shadow: 0 2px 8px 1px rgba(0, 0, 0, 0.1);
+                .dx-button-content {
+                    background: white;
+                    box-shadow: 0 2px 8px 1px rgba(0, 0, 0, 0.1);
+                    .dx-button-text {
+                        color: $base-color;
+                    }
+                }
+            }
+        }
+    }
 }
 
 @import 'edit_spec_field';

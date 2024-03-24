@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import HtmlEditor, {Item, MediaResizing, Toolbar} from 'devextreme-react/html-editor';
 
 export const EditorDialog = (props) => {
-    const {onSave, onHide, header} = props;
+    const {onSave, onHide, header, editable} = props;
 
     const [visible, setVisible] = useState(props.visible);
     const [value, setValue] = useState(props.value);
@@ -32,7 +32,7 @@ export const EditorDialog = (props) => {
         onHide();
         setVisible(false);
     };
-    const dialogFooter = (
+    const dialogFooter = editable && (
         <div>
             <Button
                 id='save-editor-button'
@@ -61,7 +61,7 @@ export const EditorDialog = (props) => {
                     <HtmlEditor
                         id='editor-dialog'
                         ref={editor}
-                        disabled={false}
+                        disabled={!editable}
                         visible={true}
                         onValueChanged={(e) => {
                             if (e.event) {
@@ -124,6 +124,7 @@ EditorDialog.defaultProps = {
     onSave: undefined,
     onHide: undefined,
     visible: true,
+    editable: true,
     value: '',
     header: '',
 };
@@ -132,6 +133,7 @@ EditorDialog.propTypes = {
     onSave: PropTypes.func,
     onHide: PropTypes.func,
     visible: PropTypes.bool,
+    editable: PropTypes.bool,
     value: PropTypes.string,
     header: PropTypes.string,
 };

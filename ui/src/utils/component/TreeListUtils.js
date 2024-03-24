@@ -535,8 +535,8 @@ export class TreeListUtils extends ViewDataCompUtils {
         showErrorMessagesCallback
     ) => {
         TreeListUtils.getEditSpecService()
-            .getViewEntry(viewId, parentId, recordIds, null)
-            .then((entryResponse) => {
+        .getViewEntry(viewId, parentId, recordIds, null)
+        .then((entryResponse) => {
                 EntryResponseUtils.run(
                     entryResponse,
                     () => {

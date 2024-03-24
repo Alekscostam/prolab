@@ -1,4 +1,4 @@
-import BaseService from "./BaseService";
+import BaseService from './BaseService';
 
 export default class ReadConfigService extends BaseService {
     // Initializing important variables
@@ -15,5 +15,4 @@ export default class ReadConfigService extends BaseService {
             throw err;
         });
     }
-
 }
