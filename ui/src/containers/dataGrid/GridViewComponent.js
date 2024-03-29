@@ -34,6 +34,7 @@ import EditSpecService from '../../services/EditSpecService';
 import ActionButton from '../../components/ActionButton';
 import LocUtils from '../../utils/LocUtils';
 import {MenuWithButtons} from '../../components/prolab/MenuWithButtons';
+import {saveObjToCookieGlobal} from '../../utils/Cookie';
 
 class GridViewComponent extends CellEditComponent {
     constructor(props) {
@@ -144,13 +145,15 @@ class GridViewComponent extends CellEditComponent {
     addButton() {
         return (
             !UrlUtils.isBatch() && (
-                <ActionButton
-                    rendered={true}
-                    label={LocUtils.loc(this.props.labels, 'Add_button', 'Dodaj')}
-                    handleClick={(e) => {
-                        this.props.addButtonFunction(e);
-                    }}
-                />
+                <div id='add-btn'>
+                    <ActionButton
+                        rendered={true}
+                        label={LocUtils.loc(this.props.labels, 'Add_button', 'Dodaj')}
+                        handleClick={(e) => {
+                            this.props.addButtonFunction(e);
+                        }}
+                    />
+                </div>
             )
         );
     }
@@ -290,26 +293,37 @@ class GridViewComponent extends CellEditComponent {
                     />
                     {this.preGenerateColumnsDefinition()}
                 </DataGrid>
-                <MenuWithButtons
-                    handleSaveAction={() => this.props.handleSaveAction()}
-                    handleHrefSubview={() => this.handleHrefSubview(viewId, selectedRecordId, currentBreadcrumb)}
-                    handleEdit={() => this.handleEdit(viewId, parentId, kindView, selectedRecordId, currentBreadcrumb)}
-                    handleEditSpec={() => this.handleEditSpec(viewId, parentId, selectedRecordId, currentBreadcrumb)}
-                    handleCopy={() => this.props.handleCopyRow(selectedRecordId)}
-                    handleArchive={() => this.props.handleArchiveRow(selectedRecordId)}
-                    handlePublish={() => this.props.handlePublishRow(selectedRecordId)}
-                    handleDocuments={(el) => this.props.handleDocumentRow(el.id)}
-                    handlePlugins={(el) => this.props.handlePluginRow(el.id)}
-                    handleDownload={() => this.props.handleDownloadRow(selectedRecordId)}
-                    handleAttachments={() => this.props.handleAttachmentRow(selectedRecordId)}
-                    handleDelete={() => this.props.handleDeleteRow(selectedRecordId)}
-                    handleRestore={() => this.props.handleRestoreRow(selectedRecordId)}
-                    handleFormula={() => this.props.handleFormulaRow(selectedRecordId)}
-                    handleHistory={() => this.props.handleHistoryLogRow(selectedRecordId)}
-                    handleFill={() => this.props.handleFillRow(selectedRecordId)}
-                    operationList={this.props.parsedGridView.operationsPPM}
-                    menu={this.menu}
-                />
+                {this.props.parsedGridView?.operationsPPM && this.props.parsedGridView.operationsPPM.length !== 0 && (
+                    <MenuWithButtons
+                        handleSaveAction={() => this.props.handleSaveAction()}
+                        handleHrefSubview={() => this.handleHrefSubview(viewId, selectedRecordId, currentBreadcrumb)}
+                        handleEdit={() =>
+                            this.handleEdit(viewId, parentId, kindView, selectedRecordId, currentBreadcrumb)
+                        }
+                        handleEditSpec={() =>
+                            this.handleEditSpec(viewId, parentId, selectedRecordId, currentBreadcrumb)
+                        }
+                        handleCopy={() => this.props.handleCopyRow(selectedRecordId)}
+                        handleArchive={() => this.props.handleArchiveRow(selectedRecordId)}
+                        handlePublish={() => this.props.handlePublishRow(selectedRecordId)}
+                        handleDocuments={(el) => this.props.handleDocumentRow(el.id)}
+                        handlePlugins={(el) => {
+                            this.props.handlePluginRow(el.id);
+                        }}
+                        handleBatch={(batch) => {
+                            this.handleBatch(batch.id, viewId, parentId, selectedRecordId);
+                        }}
+                        handleDownload={() => this.props.handleDownloadRow(selectedRecordId)}
+                        handleAttachments={() => this.props.handleAttachmentRow(selectedRecordId)}
+                        handleDelete={() => this.props.handleDeleteRow(selectedRecordId)}
+                        handleRestore={() => this.props.handleRestoreRow(selectedRecordId)}
+                        handleFormula={() => this.props.handleFormulaRow(selectedRecordId)}
+                        handleHistory={() => this.props.handleHistoryLogRow(selectedRecordId)}
+                        handleFill={() => this.props.handleFillRow(selectedRecordId)}
+                        operationList={this.props.parsedGridView.operationsPPM}
+                        menu={this.menu}
+                    />
+                )}
             </React.Fragment>
         );
     }
@@ -356,11 +370,8 @@ class GridViewComponent extends CellEditComponent {
                                 column.name = columnDefinition?.fieldName;
                                 column.caption = columnDefinition?.label;
                                 if (columnDefinition.type === 'B' || columnDefinition.type === 'L') {
-                                    column.headerCellTemplate = (element) => {
-                                        ReactDOM.render(<div>xd</div>, element);
-                                    };
+                                    column.showEditorAlways = false;
                                 }
-
                                 column.cellTemplate = DataGridUtils.cellTemplate(
                                     columnDefinition,
                                     this.isEditableCell(columnDefinition),
@@ -388,8 +399,10 @@ class GridViewComponent extends CellEditComponent {
                                         });
                                     }
                                 );
+
                                 column.dataType = DataGridUtils.specifyColumnType(columnDefinition?.type);
                                 column.format = DataGridUtils.specifyColumnFormat(columnDefinition?.type);
+
                                 column.fixed =
                                     columnDefinition.freeze !== undefined && columnDefinition?.freeze !== null
                                         ? columnDefinition?.freeze?.toLowerCase() === 'left' ||
@@ -526,7 +539,21 @@ class GridViewComponent extends CellEditComponent {
         const currentUrl = window.location.href;
         window.location.href = UrlUtils.deleteParameterFromURL(currentUrl, 'selectedFromPrevGrid');
     };
-
+    handleBatch(batchId, viewId, parentId, selectedRecordId) {
+        const selectedRowKeys = [
+            {
+                ID: selectedRecordId,
+            },
+        ];
+        if (parentId === undefined) {
+            parentId = 0;
+        }
+        const urlEditSpecBatch = AppPrefixUtils.locationHrefUrl(
+            `/#/batch/${viewId}?batchId=${batchId}&parentId=${parentId}`
+        );
+        saveObjToCookieGlobal('selectedRowKeys', selectedRowKeys);
+        window.location.href = urlEditSpecBatch;
+    }
     handleHrefSubview(viewId, recordId, currentBreadcrumb) {
         let result = this.props.handleBlockUi();
         if (result) {

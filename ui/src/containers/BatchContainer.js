@@ -20,7 +20,6 @@ import {EntryResponseUtils} from '../utils/EntryResponseUtils';
 import {ViewResponseUtils} from '../utils/ViewResponseUtils';
 import ActionButtonWithMenu from '../components/prolab/ActionButtonWithMenu';
 import {ConfirmationEditQuitDialog} from '../components/prolab/ConfirmationEditQuitDialog';
-import {ResponseUtils} from '../utils/ResponseUtils';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -152,7 +151,6 @@ export class BatchContainer extends BaseContainer {
                                         this.processingViewResponse(transformedResponse, parentId, batchId);
                                     })
                                     .catch((err) => {
-                                        console.error('Error getView in Batch. Exception = ', err);
                                         this.setState({loading: false}, () => {
                                             this.showGlobalErrorMessage(err); //'Nie udało się pobrać danych strony o id: ' + viewId);
                                         });
@@ -168,7 +166,6 @@ export class BatchContainer extends BaseContainer {
                     );
                 })
                 .catch((err) => {
-                    console.error('Error getViewEntry in BatchSpec. Exception = ', err);
                     this.setState({loading: false}, () => {
                         this.showGlobalErrorMessage(err); //'Nie udało się pobrać danych strony o id: ' + viewId);
                     });
@@ -237,7 +234,7 @@ export class BatchContainer extends BaseContainer {
         return (
             <React.Fragment>
                 <DivContainer id='header-left'>
-                    <div className='font-medium mb-4'>{this.state.parsedView.editInfo?.viewName}</div>
+                    <div className='font-medium mb-4'>{this.state.parsedView?.editInfo?.viewName}</div>
                 </DivContainer>
             </React.Fragment>
         );
@@ -402,8 +399,6 @@ export class BatchContainer extends BaseContainer {
         }
     }
     renderHeadPanel = () => {
-        const viewIdArg = this.state.elementId;
-        const parentIdArg = this.state.elementParentId;
         return (
             <React.Fragment>
                 <HeadPanel
@@ -418,8 +413,6 @@ export class BatchContainer extends BaseContainer {
                     rightContent={this.rightHeadPanelContent()}
                     handleFormula={() => {
                         this.calculateData();
-                        alert('Czekamy na API dla Calculate');
-                        // this.prepareCalculateFormula();
                     }}
                     handleFill={() => {
                         this.fillData();

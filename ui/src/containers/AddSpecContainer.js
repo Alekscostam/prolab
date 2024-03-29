@@ -294,6 +294,9 @@ export class AddSpecContainer extends BaseContainer {
                                 loading: false,
                                 parsedData: res.data,
                             });
+                        })
+                        .catch((ex) => {
+                            this.showErrorMessages(ex);
                         });
                 }
             );

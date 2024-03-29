@@ -260,6 +260,9 @@ export class EditSpecContainer extends BaseContainer {
                                 loading: false,
                                 parsedData: data,
                             });
+                        })
+                        .catch((ex) => {
+                            this.showErrorMessages(ex);
                         });
                 }
             );

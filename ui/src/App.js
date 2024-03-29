@@ -40,7 +40,6 @@ export let reStateApp;
 export let renderNoRefreshContentFnc;
 export let sessionPrelongFnc = null;
 export let addBtn = null;
-// TODO: pole logiczne w działa zle w grupwoaniu na hederek
 
 class App extends Component {
     constructor() {
@@ -409,13 +408,15 @@ class App extends Component {
         const {labels} = this.state;
         const opADD = DataGridUtils.putToOperationsButtonIfNeccessery(this.state.operations, labels, 'OP_ADD', 'Dodaj');
         return (
-            <ActionButton
-                rendered={opADD}
-                label={opADD?.label}
-                handleClick={(e) => {
-                    this.viewContainer?.current?.addView(e);
-                }}
-            />
+            <div id='add-btn'>
+                <ActionButton
+                    rendered={opADD}
+                    label={opADD?.label}
+                    handleClick={(e) => {
+                        this.viewContainer?.current?.addView(e);
+                    }}
+                />
+            </div>
         );
     };
 

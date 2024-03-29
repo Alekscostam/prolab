@@ -41,9 +41,11 @@ export const MenuWithButtons = (props) => {
                               return props.handleRestore();
                           case OperationType.OP_COPY:
                               return props.handleCopy();
+                          case OperationType.OP_DOCUMENTS:
                           case OperationType.SK_DOCUMENT:
                               return props.handleDocuments(i);
                           case OperationType.SK_PLUGIN:
+                          case OperationType.OP_PLUGINS:
                               return props.handlePlugins(i);
                           case OperationType.OP_ARCHIVE:
                               return props.handleArchive();
@@ -69,16 +71,20 @@ export const MenuWithButtons = (props) => {
                               return props.handleFill();
                           case OperationType.OP_SELECT:
                               return props.handleSelect();
-                          case OperationType.OP_CHECK_OR_UNCHECK:
-                              return props.handleCheckOrUncheck();
+                          case OperationType.OP_TREE_CHECK:
+                              return props.handleCheck();
+                          case OperationType.OP_TREE_UNCHECK:
+                              return props.handleUncheck();
                           case OperationType.OP_ADDSPEC_ADD:
                               return props.handleExecSpec();
                           case OperationType.OP_ADDSPEC_COUNT:
                               return props.handleAddSpecCount();
                           case OperationType.OP_SAVE:
                               return props.handleSaveAction();
-                          case OperationType.OP_EXPAND_OR_COLLAPSE:
-                              return props.handleExpandOrCollapse();
+                          case OperationType.OP_TREE_EXPAND:
+                              return props.handleExpand();
+                          case OperationType.OP_TREE_COLLAPSE:
+                              return props.handleCollapse();
                           default:
                               return null;
                       }

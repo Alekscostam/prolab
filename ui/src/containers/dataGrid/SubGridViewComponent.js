@@ -102,8 +102,10 @@ class SubGridViewComponent extends React.Component {
             if (
                 operation.type === 'OP_PUBLIC' ||
                 operation.type === 'OP_HISTORY' ||
+                operation.type === 'OP_EDIT' ||
                 operation.type === 'OP_ATTACHMENTS'
             ) {
+                operation.icon = 'mdi ' + operation.iconCode;
                 menuItems.push(operation);
             }
         });
@@ -262,7 +264,8 @@ class SubGridViewComponent extends React.Component {
                                                                 menuItems,
                                                                 undefined,
                                                                 this.props.handleRightHeadPanelContent,
-                                                                undefined
+                                                                undefined,
+                                                                true
                                                             )}
                                                             rendered={showMenu}
                                                             title={labels ? labels['View_AdditionalOptions'] : ''}
@@ -274,29 +277,30 @@ class SubGridViewComponent extends React.Component {
                                         />
                                     ) : null}
                                 </DataGrid>
-                                <MenuWithButtons
-                                    handleEdit={() =>
-                                        this.props.handleOnEditClick({
-                                            e: {
+                                {this.props.subView?.headerOperationsPPM && (
+                                    <MenuWithButtons
+                                        handleEdit={() =>
+                                            this.props.handleOnEditClick({
                                                 viewId: viewId,
                                                 recordId: recordId,
                                                 parentId: UrlUtils.getURLParameter('parentId'),
-                                            },
-                                        })
-                                    }
-                                    handleAttachments={() =>
-                                        this.props.handleRightHeadPanelContent(
-                                            [].find((el) => el.type === OperationType.OP_ATTACHMENTS)
-                                        )
-                                    }
-                                    handleHistory={() =>
-                                        this.props.handleRightHeadPanelContent(
-                                            [].find((el) => el.type === OperationType.OP_HISTORY)
-                                        )
-                                    }
-                                    operationList={[]}
-                                    menu={this.menuSubGrid}
-                                />
+                                            })
+                                        }
+                                        handleAttachments={() =>
+                                            this.props.handleRightHeadPanelContent(
+                                                menuItems.find((el) => el.type === OperationType.OP_ATTACHMENTS)
+                                            )
+                                        }
+                                        handleHistory={() =>
+                                            this.props.handleRightHeadPanelContent(
+                                                menuItems.find((el) => el.type === OperationType.OP_HISTORY)
+                                            )
+                                        }
+                                        operationList={this.props.subView?.headerOperationsPPM || []}
+                                        menu={this.menuSubGrid}
+                                    />
+                                )}
+
                                 <div
                                     className='arrow-open'
                                     onClick={() => {

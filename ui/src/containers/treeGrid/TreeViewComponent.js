@@ -30,10 +30,8 @@ import Image from '../../components/Image';
 import {MenuWithButtons} from '../../components/prolab/MenuWithButtons';
 import LocUtils from '../../utils/LocUtils';
 import ActionButton from '../../components/ActionButton';
-import {OperationType} from '../../model/OperationType';
 let clearSelection = false;
-// TODO: listy podpwoiedzie w dodawnaiu parametrów
-// TODO: ZOBACZ CZY JEST MRUGNIECIE W parametrach w dodawniau parametrow na prod
+
 class TreeViewComponent extends CellEditComponent {
     constructor(props) {
         super(props);
@@ -79,28 +77,9 @@ class TreeViewComponent extends CellEditComponent {
 
     componentDidMount() {
         super.componentDidMount();
-        this.putAdditionalOperations();
         this.createCheckboxColumn();
     }
-    putAdditionalOperations() {
-        const operationsPPM = this.state.operationsPPM;
-        if (operationsPPM.find((el) => el.type === OperationType.OP_CHECK_OR_UNCHECK)) {
-            return;
-        }
-        operationsPPM.push({
-            type: OperationType.OP_CHECK_OR_UNCHECK,
-            className: 'check-uncheck-operation',
-            iconCode: 'mdi-check-all',
-            label: LocUtils.loc(this.labels, 'Check_or_uncheck', 'Zaznacz/odznacz gałąź'),
-        });
-        operationsPPM.push({
-            type: OperationType.OP_EXPAND_OR_COLLAPSE,
-            className: 'expand-collapse-operation',
-            iconCode: 'mdi-check-all',
-            label: LocUtils.loc(this.labels, 'Expand_or_collapse', 'Zwiń/rozwiń gałąź'),
-        });
-        this.setState({operationsPPM});
-    }
+
     componentDidUpdate(prevProps, prevState, snapshot) {
         return prevProps.id !== prevState.id && prevProps.elementRecordId !== prevState.elementRecordId;
     }
@@ -120,31 +99,11 @@ class TreeViewComponent extends CellEditComponent {
             this.menu.current.toggle(e.event);
             const menu = document.getElementById('menu-with-buttons');
             if (menu) {
-                const checkUncheck =
-                    document.getElementsByClassName('check-uncheck-operation')[0].children[0].children[1];
-                checkUncheck.innerText = this.createLabelForCheckOrUnchack(e.row.data._ID);
-                const expandCollapse =
-                    document.getElementsByClassName('expand-collapse-operation')[0].children[0].children[1];
-                expandCollapse.innerText = this.createLabelForExpandOrCollapse();
                 menu.style.left = mouseX + 'px';
                 menu.style.top = mouseY + 'px';
             }
         }
     }
-    createLabelForCheckOrUnchack(idClicked) {
-        const foundedItem = this.ref.instance.getSelectedRowKeys().find((id) => {
-            return id === idClicked;
-        });
-        return foundedItem
-            ? LocUtils.loc(this.labels, 'Uncheck_branch', 'Odznacz gałąź')
-            : LocUtils.loc(this.labels, 'Check_branch', 'Zaznacz gałąź');
-    }
-    createLabelForExpandOrCollapse() {
-        return this.state.expandedRowKeys.length !== 0
-            ? LocUtils.loc(this.labels, 'Expand_tree', 'Zwiń drzewka')
-            : LocUtils.loc(this.labels, 'Collapse_tree', 'Rozwiń Drzewka');
-    }
-
     createCheckboxColumn() {
         const gridViewColumns = this.props.gridViewColumns;
         if (!gridViewColumns[0]) {
@@ -389,51 +348,72 @@ class TreeViewComponent extends CellEditComponent {
                     />
                     {this.preGenerateColumnsDefinition()}
                 </TreeList>
-                <MenuWithButtons
-                    handleSaveAction={() => this.props.handleSaveAction()}
-                    handleAddSpecCount={() => this.props.handleAddSpecCount()}
-                    handleExpandOrCollapse={() => this.handleExpandOrCollapse()}
-                    handleAddSpecSpec={() => this.props.handleAddSpecSpec(selectedRecordId)}
-                    handleExecSpec={() => this.props.handleExecSpec()}
-                    handleAddSpec={() => this.props.addButtonFunction()}
-                    handleHrefSubview={() => this.handleHrefSubview(viewId, selectedRecordId, currentBreadcrumb)}
-                    handleEdit={() => this.handleEdit(viewId, parentId, kindView, selectedRecordId, currentBreadcrumb)}
-                    handleEditSpec={() => this.handleEditSpec(viewId, parentId, selectedRecordId, currentBreadcrumb)}
-                    handleCopy={() => this.props.handleCopyRow(selectedRecordId)}
-                    handleArchive={() => this.props.handleArchiveRow(selectedRecordId)}
-                    handlePublish={() => this.props.handlePublishRow(selectedRecordId)}
-                    handleDocuments={(el) => this.props.handleDocumentRow(el.id)}
-                    handlePlugins={(el) => this.props.handlePluginRow(el.id)}
-                    handleDownload={() => this.props.handleDownloadRow(selectedRecordId)}
-                    handleAttachments={() => this.props.handleAttachmentRow(selectedRecordId)}
-                    handleDelete={() => this.props.handleDeleteRow(selectedRecordId)}
-                    handleRestore={() => this.props.handleRestoreRow(selectedRecordId)}
-                    handleFormula={() => this.props.handleFormulaRow(selectedRecordId)}
-                    handleHistory={() => this.props.handleHistoryLogRow(selectedRecordId)}
-                    handleFill={() => this.props.handleFillRow(selectedRecordId)}
-                    handleCheckOrUncheck={() => this.handleCheckOrUncheckEntireBranch(selectedRecordId)}
-                    handleUp={() => {
-                        this.forceUpdate();
-                        this.props.handleUp(selectedRecordId);
-                    }}
-                    handleDown={() => {
-                        this.forceUpdate();
-                        this.props.handleDown(selectedRecordId);
-                    }}
-                    handleAddLevel={() => this.props.handleAddLevel(selectedRecordId)}
-                    operationList={this.props.parsedGridView.operationsPPM}
-                    menu={this.menu}
-                />
+                {this.props.parsedGridView?.operationsPPM && this.props.parsedGridView.operationsPPM.length !== 0 && (
+                    <MenuWithButtons
+                        handleSaveAction={() => this.props.handleSaveAction()}
+                        handleAddSpecCount={() => this.props.handleAddSpecCount()}
+                        handleExpand={() => this.handleExpand()}
+                        handleCollapse={() => this.handleCollapse()}
+                        handleAddSpecSpec={() => this.props.handleAddSpecSpec(selectedRecordId)}
+                        handleExecSpec={() => this.props.handleExecSpec()}
+                        handleAddSpec={() => this.props.addButtonFunction()}
+                        handleHrefSubview={() => this.handleHrefSubview(viewId, selectedRecordId, currentBreadcrumb)}
+                        handleEdit={() =>
+                            this.handleEdit(viewId, parentId, kindView, selectedRecordId, currentBreadcrumb)
+                        }
+                        handleEditSpec={() =>
+                            this.handleEditSpec(viewId, parentId, selectedRecordId, currentBreadcrumb)
+                        }
+                        handleCopy={() => this.props.handleCopyRow(selectedRecordId)}
+                        handleArchive={() => this.props.handleArchiveRow(selectedRecordId)}
+                        handlePublish={() => this.props.handlePublishRow(selectedRecordId)}
+                        handleDocuments={(el) => this.props.handleDocumentRow(el.id)}
+                        handlePlugins={(el) => this.props.handlePluginRow(el.id)}
+                        handleDownload={() => this.props.handleDownloadRow(selectedRecordId)}
+                        handleAttachments={() => this.props.handleAttachmentRow(selectedRecordId)}
+                        handleDelete={() => this.props.handleDeleteRow(selectedRecordId)}
+                        handleRestore={() => this.props.handleRestoreRow(selectedRecordId)}
+                        handleFormula={() => this.props.handleFormulaRow(selectedRecordId)}
+                        handleHistory={() => this.props.handleHistoryLogRow(selectedRecordId)}
+                        handleFill={() => this.props.handleFillRow(selectedRecordId)}
+                        handleCheck={() => this.handleCheck()}
+                        handleUncheck={() => this.handleUncheck()}
+                        handleUp={() => {
+                            this.forceUpdate();
+                            this.props.handleUp(selectedRecordId);
+                        }}
+                        handleDown={() => {
+                            this.forceUpdate();
+                            this.props.handleDown(selectedRecordId);
+                        }}
+                        handleAddLevel={() => this.props.handleAddLevel(selectedRecordId)}
+                        operationList={this.props.parsedGridView.operationsPPM}
+                        menu={this.menu}
+                    />
+                )}
             </React.Fragment>
         );
     }
-    handleExpandOrCollapse() {
-        let expandedRowKeys = this.props.parsedGridViewData.map((el) => el._ID);
-        if (this.state.expandedRowKeys.length !== 0) {
-            expandedRowKeys = [];
-        }
+    handleExpand() {
+        const parentId = this.selectedRecordIdRef.current;
+        const rowKeysToExpand = TreeListUtils.findAllDescendants(this.props.parsedGridViewData, parentId).map(
+            (el) => el._ID
+        );
+        rowKeysToExpand.push(parentId);
+        const concatData = [...new Set([...rowKeysToExpand, ...this.state.expandedRowKeys])];
         this.setState({
-            expandedRowKeys,
+            expandedRowKeys: concatData,
+        });
+    }
+    handleCollapse() {
+        const parentId = this.selectedRecordIdRef.current;
+        const rowKeysToCollapse = TreeListUtils.findAllDescendants(this.props.parsedGridViewData, parentId).map(
+            (el) => el._ID
+        );
+        rowKeysToCollapse.push(parentId);
+        const concatData = this.state.expandedRowKeys.filter((element) => !rowKeysToCollapse.includes(element));
+        this.setState({
+            expandedRowKeys: concatData,
         });
     }
     expandRows = () => {
@@ -450,10 +430,24 @@ class TreeViewComponent extends CellEditComponent {
             });
         }
     };
-    handleCheckOrUncheckEntireBranch() {
+
+    handleCheck() {
         const parentId = this.selectedRecordIdRef.current;
         const tree = this.props.parsedGridViewData;
-        let descendants = TreeListUtils.findAllDescendants(tree, parentId);
+        const descendants = TreeListUtils.findAllDescendants(tree, parentId);
+        const selectedRowsData = this.ref.instance.getSelectedRowsData();
+        descendants.push(tree.find((el) => el._ID === parentId));
+        descendants.forEach((item2) => {
+            if (!selectedRowsData.some((item1) => item1._ID === item2._ID)) {
+                selectedRowsData.push(item2);
+            }
+        });
+        this.ref.instance.selectRows(selectedRowsData.map((el) => el._ID));
+    }
+    handleUncheck() {
+        const parentId = this.selectedRecordIdRef.current;
+        const tree = this.props.parsedGridViewData;
+        const descendants = TreeListUtils.findAllDescendants(tree, parentId);
         let selectedRowsData = this.ref.instance.getSelectedRowsData();
         descendants.push(tree.find((el) => el._ID === parentId));
         const isParentAlreadySelected = selectedRowsData.find((el) => {
@@ -463,12 +457,6 @@ class TreeViewComponent extends CellEditComponent {
             descendants.forEach((item2) => {
                 if (selectedRowsData.some((item1) => item1._ID === item2._ID)) {
                     selectedRowsData = selectedRowsData.filter((item) => item._ID !== item2._ID);
-                }
-            });
-        } else {
-            descendants.forEach((item2) => {
-                if (!selectedRowsData.some((item1) => item1._ID === item2._ID)) {
-                    selectedRowsData.push(item2);
                 }
             });
         }
