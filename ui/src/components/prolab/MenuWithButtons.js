@@ -41,12 +41,14 @@ export const MenuWithButtons = (props) => {
                               return props.handleRestore();
                           case OperationType.OP_COPY:
                               return props.handleCopy();
-                          case OperationType.OP_DOCUMENTS:
                           case OperationType.SK_DOCUMENT:
                               return props.handleDocuments(i);
+                          case OperationType.OP_DOCUMENTS:
+                              return props.handleDocumentsOp();
                           case OperationType.SK_PLUGIN:
-                          case OperationType.OP_PLUGINS:
                               return props.handlePlugins(i);
+                          case OperationType.OP_PLUGINS:
+                              return props.handlePluginsOp();
                           case OperationType.OP_ARCHIVE:
                               return props.handleArchive();
                           case OperationType.OP_PUBLISH:

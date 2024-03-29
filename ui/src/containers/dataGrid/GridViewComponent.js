@@ -294,6 +294,7 @@ class GridViewComponent extends CellEditComponent {
                     {this.preGenerateColumnsDefinition()}
                 </DataGrid>
                 {this.props.parsedGridView?.operationsPPM && this.props.parsedGridView.operationsPPM.length !== 0 && (
+                    // TODO: zamienic Op na Sk
                     <MenuWithButtons
                         handleSaveAction={() => this.props.handleSaveAction()}
                         handleHrefSubview={() => this.handleHrefSubview(viewId, selectedRecordId, currentBreadcrumb)}
@@ -306,8 +307,12 @@ class GridViewComponent extends CellEditComponent {
                         handleCopy={() => this.props.handleCopyRow(selectedRecordId)}
                         handleArchive={() => this.props.handleArchiveRow(selectedRecordId)}
                         handlePublish={() => this.props.handlePublishRow(selectedRecordId)}
-                        handleDocuments={() => this.props.handleDocumentRow(selectedRecordId)}
-                        handlePlugins={() => {
+                        handleDocuments={(el) => this.props.handleDocumentRow(el.id)}
+                        handleDocumentsOp={() => this.props.handleDocumentRow(selectedRecordId)}
+                        handlePlugins={(el) => {
+                            this.props.handlePluginRow(el.id);
+                        }}
+                        handlePluginsOp={() => {
                             this.props.handlePluginRow(selectedRecordId);
                         }}
                         handleBatch={(batch) => {
