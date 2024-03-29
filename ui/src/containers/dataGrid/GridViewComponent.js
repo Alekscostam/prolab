@@ -306,9 +306,9 @@ class GridViewComponent extends CellEditComponent {
                         handleCopy={() => this.props.handleCopyRow(selectedRecordId)}
                         handleArchive={() => this.props.handleArchiveRow(selectedRecordId)}
                         handlePublish={() => this.props.handlePublishRow(selectedRecordId)}
-                        handleDocuments={(el) => this.props.handleDocumentRow(el.id)}
-                        handlePlugins={(el) => {
-                            this.props.handlePluginRow(el.id);
+                        handleDocuments={() => this.props.handleDocumentRow(selectedRecordId)}
+                        handlePlugins={() => {
+                            this.props.handlePluginRow(selectedRecordId);
                         }}
                         handleBatch={(batch) => {
                             this.handleBatch(batch.id, viewId, parentId, selectedRecordId);
