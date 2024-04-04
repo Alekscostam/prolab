@@ -328,11 +328,14 @@ class GanttViewComponent extends React.Component {
                         handleEditSpec={() =>
                             this.handleEditSpec(viewId, parentId, selectedRecordId, currentBreadcrumb)
                         }
+                        handleAdd={() => this.props.addButtonFunction()}
                         handleCopy={() => this.props.handleCopyRow(selectedRecordId)}
                         handleArchive={() => this.props.handleArchiveRow(selectedRecordId)}
                         handlePublish={() => this.props.handlePublishRow(selectedRecordId)}
-                        handleDocuments={(el) => this.props.handleDocumentRow(el.id)}
-                        handlePlugins={(el) => this.props.handlePluginRow(el.id)}
+                        handleDocumentsSk={(el) => this.props.handleDocumentRow(el.id)}
+                        handlePluginsSk={(el) => this.props.handlePluginRow(el.id)}
+                        handleDocuments={(el) => this.props.handleDocumentRow(selectedRecordId)}
+                        handlePlugins={(el) => this.props.handlePluginRow(selectedRecordId)}
                         handleDownload={() => this.props.handleDownloadRow(selectedRecordId)}
                         handleAttachments={() => this.props.handleAttachmentRow(selectedRecordId)}
                         handleDelete={() => this.props.handleDeleteRow(selectedRecordId)}

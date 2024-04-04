@@ -42,13 +42,13 @@ export const MenuWithButtons = (props) => {
                           case OperationType.OP_COPY:
                               return props.handleCopy();
                           case OperationType.SK_DOCUMENT:
-                              return props.handleDocuments(i);
+                              return props.handleDocumentsSk(i);
                           case OperationType.OP_DOCUMENTS:
-                              return props.handleDocumentsOp();
+                              return props.handleDocuments();
                           case OperationType.SK_PLUGIN:
-                              return props.handlePlugins(i);
+                              return props.handlePluginsSk(i);
                           case OperationType.OP_PLUGINS:
-                              return props.handlePluginsOp();
+                              return props.handlePlugins();
                           case OperationType.OP_ARCHIVE:
                               return props.handleArchive();
                           case OperationType.OP_PUBLISH:
@@ -79,6 +79,8 @@ export const MenuWithButtons = (props) => {
                               return props.handleUncheck();
                           case OperationType.OP_ADDSPEC_ADD:
                               return props.handleExecSpec();
+                          case OperationType.OP_ADD:
+                              return props.handleAdd();
                           case OperationType.OP_ADDSPEC_COUNT:
                               return props.handleAddSpecCount();
                           case OperationType.OP_SAVE:

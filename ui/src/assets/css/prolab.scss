@@ -526,6 +526,9 @@ body main div.container-fluid {
     display: flex;
     flex-direction: column;
     overflow-y: auto;
+    overflow-x: hidden;
+    margin-right: 0px;
+    padding-right: 2px;
 
     .breadcrumb-panel {
         // height: 20px;
@@ -555,7 +558,6 @@ body main div.container-fluid {
                 flex-grow: 0;
                 flex-shrink: 0;
                 justify-content: space-between;
-
                 .header-left {
                     width: 80%;
                 }
@@ -566,6 +568,10 @@ body main div.container-fluid {
                 flex-basis: 0;
                 flex-grow: 0;
                 flex-shrink: 0;
+                padding-right: 0px;
+                #header-panel {
+                    padding-right: 0px;
+                }
             }
 
             .base-container-content {
@@ -578,6 +584,8 @@ body main div.container-fluid {
                 #content {
                     width: 100%;
                     height: 100%;
+                    margin-right: 0px;
+                    padding-right: 0px;
                     overflow-y: unset;
                 }
             }
@@ -616,7 +624,7 @@ body main div.container-fluid {
 
 .p-button.p-component.p-confirm-dialog-reject.p-button-text:hover {
     box-shadow: 0 2px 8px 3px rgba(0, 0, 0, 0.1) !important;
-    color: $button-text-color !important;
+    color: $base-color !important;
 }
 
 .dx-show-clear-button .dx-icon-clear {

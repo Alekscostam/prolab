@@ -41,6 +41,7 @@ import {StringUtils} from '../utils/StringUtils';
 import {saveObjToCookieGlobal} from '../utils/Cookie';
 import DataHistoryLogStore from '../containers/dao/DataHistoryLogStore';
 import HistoryLogDialogComponent from '../components/prolab/HistoryLogDialogComponent';
+import {PluginConfirmDialogUtils} from '../utils/component/PluginUtils';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -645,31 +646,12 @@ export class BaseViewContainer extends BaseContainer {
 
                 {this.state.visibleMessagePluginPanel ? (
                     <ConfirmDialog
-                        acceptLabel={
-                            parsedPluginView.info.question
-                                ? LocUtils.loc(this.props.labels, 'Yes', 'Tak')
-                                : LocUtils.loc(this.props.labels, 'Ok', 'Ok')
-                        }
-                        rejectLabel={
-                            parsedPluginView.info.question
-                                ? LocUtils.loc(this.props.labels, 'No', 'Nie')
-                                : LocUtils.loc(this.props.labels, 'Close', 'Zamknij')
-                        }
-                        /** Question jest nadrzedny tzn. jesli message i question !== null to bierze wartosci z question */
-                        header={
-                            parsedPluginView.info.question
-                                ? LocUtils.loc(this.props.labels, '', parsedPluginView.info.question?.title)
-                                : parsedPluginView.info.message
-                                ? LocUtils.loc(this.props.labels, '', parsedPluginView.info.message?.title)
-                                : LocUtils.loc(this.props.labels, '', parsedPluginView.info?.name)
-                        }
+                        acceptLabel={PluginConfirmDialogUtils.acceptLabel(parsedPluginView, this.props.labels)}
+                        rejectLabel={PluginConfirmDialogUtils.rejectLabel(parsedPluginView, this.props.labels)}
+                        header={PluginConfirmDialogUtils.header(parsedPluginView, this.props.labels)}
                         visible={true}
                         onHide={() => this.setState({visibleMessagePluginPanel: false})}
-                        message={
-                            parsedPluginView.info.question
-                                ? LocUtils.loc(this.props.labels, '', parsedPluginView.info.question?.text)
-                                : LocUtils.loc(this.props.labels, '', parsedPluginView.info.message?.text)
-                        }
+                        message={PluginConfirmDialogUtils.message(parsedPluginView, this.props.labels)}
                         icon='pi pi-exclamation-triangle'
                         accept={() => {
                             const refreshAll = parsedPluginView?.viewOptions?.refreshAll;
@@ -725,7 +707,6 @@ export class BaseViewContainer extends BaseContainer {
                 this.showErrorMessage(ex.error.message);
                 this.unblockUi();
             });
-        this.unblockUi();
 
         if (fileId) {
             this.crudService.downloadDocument(viewId, elementId, fileId, fileName);
@@ -1050,7 +1031,11 @@ export class BaseViewContainer extends BaseContainer {
     }
     //override
     renderHeadPanel = () => {
+        const operations = this.state?.parsedGridView?.operations;
         if (this.isDashboard()) {
+            return <React.Fragment />;
+        }
+        if (operations?.length === 0) {
             return <React.Fragment />;
         }
         return (
@@ -1062,7 +1047,7 @@ export class BaseViewContainer extends BaseContainer {
                     elementKindView={this.state.elementKindView}
                     labels={this.props.labels}
                     selectedRowKeys={this.state.selectedRowKeys}
-                    operations={this.state.parsedGridView?.operations}
+                    operations={operations}
                     leftContent={this.leftHeadPanelContent()}
                     rightContent={this.rightHeadPanelContent()}
                     handleFormula={(e) => {
@@ -1245,25 +1230,21 @@ export class BaseViewContainer extends BaseContainer {
         );
     }
 
-    addView(e) {
+    addView() {
         this.blockUi();
         const subViewId = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
-        const kindView = !!this.state.elementKindView
-            ? this.state.elementKindView
-            : UrlUtils.getURLParameter('kindView');
         const parentId = this.state.subView == null ? UrlUtils.getURLParameter('parentId') : this.state.elementRecordId;
-        const recordId = undefined;
         let viewId = this.props.id;
         viewId = DataGridUtils.getRealViewId(subViewId, viewId);
         this.crudService
-            .addEntry(viewId, e.recordId, parentId, kindView)
+            .addEntry(viewId, parentId)
             .then((entryResponse) => {
                 EntryResponseUtils.run(
                     entryResponse,
                     () => {
                         if (!!entryResponse.next) {
                             this.crudService
-                                .add(viewId, recordId, parentId, kindView)
+                                .add(viewId, parentId)
                                 .then((editDataResponse) => {
                                     this.setState({
                                         visibleEditPanel: true,

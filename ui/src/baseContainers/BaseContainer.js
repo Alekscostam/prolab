@@ -243,7 +243,7 @@ class BaseContainer extends React.Component {
         if (typeof err === 'string') {
             message = err;
         } else if (err) {
-            message = err.Message;
+            message = err.message;
             title = err.title;
             if (!message) {
                 if (err.errors) {
@@ -1315,7 +1315,6 @@ class BaseContainer extends React.Component {
                 this.unselectAllDataGrid();
                 this.unblockUi();
                 this.returnFromRowEdit();
-                // UrlUtils.getUrlWithoutEditRowParams()
             })
             .catch((err) => {
                 this.showGlobalErrorMessage(err);
@@ -1378,30 +1377,35 @@ class BaseContainer extends React.Component {
         const parentId = this.state.elementRecordId;
         const idRowKeys = this.state.selectedRowKeys.map((el) => el.ID);
         const listId = {listId: idRowKeys};
-        this.crudService.getDocumentDatasInfo(viewId, id, listId, parentId).then((res) => {
-            if (res.kind === 'GE') {
-                if (res.info.next) {
-                    if (res.message) {
-                        this.showSuccessMessage(res.message.text, undefined, res.message.title);
+        this.crudService
+            .getDocumentDatasInfo(viewId, id, listId, parentId)
+            .then((res) => {
+                if (res.kind === 'GE') {
+                    if (res.info.next) {
+                        if (res.message) {
+                            this.showSuccessMessage(res.message.text, undefined, res.message.title);
+                        } else {
+                            this.executeDocument(null, viewId, id, parentId);
+                        }
+                    }
+                } else {
+                    if (res.inputDataFields?.length) {
+                        let documentInfo = {
+                            inputDataFields: res.inputDataFields,
+                            info: res.info,
+                        };
+                        this.setState({
+                            visibleDocumentPanel: true,
+                            documentInfo: documentInfo,
+                        });
                     } else {
                         this.executeDocument(null, viewId, id, parentId);
                     }
                 }
-            } else {
-                if (res.inputDataFields?.length) {
-                    let documentInfo = {
-                        inputDataFields: res.inputDataFields,
-                        info: res.info,
-                    };
-                    this.setState({
-                        visibleDocumentPanel: true,
-                        documentInfo: documentInfo,
-                    });
-                } else {
-                    this.executeDocument(null, viewId, id, parentId);
-                }
-            }
-        });
+            })
+            .catch((ex) => {
+                this.showResponseErrorMessage(ex);
+            });
     }
 
     /** Metoda już typowo pod plugin. executePlugin wykonuje się w momencie przejscia z pierwszego do drugiego kroku*/
@@ -1461,8 +1465,8 @@ class BaseContainer extends React.Component {
                     this.refreshView();
                 }
             })
-            .catch((err) => {
-                this.showErrorMessages(err);
+            .catch((ex) => {
+                this.showResponseErrorMessage(ex);
             });
     }
     plugin(id) {
@@ -1512,7 +1516,7 @@ class BaseContainer extends React.Component {
                 });
             })
             .catch((err) => {
-                this.showErrorMessages(err);
+                this.showResponseErrorMessage(err);
             });
     }
 
@@ -1558,7 +1562,7 @@ class BaseContainer extends React.Component {
                 });
             })
             .catch((err) => {
-                this.showErrorMessages(err);
+                this.showResponseErrorMessage(err);
             });
     }
 

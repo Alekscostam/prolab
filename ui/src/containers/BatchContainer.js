@@ -399,6 +399,10 @@ export class BatchContainer extends BaseContainer {
         }
     }
     renderHeadPanel = () => {
+        const operations = this.state?.parsedView?.operations;
+        if (operations?.length === 0) {
+            return <React.Fragment />;
+        }
         return (
             <React.Fragment>
                 <HeadPanel
@@ -408,15 +412,11 @@ export class BatchContainer extends BaseContainer {
                     elementKindView={this.state.elementKindView}
                     labels={this.props.labels}
                     selectedRowKeys={this.state.selectedRowKeys}
-                    operations={this.state.parsedView?.operations}
+                    operations={operations}
                     leftContent={this.leftHeadPanelContent()}
                     rightContent={this.rightHeadPanelContent()}
-                    handleFormula={() => {
-                        this.calculateData();
-                    }}
-                    handleFill={() => {
-                        this.fillData();
-                    }}
+                    handleFormula={() => this.calculateData()}
+                    handleFill={() => this.fillData()}
                     handleUnblockUi={() => this.unblockUi()}
                     showErrorMessages={(err) => this.showErrorMessages(err)}
                     handleBlockUi={() => this.blockUi()}

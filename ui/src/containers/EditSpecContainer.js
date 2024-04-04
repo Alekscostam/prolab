@@ -552,6 +552,10 @@ export class EditSpecContainer extends BaseContainer {
 
     //override
     renderHeadPanel = () => {
+        const operations = this.state?.parsedView?.operations;
+        if (operations?.length === 0) {
+            return <React.Fragment />;
+        }
         return (
             <React.Fragment>
                 <HeadPanel
@@ -562,11 +566,11 @@ export class EditSpecContainer extends BaseContainer {
                     elementSubViewId={null}
                     elementKindView={this.state.elementKindView}
                     selectedRowKeys={this.state.selectedRowKeys}
-                    operations={this.state.parsedView?.operations}
+                    operations={operations}
                     labels={this.props.labels}
                     leftContent={
                         <React.Fragment>
-                            {this.state.parsedView?.operations.map((operation, index) => {
+                            {operations.map((operation, index) => {
                                 return <div key={index}>{this.renderButton(operation, index)}</div>;
                             })}
                         </React.Fragment>

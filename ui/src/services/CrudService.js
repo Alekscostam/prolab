@@ -36,11 +36,9 @@ export default class CrudService extends BaseService {
         this.createObjectToEditList = this.createObjectToEditList.bind(this);
     }
 
-    addEntry(viewId, recordId, parentId, kindView) {
+    addEntry(viewId, parentId) {
         return this.fetch(
-            `${this.getDomain()}/${this.path}/${viewId}/Add${recordId ? `/${recordId}` : ''}/Entry${
-                parentId ? `?parentId=${parentId}` : ''
-            }${parentId && kindView ? `&kindView=${kindView}` : ''}`,
+            `${this.getDomain()}/${this.path}/${viewId}/Add/Entry${parentId ? `?parentId=${parentId}` : ''}`,
             {
                 method: 'POST',
             }
@@ -53,15 +51,10 @@ export default class CrudService extends BaseService {
             });
     }
 
-    add(viewId, recordId, parentId, kindView) {
-        return this.fetch(
-            `${this.getDomain()}/${this.path}/${viewId}/Add${recordId ? `/${recordId}` : ''}${
-                parentId ? `?parentId=${parentId}` : ''
-            }${parentId && kindView ? `&kindView=${kindView}` : ''}`,
-            {
-                method: 'POST',
-            }
-        )
+    add(viewId, parentId) {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Add${parentId ? `?parentId=${parentId}` : ''}`, {
+            method: 'POST',
+        })
             .then((addDataResponse) => {
                 return Promise.resolve(EditRowUtils.convertEditResponse(addDataResponse));
             })
@@ -73,7 +66,7 @@ export default class CrudService extends BaseService {
         return this.fetch(
             `${this.getDomain()}/${this.path}/${viewId}/Edit/${recordId}/Entry${
                 parentId ? `?parentId=${parentId}` : ''
-            }${parentId && kindView ? `&kindView=${kindView}` : ''}`,
+            }`,
             {
                 method: 'POST',
             }
@@ -87,11 +80,9 @@ export default class CrudService extends BaseService {
             });
     }
 
-    edit(viewId, recordId, parentId, kindView) {
+    edit(viewId, recordId, parentId) {
         return this.fetch(
-            `${this.getDomain()}/${this.path}/${viewId}/Edit/${recordId}${parentId ? `?parentId=${parentId}` : ''}${
-                parentId && kindView ? `&kindView=${kindView}` : ''
-            }`,
+            `${this.getDomain()}/${this.path}/${viewId}/Edit/${recordId}${parentId ? `?parentId=${parentId}` : ''}`,
             {
                 method: 'GET',
             }

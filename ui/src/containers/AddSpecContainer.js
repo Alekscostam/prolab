@@ -570,6 +570,10 @@ export class AddSpecContainer extends BaseContainer {
 
     //override
     renderHeadPanel = () => {
+        const operations = this.state?.parsedView?.operations;
+        if (operations?.length === 0) {
+            return <React.Fragment />;
+        }
         return (
             <React.Fragment>
                 <HeadPanel
@@ -592,9 +596,7 @@ export class AddSpecContainer extends BaseContainer {
                     handleRestore={() => this.restore()}
                     handleCopy={() => this.copyEntry()}
                     handleArchive={() => this.archive()}
-                    handleFormula={() => {
-                        this.caclulateFormula();
-                    }}
+                    handleFormula={() => this.caclulateFormula()}
                     handleAttachments={() => this.attachment()}
                     handlePublish={() => this.publishEntry()}
                     handleUnblockUi={() => this.unblockUi()}

@@ -5,7 +5,7 @@ class ActionButtonWithMenuUtils {
         if (items) {
             for (let index = 0; index < items.length; index++) {
                 const item = items[index];
-                if (index > maxShortcutButtons) {
+                if (index >= maxShortcutButtons) {
                     menuItems.push({
                         id: item.id,
                         label: item.label,

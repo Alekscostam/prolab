@@ -408,15 +408,13 @@ class App extends Component {
         const {labels} = this.state;
         const opADD = DataGridUtils.putToOperationsButtonIfNeccessery(this.state.operations, labels, 'OP_ADD', 'Dodaj');
         return (
-            <div id='add-btn'>
-                <ActionButton
-                    rendered={opADD}
-                    label={opADD?.label}
-                    handleClick={(e) => {
-                        this.viewContainer?.current?.addView(e);
-                    }}
-                />
-            </div>
+            <ActionButton
+                rendered={opADD}
+                label={opADD?.label}
+                handleClick={(e) => {
+                    this.viewContainer?.current?.addView(e);
+                }}
+            />
         );
     };
 

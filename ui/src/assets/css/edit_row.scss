@@ -240,13 +240,18 @@
     background-color: $base-color !important;
 }
 
-.p-button:not(a):not(.p-disabled):focus,
-.p-button:not(a):not(.p-disabled):active,
-.p-button:not(a):not(.p-disabled):hover,
-.p-button:not(a):not(.p-disabled):visited {
+.p-button:not(a):not(.p-disabled):not(.p-confirm-dialog-reject):focus,
+.p-button:not(a):not(.p-disabled):not(.p-confirm-dialog-reject):active,
+.p-button:not(a):not(.p-disabled):not(.p-confirm-dialog-reject):hover,
+.p-button:not(a):not(.p-disabled):not(.p-confirm-dialog-reject):visited {
     background: $base-color !important;
 }
-
+.p-confirm-dialog-reject:focus,
+.p-confirm-dialog-reject:active,
+.p-confirm-dialog-reject:hover,
+.p-confirm-dialog-reject:visited {
+    background: white !important;
+}
 #row-edit .p-checkbox-icon {
     position: relative;
     bottom: 5px;

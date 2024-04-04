@@ -24,6 +24,7 @@ import {AttachmentViewDialog} from '../attachmentView/AttachmentViewDialog';
 import CopyDialogComponent from '../../components/prolab/CopyDialogComponent';
 import PluginListComponent from '../../components/prolab/PluginListComponent';
 import HistoryLogDialogComponent from '../../components/prolab/HistoryLogDialogComponent';
+import {PluginConfirmDialogUtils} from '../../utils/component/PluginUtils';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -426,45 +427,18 @@ export class DashboardGridViewComponent extends BaseContainer {
                     ) : null}
                     {this.state.visibleMessagePluginPanel ? (
                         <ConfirmDialog
-                            acceptLabel={
-                                this.state.parsedPluginView.info.question
-                                    ? LocUtils.loc(this.props.labels, 'Yes', 'Tak')
-                                    : LocUtils.loc(this.props.labels, 'Ok', 'Ok')
-                            }
-                            rejectLabel={
-                                this.state.parsedPluginView.info.question
-                                    ? LocUtils.loc(this.props.labels, 'No', 'Nie')
-                                    : LocUtils.loc(this.props.labels, 'Close', 'Zamknij')
-                            }
-                            /** Question jest nadrzedny tzn. jesli message i question !== null to bierze wartosci z question */
-                            header={
-                                this.state.parsedPluginView.info.question
-                                    ? LocUtils.loc(
-                                          this.props.labels,
-                                          '',
-                                          this.state.parsedPluginView.info.question?.title
-                                      )
-                                    : LocUtils.loc(
-                                          this.props.labels,
-                                          '',
-                                          this.state.parsedPluginView.info.message?.title
-                                      )
-                            }
+                            acceptLabel={PluginConfirmDialogUtils.acceptLabel(
+                                this.state.parsedPluginView,
+                                this.props.labels
+                            )}
+                            rejectLabel={PluginConfirmDialogUtils.rejectLabel(
+                                this.state.parsedPluginView,
+                                this.props.labels
+                            )}
+                            header={PluginConfirmDialogUtils.header(this.state.parsedPluginView, this.props.labels)}
                             visible={true}
                             onHide={() => this.setState({visibleMessagePluginPanel: false})}
-                            message={
-                                this.state.parsedPluginView.info.question
-                                    ? LocUtils.loc(
-                                          this.props.labels,
-                                          '',
-                                          this.state.parsedPluginView.info.question?.text
-                                      )
-                                    : LocUtils.loc(
-                                          this.props.labels,
-                                          '',
-                                          this.state.parsedPluginView.info.message?.text
-                                      )
-                            }
+                            message={PluginConfirmDialogUtils.message(this.state.parsedPluginView, this.props.labels)}
                             icon='pi pi-exclamation-triangle'
                             accept={() => {
                                 const refreshAll = this.state.parsedPluginView?.viewOptions?.refreshAll;
@@ -567,6 +541,10 @@ export class DashboardGridViewComponent extends BaseContainer {
 
     //override
     renderHeadPanel = () => {
+        const operations = this.state?.parsedGridView?.operations;
+        if (operations?.length === 0) {
+            return <React.Fragment />;
+        }
         return (
             <React.Fragment>
                 <HeadPanel
