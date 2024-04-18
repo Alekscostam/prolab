@@ -83,8 +83,8 @@ export default class EditListDataStore extends BaseService {
                     data: elementArg.data,
                 };
                 const url = `${this.domain}/${this.path}/${viewIdArg}/${point}/${recordIdArg}/list/${fieldIdArg}/data${params}${parentIdParam}${filterIdParam}${selectAllParam}${viewTypeParam}${kindViewParam}`;
-                let crcFilter = filter?.toString() === undefined ? '' : filter.toString();
-                crcFilter = 'CRC' + crcFilter;
+                const crcFilter = 'CRC' + (filter?.toString() === undefined ? '' : filter.toString());
+
                 if (crcFilter.indexOf(_key) > 0) {
                     //myk blokujący nadmiarowo generowane requesty przez store odnośnie selection
                     return Promise.reject('');
@@ -94,7 +94,6 @@ export default class EditListDataStore extends BaseService {
                         body: JSON.stringify(requestBody),
                     })
                         .then((response) => {
-                            console.time('CALC_CRC');
                             let data = response.data;
                             data.forEach((rowData) => {
                                 if (rowData.CALC_CRC === undefined || rowData.CALC_CRC === null) {
@@ -102,7 +101,6 @@ export default class EditListDataStore extends BaseService {
                                 }
                             });
                             ConsoleHelper('EditListDataStore -> fetch data');
-                            console.timeEnd('CALC_CRC');
                             if (onSuccess) {
                                 onSuccess();
                             }

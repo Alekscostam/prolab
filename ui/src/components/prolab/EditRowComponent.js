@@ -12,12 +12,13 @@ import {Sidebar} from 'primereact/sidebar';
 import ConsoleHelper from '../../utils/ConsoleHelper';
 import EditListComponent from './EditListComponent';
 import {Toast} from 'primereact/toast';
-import EditListDataStore from '../../containers/dao/EditListDataStore';
+import EditListDataStore from '../../containers/dao/DataEditListStore';
 import EditListUtils from '../../utils/EditListUtils';
 import CrudService from '../../services/CrudService';
 import BaseRowComponent from '../../baseContainers/BaseRowComponent';
 import LocUtils from '../../utils/LocUtils';
 import {addCustomOverlayToElement, removeCustomOverlayToElement} from '../../PageContext';
+import {OperationType} from '../../model/OperationType';
 
 let copyDataGlobalTop = null;
 export class EditRowComponent extends BaseRowComponent {
@@ -121,13 +122,14 @@ export class EditRowComponent extends BaseRowComponent {
     render() {
         const labels = this.props?.labels;
         const operations = this.props?.editData?.operations || [];
-        operations.push({type: 'OP_CANCEL', label: LocUtils.loc(labels, 'OP_CANCEL', 'Anuluj')});
         const kindOperation = this.props.editData?.editInfo?.kindOperation;
-        const opSave = DataGridUtils.containsOperationsButton(operations, 'OP_SAVE');
-        const opFill = DataGridUtils.containsOperationsButton(operations, 'OP_FILL');
-        const opCancel = DataGridUtils.containsOperationsButton(operations, 'OP_CANCEL');
+
+        const opSave = DataGridUtils.getOrCreateOpButton(operations, labels, OperationType.OP_SAVE, 'Zapisz');
+        const opCancel = DataGridUtils.getOrCreateOpButton(operations, labels, OperationType.OP_CANCEL, 'Anuluj');
+        const opFill = DataGridUtils.getOrCreateOpButton(operations, labels, OperationType.OP_FILL, 'Wypełnij');
+
         const visibleEditPanel = this.props.visibleEditPanel;
-        let editData = this.props.editData;
+        const editData = this.props.editData;
         let editListVisible = this.state.editListVisible;
         if (this.props?.copyData) {
             copyDataGlobalTop = this.props.copyData;

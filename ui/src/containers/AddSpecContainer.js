@@ -11,7 +11,7 @@ import {ViewValidatorUtils} from '../utils/parser/ViewValidatorUtils';
 import UrlUtils from '../utils/UrlUtils';
 import ConsoleHelper from '../utils/ConsoleHelper';
 import DataTreeStore from './dao/DataTreeStore';
-import TreeViewComponent from './treeGrid/TreeViewComponent';
+import TreeViewComponent from './treeGridView/TreeViewComponent';
 import ActionButton from '../components/ActionButton';
 import DivContainer from '../components/DivContainer';
 import LocUtils from '../utils/LocUtils';
@@ -20,6 +20,8 @@ import {InputNumber} from 'primereact/inputnumber';
 import {TreeListUtils} from '../utils/component/TreeListUtils';
 import {sessionPrelongFnc} from '../App';
 import {Dialog} from 'primereact/dialog';
+import {OperationType} from '../model/OperationType';
+import {TabSpecType} from '../model/TabSpecType';
 
 const autOfRangeIndex = 6;
 
@@ -63,9 +65,9 @@ export class AddSpecContainer extends BaseContainer {
         if (id === undefined) {
             id = this.props.id;
         }
-        const parentId = UrlUtils.getURLParameter('parentId');
-        const recordId = UrlUtils.getURLParameter('recordId');
-        const filterId = UrlUtils.getURLParameter('filterId');
+        const parentId = UrlUtils.getParentId();
+        const recordId = UrlUtils.getRecordId();
+        const filterId = UrlUtils.getFilterId();
         ConsoleHelper(
             `AddSpecContainer::componentDidMount -> id=${id}, parentId = ${parentId} recordId = ${recordId} filterId = ${filterId}`
         );
@@ -81,9 +83,9 @@ export class AddSpecContainer extends BaseContainer {
         if (id === undefined) {
             id = this.props.id;
         }
-        const parentId = UrlUtils.getURLParameter('parentId');
-        const recordId = UrlUtils.getURLParameter('recordId');
-        const filterId = UrlUtils.getURLParameter('filterId');
+        const parentId = UrlUtils.getParentId();
+        const recordId = UrlUtils.getRecordId();
+        const filterId = UrlUtils.getFilterId();
         const s1 = !DataGridUtils.equalNumbers(this.state.elementId, id);
         const s2 = !DataGridUtils.equalNumbers(this.state.elementFilterId, filterId);
         const s3 = !DataGridUtils.equalString(this.state.elementRecordId, recordId);
@@ -167,13 +169,13 @@ export class AddSpecContainer extends BaseContainer {
 
     getViewAddSpec(viewId, parentId, recordId, type, header, headerId) {
         if (this.isGridViewUrlExist()) {
-            parentId = UrlUtils.getURLParameter('recordId');
+            parentId = UrlUtils.getRecordId();
         }
         this.viewService
             .getViewAddSpec(viewId, parentId, type, header, headerId)
             .then((responseView) => {
                 responseView.viewOptions.multiSelect = true;
-                let refactorResponseView = {
+                const resView = {
                     ...responseView,
                     viewInfo: {
                         id: responseView.info.viewId,
@@ -192,7 +194,7 @@ export class AddSpecContainer extends BaseContainer {
                     ],
                     gridOptions: responseView.viewOptions,
                 };
-                this.processingViewResponse(refactorResponseView, parentId, recordId);
+                this.processingViewResponse(resView, parentId, recordId);
             })
             .catch((err) => {
                 this.refTreeList?.instance?.endCustomLoading();
@@ -214,47 +216,12 @@ export class AddSpecContainer extends BaseContainer {
                 id = this.props.id;
             }
             Breadcrumb.updateView(responseView.viewInfo, id, recordId);
-            let columnsTmp = [];
-            let pluginsListTmp = [];
-            let documentsListTmp = [];
-            let batchesListTmp = [];
-            let filtersListTmp = [];
-            let columnOrderCounter = 0;
-            new Array(responseView.gridColumns).forEach((gridColumns) => {
-                gridColumns?.forEach((group) => {
-                    group.columns?.forEach((column) => {
-                        column.groupName = group.groupName;
-                        column.freeze = group.freeze;
-                        column.columnOrder = columnOrderCounter++;
-                        columnsTmp.push(column);
-                    });
-                });
-            });
-            for (let plugin in responseView?.pluginsList) {
-                pluginsListTmp.push({
-                    id: responseView?.pluginsList[plugin].id,
-                    label: responseView?.pluginsList[plugin].label,
-                });
-            }
-            for (let document in responseView?.documentsList) {
-                documentsListTmp.push({
-                    id: responseView?.documentsList[document].id,
-                    label: responseView?.documentsList[document].label,
-                });
-            }
-            for (let batch in responseView?.batchesList) {
-                batchesListTmp.push({
-                    id: responseView?.batchesList[batch].id,
-                    label: responseView?.batchesList[batch].label,
-                });
-            }
+            const pluginsListTmp = this.puginListCreate(responseView);
+            const documentsListTmp = this.documentListCreate(responseView);
+            const batchesListTmp = this.batchListCreate(responseView);
+            const filtersListTmp = this.filtersListCreate(responseView);
+            const columnsTmp = this.columnsFromGroupCreate(responseView);
             Breadcrumb.currentBreadcrumbAsUrlParam();
-            for (let filter in responseView?.filtersList) {
-                filtersListTmp.push({
-                    id: responseView?.filtersList[filter].id,
-                    label: responseView?.filtersList[filter].label,
-                });
-            }
             this.setState(
                 () => ({
                     parsedView: responseView,
@@ -268,16 +235,14 @@ export class AddSpecContainer extends BaseContainer {
                     expandAll: responseView.gridOptions.groupExpandAll,
                 }),
                 () => {
-                    //const initFilterId = responseView?.viewInfo?.filterdId;
                     const viewIdArg = this.state.elementId;
                     let parentIdArg = this.state.elementParentId;
                     const type = responseView.info.type;
                     const headerId = responseView.info.headerId;
                     const header = responseView.info.header;
                     if (window.location.href.includes('grid-view')) {
-                        parentIdArg = UrlUtils.getURLParameter('recordId');
+                        parentIdArg = UrlUtils.getRecordId();
                     }
-                    //const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId;
                     this.dataTreeStore
                         .getAddSpecDataTreeStoreDirect(viewIdArg, parentIdArg, type, headerId, header)
                         .then((res) => {
@@ -322,7 +287,7 @@ export class AddSpecContainer extends BaseContainer {
     renderHeaderLeft() {
         return (
             <React.Fragment>
-                <DivContainer id='header-left ' style={{maxWidth: '400px'}}>
+                <DivContainer id='header-left' style={{maxWidth: '400px'}}>
                     <div id='subviews-panel'>
                         {this.state.tabs?.length > 0 ? (
                             <Tabs
@@ -378,7 +343,7 @@ export class AddSpecContainer extends BaseContainer {
             const headerId = this.state.parsedView?.info?.headerId;
             const tab = this.state.tabs[index];
             let header = tab.header;
-            if (tab.type === 'METHODS' || tab.type === 'TEMPLATES') {
+            if (tab.type === TabSpecType.METHODS || tab.type === TabSpecType.TEMPLATES) {
                 header = true;
             }
             this.getViewAddSpec(elementId, elementParentId, elementRecordId, tab.type, header, headerId);
@@ -398,8 +363,18 @@ export class AddSpecContainer extends BaseContainer {
     //override
     renderHeaderRight() {
         const operations = this.state.parsedView.operations;
-        const opAdd = DataGridUtils.containsOperationsButton(operations, 'OP_ADDSPEC_ADD');
-        const opCount = DataGridUtils.containsOperationsButton(operations, 'OP_ADDSPEC_COUNT');
+        const opAdd = DataGridUtils.getOrCreateOpButton(
+            operations,
+            this.props.labels,
+            OperationType.OP_ADDSPEC_ADD,
+            'Dodaj'
+        );
+        const opCount = DataGridUtils.getOrCreateOpButton(
+            operations,
+            this.props.labels,
+            OperationType.OP_ADDSPEC_COUNT,
+            'Ilość'
+        );
         return (
             <div>
                 <div className='ml-4 text-end number-of-copies-header'>
@@ -475,7 +450,7 @@ export class AddSpecContainer extends BaseContainer {
         const numberOfCopies = this.numberOfCopies?.current?.element.children[0]?.value;
         this.blockUi();
         if (this.isGridViewUrlExist()) {
-            parentId = UrlUtils.getURLParameter('recordId');
+            parentId = UrlUtils.getRecordId();
         }
         this.crudService
             .executeSpec(
@@ -490,7 +465,7 @@ export class AddSpecContainer extends BaseContainer {
             )
             .then((saveResponse) => {
                 const validArray = this.createValidArray(saveResponse.data);
-                let result = this.setFakeIds(validArray);
+                const result = this.setFakeIds(validArray);
                 const parsedGridViewData = this.props?.parsedGridViewData;
                 if (parsedGridViewData) {
                     const foundedElementToSetLine = parsedGridViewData.find((el) => {
@@ -521,7 +496,6 @@ export class AddSpecContainer extends BaseContainer {
             array.forEach((el) => {
                 el._LINE_COLOR_GRADIENT = structuredClone(clonedPrevGradients);
                 el._LINE_COLOR_GRADIENT.push(el._LINE_COLOR_GRADIENT[el._LINE_COLOR_GRADIENT.length - 1] - 10);
-                // raczej nie potrzebny ten set ale w razie czego moze byc
                 const set = [...new Set(el._LINE_COLOR_GRADIENT)];
                 el._LINE_COLOR_GRADIENT = [...set];
             });
@@ -663,7 +637,7 @@ export class AddSpecContainer extends BaseContainer {
                                     const parsedView = this.state.parsedView;
                                     const type = parsedView.info?.type;
                                     let header = parsedView.info?.header;
-                                    if (type === 'METHODS' || type === 'TEMPLATES') {
+                                    if (type === TabSpecType.METHODS || type === TabSpecType.TEMPLATES) {
                                         header = false;
                                         this.setState({
                                             isSubView: true,
@@ -672,7 +646,7 @@ export class AddSpecContainer extends BaseContainer {
                                     this.unselectAllDataGrid();
                                     this.getViewAddSpec(viewId, parentId, recordId, type, header, id);
                                     setTimeout(() => {
-                                        this?.refTreeList?.current.reInitilizedExpandAll();
+                                        this.refTreeList?.current.reInitilizedExpandAll();
                                         this.refTreeList?.instance?.endCustomLoading();
                                     }, 1200);
                                 }}
@@ -744,7 +718,6 @@ export class AddSpecContainer extends BaseContainer {
             </React.Fragment>
         );
     }
-
     getMessages() {
         return this.messages;
     }

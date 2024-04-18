@@ -27,6 +27,7 @@ import BatchService from '../services/BatchService';
 import {ResponseUtils} from '../utils/ResponseUtils';
 import EditSpecService from '../services/EditSpecService';
 import {OperationType} from '../model/OperationType';
+import {InputType} from '../model/InputType';
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -38,7 +39,6 @@ class BaseContainer extends React.Component {
         this.batchService = new BatchService();
         this.editSpecService = new EditSpecService();
         this.scrollToFirstError = this.scrollToFirstError.bind(this);
-        this.handleChange = this.handleChange.bind(this);
         this.handleFormSubmit = this.handleFormSubmit.bind(this);
         this.handleValidForm = this.handleValidForm.bind(this);
         this.prepareFooter = this.prepareFooter.bind(this);
@@ -82,6 +82,13 @@ class BaseContainer extends React.Component {
 
     getMessages() {}
 
+    shouldComponentUpdate() {
+        const sessionTimeoutDialog = document.getElementById('sessionTimeoutDialog');
+        if (sessionTimeoutDialog) {
+            return false;
+        }
+        return true;
+    }
     componentDidMount() {
         window.addEventListener('beforeunload', function () {});
         this._isMounted = true;
@@ -394,346 +401,6 @@ class BaseContainer extends React.Component {
         }
     }
 
-    handleChange(inputType, parameters, event, onAfterStateChange, stateField) {
-        ConsoleHelper('handleChange', inputType, parameters, event, stateField);
-        let stateFieldValue = undefined;
-        if (stateField && stateField !== '') {
-            ({[stateField]: stateFieldValue} = this.state);
-            stateFieldValue = this.getValueInObjPath(stateField);
-        }
-        let varName;
-        let varValue;
-        let modifiedList;
-        if (event !== undefined) {
-            switch (inputType) {
-                case 'YES_NO_DIALOG':
-                    varName = event.name;
-                    varValue = event.value;
-                    this.handleChangeSetState(varName, varValue, onAfterStateChange, stateField);
-                    break;
-                case 'MULTI_FILE_CHOOSE':
-                    varName = parameters[1];
-                    if (stateFieldValue) {
-                        modifiedList = stateFieldValue[varName];
-                    } else {
-                        ({[varName]: modifiedList} = this.state);
-                    }
-                    if (parameters[0] === 'ADD') {
-                        varValue = event;
-                        if (!modifiedList) {
-                            modifiedList = [varValue];
-                        } else {
-                            modifiedList = modifiedList.concat(varValue);
-                        }
-                    } else if (
-                        modifiedList !== undefined &&
-                        modifiedList.length >= parameters[2] - 1 &&
-                        parameters[0] === 'REMOVE'
-                    ) {
-                        modifiedList.splice(parameters[2], 1);
-                    }
-                    this.handleChangeSetState(varName, modifiedList, onAfterStateChange, stateField);
-                    break;
-                case 'SINGLE_FILE_CHOOSE':
-                    varName = parameters[1];
-                    if (parameters[0] === 'ADD') {
-                        varValue = event[0];
-                    } else if (parameters[0] === 'REMOVE') {
-                        varValue = undefined;
-                    }
-                    this.handleChangeSetState(varName, varValue, onAfterStateChange, stateField);
-                    break;
-                case 'MULTI_FILE_UPLOAD':
-                    varName = parameters[1];
-                    if (stateFieldValue) {
-                        modifiedList = stateFieldValue[varName];
-                    } else {
-                        ({[varName]: modifiedList} = this.state);
-                    }
-                    if (parameters[0] === 'ADD') {
-                        varValue = JSON.parse(event.xhr.response);
-                        if (!modifiedList) {
-                            modifiedList = [varValue];
-                        } else {
-                            modifiedList = modifiedList.concat(varValue);
-                        }
-                    } else if (
-                        modifiedList !== undefined &&
-                        modifiedList.length >= parameters[2] - 1 &&
-                        parameters[0] === 'REMOVE'
-                    ) {
-                        modifiedList.splice(parameters[2], 1);
-                    }
-                    this.handleChangeSetState(varName, modifiedList, onAfterStateChange, stateField);
-                    break;
-                case 'SINGLE_FILE_UPLOAD':
-                    varName = parameters[1];
-                    if (parameters[0] === 'ADD') {
-                        varValue = JSON.parse(event.xhr.response)[0];
-                    } else if (parameters[0] === 'REMOVE') {
-                        varValue = undefined;
-                    }
-                    this.handleChangeSetState(varName, varValue, onAfterStateChange, stateField);
-                    break;
-                case 'MULTI_DROPDOWN':
-                    varName = event.target.name;
-                    varValue = event.target.value ? event.target.value : undefined;
-                    if (stateFieldValue) {
-                        modifiedList = stateFieldValue[varName];
-                    } else {
-                        ({[varName]: modifiedList} = this.state);
-                    }
-                    if (!modifiedList) {
-                        modifiedList = [];
-                    }
-                    modifiedList[parameters[0]] = varValue;
-                    this.handleChangeSetState(varName, modifiedList, onAfterStateChange, stateField);
-                    break;
-                case 'MULTI_CHECKBOX':
-                    varName = event.target.name;
-                    varValue = event.checked ? event.checked : false;
-                    if (stateFieldValue) {
-                        modifiedList = stateFieldValue[varName];
-                    } else {
-                        ({[varName]: modifiedList} = this.state);
-                    }
-                    if (!modifiedList) {
-                        modifiedList = [];
-                    }
-                    if (varValue) {
-                        if (!modifiedList) {
-                            modifiedList = [parameters[1]];
-                        } else {
-                            modifiedList = [...modifiedList, parameters[1]];
-                        }
-                    } else {
-                        modifiedList = modifiedList?.filter((v) => {
-                            return v[parameters[0]] !== parameters[1][parameters[0]] ? v : null;
-                        });
-                    }
-                    this.handleChangeSetState(varName, modifiedList, onAfterStateChange, stateField);
-                    break;
-                case 'CHECKBOX':
-                    varName = event.target.name;
-                    varValue = event.checked ? event.checked : false;
-                    this.handleChangeSetState(varName, varValue, onAfterStateChange, stateField);
-                    break;
-                case 'TEXT_EDITOR':
-                    varName = parameters[0];
-                    varValue = event;
-                    this.handleChangeSetState(varName, varValue, onAfterStateChange, stateField);
-                    break;
-                case 'EDITABLE_DATA_TABLE':
-                    varName = event.name;
-                    varValue = event.value;
-                    if (stateFieldValue) {
-                        modifiedList = stateFieldValue[varName];
-                    } else {
-                        ({[varName]: modifiedList} = this.state);
-                    }
-                    if (parameters[0] === 'ADD') {
-                        if (!modifiedList) {
-                            if (parameters.length >= 2) {
-                                varValue.page = parameters[1];
-                            }
-                            modifiedList = [varValue];
-                        } else {
-                            if (parameters.length >= 2) {
-                                varValue.page = parameters[1];
-                            }
-                            modifiedList = [...modifiedList, varValue];
-                        }
-                        this.handleChangeSetState(varName, modifiedList, onAfterStateChange, stateField);
-                    } else if (parameters[0] === 'EDIT') {
-                        const rowData = parameters[1];
-                        const dataKey = parameters[2];
-                        const eventObj = {};
-                        eventObj.target = {};
-                        if (parameters[3] === 'MULTI_FILE_UPLOAD' || parameters[3] === 'SINGLE_FILE_UPLOAD') {
-                            eventObj.name = parameters[4][1];
-                            eventObj.target.name = parameters[4][1];
-                        } else if (parameters[3] === 'NUMBER') {
-                            let numberValue = isNaN(parseFloat(parameters[5].value))
-                                ? 0
-                                : parseFloat(parameters[5].value);
-                            eventObj.name = parameters[5].name;
-                            eventObj.value = numberValue;
-                            eventObj.target.name = parameters[5].name;
-                            eventObj.target.value = numberValue;
-                        } else {
-                            eventObj.name = parameters[5].name;
-                            eventObj.value = parameters[5].value;
-                            eventObj.target.name = parameters[5].target.name;
-                            eventObj.target.value = parameters[5].target.value;
-                        }
-                        let index = -1;
-                        if (modifiedList !== undefined) {
-                            modifiedList.forEach((el, i) => {
-                                if (el[dataKey] === rowData[dataKey]) {
-                                    index = i;
-                                }
-                            });
-                            let computedStateField = '';
-                            if (!!stateField && stateField !== '') {
-                                computedStateField = `${stateField}.${event.name}[${index}]`;
-                            } else {
-                                computedStateField = `${event.name}[${index}]`;
-                            }
-                            if (parameters.length >= 7) {
-                                modifiedList[index].page = parameters[6];
-                                this.handleChangeSetState(
-                                    varName,
-                                    modifiedList,
-                                    () => {
-                                        this.handleChange(
-                                            parameters[3],
-                                            parameters[4] !== undefined && parameters[4].length > 0
-                                                ? parameters[4]
-                                                : undefined,
-                                            eventObj,
-                                            onAfterStateChange,
-                                            computedStateField
-                                        );
-                                    },
-                                    stateField
-                                );
-                            } else {
-                                this.handleChange(
-                                    parameters[3],
-                                    parameters[4],
-                                    parameters[5],
-                                    onAfterStateChange,
-                                    computedStateField
-                                );
-                            }
-                        }
-                    } else if (parameters[0] === 'EDIT_DB') {
-                        let computetdStateField = stateField;
-                        if (computetdStateField !== '') {
-                            computetdStateField = `${computetdStateField}.`;
-                        }
-                        computetdStateField = `${computetdStateField}${event.name}`;
-                        stateFieldValue = this.getValueInObjPath(computetdStateField);
-                        const rowData = parameters[1];
-                        const dataKey = parameters[2];
-                        const eve = parameters[5];
-                        const modifiedMap = stateFieldValue;
-                        const object = rowData;
-                        object[eve.target.name] =
-                            eve.target.value || eve.target.value === '' ? eve.target.value : undefined;
-                        // object.deleted = deleted ? true : undefined;
-                        if (parameters.length >= 7) {
-                            object.page = parameters[6];
-                        }
-                        modifiedMap.set(rowData[dataKey], object);
-                        if (modifiedMap !== undefined) {
-                            this.handleChangeSetState(event.name, modifiedMap, onAfterStateChange, stateField);
-                        }
-                    } else if (parameters[0] === 'REMOVE_DB') {
-                        let computetdStateField = stateField;
-                        if (computetdStateField !== '') {
-                            computetdStateField = `${computetdStateField}.`;
-                        }
-                        computetdStateField = `${computetdStateField}${event.name}`;
-                        stateFieldValue = this.getValueInObjPath(computetdStateField);
-                        const rowData = parameters[1];
-                        const dataKey = parameters[2];
-                        const deleted = parameters[3];
-                        const modifiedMap = stateFieldValue;
-                        const object = rowData;
-                        object.deleted = deleted ? true : undefined;
-                        modifiedMap.set(rowData[dataKey], object);
-                        if (modifiedMap !== undefined) {
-                            this.handleChangeSetState(event.name, modifiedMap, onAfterStateChange, stateField);
-                        }
-                    } else if (parameters[0] === 'REMOVE') {
-                        const rowData = parameters[1];
-                        const dataKey = parameters[2];
-                        const deleted = parameters[3];
-                        const permanent = parameters[4];
-                        let index = -1;
-                        modifiedList.forEach((el, i) => {
-                            if (el[dataKey] === rowData[dataKey]) {
-                                index = i;
-                            }
-                        });
-                        if (permanent) {
-                            if (modifiedList !== undefined && modifiedList.length >= index - 1) {
-                                modifiedList.splice(index, 1);
-                            }
-                        } else {
-                            modifiedList[index][deleted] = deleted ? true : undefined;
-                        }
-                        this.handleChangeSetState(varName, modifiedList, onAfterStateChange, stateField);
-                    }
-                    break;
-                case 'XML':
-                    varName = event.name;
-                    const errorName = event.errorName;
-                    varValue = event !== undefined ? event.lastValidXml : undefined;
-                    const error = event !== undefined ? event.error : undefined;
-                    if (error === undefined || error === null) {
-                        this.handleChangeSetState(varName, varValue, onAfterStateChange, stateField);
-                    }
-                    this.handleChangeSetState(errorName, error, undefined, stateField);
-                    break;
-                case 'AUTOCOMPLETE_FORCE':
-                    if (event !== undefined) {
-                        varName = parameters[0];
-                        varValue = event.value || event.value === '' ? event.value : undefined;
-                        if (varValue !== undefined && varValue.value !== undefined) {
-                            varValue = varValue.value;
-                        }
-                        this.handleChangeSetState(varName, varValue, onAfterStateChange, stateField, undefined);
-                    }
-                    break;
-                case 'AUTOCOMPLETE':
-                    if (event !== undefined) {
-                        varName = event.target.name;
-                        varValue = event.target.value || event.target.value === '' ? event.target.value : undefined;
-                        if (varValue !== undefined && varValue.value !== undefined) {
-                            varValue = varValue.value;
-                        }
-                        this.handleChangeSetState(varName, varValue, onAfterStateChange, stateField, undefined);
-                    }
-                    break;
-                case 'NUMBER':
-                    varName = event.name;
-                    varValue = isNaN(parseFloat(event.value)) ? 0 : parseFloat(event.value);
-                    this.handleChangeSetState(
-                        varName,
-                        varValue,
-                        onAfterStateChange,
-                        stateField,
-                        parameters ? parameters[0] : undefined
-                    );
-                    break;
-                case 'MULTI_SELECT_BUTTON':
-                case 'DROPDOWN':
-                case 'SELECT_BUTTON':
-                case 'MULTI_SELECT':
-                case 'CALENDAR_FROM':
-                case 'CALENDAR':
-                case 'TEXTAREA':
-                case 'TEXT':
-                case 'RADIOBUTTON':
-                default:
-                    varName = event.target.name;
-                    varValue = event.target.value || event.target.value === '' ? event.target.value : undefined;
-                    this.handleChangeSetState(
-                        varName,
-                        varValue,
-                        onAfterStateChange,
-                        stateField,
-                        parameters ? parameters[0] : undefined
-                    );
-                    break;
-            }
-        } else {
-            ConsoleHelper('handleChange implementation error');
-        }
-    }
-
     handleValidForm() {}
 
     handleFormSubmit(event) {
@@ -778,21 +445,9 @@ class BaseContainer extends React.Component {
         }
         return (
             <DivContainer colClass='p-card-header-minheight'>
-                {leftItems && leftItems.length > 0
-                    ? leftItems.map((item, index) =>
-                          item.customRenderFunction instanceof Function
-                              ? item.customRenderFunction()
-                              : this.renderItem(item, index)
-                      )
-                    : null}
+                {leftItems && leftItems.length > 0 ? this.renderItemCustom(leftItems) : null}
                 <DivContainer colClass='float-right'>
-                    {rightItems && rightItems.length > 0
-                        ? rightItems.map((item, index) =>
-                              item.customRenderFunction instanceof Function
-                                  ? item.customRenderFunction()
-                                  : this.renderItem(item, index)
-                          )
-                        : null}
+                    {rightItems && rightItems.length > 0 ? this.renderItemCustom(rightItems) : null}
                 </DivContainer>
             </DivContainer>
         );
@@ -890,23 +545,11 @@ class BaseContainer extends React.Component {
                 <DivContainer colClass='col-12'>
                     <DivContainer colClass='row'>
                         <DivContainer colClass='col-12'>
-                            {leftItems && leftItems.length > 0
-                                ? leftItems.map((item, index) =>
-                                      item.customRenderFunction instanceof Function
-                                          ? item.customRenderFunction()
-                                          : this.renderItem(item, index)
-                                  )
-                                : null}
+                            {leftItems && leftItems.length > 0 ? this.renderItemCustom(leftItems) : null}
                         </DivContainer>
                         <DivContainer colClass='col-12'>
                             <DivContainer colClass='float-right'>
-                                {rightItems && rightItems.length > 0
-                                    ? rightItems.map((item, index) =>
-                                          item.customRenderFunction instanceof Function
-                                              ? item.customRenderFunction()
-                                              : this.renderItem(item, index)
-                                      )
-                                    : null}
+                                {rightItems && rightItems.length > 0 ? this.renderItemCustom(rightItems) : null}
                             </DivContainer>
                         </DivContainer>
                     </DivContainer>
@@ -914,7 +557,11 @@ class BaseContainer extends React.Component {
             </DivContainer>
         );
     }
-
+    renderItemCustom(items) {
+        return items.map((item, index) =>
+            item.customRenderFunction instanceof Function ? item.customRenderFunction() : this.renderItem(item, index)
+        );
+    }
     renderSeparator(pt) {
         return (
             <div className={`row ${pt}`}>
@@ -1054,7 +701,9 @@ class BaseContainer extends React.Component {
 
     handleEditRowSave(viewId, recordId, parentId, token) {
         ConsoleHelper(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`);
-        const saveElement = this.crudService.createObjectToSave(UrlUtils.isEditRowView() ? this.props : this.state);
+        const saveElement = this.crudService.createObjectDataToRequest(
+            UrlUtils.isEditRowView() ? this.props : this.state
+        );
         ConsoleHelper(`handleEditRowSave: element to save = ${JSON.stringify(saveElement)}`);
         this.rowSave(viewId, recordId, parentId, saveElement, false, token);
         if (this.shloudUnselectOnEditRowSave()) {
@@ -1089,15 +738,15 @@ class BaseContainer extends React.Component {
     windowNotHaveSubView() {
         return (
             this.isCardView() &&
-            UrlUtils.getURLParameter('viewType') === 'cardView' &&
-            !UrlUtils.getURLParameter('parentId') &&
-            !UrlUtils.getURLParameter('recordId')
+            UrlUtils.getViewType() === 'cardView' &&
+            !UrlUtils.getParentId() &&
+            !UrlUtils.getRecordId()
         );
     }
 
     notValidTypeForRefresh() {
         return (
-            UrlUtils.getURLParameter('viewType') === 'gridView' &&
+            UrlUtils.getViewType() === 'gridView' &&
             this.state.elementViewType === 'cardView' &&
             this.state.gridViewType === 'gridView'
         );
@@ -1322,7 +971,6 @@ class BaseContainer extends React.Component {
     };
 
     delete(id) {
-        ConsoleHelper('handleDelete');
         this.blockUi();
         const viewId = this.getRealViewId();
         const parentId = this.state.elementRecordId;
@@ -1372,7 +1020,6 @@ class BaseContainer extends React.Component {
     }
 
     generate(id) {
-        ConsoleHelper('handleGenerate');
         const viewId = this.getRealViewId();
         const parentId = this.state.elementRecordId;
         const idRowKeys = this.state.selectedRowKeys.map((el) => el.ID);
@@ -1417,7 +1064,7 @@ class BaseContainer extends React.Component {
         const parentIdArg = this.isDashboardView()
             ? this.state.elementRecordId
             : this.state.subView == null
-            ? UrlUtils.getURLParameter('parentId')
+            ? UrlUtils.getParentId()
             : this.state.elementRecordId;
         let visiblePluginPanel = false;
         let visibleMessagePluginPanel = false;
@@ -1470,7 +1117,6 @@ class BaseContainer extends React.Component {
             });
     }
     plugin(id) {
-        ConsoleHelper('handlePlugin');
         const viewId = this.getRealViewId();
         const parentId = this.state.elementRecordId;
         const idRowKeys = this.state.selectedRowKeys.map((el) => el.ID);
@@ -1521,12 +1167,11 @@ class BaseContainer extends React.Component {
     }
 
     historyLog(recordId) {
-        ConsoleHelper('historyLog');
         const viewId = this.realViewSelector(recordId);
         const recordIsZero = recordId === 0 || recordId === '0';
         const parentId = recordIsZero ? recordId : this.state.elementRecordId;
         const kindView = recordIsZero ? 'view' : this.state.kindView;
-        recordId = recordIsZero ? UrlUtils.getURLParameter('recordId') : recordId;
+        recordId = recordIsZero ? UrlUtils.getRecordId() : recordId;
         let visibleHistoryLogPanel = false;
         this.crudService
             .getHistoryLogColumnsDefnitions(viewId, recordId, parentId, kindView)
@@ -1602,7 +1247,7 @@ class BaseContainer extends React.Component {
     }
 
     getParentValidNumber(gridView) {
-        const recordId = UrlUtils.getURLParameter('recordId');
+        const recordId = UrlUtils.getRecordId();
         if (recordId === undefined || recordId === null) {
             // is global
             if (gridView.viewInfo) {
@@ -1616,7 +1261,7 @@ class BaseContainer extends React.Component {
             // is header
             let elementId = UrlUtils.getIdFromUrl();
             if (elementId === this.props.id) {
-                return UrlUtils.getURLParameter('recordId');
+                return UrlUtils.getRecordId();
             }
             // is grid in sub
             else {
@@ -1627,7 +1272,6 @@ class BaseContainer extends React.Component {
 
     // gridView przekazywany dla załaczników
     uploadAttachemnt(gridView, attachmentFile) {
-        ConsoleHelper('handleUploadAttachemnt');
         this.blockUi();
         const viewInfo = gridView.viewInfo;
         const viewId = viewInfo.id;
@@ -1717,7 +1361,6 @@ class BaseContainer extends React.Component {
     }
 
     copyEntry(id, callBack) {
-        ConsoleHelper('handleEntryCopy');
         this.blockUi();
         const viewId = this.getRealViewId();
         const parentId = this.state.elementRecordId;
@@ -1774,7 +1417,6 @@ class BaseContainer extends React.Component {
     }
 
     restore(id) {
-        ConsoleHelper('handleRestore');
         this.blockUi();
         const viewId = this.getRealViewId();
         const parentId = this.state.elementRecordId;
@@ -1816,16 +1458,15 @@ class BaseContainer extends React.Component {
     }
 
     attachment(id, isAttachmentFromHeader) {
-        ConsoleHelper('handleAttachment');
         this.blockUi();
-        let viewId = isAttachmentFromHeader ? this.props.id : this.getRealViewId();
+        const viewId = isAttachmentFromHeader ? this.props.id : this.getRealViewId();
         let recordId = this.getSelectedRowKeysIds(id);
         if (Array.isArray(recordId)) {
             recordId = recordId[0];
         }
         let parentIdParam = '';
         if (!isAttachmentFromHeader) {
-            const recordId = UrlUtils.getURLParameter('recordId');
+            const recordId = UrlUtils.getRecordId();
             if (recordId !== undefined && recordId !== null) {
                 parentIdParam = '?parentId=' + recordId;
             }
@@ -1874,7 +1515,6 @@ class BaseContainer extends React.Component {
     }
 
     prepareCalculateFormula(rowId) {
-        ConsoleHelper('handlePrepareCalculateFormula');
         this.blockUi();
 
         const viewId = this.getRealViewId();
@@ -1894,15 +1534,13 @@ class BaseContainer extends React.Component {
     }
     // TODO:  tutaj powinien byc jakis refactoring
     calculateFormula(viewId, parentId, rowId, fieldsToCalculate) {
-        this.blockUi();
-        ConsoleHelper('calculateFormula');
         const selectedRowKeys = this.state.selectedRowKeys;
         if (UrlUtils.isEditSpec()) {
             this.calculateFormulaForEditSpec(viewId, parentId, rowId, fieldsToCalculate);
         } else if (UrlUtils.isBatch()) {
             this.calculateFormulaForBatch(viewId, parentId, rowId, fieldsToCalculate);
         } else if (this.state.elementKindView && this.state.elementKindView.toUpperCase() === 'VIEWSPEC') {
-            parentId = UrlUtils.getURLParameter('recordId');
+            parentId = UrlUtils.getRecordId();
             let params = '';
             if (!!rowId) {
                 params = `&specId=${rowId}`;
@@ -1996,7 +1634,7 @@ class BaseContainer extends React.Component {
     }
 
     createObjectToCalculate(datas) {
-        let data = [];
+        const data = [];
         let arrTemp = [];
         datas?.forEach((fields) => {
             arrTemp = [];
@@ -2170,7 +1808,7 @@ class BaseContainer extends React.Component {
         ConsoleHelper(`handleEditListRowChange = `, JSON.stringify(editListData));
         try {
             this.blockUi();
-            let editData = UrlUtils.isEditRowView() ? this.props.editData : this.state.editData;
+            const editData = UrlUtils.isEditRowView() ? this.props.editData : this.state.editData;
             editListData.forEach((element) => {
                 EditRowUtils.searchAndAutoFill(editData, element.fieldEdit, element.fieldValue);
             });
@@ -2186,18 +1824,15 @@ class BaseContainer extends React.Component {
     }
 
     handleAutoFillRowChange(viewId, recordId, parentId, kindView) {
-        ConsoleHelper(
-            `handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId} parentId = ${kindView}`
-        );
         this.blockUi();
-        const autofillBodyRequest = this.crudService.createObjectToAutoFill(
+        const autofillBodyRequest = this.crudService.createObjectDataToRequest(
             UrlUtils.isEditRowView() ? this.props : this.state
         );
         this.crudService
             .editAutoFill(viewId, recordId, parentId, kindView, autofillBodyRequest)
             .then((editAutoFillResponse) => {
-                let arrayTmp = editAutoFillResponse?.data;
-                let editData = UrlUtils.isEditRowView() ? this.props.editData : this.state.editData;
+                const arrayTmp = editAutoFillResponse?.data;
+                const editData = UrlUtils.isEditRowView() ? this.props.editData : this.state.editData;
                 arrayTmp.forEach((element) => {
                     EditRowUtils.searchAndAutoFill(editData, element.fieldName, element.value);
                 });
@@ -2211,7 +1846,9 @@ class BaseContainer extends React.Component {
 
     handleCancelRowChange(viewId, recordId, parentId) {
         ConsoleHelper(`handleCancelRowChange: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`);
-        const cancelElement = this.crudService.createObjectToSave(UrlUtils.isEditRowView() ? this.props : this.state);
+        const cancelElement = this.crudService.createObjectDataToRequest(
+            UrlUtils.isEditRowView() ? this.props : this.state
+        );
         ConsoleHelper(`handleCancelRowChange: element to cancel = ${JSON.stringify(cancelElement)}`);
         this.rowCancel(viewId, recordId, parentId, cancelElement, false);
     }
@@ -2230,12 +1867,12 @@ class BaseContainer extends React.Component {
 
     handleChangeCriteria(inputType, event) {
         ConsoleHelper(`handleChangeCriteria inputType=${inputType}`);
-        let documentInfo = this.state.documentInfo;
+        const documentInfo = this.state.documentInfo;
         if (event) {
-            let result = this.setVariableFromEvent(inputType, event);
-            let varName = result.varName;
-            let varValue = result.varValue;
-            let fieldArr = documentInfo.inputDataFields.find(
+            const result = this.setVariableFromEvent(inputType, event);
+            const varName = result.varName;
+            const varValue = result.varValue;
+            const fieldArr = documentInfo.inputDataFields.find(
                 (field) => field.fieldName.toUpperCase() === varName.toUpperCase()
             );
             fieldArr.value = varValue;
@@ -2246,20 +1883,20 @@ class BaseContainer extends React.Component {
     // TUUUU
     handleEditRowChange(inputType, event, groupName, info) {
         ConsoleHelper(`handleEditRowChange inputType=${inputType} groupName=${groupName}`);
-        let editData = UrlUtils.isEditRowView() ? this.props.editData : this.state.editData;
-        let groupData = editData?.editFields?.filter((obj) => {
+        const editData = UrlUtils.isEditRowView() ? this.props.editData : this.state.editData;
+        const groupData = editData?.editFields?.filter((obj) => {
             return obj.groupName === groupName;
         });
         if (event !== undefined) {
-            let result = this.setVariableFromEvent(inputType, event);
-            let varName = result.varName;
-            let varValue = result.varValue;
-            let refreshFieldVisibility = result.refreshFieldVisibility;
+            const result = this.setVariableFromEvent(inputType, event);
+            const varName = result.varName;
+            const varValue = result.varValue;
+            const refreshFieldVisibility = result.refreshFieldVisibility;
 
-            let fieldArr = groupData[0]?.fields?.filter((obj) => {
+            const fieldArr = groupData[0]?.fields?.filter((obj) => {
                 return obj.fieldName === varName;
             });
-            let field = fieldArr[0];
+            const field = fieldArr[0];
             if (!!fieldArr && !!field) {
                 field.value = varValue;
             }
@@ -2286,31 +1923,31 @@ class BaseContainer extends React.Component {
         let varValue;
         let refreshFieldVisibility = false;
         switch (inputType) {
-            case 'IMAGE64':
+            case InputType.IMAGE64:
                 varName = event == null ? null : event.fieldName;
                 varValue = event == null ? '' : event.base64[0];
                 break;
-            case 'MULTI_IMAGE64':
+            case InputType.MULTI_IMAGE64:
                 varName = event == null ? null : event.fieldName;
                 varValue = event == null ? '' : event.base64;
                 break;
-            case 'CHECKBOX':
+            case InputType.CHECKBOX:
                 varName = event.target.name;
                 varValue = event.checked ? event.checked : false;
                 refreshFieldVisibility = event.refreshFieldVisibility;
                 break;
-            case 'EDITOR':
+            case InputType.EDITOR:
                 varName = event.name;
                 varValue = event.value || event.value === '' ? event.value : undefined;
                 break;
-            case 'TEXT':
-            case 'AREA':
+            case InputType.TEXT:
+            case InputType.AREA:
                 varName = event.target?.name;
                 varValue = event.target?.value || event.target?.value === '' ? event.target.value : undefined;
                 break;
-            case 'DATE':
-            case 'DATETIME':
-            case 'TIME':
+            case InputType.DATE:
+            case InputType.DATETIME:
+            case InputType.TIME:
                 varName = event.target?.name;
                 varValue = event.value || event.value === '' ? event.value : undefined;
                 break;
@@ -2352,7 +1989,7 @@ class BaseContainer extends React.Component {
     refreshFieldVisibility(info) {
         this.blockUi();
         const isEditRowView = UrlUtils.isEditRowView();
-        const refreshObject = this.crudService.createObjectToRefresh(isEditRowView ? this.props : this.state);
+        const refreshObject = this.crudService.createObjectDataToRequest(isEditRowView ? this.props : this.state);
         const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
         this.crudService
             .refreshFieldVisibility(info.viewId, info.recordId, info.parentId, kindView, refreshObject)
@@ -2383,6 +2020,61 @@ class BaseContainer extends React.Component {
             editData: editDataResponse,
         });
         this.unblockUi();
+    }
+    columnsFromGroupCreate(responseView) {
+        const columnsTmp = [];
+        let columnOrderCounter = 0;
+        new Array(responseView.gridColumns).forEach((gridColumns) => {
+            gridColumns?.forEach((group) => {
+                group.columns?.forEach((column) => {
+                    column.groupName = group.groupName;
+                    column.freeze = group.freeze;
+                    column.columnOrder = columnOrderCounter++;
+                    columnsTmp.push(column);
+                });
+            });
+        });
+        return columnsTmp;
+    }
+    puginListCreate(responseView) {
+        const pluginsListTmp = [];
+        for (let plugin in responseView?.pluginsList) {
+            pluginsListTmp.push({
+                id: responseView?.pluginsList[plugin].id,
+                label: responseView?.pluginsList[plugin].label,
+            });
+        }
+        return pluginsListTmp;
+    }
+    documentListCreate(responseView) {
+        const documentsListTmp = [];
+        for (let document in responseView?.documentsList) {
+            documentsListTmp.push({
+                id: responseView?.documentsList[document].id,
+                label: responseView?.documentsList[document].label,
+            });
+        }
+        return documentsListTmp;
+    }
+    batchListCreate(responseView) {
+        const batchesListTmp = [];
+        for (let batch in responseView?.batchesList) {
+            batchesListTmp.push({
+                id: responseView?.batchesList[batch].id,
+                label: responseView?.batchesList[batch].label,
+            });
+        }
+        return batchesListTmp;
+    }
+    filtersListCreate(responseView) {
+        const filtersListTmp = [];
+        for (let filter in responseView?.filtersList) {
+            filtersListTmp.push({
+                id: responseView?.filtersList[filter].id,
+                label: responseView?.filtersList[filter].label,
+            });
+        }
+        return filtersListTmp;
     }
 
     getRefGridView() {

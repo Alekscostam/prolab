@@ -10,7 +10,6 @@ import '@fontsource/roboto';
 import {ViewContainer} from './containers/ViewContainer';
 import {createBrowserHistory} from 'history';
 import {loadMessages, locale as devExpressLocale} from 'devextreme/localization';
-import AppPrefixUtils from './utils/AppPrefixUtils';
 import packageJson from '../package.json';
 import ReadConfigService from './services/ReadConfigService';
 import {readObjFromCookieGlobal, saveValueToCookieGlobal, saveObjToCookieGlobal} from './utils/Cookie';
@@ -34,13 +33,14 @@ import UrlUtils from './utils/UrlUtils';
 import {PageViewUtils} from './utils/parser/PageViewUtils';
 import {ConfirmationEditQuitDialog} from './components/prolab/ConfirmationEditQuitDialog';
 import AppContext from './context/AppContext';
+import {OperationType} from './model/OperationType';
 
 // export const
 export let reStateApp;
 export let renderNoRefreshContentFnc;
 export let sessionPrelongFnc = null;
 export let addBtn = null;
-
+// TODO: tokeny do utilsa do stałych SessionStorage.
 class App extends Component {
     constructor() {
         super();
@@ -160,10 +160,18 @@ class App extends Component {
                 const textAfterHash = window.location.href.split('/#/')[1];
                 const onLogoutUrl = !(textAfterHash && textAfterHash.trim() !== '');
                 if (isExpired) {
-                    if (this.authService.isLoggedUser()) {
-                        if (onLogoutUrl) {
-                            this.authService.removeLoginCookies();
-                        }
+                    const isNotLoggedIn = !this.authService.isLoggedUser();
+                    if (isNotLoggedIn || onLogoutUrl) {
+                        this.authService.removeLoginCookies();
+                        return;
+                    }
+                    if (localStorage.getItem('tokenRefreshing')) {
+                        return;
+                    }
+                    if (this.isDurationFromSessionTimeoutPositive()) {
+                        localStorage.setItem('tokenRefreshing', true);
+                        this.authService.refresh();
+                        return;
                     }
                 } else {
                     if (this.authService.isLoggedUser()) {
@@ -189,7 +197,6 @@ class App extends Component {
         if (sessionTimeOutComponentRef) {
             sessionTimeOutComponentRef.innerText = PageViewUtils.tickerSessionTimeoutFormat(timeToLeaveSession);
         }
-
         if (duration.seconds() < 0) {
             this.authService.logout();
         }
@@ -201,6 +208,10 @@ class App extends Component {
                 }, 10);
             });
         }
+    }
+    isDurationFromSessionTimeoutPositive() {
+        const duration = this.getDurationToLogout();
+        return duration.asMilliseconds() > 5000;
     }
     getDurationToLogout() {
         const sessionTimeout = Date.parse(localStorage.getItem('session_timeout'));
@@ -385,15 +396,13 @@ class App extends Component {
         const {subView} = this.state;
         return !!subView && !StringUtils.isBlank(subView.headerColumns);
     }
-    enabledSidebar() {
+    enabledTopComponents() {
         const authService = this.authService;
         const tokenExpired = authService.isTokenExpiredDate();
         if (UrlUtils.isEditRowView()) {
             return false;
         }
         if (tokenExpired) {
-            const textAfterHash = window.location.href.split('/#/')[1];
-            const onLogoutUrl = !(textAfterHash && textAfterHash.trim() !== '');
             return true;
         }
         return true;
@@ -406,7 +415,7 @@ class App extends Component {
     }
     addButton = () => {
         const {labels} = this.state;
-        const opADD = DataGridUtils.putToOperationsButtonIfNeccessery(this.state.operations, labels, 'OP_ADD', 'Dodaj');
+        const opADD = DataGridUtils.getOrCreateOpButton(this.state.operations, labels, OperationType.OP_ADD, 'Dodaj');
         return (
             <ActionButton
                 rendered={opADD}
@@ -440,10 +449,10 @@ class App extends Component {
                         <TickerSessionDialog
                             secondsToPopup={this.state.secondsToPopupTicker}
                             labels={labels}
-                            authService={this.authService}
+                            authService={authService}
                             visible={this.state.rednerSessionTimeoutDialog}
                             onProlongSession={() => {
-                                this.authService.refresh().then(() => {
+                                authService.refresh().then(() => {
                                     this.prelongSessionIfUserExist(true, () => {
                                         this.setState({
                                             rednerSessionTimeoutDialog: false,
@@ -528,7 +537,7 @@ class App extends Component {
                                 )}
                                 <main>
                                     <div className={`${loggedIn ? 'container-fluid' : ''}`}>
-                                        {this.state.renderNoRefreshContent && this.enabledSidebar() ? (
+                                        {this.state.renderNoRefreshContent && this.enabledTopComponents() ? (
                                             <React.Fragment>
                                                 {Breadcrumb.render(labels)}
                                                 <DivContainer colClass='row base-container-header'>

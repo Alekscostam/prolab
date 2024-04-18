@@ -20,6 +20,7 @@ import {EntryResponseUtils} from '../utils/EntryResponseUtils';
 import {ViewResponseUtils} from '../utils/ViewResponseUtils';
 import ActionButtonWithMenu from '../components/prolab/ActionButtonWithMenu';
 import {ConfirmationEditQuitDialog} from '../components/prolab/ConfirmationEditQuitDialog';
+import {OperationType} from '../model/OperationType';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -64,9 +65,9 @@ export class BatchContainer extends BaseContainer {
             id = this.props.id;
         }
         this.props.handleRenderNoRefreshContent(false);
-        const parentId = UrlUtils.getURLParameter('parentId');
-        const batchId = UrlUtils.getURLParameter('batchId');
-        const filterId = UrlUtils.getURLParameter('filterId');
+        const parentId = UrlUtils.getParentId();
+        const batchId = UrlUtils.getBatchId();
+        const filterId = UrlUtils.getFilterId();
         ConsoleHelper(
             `BatchContainer::componentDidMount -> id=${id}, parentId = ${parentId} batchId = ${batchId} filterId = ${filterId}`
         );
@@ -84,9 +85,9 @@ export class BatchContainer extends BaseContainer {
             id = this.props.id;
         }
 
-        const parentId = UrlUtils.getURLParameter('parentId');
-        const batchId = UrlUtils.getURLParameter('batchId');
-        const filterId = UrlUtils.getURLParameter('filterId');
+        const parentId = UrlUtils.getParentId();
+        const batchId = UrlUtils.getBatchId();
+        const filterId = UrlUtils.getFilterId();
         const s1 = !DataGridUtils.equalNumbers(this.state.elementId, id);
         const s2 = !DataGridUtils.equalNumbers(this.state.elementFilterId, filterId);
         const s3 = !DataGridUtils.equalString(this.state.elementBatchId, batchId);
@@ -184,19 +185,7 @@ export class BatchContainer extends BaseContainer {
                 id = this.props.id;
             }
             Breadcrumb.updateView(responseView.viewInfo, id, batchId);
-            let columnsTmp = [];
-            let columnOrderCounter = 0;
-            new Array(responseView.gridColumns).forEach((gridColumns) => {
-                gridColumns?.forEach((group) => {
-                    group.columns?.forEach((column) => {
-                        column.groupName = group.groupName;
-                        column.freeze = group.freeze;
-                        column.columnOrder = columnOrderCounter++;
-                        columnsTmp.push(column);
-                    });
-                });
-            });
-
+            const columnsTmp = this.columnsFromGroupCreate(responseView);
             Breadcrumb.currentBreadcrumbAsUrlParam();
             this.setState(
                 () => ({
@@ -244,8 +233,8 @@ export class BatchContainer extends BaseContainer {
     renderHeaderRight() {
         const {labels} = this.props;
         const operations = [];
-        const opSave = DataGridUtils.putToOperationsButtonIfNeccessery(operations, labels, 'OP_SAVE', 'Zapisz');
-        const opCancel = DataGridUtils.putToOperationsButtonIfNeccessery(operations, labels, 'OP_CANCEL', 'Anuluj');
+        const opSave = DataGridUtils.getOrCreateOpButton(operations, labels, OperationType.OP_SAVE, 'Zapisz');
+        const opCancel = DataGridUtils.getOrCreateOpButton(operations, labels, OperationType.OP_CANCEL, 'Anuluj');
         return (
             <React.Fragment>
                 <div id='global-top-components'>
@@ -325,7 +314,7 @@ export class BatchContainer extends BaseContainer {
                     }
                 });
             });
-            let rowArray = [];
+            const rowArray = [];
             for (let field in row) {
                 rowArray.push({fieldName: field, value: row[field]});
             }
@@ -363,7 +352,7 @@ export class BatchContainer extends BaseContainer {
         const margin = Constants.DEFAULT_MARGIN_BETWEEN_BUTTONS;
         if (!!operation.type) {
             switch (operation.type?.toUpperCase()) {
-                case 'OP_FORMULA':
+                case OperationType.OP_FORMULA:
                     return (
                         <React.Fragment>
                             {operation.showAlways && (
@@ -377,7 +366,7 @@ export class BatchContainer extends BaseContainer {
                             )}
                         </React.Fragment>
                     );
-                case 'OP_FILL':
+                case OperationType.OP_FILL:
                     return (
                         <React.Fragment>
                             {operation.showAlways && (

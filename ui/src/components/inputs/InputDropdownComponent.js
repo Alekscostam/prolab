@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {Dropdown} from 'primereact/dropdown';
+import { InputType } from '../../model/InputType';
 
 class InputDropdownComponent extends Component {
 	renderView() {
@@ -133,7 +134,7 @@ class InputDropdownComponent extends Component {
 						dataKey={dataKey}
 						onChange={e =>
 							onChange
-								? onChange('DROPDOWN', [optionValue], e, onAfterStateChange, stateField)
+								? onChange(InputType.DROPDOWN, [optionValue], e, onAfterStateChange, stateField)
 								: null
 						}
 						placeholder={placeholder}
@@ -189,7 +190,7 @@ class InputDropdownComponent extends Component {
 									dataKey={dataKey}
 									onChange={e =>
 										onChange
-											? onChange('DROPDOWN', [optionValue], e, onAfterStateChange, stateField)
+											? onChange(InputType.DROPDOWN, [optionValue], e, onAfterStateChange, stateField)
 											: null
 									}
 									placeholder={placeholder}

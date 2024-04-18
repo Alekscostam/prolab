@@ -28,7 +28,6 @@ class LoginContainer extends BaseContainer {
     constructor(props) {
         super(props);
         this.localizationService = new LocalizationService(this.getConfigUrl());
-        this.handleChange = this.handleChange.bind(this);
         this.handleFormSubmit = this.handleFormSubmit.bind(this);
         this.showWarningMessage = this.showWarningMessage.bind(this);
         this.getLocalizationLoginPage = this.getLocalizationLoginPage.bind(this);
@@ -172,6 +171,7 @@ class LoginContainer extends BaseContainer {
         if (this.authService.loggedIn()) {
             return this.renderAfterAuth();
         } else {
+            const {labels} = this.state;
             return (
                 <BlockUi
                     tag='div'
@@ -185,6 +185,7 @@ class LoginContainer extends BaseContainer {
                             onHide={() => {
                                 this.setState({visibleUserComponent: false});
                             }}
+                            labels={labels}
                             token={this.state.token}
                             editData={this.state.editData}
                             onSave={this.handleEditRowSave}
@@ -199,7 +200,6 @@ class LoginContainer extends BaseContainer {
                             user={this.state.userInfo.user}
                             close={() => this.setState({visiblePublishDialog: false})}
                             handleUnselectAllData={this.unselectAllDataGrid}
-                            labels={this.props.labels}
                         />
                     ) : null}
                     {this.renderBeforeAuth()}
@@ -295,15 +295,10 @@ class LoginContainer extends BaseContainer {
                                                                         width: '100%',
                                                                     }}
                                                                     value={this.state.username}
-                                                                    onChange={(e) =>
-                                                                        this.handleChange(
-                                                                            'TEXT',
-                                                                            undefined,
-                                                                            e,
-                                                                            undefined,
-                                                                            ''
-                                                                        )
-                                                                    }
+                                                                    onChange={(e) => {
+                                                                        const value = e.currentTarget.value;
+                                                                        this.setState({username: value});
+                                                                    }}
                                                                     required={true}
                                                                     validator={this.validator}
                                                                     validators='required|max:50'
@@ -323,15 +318,10 @@ class LoginContainer extends BaseContainer {
                                                                         width: '100%',
                                                                     }}
                                                                     value={this.state.password}
-                                                                    onChange={(e) =>
-                                                                        this.handleChange(
-                                                                            'TEXT',
-                                                                            undefined,
-                                                                            e,
-                                                                            undefined,
-                                                                            ''
-                                                                        )
-                                                                    }
+                                                                    onChange={(e) => {
+                                                                        const value = e.currentTarget.value;
+                                                                        this.setState({password: value});
+                                                                    }}
                                                                     promptLabel={labels['Login_Password']}
                                                                     feedback={false}
                                                                     required={true}

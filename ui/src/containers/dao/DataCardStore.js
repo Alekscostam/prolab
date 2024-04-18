@@ -12,7 +12,15 @@ export default class DataCardStore extends BaseService {
         this.cachedLoadOptions = null;
     }
 
-    getDataForCard(viewIdArg, loadOptions, recordParentIdArg, filterIdArg, kindViewArg) {
+    getDataForCard(
+        viewIdArg,
+        loadOptions,
+        recordParentIdArg,
+        filterIdArg,
+        kindViewArg,
+        recordParentViewIdArg,
+        parentKindViewSpecArg
+    ) {
         let params = '?';
         [
             'filter',
@@ -37,12 +45,17 @@ export default class DataCardStore extends BaseService {
                 params += `${i}=${JSON.stringify(loadOptions[i])}&`;
             }
         });
+        if (viewIdArg === undefined) {
+            return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0});
+        }
         params += 'viewType=cardView';
         const filterIdParam = filterIdArg !== undefined && filterIdArg != null ? `&filterId=${filterIdArg}` : '';
         const recordParentIdParam =
             recordParentIdArg !== undefined && recordParentIdArg != null ? `&parentId=${recordParentIdArg}` : '';
         const kindViewParam = kindViewArg !== undefined && kindViewArg != null ? `&kindView=${kindViewArg}` : '';
-        let url = `${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${recordParentIdParam}${kindViewParam}`;
+        const recordParentViewIdParam = !!recordParentViewIdArg ? `&parentViewId=${recordParentViewIdArg}` : '';
+        const parentKindViewSpecParam = !!parentKindViewSpecArg ? `&parentKindView=${parentKindViewSpecArg}` : '';
+        let url = `${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${recordParentIdParam}${recordParentViewIdParam}${kindViewParam}${parentKindViewSpecParam}`;
         url = this.commonCorrectUrl(url);
         return this.fetch(url, {
             method: 'POST',
@@ -99,8 +112,9 @@ export default class DataCardStore extends BaseService {
                         : '';
                 const kindViewParam =
                     kindViewArg !== undefined && kindViewArg != null ? `&kindView=${kindViewArg}` : '';
-                let url = `${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${recordParentIdParam}${kindViewParam}`;
-                url = this.commonCorrectUrl(url);
+                const url = this.commonCorrectUrl(
+                    `${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${recordParentIdParam}${kindViewParam}`
+                );
                 return this.fetch(url, {
                     method: 'POST',
                     body: JSON.stringify({}),

@@ -14,12 +14,13 @@ import {
     MemoizedText,
     MemoizedTimeInput,
 } from '../utils/component/TreeListUtils';
-import EditListDataStore from './dao/EditListDataStore';
+import EditListDataStore from './dao/DataEditListStore';
 import EditListComponent from '../components/prolab/EditListComponent';
 import UrlUtils from '../utils/UrlUtils';
 import {EditorDialog} from '../components/prolab/EditorDialog';
 import {StringUtils} from '../utils/StringUtils';
 import ImageViewerComponent from '../components/ImageViewerComponent';
+import {ColumnType} from '../model/ColumnType';
 
 class CellEditComponent extends React.Component {
     constructor(props) {
@@ -367,7 +368,7 @@ class CellEditComponent extends React.Component {
         const autoFillCheckbox = field?.autoFill ? 'autofill-border-checkbox' : '';
         const selectionList = field?.selectionList ? 'p-inputgroup' : null;
         switch (field?.type) {
-            case 'C':
+            case ColumnType.C:
                 if (cellInfo.column.dataField?.includes('WART') && cellInfo.data?.PIERW_TYP?.includes('N')) {
                     return (
                         <MemoizedNumericInput
@@ -401,7 +402,7 @@ class CellEditComponent extends React.Component {
                         downFill={downFill}
                     />
                 );
-            case 'P': //P - hasło
+            case ColumnType.P: //P - hasło
                 return (
                     <MemoizedText
                         field={field}
@@ -418,7 +419,7 @@ class CellEditComponent extends React.Component {
                         downFill={downFill}
                     />
                 );
-            case 'N': //N – Numeryczny/Liczbowy
+            case ColumnType.N: //N – Numeryczny/Liczbowy
                 return (
                     <MemoizedNumericInput
                         field={field}
@@ -434,7 +435,7 @@ class CellEditComponent extends React.Component {
                         downFill={downFill}
                     />
                 );
-            case 'B': //B – Logiczny (0/1)
+            case ColumnType.B: //B – Logiczny (0/1)
                 return (
                     <MemoizedBoolInput
                         field={field}
@@ -448,7 +449,7 @@ class CellEditComponent extends React.Component {
                         onOperationClick={onOperationClick}
                     />
                 );
-            case 'L': //L – Logiczny (T/N)
+            case ColumnType.L: //L – Logiczny (T/N)
                 return (
                     <MemoizedLogicInput
                         field={field}
@@ -462,7 +463,7 @@ class CellEditComponent extends React.Component {
                         onOperationClick={onOperationClick}
                     />
                 );
-            case 'D': //D – Data
+            case ColumnType.D: //D – Data
                 return (
                     <MemoizedDateInput
                         field={field}
@@ -475,7 +476,7 @@ class CellEditComponent extends React.Component {
                         validate={validate}
                     />
                 );
-            case 'E': //E – Data + czas
+            case ColumnType.E: //E – Data + czas
                 return (
                     <MemoizedDateTimeInput
                         labels={this.props.labels}
@@ -490,7 +491,7 @@ class CellEditComponent extends React.Component {
                         refDateTime={this.refDateTime}
                     />
                 );
-            case 'T': //T – Czas
+            case ColumnType.T: //T – Czas
                 return (
                     <MemoizedTimeInput
                         field={field}
@@ -503,7 +504,7 @@ class CellEditComponent extends React.Component {
                         validate={validate}
                     />
                 );
-            case 'O': //O – Opisowe
+            case ColumnType.O: //O – Opisowe
                 if (!this.state?.editorViewer?.editorDialogVisisble) {
                     this.setState({
                         editorViewer: {
@@ -515,8 +516,8 @@ class CellEditComponent extends React.Component {
                 }
 
                 return null;
-            case 'IM': //IM – Obrazki
-            case 'I': //I – Obrazek
+            case ColumnType.IM: //IM – Obrazki
+            case ColumnType.I: //I – Obrazek
                 if (!this.trashClicked.current && !this.state?.imageViewer?.imageViewDialogVisisble) {
                     this.setState({
                         imageViewer: {
@@ -540,7 +541,7 @@ class CellEditComponent extends React.Component {
                         ></div>
                     </React.Fragment>
                 );
-            case 'H': //H - Hyperlink
+            case ColumnType.H: //H - Hyperlink
                 return (
                     <MemoizedText
                         field={field}

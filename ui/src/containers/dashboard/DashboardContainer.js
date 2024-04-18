@@ -21,6 +21,7 @@ import CrudService from '../../services/CrudService';
 import {EntryResponseUtils} from '../../utils/EntryResponseUtils';
 import HistoryLogDialogComponent from '../../components/prolab/HistoryLogDialogComponent';
 import {AttachmentViewDialog} from '../attachmentView/AttachmentViewDialog';
+import {OperationType} from '../../model/OperationType';
 
 class DashboardContainer extends BaseContainer {
     constructor(props) {
@@ -76,8 +77,8 @@ class DashboardContainer extends BaseContainer {
     getSubViewEntry() {
         const {dashboard} = this.props;
         const id = dashboard?.viewInfo?.id;
-        const recordId = UrlUtils.getURLParameter('recordId');
-        const parentId = UrlUtils.getURLParameter('parentId');
+        const recordId = UrlUtils.getRecordId();
+        const parentId = UrlUtils.getParentId();
         if (id) {
             this.viewService
                 .subViewEntry(id, recordId, parentId)
@@ -346,16 +347,16 @@ class DashboardContainer extends BaseContainer {
 
     handleOperation = (operation) => {
         switch (operation.type) {
-            case 'OP_ATTACHMENTS':
+            case OperationType.OP_ATTACHMENTS:
                 this.handleAttachmentEntry(
                     UrlUtils.getViewIdFromURL(),
-                    UrlUtils.getURLParameter('recordId'),
+                    UrlUtils.getRecordId(),
                     '?parentId=' + operation.id,
                     false
                 );
                 break;
-            case 'OP_HISTORY':
-            case 'SK_HISTORY':
+            case OperationType.OP_HISTORY:
+            case OperationType.SK_HISTORY:
                 this.historyLog(operation.id);
                 break;
             default:
@@ -364,7 +365,7 @@ class DashboardContainer extends BaseContainer {
     };
 
     renderContent() {
-        const recordId = UrlUtils.getURLParameter('recordId');
+        const recordId = UrlUtils.getRecordId();
         const cardId = this.state.dashboard?.headerData ? this.state.dashboard?.headerData[0]?.ID : null;
         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
 

@@ -76,15 +76,16 @@ class CardViewInfiniteComponent extends React.Component {
                 cardScrollLoading: false,
             },
             () => {
-                // TODO: ... duży problem z listą w CardInfiniteLoaderWrapper, ona jest taka srednia do update.
-                if ((this.props?.elementSubViewId && !this.state.isNextPageLoading) || this.state.items.length < 5) {
+                if (this.canLoadNextPage()) {
                     this._loadNextPage(0);
                 }
             }
         );
         //
     }
-
+    canLoadNextPage() {
+        return (this.props?.elementSubViewId && !this.state.isNextPageLoading) || this.state.items.length < 5;
+    }
     _loadNextPage = (...args) => {
         const dataPackageSize = 30;
         const packageCount = !!dataPackageSize || dataPackageSize === 0 ? 30 : dataPackageSize;
@@ -113,12 +114,13 @@ class CardViewInfiniteComponent extends React.Component {
                             },
                             this.props.parentId,
                             this.props.filterId,
-                            this.props.kindView
+                            this.props.kindView,
+                            this.props?.parentViewId,
+                            this.props?.parentKindViewSpec
                         )
                         .then((res) => {
                             let parsedCardViewData = [];
                             let items = this.state.items;
-                            console.time('reloadDataFromCardComponent');
                             res.data.forEach((item) => {
                                 for (var key in item) {
                                     var upper = key.toUpperCase();
@@ -136,7 +138,6 @@ class CardViewInfiniteComponent extends React.Component {
                                 }
                                 parsedCardViewData.push(item);
                             });
-                            console.timeEnd('reloadDataFromCardComponent');
                             items = items.concat(parsedCardViewData);
                             this.setState(
                                 (state) => ({
@@ -210,6 +211,7 @@ class CardViewInfiniteComponent extends React.Component {
                     }}
                 >
                     <CardInfiniteLoaderWrapper
+                        viewHeight={this.props.viewHeight}
                         hasNextPage={this.state.hasNextPage}
                         isNextPageLoading={this.state.isNextPageLoading}
                         items={this.state.items}
@@ -302,7 +304,7 @@ class CardViewInfiniteComponent extends React.Component {
                                             operationList={this.props.parsedCardView.operationsRecordList}
                                             info={null}
                                             handleEdit={() => {
-                                                let result = this.props.handleBlockUi();
+                                                const result = this.props.handleBlockUi();
                                                 if (result) {
                                                     this.crudService
                                                         .edit(viewId, recordId, subviewId, elementKindView)
@@ -322,9 +324,7 @@ class CardViewInfiniteComponent extends React.Component {
                                                 }
                                             }}
                                             handleEditSpec={() => {
-                                                //edycja pojedynczego rekordu lub
-                                                //edycja dla wszystkich rekordów, wywoływana krok wcześniej
-                                                let prevUrl = window.location.href;
+                                                const prevUrl = window.location.href;
                                                 sessionStorage.setItem('prevUrl', prevUrl);
                                                 TreeListUtils.openEditSpec(
                                                     viewId,

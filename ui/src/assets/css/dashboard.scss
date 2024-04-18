@@ -25,11 +25,12 @@
     line-height: 29px;
     letter-spacing: 0px;
     color: $text-color;
-    margin: 0px 0px 7px 5px;
+    margin: 0px 0px 4px 2px;
 }
 
 .dashboard .dx-item.dx-tile {
     top: 0px !important;
+    bottom: 0px !important;
 }
 
 .dashboard .panel-dashboard {
@@ -61,11 +62,18 @@
     -o-transition: none !important;
     transition: none !important;
 }
-
+.card-grid {
+    max-width: 510px;
+}
+.dx-tile,
+.dx-tile-image {
+    max-width: 489px;
+}
 .dashboard
+    .grid
     .dx-datagrid-rowsview.dx-datagrid-nowrap.dx-scrollable.dx-visibility-change-handler.dx-scrollable-both.dx-scrollable-simulated.dx-fixed-columns {
     border: none !important;
 }
-.dashboard .dx-pointer-events-none.dx-first-cell {
+.dashboard .grid .dx-pointer-events-none.dx-first-cell {
     border: none !important;
 }

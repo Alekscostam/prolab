@@ -24,10 +24,12 @@ import LocUtils from '../utils/LocUtils';
 import CrudService from '../services/CrudService';
 import {DataGridUtils} from '../utils/component/DataGridUtils';
 import {Password} from 'primereact/password';
+import {InputType} from '../model/InputType';
+import {ColumnType} from '../model/ColumnType';
 
 let clickCount = 0;
 let timeout;
-
+// TODO: tego switcha przezucic fdo osobnej kalsy switch (field.type) {
 export class BaseRowComponent extends BaseContainer {
     constructor(props) {
         super(props);
@@ -120,13 +122,13 @@ export class BaseRowComponent extends BaseContainer {
               )
             : null;
         switch (field.type) {
-            case 'D': //D – Data
+            case ColumnType.D: //D – Data
                 field.value = !!field.value ? moment(field.value, 'YYYY-MM-DD').toDate() : null;
                 break;
-            case 'E': //E – Data + czas
+            case ColumnType.E: //E – Data + czas
                 field.value = !!field.value ? moment(field.value, 'YYYY-MM-DD HH:mm:ss').toDate() : null;
                 break;
-            case 'T': //T – Czas
+            case ColumnType.T: //T – Czas
                 field.value = !!field.value ? moment(field.value, 'HH:mm:ss').toDate() : null;
                 break;
             default:
@@ -186,9 +188,9 @@ export class BaseRowComponent extends BaseContainer {
     }
     editListVisible(field) {
         ConsoleHelper('EditRowComponent::editListVisible');
-        let editInfo = this.props.editData?.editInfo;
-        let kindView = this.props.kindView;
-        let editListObject = this.service.createObjectToEditList(this.props.editData);
+        const editInfo = this.props.editData?.editInfo;
+        const kindView = this.props.kindView;
+        const editListObject = this.service.createObjectDataToRequest(this.props);
         this.setState(
             {
                 loading: true,
@@ -244,7 +246,7 @@ export class BaseRowComponent extends BaseContainer {
                                 defaultSelectedRowKeys: defaultSelectedRowKeysTmp,
                             }),
                             () => {
-                                let res = this.editListDataStore.getEditListDataStore(
+                                const res = this.editListDataStore.getEditListDataStore(
                                     editInfo.viewId,
                                     'gridView',
                                     editInfo.recordId,
@@ -254,19 +256,14 @@ export class BaseRowComponent extends BaseContainer {
                                     kindView,
                                     editListObject,
                                     setFields,
-                                    //onError
                                     (err) => {
                                         this.props.showErrorMessages(err);
                                     },
-                                    //onSuccess
                                     () => {
                                         this.setState({
-                                            //performance :)
-                                            // totalSelectCount: response.totalSelectCount,
                                             dataGridStoreSuccess: true,
                                         });
                                     },
-                                    //onStart
                                     () => {
                                         return {selectAll: this.state.selectAll};
                                     }
@@ -332,7 +329,7 @@ export class BaseRowComponent extends BaseContainer {
         }
 
         switch (field.type) {
-            case 'C': // C – Znakowy
+            case ColumnType.C:
             default:
                 return (
                     <React.Fragment>
@@ -353,7 +350,7 @@ export class BaseRowComponent extends BaseContainer {
                                     style={{width: '100%'}}
                                     value={field.value}
                                     options={selectionListValues}
-                                    onChange={(e) => (onChange ? onChange('DROPDOWN', e) : null)}
+                                    onChange={(e) => (onChange ? onChange(InputType.DROPDOWN, e) : null)}
                                     appendTo='self'
                                     showClear
                                     filter
@@ -373,8 +370,10 @@ export class BaseRowComponent extends BaseContainer {
                                         style={{width: '100%'}}
                                         type='text'
                                         value={field.value}
-                                        onChange={(e) => (onChange ? onChange('TEXT', e, groupName, info) : null)}
-                                        onBlur={(e) => (onBlur ? onBlur('TEXT', e, groupName, info) : null)}
+                                        onChange={(e) =>
+                                            onChange ? onChange(InputType.TEXT, e, groupName, info) : null
+                                        }
+                                        onBlur={(e) => (onBlur ? onBlur(InputType.TEXT, e, groupName, info) : null)}
                                         disabled={!field.edit}
                                         required={required}
                                     />
@@ -391,7 +390,7 @@ export class BaseRowComponent extends BaseContainer {
                         </div>
                     </React.Fragment>
                 );
-            case 'P': //P - hasło
+            case ColumnType.P: //P - hasło
                 return (
                     <React.Fragment>
                         <label
@@ -410,8 +409,8 @@ export class BaseRowComponent extends BaseContainer {
                                 style={{width: '100%'}}
                                 type='text'
                                 value={field.value}
-                                onChange={(e) => (onChange ? onChange('TEXT', e, groupName, info) : null)}
-                                onBlur={(e) => (onBlur ? onBlur('TEXT', e, groupName, info) : null)}
+                                onChange={(e) => (onChange ? onChange(InputType.TEXT, e, groupName, info) : null)}
+                                onBlur={(e) => (onBlur ? onBlur(InputType.TEXT, e, groupName, info) : null)}
                                 disabled={!field.edit}
                                 required={required}
                                 feedback={false}
@@ -427,7 +426,7 @@ export class BaseRowComponent extends BaseContainer {
                         </div>
                     </React.Fragment>
                 );
-            case 'N': //N – Numeryczny/Liczbowy
+            case ColumnType.N:
                 return (
                     <React.Fragment>
                         <label htmlFor={`field_${fieldIndex}`} title={MockService.printField(field)}>
@@ -443,7 +442,7 @@ export class BaseRowComponent extends BaseContainer {
                                     style={{width: '100%'}}
                                     value={field.value}
                                     options={selectionListValues}
-                                    onChange={(e) => (onChange ? onChange('DROPDOWN', e) : null)}
+                                    onChange={(e) => (onChange ? onChange(InputType.DROPDOWN, e) : null)}
                                     appendTo='self'
                                     showClear
                                     filter
@@ -489,10 +488,10 @@ export class BaseRowComponent extends BaseContainer {
                                             });
 
                                             if (onChange) {
-                                                onChange('TEXT', e, groupName, info);
+                                                onChange(InputType.TEXT, e, groupName, info);
                                             }
                                         }}
-                                        onBlur={(e) => (onBlur ? onBlur('TEXT', e, groupName, info) : null)}
+                                        onBlur={(e) => (onBlur ? onBlur(InputType.TEXT, e, groupName, info) : null)}
                                         disabled={!field.edit}
                                         required={required}
                                     />
@@ -509,7 +508,7 @@ export class BaseRowComponent extends BaseContainer {
                         </div>
                     </React.Fragment>
                 );
-            case 'B': //B – Logiczny (0/1)
+            case ColumnType.B: //B – Logiczny (0/1)
                 return (
                     <React.Fragment>
                         <label
@@ -531,7 +530,10 @@ export class BaseRowComponent extends BaseContainer {
                                 onChange={(e) => {
                                     if (this.props.onChange) {
                                         e.refreshFieldVisibility = field.refreshFieldVisibility;
-                                        this.props.onChange('CHECKBOX', e, groupName, info);
+                                        this.props.onChange(InputType.CHECKBOX, e, groupName, info);
+                                    } else {
+                                        if (typeof onChange === 'function')
+                                            onChange(InputType.CHECKBOX, e, groupName, info);
                                     }
                                 }}
                                 checked={
@@ -543,7 +545,7 @@ export class BaseRowComponent extends BaseContainer {
                         </div>
                     </React.Fragment>
                 );
-            case 'L': // L – Logiczny (T/N)
+            case ColumnType.L: // L – Logiczny (T/N)
                 return (
                     <React.Fragment>
                         <label
@@ -561,7 +563,7 @@ export class BaseRowComponent extends BaseContainer {
                             style={{width: '100%'}}
                             value={field.value}
                             options={this.yesNoTypes}
-                            onChange={(e) => (onChange ? onChange('DROPDOWN', e, groupName, info) : null)}
+                            onChange={(e) => (onChange ? onChange(InputType.DROPDOWN, e, groupName, info) : null)}
                             appendTo='self'
                             showClear
                             optionLabel='name'
@@ -572,7 +574,7 @@ export class BaseRowComponent extends BaseContainer {
                         />
                     </React.Fragment>
                 );
-            case 'D': //D – Data
+            case ColumnType.D: //D – Data
                 return (
                     <React.Fragment>
                         <label
@@ -590,7 +592,7 @@ export class BaseRowComponent extends BaseContainer {
                             style={{width: '100%'}}
                             value={field.value}
                             dateFormat='yy-mm-dd'
-                            onChange={(e) => (onChange ? onChange('DATE', e, groupName, info) : null)}
+                            onChange={(e) => (onChange ? onChange(InputType.DATE, e, groupName, info) : null)}
                             appendTo={document.body}
                             disabled={!field.edit}
                             required={required}
@@ -600,7 +602,7 @@ export class BaseRowComponent extends BaseContainer {
                         ></Calendar>
                     </React.Fragment>
                 );
-            case 'E': //E – Data + czas
+            case ColumnType.E: //E – Data + czas
                 return (
                     <React.Fragment>
                         <label
@@ -634,7 +636,7 @@ export class BaseRowComponent extends BaseContainer {
                                     clickCount = 0;
                                 }
                             }}
-                            onChange={(e) => (onChange ? onChange('DATETIME', e, groupName, info) : null)}
+                            onChange={(e) => (onChange ? onChange(InputType.DATETIME, e, groupName, info) : null)}
                             appendTo={document.body}
                             disabled={!field.edit}
                             required={required}
@@ -644,7 +646,7 @@ export class BaseRowComponent extends BaseContainer {
                         ></Calendar>
                     </React.Fragment>
                 );
-            case 'T': //T – Czas
+            case ColumnType.T: //T – Czas
                 return (
                     <React.Fragment>
                         <label
@@ -665,7 +667,7 @@ export class BaseRowComponent extends BaseContainer {
                             style={{width: '100%'}}
                             value={field.value}
                             appendTo={document.body}
-                            onChange={(e) => (onChange ? onChange('TIME', e, groupName, info) : null)}
+                            onChange={(e) => (onChange ? onChange(InputType.TIME, e, groupName, info) : null)}
                             disabled={!field.edit}
                             required={required}
                             showButtonBar
@@ -674,7 +676,7 @@ export class BaseRowComponent extends BaseContainer {
                         ></Calendar>
                     </React.Fragment>
                 );
-            case 'O': //O – Opisowe
+            case ColumnType.O: //O – Opisowe
                 return (
                     <React.Fragment>
                         <label
@@ -698,9 +700,9 @@ export class BaseRowComponent extends BaseContainer {
                                     name: field.fieldName,
                                     value: e,
                                 };
-                                onChange('EDITOR', event, groupName, info);
+                                onChange(InputType.EDITOR, event, groupName, info);
                             }}
-                            onFocusOut={(e) => (onBlur ? onBlur('EDITOR', e, groupName, info) : null)}
+                            onFocusOut={(e) => (onBlur ? onBlur(InputType.EDITOR, e, groupName, info) : null)}
                             validationMessageMode='always'
                             disabled={!field.edit}
                             required={required}
@@ -750,7 +752,7 @@ export class BaseRowComponent extends BaseContainer {
                         </HtmlEditor>
                     </React.Fragment>
                 );
-            case 'I': //I – Obrazek
+            case ColumnType.I: //I – Obrazek
                 return (
                     <React.Fragment>
                         <div className={`image-base ${autoFill} ${validate}`}>
@@ -768,7 +770,7 @@ export class BaseRowComponent extends BaseContainer {
                                 deleteBtn={true}
                                 onDeleteChange={() => {
                                     onChange(
-                                        'IMAGE64',
+                                        InputType.IMAGE64,
                                         {
                                             fieldName: field.fieldName,
                                             base64: '',
@@ -782,7 +784,7 @@ export class BaseRowComponent extends BaseContainer {
                                 initBase64={field.value}
                                 onSuccessB64={(e) =>
                                     onChange(
-                                        'IMAGE64',
+                                        InputType.IMAGE64,
                                         {
                                             fieldName: field.fieldName,
                                             base64: e,
@@ -796,7 +798,7 @@ export class BaseRowComponent extends BaseContainer {
                         </div>
                     </React.Fragment>
                 );
-            case 'IM': //IM – Obrazek multi
+            case ColumnType.IM: //IM – Obrazek multi
                 return (
                     <React.Fragment>
                         <div className={`image-base ${autoFill} ${validate}`}>
@@ -814,7 +816,7 @@ export class BaseRowComponent extends BaseContainer {
                                 multiple={true}
                                 onDeleteChange={() => {
                                     onChange(
-                                        'MULTI_IMAGE64',
+                                        InputType.MULTI_IMAGE64,
                                         {
                                             fieldName: field.fieldName,
                                             base64: '',
@@ -828,7 +830,7 @@ export class BaseRowComponent extends BaseContainer {
                                 initBase64={field.value}
                                 onSuccessB64={(e) =>
                                     onChange(
-                                        'MULTI_IMAGE64',
+                                        InputType.MULTI_IMAGE64,
                                         {
                                             fieldName: field.fieldName,
                                             base64: e,
@@ -842,7 +844,7 @@ export class BaseRowComponent extends BaseContainer {
                         </div>
                     </React.Fragment>
                 );
-            case 'H': //H - Hyperlink
+            case ColumnType.H: //H - Hyperlink
                 return (
                     <React.Fragment>
                         <label
@@ -860,8 +862,8 @@ export class BaseRowComponent extends BaseContainer {
                             style={{width: '100%'}}
                             type='text'
                             value={field.value}
-                            onChange={(e) => (onChange ? onChange('TEXT', e, groupName, info) : null)}
-                            onBlur={(e) => (onBlur ? onBlur('TEXT', e, groupName, info) : null)}
+                            onChange={(e) => (onChange ? onChange(InputType.TEXT, e, groupName, info) : null)}
+                            onBlur={(e) => (onBlur ? onBlur(InputType.TEXT, e, groupName, info) : null)}
                             disabled={!field.edit}
                             required={required}
                         />
@@ -885,7 +887,6 @@ export class BaseRowComponent extends BaseContainer {
 BaseRowComponent.defaultProps = {};
 
 BaseRowComponent.propTypes = {
-    // visibleDocumentPanel: PropTypes.bool.isRequired,
     editData: PropTypes.object.isRequired,
     kindView: PropTypes.string,
     showErrorMessages: PropTypes.func.isRequired,

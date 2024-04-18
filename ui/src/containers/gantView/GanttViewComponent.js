@@ -6,7 +6,6 @@ import Gantt, {
     Dependencies,
     Resources,
     ResourceAssignments,
-    ContextMenu,
     Column,
     Editing,
     StripLine,
@@ -35,8 +34,7 @@ import ActionButton from '../../components/ActionButton.js';
 import LocUtils from '../../utils/LocUtils.js';
 import {MenuWithButtons} from '../../components/prolab/MenuWithButtons.js';
 import {DataGridUtils} from '../../utils/component/DataGridUtils.js';
-
-let _selectionClassName = 'checkBoxSelection';
+import {ColumnType} from '../../model/ColumnType.js';
 
 const UNCOLLAPSED_CUT_SIZE = 327;
 const COLLAPSED_CUT_SIZE = 140;
@@ -482,7 +480,7 @@ class GanttViewComponent extends React.Component {
                                       key={'checkbox' + recordId}
                                       type='checkbox'
                                       checked={this.state.rowElementsStorage.get(recordId)[1].value}
-                                      className={_selectionClassName}
+                                      className={'checkBoxSelection'}
                                       onChange={(e) => {
                                           e.preventDefault();
                                           e.stopPropagation();
@@ -746,8 +744,8 @@ class GanttViewComponent extends React.Component {
                 bgColorFinal = _bgcolor;
             }
             switch (column?.type) {
-                case 'C':
-                case 'N':
+                case ColumnType.C:
+                case ColumnType.N:
                     return ReactDOM.render(
                         <div
                             style={{
@@ -763,10 +761,10 @@ class GanttViewComponent extends React.Component {
                         </div>,
                         element
                     );
-                case 'D':
-                case 'E':
-                case 'T':
-                case 'H':
+                case ColumnType.D:
+                case ColumnType.E:
+                case ColumnType.T:
+                case ColumnType.H:
                     return ReactDOM.render(
                         <div
                             style={{
@@ -782,11 +780,10 @@ class GanttViewComponent extends React.Component {
                         </div>,
                         element
                     );
-                case 'O':
+                case ColumnType.O:
                     return ReactDOM.render(
                         <div
                             style={{
-                                // display: 'inline',
                                 whiteSpace: 'nowrap',
                                 maxWidth: column.width + 'px',
                                 overflow: 'hidden',
@@ -802,7 +799,7 @@ class GanttViewComponent extends React.Component {
                         </div>,
                         element
                     );
-                case 'B':
+                case ColumnType.B:
                     return ReactDOM.render(
                         <div
                             style={{
@@ -822,7 +819,7 @@ class GanttViewComponent extends React.Component {
                         </div>,
                         element
                     );
-                case 'L':
+                case ColumnType.L:
                     return ReactDOM.render(
                         <div
                             style={{
@@ -842,8 +839,8 @@ class GanttViewComponent extends React.Component {
                         </div>,
                         element
                     );
-                case 'I':
-                case 'IM':
+                case ColumnType.I:
+                case ColumnType.IM:
                     if (Array.isArray(info.text) && info.text?.length > 0) {
                         return ReactDOM.render(
                             <div

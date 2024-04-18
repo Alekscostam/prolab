@@ -1,5 +1,5 @@
 import AppPrefixUtils from './AppPrefixUtils';
-import { StringUtils } from './StringUtils';
+import {StringUtils} from './StringUtils';
 import UrlUtils from './UrlUtils';
 
 export class EditSpecUtils {
@@ -9,8 +9,8 @@ export class EditSpecUtils {
     }
     static editSpecUrl(viewId, parentId, recordIdsParams, currentBreadcrumb) {
         let prevParentId = '';
-        if(!StringUtils.isBlank(UrlUtils.getURLParameter("parentId"))){
-           prevParentId =  `&prevParentId=${UrlUtils.getURLParameter("parentId")}`
+        if (!StringUtils.isBlank(UrlUtils.getParentId())) {
+            prevParentId = `&prevParentId=${UrlUtils.getParentId()}`;
         }
         return AppPrefixUtils.locationHrefUrl(
             `/#/edit-spec/${viewId}?parentId=${parentId}&recordId=${recordIdsParams}${prevParentId}${currentBreadcrumb}`

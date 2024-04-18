@@ -21,7 +21,7 @@ import OperationsButtons from '../../components/prolab/OperationsButtons';
 import AppPrefixUtils from '../../utils/AppPrefixUtils';
 import {EntryResponseUtils} from '../../utils/EntryResponseUtils';
 import {TreeListUtils} from '../../utils/component/TreeListUtils';
-import EditListDataStore from '../dao/EditListDataStore';
+import EditListDataStore from '../dao/DataEditListStore';
 import {EditSpecUtils} from '../../utils/EditSpecUtils';
 import {compress} from 'int-compress-string';
 import CellEditComponent from '../CellEditComponent';
@@ -30,6 +30,7 @@ import Image from '../../components/Image';
 import {MenuWithButtons} from '../../components/prolab/MenuWithButtons';
 import LocUtils from '../../utils/LocUtils';
 import ActionButton from '../../components/ActionButton';
+import {ColumnType} from '../../model/ColumnType';
 let clearSelection = false;
 
 class TreeViewComponent extends CellEditComponent {
@@ -82,6 +83,13 @@ class TreeViewComponent extends CellEditComponent {
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         return prevProps.id !== prevState.id && prevProps.elementRecordId !== prevState.elementRecordId;
+    }
+    shouldComponentUpdate() {
+        const quitEditDialog = document.getElementById('quitEditDialog');
+        if (quitEditDialog) {
+            return false;
+        }
+        return true;
     }
 
     showMenu(e) {
@@ -166,12 +174,12 @@ class TreeViewComponent extends CellEditComponent {
 
         try {
             switch (type) {
-                case 'H':
-                case 'C':
+                case ColumnType.H:
+                case ColumnType.C:
                     return columnDefinition.fieldName.toUpperCase() === 'WART';
-                case 'O':
-                case 'I':
-                case 'IM':
+                case ColumnType.O:
+                case ColumnType.I:
+                case ColumnType.IM:
                     return true;
                 default:
                     return false;
@@ -225,9 +233,7 @@ class TreeViewComponent extends CellEditComponent {
                         this.ref = ref;
                         this.props.handleOnTreeList(this.ref);
                     }}
-                    onExpandedRowKeysChange={(e) => {
-                        this.setState({expandedRowKeys: e});
-                    }}
+                    onExpandedRowKeysChange={(e) => this.setState({expandedRowKeys: e})}
                     expandedRowKeys={this.state.expandedRowKeys}
                     focusedRowEnabled={this.props.focusedRowEnabled}
                     hoverStateEnabled={this.props.hoverStateEnabled}
@@ -598,11 +604,11 @@ class TreeViewComponent extends CellEditComponent {
                     editCellRender={(cellInfo) =>
                         this.editCellRender(cellInfo, columnDefinition, () => {
                             switch (columnDefinition.type) {
-                                case 'C':
+                                case ColumnType.C:
                                     this.editListVisible(cellInfo.row?.data?._ID, columnDefinition.id);
                                     break;
-                                case 'L':
-                                case 'B':
+                                case ColumnType.L:
+                                case ColumnType.B:
                                     this.forceUpdate();
                                     break;
                                 default:
@@ -840,7 +846,7 @@ class TreeViewComponent extends CellEditComponent {
                 }
             }
             switch (cellInfo.column.ownType) {
-                case 'H':
+                case ColumnType.H:
                     try {
                         return (
                             <a
@@ -860,16 +866,13 @@ class TreeViewComponent extends CellEditComponent {
                         ConsoleHelper('Error render hyperlink. Exception=', err);
                     }
                     break;
-                case 'O':
+                case ColumnType.O:
                     try {
                         return (
                             <span
                                 style={{
                                     color: fontColorFinal,
-                                    // background: bgColorFinal,
                                 }}
-                                // eslint-disable-next-line
-                                // dangerouslySetInnerHTML={{__html: cellInfo?.text}}
                             >
                                 {StringUtils.textFromHtmlString(cellInfo?.text)}{' '}
                             </span>
@@ -878,14 +881,13 @@ class TreeViewComponent extends CellEditComponent {
                         ConsoleHelper('Error render htmloutput. Exception=', err);
                     }
                     break;
-                case 'C':
+                case ColumnType.C:
                     try {
                         return (
                             <span
                                 style={{
                                     color: fontColorFinal,
                                 }}
-                                // eslint-disable-next-line
                                 dangerouslySetInnerHTML={{__html: cellInfo?.text}}
                             />
                         );
@@ -893,15 +895,13 @@ class TreeViewComponent extends CellEditComponent {
                         ConsoleHelper('Error render htmloutput. Exception=', err);
                     }
                     break;
-                case 'N':
+                case ColumnType.N:
                     try {
                         return (
                             <span
                                 style={{
                                     color: fontColorFinal,
-                                    // background: bgColorFinal,
                                 }}
-                                // eslint-disable-next-line
                                 dangerouslySetInnerHTML={{__html: cellInfo?.text}}
                             />
                         );
@@ -909,7 +909,7 @@ class TreeViewComponent extends CellEditComponent {
                         ConsoleHelper('Error render htmloutput. Exception=', err);
                     }
                     break;
-                case 'IM':
+                case ColumnType.IM:
                     try {
                         return !!cellInfo?.text ? (
                             <img alt={''} height={100} src={`data:image/jpeg;base64,${cellInfo?.text}`} />
@@ -920,7 +920,7 @@ class TreeViewComponent extends CellEditComponent {
                         ConsoleHelper('Error render single-image. Exception=', err);
                     }
                     break;
-                case 'I':
+                case ColumnType.I:
                     try {
                         return !!cellInfo?.text ? (
                             cellInfo?.text?.split(',').map(() => {
@@ -941,7 +941,6 @@ class TreeViewComponent extends CellEditComponent {
                                         ></Image>
                                     </div>
                                 );
-                                // return ;
                             })
                         ) : (
                             <div />

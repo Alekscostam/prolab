@@ -42,9 +42,8 @@ import {saveObjToCookieGlobal} from '../utils/Cookie';
 import DataHistoryLogStore from '../containers/dao/DataHistoryLogStore';
 import HistoryLogDialogComponent from '../components/prolab/HistoryLogDialogComponent';
 import {PluginConfirmDialogUtils} from '../utils/component/PluginUtils';
-//
-//    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
-//
+import {OperationType} from '../model/OperationType';
+
 let dataGrid;
 
 // BaseViewContainer dla ViewContainer i AttachmentViewDialog
@@ -68,6 +67,7 @@ export class BaseViewContainer extends BaseContainer {
         this.refCardGrid = React.createRef();
         this.messages = React.createRef();
         this.selectedDataGrid = null;
+        this.isAttachement = false;
         this.state = {
             loading: true,
             elementId: props.id,
@@ -138,12 +138,12 @@ export class BaseViewContainer extends BaseContainer {
 
     componentDidMount() {
         this._isMounted = true;
-        const subViewId = UrlUtils.getURLParameter('subview');
-        const recordId = this.props.recordId || UrlUtils.getURLParameter('recordId');
-        const filterId = UrlUtils.getURLParameter('filterId');
-        const viewType = UrlUtils.getURLParameter('viewType');
-        const parentId = UrlUtils.getURLParameter('parentId');
-        const kindView = UrlUtils.getURLParameter('kindView');
+        const subViewId = UrlUtils.getSubViewId();
+        const recordId = this.props.recordId || UrlUtils.getRecordId();
+        const filterId = UrlUtils.getFilterId();
+        const viewType = UrlUtils.getViewType();
+        const parentId = UrlUtils.getParentId();
+        const kindView = UrlUtils.getKindView();
         let id = UrlUtils.getViewIdFromURL();
         if (id === undefined) {
             id = this.props.id;
@@ -198,13 +198,13 @@ export class BaseViewContainer extends BaseContainer {
             id = this.props.id;
         }
         this.removeAttachementReferenceIfPossible();
-        const subViewId = UrlUtils.getURLParameter('subview');
-        const recordId = this.props.recordId || UrlUtils.getURLParameter('recordId');
-        const filterId = UrlUtils.getURLParameter('filterId');
-        const viewType = UrlUtils.getURLParameter('viewType');
-        const force = UrlUtils.getURLParameter('force');
-        const parentId = UrlUtils.getURLParameter('parentId');
-        const kindView = UrlUtils.getURLParameter('kindView');
+        const subViewId = UrlUtils.getSubViewId();
+        const recordId = this.props.recordId || UrlUtils.getRecordId();
+        const filterId = UrlUtils.getFilterId();
+        const viewType = UrlUtils.getViewType();
+        const force = UrlUtils.getForce();
+        const parentId = UrlUtils.getParentId();
+        const kindView = UrlUtils.getKindView();
         const firstSubViewMode = !!recordId && !!id && !!!subViewId;
         const fromSubviewToFirstSubView =
             firstSubViewMode &&
@@ -268,7 +268,6 @@ export class BaseViewContainer extends BaseContainer {
     getViewById(viewId, recordId, filterId, parentId, viewType, isSubView) {
         // to overide
     }
-
     processViewResponse(responseView, parentId, recordId, isSubView) {
         ConsoleHelper(
             `BaseViewContainer::processViewResponse: viewId=${isSubView}, recordId=${recordId}, parentId=${parentId},`
@@ -282,49 +281,20 @@ export class BaseViewContainer extends BaseContainer {
             }
 
             if (this.state.updateBreadcrumb) Breadcrumb.updateView(responseView.viewInfo, id, recordId);
-            let gridViewColumnsTmp = [];
-            let pluginsListTmp = [];
-            let documentsListTmp = [];
-            let batchesListTmp = [];
-            let filtersListTmp = [];
-            let columnOrderCounter = 0;
-            new Array(responseView.gridColumns).forEach((gridColumns) => {
-                gridColumns?.forEach((group) => {
-                    group.columns?.forEach((column) => {
-                        column.groupName = group.groupName;
-                        column.freeze = group.freeze;
-                        column.columnOrder = columnOrderCounter++;
-                        gridViewColumnsTmp.push(column);
-                    });
-                });
-            });
-            for (let plugin in responseView?.pluginsList) {
-                pluginsListTmp.push({
-                    id: responseView?.pluginsList[plugin].id,
-                    label: responseView?.pluginsList[plugin].label,
-                });
-            }
-            for (let document in responseView?.documentsList) {
-                documentsListTmp.push({
-                    id: responseView?.documentsList[document].id,
-                    label: responseView?.documentsList[document].label,
-                });
-            }
-            for (let batch in responseView?.batchesList) {
-                batchesListTmp.push({
-                    id: responseView?.batchesList[batch].id,
-                    label: responseView?.batchesList[batch].label,
-                });
-            }
+            const gridViewColumnsTmp = this.columnsFromGroupCreate(responseView);
+            const pluginsListTmp = this.puginListCreate(responseView);
+            const documentsListTmp = this.documentListCreate(responseView);
+            const batchesListTmp = this.batchListCreate(responseView);
+            const filtersListTmp = this.filtersListCreate(responseView);
             Breadcrumb.currentBreadcrumbAsUrlParam();
-            for (let filter in responseView?.filtersList) {
-                filtersListTmp.push({
-                    id: responseView?.filtersList[filter].id,
-                    label: responseView?.filtersList[filter].label,
-                });
-            }
-            let viewInfoTypesTmp = [];
-            let cardButton = DataGridUtils.containsOperationsButton(responseView.operations, 'OP_CARDVIEW');
+
+            const viewInfoTypesTmp = [];
+            const cardButton = DataGridUtils.getOrCreateOpButton(
+                responseView.operations,
+                this.props.labels,
+                OperationType.OP_CARDVIEW,
+                ''
+            );
             if (cardButton) {
                 viewInfoTypesTmp.push({
                     icon: 'mediumiconslayout',
@@ -332,7 +302,12 @@ export class BaseViewContainer extends BaseContainer {
                     hint: cardButton?.label,
                 });
             }
-            let viewButton = DataGridUtils.containsOperationsButton(responseView.operations, 'OP_GRIDVIEW');
+            const viewButton = DataGridUtils.getOrCreateOpButton(
+                responseView.operations,
+                this.props.labels,
+                OperationType.OP_GRIDVIEW,
+                ''
+            );
             if (viewButton) {
                 viewInfoTypesTmp.push({
                     icon: 'contentlayout',
@@ -379,8 +354,7 @@ export class BaseViewContainer extends BaseContainer {
         }
     }
     handleRightHeadPanelContent(element) {
-        let parentIdArg =
-            this.state.subView == null ? UrlUtils.getURLParameter('parentId') : this.state.elementRecordId;
+        let parentIdArg = this.state.subView == null ? UrlUtils.getParentId() : this.state.elementRecordId;
         if (StringUtils.isBlank(parentIdArg)) {
             parentIdArg = 0;
         }
@@ -390,30 +364,30 @@ export class BaseViewContainer extends BaseContainer {
             `/#/batch/${id}?batchId=${elementId}&parentId=${parentIdArg}`
         );
         switch (element.type) {
-            case 'OP_PLUGINS':
-            case 'SK_PLUGIN':
+            case OperationType.OP_PLUGINS:
+            case OperationType.SK_PLUGIN:
                 this.plugin(elementId);
                 break;
-            case 'OP_BATCH':
-            case 'SK_BATCH':
+            case OperationType.OP_BATCH:
+            case OperationType.SK_BATCH:
                 // zapamietanie do cookiesa bo zmieniamy url :(
                 const selectedRowKeys = this.state.selectedRowKeys;
                 saveObjToCookieGlobal('selectedRowKeys', selectedRowKeys);
                 window.location.href = urlEditSpecBatch;
                 break;
-            case 'OP_DOCUMENTS':
-            case 'SK_DOCUMENT':
+            case OperationType.OP_DOCUMENTS:
+            case OperationType.SK_DOCUMENT:
                 this.generate(elementId);
                 break;
-            case 'OP_ATTACHMENTS':
+            case OperationType.OP_ATTACHMENTS:
                 this.attachment(elementId, element.id === 0);
                 break;
-            case 'OP_PUBLISH':
-            case 'SK_PUBLISH':
+            case OperationType.OP_PUBLISH:
+            case OperationType.SK_PUBLISH:
                 this.publishEntry();
                 break;
-            case 'OP_HISTORY':
-            case 'SK_HISTORY':
+            case OperationType.OP_HISTORY:
+            case OperationType.SK_HISTORY:
                 this.historyLog(elementId);
                 break;
             default:
@@ -759,7 +733,7 @@ export class BaseViewContainer extends BaseContainer {
         const margin = Constants.DEFAULT_MARGIN_BETWEEN_BUTTONS;
         if (!!operation.type) {
             switch (operation.type?.toUpperCase()) {
-                case 'OP_FILTER':
+                case OperationType.OP_FILTER:
                     return (
                         <React.Fragment>
                             {this.state.filtersList?.length > 0 ? (
@@ -777,14 +751,11 @@ export class BaseViewContainer extends BaseContainer {
                                         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
                                         if (!!e.value && e.value !== e.previousValue) {
                                             const filterId = parseInt(e.value);
-                                            const subViewId =
-                                                UrlUtils.getURLParameter('subview') || this.state.elementSubViewId;
-                                            const recordId =
-                                                UrlUtils.getURLParameter('recordId') || this.state.elementRecordId;
+                                            const subViewId = UrlUtils.getSubViewId() || this.state.elementSubViewId;
+                                            const recordId = UrlUtils.getRecordId() || this.state.elementRecordId;
                                             const subviewMode = !!recordId && !!this.state.elementId;
-                                            const breadCrumbs = UrlUtils.getURLParameter('bc');
-                                            const viewType =
-                                                UrlUtils.getURLParameter('viewType') || this.state.gridViewType;
+                                            const breadCrumbs = UrlUtils.getBc();
+                                            const viewType = UrlUtils.getViewType() || this.state.gridViewType;
                                             const canNotBeRefresh = this.canNotBeRefreshed() ? false : !breadCrumbs;
                                             if (canNotBeRefresh) {
                                                 return;
@@ -813,7 +784,7 @@ export class BaseViewContainer extends BaseContainer {
                             ) : null}
                         </React.Fragment>
                     );
-                case 'OP_BATCH':
+                case OperationType.OP_BATCH:
                     return (
                         <React.Fragment>
                             {operation.showAlways && (
@@ -825,14 +796,14 @@ export class BaseViewContainer extends BaseContainer {
                                         this.state.batchesList,
                                         undefined,
                                         this.handleRightHeadPanelContent,
-                                        'OP_BATCH'
+                                        OperationType.OP_BATCH
                                     )}
                                     title={operation?.label}
                                 />
                             )}
                         </React.Fragment>
                     );
-                case 'OP_DOCUMENTS':
+                case OperationType.OP_DOCUMENTS:
                     return (
                         <React.Fragment>
                             {this.state.documentsList?.length > 0 ? (
@@ -844,7 +815,7 @@ export class BaseViewContainer extends BaseContainer {
                                         this.state.documentsList,
                                         undefined,
                                         this.handleRightHeadPanelContent,
-                                        'OP_DOCUMENTS'
+                                        OperationType.OP_DOCUMENTS
                                     )}
                                     title={operation?.label}
                                 />
@@ -852,7 +823,7 @@ export class BaseViewContainer extends BaseContainer {
                         </React.Fragment>
                     );
 
-                case 'OP_PLUGINS':
+                case OperationType.OP_PLUGINS:
                     return (
                         <React.Fragment>
                             {this.state.pluginsList?.length > 0 ? (
@@ -864,14 +835,14 @@ export class BaseViewContainer extends BaseContainer {
                                         this.state.pluginsList,
                                         undefined,
                                         this.handleRightHeadPanelContent,
-                                        'OP_PLUGINS'
+                                        OperationType.OP_PLUGINS
                                     )}
                                     title={operation?.label}
                                 />
                             ) : null}
                         </React.Fragment>
                     );
-                case 'OP_FORMULA':
+                case OperationType.OP_FORMULA:
                     return (
                         <React.Fragment>
                             {operation.showAlways && (
@@ -885,51 +856,54 @@ export class BaseViewContainer extends BaseContainer {
                             )}
                         </React.Fragment>
                     );
-                case 'OP_CARDVIEW':
-                case 'OP_GRIDVIEW':
-                    let indexInArray = this.state.parsedGridView?.operations?.findIndex(
-                        (o) => o?.type?.toUpperCase() === 'OP_CARDVIEW' || o?.type?.toUpperCase() === 'OP_GRIDVIEW'
-                    );
-                    //condition for only one display
-                    if (index > indexInArray) {
-                        return this.state.viewInfoTypes ? (
-                            <React.Fragment>
-                                <ButtonGroup
-                                    className={`${margin}`}
-                                    items={this.state.viewInfoTypes}
-                                    keyExpr='type'
-                                    stylingMode='outlined'
-                                    selectedItemKeys={this.state.gridViewType}
-                                    onItemClick={(e) => {
-                                        let newUrl = UrlUtils.addParameterToURL(
-                                            window.document.URL.toString(),
-                                            'viewType',
-                                            e.itemData.type
-                                        );
-                                        window.history.replaceState('', '', newUrl);
-                                        this.setState(
-                                            {gridViewType: e.itemData.type, dataGridStoreSuccess: false},
-                                            () => {
-                                                this.downloadData(
-                                                    this.state.elementId,
-                                                    this.state.elementRecordId,
-                                                    this.state.elementSubViewId,
-                                                    this.state.elementFilterId,
-                                                    this.state.elementParentId,
-                                                    this.state.gridViewType
-                                                );
-                                            }
-                                        );
-                                    }}
-                                />
-                            </React.Fragment>
-                        ) : null;
-                    } else {
-                        return null;
-                    }
+                case OperationType.OP_CARDVIEW:
+                case OperationType.OP_GRIDVIEW:
+                    return this.viewOperation(index);
                 default:
                     return null;
             }
+        }
+    }
+
+    viewOperation(index) {
+        const margin = Constants.DEFAULT_MARGIN_BETWEEN_BUTTONS;
+        const indexInArray = this.state.parsedGridView?.operations?.findIndex(
+            (o) =>
+                o?.type?.toUpperCase() === OperationType.OP_CARDVIEW ||
+                o?.type?.toUpperCase() === OperationType.OP_GRIDVIEW
+        );
+        if (index > indexInArray) {
+            return this.state.viewInfoTypes ? (
+                <React.Fragment>
+                    <ButtonGroup
+                        className={`${margin}`}
+                        items={this.state.viewInfoTypes}
+                        keyExpr='type'
+                        stylingMode='outlined'
+                        selectedItemKeys={this.state.gridViewType}
+                        onItemClick={(e) => {
+                            const newUrl = UrlUtils.addParameterToURL(
+                                window.document.URL.toString(),
+                                'viewType',
+                                e.itemData.type
+                            );
+                            window.history.replaceState('', '', newUrl);
+                            this.setState({gridViewType: e.itemData.type, dataGridStoreSuccess: false}, () => {
+                                this.downloadData(
+                                    this.state.elementId,
+                                    this.state.elementRecordId,
+                                    this.state.elementSubViewId,
+                                    this.state.elementFilterId,
+                                    this.state.elementParentId,
+                                    this.state.gridViewType
+                                );
+                            });
+                        }}
+                    />
+                </React.Fragment>
+            ) : null;
+        } else {
+            return null;
         }
     }
 
@@ -1188,9 +1162,9 @@ export class BaseViewContainer extends BaseContainer {
                                         });
 
                                         const subViewId = args.value.id;
-                                        const parentId = StringUtils.isBlank(UrlUtils.getURLParameter('parentId'))
+                                        const parentId = StringUtils.isBlank(UrlUtils.getParentId())
                                             ? ''
-                                            : `&parentId=${UrlUtils.getURLParameter('parentId')}`;
+                                            : `&parentId=${UrlUtils.getParentId()}`;
                                         const viewInfoId = this.state.subView.viewInfo.id;
                                         const recordId = this.state.elementRecordId;
                                         const kindView = !!this.state.subView.viewInfo?.kindView
@@ -1208,7 +1182,7 @@ export class BaseViewContainer extends BaseContainer {
                                 const viewInfoId = this.state.subView.viewInfo?.id;
                                 const subViewId = itemData.id;
                                 const recordId = this.state.elementRecordId;
-                                const parentId = UrlUtils.getURLParameter('parentId');
+                                const parentId = UrlUtils.getParentId();
                                 const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
                                 const parentUrl = StringUtils.isBlank(parentId) ? '' : `&parentId=${parentId}`;
                                 return (
@@ -1233,7 +1207,7 @@ export class BaseViewContainer extends BaseContainer {
     addView() {
         this.blockUi();
         const subViewId = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
-        const parentId = this.state.subView == null ? UrlUtils.getURLParameter('parentId') : this.state.elementRecordId;
+        const parentId = this.state.subView == null ? UrlUtils.getParentId() : this.state.elementRecordId;
         let viewId = this.props.id;
         viewId = DataGridUtils.getRealViewId(subViewId, viewId);
         this.crudService
@@ -1270,10 +1244,10 @@ export class BaseViewContainer extends BaseContainer {
     openEditRowIfPossible() {
         if (UrlUtils.isEditRowOpen()) {
             setTimeout(() => {
-                const editViewId = UrlUtils.getURLParameter('editViewId');
-                const editParentId = UrlUtils.getURLParameter('editParentId');
-                const editRecordId = UrlUtils.getURLParameter('editRecordId');
-                const editKindView = UrlUtils.getURLParameter('editKindView');
+                const editViewId = UrlUtils.getEditViewId();
+                const editParentId = UrlUtils.getEditParentId();
+                const editRecordId = UrlUtils.getEditRecordId();
+                const editKindView = UrlUtils.getEditKindView();
                 this.crudService
                     .editEntry(editViewId, editRecordId, editParentId, editKindView)
                     .then((entryResponse) => {
@@ -1353,8 +1327,7 @@ export class BaseViewContainer extends BaseContainer {
     refreshGanttData() {
         const initFilterId = this.state.parsedGridView?.viewInfo?.filterdId;
         const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
-        const parentIdArg =
-            this.state.subView == null ? UrlUtils.getURLParameter('parentId') : this.state.elementRecordId;
+        const parentIdArg = this.state.subView == null ? UrlUtils.getParentId() : this.state.elementRecordId;
         const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId;
         const kindViewArg = this.state.kindView;
         const loadSortOptions = this.state.parsedGridView.ganttColumns.filter((c) => {
@@ -1375,7 +1348,7 @@ export class BaseViewContainer extends BaseContainer {
                 sort.push(operation);
             }
 
-            let res = this.dataGanttStore.getDataForGantt(
+            const res = this.dataGanttStore.getDataForGantt(
                 viewIdArg,
                 {
                     skip: 0,
@@ -1395,237 +1368,253 @@ export class BaseViewContainer extends BaseContainer {
             this.unblockUi();
         });
     }
-
     //override
     renderContent = () => {
-        const {labels} = this.props;
-        const parentIdArg =
-            this.state.subView == null ? UrlUtils.getURLParameter('parentId') : this.state.elementRecordId;
-        const filterIdArg = !!this.state.elementFilterId
-            ? this.state.elementFilterId
-            : this.state.parsedGridView?.viewInfo?.filterdId;
-        const kindViewArg = !!this.state.elementKindView
-            ? this.state.elementKindView
-            : UrlUtils.getURLParameter('kindView');
-        const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
-
         return (
             <React.Fragment>
                 {this.state.loading ? null : (
                     <React.Fragment>
-                        {this.isGridView() ? (
-                            <React.Fragment>
-                                <GridViewComponent
-                                    id={this.props.id}
-                                    selectedRows={this.state.selectedRowKeys}
-                                    elementSubViewId={this.state.elementSubViewId}
-                                    elementKindView={this.state.elementKindView}
-                                    elementRecordId={
-                                        this.state.elementRecordId ? this.state.elementRecordId : parentIdArg
-                                    }
-                                    focusedRowEnabled={true}
-                                    hoverStateEnabled={true}
-                                    handleOnInitialized={this.onInitialize}
-                                    handleOnDataGrid={(ref) => (this.refDataGrid = ref)}
-                                    parsedGridView={this.state.parsedGridView}
-                                    getRef={() => {
-                                        return this.refDataGrid;
-                                    }}
-                                    parsedGridViewData={this.state.parsedGridViewData}
-                                    gridViewColumns={this.state.gridViewColumns}
-                                    handleBlockUi={() => {
-                                        this.blockUi();
-                                        return true;
-                                    }}
-                                    handleUnselectAll={() => {
-                                        this.setState({
-                                            selectedRowKeys: [],
-                                        });
-                                    }}
-                                    addButtonFunction={this.addButtonFunction}
-                                    handleUnblockUi={() => this.unblockUi()}
-                                    showErrorMessages={(err) => this.showErrorMessages(err)}
-                                    packageRows={this.state.packageRows}
-                                    handleShowEditPanel={(editDataResponse) => {
-                                        this.handleShowEditPanel(editDataResponse);
-                                    }}
-                                    handleSelectAll={(selectionValue) => {
-                                        this.blockUi();
-                                        const prevDataGridGlobalReference = this.state?.prevDataGridGlobalReference;
-                                        if (prevDataGridGlobalReference) {
-                                            window.dataGrid = prevDataGridGlobalReference;
-                                            dataGrid = prevDataGridGlobalReference;
-                                        }
-                                        if (selectionValue === null) {
-                                            this.setState({
-                                                selectAll: false,
-                                                select: true,
-                                            });
-                                            dataGrid.getSelectedRowsData().then((rowData) => {
-                                                this.setState(
-                                                    {
-                                                        selectedRowKeys: rowData,
-                                                        selectAll: false,
-                                                        select: false,
-                                                        prevDataGridGlobalReference: null,
-                                                    },
-                                                    () => {
-                                                        this.unblockUi();
-                                                    }
-                                                );
-                                            });
-                                            this.unblockUi();
-                                        } else {
-                                            if (selectionValue) {
-                                                this.selectAllDataGrid(selectionValue);
-                                            } else {
-                                                this.unselectAllDataGrid(selectionValue);
-                                            }
-                                        }
-                                    }}
-                                    handleFormulaRow={(id) => {
-                                        this.prepareCalculateFormula(id);
-                                    }}
-                                    dataGridStoreSuccess={this.state.dataGridStoreSuccess}
-                                    selectionDeferred={true}
-                                    handlePluginRow={(id) => this.plugin(id)}
-                                    handleDocumentRow={(id) => this.generate(id)}
-                                    handleDeleteRow={(id) => this.delete(id)}
-                                    handleRestoreRow={(id) => this.restore(id)}
-                                    handleDownloadRow={(id) => this.downloadAttachment(id)}
-                                    handleAttachmentRow={(id) => this.attachment(id)}
-                                    handleHistoryLogRow={(id) => this.historyLog(id)}
-                                    handleCopyRow={(id) => this.showCopyView(id)}
-                                    handleArchiveRow={(id) => this.archive(id)}
-                                    handlePublishRow={(id) => this.publishEntry(id)}
-                                />
-                            </React.Fragment>
-                        ) : this.isCardView() ? (
-                            <React.Fragment>
-                                <CardViewInfiniteComponent
-                                    id={viewIdArg}
-                                    ref={this.refCardGrid}
-                                    gridViewType={this.state.gridViewType}
-                                    elementSubViewId={this.state.elementSubViewId}
-                                    elementKindView={this.state.elementKindView}
-                                    handleOnInitialized={(ref) => (this.cardGrid = ref)}
-                                    parsedCardView={this.state.parsedGridView}
-                                    parsedCardViewData={this.state.parsedCardViewData}
-                                    handleShowEditPanel={(editDataResponse) => {
-                                        this.handleShowEditPanel(editDataResponse);
-                                    }}
-                                    showErrorMessages={(err) => this.showErrorMessages(err)}
-                                    handleBlockUi={() => {
-                                        this.blockUi();
-                                    }}
-                                    handleUnblockUi={() => {
-                                        this.unblockUi();
-                                    }}
-                                    selectedRowKeys={this.state.selectedRowKeys}
-                                    handleSelectedRowKeys={(e) => this.setState({selectedRowKeys: e})}
-                                    collapsed={this.props.collapsed}
-                                    kindView={kindViewArg}
-                                    parentId={parentIdArg}
-                                    filterId={filterIdArg}
-                                    handleFormulaRow={(id) => {
-                                        this.prepareCalculateFormula(id);
-                                    }}
-                                    handleHistoryLogRow={(id) => this.historyLog(id)}
-                                    handlePluginRow={(id) => this.plugin(id)}
-                                    handleDocumentRow={(id) => this.generate(id)}
-                                    handleDeleteRow={(id) => this.delete(id)}
-                                    handleAttachmentRow={(id) => this.attachment(id)}
-                                    handleDownloadRow={(id) => this.downloadAttachment(id)}
-                                    handleRestoreRow={(id) => this.restore(id)}
-                                    handleCopyRow={(id) => this.showCopyView(id)}
-                                    handleArchiveRow={(id) => this.archive(id)}
-                                    handlePublishRow={(id) => this.publishEntry(id)}
-                                />
-                            </React.Fragment>
-                        ) : this.isGanttView() ? (
-                            <React.Fragment>
-                                <GanttViewComponent
-                                    id={this.props.id}
-                                    unselectAll={() => {
-                                        this.setState({
-                                            selectedRowKeys: [],
-                                        });
-                                    }}
-                                    collapsed={this.props.collapsed}
-                                    elementSubViewId={this.state.elementSubViewId}
-                                    elementKindView={this.state.elementKindView}
-                                    elementRecordId={this.state.elementRecordId}
-                                    shortcutButtons={this.state.parsedGridView.shortcutButtons}
-                                    parsedGanttViewData={this.state.parsedGanttViewData}
-                                    selectedRowKeys={this.state.selectedRowKeys}
-                                    handleBlockUi={() => {
-                                        this.blockUi();
-                                        return true;
-                                    }}
-                                    handleUnBlockUi={() => {
-                                        this.unblockUi();
-                                        return true;
-                                    }}
-                                    ref={this.ganttRef}
-                                    handleSelectAll={(selectionValue, selectedRowKeys) => {
-                                        this.state.selectedRowKeys.length = 0;
-                                        if (selectionValue) {
-                                            this.setState({
-                                                selectedRowKeys: selectedRowKeys,
-                                            });
-                                        } else {
-                                            this.setState({
-                                                selectedRowKeys: this.state.selectedRowKeys,
-                                            });
-                                        }
-                                    }}
-                                    handleRefreshData={this.refreshGanttData}
-                                    handleUp={() => this.up()}
-                                    handleDown={() => this.publishEntry()}
-                                    parsedGanttView={this.state.parsedGridView}
-                                    gridViewColumns={this.state.ganttViewColumns}
-                                    dataGanttStoreSuccess={this.state.dataGanttStoreSuccess}
-                                    handleUnblockUi={() => this.unblockUi()}
-                                    showErrorMessages={(err) => this.showErrorMessages(err)}
-                                    packageRows={this.state.packageRows}
-                                    handleShowEditPanel={(editDataResponse) => {
-                                        this.handleShowEditPanel(editDataResponse);
-                                    }}
-                                    handleSelectedRowKeys={(e) => {
-                                        this.setState({selectedRowKeys: e});
-                                    }}
-                                    addButtonFunction={this.addButtonFunction}
-                                    dataGridStoreSuccess={this.state.dataGridStoreSuccess}
-                                    selectionDeferred={true}
-                                    handlePluginRow={(id) => this.plugin(id)}
-                                    handleDocumentRow={(id) => this.generate(id)}
-                                    handleDeleteRow={(id) => this.delete(id)}
-                                    handleDownloadRow={(id) => this.downloadAttachment(id)}
-                                    handleAttachmentRow={(id) => this.attachment(id)}
-                                    handleRestoreRow={(id) => this.restore(id)}
-                                    handleCopyRow={(id) => this.showCopyView(id)}
-                                    handleHistoryLogRow={(id) => this.historyLog(id)}
-                                    handleArchiveRow={(id) => this.archive(id)}
-                                    handlePublishRow={(id) => this.publishEntry(id)}
-                                />
-                            </React.Fragment>
-                        ) : this.isDashboard() ? (
-                            <React.Fragment>
-                                {Breadcrumb.render(labels)}
-                                <DashboardContainer
-                                    dashboard={this.state.subView}
-                                    handleRenderNoRefreshContent={(renderNoRefreshContent) => {
-                                        this.props.handleRenderNoRefreshContent(renderNoRefreshContent);
-                                    }}
-                                    labels={labels}
-                                />
-                            </React.Fragment>
-                        ) : null}
+                        {this.isGridView()
+                            ? this.renderGridViewComponent()
+                            : this.isCardView()
+                            ? this.renderCardViewComponent()
+                            : this.isGanttView()
+                            ? this.renderGanttViewComponent()
+                            : this.isDashboard()
+                            ? this.renderDashboardViewComponent()
+                            : null}
                     </React.Fragment>
                 )}
             </React.Fragment>
         );
     };
+    renderDashboardViewComponent() {
+        const {labels} = this.props;
+        return (
+            <React.Fragment>
+                {Breadcrumb.render(labels)}
+                <DashboardContainer
+                    dashboard={this.state.subView}
+                    handleRenderNoRefreshContent={(renderNoRefreshContent) => {
+                        this.props.handleRenderNoRefreshContent(renderNoRefreshContent);
+                    }}
+                    labels={labels}
+                />
+            </React.Fragment>
+        );
+    }
+    renderGridViewComponent() {
+        const parentIdArg = this.state.subView == null ? UrlUtils.getParentId() : this.state.elementRecordId;
+        return (
+            <React.Fragment>
+                <GridViewComponent
+                    id={this.props.id}
+                    isAttachement={this.isAttachement}
+                    selectedRows={this.state.selectedRowKeys}
+                    elementSubViewId={this.state.elementSubViewId}
+                    elementKindView={this.state.elementKindView}
+                    elementRecordId={this.state.elementRecordId ? this.state.elementRecordId : parentIdArg}
+                    focusedRowEnabled={true}
+                    hoverStateEnabled={true}
+                    handleOnInitialized={this.onInitialize}
+                    handleOnDataGrid={(ref) => (this.refDataGrid = ref)}
+                    parsedGridView={this.state.parsedGridView}
+                    getRef={() => {
+                        return this.refDataGrid;
+                    }}
+                    parsedGridViewData={this.state.parsedGridViewData}
+                    gridViewColumns={this.state.gridViewColumns}
+                    handleBlockUi={() => {
+                        this.blockUi();
+                        return true;
+                    }}
+                    handleUnselectAll={() => {
+                        this.setState({
+                            selectedRowKeys: [],
+                        });
+                    }}
+                    addButtonFunction={this.addButtonFunction}
+                    handleUnblockUi={() => this.unblockUi()}
+                    showErrorMessages={(err) => this.showErrorMessages(err)}
+                    packageRows={this.state.packageRows}
+                    handleShowEditPanel={(editDataResponse) => {
+                        this.handleShowEditPanel(editDataResponse);
+                    }}
+                    handleSelectAll={(selectionValue) => {
+                        this.blockUi();
+                        const prevDataGridGlobalReference = this.state?.prevDataGridGlobalReference;
+                        if (prevDataGridGlobalReference) {
+                            window.dataGrid = prevDataGridGlobalReference;
+                            dataGrid = prevDataGridGlobalReference;
+                        }
+                        if (selectionValue === null) {
+                            this.setState({
+                                selectAll: false,
+                                select: true,
+                            });
+                            dataGrid.getSelectedRowsData().then((rowData) => {
+                                this.setState(
+                                    {
+                                        selectedRowKeys: rowData,
+                                        selectAll: false,
+                                        select: false,
+                                        prevDataGridGlobalReference: null,
+                                    },
+                                    () => {
+                                        this.unblockUi();
+                                    }
+                                );
+                            });
+                            this.unblockUi();
+                        } else {
+                            if (selectionValue) {
+                                this.selectAllDataGrid(selectionValue);
+                            } else {
+                                this.unselectAllDataGrid(selectionValue);
+                            }
+                        }
+                    }}
+                    handleFormulaRow={(id) => {
+                        this.prepareCalculateFormula(id);
+                    }}
+                    dataGridStoreSuccess={this.state.dataGridStoreSuccess}
+                    selectionDeferred={true}
+                    handlePluginRow={(id) => this.plugin(id)}
+                    handleDocumentRow={(id) => this.generate(id)}
+                    handleDeleteRow={(id) => this.delete(id)}
+                    handleRestoreRow={(id) => this.restore(id)}
+                    handleDownloadRow={(id) => this.downloadAttachment(id)}
+                    handleAttachmentRow={(id) => this.attachment(id)}
+                    handleHistoryLogRow={(id) => this.historyLog(id)}
+                    handleCopyRow={(id) => this.showCopyView(id)}
+                    handleArchiveRow={(id) => this.archive(id)}
+                    handlePublishRow={(id) => this.publishEntry(id)}
+                />
+            </React.Fragment>
+        );
+    }
+    renderCardViewComponent() {
+        const parentIdArg = this.state.subView == null ? UrlUtils.getParentId() : this.state.elementRecordId;
+        const filterIdArg = !!this.state.elementFilterId
+            ? this.state.elementFilterId
+            : this.state.parsedGridView?.viewInfo?.filterdId;
+        const kindViewArg = !!this.state.elementKindView ? this.state.elementKindView : UrlUtils.getKindView();
+        const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
+        return (
+            <React.Fragment>
+                <CardViewInfiniteComponent
+                    id={viewIdArg}
+                    ref={this.refCardGrid}
+                    gridViewType={this.state.gridViewType}
+                    elementSubViewId={this.state.elementSubViewId}
+                    elementKindView={this.state.elementKindView}
+                    handleOnInitialized={(ref) => (this.cardGrid = ref)}
+                    parsedCardView={this.state.parsedGridView}
+                    parsedCardViewData={this.state.parsedCardViewData}
+                    handleShowEditPanel={(editDataResponse) => {
+                        this.handleShowEditPanel(editDataResponse);
+                    }}
+                    showErrorMessages={(err) => this.showErrorMessages(err)}
+                    handleBlockUi={() => {
+                        this.blockUi();
+                    }}
+                    handleUnblockUi={() => {
+                        this.unblockUi();
+                    }}
+                    selectedRowKeys={this.state.selectedRowKeys}
+                    handleSelectedRowKeys={(e) => this.setState({selectedRowKeys: e})}
+                    collapsed={this.props.collapsed}
+                    kindView={kindViewArg}
+                    parentId={parentIdArg}
+                    filterId={filterIdArg}
+                    handleFormulaRow={(id) => {
+                        this.prepareCalculateFormula(id);
+                    }}
+                    handleHistoryLogRow={(id) => this.historyLog(id)}
+                    handlePluginRow={(id) => this.plugin(id)}
+                    handleDocumentRow={(id) => this.generate(id)}
+                    handleDeleteRow={(id) => this.delete(id)}
+                    handleAttachmentRow={(id) => this.attachment(id)}
+                    handleDownloadRow={(id) => this.downloadAttachment(id)}
+                    handleRestoreRow={(id) => this.restore(id)}
+                    handleCopyRow={(id) => this.showCopyView(id)}
+                    handleArchiveRow={(id) => this.archive(id)}
+                    handlePublishRow={(id) => this.publishEntry(id)}
+                />
+            </React.Fragment>
+        );
+    }
+    renderGanttViewComponent() {
+        return (
+            <React.Fragment>
+                <GanttViewComponent
+                    id={this.props.id}
+                    unselectAll={() => {
+                        this.setState({
+                            selectedRowKeys: [],
+                        });
+                    }}
+                    collapsed={this.props.collapsed}
+                    elementSubViewId={this.state.elementSubViewId}
+                    elementKindView={this.state.elementKindView}
+                    elementRecordId={this.state.elementRecordId}
+                    shortcutButtons={this.state.parsedGridView.shortcutButtons}
+                    parsedGanttViewData={this.state.parsedGanttViewData}
+                    selectedRowKeys={this.state.selectedRowKeys}
+                    handleBlockUi={() => {
+                        this.blockUi();
+                        return true;
+                    }}
+                    handleUnBlockUi={() => {
+                        this.unblockUi();
+                        return true;
+                    }}
+                    ref={this.ganttRef}
+                    handleSelectAll={(selectionValue, selectedRowKeys) => {
+                        this.state.selectedRowKeys.length = 0;
+                        if (selectionValue) {
+                            this.setState({
+                                selectedRowKeys: selectedRowKeys,
+                            });
+                        } else {
+                            this.setState({
+                                selectedRowKeys: this.state.selectedRowKeys,
+                            });
+                        }
+                    }}
+                    handleRefreshData={this.refreshGanttData}
+                    handleUp={() => this.up()}
+                    handleDown={() => this.publishEntry()}
+                    parsedGanttView={this.state.parsedGridView}
+                    gridViewColumns={this.state.ganttViewColumns}
+                    dataGanttStoreSuccess={this.state.dataGanttStoreSuccess}
+                    handleUnblockUi={() => this.unblockUi()}
+                    showErrorMessages={(err) => this.showErrorMessages(err)}
+                    packageRows={this.state.packageRows}
+                    handleShowEditPanel={(editDataResponse) => {
+                        this.handleShowEditPanel(editDataResponse);
+                    }}
+                    handleSelectedRowKeys={(e) => {
+                        this.setState({selectedRowKeys: e});
+                    }}
+                    addButtonFunction={this.addButtonFunction}
+                    dataGridStoreSuccess={this.state.dataGridStoreSuccess}
+                    selectionDeferred={true}
+                    handlePluginRow={(id) => this.plugin(id)}
+                    handleDocumentRow={(id) => this.generate(id)}
+                    handleDeleteRow={(id) => this.delete(id)}
+                    handleDownloadRow={(id) => this.downloadAttachment(id)}
+                    handleAttachmentRow={(id) => this.attachment(id)}
+                    handleRestoreRow={(id) => this.restore(id)}
+                    handleCopyRow={(id) => this.showCopyView(id)}
+                    handleHistoryLogRow={(id) => this.historyLog(id)}
+                    handleArchiveRow={(id) => this.archive(id)}
+                    handlePublishRow={(id) => this.publishEntry(id)}
+                />
+            </React.Fragment>
+        );
+    }
+
     getMessages() {
         return this.messages;
     }

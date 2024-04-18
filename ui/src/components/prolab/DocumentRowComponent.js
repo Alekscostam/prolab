@@ -10,6 +10,7 @@ import {Toast} from 'primereact/toast';
 import LocUtils from '../../utils/LocUtils';
 import CrudService from '../../services/CrudService';
 import BaseRowComponent from '../../baseContainers/BaseRowComponent';
+import {ColumnType} from '../../model/ColumnType';
 
 export class DocumentRowComponent extends BaseRowComponent {
     constructor(props) {
@@ -42,7 +43,7 @@ export class DocumentRowComponent extends BaseRowComponent {
     createObjectToSave(rowArray) {
         let arrayTmp = [];
         for (let row of rowArray) {
-            if (row.type === 'B') {
+            if (row.type === ColumnType.B) {
                 row.value = row.value === null ? false : row.value;
             }
             arrayTmp.push({fieldName: row.fieldName, value: row.value});

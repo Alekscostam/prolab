@@ -176,6 +176,7 @@ export default class AuthService {
     }
     refresh() {
         if (this.isAlreadyTokenNotExist()) {
+            this.removeLoginCookies();
             window.location.href = AppPrefixUtils.locationHrefUrl('/#/');
         }
         // Get a token from api server using the fetch api
@@ -208,6 +209,9 @@ export default class AuthService {
                     window.location.reload();
                 }
                 return Promise.reject(err);
+            })
+            .finally(() => {
+                localStorage.removeItem('tokenRefreshing');
             });
     }
 
@@ -330,6 +334,7 @@ export default class AuthService {
         localStorage.removeItem('id_refresh_token');
         localStorage.removeItem('menu');
         localStorage.removeItem('versionAPI');
+        localStorage.removeItem('tokenRefreshing');
     }
 
     getProfile() {

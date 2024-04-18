@@ -9,10 +9,8 @@ import moment from 'moment';
 import {EntryResponseUtils} from '../EntryResponseUtils';
 import {compress} from 'int-compress-string/src';
 import {EditSpecUtils} from '../EditSpecUtils';
-import CrudService from '../../services/CrudService';
-import UrlUtils from '../UrlUtils';
-import OperationCell from '../OperationCell';
 import EditSpecService from '../../services/EditSpecService';
+import OperationCell from '../../model/OperationCell';
 
 const sizeValues = ['8pt', '10pt', '12pt', '14pt', '18pt', '24pt', '36pt'];
 const fontValues = [
@@ -535,8 +533,8 @@ export class TreeListUtils extends ViewDataCompUtils {
         showErrorMessagesCallback
     ) => {
         TreeListUtils.getEditSpecService()
-        .getViewEntry(viewId, parentId, recordIds, null)
-        .then((entryResponse) => {
+            .getViewEntry(viewId, parentId, recordIds, null)
+            .then((entryResponse) => {
                 EntryResponseUtils.run(
                     entryResponse,
                     () => {

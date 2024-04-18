@@ -42,8 +42,8 @@ export default class PublishSummaryDialogComponent extends React.Component {
         const publishedSize = publishedIds?.length === undefined ? 0 : publishedIds?.length;
         const unpublishedSize = unpublishedIds?.length === undefined ? 0 : unpublishedIds?.length;
 
-        let publishedViewValues = this.createViewPublishValues(publishedIds);
-        let unpublishedViewValues = this.createViewPublishValues(unpublishedIds);
+        const publishedViewValues = this.createViewPublishValues(publishedIds);
+        const unpublishedViewValues = this.createViewPublishValues(unpublishedIds);
 
         const allElementsSize = publishedSize + unpublishedSize;
         const publishedElementSize = publishedIds?.length === undefined ? 0 : publishedIds?.length;

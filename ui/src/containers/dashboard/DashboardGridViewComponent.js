@@ -25,6 +25,7 @@ import CopyDialogComponent from '../../components/prolab/CopyDialogComponent';
 import PluginListComponent from '../../components/prolab/PluginListComponent';
 import HistoryLogDialogComponent from '../../components/prolab/HistoryLogDialogComponent';
 import {PluginConfirmDialogUtils} from '../../utils/component/PluginUtils';
+import {OperationType} from '../../model/OperationType';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -120,46 +121,17 @@ export class DashboardGridViewComponent extends BaseContainer {
                 .then((responseView) => {
                     if (this._isMounted) {
                         ViewValidatorUtils.validation(responseView);
-                        let gridViewColumnsTmp = [];
-                        let pluginsListTmp = [];
-                        let documentsListTmp = [];
-                        let batchesListTmp = [];
+                        const gridViewColumnsTmp = this.columnsFromGroupCreate(responseView);
+                        const pluginsListTmp = this.puginListCreate(responseView);
+                        const documentsListTmp = this.documentListCreate(responseView);
+                        const batchesListTmp = this.batchListCreate(responseView);
                         let filtersListTmp = [];
-                        let columnOrderCounter = 0;
-                        new Array(responseView.gridColumns).forEach((gridColumns) => {
-                            gridColumns?.forEach((group) => {
-                                group.columns?.forEach((column) => {
-                                    column.groupName = group.groupName;
-                                    column.freeze = group.freeze;
-                                    column.columnOrder = columnOrderCounter++;
-                                    gridViewColumnsTmp.push(column);
-                                });
-                            });
-                        });
-                        for (let plugin in responseView?.pluginsList) {
-                            pluginsListTmp.push({
-                                id: responseView?.pluginsList[plugin].id,
-                                label: responseView?.pluginsList[plugin].label,
-                            });
-                        }
-                        for (let document in responseView?.documentsList) {
-                            documentsListTmp.push({
-                                id: responseView?.documentsList[document].id,
-                                label: responseView?.documentsList[document].label,
-                            });
-                        }
-                        for (let batch in responseView?.batchesList) {
-                            batchesListTmp.push({
-                                id: responseView?.batchesList[batch].id,
-                                label: responseView?.batchesList[batch].label,
-                            });
-                        }
                         for (let filter in responseView?.filtersList) {
                             filtersListTmp.push({
                                 id: responseView?.filtersList[filter].id,
                                 label: responseView?.filtersList[filter].label,
                                 command: (e) => {
-                                    let recordId = UrlUtils.getURLParameter('recordId');
+                                    const recordId = UrlUtils.getRecordId();
                                     ConsoleHelper(
                                         `Redirect -> Id =  ${this.state.elementId} RecordId = ${recordId} FilterId = ${e.item?.id}`
                                     );
@@ -172,8 +144,13 @@ export class DashboardGridViewComponent extends BaseContainer {
                                 },
                             });
                         }
-                        let viewInfoTypesTmp = [];
-                        let viewButton = DataGridUtils.containsOperationsButton(responseView.operations, 'OP_GRIDVIEW');
+                        const viewInfoTypesTmp = [];
+                        const viewButton = DataGridUtils.getOrCreateOpButton(
+                            responseView.operations,
+                            this.props.labels,
+                            OperationType.OP_GRIDVIEW,
+                            ''
+                        );
                         if (viewButton) {
                             viewInfoTypesTmp.push({
                                 icon: 'contentlayout',
@@ -475,7 +452,12 @@ export class DashboardGridViewComponent extends BaseContainer {
 
     //override
     renderHeaderRight() {
-        let opADD = DataGridUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_ADD');
+        const opADD = DataGridUtils.getOrCreateOpButton(
+            this.state.parsedGridView?.operations,
+            this.props.labels,
+            OperationType.OP_ADD,
+            'Dodaj'
+        );
         return (
             <React.Fragment>
                 <ActionButton rendered={opADD} label={opADD?.label} handleClick={() => {}} />
@@ -493,10 +475,25 @@ export class DashboardGridViewComponent extends BaseContainer {
     };
 
     leftHeadPanelContent = () => {
-        let centerElementStyle = 'mr-1 ';
-        let opBatches = DataGridUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_BATCH');
-        let opDocuments = DataGridUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_DOCUMENTS');
-        let opPlugins = DataGridUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_PLUGINS');
+        const centerElementStyle = 'mr-1 ';
+        const opBatches = DataGridUtils.getOrCreateOpButton(
+            this.state.parsedGridView?.operations,
+            this.props.labels,
+            OperationType.OP_BATCH,
+            'Modyfikacja seryjna'
+        );
+        const opDocuments = DataGridUtils.getOrCreateOpButton(
+            this.state.parsedGridView?.operations,
+            this.props.labels,
+            OperationType.OP_DOCUMENTS,
+            'Dokumenty'
+        );
+        const opPlugins = DataGridUtils.getOrCreateOpButton(
+            this.state.parsedGridView?.operations,
+            this.props.labels,
+            OperationType.OP_PLUGINS,
+            'Wtyczki'
+        );
         return (
             <React.Fragment>
                 <ButtonGroup

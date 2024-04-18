@@ -28,13 +28,14 @@ import {compress} from 'int-compress-string/src';
 import {TreeListUtils} from '../../utils/component/TreeListUtils';
 import {StringUtils} from '../../utils/StringUtils';
 import CellEditComponent from '../CellEditComponent';
-import OperationCell from '../../utils/OperationCell';
 import UrlUtils from '../../utils/UrlUtils';
 import EditSpecService from '../../services/EditSpecService';
 import ActionButton from '../../components/ActionButton';
 import LocUtils from '../../utils/LocUtils';
 import {MenuWithButtons} from '../../components/prolab/MenuWithButtons';
 import {saveObjToCookieGlobal} from '../../utils/Cookie';
+import {ColumnType} from '../../model/ColumnType';
+import OperationCell from '../../model/OperationCell';
 
 class GridViewComponent extends CellEditComponent {
     constructor(props) {
@@ -190,12 +191,12 @@ class GridViewComponent extends CellEditComponent {
                 {this.imageViewerComponent()}
                 <DataGrid
                     onContextMenuPreparing={(e) => this.showMenu(e)}
-                    id='grid-container'
+                    id={`grid-container`}
                     focusedRowKey={this.state.focusedRowKey}
                     keyExpr='ID'
-                    className={`grid-container${headerAutoHeight ? ' grid-header-auto-height' : ''} ${
-                        this.canRenderAdditionalOperationCol() ? 'grid-with-opperations' : ''
-                    }`}
+                    className={`${this.props?.isAttachement ? 'attachement ' : 'grid'} grid-container${
+                        headerAutoHeight ? ' grid-header-auto-height' : ''
+                    } ${this.canRenderAdditionalOperationCol() ? 'grid-with-opperations' : ''}`}
                     ref={(ref) => {
                         this.props.handleOnDataGrid(ref);
                     }}
@@ -679,13 +680,13 @@ class GridViewComponent extends CellEditComponent {
         const type = columnDefinition?.type;
         try {
             switch (type) {
-                case 'H':
-                case 'B':
-                case 'L':
-                case 'C':
-                case 'O':
-                case 'I':
-                case 'IM':
+                case ColumnType.H:
+                case ColumnType.B:
+                case ColumnType.L:
+                case ColumnType.C:
+                case ColumnType.O:
+                case ColumnType.I:
+                case ColumnType.IM:
                     return true;
                 default:
                     return false;
@@ -746,7 +747,7 @@ class GridViewComponent extends CellEditComponent {
                 groupCellTemplate={this.groupCellTemplate}
                 editCellRender={(cellInfo) =>
                     this.editCellRender(cellInfo, columnDefinition, (operation) => {
-                        if (columnDefinition.type === 'B' || columnDefinition.type === 'L') {
+                        if (columnDefinition.type === ColumnType.B || columnDefinition.type === ColumnType.L) {
                             this.setState({rerenderFlag: !this.state?.rerenderFlag});
                         } else {
                             switch (operation) {

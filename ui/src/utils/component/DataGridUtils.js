@@ -4,10 +4,13 @@ import Image from '../../components/Image';
 import {StringUtils} from '../StringUtils';
 import {ViewDataCompUtils} from './ViewDataCompUtils';
 import EditRowUtils from '../EditRowUtils';
+import {ColumnType} from '../../model/ColumnType';
 
 let _rowIndex = null;
 let _bgColor = null;
 let _fontcolor = null;
+const _FONTCOLOR = '_FONTCOLOR';
+const _BGCOLOR = '_BGCOLOR';
 
 export class DataGridUtils extends ViewDataCompUtils {
     static clearProperties() {
@@ -25,11 +28,11 @@ export class DataGridUtils extends ViewDataCompUtils {
                 rowSelected =
                     info?.row?.cells?.filter((c) => c.column?.type === 'selection' && c.value === true).length > 0;
                 _rowIndex = info.row.dataIndex;
-                _bgColor = info.data['_BGCOLOR'];
-                _fontcolor = info.data['_FONTCOLOR'];
+                _bgColor = info.data[_BGCOLOR];
+                _fontcolor = info.data[_FONTCOLOR];
             } else {
-                _bgColor = info.data['_BGCOLOR'];
-                _fontcolor = info.data['_FONTCOLOR'];
+                _bgColor = info.data[_BGCOLOR];
+                _fontcolor = info.data[_FONTCOLOR];
             }
             if (!!rowSelected) {
                 bgColorFinal = undefined;
@@ -50,7 +53,7 @@ export class DataGridUtils extends ViewDataCompUtils {
             if (!!specialFontColor) {
                 fontColorFinal = specialFontColor;
             } else {
-                if (!info.data['_FONTCOLOR']) {
+                if (!info.data[_FONTCOLOR]) {
                     _fontcolor = '#00000';
                 }
                 if (!!_fontcolor) {
@@ -58,7 +61,7 @@ export class DataGridUtils extends ViewDataCompUtils {
                 }
             }
             switch (column?.type) {
-                case 'O':
+                case ColumnType.O:
                     return ReactDOM.render(
                         <div
                             className={className}
@@ -86,11 +89,11 @@ export class DataGridUtils extends ViewDataCompUtils {
                         </div>,
                         element
                     );
-                case 'C':
-                case 'N':
-                case 'D':
-                case 'E':
-                case 'T':
+                case ColumnType.C:
+                case ColumnType.N:
+                case ColumnType.D:
+                case ColumnType.E:
+                case ColumnType.T:
                     return ReactDOM.render(
                         <div
                             className={className}
@@ -111,7 +114,7 @@ export class DataGridUtils extends ViewDataCompUtils {
                         </div>,
                         element
                     );
-                case 'H':
+                case ColumnType.H:
                     return ReactDOM.render(
                         <div
                             className={className}
@@ -131,7 +134,7 @@ export class DataGridUtils extends ViewDataCompUtils {
                         element
                     );
 
-                case 'B':
+                case ColumnType.B:
                     return ReactDOM.render(
                         <div
                             className={className}
@@ -161,7 +164,7 @@ export class DataGridUtils extends ViewDataCompUtils {
                         </div>,
                         element
                     );
-                case 'L':
+                case ColumnType.L:
                     return ReactDOM.render(
                         <div
                             className={className}
@@ -189,8 +192,8 @@ export class DataGridUtils extends ViewDataCompUtils {
                         </div>,
                         element
                     );
-                case 'I':
-                case 'IM':
+                case ColumnType.I:
+                case ColumnType.IM:
                     if (Array.isArray(info.text) && info.text?.length > 0) {
                         return ReactDOM.render(
                             <div

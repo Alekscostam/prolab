@@ -1,8 +1,6 @@
 import BaseService from './BaseService';
 import moment from 'moment';
 import ConsoleHelper from '../utils/ConsoleHelper';
-import UrlUtils from '../utils/UrlUtils';
-import {readObjFromCookieGlobal} from '../utils/Cookie';
 
 /*
 GET zwracający dane potrzebne do wyrenderowania widoku: informacje ogólne o widoku, opcje
@@ -37,7 +35,7 @@ export default class ViewService extends BaseService {
         });
     }
 
-    getAttachemntView(viewId, recordId, parentId, isKindViewSpec) {
+    getAttachemntView(viewId, recordId, parentId, kindView) {
         if (Array.isArray(recordId)) {
             recordId = recordId[0];
         }
@@ -46,7 +44,7 @@ export default class ViewService extends BaseService {
         }
         return this.fetch(
             `${this.getDomain()}/${this.path}/${viewId}/attachment/${recordId}?parentId=${parentId}${
-                isKindViewSpec ? '&kindView=ViewSpec' : ''
+                kindView ? `&kindView=${kindView}` : ''
             }`,
             {
                 method: 'GET',

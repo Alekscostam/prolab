@@ -2,9 +2,10 @@ import Constants from '../Constants';
 import moment from 'moment';
 import ConsoleHelper from '../ConsoleHelper';
 import LocUtils from '../LocUtils';
+import {ColumnType} from '../../model/ColumnType';
 
 export class ViewDataCompUtils {
-    static containsOperationsButton(operations, type) {
+    static getOpButton(operations, type) {
         for (let button in operations) {
             if (
                 operations[button] &&
@@ -16,13 +17,14 @@ export class ViewDataCompUtils {
         }
         return null;
     }
-    static putToOperationsButtonIfNeccessery(operations, labels, type, alternativeText) {
-        const result = this.containsOperationsButton(operations, type);
+    static getOrCreateOpButton(operations, labels, type, alternativeText) {
+        operations = operations || [];
+        const result = this.getOpButton(operations, type);
         if (result) {
             return result;
         }
         operations.push({type: type, label: LocUtils.loc(labels, type, alternativeText)});
-        return this.containsOperationsButton(operations, type);
+        return this.getOpButton(operations, type);
     }
 
     static getURLParameters(paramName) {
@@ -58,39 +60,25 @@ export class ViewDataCompUtils {
         }
     }
 
-    /*
-    Typ kolumny:
-        C – Znakowy
-        N – Numeryczny/Liczbowy
-        B – Logiczny (0/1)
-        L – Logiczny (T/N)
-        D – Data
-        E – Data + czas
-        T – Czas
-        O – Opisowe
-        I – Obrazek
-        IM – Obrazek multi
-        H - Hyperlink
-     */
     static specifyColumnType(type) {
         if (type) {
             switch (type) {
-                case 'C':
+                case ColumnType.C:
                     return 'string';
-                case 'N':
+                case ColumnType.N:
                     return 'number';
-                case 'B':
+                case ColumnType.B:
                     return 'boolean';
-                case 'L':
+                case ColumnType.L:
                     return 'boolean';
-                case 'D':
+                case ColumnType.D:
                     return 'date';
-                case 'E':
+                case ColumnType.E:
                     return 'datetime';
-                case 'T':
+                case ColumnType.T:
                     return 'string'; // to niestety musi byc string dla pola time - bo devextreme nie radzi sobie z tym @link https://supportcenter.devexpress.com/ticket/details/t633188/datagrid-how-to-filter-data-by-time
-                case 'O':
-                case 'H':
+                case ColumnType.O:
+                case ColumnType.H:
                     return 'string';
                 default:
                     return undefined;
@@ -102,11 +90,11 @@ export class ViewDataCompUtils {
     static specifyColumnFormat(format) {
         if (format) {
             switch (format) {
-                case 'D':
+                case ColumnType.D:
                     return Constants.DATE_FORMAT.DATE_FORMAT;
-                case 'E':
+                case ColumnType.E:
                     return Constants.DATE_FORMAT.DATE_TIME_FORMAT;
-                case 'T':
+                case ColumnType.T:
                     return Constants.DATE_FORMAT.TIME_FORMAT;
                 default:
                     return undefined;
@@ -118,7 +106,7 @@ export class ViewDataCompUtils {
     static specifyEditorOptions(format) {
         if (format) {
             switch (format) {
-                case 'T':
+                case ColumnType.T:
                     return {type: 'time'};
                 default:
                     return undefined;
@@ -223,9 +211,9 @@ export class ViewDataCompUtils {
 
     static formatDateFilterExpression(type, value) {
         const dateMoment = moment(value);
-        if (type === 'D') {
+        if (type === ColumnType.D) {
             return dateMoment.format(Constants.DATE_FORMAT.DATE_FORMAT_MOMENT);
-        } else if (type === 'E') {
+        } else if (type === ColumnType.E) {
             return dateMoment.format(Constants.DATE_FORMAT.DATE_TIME_FORMAT_MOMENT);
         } else {
             throw new Error('BAD_TYPE');

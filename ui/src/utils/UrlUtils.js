@@ -23,6 +23,48 @@ class UrlUtils {
             return null;
         }
     }
+    static getParentId() {
+        return this.getURLParameter('parentId');
+    }
+    static getBatchId() {
+        return this.getURLParameter('batchId');
+    }
+    static getRecordId() {
+        return this.getURLParameter('recordId');
+    }
+    static getFilterId() {
+        return this.getURLParameter('filterId');
+    }
+    static getSubViewId() {
+        return this.getURLParameter('subview');
+    }
+    static getViewType() {
+        return this.getURLParameter('viewType');
+    }
+    static getKindView() {
+        return this.getURLParameter('kindView');
+    }
+    static getEditViewId() {
+        return this.getURLParameter('editViewId');
+    }
+    static getEditParentId() {
+        return this.getURLParameter('editParentId');
+    }
+    static getEditRecordId() {
+        return this.getURLParameter('editRecordId');
+    }
+    static getEditKindView() {
+        return this.getURLParameter('editKindView');
+    }
+    static getForce() {
+        return this.getURLParameter('force');
+    }
+    static getBc() {
+        return this.getURLParameter('bc');
+    }
+    static getPrevParentId() {
+        return this.getURLParameter('prevParentId');
+    }
     static isLoginPage() {
         const textAfterHash = window.location.href.split('/#/')[1];
         const onLogoutUrl = !(textAfterHash && textAfterHash.trim() !== '');
@@ -128,9 +170,6 @@ class UrlUtils {
         }
         if (!!recordId && StringUtils.isBlank(UrlUtils.getURLParameter('editRecordId'))) {
             queryStringTmp.push(`editRecordId=${recordId}`);
-        }
-        if (!!kindView && StringUtils.isBlank(UrlUtils.getURLParameter('editKindView'))) {
-            queryStringTmp.push(`editKindView=${kindView}`);
         }
         if (queryStringTmp.length !== 0) {
             queryStringTmp[0] = `${firstChar}` + queryStringTmp[0];

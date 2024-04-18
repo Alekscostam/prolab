@@ -5,6 +5,7 @@ import GridViewComponent from '../../containers/dataGrid/GridViewComponent';
 import {Button} from 'primereact/button';
 import {DataGridUtils} from '../../utils/component/DataGridUtils';
 import LocUtils from '../../utils/LocUtils';
+import {OperationType} from '../../model/OperationType';
 
 export default class EditListComponent extends React.Component {
     constructor(props) {
@@ -19,7 +20,12 @@ export default class EditListComponent extends React.Component {
     render() {
         let width = this.props.parsedGridView?.info?.windowSize?.width || '50vw';
         let height = this.props.parsedGridView?.info?.windowSize?.height || '150vw';
-        const opSelect = DataGridUtils.containsOperationsButton(this.props.parsedGridView?.operations, 'OP_SELECT');
+        const opSelect = DataGridUtils.getOrCreateOpButton(
+            this.props.parsedGridView?.operations,
+            this.props.labels,
+            OperationType.OP_SELECT,
+            'Wybierz'
+        );
         return (
             <React.Fragment>
                 <Dialog
@@ -35,7 +41,7 @@ export default class EditListComponent extends React.Component {
                                     let selectedRowData = this.props.selectedRowData;
                                     if (!!setFields) {
                                         setFields.forEach((field) => {
-                                            let fieldKey = field.fieldList;
+                                            const fieldKey = field.fieldList;
                                             let values = [];
                                             selectedRowData.forEach((row) => {
                                                 for (const item in row) {

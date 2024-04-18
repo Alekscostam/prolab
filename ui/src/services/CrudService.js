@@ -3,8 +3,8 @@ import moment from 'moment';
 import EditRowUtils from '../utils/EditRowUtils';
 import {saveAs} from 'file-saver';
 import UrlUtils from '../utils/UrlUtils';
-import {StringUtils} from '../utils/StringUtils';
-import {reStateApp, renderNoRefreshContentFnc} from '../App';
+import {renderNoRefreshContentFnc} from '../App';
+import {ColumnType} from '../model/ColumnType';
 /*
 Kontroler do edycji danych.
  */
@@ -30,10 +30,7 @@ export default class CrudService extends BaseService {
         this.restoreEntry = this.restoreEntry.bind(this);
         this.attachmentEntry = this.attachmentEntry.bind(this);
         this.restore = this.restore.bind(this);
-        this.createObjectToSave = this.createObjectToSave.bind(this);
-        this.createObjectToAutoFill = this.createObjectToAutoFill.bind(this);
-        this.createObjectToRefresh = this.createObjectToRefresh.bind(this);
-        this.createObjectToEditList = this.createObjectToEditList.bind(this);
+        this.createObjectDataToRequest = this.createObjectDataToRequest.bind(this);
     }
 
     addEntry(viewId, parentId) {
@@ -79,7 +76,7 @@ export default class CrudService extends BaseService {
                 throw err;
             });
     }
-
+    // https://rdprolab.inform-tech.pl:444/Api/api/View/95/Edit/11
     edit(viewId, recordId, parentId) {
         return this.fetch(
             `${this.getDomain()}/${this.path}/${viewId}/Edit/${recordId}${parentId ? `?parentId=${parentId}` : ''}`,
@@ -88,6 +85,7 @@ export default class CrudService extends BaseService {
             }
         )
             .then((editDataResponse) => {
+                // if (editDataResponse.editInfo.editFormType.toUpperCase() === 'SIDEPANEL') {
                 if (editDataResponse.editInfo.editFormType.toUpperCase() === 'FULLSCREEN') {
                     window.location.href = window.location.href.replace('grid-view', 'edit-row-view');
                     if (renderNoRefreshContentFnc) {
@@ -594,60 +592,8 @@ export default class CrudService extends BaseService {
             throw err;
         });
     }
-
-    createObjectToSave(state) {
+    createObjectDataToRequest(state) {
         let editData = state.editData;
-        let arrayTmp = [];
-        editData.editFields?.forEach((groupFields) => {
-            groupFields?.fields.forEach((field) => {
-                // if (field.hidden != true) {
-                field = this.convertFieldsPerType(field);
-                const elementTmp = {
-                    fieldName: field.fieldName,
-                    value: field.value,
-                };
-                arrayTmp.push(elementTmp);
-                // }
-            });
-        });
-        return {data: arrayTmp};
-    }
-
-    createObjectToAutoFill(state) {
-        let editData = state.editData;
-        let arrayTmp = [];
-        editData.editFields?.forEach((groupFields) => {
-            groupFields?.fields.forEach((field) => {
-                // if (field.autoFill == true) {
-                field = this.convertFieldsPerType(field);
-                const elementTmp = {
-                    fieldName: field.fieldName,
-                    value: field.value,
-                };
-                arrayTmp.push(elementTmp);
-                // }
-            });
-        });
-        return {data: arrayTmp};
-    }
-
-    createObjectToRefresh(state) {
-        let editData = state.editData;
-        let arrayTmp = [];
-        editData.editFields?.forEach((groupFields) => {
-            groupFields?.fields.forEach((field) => {
-                field = this.convertFieldsPerType(field);
-                const elementTmp = {
-                    fieldName: field.fieldName,
-                    value: field.value,
-                };
-                arrayTmp.push(elementTmp);
-            });
-        });
-        return {data: arrayTmp};
-    }
-
-    createObjectToEditList(editData) {
         let arrayTmp = [];
         editData.editFields?.forEach((groupFields) => {
             groupFields?.fields.forEach((field) => {
@@ -666,19 +612,19 @@ export default class CrudService extends BaseService {
         try {
             if (field?.type) {
                 switch (field.type) {
-                    case 'B':
+                    case ColumnType.B:
                         field.value = field.value === 0 || field.value === '0' || !field.value ? 0 : 1;
                         break;
-                    case 'L':
+                    case ColumnType.L:
                         field.value = field.value === 'N' || !field.value ? 'N' : 'T';
                         break;
-                    case 'D':
+                    case ColumnType.D:
                         field.value = this.dateFormatAndKeepCorrectness(field.value, 'YYYY-MM-DD');
                         break;
-                    case 'E':
+                    case ColumnType.E:
                         field.value = this.dateFormatAndKeepCorrectness(field.value, 'YYYY-MM-DD HH:mm');
                         break;
-                    case 'T':
+                    case ColumnType.T:
                         field.value = this.dateFormatAndKeepCorrectness(field.value, 'HH:mm');
                         break;
                     default:

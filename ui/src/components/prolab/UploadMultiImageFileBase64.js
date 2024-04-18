@@ -27,6 +27,7 @@ class UploadMultiImageFileBase64 extends React.Component {
                     // create preview image
                     let img = document.createElement('img');
                     img.src = `data:image/jpeg;base64,${imageBase64}`;
+                    img.className="img-fluid";
                     imgView.appendChild(img);
                     // progress overlay
                     let overlay = document.createElement('div');
@@ -122,6 +123,8 @@ class UploadMultiImageFileBase64 extends React.Component {
                 var img = document.createElement('img');
                 img.src = imageFile?.cre;
                 imgView.appendChild(img);
+
+                img.className="img-fluid";
 
                 // progress overlay
                 var overlay = document.createElement('div');
@@ -220,8 +223,8 @@ class UploadMultiImageFileBase64 extends React.Component {
                     <div className='drop-message'>{this.props.displayText}</div>
                     <div id='image-preview' />
                 </div>
-                {this.props.deleteBtn && (
-                    <a
+                {this.props.deleteBtn && this.props?.initBase64 && (
+                    <button
                         id='trash-button'
                         type='button'
                         onClick={() => {
@@ -232,13 +235,13 @@ class UploadMultiImageFileBase64 extends React.Component {
                                 this.props.onDeleteChange();
                             }
                         }}
-                        className='p-button-secondary selectionList float-right mt-2'
+                        className='button-decoration-none p-button-secondary selectionList float-right mt-2'
                     >
                         <i
                             style={{fontSize: '25px', color: this.props.whiteBtnColor ? 'white' : '#0e49eb'}}
                             className='icon mdi mdi-trash-can '
                         ></i>
-                    </a>
+                    </button>
                 )}
             </React.Fragment>
         );

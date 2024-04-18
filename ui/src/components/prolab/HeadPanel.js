@@ -26,7 +26,7 @@ export const HeadPanel = (props) => {
                 () => props.handleUnblockUi(),
                 (err) => props.showErrorMessages(err)
             );
-        } 
+        }
     };
 
     const handleSpecEdit = (e, props, viewId, parentId, currentBreadcrumb) => {

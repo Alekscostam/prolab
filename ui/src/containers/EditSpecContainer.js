@@ -13,7 +13,7 @@ import UrlUtils from '../utils/UrlUtils';
 import Constants from '../utils/Constants';
 import ConsoleHelper from '../utils/ConsoleHelper';
 import DataTreeStore from './dao/DataTreeStore';
-import TreeViewComponent from './treeGrid/TreeViewComponent';
+import TreeViewComponent from './treeGridView/TreeViewComponent';
 import {SelectBox} from 'devextreme-react';
 import AppPrefixUtils from '../utils/AppPrefixUtils';
 import ActionButton from '../components/ActionButton';
@@ -71,9 +71,9 @@ export class EditSpecContainer extends BaseContainer {
             id = this.props.id;
         }
         this.props.handleRenderNoRefreshContent(false);
-        const parentId = UrlUtils.getURLParameter('parentId');
-        const recordId = UrlUtils.getURLParameter('recordId');
-        const filterId = UrlUtils.getURLParameter('filterId');
+        const parentId = UrlUtils.getParentId();
+        const recordId = UrlUtils.getRecordId();
+        const filterId = UrlUtils.getFilterId();
         ConsoleHelper(
             `EditSpecContainer::componentDidMount -> id=${id}, parentId = ${parentId} recordId = ${recordId} filterId = ${filterId}`
         );
@@ -89,9 +89,9 @@ export class EditSpecContainer extends BaseContainer {
         if (id === undefined) {
             id = this.props.id;
         }
-        const parentId = UrlUtils.getURLParameter('parentId');
-        const recordId = UrlUtils.getURLParameter('recordId');
-        const filterId = UrlUtils.getURLParameter('filterId');
+        const parentId = UrlUtils.getParentId();
+        const recordId = UrlUtils.getRecordId();
+        const filterId = UrlUtils.getFilterId();
         const s1 = !DataGridUtils.equalNumbers(this.state.elementId, id);
         const s2 = !DataGridUtils.equalNumbers(this.state.elementFilterId, filterId);
         const s3 = !DataGridUtils.equalString(this.state.elementRecordId, recordId);
@@ -147,7 +147,7 @@ export class EditSpecContainer extends BaseContainer {
             this.editSpecService
                 .getView(viewId, parentId)
                 .then((responseView) => {
-                    let refactorResponseView = {
+                    const resView = {
                         ...responseView,
 
                         viewInfo: {
@@ -169,7 +169,7 @@ export class EditSpecContainer extends BaseContainer {
                         listColumns: undefined,
                         listOptions: undefined,
                     };
-                    this.processingViewResponse(refactorResponseView, parentId, recordId, expandAll);
+                    this.processingViewResponse(resView, parentId, recordId, expandAll);
                 })
                 .catch((err) => {
                     console.error('Error getViewSpec in EditSpec. Exception = ', err);
@@ -191,47 +191,12 @@ export class EditSpecContainer extends BaseContainer {
                 id = this.props.id;
             }
             Breadcrumb.updateView(responseView.viewInfo, id, recordId);
-            let columnsTmp = [];
-            let pluginsListTmp = [];
-            let documentsListTmp = [];
-            let batchesListTmp = [];
-            let filtersListTmp = [];
-            let columnOrderCounter = 0;
-            new Array(responseView.gridColumns).forEach((gridColumns) => {
-                gridColumns?.forEach((group) => {
-                    group.columns?.forEach((column) => {
-                        column.groupName = group.groupName;
-                        column.freeze = group.freeze;
-                        column.columnOrder = columnOrderCounter++;
-                        columnsTmp.push(column);
-                    });
-                });
-            });
-            for (let plugin in responseView?.pluginsList) {
-                pluginsListTmp.push({
-                    id: responseView?.pluginsList[plugin].id,
-                    label: responseView?.pluginsList[plugin].label,
-                });
-            }
-            for (let document in responseView?.documentsList) {
-                documentsListTmp.push({
-                    id: responseView?.documentsList[document].id,
-                    label: responseView?.documentsList[document].label,
-                });
-            }
-            for (let batch in responseView?.batchesList) {
-                batchesListTmp.push({
-                    id: responseView?.batchesList[batch].id,
-                    label: responseView?.batchesList[batch].label,
-                });
-            }
+            const pluginsListTmp = this.puginListCreate(responseView);
+            const documentsListTmp = this.documentListCreate(responseView);
+            const batchesListTmp = this.batchListCreate(responseView);
+            const filtersListTmp = this.filtersListCreate(responseView);
+            const columnsTmp = this.columnsFromGroupCreate(responseView);
             Breadcrumb.currentBreadcrumbAsUrlParam();
-            for (let filter in responseView?.filtersList) {
-                filtersListTmp.push({
-                    id: responseView?.filtersList[filter].id,
-                    label: responseView?.filtersList[filter].label,
-                });
-            }
             this.setState(
                 () => ({
                     parsedView: responseView,
@@ -291,11 +256,9 @@ export class EditSpecContainer extends BaseContainer {
                                         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
                                         if (!!e.value && e.value !== e.previousValue) {
                                             const filterId = parseInt(e.value);
-                                            const parentId =
-                                                UrlUtils.getURLParameter('parentId') || this.state.elementParentId;
-                                            const recordId =
-                                                UrlUtils.getURLParameter('recordId') || this.state.elementRecordId;
-                                            const breadCrumbs = UrlUtils.getURLParameter('bc');
+                                            const parentId = UrlUtils.getParentId() || this.state.elementParentId;
+                                            const recordId = UrlUtils.getRecordId() || this.state.elementRecordId;
+                                            const breadCrumbs = UrlUtils.getBc();
                                             if (!breadCrumbs) return;
                                             ConsoleHelper(
                                                 `Redirect -> Id =  ${this.state.elementId} ParentId = ${parentId} RecordId = ${recordId} FilterId = ${filterId}`
@@ -315,7 +278,6 @@ export class EditSpecContainer extends BaseContainer {
                 case OperationType.OP_BATCH:
                     return (
                         <React.Fragment>
-                            {/*{this.state.batchesList?.length > 0 ? (*/}
                             <ActionButtonWithMenu
                                 id={`button_batches_` + index}
                                 className={`${margin}`}
@@ -323,13 +285,11 @@ export class EditSpecContainer extends BaseContainer {
                                 items={this.state.batchesList}
                                 title={operation?.label}
                             />
-                            {/*) : null}*/}
                         </React.Fragment>
                     );
                 case OperationType.OP_DOCUMENTS:
                     return (
                         <React.Fragment>
-                            {/*{this.state.documentsList?.length > 0 ? (*/}
                             <ActionButtonWithMenu
                                 id={`button_documents` + index}
                                 className={`${margin}`}
@@ -342,7 +302,6 @@ export class EditSpecContainer extends BaseContainer {
                                 )}
                                 title={operation?.label}
                             />
-                            {/*) : null}*/}
                         </React.Fragment>
                     );
                 case OperationType.OP_PLUGINS:
@@ -407,14 +366,18 @@ export class EditSpecContainer extends BaseContainer {
     //override
     renderHeaderRight() {
         const operations = [];
-
-        operations.push({type: 'OP_SAVE', label: 'Zapisz'});
-        operations.push({type: 'OP_ADD_SPEC', label: 'Dodaj'});
-        operations.push({type: 'OP_CANCEL', label: 'Anuluj'});
-
-        const opSave = DataGridUtils.containsOperationsButton(operations, 'OP_SAVE');
-        const opCancel = DataGridUtils.containsOperationsButton(operations, 'OP_CANCEL');
-
+        const opSave = DataGridUtils.getOrCreateOpButton(
+            operations,
+            this.props.labels,
+            OperationType.OP_SAVE,
+            'Zapisz'
+        );
+        const opCancel = DataGridUtils.getOrCreateOpButton(
+            operations,
+            this.props.labels,
+            OperationType.OP_CANCEL,
+            'Anuluj'
+        );
         return (
             <React.Fragment>
                 <div id='global-top-components'>
@@ -603,7 +566,7 @@ export class EditSpecContainer extends BaseContainer {
     //override
     delete(id) {
         // this.blockUi();
-        let data = this.getData();
+        let data = this.state?.parsedData;
         this.refTreeList?.instance?.beginCustomLoading();
         if (!!id) {
             data = this.deleteSingleRow(id, data);
@@ -719,10 +682,6 @@ export class EditSpecContainer extends BaseContainer {
         this.refTreeList?.instance?.clearSorting();
     }
 
-    getData() {
-        return this.state.parsedData;
-    }
-
     getLastId() {
         return this.state.parsedData.length === 0 ? 0 : Math.max(...this.state.parsedData.map((el) => el._ID));
     }
@@ -733,7 +692,7 @@ export class EditSpecContainer extends BaseContainer {
     }
     //override
     renderContent = () => {
-        let parsedData = this.state?.parsedData?.filter((el) => el._STATUS !== 'deleted');
+        const parsedData = this.state?.parsedData?.filter((el) => el._STATUS !== 'deleted');
         return (
             <React.Fragment>
                 {this.state.loading ? null : (
@@ -756,9 +715,7 @@ export class EditSpecContainer extends BaseContainer {
                         <div id='spec-edit'>
                             <TreeViewComponent
                                 id={this.props.id}
-                                onHideEditorCallback={() => {
-                                    this.forceUpdate();
-                                }}
+                                onHideEditorCallback={() => this.forceUpdate()}
                                 viewInfo={this.state.viewInfo}
                                 handleSaveAction={() => this.handleSaveAction()}
                                 addButtonFunction={() => this.showAddSpecDialog()}
@@ -781,18 +738,12 @@ export class EditSpecContainer extends BaseContainer {
                                         parsedData: replacedParsedData,
                                     });
                                 }}
-                                onCloseEditList={() => {
-                                    this.forceUpdate();
-                                }}
+                                onCloseEditList={() => this.forceUpdate()}
                                 allowUpdating={true}
                                 gridViewColumns={this.state.columns}
                                 selectedRowKeys={this.state.selectedRowKeys}
-                                onChange={(type, e, rowId, info) => {
-                                    this.handleEditRowChange(type, e, rowId, info);
-                                }}
-                                handleUnselectAll={() => {
-                                    this.unselectAllDataGrid();
-                                }}
+                                onChange={(type, e, rowId, info) => this.handleEditRowChange(type, e, rowId, info)}
+                                handleUnselectAll={() => this.unselectAllDataGrid()}
                                 handleBlockUi={() => {
                                     this.blockUi();
                                     return true;
@@ -800,37 +751,21 @@ export class EditSpecContainer extends BaseContainer {
                                 handleUnblockUi={() => this.unblockUi()}
                                 handleShowEditPanel={(editDataResponse) => this.handleShowEditPanel(editDataResponse)}
                                 handleSelectedRowKeys={(e) => {
-                                    // this.blockUi();
-                                    this.setState(
-                                        {
-                                            selectedRowKeys: e,
-                                        },
-                                        () => {
-                                            // this.unblockUi();
-                                        }
-                                    );
+                                    this.setState({
+                                        selectedRowKeys: e,
+                                    });
                                 }}
                                 handleDeleteRow={(id) => this.delete(id)}
                                 handleFormulaRow={(id) => this.prepareCalculateFormula(id)}
-                                handleDownload={(id) => {
-                                    this.props.handleDownloadRow(id);
-                                }}
-                                handleAttachments={(id) => {
-                                    this.props.handleAttachmentRow(id);
-                                }}
-                                handleAddLevel={(id) => {
-                                    this.showAddSpecDialog(id);
-                                }}
+                                handleDownload={(id) => this.props.handleDownloadRow(id)}
+                                handleAttachments={(id) => this.props.handleAttachmentRow(id)}
+                                handleAddLevel={(id) => this.showAddSpecDialog(id)}
                                 handleUp={(id) => this.up(id)}
                                 handleDown={(id) => this.down(id)}
                                 handleRestoreRow={(id) => this.restore(id)}
                                 handleCopyRow={(id) => this.copyEntry(id)}
-                                handleDocumentsRow={(id) => {
-                                    this.generate(id);
-                                }}
-                                handlePluginsRow={(id) => {
-                                    this.plugin(id);
-                                }}
+                                handleDocumentsRow={(id) => this.generate(id)}
+                                handlePluginsRow={(id) => this.plugin(id)}
                                 handleDownloadRow={(id) => this.downloadAttachment(id)}
                                 handleAttachmentRow={(id) => this.attachment(id)}
                                 handleArchiveRow={(id) => this.archive(id)}
@@ -885,10 +820,10 @@ export class EditSpecContainer extends BaseContainer {
             .then(() => {
                 let prevUrl = window.location.href;
                 prevUrl = prevUrl.replace('edit-spec', 'grid-view');
-                if (!StringUtils.isBlank(UrlUtils.getURLParameter('prevParentId'))) {
-                    prevUrl = UrlUtils.removeAndAddParam('parentId', UrlUtils.getURLParameter('prevParentId'), prevUrl);
-                    prevUrl = UrlUtils.removeAndAddParam('recordId', UrlUtils.getURLParameter('parentId'), prevUrl);
-                    prevUrl = UrlUtils.removeAndAddParam('bc', UrlUtils.getURLParameter('bc'), prevUrl);
+                if (!StringUtils.isBlank(UrlUtils.getPrevParentId())) {
+                    prevUrl = UrlUtils.removeAndAddParam('parentId', UrlUtils.getPrevParentId(), prevUrl);
+                    prevUrl = UrlUtils.removeAndAddParam('recordId', UrlUtils.getParentId(), prevUrl);
+                    prevUrl = UrlUtils.removeAndAddParam('bc', UrlUtils.getBc(), prevUrl);
                     prevUrl = UrlUtils.deleteParameterFromURL(prevUrl, 'prevParentId');
                     const selectedElementFromPrevGrid = this.findSelectedRowFromPrevGrid();
                     if (selectedElementFromPrevGrid) {

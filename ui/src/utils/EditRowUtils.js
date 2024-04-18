@@ -1,3 +1,4 @@
+import {ColumnType} from '../model/ColumnType';
 import MockService from '../services/MockService';
 import moment from 'moment';
 
@@ -33,28 +34,28 @@ export class EditRowUtils {
 
     static getType(type) {
         switch (type) {
-            case 'C': //C – Znakowy
+            case ColumnType.C: //C – Znakowy
                 return 'text_field_';
-            case 'P': //C – hasło
+            case ColumnType.P: //C – hasło
                 return 'password_';
-            case 'N': //N – Numeryczny/Liczbowy
+            case ColumnType.N: //N – Numeryczny/Liczbowy
                 return 'number_field_';
-            case 'B': //B – Logiczny (0/1)
+            case ColumnType.B: //B – Logiczny (0/1)
                 return 'bool_field_';
-            case 'L': //L – Logiczny (T/N)
+            case ColumnType.L: //L – Logiczny (T/N)
                 return 'yes_no_field_';
-            case 'D': //D – Data
+            case ColumnType.D: //D – Data
                 return 'date_';
-            case 'E': //E – Data + czas
+            case ColumnType.E: //E – Data + czas
                 return 'date_time_';
-            case 'T': //T – Czas
+            case ColumnType.T: //T – Czas
                 return 'time_';
-            case 'O': //O – Opisowe
+            case ColumnType.O: //O – Opisowe
                 return 'editor_';
-            case 'I': //I – Obrazek
-            case 'IM': //IM – Obrazek multi
+            case ColumnType.I: //I – Obrazek
+            case ColumnType.IM: //IM – Obrazek multi
                 return 'image_';
-            case 'H': //H - Hyperlink
+            case ColumnType.H: //H - Hyperlink
                 return 'link_';
             default:
                 return 'text_field_';
@@ -67,13 +68,13 @@ export class EditRowUtils {
                 if (field?.type) {
                     field.value = MockService.getFieldValueOrMock(field.value, 'value');
                     switch (field.type) {
-                        case 'D':
+                        case ColumnType.D:
                             field.value = new Date(moment(field.value, 'YYYY-MM-DD'));
                             break;
-                        case 'E':
+                        case ColumnType.E:
                             field.value = new Date(moment(field.value, 'YYYY-MM-DD HH:mm'));
                             break;
-                        case 'T':
+                        case ColumnType.T:
                             field.value = new Date(moment(field.value, 'HH:mm'));
                             break;
                         default:

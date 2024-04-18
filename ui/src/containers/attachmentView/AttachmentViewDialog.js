@@ -6,9 +6,10 @@ import DivContainer from '../../components/DivContainer';
 import {BaseViewContainer} from '../../baseContainers/BaseViewContainer';
 import {Dialog} from 'primereact/dialog';
 import UrlUtils from '../../utils/UrlUtils';
-//
-//    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
-//
+import Constants from '../../utils/Constants';
+import {OperationType} from '../../model/OperationType';
+import {ButtonGroup} from 'devextreme-react';
+import CardViewInfiniteComponent from '../cardView/CardViewInfiniteComponent';
 
 export class AttachmentViewDialog extends BaseViewContainer {
     constructor(props) {
@@ -16,6 +17,11 @@ export class AttachmentViewDialog extends BaseViewContainer {
         super(props);
         this.getViewById = this.getViewById.bind(this);
         this.downloadData = this.downloadData.bind(this);
+        this.isAttachement = true;
+        this.state = {
+            currentViewType: 'gridView',
+            realParentId: undefined,
+        };
     }
 
     downloadData(viewId, recordId, subviewId, filterId, parentId, viewType) {
@@ -24,7 +30,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
         );
         if (recordId !== '0' && recordId !== 0) {
             viewId = subviewId;
-            parentId = UrlUtils.getURLParameter('recordId');
+            parentId = UrlUtils.getRecordId();
         }
         this.setState({test: null, cardId: recordId}, () => {
             this.getViewById(viewId, recordId, filterId, parentId, viewType, false);
@@ -74,7 +80,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
             () => {
                 this.getRefGridView().instance.clearSelection();
                 const {viewInfo} = this.state.attachmentResponseView;
-                const parentIdArg = viewInfo.parentId === 0 ? UrlUtils.getURLParameter('recordId') : viewInfo.parentId;
+                const parentIdArg = viewInfo.parentId === 0 ? UrlUtils.getRecordId() : viewInfo.parentId;
                 this.dataGridStore
                     .getSelectAllDataGridStore(
                         viewInfo.id,
@@ -108,9 +114,12 @@ export class AttachmentViewDialog extends BaseViewContainer {
     }
 
     isCardViewType() {
-        return UrlUtils.getURLParameter('viewType') === 'cardView';
+        return UrlUtils.getViewType() === 'cardView';
     }
     classListIncludesSelectedBorder(element) {
+        if (element === undefined || element === null) {
+            return true;
+        }
         return Array.from(element.classList).includes('card-grid-selected');
     }
     addBorderToCardView(recordId) {
@@ -120,6 +129,12 @@ export class AttachmentViewDialog extends BaseViewContainer {
                 card.classList.add('card-grid-selected');
             }
         }
+    }
+    getKindView(viewType) {
+        if (this.props.isKindViewSpec) {
+            return 'ViewSpec';
+        }
+        return viewType;
     }
     getViewById(viewId, recordId, filterId, parentId, viewType, isSubView) {
         ConsoleHelper(
@@ -134,7 +149,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
         }
         this.setState({loading: true}, () => {
             this.viewService
-                .getAttachemntView(viewId, recordId, parentId, this.props.isKindViewSpec)
+                .getAttachemntView(viewId, recordId, parentId, this.getKindView(viewType))
                 .then((responseView) => {
                     const {elementSubViewId} = this.state;
                     this.setState({
@@ -160,7 +175,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
         const viewIdArg = viewInfo.id;
         let recordParentIdArg = viewInfo.parentId;
         if (viewInfo.parentId === 0) {
-            recordParentIdArg = UrlUtils.getURLParameter('recordId');
+            recordParentIdArg = UrlUtils.getRecordId();
         }
         const parentViewIdArg = viewInfo.parentViewId;
         const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId;
@@ -210,7 +225,10 @@ export class AttachmentViewDialog extends BaseViewContainer {
             if (!!res) {
                 this.setState({
                     loading: false,
+                    realParentId: undefined,
                     parsedGridViewData: res,
+                    gridViewType: this.state.currentViewType,
+                    currentViewType: undefined,
                 });
             }
             this.unblockUi();
@@ -221,6 +239,99 @@ export class AttachmentViewDialog extends BaseViewContainer {
         return <React.Fragment>{super.render()}</React.Fragment>;
     }
 
+    viewOperation(index) {
+        const margin = Constants.DEFAULT_MARGIN_BETWEEN_BUTTONS;
+        const indexInArray = this.state.parsedGridView?.operations?.findIndex(
+            (o) =>
+                o?.type?.toUpperCase() === OperationType.OP_CARDVIEW ||
+                o?.type?.toUpperCase() === OperationType.OP_GRIDVIEW
+        );
+        if (index > indexInArray) {
+            return this.state.viewInfoTypes ? (
+                <React.Fragment>
+                    <ButtonGroup
+                        className={`${margin}`}
+                        items={this.state.viewInfoTypes}
+                        keyExpr='type'
+                        stylingMode='outlined'
+                        selectedItemKeys={this.state.gridViewType}
+                        onItemClick={(e) => {
+                            const {viewInfo} = this.state.attachmentResponseView;
+                            this.setState(
+                                {
+                                    currentViewType: e.itemData.type,
+                                    dataGridStoreSuccess: false,
+                                },
+                                () => {
+                                    this.downloadData(
+                                        this.props.id,
+                                        viewInfo.parentId,
+                                        undefined, // todo idk cyz to dobrze
+                                        undefined,
+                                        undefined,
+                                        e.itemData.type
+                                    );
+                                }
+                            );
+                        }}
+                    />
+                </React.Fragment>
+            ) : null;
+        } else {
+            return null;
+        }
+    }
+    renderCardViewComponent() {
+        const {viewInfo} = this.state.attachmentResponseView;
+        return (
+            <React.Fragment>
+                <CardViewInfiniteComponent
+                    id={viewInfo.id}
+                    ref={this.refCardGrid}
+                    gridViewType={this.state.currentViewType}
+                    elementSubViewId={this.state.elementSubViewId}
+                    elementKindView={this.state.elementKindView}
+                    handleOnInitialized={(ref) => (this.cardGrid = ref)}
+                    parsedCardView={this.state.parsedGridView}
+                    parsedCardViewData={this.state.parsedCardViewData}
+                    handleShowEditPanel={(editDataResponse) => {
+                        this.handleShowEditPanel(editDataResponse);
+                    }}
+                    showErrorMessages={(err) => this.showErrorMessages(err)}
+                    handleBlockUi={() => {
+                        this.blockUi();
+                        return true;
+                    }}
+                    parentViewId={viewInfo.parentViewId}
+                    handleUnblockUi={() => {
+                        this.unblockUi();
+                        return true;
+                    }}
+                    parentKindViewSpec={this.props.isKindViewSpec ? 'viewSpec' : undefined}
+                    viewHeight={600}
+                    selectedRowKeys={this.state.selectedRowKeys}
+                    handleSelectedRowKeys={(e) => this.setState({selectedRowKeys: e})}
+                    collapsed={this.props.collapsed}
+                    kindView={viewInfo.kindView}
+                    parentId={viewInfo.parentId}
+                    filterId={viewInfo.filterId}
+                    handleFormulaRow={(id) => {
+                        this.prepareCalculateFormula(id);
+                    }}
+                    handleHistoryLogRow={(id) => this.historyLog(id)}
+                    handlePluginRow={(id) => this.plugin(id)}
+                    handleDocumentRow={(id) => this.generate(id)}
+                    handleDeleteRow={(id) => this.delete(id)}
+                    handleAttachmentRow={(id) => this.attachment(id)}
+                    handleDownloadRow={(id) => this.downloadAttachment(id)}
+                    handleRestoreRow={(id) => this.restore(id)}
+                    handleCopyRow={(id) => this.showCopyView(id)}
+                    handleArchiveRow={(id) => this.archive(id)}
+                    handlePublishRow={(id) => this.publishEntry(id)}
+                />
+            </React.Fragment>
+        );
+    }
     renderView() {
         return (
             <Dialog

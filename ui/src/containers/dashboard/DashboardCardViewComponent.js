@@ -78,13 +78,17 @@ class DashboardCardViewComponent extends React.Component {
                         });
                         showMenu = menuItems.length > 0;
                     }
-                    let oppEdit = DataGridUtils.containsOperationsButton(
+                    const oppEdit = DataGridUtils.getOrCreateOpButton(
                         this.props.parsedGridView?.operations,
-                        OperationType.OP_EDIT
+                        this.labels,
+                        OperationType.OP_EDIT,
+                        'Edycja'
                     );
-                    let oppSubview = DataGridUtils.containsOperationsButton(
+                    const oppSubview = DataGridUtils.getOrCreateOpButton(
                         this.props.parsedGridView?.operations,
-                        OperationType.OP_SUBVIEWS
+                        this.labels,
+                        OperationType.OP_SUBVIEWS,
+                        'Podwidok'
                     );
                     const elementSubViewId = this.props.elementSubViewId;
                     const elementKindView = this.props.elementKindView;

@@ -8,10 +8,10 @@ import {AttachmentViewDialog} from './attachmentView/AttachmentViewDialog';
 import {BaseViewContainer} from '../baseContainers/BaseViewContainer';
 import {EntryResponseUtils} from '../utils/EntryResponseUtils';
 import {DataGridUtils} from '../utils/component/DataGridUtils';
-import ActionButton from '../components/ActionButton';
 import {AddSpecContainer} from './AddSpecContainer';
 import UrlUtils from '../utils/UrlUtils';
-import AppContext from '../context/AppContext';
+import {OperationType} from '../model/OperationType';
+import {StringUtils} from '../utils/StringUtils';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -44,7 +44,7 @@ export class ViewContainer extends BaseViewContainer {
     addButtonFunction = (e) => {
         const addSpecFunction = () => this.showAddSpecDialog();
         const addFunction = (e) => this.addView(e);
-        DataGridUtils.containsOperationsButton(this.state.parsedGridView?.operations, 'OP_ADD_SPEC')
+        DataGridUtils.getOpButton(this.state.parsedGridView?.operations, OperationType.OP_ADD_SPEC)
             ? addSpecFunction()
             : addFunction(e);
     };
@@ -158,11 +158,9 @@ export class ViewContainer extends BaseViewContainer {
                                                     loading: false,
                                                 },
                                                 () => {
-                                                    const viewTypeParam =
-                                                        UrlUtils.getURLParameter('viewType') !== null ||
-                                                        UrlUtils.getURLParameter('viewType') !== undefined
-                                                            ? UrlUtils.getURLParameter('viewType')
-                                                            : viewType;
+                                                    const viewTypeParam = !StringUtils.isBlank(UrlUtils.getViewType())
+                                                        ? UrlUtils.getViewType()
+                                                        : viewType;
                                                     this.props.handleSubView(subViewResponse);
                                                     if (!forceReStateSubView) {
                                                         this.getViewById(

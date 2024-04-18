@@ -195,11 +195,6 @@ $base-color: #0e49eb;
     overflow-y: scroll;
 }
 
-.dx-item.dx-tile {
-    border-radius: 10px;
-    padding: 0;
-}
-
 .dx-item.dx-tile .dx-tile-image.card-grid-selected {
     border: 2px solid $base-color;
 }
@@ -296,44 +291,6 @@ $base-color: #0e49eb;
 
 .dx-datagrid .dx-row > td {
     padding: 3px;
-}
-
-.dx-datagrid
-    .dx-datagrid-content
-    .dx-datagrid-table
-    .dx-row
-    > td
-    .dx-row
-    > td.dx-cell-modified:not(.dx-field-item-content):not(.dx-validation-pending),
-.dx-datagrid
-    .dx-datagrid-content
-    .dx-datagrid-table
-    .dx-row
-    > td.dx-datagrid-invalid:not(.dx-field-item-content):not(.dx-validation-pending):not(.dx-datagrid-select-all),
-.dx-datagrid
-    .dx-datagrid-content
-    .dx-datagrid-table
-    .dx-row
-    > td:not(.dx-validation-pending):not(.dx-datagrid-select-all) {
-    padding-right: 3px;
-    padding-left: 3px;
-}
-
-.card-grid-header {
-    .shortcut.p-button {
-        border-radius: 0;
-    }
-
-    .shortcut.p-button:first-child {
-        border-bottom-left-radius: 4px;
-        border-top-left-radius: 4px;
-    }
-
-    .shortcut.p-button:last-child {
-        border-radius: 4px;
-        //border-bottom-right-radius: 4px;
-        //border-top-right-radius: 4px;
-    }
 }
 
 .tree-container .shortcut.p-button,
@@ -500,12 +457,6 @@ body .grid-container {
     border: 1px solid rgba(221, 221, 221, 0.6);
     text-align: left;
     outline: 0;
-}
-
-.dx-item.dx-tile {
-    position: relative;
-    align-self: flex-start;
-    margin-right: 10px;
 }
 
 .infinite-loader-card {

@@ -1,6 +1,6 @@
 /* eslint-disable no-script-url */
 /* eslint-disable react/jsx-max-props-per-line */
-import React, {useCallback, useRef, useState} from 'react';
+import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 import {Dialog} from 'primereact/dialog';
 import {Button} from 'primereact/button';

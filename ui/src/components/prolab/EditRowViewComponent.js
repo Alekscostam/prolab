@@ -7,19 +7,19 @@ import DivContainer from '../DivContainer';
 import {Panel} from 'primereact/panel';
 import ShortcutButton from './ShortcutButton';
 import {DataGridUtils} from '../../utils/component/DataGridUtils';
-import SimpleReactValidator from '../validator';
 import ConsoleHelper from '../../utils/ConsoleHelper';
 import EditListComponent from './EditListComponent';
 import {Toast} from 'primereact/toast';
-import EditListDataStore from '../../containers/dao/EditListDataStore';
+import EditListDataStore from '../../containers/dao/DataEditListStore';
 import EditListUtils from '../../utils/EditListUtils';
 import CrudService from '../../services/CrudService';
 import BaseRowComponent from '../../baseContainers/BaseRowComponent';
 import UrlUtils from '../../utils/UrlUtils';
 import {EntryResponseUtils} from '../../utils/EntryResponseUtils';
 import BlockUi from '../waitPanel/BlockUi';
-import LocUtils from '../../utils/LocUtils';
+import {OperationType} from '../../model/OperationType';
 
+// TODO: block ui na liste podpwoiedzi
 export class EditRowViewComponent extends BaseRowComponent {
     constructor(props) {
         super(props);
@@ -55,13 +55,14 @@ export class EditRowViewComponent extends BaseRowComponent {
     componentDidMount() {
         this.openEditRow();
         super.componentDidMount();
+        this.blockUi();
     }
 
     openEditRow() {
-        const editViewId = UrlUtils.getURLParameter('editViewId');
-        const editParentId = UrlUtils.getURLParameter('editParentId');
-        const editRecordId = UrlUtils.getURLParameter('editRecordId');
-        const editKindView = UrlUtils.getURLParameter('editKindView');
+        const editViewId = UrlUtils.getEditViewId();
+        const editParentId = UrlUtils.getEditParentId();
+        const editRecordId = UrlUtils.getEditRecordId();
+        const editKindView = UrlUtils.getEditKindView();
         this.crudService
             .editEntry(editViewId, editRecordId, editParentId, editKindView, '')
             .then((entryResponse) => {
@@ -76,6 +77,9 @@ export class EditRowViewComponent extends BaseRowComponent {
                                 })
                                 .catch((err) => {
                                     this.showErrorMessages(err);
+                                })
+                                .finally(() => {
+                                    this.unblockUi();
                                 });
                         } else {
                             this.unblockUi();
@@ -86,6 +90,7 @@ export class EditRowViewComponent extends BaseRowComponent {
             })
             .catch((err) => {
                 this.showErrorMessages(err);
+                this.unblockUi();
             });
     }
 
@@ -95,12 +100,12 @@ export class EditRowViewComponent extends BaseRowComponent {
     handleSelectedRowData(selectedRowData) {
         ConsoleHelper('EditRowComponent::handleSelectedRowData obj=' + JSON.stringify(selectedRowData));
         const setFields = this.state.parsedGridView.setFields;
-        let transformedRowsData = [];
-        let transformedRowsCRC = [];
+        const transformedRowsData = [];
+        const transformedRowsCRC = [];
         for (let selectedRows in selectedRowData) {
-            let selectedRow = selectedRowData[selectedRows];
-            let transformedSingleRowData = EditListUtils.transformBySetFields(selectedRow, setFields);
-            let CALC_CRC = EditListUtils.calculateCRC(transformedSingleRowData);
+            const selectedRow = selectedRowData[selectedRows];
+            const transformedSingleRowData = EditListUtils.transformBySetFields(selectedRow, setFields);
+            const CALC_CRC = EditListUtils.calculateCRC(transformedSingleRowData);
             ConsoleHelper('transformedRowsData = {} hash = {} ', transformedSingleRowData, CALC_CRC);
             transformedRowsData.push(transformedSingleRowData);
             transformedRowsCRC.push(CALC_CRC);
@@ -117,10 +122,10 @@ export class EditRowViewComponent extends BaseRowComponent {
     render() {
         const labels = this.props.labels;
         const operations = [];
-        const opSave = DataGridUtils.putToOperationsButtonIfNeccessery(operations, labels, 'OP_SAVE', 'Zapisz');
-        const opFill = DataGridUtils.putToOperationsButtonIfNeccessery(operations, labels, 'OP_FILL', 'Wypełnij');
-        const opCancel = DataGridUtils.putToOperationsButtonIfNeccessery(operations, labels, 'OP_CANCEL', 'Anuluj');
-        let editData = this.props.editData;
+        const opSave = DataGridUtils.getOrCreateOpButton(operations, labels, OperationType.OP_SAVE, 'Zapisz');
+        const opFill = DataGridUtils.getOrCreateOpButton(operations, labels, OperationType.OP_FILL, 'Wypełnij');
+        const opCancel = DataGridUtils.getOrCreateOpButton(operations, labels, OperationType.OP_CANCEL, 'Anuluj');
+        const editData = this.props.editData;
         const editListVisible = this.state.editListVisible;
         return (
             <React.Fragment>
@@ -148,7 +153,7 @@ export class EditRowViewComponent extends BaseRowComponent {
                         handleUnblockUi={() => this.unblockUi}
                         handleOnChosen={(editListData, field) => {
                             ConsoleHelper('EditRowComponent::handleOnChosen = ', JSON.stringify(editListData));
-                            let editInfo = this.props.editData?.editInfo;
+                            const editInfo = this.props.editData?.editInfo;
                             editInfo.field = field;
                             this.handleEditListRowChange(editInfo, editListData);
                         }}
@@ -193,9 +198,9 @@ export class EditRowViewComponent extends BaseRowComponent {
                                 />
                             </div>
                         </div>
-                        <div id='row-edit' className='mt-4 justify-content-center row'>
+                        <div id='row-edit' className='mt-4 row'>
                             {this.state.preventSave ? (
-                                <div id='validation-panel' className='validation-panel'>
+                                <div id='validation-panel' className='validation-panel justify-content-center'>
                                     {this.fieldsMandatoryLabel}
                                 </div>
                             ) : null}
@@ -245,22 +250,57 @@ export class EditRowViewComponent extends BaseRowComponent {
         this.handleCancelRowChange(editInfo.viewId, editInfo.recordId, editInfo.parentId);
     }
 
+    getPanelSize = (group) => {
+        const panelSize = group?.panelSize ? group?.panelSize : 'col-lg-4';
+        if (panelSize === 'col-lg-4') {
+            return panelSize;
+        }
+        return 'ccol-' + panelSize;
+    };
+    getPanel = (group) => {
+        const panel = group?.panel;
+        switch (panel) {
+            case 'left':
+                return {marginRight: 'auto'};
+            case 'right':
+                return {marginLeft: 'auto'};
+            case 'bottom':
+            case 'center':
+                return {margin: '0 auto'};
+            default:
+                return {};
+        }
+    };
+    calcaulateMarginsForBottomPanel = (group) => {
+        const panel = group?.panel;
+        const panelSize = group?.panelSize ? '100' : group?.panelSize;
+        if (panel === 'bottom') {
+            const margin = Math.floor((100 - parseInt(panelSize)) / 2);
+            return 'ccol-' + margin;
+        }
+        return undefined;
+    };
     renderGroup(group, groupIndex) {
+        const marginsForBottomPanel = this.calcaulateMarginsForBottomPanel(group);
         return (
             <React.Fragment>
-                <Panel
-                    key={`edit-row-panel${groupIndex}`}
-                    id={`group_${groupIndex}`}
-                    className={'col-xl-6 col-lg-6 col-md-8 col-sm-12 '}
-                    header={group.groupName}
-                    toggleable={group.isExpanded}
-                >
-                    <DivContainer>
-                        {group.fields?.map((field, index) => {
-                            return this.renderField(field, index, group.groupName);
-                        })}
-                    </DivContainer>
-                </Panel>
+                {marginsForBottomPanel && <div className={marginsForBottomPanel}></div>}
+                <div className={`${this.getPanelSize(group)} col-md-6 col-sm-12`}>
+                    <Panel
+                        style={this.getPanel(group)}
+                        key={`edit-row-panel-${groupIndex}`}
+                        id={`group_${groupIndex}`}
+                        header={group.groupName}
+                        toggleable={group.isExpanded}
+                    >
+                        <DivContainer>
+                            {group.fields?.map((field, index) => {
+                                return this.renderField(field, index, group.groupName);
+                            })}
+                        </DivContainer>
+                    </Panel>
+                </div>
+                {marginsForBottomPanel && <div className={marginsForBottomPanel}></div>}
             </React.Fragment>
         );
     }

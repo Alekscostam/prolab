@@ -1,7 +1,7 @@
 import {CheckBox} from 'devextreme-react';
 import React from 'react';
-import Image from '../components/Image';
 import CardImage from '../components/CardImage';
+import {ColumnType} from '../model/ColumnType';
 
 export class CardViewUtils {
     static cellTemplate(fieldDefinition, rowData, className, type) {
@@ -9,8 +9,8 @@ export class CardViewUtils {
             const bgColor = rowData[`_BGCOLOR_${fieldDefinition.fieldName.toUpperCase()}`];
             const fontColor = rowData[`_FONTCOLOR_${fieldDefinition.fieldName.toUpperCase()}`];
             switch (fieldDefinition?.type) {
-                case 'I':
-                case 'IM':
+                case ColumnType.I:
+                case ColumnType.IM:
                     if (
                         Array.isArray(rowData[fieldDefinition.fieldName]) &&
                         rowData[fieldDefinition.fieldName]?.length > 0
@@ -43,7 +43,7 @@ export class CardViewUtils {
                             />
                         );
                     }
-                case 'B':
+                case ColumnType.B:
                     return (
                         <div
                             style={{
@@ -57,20 +57,6 @@ export class CardViewUtils {
                             <CheckBox readOnly={true} value={parseInt(rowData[fieldDefinition.fieldName]) === 1} />
                         </div>
                     );
-                // case 'L':
-                //     return (
-                //         <div
-                //             style={{
-                //                 backgroundColor: rowData[`_BGCOLOR_${fieldDefinition.fieldName.toUpperCase()}`],
-                //                 color: rowData[`_FONTCOLOR_${fieldDefinition.fieldName.toUpperCase()}`],
-                //                 maxWidth: type === 'IMG' ? '33%' : type === 'BODY_WITH_IMG' ? '67%' : '100%',
-                //             }}
-                //             className={className}
-                //             title={rowData[fieldDefinition.fieldName]}
-                //         >
-                //             <CheckBox readOnly={true} value={rowData[fieldDefinition.fieldName] === 'T'} />
-                //         </div>
-                //     );
                 default:
                     return (
                         <span

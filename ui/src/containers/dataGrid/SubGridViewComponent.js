@@ -98,12 +98,12 @@ class SubGridViewComponent extends React.Component {
         let showEditButton = false;
         let menuItems = [];
         this.props.subView?.headerOperations.forEach((operation) => {
-            showEditButton = showEditButton || operation.type === 'OP_EDIT';
+            showEditButton = showEditButton || operation.type === OperationType.OP_EDIT;
             if (
-                operation.type === 'OP_PUBLIC' ||
-                operation.type === 'OP_HISTORY' ||
-                operation.type === 'OP_EDIT' ||
-                operation.type === 'OP_ATTACHMENTS'
+                operation.type === OperationType.OP_PUBLIC ||
+                operation.type === OperationType.OP_HISTORY ||
+                operation.type === OperationType.OP_EDIT ||
+                operation.type === OperationType.OP_ATTACHMENTS
             ) {
                 operation.icon = 'mdi ' + operation.iconCode;
                 menuItems.push(operation);
@@ -250,7 +250,7 @@ class SubGridViewComponent extends React.Component {
                                                                 }
                                                                 e.viewId = viewId;
                                                                 e.recordId = recordId;
-                                                                e.parentId = UrlUtils.getURLParameter('parentId');
+                                                                e.parentId = UrlUtils.getParentId();
                                                                 this.props.handleOnEditClick(e);
                                                             }}
                                                             rendered={showEditButton}
@@ -283,7 +283,7 @@ class SubGridViewComponent extends React.Component {
                                             this.props.handleOnEditClick({
                                                 viewId: viewId,
                                                 recordId: recordId,
-                                                parentId: UrlUtils.getURLParameter('parentId'),
+                                                parentId: UrlUtils.getParentId(),
                                             })
                                         }
                                         handleAttachments={() =>
