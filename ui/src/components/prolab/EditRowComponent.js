@@ -17,7 +17,6 @@ import EditListUtils from '../../utils/EditListUtils';
 import CrudService from '../../services/CrudService';
 import BaseRowComponent from '../../baseContainers/BaseRowComponent';
 import LocUtils from '../../utils/LocUtils';
-import {addCustomOverlayToElement, removeCustomOverlayToElement} from '../../PageContext';
 import {OperationType} from '../../model/OperationType';
 
 let copyDataGlobalTop = null;
@@ -63,44 +62,12 @@ export class EditRowComponent extends BaseRowComponent {
 
     componentDidMount() {
         super.componentDidMount();
-        this.addOverlay();
     }
 
     componentWillUnmount() {
         super.componentWillUnmount();
-        this.removeOverlay();
         window.sidebarRef = null;
         copyDataGlobalTop = null;
-    }
-
-    addOverlay() {
-        const visibleEditPanel = this.props.visibleEditPanel;
-        if (visibleEditPanel) {
-            addCustomOverlayToElement('grid-selection-panel');
-            addCustomOverlayToElement('dx-tabs-wrapper');
-            addCustomOverlayToElement('dx-tabs');
-            addCustomOverlayToElement('maximalized-sub-view');
-            addCustomOverlayToElement('dx-gantt');
-            addCustomOverlayToElement('title-dashboard');
-            addCustomOverlayToElement('dx-tileview');
-            addCustomOverlayToElement('view-info-name');
-            addCustomOverlayToElement('grid-container');
-            addCustomOverlayToElement('breadcrumb-link');
-            addCustomOverlayToElement('header-left');
-        }
-    }
-    removeOverlay() {
-        removeCustomOverlayToElement('grid-selection-panel');
-        removeCustomOverlayToElement('dx-tabs-wrapper');
-        removeCustomOverlayToElement('maximalized-sub-view');
-        removeCustomOverlayToElement('dx-tabs');
-        removeCustomOverlayToElement('dx-gantt');
-        removeCustomOverlayToElement('title-dashboard');
-        removeCustomOverlayToElement('dx-tileview');
-        removeCustomOverlayToElement('grid-container');
-        removeCustomOverlayToElement('view-info-name');
-        removeCustomOverlayToElement('breadcrumb-link');
-        removeCustomOverlayToElement('header-left');
     }
 
     handleSelectedRowData(selectedRowData) {
@@ -170,59 +137,68 @@ export class EditRowComponent extends BaseRowComponent {
                     id='right-sidebar'
                     visible={visibleEditPanel}
                     modal={true}
+                    dismissable={false}
+                    style={this.getWidthSizeSidebar()}
+                    onHide={() => this.props.onCloseCustom()}
                     onCustomClose={() => {
                         this.props.onCloseCustom();
                     }}
                     position='right'
                     icons={() => (
                         <React.Fragment>
-                            <div className='row ' style={{flex: 'auto'}}>
-                                <div id='label' className='label col-lg-12'>
-                                    {editData?.editInfo?.viewName}
-                                </div>
-                                {kindOperation?.toUpperCase() === 'COPY' ? (
-                                    <div id='label' className='label col-lg-12' style={{fontSize: '1em'}}>
-                                        {LocUtils.loc(labels, 'Copied_Label', 'Kopiowanie')}{' '}
-                                        {copyDataGlobalTop?.copyCounter?.counter} /{' '}
-                                        {copyDataGlobalTop?.copyOptions?.numberOfCopy}{' '}
+                            <div className='row'>
+                                <div className='col-9'>
+                                    <div className='row ' style={{flex: 'auto'}}>
+                                        <div id='label' className='label col-lg-12 '>
+                                            <div className=''>{editData?.editInfo?.viewName}</div>
+                                        </div>
+                                        {kindOperation?.toUpperCase() === 'COPY' ? (
+                                            <div id='label' className='label col-lg-12' style={{fontSize: '1em'}}>
+                                                {LocUtils.loc(labels, 'Copied_Label', 'Kopiowanie')}{' '}
+                                                {copyDataGlobalTop?.copyCounter?.counter} /{' '}
+                                                {copyDataGlobalTop?.copyOptions?.numberOfCopy}{' '}
+                                            </div>
+                                        ) : null}
                                     </div>
-                                ) : null}
-                            </div>
-                            <div id='buttons' style={{textAlign: 'right'}} className='mr-3'>
-                                <ShortcutButton
-                                    id={'opSave'}
-                                    className={`grid-button-panel inverse mt-1 mb-1 mr-1`}
-                                    handleClick={this.handleFormSubmit}
-                                    title={opSave?.label}
-                                    label={opSave?.label}
-                                    rendered={opSave}
-                                />
-                                <ShortcutButton
-                                    id={'opFill'}
-                                    className={`grid-button-panel inverse mt-1 mb-1 mr-1`}
-                                    handleClick={this.handleAutoFill}
-                                    title={opFill?.label}
-                                    label={opFill?.label}
-                                    rendered={opFill}
-                                />
-                                <ShortcutButton
-                                    id={'opCancel'}
-                                    className={`grid-button-panel normal mt-1 mb-1 mr-1 col-lg-12`}
-                                    handleClick={() => {
-                                        const editInfo = this.props.editData?.editInfo;
-                                        if (editInfo) {
-                                            this.props.onHide(
-                                                !visibleEditPanel,
-                                                editInfo.viewId,
-                                                editInfo.recordId,
-                                                editInfo.parentId
-                                            );
-                                        }
-                                    }}
-                                    title={opCancel?.label}
-                                    label={opCancel?.label}
-                                    rendered={opCancel}
-                                />
+                                </div>
+                                <div className='col-3' style={{paddingLeft: '0px'}}>
+                                    <div id='buttons' style={{textAlign: 'right'}} className='mr-3'>
+                                        <ShortcutButton
+                                            id={'opSave'}
+                                            className={`grid-button-panel inverse mt-1 mb-1 mr-1`}
+                                            handleClick={this.handleFormSubmit}
+                                            title={opSave?.label}
+                                            label={opSave?.label}
+                                            rendered={opSave}
+                                        />
+                                        <ShortcutButton
+                                            id={'opFill'}
+                                            className={`grid-button-panel inverse mt-1 mb-1 mr-1`}
+                                            handleClick={this.handleAutoFill}
+                                            title={opFill?.label}
+                                            label={opFill?.label}
+                                            rendered={opFill}
+                                        />
+                                        <ShortcutButton
+                                            id={'opCancel'}
+                                            className={`grid-button-panel normal mt-1 mb-1 mr-1 col-lg-12`}
+                                            handleClick={() => {
+                                                const editInfo = this.props.editData?.editInfo;
+                                                if (editInfo) {
+                                                    this.props.onHide(
+                                                        !visibleEditPanel,
+                                                        editInfo.viewId,
+                                                        editInfo.recordId,
+                                                        editInfo.parentId
+                                                    );
+                                                }
+                                            }}
+                                            title={opCancel?.label}
+                                            label={opCancel?.label}
+                                            rendered={opCancel}
+                                        />
+                                    </div>
+                                </div>
                             </div>
                         </React.Fragment>
                     )}
@@ -234,9 +210,7 @@ export class EditRowComponent extends BaseRowComponent {
                                     {this.fieldsMandatoryLabel}
                                 </div>
                             ) : null}
-                            {editData?.editFields?.map((group, index) => {
-                                return this.renderGroup(group, index);
-                            })}
+                            {this.renderFields(editData)}
                         </div>
                     </form>
                 </Sidebar>

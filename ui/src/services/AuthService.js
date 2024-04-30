@@ -4,6 +4,8 @@ import {readObjFromCookieGlobal} from '../utils/Cookie';
 import ConsoleHelper from '../utils/ConsoleHelper';
 import AppPrefixUtils from '../utils/AppPrefixUtils';
 import {reStateApp} from '../App';
+import {CookiesName} from '../model/CookieName';
+import {StringUtils} from '../utils/StringUtils';
 
 /*
 Żądanie POST służy do uwierzytelnienia użytkownika i uzyskania tokena, który służy do weryfikacji innego interfejsu API
@@ -172,12 +174,13 @@ export default class AuthService {
     }
 
     isAlreadyTokenNotExist() {
-        return localStorage.getItem('id_token') === undefined || localStorage.getItem('id_token') === null;
+        return StringUtils.isBlank(localStorage.getItem(CookiesName.ID_TOKEN));
     }
     refresh() {
         if (this.isAlreadyTokenNotExist()) {
             this.removeLoginCookies();
             window.location.href = AppPrefixUtils.locationHrefUrl('/#/');
+            return;
         }
         // Get a token from api server using the fetch api
         return this.fetch(
@@ -185,8 +188,8 @@ export default class AuthService {
             {
                 method: 'POST',
                 body: JSON.stringify({
-                    accessToken: localStorage.getItem('id_token'),
-                    refreshToken: localStorage.getItem('id_refresh_token'),
+                    accessToken: localStorage.getItem(CookiesName.ID_TOKEN),
+                    refreshToken: localStorage.getItem(CookiesName.ID_REFRESH_TOKEN),
                 }),
             },
             null,
@@ -200,8 +203,6 @@ export default class AuthService {
                 return Promise.resolve(res);
             })
             .catch((err) => {
-                console.log(err);
-
                 this.removeLoginCookies();
                 const textAfterHash = window.location.href.split('/#/')[1];
                 const onLogoutUrl = !(textAfterHash && textAfterHash.trim() !== '');
@@ -211,7 +212,7 @@ export default class AuthService {
                 return Promise.reject(err);
             })
             .finally(() => {
-                localStorage.removeItem('tokenRefreshing');
+                localStorage.removeItem(CookiesName.TOKEN_REFRESHING);
             });
     }
 
@@ -235,7 +236,7 @@ export default class AuthService {
         return !!token && !this.isTokenExpiredDate(); // Handwaiving here
     }
     isLoggedUser() {
-        return !!localStorage.getItem('logged_user');
+        return !!localStorage.getItem(CookiesName.LOGGED_USER);
     }
     isTokenValidForRefresh() {
         const token = this.getToken();
@@ -250,7 +251,7 @@ export default class AuthService {
 
     isTokenExpiredDate() {
         try {
-            const expirationTokenDateStr = localStorage.getItem('expiration_token');
+            const expirationTokenDateStr = localStorage.getItem(CookiesName.EXPIRATION_TOKEN);
             return !expirationTokenDateStr || new Date(expirationTokenDateStr * 1000) < Date.now();
         } catch (err) {
             return false;
@@ -258,36 +259,36 @@ export default class AuthService {
     }
 
     setToken(idToken, expirationToken, loggedUser, idRefreshToken, sessionTimeoutInMinutes) {
-        localStorage.setItem('id_token', idToken);
-        localStorage.setItem('expiration_token', decode(idToken).exp);
-        localStorage.setItem('logged_user', JSON.stringify(loggedUser));
-        localStorage.setItem('id_refresh_token', idRefreshToken);
+        localStorage.setItem(CookiesName.ID_TOKEN, idToken);
+        localStorage.setItem(CookiesName.EXPIRATION_TOKEN, decode(idToken).exp);
+        localStorage.setItem(CookiesName.LOGGED_USER, JSON.stringify(loggedUser));
+        localStorage.setItem(CookiesName.ID_REFRESH_TOKEN, idRefreshToken);
         const sessionTimeout = moment(new Date()).add(sessionTimeoutInMinutes, 'm').toString();
-        localStorage.setItem('session_timeout', sessionTimeout);
-        localStorage.setItem('session_timeout_in_minutes', sessionTimeoutInMinutes);
+        localStorage.setItem(CookiesName.SESSION_TIMEOUT, sessionTimeout);
+        localStorage.setItem(CookiesName.SESSION_TIMEOUT_IN_MINUTES, sessionTimeoutInMinutes);
     }
     setRefreshedToken(idToken, idRefreshToken) {
         // Saves user token to localStorage
-        localStorage.setItem('id_token', idToken);
-        localStorage.setItem('expiration_token', decode(idToken).exp);
-        localStorage.setItem('id_refresh_token', idRefreshToken);
+        localStorage.setItem(CookiesName.ID_TOKEN, idToken);
+        localStorage.setItem(CookiesName.EXPIRATION_TOKEN, decode(idToken).exp);
+        localStorage.setItem(CookiesName.ID_REFRESH_TOKEN, idRefreshToken);
     }
 
     getSessionTimeout() {
-        return localStorage.getItem('session_timeout');
+        return localStorage.getItem(CookiesName.SESSION_TIMEOUT);
     }
     getSessionTimeoutInMinutes() {
-        return localStorage.getItem('session_timeout_in_minutes');
+        return localStorage.getItem(CookiesName.SESSION_TIMEOUT_IN_MINUTES);
     }
 
     getToken() {
         // Retrieves the user token from localStorage
-        return localStorage.getItem('id_token');
+        return localStorage.getItem(CookiesName.ID_TOKEN);
     }
 
     getTokenExpirationDate() {
         // Retrieves the user token from localStorage
-        return localStorage.getItem('expiration_token');
+        return localStorage.getItem(CookiesName.EXPIRATION_TOKEN);
     }
 
     logout() {
@@ -298,8 +299,8 @@ export default class AuthService {
                     {
                         method: 'POST',
                         body: JSON.stringify({
-                            accessToken: localStorage.getItem('id_token'),
-                            refreshToken: localStorage.getItem('id_refresh_token'),
+                            accessToken: localStorage.getItem(CookiesName.ID_TOKEN),
+                            refreshToken: localStorage.getItem(CookiesName.ID_REFRESH_TOKEN),
                         }),
                     },
                     null,
@@ -324,22 +325,21 @@ export default class AuthService {
         }, 100);
     }
     removeLoginCookies() {
-        localStorage.removeItem('id_token');
-        localStorage.removeItem('expiration_token');
-        localStorage.removeItem('logged_user');
-        sessionStorage.removeItem('logged_in');
-        localStorage.removeItem('real_lang');
-        localStorage.removeItem('session_timeout');
-        localStorage.removeItem('session_timeout_in_minutes');
-        localStorage.removeItem('id_refresh_token');
-        localStorage.removeItem('menu');
-        localStorage.removeItem('versionAPI');
-        localStorage.removeItem('tokenRefreshing');
+        localStorage.removeItem(CookiesName.ID_TOKEN);
+        localStorage.removeItem(CookiesName.EXPIRATION_TOKEN);
+        localStorage.removeItem(CookiesName.LOGGED_USER);
+        sessionStorage.removeItem(CookiesName.LOGGED_IN);
+        localStorage.removeItem(CookiesName.SESSION_TIMEOUT);
+        localStorage.removeItem(CookiesName.SESSION_TIMEOUT_IN_MINUTES);
+        localStorage.removeItem(CookiesName.ID_REFRESH_TOKEN);
+        localStorage.removeItem(CookiesName.MENU);
+        localStorage.removeItem(CookiesName.VERSION_API);
+        localStorage.removeItem(CookiesName.TOKEN_REFRESHING);
     }
 
     getProfile() {
         try {
-            return localStorage.getItem('logged_user');
+            return localStorage.getItem(CookiesName.LOGGED_USER);
         } catch (err) {
             return {};
         }

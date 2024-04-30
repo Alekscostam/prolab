@@ -21,6 +21,7 @@ import UrlUtils from '../../utils/UrlUtils';
 import Avatar from '../../components/prolab/Avatar';
 import ConsoleHelper from '../../utils/ConsoleHelper';
 import AuthService from '../../services/AuthService';
+import { CookiesName } from '../../model/CookieName';
 
 class Sidebar extends React.Component {
     constructor(props) {
@@ -54,8 +55,8 @@ class Sidebar extends React.Component {
 
     componentDidMount() {
         ConsoleHelper('sidebar => componentDidMount');
-        if (sessionStorage.getItem('logged_in')) {
-            if (!localStorage.getItem('menu')) {
+        if (sessionStorage.getItem(CookiesName.LOGGED_IN)) {
+            if (!localStorage.getItem(CookiesName.MENU)) {
                 this.menuService
                     .getMenu()
                     .then((data) => {
@@ -80,11 +81,11 @@ class Sidebar extends React.Component {
             } else {
                 this.handleFilter('');
             }
-            if (!localStorage.getItem('versionAPI')) {
+            if (!localStorage.getItem(CookiesName.VERSION_API)) {
                 this.versionService
                     .getVersion()
                     .then((data) => {
-                        localStorage.setItem('versionAPI', JSON.stringify(data.VersionAPI));
+                        localStorage.setItem(CookiesName.VERSION_API, JSON.stringify(data.VersionAPI));
                         this.forceUpdate();
                     })
                     .catch(() => {});
@@ -185,7 +186,7 @@ class Sidebar extends React.Component {
     }
 
     handleFilter(filterValue) {
-        const menu = JSON.parse(localStorage.getItem('menu'));
+        const menu = JSON.parse(localStorage.getItem(CookiesName.MENU));
         if (menu !== undefined && filterValue !== null) {
             if (filterValue === undefined || filterValue === null || filterValue === '') {
                 this.setState({filteredMenu: menu, filterValue});
@@ -481,7 +482,7 @@ class Sidebar extends React.Component {
                             <div id={'version'} className={'to-right'} style={{marginRight: '5px'}}>{`ver: ${
                                 packageJson.version
                             }_${this.state.uiVersion?.buildNumber} api: ${JSON.parse(
-                                localStorage.getItem('versionAPI')
+                                localStorage.getItem(CookiesName.VERSION_API)
                             )}`}</div>
                         ) : null}
                     </SidebarFooter>

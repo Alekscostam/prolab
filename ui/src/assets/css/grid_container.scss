@@ -237,6 +237,11 @@ $base-color: #0e49eb;
     padding: 0;
     cursor: pointer;
 }
+.dashboard {
+    .dx-item.dx-tile {
+        cursor: default;
+    }
+}
 
 .dx-item.dx-tile .dx-tile-image {
     height: 100%;
@@ -529,6 +534,21 @@ body #subviews-panel .dx-tabs {
     .dx-tab.dx-tab-selected::after {
         border: none;
     }
+}
+.p-menu-list.p-reset {
+    border-radius: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    // margin-right: 20px;
+    .p-menuitem-text {
+        word-wrap: break-word; /* dla starszych przeglądarek */
+    }
+}
+.p-menuitem-content * {
+    word-wrap: break-word;
+}
+.p-menuitem-text {
+    word-wrap: break-word !important;
 }
 #menu-with-buttons {
     .p-menuitem {
@@ -876,6 +896,7 @@ body .grid-container {
     box-shadow: 0 2px 8px 3px rgba(0, 0, 0, 0.1);
     font-size: 12px;
     font-weight: bold;
+    margin-right: -14px;
     background: #ffffff;
     padding: 0.35rem 0.5rem;
     position: relative;

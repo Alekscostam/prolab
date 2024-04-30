@@ -1,15 +1,18 @@
 import {ColumnType} from '../model/ColumnType';
-import MockService from '../services/MockService';
 import moment from 'moment';
 
 export class EditRowUtils {
     static searchField(editData, searchFieldName, callback) {
-        editData.editFields?.forEach((groupFields) => {
-            groupFields?.fields?.forEach((field) => {
-                if (field.fieldName === searchFieldName) {
-                    callback(field);
-                    return;
-                }
+        editData.editFields?.forEach((editField) => {
+            editField?.panels?.forEach((panel) => {
+                panel?.groups?.forEach((group) => {
+                    group?.fields?.forEach((field) => {
+                        if (field.fieldName === searchFieldName) {
+                            callback(field);
+                            return;
+                        }
+                    });
+                });
             });
         });
     }
@@ -64,20 +67,21 @@ export class EditRowUtils {
 
     static convertEditResponse(editDataResponse) {
         for (let editField of editDataResponse?.editFields) {
-            for (let field of editField.fields) {
-                if (field?.type) {
-                    field.value = MockService.getFieldValueOrMock(field.value, 'value');
-                    switch (field.type) {
-                        case ColumnType.D:
-                            field.value = new Date(moment(field.value, 'YYYY-MM-DD'));
-                            break;
-                        case ColumnType.E:
-                            field.value = new Date(moment(field.value, 'YYYY-MM-DD HH:mm'));
-                            break;
-                        case ColumnType.T:
-                            field.value = new Date(moment(field.value, 'HH:mm'));
-                            break;
-                        default:
+            for (let panel of editField.panels) {
+                for (let group of panel.groups) {
+                    for (let field of group.fields) {
+                        switch (field.type) {
+                            case ColumnType.D:
+                                field.value = new Date(moment(field.value, 'YYYY-MM-DD'));
+                                break;
+                            case ColumnType.E:
+                                field.value = new Date(moment(field.value, 'YYYY-MM-DD HH:mm'));
+                                break;
+                            case ColumnType.T:
+                                field.value = new Date(moment(field.value, 'HH:mm'));
+                                break;
+                            default:
+                        }
                     }
                 }
             }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Component} from 'react';
 import EditRowUtils from '../utils/EditRowUtils';
 
 import ConsoleHelper from '../utils/ConsoleHelper';
@@ -22,7 +22,7 @@ import {StringUtils} from '../utils/StringUtils';
 import ImageViewerComponent from '../components/ImageViewerComponent';
 import {ColumnType} from '../model/ColumnType';
 
-class CellEditComponent extends React.Component {
+class CellEditComponent extends Component {
     constructor(props) {
         super(props);
         this.labels = this.props;

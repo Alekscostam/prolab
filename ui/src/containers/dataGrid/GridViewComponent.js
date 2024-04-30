@@ -82,8 +82,14 @@ class GridViewComponent extends CellEditComponent {
             menu.toggle(e.event);
             this.setState({selectedRecordId: e.row.data.ID}, () => {
                 const menu = document.getElementById('menu-with-buttons');
+                const menuHeight = menu.clientHeight + 50;
+                const browserHeight = window.innerHeight;
+                let heighY = mouseY;
+                if (browserHeight < menuHeight + mouseY - 50) {
+                    heighY = mouseY - menuHeight + 50;
+                }
                 menu.style.left = mouseX + 'px';
-                menu.style.top = mouseY + 'px';
+                menu.style.top = heighY + 'px';
             });
         }
     }
@@ -333,7 +339,6 @@ class GridViewComponent extends CellEditComponent {
             </React.Fragment>
         );
     }
-    closePrevMenu() {}
     selectionMode = () => {
         if (this.props.cellModeEnabled) {
             return 'none';

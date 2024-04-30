@@ -313,6 +313,70 @@ export const OperationsButtons = (props) => {
                             </React.Fragment>
                         );
                     break;
+                case OperationType.OP_TREE_EXPAND:
+                    if (!!atLeastOneSelected)
+                        return (
+                            <React.Fragment>
+                                <ShortcutButton
+                                    className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
+                                    handleClick={(e) => afterClickOperation(props.handleExpand(e))}
+                                    iconName={operations?.iconCode || 'mdi-arrow-down-thin'}
+                                    iconColor={`${inverseColor ? `white` : `blue`}`}
+                                    buttonShadow={buttonShadow}
+                                    iconSide='left'
+                                    title={operations?.label}
+                                />
+                            </React.Fragment>
+                        );
+                    break;
+                case OperationType.OP_TREE_COLLAPSE:
+                    if (!!atLeastOneSelected)
+                        return (
+                            <React.Fragment>
+                                <ShortcutButton
+                                    className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
+                                    handleClick={(e) => afterClickOperation(props.handleCollapse(e))}
+                                    iconName={operations?.iconCode || 'mdi-arrow-down-thin'}
+                                    iconColor={`${inverseColor ? `white` : `blue`}`}
+                                    buttonShadow={buttonShadow}
+                                    iconSide='left'
+                                    title={operations?.label}
+                                />
+                            </React.Fragment>
+                        );
+                    break;
+                case OperationType.OP_TREE_CHECK:
+                    if (!!atLeastOneSelected)
+                        return (
+                            <React.Fragment>
+                                <ShortcutButton
+                                    className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
+                                    handleClick={(e) => afterClickOperation(props.handleCheck(e))}
+                                    iconName={operations?.iconCode || 'mdi-arrow-down-thin'}
+                                    iconColor={`${inverseColor ? `white` : `blue`}`}
+                                    buttonShadow={buttonShadow}
+                                    iconSide='left'
+                                    title={operations?.label}
+                                />
+                            </React.Fragment>
+                        );
+                    break;
+                case OperationType.OP_TREE_UNCHECK:
+                    if (!!atLeastOneSelected)
+                        return (
+                            <React.Fragment>
+                                <ShortcutButton
+                                    className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
+                                    handleClick={(e) => afterClickOperation(props.handleUncheck(e))}
+                                    iconName={operations?.iconCode || 'mdi-arrow-down-thin'}
+                                    iconColor={`${inverseColor ? `white` : `blue`}`}
+                                    buttonShadow={buttonShadow}
+                                    iconSide='left'
+                                    title={operations?.label}
+                                />
+                            </React.Fragment>
+                        );
+                    break;
                 default:
                     return null;
             }
@@ -396,6 +460,14 @@ export const OperationsButtons = (props) => {
                         return props.handleDown();
                     case OperationType.OP_FILL:
                         return props.handleFill();
+                    case OperationType.OP_TREE_EXPAND:
+                        return props.handleExpand();
+                    case OperationType.OP_TREE_COLLAPSE:
+                        return props.handleCollapse();
+                    case OperationType.OP_TREE_CHECK:
+                        return props.handleCheck();
+                    case OperationType.OP_TREE_UNCHECK:
+                        return props.handleUncheck();
                     default:
                         return null;
                 }

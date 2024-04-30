@@ -35,6 +35,8 @@ export default class UserRowComponent extends BaseRowComponent {
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
                 <Dialog
                     id='right-sidebar'
+                    
+                    style={this.getWidthSizeSidebar()}
                     className='bg-dark'
                     header={
                         <div className='row ' style={{flex: 'auto'}}>
@@ -85,9 +87,8 @@ export default class UserRowComponent extends BaseRowComponent {
                                     {this.fieldsMandatoryLabel}
                                 </div>
                             ) : null}
-                            {editData?.editFields?.map((group, index) => {
-                                return this.renderGroup(group, index);
-                            })}
+
+                            {this.renderFields(editData)}
                         </div>
                     </form>
                 </Dialog>

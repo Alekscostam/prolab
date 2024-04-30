@@ -426,16 +426,6 @@ body .grid-container {
 .dx-htmleditor-content {
     background: white;
 }
-//fix z uciekającymi bordersami tabelek
-
-.maximalized-sub-view {
-    box-shadow: 0 2px 8px 3px rgba(0, 0, 0, 0.1);
-    font-size: 12px;
-    font-weight: bold;
-    background: #ffffff;
-    padding: 0.35rem 0.5rem;
-    position: relative;
-}
 
 #selection-data-grid {
     width: 99%;

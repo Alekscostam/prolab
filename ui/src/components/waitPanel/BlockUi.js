@@ -58,8 +58,7 @@ class BlockUi extends Component {
         }
         if (
             nextProps.keepInView &&
-            (nextProps.keepInView !== keepInView ||
-                (nextProps.blocking && nextProps.blocking !== blocking))
+            (nextProps.keepInView !== keepInView || (nextProps.blocking && nextProps.blocking !== blocking))
         ) {
             this.attachListeners();
             this.keepInView(nextProps);
@@ -156,6 +155,7 @@ class BlockUi extends Component {
             tag: Tag,
             blocking,
             className,
+            style,
             children,
             message,
             loader,
@@ -171,11 +171,11 @@ class BlockUi extends Component {
 
         return (
             <React.Fragment>
-                {renderBlockUi ?
+                {renderBlockUi ? (
                     <Tag {...attributes} className={classes} aria-busy={blocking}>
                         {blocking && (
                             <div
-                                tabIndex="0"
+                                tabIndex='0'
                                 onKeyUp={this.handleTabbedUpTop}
                                 onKeyDown={this.handleTabbedDownTop}
                                 ref={this.setTopFocus}
@@ -184,33 +184,33 @@ class BlockUi extends Component {
                         {renderChilds && children}
                         <div
                             className={`block-ui-container ${blocking ? 'block' : ''}`}
-                            tabIndex="0"
+                            tabIndex='0'
+                            style={style}
                             ref={this.setBlocker}
                             onKeyUp={this.handleTabbedUpBottom}
                             onKeyDown={this.handleTabbedDownBottom}
                         >
-                            <div className="block-ui-overlay" ref={this.setContainer}/>
+                            <div className='block-ui-overlay' ref={this.setContainer} />
                             <div
-                                className="block-ui-message-container"
+                                className='block-ui-message-container'
                                 ref={this.setMessageContainer}
                                 style={{top: keepInView ? top : undefined}}
                             >
-                                <div className="block-ui-message">
+                                <div className='block-ui-message'>
                                     {message}
                                     {React.isValidElement(loader) || loader instanceof Function ? (
                                         loader(waitPanelLabel)
                                     ) : (
-                                        <Loader waitPanelLabel={waitPanelLabel}/>
+                                        <Loader waitPanelLabel={waitPanelLabel} />
                                     )}
                                 </div>
                             </div>
                         </div>
-                        <span ref={this.setHelper}/>
-                    </Tag> :
-                    <React.Fragment>
-                        {renderChilds && children}
-                    </React.Fragment>
-                }
+                        <span ref={this.setHelper} />
+                    </Tag>
+                ) : (
+                    <React.Fragment>{renderChilds && children}</React.Fragment>
+                )}
             </React.Fragment>
         );
     }
@@ -220,6 +220,7 @@ BlockUi.propTypes = {
     blocking: PropTypes.bool,
     children: PropTypes.node,
     className: PropTypes.string,
+    style: PropTypes.string,
     keepInView: PropTypes.bool,
     loader: PropTypes.oneOfType([PropTypes.func, PropTypes.node]),
     message: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),

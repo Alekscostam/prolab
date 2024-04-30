@@ -27,7 +27,7 @@ class UploadMultiImageFileBase64 extends React.Component {
                     // create preview image
                     let img = document.createElement('img');
                     img.src = `data:image/jpeg;base64,${imageBase64}`;
-                    img.className="img-fluid";
+                    img.className = 'img-fluid';
                     imgView.appendChild(img);
                     // progress overlay
                     let overlay = document.createElement('div');
@@ -101,7 +101,6 @@ class UploadMultiImageFileBase64 extends React.Component {
     }
 
     clearPreview() {
-        ConsoleHelper('clearPreview');
         var imagePreviewRegion = document.getElementById('image-preview');
         imagePreviewRegion.innerHTML = '';
     }
@@ -124,7 +123,7 @@ class UploadMultiImageFileBase64 extends React.Component {
                 img.src = imageFile?.cre;
                 imgView.appendChild(img);
 
-                img.className="img-fluid";
+                img.className = 'img-fluid';
 
                 // progress overlay
                 var overlay = document.createElement('div');

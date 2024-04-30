@@ -11,6 +11,7 @@ import {compress} from 'int-compress-string/src';
 import {EditSpecUtils} from '../EditSpecUtils';
 import EditSpecService from '../../services/EditSpecService';
 import OperationCell from '../../model/OperationCell';
+import {StringUtils} from '../StringUtils';
 
 const sizeValues = ['8pt', '10pt', '12pt', '14pt', '18pt', '24pt', '36pt'];
 const fontValues = [
@@ -233,12 +234,12 @@ export const MemoizedDateTimeInput = React.memo(
                 <DateBox
                     id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                     name={field.fieldName}
-                    // ${autoFill} ${editable}
+                    defaultValue={cellInfo.displayValue === '' ? undefined : cellInfo.displayValue}
                     className={`${validate}`}
-                    showAnalogClock={false}
+                    showAnalogClock={true}
                     ref={refDateTime}
-                    onOpenedChange={() => {
-                        setTimeout(function () {
+                    onOpenedChange={(e) => {
+                        setTimeout(() => {
                             const cells = document.getElementsByClassName('dx-calendar-cell');
                             for (let index = 0; index < cells.length; index++) {
                                 const element = cells[index];
@@ -256,7 +257,6 @@ export const MemoizedDateTimeInput = React.memo(
                                                 const minutes = Array.from(
                                                     document.querySelectorAll('input[aria-valuenow')
                                                 ).find((e) => e.ariaLabel === 'minutes').ariaValueNow;
-
                                                 const myMomentInString = moment(
                                                     dateYYYYMMDD + ` ${hours}:${minutes}`
                                                 ).format('yyyy-MM-DD HH:mm');
@@ -273,13 +273,15 @@ export const MemoizedDateTimeInput = React.memo(
                         if (typeof e === 'string') {
                             cellInfo.setValue(e);
                             headerLeft.click();
+                        } else if (!StringUtils.isEmpty(e?.component?.option('text'))) {
+                            cellInfo.setValue(e.component.option('text'));
+                            headerLeft.click();
                         } else if (headerLeft) {
                             headerLeft.click();
                         }
                     }}
                     style={{width: '100%'}}
                     disabled={!field.edit}
-                    applyButtonText={labels['Calendar_ButtonClear']}
                     required={required}
                     type='datetime'
                     useMaskBehavior={true}
@@ -289,7 +291,6 @@ export const MemoizedDateTimeInput = React.memo(
         );
     }
 );
-
 //T – Czas
 export const MemoizedTimeInput = React.memo(({field, cellInfo, fieldIndex, required, validate}) => {
     return (

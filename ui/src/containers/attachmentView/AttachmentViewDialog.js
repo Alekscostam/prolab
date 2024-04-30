@@ -239,7 +239,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
         return <React.Fragment>{super.render()}</React.Fragment>;
     }
 
-    viewOperation(index) {
+    viewOperation = (index) => {
         const margin = Constants.DEFAULT_MARGIN_BETWEEN_BUTTONS;
         const indexInArray = this.state.parsedGridView?.operations?.findIndex(
             (o) =>
@@ -280,7 +280,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
         } else {
             return null;
         }
-    }
+    };
     renderCardViewComponent() {
         const {viewInfo} = this.state.attachmentResponseView;
         return (

@@ -172,6 +172,16 @@ class SubGridViewComponent extends React.Component {
                         {this.state.minimize ? (
                             <GridViewMinimizeComponent
                                 subView={this.props.subView}
+                                onImageClick={(base64, header) => {
+                                    this.setState({
+                                        imageViewer: {
+                                            imageViewDialogVisisble: true,
+                                            editable: false,
+                                            imageBase64: base64,
+                                            header: header,
+                                        },
+                                    });
+                                }}
                                 onClick={() => {
                                     this.setState({minimize: false}, () => {
                                         saveObjToCookieGlobal('SUB_GRID_VIEW_MINIMIZE', false);

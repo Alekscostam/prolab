@@ -11,6 +11,7 @@ export const ShortcutButton = (props) => {
         className,
         disabled,
         handleClick,
+        handleBlur,
         href,
         iconColor,
         iconName,
@@ -30,6 +31,11 @@ export const ShortcutButton = (props) => {
             <React.Fragment>
                 {props.children}
                 <a
+                    onBlur={(e) => {
+                        if (handleBlur) {
+                            handleBlur(e);
+                        }
+                    }}
                     title={`${title ? title : ''}${ariaLabel}`}
                     tabIndex='0'
                     className={
@@ -96,6 +102,7 @@ ShortcutButton.propTypes = {
     colClass: PropTypes.string,
     disabled: PropTypes.bool,
     handleClick: PropTypes.func,
+    handleBlur: PropTypes.func,
     href: PropTypes.string,
     iconColor: PropTypes.string,
     iconLabel: PropTypes.string,

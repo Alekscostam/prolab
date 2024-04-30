@@ -63,6 +63,7 @@ export class DocumentRowComponent extends BaseRowComponent {
                     id='right-sidebar'
                     visible={visibleDocumentPanel}
                     modal={true}
+                    style={this.getWidthSizeSidebar()}
                     position='right'
                     onHide={() => {
                         this.props.onHide();

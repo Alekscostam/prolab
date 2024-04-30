@@ -186,7 +186,12 @@ export class BaseRowComponent extends BaseContainer {
                   this.onBlur(text, event, groupName, info);
               };
     }
+    getWidthSizeSidebar(percenatgeSize) {
+        return {width: '45%'};
+    }
     editListVisible(field) {
+        this.blockUi();
+
         ConsoleHelper('EditRowComponent::editListVisible');
         const editInfo = this.props.editData?.editInfo;
         const kindView = this.props.kindView;
@@ -268,18 +273,22 @@ export class BaseRowComponent extends BaseContainer {
                                         return {selectAll: this.state.selectAll};
                                     }
                                 );
-                                this.setState({
-                                    loading: false,
-                                    parsedGridViewData: res,
-                                    editListField: field,
-                                    editListVisible: true,
-                                });
+                                this.setState(
+                                    {
+                                        loading: false,
+                                        parsedGridViewData: res,
+                                        editListField: field,
+                                        editListVisible: true,
+                                    },
+                                    () => this.unblockUi()
+                                );
                             }
                         );
                     })
                     .catch((err) => {
                         console.error('Error getEditList in EditRowComponent. Exception = ', err);
                         this.props.showErrorMessages(err);
+                        this.unblockUi();
                     });
             }
         );
@@ -296,7 +305,7 @@ export class BaseRowComponent extends BaseContainer {
     }
 
     doubleClickFakeEvent(e, element) {
-        this.calendarDateTimeRef.current.hideOverlay();
+        //TODO:
     }
 
     renderInputComponent(field, fieldIndex, onChange, onBlur, groupName, required, validatorMsgs, onClickEditList) {
@@ -320,10 +329,9 @@ export class BaseRowComponent extends BaseContainer {
         const validateCheckbox = !!validatorMsgs ? 'p-invalid-checkbox' : '';
         const labelColor = !!field.labelColor ? field.labelColor : '';
         const selectionList = field?.selectionList ? 'p-inputgroup' : null;
+        const info = this.props.editData?.editInfo;
+
         let selectionListValues = field?.selectionListValues;
-
-        let info = this.props.editData?.editInfo;
-
         if (visibleDocumentCriteria && selectionListValues) {
             selectionListValues = this.selectionListValuesToJson(selectionListValues);
         }
@@ -626,7 +634,6 @@ export class BaseRowComponent extends BaseContainer {
                             onSelect={(e) => {
                                 clickCount++;
                                 if (clickCount === 1) {
-                                    console.log('pojedyncze kliknięcie zostało wykonane!');
                                     timeout = setTimeout(function () {
                                         clickCount = 0;
                                     }, 300); // Ustaw interwał czasowy na oczekiwanie na drugie kliknięcie (np. 300ms)

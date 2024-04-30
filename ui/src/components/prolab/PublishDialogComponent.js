@@ -8,6 +8,7 @@ import AuthService from '../../services/AuthService';
 import {Calendar} from 'primereact/calendar';
 import {InputText} from 'primereact/inputtext';
 import moment from 'moment';
+import {CookiesName} from '../../model/CookieName';
 
 export default class PublishDialogComponent extends React.Component {
     constructor(props) {
@@ -19,7 +20,7 @@ export default class PublishDialogComponent extends React.Component {
             publishOptions: {
                 version: this.props.publishValues?.version,
                 date: new Date(),
-                user: JSON.parse(localStorage.getItem('logged_user')).name,
+                user: JSON.parse(localStorage.getItem(CookiesName.LOGGED_USER)).name,
             },
         };
     }

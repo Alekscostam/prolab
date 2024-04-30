@@ -82,6 +82,7 @@ class TreeViewComponent extends CellEditComponent {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
+        console.log('update --> treelist');
         return prevProps.id !== prevState.id && prevProps.elementRecordId !== prevState.elementRecordId;
     }
     shouldComponentUpdate() {
@@ -316,11 +317,8 @@ class TreeViewComponent extends CellEditComponent {
                     />
                     <Paging enabled={true} defaultPageSize={25} defaultPageIndex={1} />
                     <FilterRow visible={showFilterRow} applyFilter={true} />
-
                     <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'} />
-
                     <Sorting mode='multiple' />
-
                     <Selection
                         mode={showSelection ? (multiSelection ? 'multiple' : 'single') : 'none'}
                         selectAllMode='allPages'
@@ -337,7 +335,6 @@ class TreeViewComponent extends CellEditComponent {
                         rowRenderingMode={this.props.rowRenderingMode}
                         preloadEnabled={this.props.preloadEnabled}
                     />
-
                     <Selection
                         mode={'multiple'}
                         selectAllMode='allPages'
@@ -358,8 +355,6 @@ class TreeViewComponent extends CellEditComponent {
                     <MenuWithButtons
                         handleSaveAction={() => this.props.handleSaveAction()}
                         handleAddSpecCount={() => this.props.handleAddSpecCount()}
-                        handleExpand={() => this.handleExpand()}
-                        handleCollapse={() => this.handleCollapse()}
                         handleAddSpecSpec={() => this.props.handleAddSpecSpec(selectedRecordId)}
                         handleExecSpec={() => this.props.handleExecSpec()}
                         handleAddSpec={() => this.props.addButtonFunction()}
@@ -384,6 +379,8 @@ class TreeViewComponent extends CellEditComponent {
                         handleFormula={() => this.props.handleFormulaRow(selectedRecordId)}
                         handleHistory={() => this.props.handleHistoryLogRow(selectedRecordId)}
                         handleFill={() => this.props.handleFillRow(selectedRecordId)}
+                        handleExpand={() => this.handleExpand()}
+                        handleCollapse={() => this.handleCollapse()}
                         handleCheck={() => this.handleCheck()}
                         handleUncheck={() => this.handleUncheck()}
                         handleUp={() => {
@@ -402,8 +399,8 @@ class TreeViewComponent extends CellEditComponent {
             </React.Fragment>
         );
     }
-    handleExpand() {
-        const parentId = this.selectedRecordIdRef.current;
+    handleExpand(recordId) {
+        const parentId = recordId === undefined ? this.selectedRecordIdRef.current : recordId;
         const rowKeysToExpand = TreeListUtils.findAllDescendants(this.props.parsedGridViewData, parentId).map(
             (el) => el._ID
         );
@@ -413,8 +410,8 @@ class TreeViewComponent extends CellEditComponent {
             expandedRowKeys: concatData,
         });
     }
-    handleCollapse() {
-        const parentId = this.selectedRecordIdRef.current;
+    handleCollapse(recordId) {
+        const parentId = recordId === undefined ? this.selectedRecordIdRef.current : recordId;
         const rowKeysToCollapse = TreeListUtils.findAllDescendants(this.props.parsedGridViewData, parentId).map(
             (el) => el._ID
         );
@@ -439,8 +436,8 @@ class TreeViewComponent extends CellEditComponent {
         }
     };
 
-    handleCheck() {
-        const parentId = this.selectedRecordIdRef.current;
+    handleCheck(recordId) {
+        const parentId = recordId === undefined ? this.selectedRecordIdRef.current : recordId;
         const tree = this.props.parsedGridViewData;
         const descendants = TreeListUtils.findAllDescendants(tree, parentId);
         const selectedRowsData = this.ref.instance.getSelectedRowsData();
@@ -452,8 +449,8 @@ class TreeViewComponent extends CellEditComponent {
         });
         this.ref.instance.selectRows(selectedRowsData.map((el) => el._ID));
     }
-    handleUncheck() {
-        const parentId = this.selectedRecordIdRef.current;
+    handleUncheck(recordId) {
+        const parentId = recordId === undefined ? this.selectedRecordIdRef.current : recordId;
         const tree = this.props.parsedGridViewData;
         const descendants = TreeListUtils.findAllDescendants(tree, parentId);
         let selectedRowsData = this.ref.instance.getSelectedRowsData();
@@ -564,10 +561,10 @@ class TreeViewComponent extends CellEditComponent {
 
     preColumnDefinition(editable, INDEX_COLUMN) {
         if (INDEX_COLUMN !== 0) {
-            let preInitializedColumns = this.state.preInitializedColumns;
-            let foundedelement = preInitializedColumns.find((el) => el.columnIndex === INDEX_COLUMN);
+            const preInitializedColumns = this.state.preInitializedColumns;
+            const foundedelement = preInitializedColumns.find((el) => el.columnIndex === INDEX_COLUMN);
             if (!foundedelement) {
-                let column = {
+                const column = {
                     columnIndex: INDEX_COLUMN,
                     editable: editable,
                 };
@@ -765,6 +762,10 @@ class TreeViewComponent extends CellEditComponent {
                                         handleUp={() => this.props.handleUp(recordId)}
                                         handleDown={() => this.props.handleDown(recordId)}
                                         handleAddLevel={() => this.props.handleAddLevel(recordId)}
+                                        handleExpand={() => this.handleExpand(recordId)}
+                                        handleCollapse={() => this.handleCollapse(recordId)}
+                                        handleCheck={() => this.handleCheck(recordId)}
+                                        handleUncheck={() => this.handleUncheck(recordId)}
                                     />
                                 </div>,
                                 element
@@ -967,7 +968,6 @@ class TreeViewComponent extends CellEditComponent {
         );
         return columnDefinitionArray[0];
     }
-
     // doklejamy style
     paintLineIfPossible = (datas) => {
         const elements = Array.from(document.querySelectorAll('td[aria-describedby=column_0_undefined-fixed]')).filter(

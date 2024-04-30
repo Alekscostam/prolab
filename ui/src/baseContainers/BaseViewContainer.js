@@ -36,13 +36,14 @@ import DataTreeStore from '../containers/dao/DataTreeStore';
 import DashboardContainer from '../containers/dashboard/DashboardContainer';
 import GridViewComponent from '../containers/dataGrid/GridViewComponent';
 import DataCardStore from '../containers/dao/DataCardStore';
-import {ConfirmDialog, confirmDialog} from 'primereact/confirmdialog';
+import {ConfirmDialog} from 'primereact/confirmdialog';
 import {StringUtils} from '../utils/StringUtils';
 import {saveObjToCookieGlobal} from '../utils/Cookie';
 import DataHistoryLogStore from '../containers/dao/DataHistoryLogStore';
 import HistoryLogDialogComponent from '../components/prolab/HistoryLogDialogComponent';
 import {PluginConfirmDialogUtils} from '../utils/component/PluginUtils';
 import {OperationType} from '../model/OperationType';
+import ReactDOM from 'react-dom';
 
 let dataGrid;
 
@@ -418,27 +419,37 @@ export class BaseViewContainer extends BaseContainer {
                             });
                         }}
                         onHide={(e, viewId, recordId, parentId) => {
-                            !!this.state.modifyEditData
-                                ? confirmDialog({
-                                      appendTo: document.body,
-                                      message: LocUtils.loc(
-                                          this.props.labels,
-                                          'Question_Close_Edit',
-                                          'Czy na pewno chcesz zamknąć edycję?'
-                                      ),
-                                      header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
-                                      icon: 'pi pi-exclamation-triangle',
-                                      acceptLabel: localeOptions('accept'),
-                                      rejectLabel: localeOptions('reject'),
-                                      accept: () => {
-                                          this.handleCancelRowChange(viewId, recordId, parentId);
-                                          this.setState({visibleEditPanel: e});
-                                      },
-                                      reject: () => undefined,
-                                  })
-                                : this.setState({visibleEditPanel: e}, () => {
-                                      this.handleCancelRowChange(viewId, recordId, parentId);
-                                  });
+                            if (!!this.state.modifyEditData) {
+                                const confirmDialogWrapper = document.createElement('div');
+                                document.body.appendChild(confirmDialogWrapper);
+                                ReactDOM.render(
+                                    <ConfirmDialog
+                                        visible={true}
+                                        message={LocUtils.loc(
+                                            this.props.labels,
+                                            'Question_Close_Edit',
+                                            'Czy na pewno chcesz zamknąć edycję?'
+                                        )}
+                                        header={LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie')}
+                                        icon='pi pi-exclamation-triangle'
+                                        acceptLabel={localeOptions('accept')}
+                                        rejectLabel={localeOptions('reject')}
+                                        accept={() => {
+                                            this.handleCancelRowChange(viewId, recordId, parentId);
+                                            this.setState({visibleEditPanel: false});
+                                            document.body.removeChild(confirmDialogWrapper);
+                                        }}
+                                        reject={() => {
+                                            document.body.removeChild(confirmDialogWrapper);
+                                        }}
+                                    />,
+                                    confirmDialogWrapper
+                                );
+                            } else {
+                                this.setState({visibleEditPanel: e}, () => {
+                                    this.handleCancelRowChange(viewId, recordId, parentId);
+                                });
+                            }
                         }}
                         onError={(e) => this.showErrorMessage(e)}
                         labels={this.props.labels}
@@ -865,7 +876,7 @@ export class BaseViewContainer extends BaseContainer {
         }
     }
 
-    viewOperation(index) {
+    viewOperation = (index) => {
         const margin = Constants.DEFAULT_MARGIN_BETWEEN_BUTTONS;
         const indexInArray = this.state.parsedGridView?.operations?.findIndex(
             (o) =>
@@ -905,7 +916,7 @@ export class BaseViewContainer extends BaseContainer {
         } else {
             return null;
         }
-    }
+    };
 
     leftHeadPanelContent = () => {
         if (this.isDashboard()) {

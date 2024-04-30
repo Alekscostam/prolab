@@ -1,19 +1,18 @@
 /*Edycja*/
 
 #right-sidebar {
-    width: 45%;
     background: transparent linear-gradient(90deg, #f7f9fd 0%, #ecf2fb 100%) 0% 0% no-repeat padding-box !important;
     z-index: 1;
 }
-@media (max-width: 768px) {
+@media (max-width: 868px) {
     #right-sidebar {
-        width: 100%;
+        width: 100% !important;
     }
 }
 
 #row-edit .p-panel {
     background: #ffffff 0% 0% no-repeat padding-box;
-    box-shadow: 0px 0px 6px #00000029 !important;
+    box-shadow: 0px 0px 6px #00000029;
     border-radius: 4px;
 }
 
@@ -155,9 +154,13 @@
 
 #row-edit .p-calendar-w-btn .p-datepicker-trigger,
 #row-edit .p-calendar-w-btn .p-datepicker-trigger:hover {
-    background-color: rgba(0, 0, 0, 0.12) !important;
+    background-color: rgba(0, 0, 0, 0.12);
 }
-
+.p-button-icon-only {
+    .p-icon {
+        color: $base-color;
+    }
+}
 .p-datepicker-buttonbar > .p-button.p-component.p-button-text.p-button-secondary {
     color: $button-text-color;
     background-color: $base-color;
@@ -223,7 +226,11 @@
 }
 
 #row-edit .not-editable {
-    background-color: $disabled-background !important;
+    background-color: $disabled-background;
+    // background-color: rgba(0, 0, 0, 0.12) !important;
+    .p-inputtext {
+        background-color: $disabled-background;
+    }
 }
 #row-edit label {
     margin-bottom: 0.1rem;
@@ -244,7 +251,7 @@
 .p-button:not(a):not(.p-disabled):not(.p-confirm-dialog-reject):active,
 .p-button:not(a):not(.p-disabled):not(.p-confirm-dialog-reject):hover,
 .p-button:not(a):not(.p-disabled):not(.p-confirm-dialog-reject):visited {
-    background: $base-color !important;
+    // background: $base-color !important;
 }
 .p-confirm-dialog-reject:focus,
 .p-confirm-dialog-reject:active,
@@ -254,8 +261,6 @@
 }
 #row-edit .p-checkbox-icon {
     position: relative;
-    bottom: 5px;
-    right: 5px;
 }
 
 #row-edit .p-checkbox .p-checkbox-box {

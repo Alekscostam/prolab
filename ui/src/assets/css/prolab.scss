@@ -300,6 +300,14 @@ label {
     letter-spacing: 0;
     text-align: left;
 }
+.p-button {
+    border-radius: 4px;
+}
+.p-dialog-header-close {
+    // background: white !important;
+    border-radius: 50px;
+    color: white;
+}
 
 .font-button,
 .p-button {
@@ -766,7 +774,49 @@ td[aria-roledescription='Editable'] {
     border: none;
     background: white;
 }
+.p-confirm-dialog-reject {
+    float: left;
+    background-color: white;
+}
+.p-calendar-w-btn:hover {
+    border: 1px solid rgba(0, 0, 0, 0.87);
+}
 
+.p-calendar-w-btn:active,
+.p-calendar-w-btn:visited,
+.p-calendar-w-btn:focus-visible,
+.p-calendar-w-btn:focus {
+    border: 1px solid $base-color;
+}
+.dx-htmleditor-toolbar-wrapper {
+    .dx-overlay-content .dx-popup-content .dx-scrollable-content .dx-item-content {
+        margin-left: 10px;
+    }
+    .dx-state-hover {
+        .dx-button-content {
+            background-color: rgb(243, 243, 243);
+        }
+    }
+}
+.dx-overlay-wrapper {
+    z-index: 1000000 !important;
+}
+#right-sidebar {
+    .p-sidebar-content {
+        overflow-x: hidden;
+    }
+}
+.ql-disabled {
+    .dx-htmleditor-content {
+        background: #f3f3f3;
+    }
+}
+.p-menuitem-content {
+    background-color: white;
+}
+.p-menu-list.p-reset {
+    margin-bottom: 0px;
+}
 .ccol-1,
 .ccol-2,
 .ccol-3,

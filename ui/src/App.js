@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, PureComponent} from 'react';
 import {HashRouter, Route, Switch} from 'react-router-dom';
 import Sidebar from './containers/layout/Sidebar';
 import Login from './containers/LoginContainer';
@@ -34,13 +34,14 @@ import {PageViewUtils} from './utils/parser/PageViewUtils';
 import {ConfirmationEditQuitDialog} from './components/prolab/ConfirmationEditQuitDialog';
 import AppContext from './context/AppContext';
 import {OperationType} from './model/OperationType';
+import {CookiesName} from './model/CookieName';
 
 // export const
 export let reStateApp;
 export let renderNoRefreshContentFnc;
 export let sessionPrelongFnc = null;
 export let addBtn = null;
-// TODO: tokeny do utilsa do stałych SessionStorage.
+// TODO: czy na pewno chcesz opuścic okno 
 class App extends Component {
     constructor() {
         super();
@@ -94,8 +95,8 @@ class App extends Component {
     setFakeSeesionTimeout() {
         const myDate = new Date();
         myDate.setSeconds(myDate.getSeconds() + 60);
-        localStorage.setItem('session_timeout', myDate);
-        localStorage.setItem('session_timeout_in_minutes', 1);
+        localStorage.setItem(CookiesName.SESSION_TIMEOUT, myDate);
+        localStorage.setItem(CookiesName.SESSION_TIMEOUT_IN_MINUTES, 1);
     }
     componentDidMount() {
         if (this.state.sessionMock) {
@@ -165,11 +166,11 @@ class App extends Component {
                         this.authService.removeLoginCookies();
                         return;
                     }
-                    if (localStorage.getItem('tokenRefreshing')) {
+                    if (localStorage.getItem(CookiesName.TOKEN_REFRESHING)) {
                         return;
                     }
                     if (this.isDurationFromSessionTimeoutPositive()) {
-                        localStorage.setItem('tokenRefreshing', true);
+                        localStorage.setItem(CookiesName.TOKEN_REFRESHING, true);
                         this.authService.refresh();
                         return;
                     }
@@ -184,7 +185,7 @@ class App extends Component {
         }
     }
     showSessionTimedOut() {
-        const sessionTimeout = Date.parse(localStorage.getItem('session_timeout'));
+        const sessionTimeout = Date.parse(localStorage.getItem(CookiesName.SESSION_TIMEOUT));
         const tickerPopupDate = new Date();
         tickerPopupDate.setSeconds(tickerPopupDate.getSeconds() + 45);
         const duration = this.getDurationToLogout();
@@ -214,19 +215,19 @@ class App extends Component {
         return duration.asMilliseconds() > 5000;
     }
     getDurationToLogout() {
-        const sessionTimeout = Date.parse(localStorage.getItem('session_timeout'));
+        const sessionTimeout = Date.parse(localStorage.getItem(CookiesName.SESSION_TIMEOUT));
         const now = new Date();
         return moment.duration(sessionTimeout - now);
     }
     prelongSessionIfUserExist(fromDialogSession, callBack) {
         const loggedUser = this.authService.isLoggedUser();
         if (loggedUser) {
-            const timeInMinutes = localStorage.getItem('session_timeout_in_minutes');
+            const timeInMinutes = localStorage.getItem(CookiesName.SESSION_TIMEOUT_IN_MINUTES);
             const canPrelongSession =
                 (timeInMinutes && fromDialogSession) || (timeInMinutes && !this.state?.rednerSessionTimeoutDialog);
             if (canPrelongSession) {
                 const sessionTimeout = moment(new Date()).add(timeInMinutes, 'm').toString();
-                localStorage.setItem('session_timeout', sessionTimeout);
+                localStorage.setItem(CookiesName.SESSION_TIMEOUT, sessionTimeout);
                 if (callBack) {
                     callBack();
                 }
@@ -311,11 +312,11 @@ class App extends Component {
         this.localizationService.reConfigureDomain();
         if (this.authService.loggedIn()) {
             try {
-                const language = JSON.parse(localStorage.getItem('logged_user')).lang.toLowerCase();
+                const language = JSON.parse(localStorage.getItem(CookiesName.LOGGED_USER)).lang.toLowerCase();
                 this.getTranslations(configUrl, language);
             } catch (ex) {
                 console.log(ex);
-                if (localStorage.getItem('logged_user') === null) {
+                if (localStorage.getItem(CookiesName.LOGGED_USER) === null) {
                     this.authService.logout();
                 }
             }
@@ -371,7 +372,7 @@ class App extends Component {
                 onAfterLogin={() => {
                     const configUrl = this.makeConfigUrl('');
                     this.readConfigAndSaveInCookie(configUrl, () => {
-                        sessionStorage.setItem('logged_in', true);
+                        sessionStorage.setItem(CookiesName.LOGGED_IN, true);
                         this.setState(
                             {
                                 user: this.authService.getProfile().sub,
@@ -452,6 +453,7 @@ class App extends Component {
                             authService={authService}
                             visible={this.state.rednerSessionTimeoutDialog}
                             onProlongSession={() => {
+                                localStorage.setItem(CookiesName.TOKEN_REFRESHING, true);
                                 authService.refresh().then(() => {
                                     this.prelongSessionIfUserExist(true, () => {
                                         this.setState({

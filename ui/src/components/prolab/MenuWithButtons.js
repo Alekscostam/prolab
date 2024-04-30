@@ -105,6 +105,9 @@ export const MenuWithButtons = (props) => {
                 style={{
                     position: 'absolute',
                 }}
+                onBlur={(e) => {
+                    props.menu.current.hide(e);
+                }}
                 model={menuItems}
                 popup
                 ref={props.menu}

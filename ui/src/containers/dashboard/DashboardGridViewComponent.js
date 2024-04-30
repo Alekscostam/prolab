@@ -14,7 +14,7 @@ import {DataGridUtils} from '../../utils/component/DataGridUtils';
 import {ViewValidatorUtils} from '../../utils/parser/ViewValidatorUtils';
 import UrlUtils from '../../utils/UrlUtils';
 import DataGridStore from '../dao/DataGridStore';
-import {ConfirmDialog, confirmDialog} from 'primereact/confirmdialog';
+import {ConfirmDialog} from 'primereact/confirmdialog';
 import {localeOptions} from 'primereact/api';
 import GridViewComponent from '../dataGrid/GridViewComponent';
 import ConsoleHelper from '../../utils/ConsoleHelper';
@@ -26,6 +26,7 @@ import PluginListComponent from '../../components/prolab/PluginListComponent';
 import HistoryLogDialogComponent from '../../components/prolab/HistoryLogDialogComponent';
 import {PluginConfirmDialogUtils} from '../../utils/component/PluginUtils';
 import {OperationType} from '../../model/OperationType';
+import ReactDOM from 'react-dom';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -251,29 +252,39 @@ export class DashboardGridViewComponent extends BaseContainer {
                                 });
                             }}
                             validator={this.validator}
-                            onHide={(e, viewId, recordId, parentId) =>
-                                !!this.state.modifyEditData
-                                    ? confirmDialog({
-                                          appendTo: document.body,
-                                          message: LocUtils.loc(
-                                              this.props.labels,
-                                              'Question_Close_Edit',
-                                              'Czy na pewno chcesz zamknąć edycję?'
-                                          ),
-                                          header: LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie'),
-                                          icon: 'pi pi-exclamation-triangle',
-                                          acceptLabel: localeOptions('accept'),
-                                          rejectLabel: localeOptions('reject'),
-                                          accept: () => {
-                                              this.handleCancelRowChange(viewId, recordId, parentId);
-                                              this.setState({visibleEditPanel: e});
-                                          },
-                                          reject: () => undefined,
-                                      })
-                                    : this.setState({visibleEditPanel: e}, () => {
-                                          this.handleCancelRowChange(viewId, recordId, parentId);
-                                      })
-                            }
+                            onHide={(e, viewId, recordId, parentId) => {
+                                if (!!this.state.modifyEditData) {
+                                    const confirmDialogWrapper = document.createElement('div');
+                                    document.body.appendChild(confirmDialogWrapper);
+                                    ReactDOM.render(
+                                        <ConfirmDialog
+                                            visible={true}
+                                            message={LocUtils.loc(
+                                                this.props.labels,
+                                                'Question_Close_Edit',
+                                                'Czy na pewno chcesz zamknąć edycję?'
+                                            )}
+                                            header={LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie')}
+                                            icon='pi pi-exclamation-triangle'
+                                            acceptLabel={localeOptions('accept')}
+                                            rejectLabel={localeOptions('reject')}
+                                            accept={() => {
+                                                this.handleCancelRowChange(viewId, recordId, parentId);
+                                                this.setState({visibleEditPanel: e});
+                                                document.body.removeChild(confirmDialogWrapper);
+                                            }}
+                                            reject={() => {
+                                                document.body.removeChild(confirmDialogWrapper);
+                                            }}
+                                        />,
+                                        confirmDialogWrapper
+                                    );
+                                } else {
+                                    this.setState({visibleEditPanel: e}, () => {
+                                        this.handleCancelRowChange(viewId, recordId, parentId);
+                                    });
+                                }
+                            }}
                             onError={(e) => this.showErrorMessage(e)}
                             labels={this.props.labels}
                             showErrorMessages={(err) => this.showErrorMessages(err)}

@@ -16,10 +16,19 @@ export default class EditListComponent extends React.Component {
     handleSelectedRowData({selectedRowsData}) {
         this.props.handleSelectedRowData(selectedRowsData);
     }
-
+    componentDidMount() {
+        if (typeof this.props?.blockUiIfNeccessery === 'function') {
+            this.props.blockUiIfNeccessery();
+        }
+    }
+    componentDidUpdate() {
+        if (typeof this.props?.blockUiIfNeccessery === 'function') {
+            this.props.blockUiIfNeccessery();
+        }
+    }
     render() {
-        let width = this.props.parsedGridView?.info?.windowSize?.width || '50vw';
-        let height = this.props.parsedGridView?.info?.windowSize?.height || '150vw';
+        const width = this.props.parsedGridView?.info?.windowSize?.width || '50vw';
+        const height = this.props.parsedGridView?.info?.windowSize?.height || '150vw';
         const opSelect = DataGridUtils.getOrCreateOpButton(
             this.props.parsedGridView?.operations,
             this.props.labels,
@@ -125,6 +134,7 @@ EditListComponent.defaultProps = {
     handleOnChosen: PropTypes.func.isRequired,
     handleBlockUi: PropTypes.func.isRequired,
     handleUnblockUi: PropTypes.func.isRequired,
+    blockIfNeccessery: PropTypes.func,
     showErrorMessages: PropTypes.func.isRequired,
     selectedRowData: PropTypes.object.isRequired,
     defaultSelectedRowKeys: PropTypes.object.isRequired,

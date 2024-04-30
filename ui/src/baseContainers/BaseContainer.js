@@ -878,7 +878,7 @@ class BaseContainer extends React.Component {
                     () => () => this.rowSave(viewId, recordId, parentId, saveElement, true),
                     () => {
                         this.setState({visibleEditPanel: false});
-                        this.returnFromRowEdit();
+                        this.returnFromRowEditIfNeccessery();
                     },
                     (res) => {
                         this.showErrorMessages(res);
@@ -963,7 +963,7 @@ class BaseContainer extends React.Component {
             .then(() => {
                 this.unselectAllDataGrid();
                 this.unblockUi();
-                this.returnFromRowEdit();
+                this.returnFromRowEditIfNeccessery();
             })
             .catch((err) => {
                 this.showGlobalErrorMessage(err);
@@ -1855,12 +1855,16 @@ class BaseContainer extends React.Component {
 
     /** Dla gantta ID_PARENT nie moze byc '' */
     replaceEmptyValuesFromParent(editData) {
-        editData?.editFields?.filter((obj) => {
-            return obj.fields.filter((field) => {
-                if (field.fieldName === 'ID_PARENT') {
-                    field.value = field.value === '' ? null : field.value;
-                }
-                return field;
+        editData.editFields?.filter((editField) => {
+            return editField?.panels?.filter((panel) => {
+                return panel?.groups?.filter((group) => {
+                    return group?.fields?.filter((field) => {
+                        if (field.fieldName === 'ID_PARENT') {
+                            field.value = field.value === '' ? null : field.value;
+                        }
+                        return field;
+                    });
+                });
             });
         });
     }
@@ -1880,13 +1884,20 @@ class BaseContainer extends React.Component {
             this.setState({documentdInfo: documentInfo, modifyEditData: true});
         }
     }
-    // TUUUU
     handleEditRowChange(inputType, event, groupName, info) {
         ConsoleHelper(`handleEditRowChange inputType=${inputType} groupName=${groupName}`);
         const editData = UrlUtils.isEditRowView() ? this.props.editData : this.state.editData;
-        const groupData = editData?.editFields?.filter((obj) => {
-            return obj.groupName === groupName;
-        });
+        const groupData = [];
+        outerLoop: for (let editField of editData?.editFields) {
+            for (let panel of editField.panels) {
+                for (let group of panel.groups) {
+                    if (group.groupName === groupName) {
+                        groupData.push(group);
+                        break outerLoop;
+                    }
+                }
+            }
+        }
         if (event !== undefined) {
             const result = this.setVariableFromEvent(inputType, event);
             const varName = result.varName;
@@ -1986,6 +1997,22 @@ class BaseContainer extends React.Component {
         this.handleEditRowChange(inputType, event, groupName, viewInfo, field);
     }
 
+    renderFields(editData) {
+        return editData?.editFields
+            .flatMap((editField) => editField.panels)
+            .flatMap((panel) => panel.groups)
+            .map((group, index) => {
+                const hiddenElements = group.fields.filter((field) => field.hidden);
+                if (hiddenElements.length === group.fields.length) {
+                    return null;
+                }
+                return this.renderGroup(group, index);
+            });
+    }
+
+    // to overide
+    renderGroup(group, index) {}
+
     refreshFieldVisibility(info) {
         this.blockUi();
         const isEditRowView = UrlUtils.isEditRowView();
@@ -1994,8 +2021,8 @@ class BaseContainer extends React.Component {
         this.crudService
             .refreshFieldVisibility(info.viewId, info.recordId, info.parentId, kindView, refreshObject)
             .then((editRefreshResponse) => {
-                let arrayTmp = editRefreshResponse?.data;
-                let editData = isEditRowView ? this.props.editData : this.state.editData;
+                const arrayTmp = editRefreshResponse?.data;
+                const editData = isEditRowView ? this.props.editData : this.state.editData;
                 arrayTmp.forEach((element) => {
                     EditRowUtils.searchAndRefreshVisibility(editData, element.fieldName, element.hidden);
                 });
@@ -2135,8 +2162,10 @@ class BaseContainer extends React.Component {
     isGridViewBody(recordId) {
         return this.isBody(recordId) && this.isChoosenKindView('View');
     }
-    returnFromRowEdit() {
-        window.location.href = UrlUtils.getUrlWithoutEditRowParams().replace('edit-row-view', 'grid-view');
+    returnFromRowEditIfNeccessery() {
+        if(window.location.href.includes("edit-row-view")){
+            window.location.href = UrlUtils.getUrlWithoutEditRowParams().replace('edit-row-view', 'grid-view');
+        }
     }
 }
 

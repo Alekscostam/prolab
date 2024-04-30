@@ -595,16 +595,20 @@ export default class CrudService extends BaseService {
     createObjectDataToRequest(state) {
         let editData = state.editData;
         let arrayTmp = [];
-        editData.editFields?.forEach((groupFields) => {
-            groupFields?.fields.forEach((field) => {
-                field = this.convertFieldsPerType(field);
-                const elementTmp = {
-                    fieldName: field.fieldName,
-                    value: field.value,
-                };
-                arrayTmp.push(elementTmp);
-            });
-        });
+        for (let editField of editData?.editFields) {
+            for (let panel of editField.panels) {
+                for (let group of panel.groups) {
+                    for (let field of group.fields) {
+                        field = this.convertFieldsPerType(field);
+                        const elementTmp = {
+                            fieldName: field.fieldName,
+                            value: field.value,
+                        };
+                        arrayTmp.push(elementTmp);
+                    }
+                }
+            }
+        }
         return {data: arrayTmp};
     }
 

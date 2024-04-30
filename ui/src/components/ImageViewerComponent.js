@@ -1,6 +1,6 @@
 /* eslint-disable no-script-url */
 /* eslint-disable react/jsx-max-props-per-line */
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import {Dialog} from 'primereact/dialog';
 import {Button} from 'primereact/button';
@@ -12,6 +12,7 @@ import {StringUtils} from '../utils/StringUtils';
 export const ImageViewerComponent = (props) => {
     const {editable, base64, labels, visible, onHide, onApprove, header, viewBase64} = props;
     const [imageSource, setImageSource] = useState(base64);
+
     return (
         <Dialog
             id='imageViewer'

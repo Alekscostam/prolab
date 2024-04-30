@@ -19,13 +19,11 @@ import {EntryResponseUtils} from '../../utils/EntryResponseUtils';
 import BlockUi from '../waitPanel/BlockUi';
 import {OperationType} from '../../model/OperationType';
 
-// TODO: block ui na liste podpwoiedzi
 export class EditRowViewComponent extends BaseRowComponent {
     constructor(props) {
         super(props);
         this.service = new CrudService();
         this.state = {
-            loading: true,
             editListField: {},
             editListVisible: false,
             parsedGridView: {},
@@ -133,37 +131,52 @@ export class EditRowViewComponent extends BaseRowComponent {
                 <BlockUi
                     tag='div'
                     className=''
+                    style={{zIndex: '100010'}}
                     blocking={this.state.blocking}
                     loader={this.loader}
-                    renderBlockUi={this.state.gridViewType !== 'dashboard'}
+                    renderBlockUi={true}
                 >
-                    <EditListComponent
-                        visible={editListVisible}
-                        field={this.state.editListField}
-                        parsedGridView={this.state.parsedGridView}
-                        parsedGridViewData={this.state.parsedGridViewData}
-                        gridViewColumns={this.state.gridViewColumns}
-                        onHide={() => {
-                            this.setState({editListVisible: false});
-                        }}
-                        handleBlockUi={() => {
-                            this.blockUi();
-                            return true;
-                        }}
-                        handleUnblockUi={() => this.unblockUi}
-                        handleOnChosen={(editListData, field) => {
-                            ConsoleHelper('EditRowComponent::handleOnChosen = ', JSON.stringify(editListData));
-                            const editInfo = this.props.editData?.editInfo;
-                            editInfo.field = field;
-                            this.handleEditListRowChange(editInfo, editListData);
-                        }}
-                        showErrorMessages={(err) => this.showErrorMessages(err)}
-                        dataGridStoreSuccess={this.state.dataGridStoreSuccess}
-                        selectedRowData={this.state.selectedRowData}
-                        defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
-                        handleSelectedRowData={(e) => this.handleSelectedRowData(e)}
-                        labels={labels}
-                    />
+                    {editListVisible && (
+                        <EditListComponent
+                            visible={editListVisible}
+                            field={this.state.editListField}
+                            parsedGridView={this.state.parsedGridView}
+                            parsedGridViewData={this.state.parsedGridViewData}
+                            gridViewColumns={this.state.gridViewColumns}
+                            onHide={() => {
+                                this.setState({editListVisible: false});
+                            }}
+                            handleBlockUi={() => {
+                                this.blockUi();
+                                return true;
+                            }}
+                            blockUiIfNeccessery={() => {
+                                const {blocking, dataGridStoreSuccess} = this.state;
+                                const shouldBlock = !blocking && !dataGridStoreSuccess;
+                                if (shouldBlock) {
+                                    this.blockUi();
+                                    return;
+                                }
+                                if (blocking && dataGridStoreSuccess) {
+                                    this.unblockUi();
+                                }
+                            }}
+                            handleUnblockUi={() => this.unblockUi}
+                            handleOnChosen={(editListData, field) => {
+                                ConsoleHelper('EditRowComponent::handleOnChosen = ', JSON.stringify(editListData));
+                                const editInfo = this.props.editData?.editInfo;
+                                editInfo.field = field;
+                                this.handleEditListRowChange(editInfo, editListData);
+                            }}
+                            showErrorMessages={(err) => this.showErrorMessages(err)}
+                            dataGridStoreSuccess={this.state.dataGridStoreSuccess}
+                            selectedRowData={this.state.selectedRowData}
+                            defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
+                            handleSelectedRowData={(e) => this.handleSelectedRowData(e)}
+                            labels={labels}
+                        />
+                    )}
+
                     <form onSubmit={this.handleFormSubmit} noValidate>
                         <div className='row no-gutters'>
                             <div id='view-name' className='col-lg-6 col-md-12'>
@@ -198,20 +211,148 @@ export class EditRowViewComponent extends BaseRowComponent {
                                 />
                             </div>
                         </div>
-                        <div id='row-edit' className='mt-4 row'>
+                        <div id='row-edit' className='mt-4 row row-edit-view'>
                             {this.state.preventSave ? (
                                 <div id='validation-panel' className='validation-panel justify-content-center'>
                                     {this.fieldsMandatoryLabel}
                                 </div>
                             ) : null}
-                            {editData?.editFields?.map((group, index) => {
-                                return this.renderGroup(group, index);
-                            })}
+                            {this.renderPanels(editData)}
                         </div>
                     </form>
                 </BlockUi>
             </React.Fragment>
         );
+    }
+    renderFields(panel) {
+        return panel.groups.map((group, index) => {
+            const hiddenElements = group.fields.filter((field) => field.hidden);
+            if (hiddenElements.length === group.fields.length) {
+                return null;
+            }
+            return this.renderGroup(group, index);
+        });
+    }
+
+    scaleSize(editField, side){
+        
+        const left = editField.panels.find((panel) => panel.panel === 'left');
+        const middle = editField.panels.find((panel) => panel.panel === 'middle');
+        const right = editField.panels.find((panel) => panel.panel === 'right');
+        const panelFounded = editField.panels.find((panel) => panel.panel === side);
+
+        const leftSize = left ? left.size : 0;
+        const rightSize = right ? right.size : 0;
+        const middleSize = middle ? middle.size : 0;
+        if(side === "bottom"){
+           const bottom =  editField.panels.find((panel) => panel.panel === side);
+            if(bottom){
+                return this.getSizeFromPanel(bottom);
+            }
+            return undefined;
+        }
+        if((leftSize + middleSize + rightSize) > 100){
+            if((leftSize + middleSize) > 100){
+                if(leftSize > 100){
+                    if(side==="middle" || side === "right"){
+                        return undefined;
+                    }
+                    return 100;
+                }else{
+                    if(side==="middle"){
+                        const sizeResult =  (100 - (leftSize));
+                        return sizeResult === 0 ? undefined : sizeResult;
+                    }
+                    if(side==='right'){
+                        return undefined;
+                    }
+                    return this.getSizeFromPanel(panelFounded);
+                }
+            }else{
+                if(side==="right"){
+                    const sizeResult =  (100 - (leftSize + middleSize));
+                    return sizeResult === 0 ? undefined : sizeResult;
+                }
+                return this.getSizeFromPanel(panelFounded);
+            }
+        }
+        else{
+           return this.getSizeFromPanel(panelFounded);
+        }
+    }
+    getSizeFromPanel(panel){
+        return panel?.size;
+    }
+    renderPanels(editData) {
+        return editData?.editFields.map((editField, panelIndex) => {
+            const left = editField.panels.find((panel) => panel.panel === 'left');
+            const middle = editField.panels.find((panel) => panel.panel === 'middle');
+            const right = editField.panels.find((panel) => panel.panel === 'right');
+            const bottom = editField.panels.find((panel) => panel.panel === 'bottom');
+            const marginsForBottomPanel = this.calcaulateMarginsForBottomPanel(bottom);
+            const styleForPanels = {
+                paddingRight: '0px',
+                paddingLeft: '0px',
+                boxShadow: 'none',
+                paddingBottom: '0px',
+            };
+            const sizeLeft =this.scaleSize(editField, "left");
+            const sizeRight = this.scaleSize(editField, "right");
+            const sizeMiddle =this.scaleSize(editField, "middle");
+            const sizeBottom =this.scaleSize(editField, "bottom");
+            return (
+                <React.Fragment>
+                    {sizeLeft  && (
+                        <div className={`${this.getPanelColSize(sizeLeft)} col-md-6 col-sm-12`}>
+                            <Panel
+                                key={`edit-row-panel-left-${panelIndex}`}
+                                id={`panel_left_${panelIndex}`}
+                                style={styleForPanels}
+                            >
+                                {this.renderFields(left)}
+                            </Panel>
+                        </div>
+                    )}
+                    {sizeMiddle && (
+                        <div className={`${this.getPanelColSize(sizeMiddle)} col-md-6 col-sm-12`}>
+                            <Panel
+                                key={`edit-row-panel-middle-${panelIndex}`}
+                                id={`panel_middle_${panelIndex}`}
+                                style={styleForPanels}
+                            >
+                                {this.renderFields(middle)}
+                            </Panel>
+                        </div>
+                    )}
+                    {sizeRight && (
+                        <div className={`${this.getPanelColSize(sizeRight)} col-md-6 col-sm-12`}>
+                            <Panel
+                                key={`edit-row-panel-right-${panelIndex}`}
+                                id={`panel_right_${panelIndex}`}
+                                style={styleForPanels}
+                            >
+                                {this.renderFields(right)}
+                            </Panel>
+                        </div>
+                    )}
+                    {sizeBottom && (
+                        <React.Fragment>
+                            {marginsForBottomPanel && <div className={marginsForBottomPanel}></div>}
+                            <div className={`${this.getPanelColSize(sizeBottom)} col-md-6 col-sm-12`}>
+                                <Panel
+                                    key={`edit-row-panel-bottom-${panelIndex}`}
+                                    id={`panel_bottom_${panelIndex}`}
+                                    style={styleForPanels}
+                                >
+                                    {this.renderFields(bottom)}
+                                </Panel>
+                            </div>
+                            {marginsForBottomPanel && <div className={marginsForBottomPanel}></div>}
+                        </React.Fragment>
+                    )}
+                </React.Fragment>
+            );
+        });
     }
 
     handleFormSubmit(event) {
@@ -250,44 +391,28 @@ export class EditRowViewComponent extends BaseRowComponent {
         this.handleCancelRowChange(editInfo.viewId, editInfo.recordId, editInfo.parentId);
     }
 
-    getPanelSize = (group) => {
-        const panelSize = group?.panelSize ? group?.panelSize : 'col-lg-4';
+    getPanelColSize = (size) => {
+        const panelSize = size ? size : 'col-lg-4';
         if (panelSize === 'col-lg-4') {
             return panelSize;
         }
         return 'ccol-' + panelSize;
     };
-    getPanel = (group) => {
-        const panel = group?.panel;
-        switch (panel) {
-            case 'left':
-                return {marginRight: 'auto'};
-            case 'right':
-                return {marginLeft: 'auto'};
-            case 'bottom':
-            case 'center':
-                return {margin: '0 auto'};
-            default:
-                return {};
-        }
-    };
-    calcaulateMarginsForBottomPanel = (group) => {
-        const panel = group?.panel;
-        const panelSize = group?.panelSize ? '100' : group?.panelSize;
-        if (panel === 'bottom') {
-            const margin = Math.floor((100 - parseInt(panelSize)) / 2);
+    
+    calcaulateMarginsForBottomPanel = (panel) => {
+        if (panel) {
+            const margin = Math.floor((100 - parseInt(panel.size)) / 2);
             return 'ccol-' + margin;
         }
-        return undefined;
     };
     renderGroup(group, groupIndex) {
-        const marginsForBottomPanel = this.calcaulateMarginsForBottomPanel(group);
         return (
             <React.Fragment>
-                {marginsForBottomPanel && <div className={marginsForBottomPanel}></div>}
-                <div className={`${this.getPanelSize(group)} col-md-6 col-sm-12`}>
+                <div
+                    className={`col-12`}
+                    style={{paddingRight: '0px', paddingLeft: '0px', boxShadow: 'none', paddingBottom: '0px'}}
+                >
                     <Panel
-                        style={this.getPanel(group)}
                         key={`edit-row-panel-${groupIndex}`}
                         id={`group_${groupIndex}`}
                         header={group.groupName}
@@ -300,7 +425,6 @@ export class EditRowViewComponent extends BaseRowComponent {
                         </DivContainer>
                     </Panel>
                 </div>
-                {marginsForBottomPanel && <div className={marginsForBottomPanel}></div>}
             </React.Fragment>
         );
     }
