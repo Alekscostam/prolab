@@ -35,7 +35,7 @@ class DashboardContainer extends BaseContainer {
         this.state = {
             loading: true,
             copyData: null,
-            cardView: [],
+            cardView: undefined,
         };
     }
 
@@ -379,65 +379,69 @@ class DashboardContainer extends BaseContainer {
         const recordId = UrlUtils.getRecordId();
         const cardId = this.state.dashboard?.headerData ? this.state.dashboard?.headerData[0]?.ID : null;
         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
-
+        const width = this.state.cardView?.cardOptions?.width;
+        const widthStyle = width ? {width: width + 10} : {};
         return (
             <React.Fragment>
-                <div className='rows'>
-                    <div className='column left' style={{width: this.state.cardView.cardOptions?.width + 10}}>
-                        <DashboardCardViewComponent
-                            id={this.state.cardView.viewInfo?.id}
-                            mode='dashboard'
-                            handleOnInitialized={(ref) => (this.cardGrid = ref)}
-                            parsedGridView={this.state.cardView}
-                            parsedCardViewData={this.state.dashboard?.headerData}
-                            handleShowEditPanel={(editDataResponse) => {
-                                this.handleShowEditPanel(editDataResponse);
-                            }}
-                            handleOperation={(operation) => {
-                                this.handleOperation(operation);
-                            }}
-                            handleBlockUi={() => {
-                                this.blockUi();
-                                return true;
-                            }}
-                            showErrorMessages={(err) => this.showErrorMessages(err)}
-                        />
-                        {this.state.dashboard?.views
-                            ?.filter((item) => item.position === 'left')
-                            .map((item) => {
-                                return this.renderGridView(
-                                    item,
-                                    cardId,
-                                    currentBreadcrumb,
-                                    this.state.cardView.cardOptions?.height,
-                                    recordId
-                                );
-                            })}
+                {this.state.cardView && (
+                    <div className='rows'>
+                        <div className='column left' style={widthStyle}>
+                            <DashboardCardViewComponent
+                                id={this.state.cardView.viewInfo?.id}
+                                mode='dashboard'
+                                handleOnInitialized={(ref) => (this.cardGrid = ref)}
+                                parsedGridView={this.state.cardView}
+                                parsedCardViewData={this.state.dashboard?.headerData}
+                                handleShowEditPanel={(editDataResponse) => {
+                                    this.handleShowEditPanel(editDataResponse);
+                                }}
+                                handleOperation={(operation) => {
+                                    this.handleOperation(operation);
+                                }}
+                                handleBlockUi={() => {
+                                    this.blockUi();
+                                    return true;
+                                }}
+                                showErrorMessages={(err) => this.showErrorMessages(err)}
+                            />
+                            {this.state.dashboard?.views
+                                ?.filter((item) => item.position === 'left')
+                                .map((item) => {
+                                    return this.renderGridView(
+                                        item,
+                                        cardId,
+                                        currentBreadcrumb,
+                                        this.state.cardView.cardOptions?.height,
+                                        recordId
+                                    );
+                                })}
+                        </div>
+                        <div className='column right'>
+                            {this.state.dashboard?.views
+                                ?.filter((item) => item.position === 'right')
+                                .map((item) => {
+                                    return this.renderGridView(
+                                        item,
+                                        cardId,
+                                        currentBreadcrumb,
+                                        this.state.cardView.cardOptions?.height,
+                                        recordId
+                                    );
+                                })}
+                        </div>
                     </div>
-                    <div className='column right'>
-                        {this.state.dashboard?.views
-                            ?.filter((item) => item.position === 'right')
-                            .map((item) => {
-                                return this.renderGridView(
-                                    item,
-                                    cardId,
-                                    currentBreadcrumb,
-                                    this.state.cardView.cardOptions?.height,
-                                    recordId
-                                );
-                            })}
-                    </div>
-                </div>
+                )}
             </React.Fragment>
         );
     }
 
     renderGridView(item, cardViewId, currentBreadcrumb, _cardHeight, recordId) {
         return (
-            <div className='panel-dashboard'>
+            <div key={`${item.id}_${cardViewId}_grid-view`} className='panel-dashboard'>
                 <span className='title-dashboard'>{item.label}</span>
                 <div style={{float: 'right'}}>
                     <ShortcutButton
+                        key={`${item.id}_shortcut`}
                         id={`_menu_button`}
                         className={`action-button-with-menu`}
                         iconName={'mdi-open-in-new'}
@@ -496,6 +500,6 @@ class DashboardContainer extends BaseContainer {
 }
 
 DashboardContainer.defaultProps = {};
-DashboardContainer.propTypes = {dashboard: PropTypes.object, handleRenderNoRefreshContent: PropTypes.bool.isRequired};
+DashboardContainer.propTypes = {dashboard: PropTypes.object, handleRenderNoRefreshContent: PropTypes.func.isRequired};
 
 export default DashboardContainer;

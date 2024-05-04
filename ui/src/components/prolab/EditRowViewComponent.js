@@ -234,8 +234,7 @@ export class EditRowViewComponent extends BaseRowComponent {
         });
     }
 
-    scaleSize(editField, side){
-        
+    scaleSize(editField, side) {
         const left = editField.panels.find((panel) => panel.panel === 'left');
         const middle = editField.panels.find((panel) => panel.panel === 'middle');
         const right = editField.panels.find((panel) => panel.panel === 'right');
@@ -244,45 +243,42 @@ export class EditRowViewComponent extends BaseRowComponent {
         const leftSize = left ? left.size : 0;
         const rightSize = right ? right.size : 0;
         const middleSize = middle ? middle.size : 0;
-        if(side === "bottom"){
-           const bottom =  editField.panels.find((panel) => panel.panel === side);
-            if(bottom){
+        if (side === 'bottom') {
+            const bottom = editField.panels.find((panel) => panel.panel === side);
+            if (bottom) {
                 return this.getSizeFromPanel(bottom);
             }
             return undefined;
         }
-        if((leftSize + middleSize + rightSize) > 100){
-            if((leftSize + middleSize) > 100){
-                if(leftSize > 100){
-                    if(side==="middle" || side === "right"){
+        if (leftSize + middleSize + rightSize > 100) {
+            if (leftSize + middleSize > 100) {
+                if (leftSize > 100) {
+                    if (side === 'middle' || side === 'right') {
                         return undefined;
                     }
                     return 100;
-                }else{
-                    if(side==="middle"){
-                        const sizeResult =  (100 - (leftSize));
+                } else {
+                    if (side === 'middle') {
+                        const sizeResult = 100 - leftSize;
                         return sizeResult === 0 ? undefined : sizeResult;
                     }
-                    if(side==='right'){
+                    if (side === 'right') {
                         return undefined;
                     }
-                    return this.getSizeFromPanel(panelFounded);
+                    return panelFounded?.size;
                 }
-            }else{
-                if(side==="right"){
-                    const sizeResult =  (100 - (leftSize + middleSize));
+            } else {
+                if (side === 'right') {
+                    const sizeResult = 100 - (leftSize + middleSize);
                     return sizeResult === 0 ? undefined : sizeResult;
                 }
-                return this.getSizeFromPanel(panelFounded);
+                return panelFounded?.size;
             }
-        }
-        else{
-           return this.getSizeFromPanel(panelFounded);
+        } else {
+            return panelFounded?.size;
         }
     }
-    getSizeFromPanel(panel){
-        return panel?.size;
-    }
+
     renderPanels(editData) {
         return editData?.editFields.map((editField, panelIndex) => {
             const left = editField.panels.find((panel) => panel.panel === 'left');
@@ -296,14 +292,17 @@ export class EditRowViewComponent extends BaseRowComponent {
                 boxShadow: 'none',
                 paddingBottom: '0px',
             };
-            const sizeLeft =this.scaleSize(editField, "left");
-            const sizeRight = this.scaleSize(editField, "right");
-            const sizeMiddle =this.scaleSize(editField, "middle");
-            const sizeBottom =this.scaleSize(editField, "bottom");
+            const sizeLeft = this.scaleSize(editField, 'left');
+            const sizeRight = this.scaleSize(editField, 'right');
+            const sizeMiddle = this.scaleSize(editField, 'middle');
+            const sizeBottom = this.scaleSize(editField, 'bottom');
             return (
-                <React.Fragment>
-                    {sizeLeft  && (
-                        <div className={`${this.getPanelColSize(sizeLeft)} col-md-6 col-sm-12`}>
+                <React.Fragment key={`panel_${panelIndex}`}>
+                    {sizeLeft && (
+                        <div
+                            key={`div_col_left_${panelIndex}`}
+                            className={`${this.getPanelColSize(sizeLeft)} col-md-6 col-sm-12`}
+                        >
                             <Panel
                                 key={`edit-row-panel-left-${panelIndex}`}
                                 id={`panel_left_${panelIndex}`}
@@ -314,7 +313,10 @@ export class EditRowViewComponent extends BaseRowComponent {
                         </div>
                     )}
                     {sizeMiddle && (
-                        <div className={`${this.getPanelColSize(sizeMiddle)} col-md-6 col-sm-12`}>
+                        <div
+                            key={`div_col_middle_${panelIndex}`}
+                            className={`${this.getPanelColSize(sizeMiddle)} col-md-6 col-sm-12`}
+                        >
                             <Panel
                                 key={`edit-row-panel-middle-${panelIndex}`}
                                 id={`panel_middle_${panelIndex}`}
@@ -325,7 +327,10 @@ export class EditRowViewComponent extends BaseRowComponent {
                         </div>
                     )}
                     {sizeRight && (
-                        <div className={`${this.getPanelColSize(sizeRight)} col-md-6 col-sm-12`}>
+                        <div
+                            key={`div_col_right_${panelIndex}`}
+                            className={`${this.getPanelColSize(sizeRight)} col-md-6 col-sm-12`}
+                        >
                             <Panel
                                 key={`edit-row-panel-right-${panelIndex}`}
                                 id={`panel_right_${panelIndex}`}
@@ -338,7 +343,10 @@ export class EditRowViewComponent extends BaseRowComponent {
                     {sizeBottom && (
                         <React.Fragment>
                             {marginsForBottomPanel && <div className={marginsForBottomPanel}></div>}
-                            <div className={`${this.getPanelColSize(sizeBottom)} col-md-6 col-sm-12`}>
+                            <div
+                                key={`div_col_bottom_${panelIndex}`}
+                                className={`${this.getPanelColSize(sizeBottom)} col-md-6 col-sm-12`}
+                            >
                                 <Panel
                                     key={`edit-row-panel-bottom-${panelIndex}`}
                                     id={`panel_bottom_${panelIndex}`}
@@ -398,7 +406,7 @@ export class EditRowViewComponent extends BaseRowComponent {
         }
         return 'ccol-' + panelSize;
     };
-    
+
     calcaulateMarginsForBottomPanel = (panel) => {
         if (panel) {
             const margin = Math.floor((100 - parseInt(panel.size)) / 2);
@@ -409,6 +417,7 @@ export class EditRowViewComponent extends BaseRowComponent {
         return (
             <React.Fragment>
                 <div
+                    key={'div_panel_' + groupIndex}
                     className={`col-12`}
                     style={{paddingRight: '0px', paddingLeft: '0px', boxShadow: 'none', paddingBottom: '0px'}}
                 >
@@ -420,7 +429,11 @@ export class EditRowViewComponent extends BaseRowComponent {
                     >
                         <DivContainer>
                             {group.fields?.map((field, index) => {
-                                return this.renderField(field, index, group.groupName);
+                                return (
+                                    <span key={`field_col_` + index}>
+                                        {this.renderField(field, index, group.groupName)}
+                                    </span>
+                                );
                             })}
                         </DivContainer>
                     </Panel>

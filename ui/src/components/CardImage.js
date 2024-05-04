@@ -11,7 +11,7 @@ export const CardImage = (props) => {
         base64Tmp = `data:image/jpeg;base64,${base64}`;
     }
     if (rendered) {
-        return <img style={style} class={className} alt={alt} src={base64Tmp} />;
+        return <img style={style} className={className} alt={alt} src={base64Tmp} />;
     } else {
         return null;
     }

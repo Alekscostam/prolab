@@ -102,10 +102,19 @@ export const MenuWithButtons = (props) => {
             <Menu
                 id='menu-with-buttons'
                 appendTo={document.body}
+                baseZIndex={props?.zIndex}
                 style={{
                     position: 'absolute',
                 }}
                 onBlur={(e) => {
+                    if (props?.componentInducedTime) {
+                        const componentInducedTime = props?.componentInducedTime;
+                        const now = Date.now();
+                        const differenceInMilisonds = now - componentInducedTime < 200;
+                        if (differenceInMilisonds) {
+                            return;
+                        }
+                    }
                     props.menu.current.hide(e);
                 }}
                 model={menuItems}

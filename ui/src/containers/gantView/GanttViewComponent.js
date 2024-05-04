@@ -10,6 +10,7 @@ import Gantt, {
     Editing,
     StripLine,
     HeaderFilter,
+    ContextMenu,
 } from 'devextreme-react/gantt';
 
 import 'devextreme/dist/css/dx.light.css';
@@ -35,6 +36,7 @@ import LocUtils from '../../utils/LocUtils.js';
 import {MenuWithButtons} from '../../components/prolab/MenuWithButtons.js';
 import {DataGridUtils} from '../../utils/component/DataGridUtils.js';
 import {ColumnType} from '../../model/ColumnType.js';
+import moment from 'moment/moment.js';
 
 const UNCOLLAPSED_CUT_SIZE = 327;
 const COLLAPSED_CUT_SIZE = 140;
@@ -60,6 +62,7 @@ class GanttViewComponent extends React.Component {
             selectionColumnWidth: undefined,
             selectedRowKeys: [],
             selectedRecordId: undefined,
+            menuWithButtonInducedTime: undefined,
             tasks: [],
             dependencies: [],
             resources: [],
@@ -85,24 +88,21 @@ class GanttViewComponent extends React.Component {
     }
     showMenu(e) {
         const menu = this.menu.current;
-        const actionButtonWithMenuContant = document.getElementById('action-button-with-menu-contant');
-        if (actionButtonWithMenuContant) {
-            actionButtonWithMenuContant.click();
-        }
-        if (menu !== null && e.targetType === 'task') {
+        if (menu !== null && e.targetType === 'task' && !!e?.data?.ID) {
             const mouseX = e.event.clientX;
             const mouseY = e.event.clientY;
             e.event.stopPropagation();
             e.event.preventDefault();
-            this.menu.current.toggle(e.event);
-            this.setState({selectedRecordId: e.data.ID}, () => {
+            menu.show(e.event);
+            this.setState({selectedRecordId: e.data.ID, menuWithButtonInducedTime: new Date()}, () => {
                 const menu = document.getElementById('menu-with-buttons');
                 menu.style.left = mouseX + 'px';
                 menu.style.top = mouseY + 'px';
             });
+        } else if (menu !== null && e.targetType === 'task') {
+            menu.hide(e.event);
         }
     }
-    /** Wylicza ilość parentów dla danych */
     setSelectionWidth(data) {
         const allDatas = data.map((el) => new ParentModel(el.ID, el.ID_PARENT));
         let parents = allDatas.filter((el) => el.idParent === null);
@@ -212,13 +212,17 @@ class GanttViewComponent extends React.Component {
         const brawserWidth = document.body.offsetWidth;
         const width = this.props.collapsed ? brawserWidth - COLLAPSED_CUT_SIZE : brawserWidth - UNCOLLAPSED_CUT_SIZE;
 
-        const endDateRange = this.props?.parsedGanttView?.ganttOptions?.endDateRange;
-        const startDateRange = this.props?.parsedGanttView?.ganttOptions?.startDateRange;
+        const endDateRange = !!this.props?.parsedGanttView?.ganttOptions?.endDateRange
+            ? moment(this.props?.parsedGanttView?.ganttOptions?.endDateRange, 'YYYY-MM-DD').toDate()
+            : null;
+        const startDateRange = !!this.props?.parsedGanttView?.ganttOptions?.startDateRange
+            ? moment(this.props?.parsedGanttView?.ganttOptions?.startDateRange, 'YYYY-MM-DD').toDate()
+            : null;
 
         const isDependencies = this.props?.parsedGanttView?.ganttOptions?.isDependencies;
         const scaleType = this.props?.parsedGanttView?.ganttOptions?.scaleType;
         const isResources = this.props?.parsedGanttView?.ganttOptions?.isResources;
-        const isEditing = this.props?.parsedGanttView?.ganttOptions?.isEditing;
+        const isEditing = !!this.props?.parsedGanttView?.ganttOptions?.isEditing;
         const taskListWidth = this.props?.parsedGanttView?.ganttOptions?.taskListWidth;
         const taskTitlePosition = this.props?.parsedGanttView?.ganttOptions?.taskTitlePosition;
         // tasks
@@ -255,7 +259,10 @@ class GanttViewComponent extends React.Component {
             this.state.tasks.length > 0 && (
                 <React.Fragment>
                     <Gantt
-                        onContextMenuPreparing={(e) => this.showMenu(e)}
+                        onContextMenuPreparing={(e) => {
+                            e.cancel = true;
+                            this.showMenu(e);
+                        }}
                         id='gantt-container'
                         keyExpr='ID'
                         focusedRowEnabled={false}
@@ -318,6 +325,8 @@ class GanttViewComponent extends React.Component {
                         <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'} />
                     </Gantt>
                     <MenuWithButtons
+                        componentInducedTime={this.state.menuWithButtonInducedTime}
+                        zIndex={1000001}
                         handleSaveAction={() => this.props.handleSaveAction()}
                         handleHrefSubview={() => this.handleHrefSubview(viewId, selectedRecordId, currentBreadcrumb)}
                         handleEdit={() =>
@@ -924,19 +933,18 @@ GanttViewComponent.propTypes = {
     handleSelectAll: PropTypes.func,
     selectionDeferred: PropTypes.bool,
     //buttons
-    handleArchiveRow: PropTypes.func.isRequired,
-    handleCopyRow: PropTypes.func.isRequired,
-    handleDownloadRow: PropTypes.func.isRequired,
-    handleAttachmentRow: PropTypes.func.isRequired,
-    handleDeleteRow: PropTypes.func.isRequired,
-    handleRestoreRow: PropTypes.func.isRequired,
-    handleHistory: PropTypes.func.isRequired,
-    handlePublishRow: PropTypes.func.isRequired,
+    handleArchiveRow: PropTypes.func,
+    handleCopyRow: PropTypes.func,
+    handleDownloadRow: PropTypes.func,
+    handleAttachmentRow: PropTypes.func,
+    handleDeleteRow: PropTypes.func,
+    handleRestoreRow: PropTypes.func,
+    handleHistory: PropTypes.func,
+    handlePublishRow: PropTypes.func,
     //other
     handleBlockUi: PropTypes.func.isRequired,
     handleUnblockUi: PropTypes.func.isRequired,
     refresh: PropTypes.func,
-    showInfoMessages: PropTypes.func.isRequired,
     showErrorMessages: PropTypes.func.isRequired,
     showColumnHeaders: PropTypes.bool,
     showColumnLines: PropTypes.bool,

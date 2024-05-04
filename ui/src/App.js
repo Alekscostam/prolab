@@ -1,4 +1,4 @@
-import React, {Component, PureComponent} from 'react';
+import React, {Component} from 'react';
 import {HashRouter, Route, Switch} from 'react-router-dom';
 import Sidebar from './containers/layout/Sidebar';
 import Login from './containers/LoginContainer';
@@ -41,7 +41,7 @@ export let reStateApp;
 export let renderNoRefreshContentFnc;
 export let sessionPrelongFnc = null;
 export let addBtn = null;
-// TODO: czy na pewno chcesz opuścic okno 
+
 class App extends Component {
     constructor() {
         super();
@@ -620,6 +620,7 @@ class App extends Component {
                                                                     }
                                                                 >
                                                                     <DashboardContainer
+                                                                        key={'Dashboard'}
                                                                         labels={labels}
                                                                         handleRenderNoRefreshContent={(
                                                                             renderNoRefreshContent

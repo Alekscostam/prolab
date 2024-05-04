@@ -46,21 +46,19 @@ class SubGridViewComponent extends React.Component {
     }
     showMenu(e) {
         const menu = this.menuSubGrid.current;
-        const actionButtonWithMenuContant = document.getElementById('action-button-with-menu-contant');
-        if (actionButtonWithMenuContant) {
-            actionButtonWithMenuContant.click();
-        }
-        if (menu !== null && e.row.rowType === 'data') {
+        if (menu !== null && e.row.rowType === 'data' && !!e?.row?.data?.ID) {
             const mouseX = e.event.clientX;
             const mouseY = e.event.clientY;
             e.event.stopPropagation();
             e.event.preventDefault();
-            menu.toggle(e.event);
+            menu.show(e.event);
             this.setState({selectedRecordId: e.row.data.ID}, () => {
                 const menu = document.getElementById('menu-with-buttons');
                 menu.style.left = mouseX + 'px';
                 menu.style.top = mouseY + 'px';
             });
+        } else if (menu !== null && e.row.rowType === 'data') {
+            menu.hide(e.event);
         }
     }
     //very important !!!

@@ -76,26 +76,18 @@ export class DashboardGridViewComponent extends BaseContainer {
         const id = this.props.id;
         const subViewId = this.props.subViewId;
         const recordId = this.props.recordId;
-        const filterId = this.props.filterId;
         const viewType = this.props.viewType;
         ConsoleHelper(
-            `GridGridViewContainer::componentDidMount -> id=${id}, subViewId = ${subViewId}, recordId = ${recordId}, filterId = ${filterId}, viewType=${viewType}`
+            `GridGridViewContainer::componentDidMount -> id=${id}, subViewId = ${subViewId}, recordId = ${recordId},  viewType=${viewType}`
         );
         this.setState(
             {
                 elementSubViewId: subViewId,
                 elementRecordId: recordId,
-                elementFilterId: filterId,
                 viewType: viewType,
             },
             () => {
-                this.downloadData(
-                    id,
-                    this.state.elementRecordId,
-                    this.state.elementSubViewId,
-                    this.state.elementFilterId,
-                    viewType
-                );
+                this.downloadData(id, this.state.elementRecordId, this.state.elementSubViewId, viewType);
             }
         );
     }
@@ -107,15 +99,15 @@ export class DashboardGridViewComponent extends BaseContainer {
         this._isMounted = false;
     }
 
-    downloadData(viewId, recordId, subviewId, filterId, viewType) {
+    downloadData(viewId, recordId, subviewId, viewType) {
         ConsoleHelper(
             `GridGridViewContainer::downloadData: viewId=${viewId}, recordId=${recordId}, subViewId=${subviewId}, viewType=${viewType}`
         );
-        this.getViewById(viewId, recordId, filterId, viewType, null);
+        this.getViewById(viewId, recordId, viewType);
     }
 
     //@override
-    getViewById(viewId, recordId, filterId, viewType, subviewMode) {
+    getViewById(viewId, recordId, viewType) {
         this.setState({loading: true}, () => {
             this.viewService
                 .getView(viewId, viewType)
@@ -225,7 +217,6 @@ export class DashboardGridViewComponent extends BaseContainer {
                 this.state.elementId,
                 this.state.elementRecordId,
                 this.state.elementSubViewId,
-                this.state.elementFilterId,
                 this.state.viewType
             );
         });
@@ -723,10 +714,9 @@ export class DashboardGridViewComponent extends BaseContainer {
 
     static propTypes = {
         id: PropTypes.number.isRequired,
-        subViewId: PropTypes.number.isRequired,
-        recordId: PropTypes.number.isRequired,
-        filterId: PropTypes.number.isRequired,
-        viewType: PropTypes.number.isRequired,
+        subViewId: PropTypes.number,
+        recordId: PropTypes.number,
+        viewType: PropTypes.string.isRequired,
         showColumnLines: PropTypes.bool,
         showRowLines: PropTypes.bool,
         showBorders: PropTypes.bool,

@@ -1,8 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import BaseContainer from '../baseContainers/BaseContainer';
-import HeadPanel from '../components/prolab/HeadPanel';
-import ShortcutsButton from '../components/prolab/ShortcutsButton';
 import CrudService from '../services/CrudService';
 import ViewService from '../services/ViewService';
 import {Breadcrumb} from '../utils/BreadcrumbUtils';
@@ -118,7 +116,7 @@ export class AddSpecContainer extends BaseContainer {
     }
 
     componentWillUnmount() {
-        this._isMounted = false;
+        super.componentWillUnmount();
     }
 
     downloadData(viewId, parentId, recordId) {
@@ -132,7 +130,7 @@ export class AddSpecContainer extends BaseContainer {
                 <React.Fragment>
                     {this.props.visibleAddSpec && (
                         <Dialog
-                            id={'popup-add-spec '}
+                            id={'popup-add-spec'}
                             key={`popup-add-spec`}
                             blockScroll={true}
                             draggable
@@ -447,7 +445,7 @@ export class AddSpecContainer extends BaseContainer {
     }
     //override
     specExec = (viewId, parentId, type, headerId, header) => {
-        const numberOfCopies = this.numberOfCopies?.current?.element.children[0]?.value;
+        const numberOfCopies = this.numberOfCopies?.current.getElement().children[0]?.value;
         this.blockUi();
         if (this.isGridViewUrlExist()) {
             parentId = UrlUtils.getRecordId();
@@ -477,6 +475,9 @@ export class AddSpecContainer extends BaseContainer {
                 } else {
                     this.setLinesForChild(result);
                 }
+                console.log(result, 'ONE');
+                this.replaceReapetedIds(result);
+                console.log(result, 'TWO');
                 this.props.handleAddElements(result);
                 this.props.onHide();
                 this.unblockUi();
@@ -485,7 +486,19 @@ export class AddSpecContainer extends BaseContainer {
                 this.showGlobalErrorMessage(err);
             });
     };
-
+    replaceReapetedIds(result) {
+        const parsedGridViewData = this.props?.parsedGridViewData;
+        const concatedArray = result.concat(parsedGridViewData);
+        result.forEach((el) => {
+            while (this.anyoneAlreadyHasId(el._ID, concatedArray)) {
+                el._ID = parseInt(el._ID) + 1;
+            }
+        });
+    }
+    anyoneAlreadyHasId(id, array) {
+        const result = array.filter((el) => el._ID === id);
+        return result.length >= 2;
+    }
     setLinesForChild(array, prevGradients) {
         const clonedPrevGradients = structuredClone(prevGradients);
 
@@ -544,41 +557,7 @@ export class AddSpecContainer extends BaseContainer {
 
     //override
     renderHeadPanel = () => {
-        const operations = this.state?.parsedView?.operations;
-        if (operations?.length === 0) {
-            return <React.Fragment />;
-        }
-        return (
-            <React.Fragment>
-                <HeadPanel
-                    elementId={this.state.elementId}
-                    elementRecordId={this.state.elementRecordId}
-                    elementSubViewId={null}
-                    elementKindView={this.state.elementKindView}
-                    selectedRowKeys={this.state.selectedRowKeys}
-                    operations={this.state.parsedView?.operations}
-                    labels={this.props.labels}
-                    rightContent={
-                        <React.Fragment>
-                            <ShortcutsButton items={this.state.parsedView?.shortcutButtons} maxShortcutButtons={5} />
-                        </React.Fragment>
-                    }
-                    handleDelete={() => this.delete()}
-                    handleAddLevel={() => this.publish()}
-                    handleUp={() => this.up()}
-                    handleDown={() => this.down()}
-                    handleRestore={() => this.restore()}
-                    handleCopy={() => this.copyEntry()}
-                    handleArchive={() => this.archive()}
-                    handleFormula={() => this.caclulateFormula()}
-                    handleAttachments={() => this.attachment()}
-                    handlePublish={() => this.publishEntry()}
-                    handleUnblockUi={() => this.unblockUi()}
-                    showErrorMessages={(err) => this.showErrorMessages(err)}
-                    handleBlockUi={() => this.blockUi()}
-                />
-            </React.Fragment>
-        );
+        return <React.Fragment />;
     };
 
     updateData(dataToUpdate, callbackAction) {

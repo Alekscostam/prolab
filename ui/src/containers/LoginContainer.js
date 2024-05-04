@@ -35,6 +35,7 @@ class LoginContainer extends BaseContainer {
         this.registration = this.registration.bind(this);
         this.userService = new UserService();
         this.messages = React.createRef();
+        this._isMounted = false;
         this.state = {
             username: '',
             password: '',
@@ -102,8 +103,9 @@ class LoginContainer extends BaseContainer {
     }
 
     componentDidMount() {
-        this.authService.removeLoginCookies();
         super.componentDidMount();
+        this._isMounted = false;
+        this.authService.removeLoginCookies();
         const values = queryString.parse(this.props.location.search);
         this.targetLocation = values.location;
         this.getLocalizationLoginPage();
@@ -120,7 +122,10 @@ class LoginContainer extends BaseContainer {
                     if (resp.labels) {
                         resp.labels.forEach((label) => (labels[label.code] = label.caption));
                     }
-                    this.setState({langs, labels, lang}, () => this.unblockUi());
+                    this.setState({langs, labels, lang}, () => {
+                        this.unblockUi();
+                        this._isMounted = true;
+                    });
                 })
                 .catch((err) => {
                     ConsoleHelper(`LoginContainer:getLocalizationLoginPage error`, err);
@@ -173,37 +178,39 @@ class LoginContainer extends BaseContainer {
         } else {
             const {labels} = this.state;
             return (
-                <BlockUi
-                    tag='div'
-                    blocking={this.state.blocking || this.state.loading}
-                    loader={this.loader}
-                    renderBlockUi={true}
-                >
-                    {this.state.visibleUserComponent ? (
-                        <UserRowComponent
-                            visible={this.state.visiblePublishDialog}
-                            onHide={() => {
-                                this.setState({visibleUserComponent: false});
-                            }}
-                            labels={labels}
-                            token={this.state.token}
-                            editData={this.state.editData}
-                            onSave={this.handleEditRowSave}
-                            onAutoFill={this.handleAutoFillRowChange}
-                            onEditList={this.handleEditListRowChange}
-                            onCancel={this.handleCancelRowChange}
-                            onChange={this.handleEditRowChange}
-                            onBlur={this.handleEditRowBlur}
-                            showErrorMessages={(err) => {
-                                this.showErrorMessage(err);
-                            }}
-                            user={this.state.userInfo.user}
-                            close={() => this.setState({visiblePublishDialog: false})}
-                            handleUnselectAllData={this.unselectAllDataGrid}
-                        />
-                    ) : null}
-                    {this.renderBeforeAuth()}
-                </BlockUi>
+                this._isMounted && (
+                    <BlockUi
+                        tag='div'
+                        blocking={this.state.blocking || this.state.loading}
+                        loader={this.loader}
+                        renderBlockUi={true}
+                    >
+                        {this.state.visibleUserComponent ? (
+                            <UserRowComponent
+                                visible={this.state.visiblePublishDialog}
+                                onHide={() => {
+                                    this.setState({visibleUserComponent: false});
+                                }}
+                                labels={labels}
+                                token={this.state.token}
+                                editData={this.state.editData}
+                                onSave={this.handleEditRowSave}
+                                onAutoFill={this.handleAutoFillRowChange}
+                                onEditList={this.handleEditListRowChange}
+                                onCancel={this.handleCancelRowChange}
+                                onChange={this.handleEditRowChange}
+                                onBlur={this.handleEditRowBlur}
+                                showErrorMessages={(err) => {
+                                    this.showErrorMessage(err);
+                                }}
+                                user={this.state.userInfo.user}
+                                close={() => this.setState({visiblePublishDialog: false})}
+                                handleUnselectAllData={this.unselectAllDataGrid}
+                            />
+                        ) : null}
+                        {this.renderBeforeAuth()}
+                    </BlockUi>
+                )
             );
         }
     }
@@ -286,7 +293,6 @@ class LoginContainer extends BaseContainer {
                                                                     {labels['Login_UserName']}
                                                                 </label>
                                                                 <InputText
-                                                                    ariaLabel={this.state.labels['Login_UserName']}
                                                                     key={'username'}
                                                                     id={'username'}
                                                                     name={'username'}
@@ -309,7 +315,6 @@ class LoginContainer extends BaseContainer {
                                                                     {labels['Login_Password']}
                                                                 </label>
                                                                 <Password
-                                                                    ariaLabel={labels['Login_Password']}
                                                                     key={'password'}
                                                                     id={'password'}
                                                                     name={'password'}
@@ -374,6 +379,5 @@ class LoginContainer extends BaseContainer {
 
 LoginContainer.propTypes = {
     onAfterLogin: PropTypes.func,
-    backendUrl: PropTypes.string.isRequired,
 };
 export default LoginContainer;

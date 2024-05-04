@@ -891,7 +891,7 @@ export class BaseViewContainer extends BaseContainer {
                         items={this.state.viewInfoTypes}
                         keyExpr='type'
                         stylingMode='outlined'
-                        selectedItemKeys={this.state.gridViewType}
+                        selectedItemKeys={[this.state.gridViewType]}
                         onItemClick={(e) => {
                             const newUrl = UrlUtils.addParameterToURL(
                                 window.document.URL.toString(),
@@ -1405,6 +1405,7 @@ export class BaseViewContainer extends BaseContainer {
             <React.Fragment>
                 {Breadcrumb.render(labels)}
                 <DashboardContainer
+                    key={'Dashboard'}
                     dashboard={this.state.subView}
                     handleRenderNoRefreshContent={(renderNoRefreshContent) => {
                         this.props.handleRenderNoRefreshContent(renderNoRefreshContent);
@@ -1414,7 +1415,7 @@ export class BaseViewContainer extends BaseContainer {
             </React.Fragment>
         );
     }
-    renderGridViewComponent() {
+    renderGridViewComponent = () => {
         const parentIdArg = this.state.subView == null ? UrlUtils.getParentId() : this.state.elementRecordId;
         return (
             <React.Fragment>
@@ -1503,8 +1504,8 @@ export class BaseViewContainer extends BaseContainer {
                 />
             </React.Fragment>
         );
-    }
-    renderCardViewComponent() {
+    };
+    renderCardViewComponent = () => {
         const parentIdArg = this.state.subView == null ? UrlUtils.getParentId() : this.state.elementRecordId;
         const filterIdArg = !!this.state.elementFilterId
             ? this.state.elementFilterId
@@ -1513,49 +1514,53 @@ export class BaseViewContainer extends BaseContainer {
         const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
         return (
             <React.Fragment>
-                <CardViewInfiniteComponent
-                    id={viewIdArg}
-                    ref={this.refCardGrid}
-                    gridViewType={this.state.gridViewType}
-                    elementSubViewId={this.state.elementSubViewId}
-                    elementKindView={this.state.elementKindView}
-                    handleOnInitialized={(ref) => (this.cardGrid = ref)}
-                    parsedCardView={this.state.parsedGridView}
-                    parsedCardViewData={this.state.parsedCardViewData}
-                    handleShowEditPanel={(editDataResponse) => {
-                        this.handleShowEditPanel(editDataResponse);
-                    }}
-                    showErrorMessages={(err) => this.showErrorMessages(err)}
-                    handleBlockUi={() => {
-                        this.blockUi();
-                    }}
-                    handleUnblockUi={() => {
-                        this.unblockUi();
-                    }}
-                    selectedRowKeys={this.state.selectedRowKeys}
-                    handleSelectedRowKeys={(e) => this.setState({selectedRowKeys: e})}
-                    collapsed={this.props.collapsed}
-                    kindView={kindViewArg}
-                    parentId={parentIdArg}
-                    filterId={filterIdArg}
-                    handleFormulaRow={(id) => {
-                        this.prepareCalculateFormula(id);
-                    }}
-                    handleHistoryLogRow={(id) => this.historyLog(id)}
-                    handlePluginRow={(id) => this.plugin(id)}
-                    handleDocumentRow={(id) => this.generate(id)}
-                    handleDeleteRow={(id) => this.delete(id)}
-                    handleAttachmentRow={(id) => this.attachment(id)}
-                    handleDownloadRow={(id) => this.downloadAttachment(id)}
-                    handleRestoreRow={(id) => this.restore(id)}
-                    handleCopyRow={(id) => this.showCopyView(id)}
-                    handleArchiveRow={(id) => this.archive(id)}
-                    handlePublishRow={(id) => this.publishEntry(id)}
-                />
+                {!!this.state.parsedCardViewData && (
+                    <CardViewInfiniteComponent
+                        id={parseInt(viewIdArg)}
+                        ref={this.refCardGrid}
+                        gridViewType={this.state.gridViewType}
+                        elementSubViewId={this.state.elementSubViewId}
+                        elementKindView={this.state.elementKindView}
+                        handleOnInitialized={(ref) => (this.cardGrid = ref)}
+                        parsedCardView={this.state.parsedGridView}
+                        parsedCardViewData={this.state.parsedCardViewData}
+                        handleShowEditPanel={(editDataResponse) => {
+                            this.handleShowEditPanel(editDataResponse);
+                        }}
+                        showErrorMessages={(err) => this.showErrorMessages(err)}
+                        handleBlockUi={() => {
+                            this.blockUi();
+                            return true;
+                        }}
+                        handleUnblockUi={() => {
+                            this.unblockUi();
+                            return true;
+                        }}
+                        selectedRowKeys={this.state.selectedRowKeys}
+                        handleSelectedRowKeys={(e) => this.setState({selectedRowKeys: e})}
+                        collapsed={this.props.collapsed}
+                        kindView={kindViewArg}
+                        parentId={parentIdArg}
+                        filterId={filterIdArg}
+                        handleFormulaRow={(id) => {
+                            this.prepareCalculateFormula(id);
+                        }}
+                        handleHistoryLogRow={(id) => this.historyLog(id)}
+                        handlePluginRow={(id) => this.plugin(id)}
+                        handleDocumentRow={(id) => this.generate(id)}
+                        handleDeleteRow={(id) => this.delete(id)}
+                        handleAttachmentRow={(id) => this.attachment(id)}
+                        handleDownloadRow={(id) => this.downloadAttachment(id)}
+                        handleRestoreRow={(id) => this.restore(id)}
+                        handleCopyRow={(id) => this.showCopyView(id)}
+                        handleArchiveRow={(id) => this.archive(id)}
+                        handlePublishRow={(id) => this.publishEntry(id)}
+                    />
+                )}
             </React.Fragment>
         );
-    }
-    renderGanttViewComponent() {
+    };
+    renderGanttViewComponent = () => {
         return (
             <React.Fragment>
                 <GanttViewComponent
@@ -1624,7 +1629,7 @@ export class BaseViewContainer extends BaseContainer {
                 />
             </React.Fragment>
         );
-    }
+    };
 
     getMessages() {
         return this.messages;
@@ -1638,7 +1643,7 @@ BaseViewContainer.defaultProps = {
 BaseViewContainer.propTypes = {
     id: PropTypes.string.isRequired,
     labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
-    handleRenderNoRefreshContent: PropTypes.bool.isRequired,
+    handleRenderNoRefreshContent: PropTypes.array.isRequired,
     handleViewInfoName: PropTypes.func.isRequired,
     handleSubView: PropTypes.func.isRequired,
     handleOperations: PropTypes.func.isRequired,

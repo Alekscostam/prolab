@@ -178,8 +178,8 @@ class CardViewInfiniteComponent extends React.Component {
     }
 
     render() {
-        let cardWidth = this.props.parsedCardView?.cardOptions?.width ?? 300;
-        let cardHeight = this.props.parsedCardView?.cardOptions?.height ?? 200;
+        const cardWidth = this.props.parsedCardView?.cardOptions?.width ?? 300;
+        const cardHeight = this.props.parsedCardView?.cardOptions?.height ?? 200;
         const isItemLoaded = (index) => !this.state.hasNextPage || index < this.state.items.length;
         const Item = ({index, style}) => {
             let rowData = this.state.items;
@@ -398,11 +398,10 @@ class CardViewInfiniteComponent extends React.Component {
                                     </div>
                                 </div>
                                 <div className='card-grid-body'>
-                                    {/* <div className='row'> */}
-                                    {cardImage?.visible && cardImage?.fieldName && rowData[cardImage?.fieldName] // <div className={cardBody?.visible ? 'col-3' : 'col-12'}>
-                                        ? CardViewUtils.cellTemplate(cardImage, rowData, 'card-grid-body-image', 'IMG') // </div>
+                                    {cardImage?.visible && cardImage?.fieldName && rowData[cardImage?.fieldName]
+                                        ? CardViewUtils.cellTemplate(cardImage, rowData, 'card-grid-body-image', 'IMG')
                                         : null}
-                                    {cardBody?.visible // <div className={cardImage?.visible ? 'col-9' : 'col-12'}>
+                                    {cardBody?.visible
                                         ? CardViewUtils.cellTemplate(
                                               cardBody,
                                               rowData,
@@ -412,9 +411,8 @@ class CardViewInfiniteComponent extends React.Component {
                                                   rowData[cardImage?.fieldName]
                                                   ? 'BODY_WITH_IMG'
                                                   : 'BODY'
-                                          ) // </div>
+                                          )
                                         : null}
-                                    {/* </div> */}
                                 </div>
                                 <div className='card-grid-footer'>
                                     {cardFooter?.visible
@@ -437,7 +435,7 @@ class CardViewInfiniteComponent extends React.Component {
 
 CardViewInfiniteComponent.defaultProps = {
     parsedCardView: true,
-    parsedCardViewData: false,
+    parsedCardViewData: undefined,
     selectedRowKeys: [],
     cardGrid: null,
     mode: 'view',
@@ -453,21 +451,22 @@ CardViewInfiniteComponent.propTypes = {
     handleBlockUi: PropTypes.func.isRequired,
     showErrorMessages: PropTypes.func.isRequired,
     collapsed: PropTypes.bool.isRequired,
-    kindView: PropTypes.string.isRequired,
-    parentId: PropTypes.string.isRequired,
-    filterId: PropTypes.string.isRequired,
+    kindView: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    parentId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    filterId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+
     elementSubViewId: PropTypes.object,
     elementKindView: PropTypes.string,
-    selectedRowKeys: PropTypes.object,
+    selectedRowKeys: PropTypes.array,
     handleSelectedRowKeys: PropTypes.func, //buttons
-    handleArchiveRow: PropTypes.func.isRequired,
-    handleDownload: PropTypes.func.isRequired,
-    handleAttachmentRow: PropTypes.func.isRequired,
-    handleCopyRow: PropTypes.func.isRequired,
-    handleDeleteRow: PropTypes.func.isRequired,
-    handleHistory: PropTypes.func.isRequired,
-    handleRestoreRow: PropTypes.func.isRequired,
-    handlePublishRow: PropTypes.func.isRequired,
+    handleArchiveRow: PropTypes.func,
+    handleDownload: PropTypes.func,
+    handleAttachmentRow: PropTypes.func,
+    handleCopyRow: PropTypes.func,
+    handleDeleteRow: PropTypes.func,
+    handleHistory: PropTypes.func,
+    handleRestoreRow: PropTypes.func,
+    handlePublishRow: PropTypes.func,
 };
 
 export default CardViewInfiniteComponent;

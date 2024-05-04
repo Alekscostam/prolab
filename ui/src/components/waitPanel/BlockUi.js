@@ -220,7 +220,7 @@ BlockUi.propTypes = {
     blocking: PropTypes.bool,
     children: PropTypes.node,
     className: PropTypes.string,
-    style: PropTypes.string,
+    style: PropTypes.object,
     keepInView: PropTypes.bool,
     loader: PropTypes.oneOfType([PropTypes.func, PropTypes.node]),
     message: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),

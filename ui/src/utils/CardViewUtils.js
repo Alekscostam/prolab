@@ -8,6 +8,7 @@ export class CardViewUtils {
         if (!!rowData[fieldDefinition.fieldName]) {
             const bgColor = rowData[`_BGCOLOR_${fieldDefinition.fieldName.toUpperCase()}`];
             const fontColor = rowData[`_FONTCOLOR_${fieldDefinition.fieldName.toUpperCase()}`];
+            const alt = rowData[fieldDefinition?.title] ? rowData[fieldDefinition?.title] : '';
             switch (fieldDefinition?.type) {
                 case ColumnType.I:
                 case ColumnType.IM:
@@ -17,7 +18,7 @@ export class CardViewUtils {
                     ) {
                         return (
                             <CardImage
-                                alt={rowData[fieldDefinition.title]}
+                                alt={alt}
                                 style={{
                                     backgroundColor: bgColor === undefined ? rowData._BGCOLOR : bgColor,
                                     color: fontColor === undefined ? rowData._FONTCOLOR : fontColor,
@@ -31,7 +32,7 @@ export class CardViewUtils {
                     } else {
                         return (
                             <CardImage
-                                alt={rowData[fieldDefinition.title]}
+                                alt={alt}
                                 style={{
                                     backgroundColor: bgColor === undefined ? rowData._BGCOLOR : bgColor,
                                     color: fontColor === undefined ? rowData._FONTCOLOR : fontColor,

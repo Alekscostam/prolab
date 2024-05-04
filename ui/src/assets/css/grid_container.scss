@@ -479,12 +479,7 @@ $base-color: #0e49eb;
         }
     }
 }
-#popup-add-spec {
-    .dx-popup-content,
-    .dx-popup-content-scrollable {
-        overflow: hidden !important;
-    }
-}
+
 body #subviews-panel .dx-tabs {
     width: auto;
     max-width: 100%;
@@ -551,6 +546,7 @@ body #subviews-panel .dx-tabs {
     word-wrap: break-word !important;
 }
 #menu-with-buttons {
+    z-index: 10000000;
     .p-menuitem {
         margin-bottom: -10px;
         margin-top: -10px;

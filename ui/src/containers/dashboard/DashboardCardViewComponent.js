@@ -90,6 +90,7 @@ class DashboardCardViewComponent extends React.Component {
                         OperationType.OP_SUBVIEWS,
                         'Podwidok'
                     );
+                    const canRenderEdit = !!(showEditButton && oppEdit);
                     const elementSubViewId = this.props.elementSubViewId;
                     const elementKindView = this.props.elementKindView;
                     const elementId = this.props.id;
@@ -165,7 +166,7 @@ class DashboardCardViewComponent extends React.Component {
                                                             });
                                                     }
                                                 }}
-                                                rendered={showEditButton && oppEdit}
+                                                rendered={canRenderEdit}
                                             />
                                             <ShortcutButton
                                                 id={`${recordId}_menu_button`}
@@ -197,15 +198,11 @@ class DashboardCardViewComponent extends React.Component {
                                     ) : null}
                                 </div>
                                 <div className='card-grid-body'>
-                                    {/* <div className='row'> */}
                                     {cardImage?.visible && cardImage?.fieldName && rowData[cardImage?.fieldName]
-                                        ? // <div className={cardBody?.visible ? 'col-3' : 'col-12'}>
-                                          CardViewUtils.cellTemplate(cardImage, rowData, 'card-grid-body-image', 'IMG')
-                                        : // </div>
-                                          null}
+                                        ? CardViewUtils.cellTemplate(cardImage, rowData, 'card-grid-body-image', 'IMG')
+                                        : null}
                                     {cardBody?.visible
-                                        ? // <div className={cardImage?.visible ? 'col-9' : 'col-12'}>
-                                          CardViewUtils.cellTemplate(
+                                        ? CardViewUtils.cellTemplate(
                                               cardBody,
                                               rowData,
                                               'card-grid-body-content',
@@ -215,9 +212,7 @@ class DashboardCardViewComponent extends React.Component {
                                                   ? 'BODY_WITH_IMG'
                                                   : 'BODY'
                                           )
-                                        : // </div>
-                                          null}
-                                    {/* </div> */}
+                                        : null}
                                 </div>
                                 <div className='card-grid-footer'>
                                     {cardFooter?.visible
@@ -237,7 +232,7 @@ class DashboardCardViewComponent extends React.Component {
                 baseItemHeight={cardHeight + padding}
                 baseItemWidth={cardWidth + padding}
                 itemMargin={10}
-                showScrollbar
+                showScrollbar='always'
                 direction='vertical'
                 onItemClick={(item) => {
                     if (this.isSelectionEnabled()) {
@@ -267,14 +262,14 @@ DashboardCardViewComponent.defaultProps = {
 DashboardCardViewComponent.propTypes = {
     mode: PropTypes.string.isRequired,
     parsedGridView: PropTypes.object.isRequired,
-    parsedCardViewData: PropTypes.object.isRequired,
+    parsedCardViewData: PropTypes.array.isRequired,
     elementSubViewId: PropTypes.object,
     elementKindView: PropTypes.string,
     handleOnInitialized: PropTypes.func.isRequired,
     handleShowEditPanel: PropTypes.func.isRequired,
     handleBlockUi: PropTypes.func.isRequired,
     showErrorMessages: PropTypes.func.isRequired,
-    selectedRowKeys: PropTypes.object,
+    selectedRowKeys: PropTypes.array,
     handleSelectedRowKeys: PropTypes.func,
 };
 

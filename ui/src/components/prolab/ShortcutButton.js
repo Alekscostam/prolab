@@ -112,7 +112,7 @@ ShortcutButton.propTypes = {
     id: PropTypes.string,
     label: PropTypes.string,
     params: PropTypes.object,
-    rendered: PropTypes.bool,
+    rendered: PropTypes.oneOfType([PropTypes.object, PropTypes.bool]),
     size: PropTypes.string,
     active: PropTypes.bool,
     linkViewMode: PropTypes.bool,

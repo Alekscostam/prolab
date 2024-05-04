@@ -25,7 +25,6 @@ class GridViewMinimizeComponent extends React.Component {
             case ColumnType.IM:
                 fieldValue = (
                     <div>
-                        {' '}
                         <img
                             onClick={(e) => {
                                 this.props.onImageClick(e.currentTarget.currentSrc, fieldName);

@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import {Dialog} from 'primereact/dialog';
 import {Toast} from 'primereact/toast';
 import AuthService from '../../services/AuthService';
-import moment from 'moment';
 import ShortcutButton from './ShortcutButton';
 import {Panel} from 'primereact/panel';
 import DivContainer from '../DivContainer';
@@ -11,7 +10,6 @@ import EditRowUtils from '../../utils/EditRowUtils';
 import BaseRowComponent from '../../baseContainers/BaseRowComponent';
 import {DataGridUtils} from '../../utils/component/DataGridUtils';
 import {OperationType} from '../../model/OperationType';
-import {ColumnType} from '../../model/ColumnType';
 
 export default class UserRowComponent extends BaseRowComponent {
     constructor(props) {
@@ -35,7 +33,6 @@ export default class UserRowComponent extends BaseRowComponent {
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
                 <Dialog
                     id='right-sidebar'
-                    
                     style={this.getWidthSizeSidebar()}
                     className='bg-dark'
                     header={
@@ -112,23 +109,6 @@ export default class UserRowComponent extends BaseRowComponent {
         this.props.onCancel(editInfo.viewId, editInfo.recordId, editInfo.parentId);
     }
 
-    getValidDateField(field) {
-        switch (field.type) {
-            case ColumnType.D: //D – Data
-                field.value = !!field.value ? moment(field.value, 'YYYY-MM-DD').toDate() : null;
-                break;
-            case ColumnType.E: //E – Data + czas
-                field.value = !!field.value ? moment(field.value, 'YYYY-MM-DD HH:mm:ss').toDate() : null;
-                break;
-            case ColumnType.T: //T – Czas
-                field.value = !!field.value ? moment(field.value, 'HH:mm:ss').toDate() : null;
-                break;
-            default:
-                break;
-        }
-        return field;
-    }
-
     renderField(field, fieldIndex, groupName) {
         const visibleDocumentCriteria = this.props?.visibleDocumentPanel;
         const {onChange} = this.props;
@@ -142,7 +122,7 @@ export default class UserRowComponent extends BaseRowComponent {
                   required ? 'required' : 'not_required'
               )
             : null;
-        field = this.getValidDateField(field);
+        field = this.fieldTypeTransform(field);
         return (
             <React.Fragment>
                 {this.getVisibleAndHiddenResult(field) ? (
@@ -185,6 +165,7 @@ export default class UserRowComponent extends BaseRowComponent {
         return (
             <React.Fragment>
                 <Panel
+                    key={`group_${groupIndex}`}
                     id={`group_${groupIndex}`}
                     className={'mb-6'}
                     header={group.groupName}

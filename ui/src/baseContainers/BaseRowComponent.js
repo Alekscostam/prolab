@@ -106,7 +106,13 @@ export class BaseRowComponent extends BaseContainer {
     }
 
     handleValidForm() {}
-
+    canRenderInputComponent(field) {
+        const visibleDocumentPanel = this.props?.visibleDocumentPanel;
+        if (!visibleDocumentPanel) {
+            return field.visible && !field.hidden;
+        }
+        return true;
+    }
     renderField(field, fieldIndex, groupName) {
         const visibleDocumentCriteria = this.props?.visibleDocumentPanel;
 
@@ -121,29 +127,10 @@ export class BaseRowComponent extends BaseContainer {
                   required ? 'required' : 'not_required'
               )
             : null;
-        switch (field.type) {
-            case ColumnType.D: //D – Data
-                field.value = !!field.value ? moment(field.value, 'YYYY-MM-DD').toDate() : null;
-                break;
-            case ColumnType.E: //E – Data + czas
-                field.value = !!field.value ? moment(field.value, 'YYYY-MM-DD HH:mm:ss').toDate() : null;
-                break;
-            case ColumnType.T: //T – Czas
-                field.value = !!field.value ? moment(field.value, 'HH:mm:ss').toDate() : null;
-                break;
-            default:
-                break;
-        }
-
-        let visibleAndHiddenResult = true;
-
-        if (!visibleDocumentCriteria) {
-            visibleAndHiddenResult = field.visible && !field.hidden;
-        }
-
+        field = this.fieldTypeTransform(field);
         return (
             <React.Fragment>
-                {visibleAndHiddenResult ? (
+                {this.canRenderInputComponent(field) ? (
                     <DivContainer colClass={'row mb-2'}>
                         <DivContainer>
                             <div id={`field_${fieldIndex}`} className='field'>
@@ -335,7 +322,6 @@ export class BaseRowComponent extends BaseContainer {
         if (visibleDocumentCriteria && selectionListValues) {
             selectionListValues = this.selectionListValuesToJson(selectionListValues);
         }
-
         switch (field.type) {
             case ColumnType.C:
             default:
@@ -880,6 +866,22 @@ export class BaseRowComponent extends BaseContainer {
                     </React.Fragment>
                 );
         }
+    }
+    fieldTypeTransform(field) {
+        switch (field.type) {
+            case ColumnType.D: //D – Data
+                field.value = !!field.value ? moment(field.value, 'YYYY-MM-DD').toDate() : null;
+                break;
+            case ColumnType.E: //E – Data + czas
+                field.value = !!field.value ? moment(field.value, 'YYYY-MM-DD HH:mm:ss').toDate() : null;
+                break;
+            case ColumnType.T: //T – Czas
+                field.value = !!field.value ? moment(field.value, 'HH:mm:ss').toDate() : null;
+                break;
+            default:
+                break;
+        }
+        return field;
     }
 
     getMessages() {

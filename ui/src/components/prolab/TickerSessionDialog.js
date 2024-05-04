@@ -50,6 +50,7 @@ export const TickerSessionDialog = (props) => {
                     id='sessionTimeoutDialog'
                     header={LocUtils.loc(props.labels, 'Session_expired', 'Sesja wygasa')}
                     closable={false}
+                    draggable={false}
                     footer={
                         <div>
                             <div>

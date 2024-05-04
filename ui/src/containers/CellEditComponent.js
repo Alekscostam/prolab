@@ -93,7 +93,6 @@ class CellEditComponent extends Component {
         const cellInfoValue = eViewier?.value ? eViewier.value : this.state.cellInfo.value;
         const cellInfoHeader = eViewier?.header ? eViewier.header : this.state.cellInfo.value;
         const {editorViewer} = this.state;
-
         return (
             editorViewer?.editorDialogVisisble && (
                 <EditorDialog

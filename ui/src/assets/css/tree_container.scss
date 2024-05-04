@@ -464,7 +464,35 @@ body .grid-container {
 .infinite-loader-card::-webkit-scrollbar-thumb {
     background-color: silver;
 }
-
+#popup-add-spec {
+    .dx-popup-content,
+    .dx-popup-content-scrollable {
+        overflow: hidden !important;
+    }
+}
+#popup-add-spec_content {
+    #grid-selection-panel {
+        display: none !important;
+    }
+}
+#numberOsfCopy {
+    .p-inputnumber-button.p-button.p-button-icon-only.p-component {
+        padding: 0px;
+        border-radius: 0px;
+        svg {
+            color: white;
+        }
+    }
+    .p-inputnumber-button.p-inputnumber-button-up.p-button.p-button-icon-only.p-component {
+        border-top-right-radius: 4px;
+    }
+    .p-inputnumber-button.p-inputnumber-button-down.p-button.p-button-icon-only.p-component {
+        border-bottom-right-radius: 4px;
+    }
+}
+#spec-edit-dialog {
+    height: 95% !important;
+}
 .line-treelist-90 {
     left: 0;
     background-color: rgba(red($base-color), green($base-color), blue($base-color), 0.9) !important;

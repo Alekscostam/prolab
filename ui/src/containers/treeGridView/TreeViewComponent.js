@@ -95,22 +95,20 @@ class TreeViewComponent extends CellEditComponent {
 
     showMenu(e) {
         const menu = this.menu.current;
-        const actionButtonWithMenuContant = document.getElementById('action-button-with-menu-contant');
-        if (actionButtonWithMenuContant) {
-            actionButtonWithMenuContant.click();
-        }
-        if (menu !== null && e.row.rowType === 'data') {
+        if (menu !== null && e.row.rowType === 'data' && !!e?.row?.data?._ID) {
             const mouseX = e.event.clientX;
             const mouseY = e.event.clientY;
             e.event.stopPropagation();
             e.event.preventDefault();
             this.selectedRecordIdRef.current = e.row.data._ID;
-            this.menu.current.toggle(e.event);
-            const menu = document.getElementById('menu-with-buttons');
-            if (menu) {
-                menu.style.left = mouseX + 'px';
-                menu.style.top = mouseY + 'px';
+            menu.show(e.event);
+            const menuWithButtons = document.getElementById('menu-with-buttons');
+            if (menuWithButtons) {
+                menuWithButtons.style.left = mouseX + 'px';
+                menuWithButtons.style.top = mouseY + 'px';
             }
+        } else if (menu !== null && e.row.rowType === 'data') {
+            menu.hide(e.event);
         }
     }
     createCheckboxColumn() {
@@ -428,7 +426,6 @@ class TreeViewComponent extends CellEditComponent {
             this.props.parsedGridViewData.length !== 0
         ) {
             const expandedRowKeys = this.props.parsedGridViewData.map((el) => el._ID);
-
             this.setState({
                 expandedRowKeys: expandedRowKeys,
                 initializedExpandAll: true,

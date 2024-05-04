@@ -70,16 +70,12 @@ class GridViewComponent extends CellEditComponent {
     }
     showMenu(e) {
         const menu = this.menu.current;
-        const actionButtonWithMenuContant = document.getElementById('action-button-with-menu-contant');
-        if (actionButtonWithMenuContant) {
-            actionButtonWithMenuContant.click();
-        }
-        if (menu !== null && e.row.rowType === 'data') {
+        if (menu !== null && e.row.rowType === 'data' && !!e?.row?.data?.ID) {
             const mouseX = e.event.clientX;
             const mouseY = e.event.clientY;
             e.event.stopPropagation();
             e.event.preventDefault();
-            menu.toggle(e.event);
+            menu.show(e.event);
             this.setState({selectedRecordId: e.row.data.ID}, () => {
                 const menu = document.getElementById('menu-with-buttons');
                 const menuHeight = menu.clientHeight + 50;
@@ -91,6 +87,8 @@ class GridViewComponent extends CellEditComponent {
                 menu.style.left = mouseX + 'px';
                 menu.style.top = heighY + 'px';
             });
+        } else if (menu !== null && e.row.rowType === 'data') {
+            menu.hide(e.event);
         }
     }
     ifSelectAllEvent(e) {
@@ -196,7 +194,9 @@ class GridViewComponent extends CellEditComponent {
                     this.editorComponent(UrlUtils.isBatch(), this.state.editorViewer)}
                 {this.imageViewerComponent()}
                 <DataGrid
-                    onContextMenuPreparing={(e) => this.showMenu(e)}
+                    onContextMenuPreparing={(e) => {
+                        this.showMenu(e);
+                    }}
                     id={`grid-container`}
                     focusedRowKey={this.state.focusedRowKey}
                     keyExpr='ID'
@@ -207,7 +207,9 @@ class GridViewComponent extends CellEditComponent {
                         this.props.handleOnDataGrid(ref);
                     }}
                     onFocusedRowChanged={(e) => {
-                        this.setState({focusedRowKey: e.row.data.ID});
+                        if (!!e?.row?.data?.ID) {
+                            this.setState({focusedRowKey: e.row.data.ID});
+                        }
                     }}
                     dataSource={this.props.parsedGridViewData}
                     customizeColumns={this?.postCustomizeColumns}
