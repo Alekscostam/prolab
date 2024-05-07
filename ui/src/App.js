@@ -105,7 +105,6 @@ class App extends Component {
         }
         const urlPrefixCookie = readObjFromCookieGlobal('REACT_APP_URL_PREFIX');
         const configUrl = this.makeConfigUrl(urlPrefixCookie);
-        this.showSessionTimeoutIfPossible();
         this.prelongSeesionByRootClick();
         this.setRestateApp();
         this.setRenderNoRefreshContent();
@@ -163,11 +162,12 @@ class App extends Component {
                 const onLogoutUrl = !(textAfterHash && textAfterHash.trim() !== '');
                 if (isExpired) {
                     const isNotLoggedIn = !this.authService.isLoggedUser();
-                    if (isNotLoggedIn || onLogoutUrl) {
-                        this.authService.removeLoginCookies();
-                        if(!onLogoutUrl){
-                            this.authService.logout()
-                        }
+                    if(isNotLoggedIn){
+                        this.authService.logout()
+                        return;
+                    }
+                    if(onLogoutUrl){
+                        this.authService.logout()
                         return;
                     }
                     if (localStorage.getItem(CookiesName.TOKEN_REFRESHING)) {
