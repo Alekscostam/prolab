@@ -173,8 +173,15 @@ export class BaseRowComponent extends BaseContainer {
                   this.onBlur(text, event, groupName, info);
               };
     }
-    getWidthSizeSidebar(percenatgeSize) {
-        return {width: '45%'};
+    getWidthSizeSidebar(editFields) {
+        let size = 45 
+        if(editFields){
+           const panels =  editFields[0]?.panels;
+           if(panels){
+                size =  panels[0]?.size ?  panels[0]?.size : size;
+           }
+        }
+        return {width: `${size}%`};
     }
     editListVisible(field) {
         this.blockUi();

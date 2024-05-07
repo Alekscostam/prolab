@@ -4,6 +4,7 @@ import {useCallback, useEffect, useRef, useState} from 'react';
 import PropTypes from 'prop-types';
 import LocUtils from '../../utils/LocUtils';
 import {Button} from 'primereact/button';
+import { CookiesName } from '../../model/CookieName';
 
 function statusFormat() {
     return ``;
@@ -21,6 +22,13 @@ export const TickerSessionDialog = (props) => {
     const onCounterInit = useCallback(() => {
         if (intervalId.current === undefined) {
             intervalId.current = setInterval(() => {
+                const sessionTimeout = Date.parse(localStorage.getItem(CookiesName.SESSION_TIMEOUT));
+                const tickerPopupDate = new Date();
+                tickerPopupDate.setSeconds(tickerPopupDate.getSeconds() + 45);
+                if (sessionTimeout >= tickerPopupDate){
+                    clearInterval(intervalId.current);
+                    onProlongSession();
+                }
                 setSeconds((prevValue) => prevValue + 1);
                 if (!authService.isLoggedUser()) {
                     clearInterval(intervalId.current);
@@ -32,7 +40,7 @@ export const TickerSessionDialog = (props) => {
                 }
             }, 1000);
         }
-    }, [onLogout, authService]);
+    }, [onLogout, authService, onProlongSession]);
 
     useEffect(() => {
         if (counterStart) {

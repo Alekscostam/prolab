@@ -246,7 +246,7 @@ export class EditRowViewComponent extends BaseRowComponent {
         if (side === 'bottom') {
             const bottom = editField.panels.find((panel) => panel.panel === side);
             if (bottom) {
-                return this.getSizeFromPanel(bottom);
+                return bottom?.size;
             }
             return undefined;
         }

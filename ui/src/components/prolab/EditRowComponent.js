@@ -138,7 +138,7 @@ export class EditRowComponent extends BaseRowComponent {
                     visible={visibleEditPanel}
                     modal={true}
                     dismissable={false}
-                    style={this.getWidthSizeSidebar()}
+                    style={this.getWidthSizeSidebar(editData?.editFields)}
                     onHide={() => this.props.onCloseCustom()}
                     onCustomClose={() => {
                         this.props.onCloseCustom();

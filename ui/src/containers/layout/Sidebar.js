@@ -56,7 +56,7 @@ class Sidebar extends React.Component {
     componentDidMount() {
         ConsoleHelper('sidebar => componentDidMount');
         if (sessionStorage.getItem(CookiesName.LOGGED_IN)) {
-            if (!localStorage.getItem(CookiesName.MENU)) {
+            if (!localStorage.getItem(CookiesName.MENU) || this.state?.menu?.length === 0 ) {
                 this.menuService
                     .getMenu()
                     .then((data) => {
@@ -81,7 +81,7 @@ class Sidebar extends React.Component {
             } else {
                 this.handleFilter('');
             }
-            if (!localStorage.getItem(CookiesName.VERSION_API)) {
+            if (!localStorage.getItem(CookiesName.VERSION_API) || this.state?.menu?.length === 0 ) {
                 this.versionService
                     .getVersion()
                     .then((data) => {

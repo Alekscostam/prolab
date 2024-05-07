@@ -487,7 +487,7 @@ export class AddSpecContainer extends BaseContainer {
             });
     };
     replaceReapetedIds(result) {
-        const parsedGridViewData = this.props?.parsedGridViewData;
+        const parsedGridViewData = this.props?.parsedGridViewData || [];
         const concatedArray = result.concat(parsedGridViewData);
         result.forEach((el) => {
             while (this.anyoneAlreadyHasId(el._ID, concatedArray)) {

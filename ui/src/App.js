@@ -42,6 +42,7 @@ export let renderNoRefreshContentFnc;
 export let sessionPrelongFnc = null;
 export let addBtn = null;
 
+
 class App extends Component {
     constructor() {
         super();
@@ -164,6 +165,9 @@ class App extends Component {
                     const isNotLoggedIn = !this.authService.isLoggedUser();
                     if (isNotLoggedIn || onLogoutUrl) {
                         this.authService.removeLoginCookies();
+                        if(!onLogoutUrl){
+                            this.authService.logout()
+                        }
                         return;
                     }
                     if (localStorage.getItem(CookiesName.TOKEN_REFRESHING)) {
@@ -278,7 +282,7 @@ class App extends Component {
     }
 
     handleLogoutUser(forceByButton, labels) {
-        // puste poki co
+        this.authService.logout();
     }
 
     handleLogoutByTokenExpired(forceByButton, labels) {
@@ -404,7 +408,7 @@ class App extends Component {
             return false;
         }
         if (tokenExpired) {
-            return true;
+            return false;
         }
         return true;
     }
@@ -429,12 +433,18 @@ class App extends Component {
     };
 
     showSidebar() {
+        if(UrlUtils.isLoginPage()){
+            return false;
+        }
         if (!UrlUtils.isLoginPage() && !UrlUtils.isEditRowView()) {
             const prosidebar = document.getElementsByClassName('pro-sidebar');
             if (prosidebar.length === 0 && !UrlUtils.isStartPage()) {
                 this.authService.refresh();
             }
-            return true;
+            if(this.authService.isLoggedUser()){
+                return true;
+            }
+            return false;
         }
         return false;
     }

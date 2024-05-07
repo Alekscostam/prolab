@@ -33,7 +33,7 @@ export default class UserRowComponent extends BaseRowComponent {
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
                 <Dialog
                     id='right-sidebar'
-                    style={this.getWidthSizeSidebar()}
+                    style={this.getWidthSizeSidebar(editData?.editFields)}
                     className='bg-dark'
                     header={
                         <div className='row ' style={{flex: 'auto'}}>

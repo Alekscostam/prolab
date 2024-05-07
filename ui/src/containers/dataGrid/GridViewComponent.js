@@ -439,7 +439,7 @@ class GridViewComponent extends CellEditComponent {
                                 if (!!columnDefinition.groupIndex && columnDefinition.groupIndex > 0) {
                                     column.groupIndex = columnDefinition.groupIndex;
                                 }
-                                if (columnDefinition?.type === 'D' || columnDefinition?.type === 'E') {
+                                if ((columnDefinition?.type === 'D' || columnDefinition?.type === 'E') && !UrlUtils.isBatch()) {
                                     column.calculateFilterExpression = (value, selectedFilterOperations, target) =>
                                         DataGridUtils.calculateCustomFilterExpression(
                                             value,
