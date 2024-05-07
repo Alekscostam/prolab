@@ -55,7 +55,6 @@ class Sidebar extends React.Component {
 
     componentDidMount() {
         ConsoleHelper('sidebar => componentDidMount');
-        if (sessionStorage.getItem(CookiesName.LOGGED_IN)) {
             if (!localStorage.getItem(CookiesName.MENU) || this.state?.menu?.length === 0 ) {
                 this.menuService
                     .getMenu()
@@ -90,7 +89,6 @@ class Sidebar extends React.Component {
                     })
                     .catch(() => {});
             }
-        }
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
