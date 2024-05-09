@@ -21,7 +21,7 @@ import {Breadcrumb} from '../../utils/BreadcrumbUtils';
 import ReactDOM from 'react-dom';
 import OperationsButtons from '../../components/prolab/OperationsButtons';
 import AppPrefixUtils from '../../utils/AppPrefixUtils';
-import {EntryResponseUtils} from '../../utils/EntryResponseUtils';
+import EntryResponseUtils from '../../utils/EntryResponseUtils';
 import DataGanttStore from '../dao/DataGanttStore.js';
 import {GanttUtils} from '../../utils/component/GanttUtils.js';
 import '../../assets/css/gantt_container.scss';

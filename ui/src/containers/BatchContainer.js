@@ -16,7 +16,7 @@ import ActionButton from '../components/ActionButton';
 import DivContainer from '../components/DivContainer';
 import GridViewComponent from './dataGrid/GridViewComponent';
 import BatchService from '../services/BatchService';
-import {EntryResponseUtils} from '../utils/EntryResponseUtils';
+import EntryResponseUtils from '../utils/EntryResponseUtils';
 import {ViewResponseUtils} from '../utils/ViewResponseUtils';
 import ActionButtonWithMenu from '../components/prolab/ActionButtonWithMenu';
 import {ConfirmationEditQuitDialog} from '../components/prolab/ConfirmationEditQuitDialog';

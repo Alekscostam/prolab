@@ -19,7 +19,7 @@ import {Breadcrumb} from '../../utils/BreadcrumbUtils';
 import ReactDOM from 'react-dom';
 import OperationsButtons from '../../components/prolab/OperationsButtons';
 import AppPrefixUtils from '../../utils/AppPrefixUtils';
-import {EntryResponseUtils} from '../../utils/EntryResponseUtils';
+import EntryResponseUtils from '../../utils/EntryResponseUtils';
 import {TreeListUtils} from '../../utils/component/TreeListUtils';
 import EditListDataStore from '../dao/DataEditListStore';
 import {EditSpecUtils} from '../../utils/EditSpecUtils';

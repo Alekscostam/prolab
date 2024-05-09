@@ -42,7 +42,6 @@ export let renderNoRefreshContentFnc;
 export let sessionPrelongFnc = null;
 export let addBtn = null;
 
-
 class App extends Component {
     constructor() {
         super();
@@ -162,12 +161,12 @@ class App extends Component {
                 const onLogoutUrl = !(textAfterHash && textAfterHash.trim() !== '');
                 if (isExpired) {
                     const isNotLoggedIn = !this.authService.isLoggedUser();
-                    if(isNotLoggedIn){
-                        this.authService.logout()
+                    if (isNotLoggedIn) {
+                        this.authService.logout();
                         return;
                     }
-                    if(onLogoutUrl){
-                        this.authService.logout()
+                    if (onLogoutUrl) {
+                        this.authService.logout();
                         return;
                     }
                     if (localStorage.getItem(CookiesName.TOKEN_REFRESHING)) {
@@ -433,7 +432,7 @@ class App extends Component {
     };
 
     showSidebar() {
-        if(UrlUtils.isLoginPage()){
+        if (UrlUtils.isLoginPage()) {
             return false;
         }
         if (!UrlUtils.isLoginPage() && !UrlUtils.isEditRowView()) {
@@ -441,7 +440,7 @@ class App extends Component {
             if (prosidebar.length === 0 && !UrlUtils.isStartPage()) {
                 this.authService.refresh();
             }
-            if(this.authService.isLoggedUser()){
+            if (this.authService.isLoggedUser()) {
                 return true;
             }
             return false;
@@ -453,6 +452,7 @@ class App extends Component {
         const authService = this.authService;
         const {labels} = this.state;
         const loggedIn = authService.loggedIn();
+        const opADD = DataGridUtils.getOrCreateOpButton(this.state.operations, labels, OperationType.OP_ADD, 'Dodaj');
         return (
             <React.Fragment>
                 <AppContext.Provider value={{}}>
@@ -553,10 +553,30 @@ class App extends Component {
                                             <React.Fragment>
                                                 {Breadcrumb.render(labels)}
                                                 <DivContainer colClass='row base-container-header'>
-                                                    <DivContainer id='header-left' colClass='col-11'>
+                                                    <DivContainer
+                                                        id='header-left'
+                                                        colClass='col-xl-10 col-lg-10 col-md-9 col-sm-12'
+                                                    >
                                                         <div className='font-medium mb-2 view-info-name'>
                                                             {this.state.viewInfoName}
                                                         </div>
+                                                    </DivContainer>
+                                                    <DivContainer
+                                                        id='header-right'
+                                                        colClass='col-xl-2 col-lg-2 col-md-3 col-sm-12 to-right'
+                                                        style={{paddingRight: '30px'}}
+                                                    >
+                                                        {this.viewContainer?.current
+                                                            ?.getGridViewType()
+                                                            ?.toUpperCase() === 'CARDVIEW' && (
+                                                            <ActionButton
+                                                                rendered={true}
+                                                                label={opADD.label}
+                                                                handleClick={(e) => {
+                                                                    this.viewContainer?.current?.addView(e);
+                                                                }}
+                                                            />
+                                                        )}
                                                     </DivContainer>
                                                     <DivContainer id='header-content' colClass='col-12'></DivContainer>
                                                 </DivContainer>

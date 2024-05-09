@@ -6,7 +6,7 @@ import ConsoleHelper from '../utils/ConsoleHelper';
 import LocUtils from '../utils/LocUtils';
 import {AttachmentViewDialog} from './attachmentView/AttachmentViewDialog';
 import {BaseViewContainer} from '../baseContainers/BaseViewContainer';
-import {EntryResponseUtils} from '../utils/EntryResponseUtils';
+import EntryResponseUtils from '../utils/EntryResponseUtils';
 import {DataGridUtils} from '../utils/component/DataGridUtils';
 import {AddSpecContainer} from './AddSpecContainer';
 import UrlUtils from '../utils/UrlUtils';
@@ -29,6 +29,9 @@ export class ViewContainer extends BaseViewContainer {
         this.handleAddElements = this.handleAddElements.bind(this);
         this.state = {
             prevDataGridGlobalReference: null,
+        };
+        this.getGridViewType = () => {
+            return this.state.gridViewType;
         };
     }
 

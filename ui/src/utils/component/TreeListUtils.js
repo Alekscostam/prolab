@@ -6,7 +6,7 @@ import HtmlEditor, {Item, MediaResizing, Toolbar} from 'devextreme-react/html-ed
 import {CheckBox, DateBox, NumberBox, TextBox, Validator} from 'devextreme-react';
 import {RequiredRule} from 'devextreme-react/validator';
 import moment from 'moment';
-import {EntryResponseUtils} from '../EntryResponseUtils';
+import EntryResponseUtils from '../EntryResponseUtils';
 import {compress} from 'int-compress-string/src';
 import {EditSpecUtils} from '../EditSpecUtils';
 import EditSpecService from '../../services/EditSpecService';

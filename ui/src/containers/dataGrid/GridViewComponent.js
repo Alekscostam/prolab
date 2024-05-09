@@ -22,7 +22,7 @@ import {Breadcrumb} from '../../utils/BreadcrumbUtils';
 import ReactDOM from 'react-dom';
 import OperationsButtons from '../../components/prolab/OperationsButtons';
 import AppPrefixUtils from '../../utils/AppPrefixUtils';
-import {EntryResponseUtils} from '../../utils/EntryResponseUtils';
+import EntryResponseUtils from '../../utils/EntryResponseUtils';
 import {EditSpecUtils} from '../../utils/EditSpecUtils';
 import {compress} from 'int-compress-string/src';
 import {TreeListUtils} from '../../utils/component/TreeListUtils';
@@ -439,7 +439,10 @@ class GridViewComponent extends CellEditComponent {
                                 if (!!columnDefinition.groupIndex && columnDefinition.groupIndex > 0) {
                                     column.groupIndex = columnDefinition.groupIndex;
                                 }
-                                if ((columnDefinition?.type === 'D' || columnDefinition?.type === 'E') && !UrlUtils.isBatch()) {
+                                if (
+                                    (columnDefinition?.type === 'D' || columnDefinition?.type === 'E') &&
+                                    !UrlUtils.isBatch()
+                                ) {
                                     column.calculateFilterExpression = (value, selectedFilterOperations, target) =>
                                         DataGridUtils.calculateCustomFilterExpression(
                                             value,

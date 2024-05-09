@@ -18,7 +18,7 @@ import UrlUtils from '../../utils/UrlUtils';
 import LocUtils from '../../utils/LocUtils';
 import DashboardCardViewComponent from './DashboardCardViewComponent';
 import CrudService from '../../services/CrudService';
-import {EntryResponseUtils} from '../../utils/EntryResponseUtils';
+import EntryResponseUtils from '../../utils/EntryResponseUtils';
 import HistoryLogDialogComponent from '../../components/prolab/HistoryLogDialogComponent';
 import {AttachmentViewDialog} from '../attachmentView/AttachmentViewDialog';
 import {OperationType} from '../../model/OperationType';

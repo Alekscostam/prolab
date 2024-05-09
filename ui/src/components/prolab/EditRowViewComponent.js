@@ -15,7 +15,7 @@ import EditListUtils from '../../utils/EditListUtils';
 import CrudService from '../../services/CrudService';
 import BaseRowComponent from '../../baseContainers/BaseRowComponent';
 import UrlUtils from '../../utils/UrlUtils';
-import {EntryResponseUtils} from '../../utils/EntryResponseUtils';
+import EntryResponseUtils from '../../utils/EntryResponseUtils';
 import BlockUi from '../waitPanel/BlockUi';
 import {OperationType} from '../../model/OperationType';
 

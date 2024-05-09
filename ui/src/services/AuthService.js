@@ -7,10 +7,6 @@ import {reStateApp} from '../App';
 import {CookiesName} from '../model/CookieName';
 import {StringUtils} from '../utils/StringUtils';
 
-/*
-Żądanie POST służy do uwierzytelnienia użytkownika i uzyskania tokena, który służy do weryfikacji innego interfejsu API
-żądanie. Token jest ważny przez określony czas, po wygaśnięciu należy poprosić o nowy.
- */
 export default class AuthService {
     // Initializing important variables
     constructor(domain) {
@@ -30,7 +26,12 @@ export default class AuthService {
         this.login = this.login.bind(this);
         this.getProfile = this.getProfile.bind(this);
     }
-
+    getAndSetDomainIfNeccessery() {
+        if (StringUtils.isBlank(this.domain) && readObjFromCookieGlobal('REACT_APP_BACKEND_URL')) {
+            this.domain = readObjFromCookieGlobal('REACT_APP_BACKEND_URL');
+        }
+        return this.domain;
+    }
     setUiMethods(blockUi, unblockUi) {
         this.blockUi = blockUi;
         this.unblockUi = unblockUi;
@@ -178,13 +179,11 @@ export default class AuthService {
     }
     refresh() {
         if (this.isAlreadyTokenNotExist()) {
-            this.removeLoginCookies();
-            window.location.href = AppPrefixUtils.locationHrefUrl('/#/');
+            this.logout();
             return;
         }
-        // Get a token from api server using the fetch api
         return this.fetch(
-            `${this.domain}/auth/refreshToken`,
+            `${this.getAndSetDomainIfNeccessery()}/auth/refreshToken`,
             {
                 method: 'POST',
                 body: JSON.stringify({

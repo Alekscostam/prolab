@@ -19,7 +19,7 @@ import $ from 'jquery';
 import {localeOptions} from 'primereact/api';
 import ConsoleHelper from '../utils/ConsoleHelper';
 import LocUtils from '../utils/LocUtils';
-import {EntryResponseUtils} from '../utils/EntryResponseUtils';
+import EntryResponseUtils from '../utils/EntryResponseUtils';
 import GanttViewComponent from '../containers/gantView/GanttViewComponent';
 import PluginListComponent from '../components/prolab/PluginListComponent';
 import ActionButtonWithMenuUtils from '../utils/ActionButtonWithMenuUtils';
