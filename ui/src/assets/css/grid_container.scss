@@ -442,13 +442,13 @@ $base-color: #0e49eb;
     .dx-datagrid-rowsview .dx-state-hover:hover > td,
     .dx-datagrid-rowsview .dx-state-hover > tr > td,
     .dx-datagrid-rowsview .dx-state-hover:hover > tr > td {
-        background-color: #f0f0f0 !important;
+        background-color: rgba(#f0f0f0, 1) !important;
     }
     .dx-datagrid-rowsview .dx-row-focused > td,
     .dx-datagrid-rowsview .dx-row-focused:hover > td,
     .dx-datagrid-rowsview .dx-row-focused > tr > td,
     .dx-datagrid-rowsview .dx-row-focused:hover > tr > td {
-        background-color: $base-color !important;
+        background-color: rgba($base-color, 1) !important;
         .trash-icon-treeview {
             color: white !important;
         }
@@ -479,7 +479,9 @@ $base-color: #0e49eb;
         }
     }
 }
-
+.dx-state-hover {
+    opacity: 100% !important;
+}
 body #subviews-panel .dx-tabs {
     width: auto;
     max-width: 100%;
@@ -679,7 +681,7 @@ body .grid-container {
 
     .dx-buttongroup {
         .dx-buttongroup-item.dx-button.dx-button-mode-outlined {
-            background-color: white;
+            background-color: rgba(white, 1);
 
             .dx-button-content {
                 .dx-icon {
@@ -690,8 +692,8 @@ body .grid-container {
 
         .dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-item-selected,
         .dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-item-selected.dx-state-hover {
-            background-color: $base-color;
-
+            background-color: rgba($base-color, 1) !important;
+            opacity: 100%;
             .dx-icon {
                 color: white;
             }
@@ -699,8 +701,10 @@ body .grid-container {
 
         .dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-state-hover {
             // background-color: rgba(63, 81, 181, 0.92);
-            background-color: $base-color;
-            opacity: 92%;
+            // background-color: $base-color;
+            background-color: rgba($base-color, 0.92);
+
+            // opacity: 92%;
             .dx-icon {
                 color: white;
             }

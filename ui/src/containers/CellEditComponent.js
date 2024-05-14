@@ -218,22 +218,45 @@ class CellEditComponent extends Component {
             )
         );
     };
-
-    handleSelectedRowData = (selectedRowDataEditList) => {
-        ConsoleHelper('EditableComponent::handleSelectedRowData obj=' + JSON.stringify(selectedRowDataEditList));
+    handleSelectedRowData(e) {
+        const addMode = !!(e.currentSelectedRowKeys.length !== 0);
         const setFields = this.state.parsedEditListView.setFields;
+        const prevSelectedRowData = this.state.selectedRowData;
+        const currentSelectedRowsData = e.selectedRowsData;
+        const selectedRowsKeys = e.selectedRowKeys;
         let transformedRowsData = [];
         let transformedRowsCRC = [];
-        for (let selectedRows in selectedRowDataEditList) {
-            let selectedRow = selectedRowDataEditList[selectedRows];
-            let transformedSingleRowData = EditListUtils.transformBySetFields(selectedRow, setFields);
-            let CALC_CRC = EditListUtils.calculateCRC(transformedSingleRowData);
-            ConsoleHelper('transformedRowsData = {} hash = {} ', transformedSingleRowData, CALC_CRC);
-            transformedRowsData.push(transformedSingleRowData);
-            transformedRowsCRC.push(CALC_CRC);
+        const multiSelect = this.state?.parsedGridView?.gridOptions?.multiSelect;
+        if (multiSelect) {
+            transformedRowsData = prevSelectedRowData;
+            transformedRowsCRC = selectedRowsKeys;
+            if (addMode) {
+                const foundedElementToAdd = currentSelectedRowsData.find(
+                    (el) => el.CALC_CRC === e.currentSelectedRowKeys[0]
+                );
+                const transformedSingleRowData = EditListUtils.transformBySetFields(foundedElementToAdd, setFields);
+                const CALC_CRC = EditListUtils.calculateCRC(transformedSingleRowData);
+                transformedSingleRowData[0].CALC_CRC = CALC_CRC;
+                transformedRowsData.push(transformedSingleRowData);
+            } else {
+                const foundedElementToRemove = prevSelectedRowData.find(
+                    (el) => el[0].CALC_CRC === e.currentDeselectedRowKeys[0]
+                );
+                transformedRowsData = transformedRowsData.filter(
+                    (el) => el[0].CALC_CRC !== foundedElementToRemove[0].CALC_CRC
+                );
+            }
+        } else {
+            for (let selectedRows in currentSelectedRowsData) {
+                let selectedRow = currentSelectedRowsData[selectedRows];
+                let transformedSingleRowData = EditListUtils.transformBySetFields(selectedRow, setFields);
+                let CALC_CRC = EditListUtils.calculateCRC(transformedSingleRowData);
+                transformedRowsData.push(transformedSingleRowData);
+                transformedRowsCRC.push(CALC_CRC);
+            }
         }
         this.setState({selectedRowDataEditList: transformedRowsData, defaultSelectedRowKeys: transformedRowsCRC});
-    };
+    }
 
     // to overide
     findRowDataById(recordId) {}

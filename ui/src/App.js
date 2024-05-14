@@ -563,7 +563,7 @@ class App extends Component {
                                                     </DivContainer>
                                                     <DivContainer
                                                         id='header-right'
-                                                        colClass='col-xl-2 col-lg-2 col-md-3 col-sm-12 to-right'
+                                                        colClass='col-xl-2 col-lg-2 col-md-3 col-sm-12 to-right mb-2'
                                                         style={{paddingRight: '30px'}}
                                                     >
                                                         {this.viewContainer?.current

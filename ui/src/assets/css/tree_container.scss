@@ -82,7 +82,9 @@ $base-color: #0e49eb;
     font-variant: normal;
     font-weight: 500;
 }
-
+.dx-state-hover {
+    opacity: 100% !important;
+}
 .dx-treelist-rowsview .dx-row-focused > td,
 .dx-treelist-rowsview .dx-row-focused:hover > td,
 .dx-treelist-rowsview .dx-row-focused > tr > td,
@@ -488,6 +490,11 @@ body .grid-container {
     }
     .p-inputnumber-button.p-inputnumber-button-down.p-button.p-button-icon-only.p-component {
         border-bottom-right-radius: 4px;
+    }
+}
+.dx-row.dx-data-row.dx-row-lines.dx-column-lines.dx-row-focused {
+    td {
+        color: white;
     }
 }
 #spec-edit-dialog {

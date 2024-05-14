@@ -12,12 +12,13 @@ import './assets/quill/quill.core.scss';
 import './assets/quill/quill.snow.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 // import 'devextreme/dist/css/dx.material.blue.light.css';
+import 'devextreme/dist/css/dx.material.blue.light.compact.css';
 
 import './App.scss';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import {ThroughProvider} from 'react-through';
-import '@mdi/font/css/materialdesignicons.min.css';
+import './assets/css/mdi.scss';
 
 const theApp = (
     <ThroughProvider>

@@ -186,7 +186,6 @@ class GridViewComponent extends CellEditComponent {
         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
         let viewId = this.props.id;
         viewId = DataGridUtils.getRealViewId(subViewId, viewId);
-
         return (
             <React.Fragment>
                 {this.state.editListVisible && this.editListComponent()}
@@ -198,18 +197,13 @@ class GridViewComponent extends CellEditComponent {
                         this.showMenu(e);
                     }}
                     id={`grid-container`}
-                    focusedRowKey={this.state.focusedRowKey}
+                    defaultFocusedRowKey={this.state.focusedRowKey}
                     keyExpr='ID'
                     className={`${this.props?.isAttachement ? 'attachement ' : 'grid'} grid-container${
                         headerAutoHeight ? ' grid-header-auto-height' : ''
                     } ${this.canRenderAdditionalOperationCol() ? 'grid-with-opperations' : ''}`}
                     ref={(ref) => {
                         this.props.handleOnDataGrid(ref);
-                    }}
-                    onFocusedRowChanged={(e) => {
-                        if (!!e?.row?.data?.ID) {
-                            this.setState({focusedRowKey: e.row.data.ID});
-                        }
                     }}
                     dataSource={this.props.parsedGridViewData}
                     customizeColumns={this?.postCustomizeColumns}
@@ -317,15 +311,9 @@ class GridViewComponent extends CellEditComponent {
                         handlePublish={() => this.props.handlePublishRow(selectedRecordId)}
                         handleDocumentsSk={(el) => this.props.handleDocumentRow(el.id)}
                         handleDocuments={() => this.props.handleDocumentRow(selectedRecordId)}
-                        handlePluginsSk={(el) => {
-                            this.props.handlePluginRow(el.id);
-                        }}
-                        handlePlugins={() => {
-                            this.props.handlePluginRow(selectedRecordId);
-                        }}
-                        handleBatch={(batch) => {
-                            this.handleBatch(batch.id, viewId, parentId, selectedRecordId);
-                        }}
+                        handlePluginsSk={(el) => this.props.handlePluginRow(el.id)}
+                        handlePlugins={() => this.props.handlePluginRow(selectedRecordId)}
+                        handleBatch={(batch) => this.handleBatch(batch.id, viewId, parentId, selectedRecordId)}
                         handleAdd={() => this.props.addButtonFunction()}
                         handleDownload={() => this.props.handleDownloadRow(selectedRecordId)}
                         handleAttachments={() => this.props.handleAttachmentRow(selectedRecordId)}
@@ -399,50 +387,15 @@ class GridViewComponent extends CellEditComponent {
                                 if (columnDefinition.type === 'B' || columnDefinition.type === 'L') {
                                     column.showEditorAlways = false;
                                 }
-                                column.cellTemplate = DataGridUtils.cellTemplate(
-                                    columnDefinition,
-                                    this.isEditableCell(columnDefinition),
-                                    (value, header) => {
-                                        this.setState({
-                                            imageViewer: {
-                                                imageViewDialogVisisble: true,
-                                                editable: this.isEditableCell(columnDefinition),
-                                                imageBase64: value,
-                                                header: header,
-                                            },
-                                        });
-                                    },
-                                    (value, header) => {
-                                        if (UrlUtils.isBatch()) {
-                                            return;
-                                        }
-                                        this.setState({
-                                            editorViewer: {
-                                                editorDialogVisisble: true,
-                                                editable: false,
-                                                value: value,
-                                                header: header,
-                                            },
-                                        });
-                                    }
-                                );
+                                column.cellTemplate = this.getCellTemplate(columnDefinition);
                                 column.dataType = DataGridUtils.specifyColumnType(columnDefinition?.type);
                                 column.format = DataGridUtils.specifyColumnFormat(columnDefinition?.type);
-                                column.fixed =
-                                    columnDefinition.freeze !== undefined && columnDefinition?.freeze !== null
-                                        ? columnDefinition?.freeze?.toLowerCase() === 'left' ||
-                                          columnDefinition?.freeze?.toLowerCase() === 'right'
-                                        : false;
-                                column.fixedPosition = !!columnDefinition.freeze
-                                    ? columnDefinition.freeze?.toLowerCase()
-                                    : null;
+                                column.fixed = this.getFixed(columnDefinition);
+                                column.fixedPosition = this.getFixedPosition(columnDefinition);
                                 if (!!columnDefinition.groupIndex && columnDefinition.groupIndex > 0) {
                                     column.groupIndex = columnDefinition.groupIndex;
                                 }
-                                if (
-                                    (columnDefinition?.type === 'D' || columnDefinition?.type === 'E') &&
-                                    !UrlUtils.isBatch()
-                                ) {
+                                if (this.canReplaceFilterExpression(columnDefinition)) {
                                     column.calculateFilterExpression = (value, selectedFilterOperations, target) =>
                                         DataGridUtils.calculateCustomFilterExpression(
                                             value,
@@ -562,6 +515,52 @@ class GridViewComponent extends CellEditComponent {
         const currentUrl = window.location.href;
         window.location.href = UrlUtils.deleteParameterFromURL(currentUrl, 'selectedFromPrevGrid');
     };
+    getCellTemplate(columnDefinition) {
+        return DataGridUtils.cellTemplate(
+            columnDefinition,
+            this.isEditableCell(columnDefinition),
+            (value, header) => {
+                this.setState({
+                    imageViewer: {
+                        imageViewDialogVisisble: true,
+                        editable: this.isEditableCell(columnDefinition),
+                        imageBase64: value,
+                        header: header,
+                    },
+                });
+            },
+            (value, header) => {
+                if (UrlUtils.isBatch()) {
+                    return;
+                }
+                this.setState({
+                    editorViewer: {
+                        editorDialogVisisble: true,
+                        editable: false,
+                        value: value,
+                        header: header,
+                    },
+                });
+            }
+        );
+    }
+    getFixed(columnDefinition) {
+        return columnDefinition.freeze !== undefined && columnDefinition?.freeze !== null
+            ? columnDefinition?.freeze?.toLowerCase() === 'left' || columnDefinition?.freeze?.toLowerCase() === 'right'
+            : false;
+    }
+    getFixedPosition(columnDefinition) {
+        return !!columnDefinition.freeze ? columnDefinition.freeze?.toLowerCase() : null;
+    }
+    canReplaceFilterExpression(columnDefinition) {
+        if (
+            (columnDefinition?.type === ColumnType.L || columnDefinition?.type === ColumnType.B) &&
+            UrlUtils.isBatch()
+        ) {
+            return true;
+        }
+        return (columnDefinition?.type === 'D' || columnDefinition?.type === 'E') && !UrlUtils.isBatch();
+    }
     handleBatch(batchId, viewId, parentId, selectedRecordId) {
         const selectedRowKeys = [
             {

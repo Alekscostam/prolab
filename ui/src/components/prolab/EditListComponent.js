@@ -12,10 +12,6 @@ export default class EditListComponent extends React.Component {
         super(props);
         this.refDataGrid = {};
     }
-
-    handleSelectedRowData({selectedRowsData}) {
-        this.props.handleSelectedRowData(selectedRowsData);
-    }
     componentDidMount() {
         if (typeof this.props?.blockUiIfNeccessery === 'function') {
             this.props.blockUiIfNeccessery();
@@ -35,6 +31,7 @@ export default class EditListComponent extends React.Component {
             OperationType.OP_SELECT,
             'Wybierz'
         );
+        console.log(this.props.defaultSelectedRowKeys, 'this.props.defaultSelectedRowKeys');
         return (
             <React.Fragment>
                 <Dialog
@@ -107,7 +104,7 @@ export default class EditListComponent extends React.Component {
                             }
                         }}
                         defaultSelectedRowKeys={this.props.defaultSelectedRowKeys}
-                        handleSelectedRowKeys={(e) => this.handleSelectedRowData(e)}
+                        handleSelectedRowKeys={(e) => this.props.handleSelectedRowData(e)}
                         showFilterRow={true}
                         showErrorMessages={(err) => this.props.showErrorMessages(err)}
                         dataGridStoreSuccess={this.props.dataGridStoreSuccess}

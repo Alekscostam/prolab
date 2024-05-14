@@ -29,7 +29,7 @@ import {ColumnType} from '../model/ColumnType';
 
 let clickCount = 0;
 let timeout;
-// TODO: tego switcha przezucic fdo osobnej kalsy switch (field.type) {
+// TODO: brak block ui na tryb sidepanel; po wejsciu w liste podpowiedzi
 export class BaseRowComponent extends BaseContainer {
     constructor(props) {
         super(props);
@@ -70,6 +70,46 @@ export class BaseRowComponent extends BaseContainer {
             'Fields_Mandatory_Label',
             'Wypełnij wszystkie wymagane pola'
         );
+    }
+
+    handleSelectedRowData(e) {
+        const addMode = !!(e.currentSelectedRowKeys.length !== 0);
+        const setFields = this.state.parsedGridView.setFields;
+        const prevSelectedRowData = this.state.selectedRowData;
+        const currentSelectedRowsData = e.selectedRowsData;
+        const selectedRowsKeys = e.selectedRowKeys;
+        let transformedRowsData = [];
+        let transformedRowsCRC = [];
+        const multiSelect = this.state?.parsedGridView?.gridOptions?.multiSelect;
+        if (multiSelect) {
+            transformedRowsData = prevSelectedRowData;
+            transformedRowsCRC = selectedRowsKeys;
+            if (addMode) {
+                const foundedElementToAdd = currentSelectedRowsData.find(
+                    (el) => el.CALC_CRC === e.currentSelectedRowKeys[0]
+                );
+                const transformedSingleRowData = EditListUtils.transformBySetFields(foundedElementToAdd, setFields);
+                const CALC_CRC = EditListUtils.calculateCRC(transformedSingleRowData);
+                transformedSingleRowData[0].CALC_CRC = CALC_CRC;
+                transformedRowsData.push(transformedSingleRowData);
+            } else {
+                const foundedElementToRemove = prevSelectedRowData.find(
+                    (el) => el[0].CALC_CRC === e.currentDeselectedRowKeys[0]
+                );
+                transformedRowsData = transformedRowsData.filter(
+                    (el) => el[0].CALC_CRC !== foundedElementToRemove[0].CALC_CRC
+                );
+            }
+        } else {
+            for (let selectedRows in currentSelectedRowsData) {
+                let selectedRow = currentSelectedRowsData[selectedRows];
+                let transformedSingleRowData = EditListUtils.transformBySetFields(selectedRow, setFields);
+                let CALC_CRC = EditListUtils.calculateCRC(transformedSingleRowData);
+                transformedRowsData.push(transformedSingleRowData);
+                transformedRowsCRC.push(CALC_CRC);
+            }
+        }
+        this.setState({selectedRowData: transformedRowsData, defaultSelectedRowKeys: transformedRowsCRC});
     }
 
     handleCancel() {
@@ -174,18 +214,17 @@ export class BaseRowComponent extends BaseContainer {
               };
     }
     getWidthSizeSidebar(editFields) {
-        let size = 45 
-        if(editFields){
-           const panels =  editFields[0]?.panels;
-           if(panels){
-                size =  panels[0]?.size ?  panels[0]?.size : size;
-           }
+        let size = 45;
+        if (editFields) {
+            const panels = editFields[0]?.panels;
+            if (panels) {
+                size = panels[0]?.size ? panels[0]?.size : size;
+            }
         }
         return {width: `${size}%`};
     }
     editListVisible(field) {
         this.blockUi();
-
         ConsoleHelper('EditRowComponent::editListVisible');
         const editInfo = this.props.editData?.editInfo;
         const kindView = this.props.kindView;
@@ -224,8 +263,9 @@ export class BaseRowComponent extends BaseContainer {
                                     singleSelectedRowDataTmp.push(fieldTmp);
                                 });
                             });
-                            selectedRowDataTmp.push(singleSelectedRowDataTmp);
                             let CALC_CRC = EditListUtils.calculateCRC(singleSelectedRowDataTmp);
+                            singleSelectedRowDataTmp[0].CALC_CRC = CALC_CRC;
+                            selectedRowDataTmp.push(singleSelectedRowDataTmp);
                             defaultSelectedRowKeysTmp.push(CALC_CRC);
                         }
                         ConsoleHelper(

@@ -70,22 +70,6 @@ export class EditRowComponent extends BaseRowComponent {
         copyDataGlobalTop = null;
     }
 
-    handleSelectedRowData(selectedRowData) {
-        ConsoleHelper('EditRowComponent::handleSelectedRowData obj=' + JSON.stringify(selectedRowData));
-        const setFields = this.state.parsedGridView.setFields;
-        let transformedRowsData = [];
-        let transformedRowsCRC = [];
-        for (let selectedRows in selectedRowData) {
-            let selectedRow = selectedRowData[selectedRows];
-            let transformedSingleRowData = EditListUtils.transformBySetFields(selectedRow, setFields);
-            let CALC_CRC = EditListUtils.calculateCRC(transformedSingleRowData);
-            ConsoleHelper('transformedRowsData = {} hash = {} ', transformedSingleRowData, CALC_CRC);
-            transformedRowsData.push(transformedSingleRowData);
-            transformedRowsCRC.push(CALC_CRC);
-        }
-        this.setState({selectedRowData: transformedRowsData, defaultSelectedRowKeys: transformedRowsCRC});
-    }
-
     render() {
         const labels = this.props?.labels;
         const operations = this.props?.editData?.operations || [];
@@ -101,6 +85,8 @@ export class EditRowComponent extends BaseRowComponent {
         if (this.props?.copyData) {
             copyDataGlobalTop = this.props.copyData;
         }
+        console.log(this.state.selectedRowData, 'this.state.selectedRowData');
+        console.log(this.state.defaultSelectedRowKeys, 'this.state.defaultSelectedRowKeys');
         return (
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />

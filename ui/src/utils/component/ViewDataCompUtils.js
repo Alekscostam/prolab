@@ -3,6 +3,7 @@ import moment from 'moment';
 import ConsoleHelper from '../ConsoleHelper';
 import LocUtils from '../LocUtils';
 import {ColumnType} from '../../model/ColumnType';
+import {OperationType} from '../../model/OperationType';
 
 export class ViewDataCompUtils {
     static getOpButton(operations, type) {
@@ -186,6 +187,14 @@ export class ViewDataCompUtils {
             JSON.stringify(columnDefinition)
         );
         try {
+            if (columnDefinition.type === ColumnType.B) {
+                value = value ? '1' : '0';
+                return [[columnDefinition.fieldName, '=', value]];
+            }
+            if (columnDefinition.type === ColumnType.L) {
+                value = value ? 'T' : 'N';
+                return [[columnDefinition.fieldName, '=', value]];
+            }
             if (!!columnDefinition) {
                 if (operations === 'between') {
                     let dateFormatted1 = this.formatDateFilterExpression(columnDefinition.type, value[0]);

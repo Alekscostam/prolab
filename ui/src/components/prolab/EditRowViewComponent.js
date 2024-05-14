@@ -95,21 +95,7 @@ export class EditRowViewComponent extends BaseRowComponent {
     componentWillUnmount() {
         super.componentWillUnmount();
     }
-    handleSelectedRowData(selectedRowData) {
-        ConsoleHelper('EditRowComponent::handleSelectedRowData obj=' + JSON.stringify(selectedRowData));
-        const setFields = this.state.parsedGridView.setFields;
-        const transformedRowsData = [];
-        const transformedRowsCRC = [];
-        for (let selectedRows in selectedRowData) {
-            const selectedRow = selectedRowData[selectedRows];
-            const transformedSingleRowData = EditListUtils.transformBySetFields(selectedRow, setFields);
-            const CALC_CRC = EditListUtils.calculateCRC(transformedSingleRowData);
-            ConsoleHelper('transformedRowsData = {} hash = {} ', transformedSingleRowData, CALC_CRC);
-            transformedRowsData.push(transformedSingleRowData);
-            transformedRowsCRC.push(CALC_CRC);
-        }
-        this.setState({selectedRowData: transformedRowsData, defaultSelectedRowKeys: transformedRowsCRC});
-    }
+
     onBlur(inputType, event, groupName, info) {
         this.handleEditRowBlur(inputType, event, groupName, info);
     }
