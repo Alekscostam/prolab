@@ -799,14 +799,26 @@ export class EditSpecContainer extends BaseContainer {
         );
     };
     findSelectedRowFromPrevGrid() {
-        const elements = this.state.parsedData
+        let elements = this.state?.parsedData || [];
+        elements = this.state?.parsedData
             .filter((el) => !StringUtils.isBlank(el.ID))
             .filter((el) => el._ID_PARENT === 0);
         if (elements.length === 1) {
             return elements[0];
         }
+        if (this.state?.elementParentId) {
+            return {ID: this.state.elementParentId};
+        }
+
         return null;
     }
+    selectedFromPrevGridFnc = (prevUrl) => {
+        const selectedElementFromPrevGrid = this.findSelectedRowFromPrevGrid();
+        if (selectedElementFromPrevGrid) {
+            return UrlUtils.addParameterToURL(prevUrl, 'selectedFromPrevGrid', selectedElementFromPrevGrid.ID);
+        }
+        return prevUrl;
+    };
     cancelSpec = () => {
         this.blockUi();
         const viewIdArg = this.state.elementId;
@@ -825,15 +837,9 @@ export class EditSpecContainer extends BaseContainer {
                     prevUrl = UrlUtils.removeAndAddParam('recordId', UrlUtils.getParentId(), prevUrl);
                     prevUrl = UrlUtils.removeAndAddParam('bc', UrlUtils.getBc(), prevUrl);
                     prevUrl = UrlUtils.deleteParameterFromURL(prevUrl, 'prevParentId');
-                    const selectedElementFromPrevGrid = this.findSelectedRowFromPrevGrid();
-                    if (selectedElementFromPrevGrid) {
-                        prevUrl = UrlUtils.addParameterToURL(
-                            prevUrl,
-                            'selectedFromPrevGrid',
-                            selectedElementFromPrevGrid.ID
-                        );
-                    }
+                    prevUrl = this.selectedFromPrevGridFnc(prevUrl);
                 } else {
+                    prevUrl = this.selectedFromPrevGridFnc(prevUrl);
                     prevUrl = UrlUtils.deleteParameterFromURL(prevUrl, 'parentId');
                     prevUrl = UrlUtils.deleteParameterFromURL(prevUrl, 'recordId');
                     prevUrl = UrlUtils.deleteParameterFromURL(prevUrl, 'bc');

@@ -11,7 +11,7 @@ $base-color: #0e49eb;
     line-height: 16px !important;
     letter-spacing: 0;
     color: $header-label;
-    opacity: 1;
+    // opacity: 1;
     font-style: normal;
     font-variant: normal;
     font-weight: 500;
@@ -82,8 +82,9 @@ $base-color: #0e49eb;
     font-variant: normal;
     font-weight: 500;
 }
+
 .dx-state-hover {
-    opacity: 100% !important;
+    // opacity: 100% !important;
 }
 .dx-treelist-rowsview .dx-row-focused > td,
 .dx-treelist-rowsview .dx-row-focused:hover > td,

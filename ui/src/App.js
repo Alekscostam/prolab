@@ -419,16 +419,25 @@ class App extends Component {
     }
     addButton = () => {
         const {labels} = this.state;
-        const opADD = DataGridUtils.getOrCreateOpButton(this.state.operations, labels, OperationType.OP_ADD, 'Dodaj');
-        return (
-            <ActionButton
-                rendered={opADD}
-                label={opADD?.label}
-                handleClick={(e) => {
-                    this.viewContainer?.current?.addView(e);
-                }}
-            />
-        );
+        const foundedOpADD = DataGridUtils.getOpButton(this.state.operations, OperationType.OP_ADD);
+        const foundedOpADDSpec = DataGridUtils.getOpButton(this.state.operations, OperationType.OP_ADD_SPEC);
+        if (foundedOpADD || foundedOpADDSpec) {
+            const opADD = DataGridUtils.getOrCreateOpButton(
+                this.state.operations,
+                labels,
+                OperationType.OP_ADD,
+                'Dodaj'
+            );
+            return (
+                <ActionButton
+                    rendered={opADD}
+                    label={opADD?.label}
+                    handleClick={(e) => {
+                        this.viewContainer?.current?.addView(e);
+                    }}
+                />
+            );
+        }
     };
 
     showSidebar() {
@@ -448,11 +457,20 @@ class App extends Component {
         return false;
     }
 
+    getOpButton() {
+        const {labels} = this.state;
+        const foundedOpADD = DataGridUtils.getOpButton(this.state.operations, OperationType.OP_ADD);
+        const foundedOpADDSpec = DataGridUtils.getOpButton(this.state.operations, OperationType.OP_ADDSPEC_ADD);
+        if (foundedOpADD || foundedOpADDSpec) {
+            return DataGridUtils.getOrCreateOpButton(this.state.operations, labels, OperationType.OP_ADD, 'Dodaj');
+        }
+        return null;
+    }
     render() {
         const authService = this.authService;
         const {labels} = this.state;
         const loggedIn = authService.loggedIn();
-        const opADD = DataGridUtils.getOrCreateOpButton(this.state.operations, labels, OperationType.OP_ADD, 'Dodaj');
+
         return (
             <React.Fragment>
                 <AppContext.Provider value={{}}>
@@ -568,15 +586,16 @@ class App extends Component {
                                                     >
                                                         {this.viewContainer?.current
                                                             ?.getGridViewType()
-                                                            ?.toUpperCase() === 'CARDVIEW' && (
-                                                            <ActionButton
-                                                                rendered={true}
-                                                                label={opADD.label}
-                                                                handleClick={(e) => {
-                                                                    this.viewContainer?.current?.addView(e);
-                                                                }}
-                                                            />
-                                                        )}
+                                                            ?.toUpperCase() === 'CARDVIEW' &&
+                                                            this.getOpButton() && (
+                                                                <ActionButton
+                                                                    rendered={true}
+                                                                    label={this.getOpButton().label}
+                                                                    handleClick={(e) => {
+                                                                        this.viewContainer?.current?.addView(e);
+                                                                    }}
+                                                                />
+                                                            )}
                                                     </DivContainer>
                                                     <DivContainer id='header-content' colClass='col-12'></DivContainer>
                                                 </DivContainer>

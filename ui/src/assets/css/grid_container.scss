@@ -12,7 +12,7 @@ $base-color: #0e49eb;
     line-height: 16px !important;
     letter-spacing: 0;
     color: $header-label;
-    opacity: 1;
+    // opacity: 1;
     font-style: normal;
     font-variant: normal;
     font-weight: 500;
@@ -20,6 +20,7 @@ $base-color: #0e49eb;
 .dx-dropdowneditor-icon {
     background: white;
 }
+
 .dx-datagrid-rowsview tr > td {
     color: $data-label;
     text-align: left;
@@ -439,8 +440,10 @@ $base-color: #0e49eb;
 .grid-container {
     .dx-row.dx-data-row.dx-row-lines.dx-column-lines.dx-state-hover {
         background-color: $base-color !important;
+        opacity: 100% !important;
         td {
             background-color: $base-color !important;
+            opacity: 100% !important;
             div {
                 color: white !important;
                 .dx-dropdowneditor-icon {
@@ -452,16 +455,19 @@ $base-color: #0e49eb;
             }
         }
     }
-    // .dx-datebox.dx-textbox.dx-texteditor.dx-dropdowneditor-button-visible.dx-editor-underlined.dx-widget.dx-visibility-change-handler.dx-dropdowneditor.dx-datebox-date.dx-datebox-calendar.dx-state-focused.dx-state-hover {
-    //     .dx-dropdowneditor-icon {
-    //         color: red !important;
-    //     }
-    // }
     .dx-datagrid-rowsview .dx-row-focused.dx-data-row .dx-command-edit .dx-link,
     .dx-datagrid-rowsview
         .dx-row-focused.dx-data-row
         > td:not(.dx-focused):not(.dx-cell-modified):not(.dx-datagrid-invalid) {
-        background-color: white;
+        background-color: $base-color;
+    }
+    .dx-row.dx-data-row.dx-row-lines.dx-column-lines.dx-row-focused {
+        td {
+            background-color: $base-color !important;
+            div {
+                color: white !important;
+            }
+        }
     }
 }
 

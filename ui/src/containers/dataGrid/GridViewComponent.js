@@ -36,6 +36,7 @@ import {MenuWithButtons} from '../../components/prolab/MenuWithButtons';
 import {saveObjToCookieGlobal} from '../../utils/Cookie';
 import {ColumnType} from '../../model/ColumnType';
 import OperationCell from '../../model/OperationCell';
+import {OperationType} from '../../model/OperationType';
 
 class GridViewComponent extends CellEditComponent {
     constructor(props) {
@@ -148,8 +149,11 @@ class GridViewComponent extends CellEditComponent {
         return currentEditListRow;
     }
     addButton() {
+        const opAdd = !!DataGridUtils.getOpButton(this.props.parsedGridView?.operations, OperationType.OP_ADD);
+        const opAddSpec = !!DataGridUtils.getOpButton(this.props.parsedGridView?.operations, OperationType.OP_ADD_SPEC);
         return (
-            !UrlUtils.isBatch() && (
+            !UrlUtils.isBatch() &&
+            (opAdd || opAddSpec) && (
                 <ActionButton
                     rendered={true}
                     label={LocUtils.loc(this.props.labels, 'Add_button', 'Dodaj')}
@@ -224,7 +228,7 @@ class GridViewComponent extends CellEditComponent {
                             }
                         }
                     }}
-                    repaintChangesOnly={true}
+                    repaintChangesOnly={this.repaintChangesOnly()}
                     allowColumnResizing={true}
                     showColumnLines={showColumnLines}
                     showRowLines={showRowLines}
@@ -338,6 +342,9 @@ class GridViewComponent extends CellEditComponent {
         const multiSelection = multiSelect === undefined || multiSelect === null || !!multiSelect;
         return showSelection ? (multiSelection ? 'multiple' : 'single') : 'none';
     };
+    repaintChangesOnly() {
+        return this.props.cellModeEnabled;
+    }
     canRenderAdditionalOperationCol() {
         const operationsRecord = this.props.parsedGridView?.operationsRecord;
         const operationsRecordList = this.props.parsedGridView?.operationsRecordList;
