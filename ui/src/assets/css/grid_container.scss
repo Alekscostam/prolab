@@ -436,49 +436,35 @@ $base-color: #0e49eb;
 .card-grid-header .shortcut.p-button {
     box-shadow: none;
 }
-
 .grid-container {
-    .dx-datagrid-rowsview .dx-state-hover > td,
-    .dx-datagrid-rowsview .dx-state-hover:hover > td,
-    .dx-datagrid-rowsview .dx-state-hover > tr > td,
-    .dx-datagrid-rowsview .dx-state-hover:hover > tr > td {
-        background-color: rgba(#f0f0f0, 1) !important;
-    }
-    .dx-datagrid-rowsview .dx-row-focused > td,
-    .dx-datagrid-rowsview .dx-row-focused:hover > td,
-    .dx-datagrid-rowsview .dx-row-focused > tr > td,
-    .dx-datagrid-rowsview .dx-row-focused:hover > tr > td {
-        background-color: rgba($base-color, 1) !important;
-        .trash-icon-treeview {
-            color: white !important;
-        }
-    }
-    .dx-row-focused {
+    .dx-row.dx-data-row.dx-row-lines.dx-column-lines.dx-state-hover {
+        background-color: $base-color !important;
         td {
+            background-color: $base-color !important;
             div {
-                color: $table-selection !important;
+                color: white !important;
                 .dx-dropdowneditor-icon {
                     color: $data-label !important;
                 }
             }
-        }
-    }
-
-    .dx-state-hover {
-        td {
             .deleted-row {
                 color: red !important;
             }
         }
     }
-    .dx-row-focused {
-        td {
-            .deleted-row {
-                color: red !important;
-            }
-        }
+    // .dx-datebox.dx-textbox.dx-texteditor.dx-dropdowneditor-button-visible.dx-editor-underlined.dx-widget.dx-visibility-change-handler.dx-dropdowneditor.dx-datebox-date.dx-datebox-calendar.dx-state-focused.dx-state-hover {
+    //     .dx-dropdowneditor-icon {
+    //         color: red !important;
+    //     }
+    // }
+    .dx-datagrid-rowsview .dx-row-focused.dx-data-row .dx-command-edit .dx-link,
+    .dx-datagrid-rowsview
+        .dx-row-focused.dx-data-row
+        > td:not(.dx-focused):not(.dx-cell-modified):not(.dx-datagrid-invalid) {
+        background-color: white;
     }
 }
+
 .dx-state-hover {
     opacity: 100% !important;
 }
@@ -530,6 +516,19 @@ body #subviews-panel .dx-tabs {
 
     .dx-tab.dx-tab-selected::after {
         border: none;
+    }
+}
+#subviews-panel {
+    .dx-item-content.dx-tab-content.dx-state-hover {
+        .dx-item-content.dx-tab-content {
+            .subview-tab-item-href,
+            .subview-tab-item {
+                color: $base-color !important;
+            }
+        }
+    }
+    .dx-item.dx-tab.dx-tab-selected {
+        border-bottom: 2px solid $base-color;
     }
 }
 .p-menu-list.p-reset {
@@ -681,32 +680,32 @@ body .grid-container {
 
     .dx-buttongroup {
         .dx-buttongroup-item.dx-button.dx-button-mode-outlined {
-            background-color: rgba(white, 1);
-
+            background-color: white !important;
+            color: $base-color !important;
             .dx-button-content {
                 .dx-icon {
-                    color: $base-color;
+                    color: $base-color !important;
                 }
             }
         }
 
         .dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-item-selected,
         .dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-item-selected.dx-state-hover {
-            background-color: rgba($base-color, 1) !important;
+            background-color: $base-color !important;
             opacity: 100%;
             .dx-icon {
-                color: white;
+                color: white !important;
             }
         }
 
         .dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-state-hover {
             // background-color: rgba(63, 81, 181, 0.92);
             // background-color: $base-color;
-            background-color: rgba($base-color, 0.92);
+            background-color: $base-color !important;
 
             // opacity: 92%;
             .dx-icon {
-                color: white;
+                color: white !important;
             }
         }
     }
@@ -725,6 +724,7 @@ body .grid-container {
         border-bottom-style: none;
         background: white !important;
         border-radius: 50px;
+        color: $base-color !important;
     }
     .filter-combo.dx-texteditor:active,
     .filter-combo.dx-texteditor:hover,
@@ -733,7 +733,7 @@ body .grid-container {
     .filter-combo.dx-texteditor.dx-state-active {
         .dx-dropdowneditor-icon {
             background-color: white !important;
-            color: $base-color;
+            color: $base-color !important;
         }
     }
 
@@ -778,7 +778,7 @@ body .grid-container {
         .dx-dropdowneditor-button {
             width: 18px;
             min-width: 18px;
-            color: $base-color;
+            color: $base-color !important;
         }
     }
 }

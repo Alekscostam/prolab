@@ -436,7 +436,19 @@ body .grid-container {
 #combo_filters {
     min-width: 100px;
 }
-
+.tree-container {
+    .dx-row.dx-data-row.dx-row-lines.dx-column-lines.dx-row-focused {
+        td {
+            color: white;
+        }
+    }
+    .dx-row.dx-data-row.dx-row-lines.dx-column-lines.dx-state-hover {
+        td {
+            // background-color: $base-color !important;
+            // color: white !important;
+        }
+    }
+}
 .tiles {
     display: inline-flex;
 }
