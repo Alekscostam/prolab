@@ -12,7 +12,6 @@ $base-color: #0e49eb;
     line-height: 16px !important;
     letter-spacing: 0;
     color: $header-label;
-    // opacity: 1;
     font-style: normal;
     font-variant: normal;
     font-weight: 500;
@@ -440,10 +439,8 @@ $base-color: #0e49eb;
 .grid-container {
     .dx-row.dx-data-row.dx-row-lines.dx-column-lines.dx-state-hover {
         background-color: $base-color !important;
-        opacity: 100% !important;
         td {
             background-color: $base-color !important;
-            opacity: 100% !important;
             div {
                 color: white !important;
                 .dx-dropdowneditor-icon {
@@ -471,9 +468,6 @@ $base-color: #0e49eb;
     }
 }
 
-.dx-state-hover {
-    opacity: 100% !important;
-}
 body #subviews-panel .dx-tabs {
     width: auto;
     max-width: 100%;
@@ -698,18 +692,13 @@ body .grid-container {
         .dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-item-selected,
         .dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-item-selected.dx-state-hover {
             background-color: $base-color !important;
-            opacity: 100%;
             .dx-icon {
                 color: white !important;
             }
         }
 
         .dx-buttongroup-item.dx-button.dx-button-mode-outlined.dx-state-hover {
-            // background-color: rgba(63, 81, 181, 0.92);
-            // background-color: $base-color;
             background-color: $base-color !important;
-
-            // opacity: 92%;
             .dx-icon {
                 color: white !important;
             }
