@@ -523,7 +523,7 @@ class TreeViewComponent extends CellEditComponent {
                     const rowDatas = this.ref.instance.getVisibleRows();
                     this.paintLineIfPossible(rowDatas);
                 }
-            }, 0);
+            }, 10);
         }
     };
 
