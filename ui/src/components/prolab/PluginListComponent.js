@@ -94,6 +94,7 @@ export default class PluginListComponent extends React.Component {
                         elementSubViewId={null}
                         handleOnDataGrid={(ref) => (this.refDataGrid = ref)}
                         parsedGridView={convertedParsedView}
+                        hoverStateEnabled={true}
                         parsedGridViewData={this.props.parsedPluginViewData}
                         gridViewColumns={this.props.parsedPluginView?.viewColumns}
                         packageRows={this.props.parsedPluginView?.info?.dataPackageSize}

@@ -1,4 +1,9 @@
 /*Edycja*/
+$edit-row-font-size: 12px;
+$edit-padding-left: 8px;
+$edit-padding-right: 8px;
+$edit-padding-top: 12px;
+$edit-padding-bottom: 11px;
 
 #right-sidebar {
     background: transparent linear-gradient(90deg, #f7f9fd 0%, #ecf2fb 100%) 0% 0% no-repeat padding-box !important;
@@ -50,7 +55,7 @@
     background-color: $text-bg;
     color: $text-color;
     font-weight: 500;
-    font-size: 16px;
+    // font-size: 16px;
     letter-spacing: 0px;
     text-align: left;
     border: 1px solid rgba(0, 0, 0, 0.38);
@@ -77,6 +82,19 @@
     width: 100%;
 }
 
+#row-edit {
+    .p-dropdown,
+    .p-inputtext,
+    .p-calendar {
+        font-size: $edit-row-font-size;
+    }
+    .p-inputtext {
+        padding-left: $edit-padding-left;
+        padding-right: $edit-padding-right;
+        padding-top: $edit-padding-top;
+        padding-bottom: $edit-padding-bottom;
+    }
+}
 #right-sidebar .label,
 #view-name,
 .label {

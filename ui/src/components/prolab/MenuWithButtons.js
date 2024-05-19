@@ -90,6 +90,7 @@ export const MenuWithButtons = (props) => {
                           case OperationType.OP_TREE_COLLAPSE:
                               return props.handleCollapse();
                           default:
+                              console.log('error not found type: ' + i.type?.toUpperCase());
                               return null;
                       }
                   },

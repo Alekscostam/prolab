@@ -28,6 +28,7 @@ import ResponseUtils from '../utils/ResponseUtils';
 import EditSpecService from '../services/EditSpecService';
 import {OperationType} from '../model/OperationType';
 import {InputType} from '../model/InputType';
+import {StringUtils} from '../utils/StringUtils';
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -1027,7 +1028,7 @@ class BaseContainer extends React.Component {
         this.crudService
             .getDocumentDatasInfo(viewId, id, listId, parentId)
             .then((res) => {
-                if (res.kind === 'GE') {
+                if (res.info.kind === 'GE') {
                     if (res.info.next) {
                         if (res.message) {
                             this.showSuccessMessage(res.message.text, undefined, res.message.title);
@@ -1884,14 +1885,14 @@ class BaseContainer extends React.Component {
             this.setState({documentdInfo: documentInfo, modifyEditData: true});
         }
     }
-    handleEditRowChange(inputType, event, groupName, info) {
-        ConsoleHelper(`handleEditRowChange inputType=${inputType} groupName=${groupName}`);
+    handleEditRowChange(inputType, event, groupUuid, info) {
+        ConsoleHelper(`handleEditRowChange inputType=${inputType} groupUuid=${groupUuid}`);
         const editData = UrlUtils.isEditRowView() ? this.props.editData : this.state.editData;
         const groupData = [];
         outerLoop: for (let editField of editData?.editFields) {
             for (let panel of editField.panels) {
                 for (let group of panel.groups) {
-                    if (group.groupName === groupName) {
+                    if (group.uuid === groupUuid) {
                         groupData.push(group);
                         break outerLoop;
                     }
@@ -1903,7 +1904,6 @@ class BaseContainer extends React.Component {
             const varName = result.varName;
             const varValue = result.varValue;
             const refreshFieldVisibility = result.refreshFieldVisibility;
-
             const fieldArr = groupData[0]?.fields?.filter((obj) => {
                 return obj.fieldName === varName;
             });
@@ -2055,7 +2055,7 @@ class BaseContainer extends React.Component {
             gridColumns?.forEach((group) => {
                 group.columns?.forEach((column) => {
                     column.groupName = group.groupName;
-                    column.freeze = group.freeze;
+                    column.freeze = StringUtils.isBlank(column?.freeze) ? group.freeze : column.freeze;
                     column.columnOrder = columnOrderCounter++;
                     columnsTmp.push(column);
                 });

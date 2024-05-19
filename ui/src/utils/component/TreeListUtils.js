@@ -577,4 +577,70 @@ export class TreeListUtils extends ViewDataCompUtils {
         callback({value: editData[searchFieldName]});
         return;
     }
+
+    // TODO: refactor
+
+    static createSelectonColumn(listColumns, parsedGridViewData) {
+        listColumns.unshift({
+            width: this.calculateWidthOfSelectionColumn(parsedGridViewData),
+            id: 0,
+            checkbox: true,
+            visible: true,
+            freeze: 'left',
+            fixed: true,
+            disabledEditing: true,
+            fieldName: 'selection',
+            type: 'string',
+            label: '',
+            isFilter: false,
+            isGroup: false,
+        });
+        return listColumns;
+    }
+    static createSelectonStaticColumn(listColumns) {
+        listColumns.unshift({
+            width: 60,
+            id: 0,
+            checkbox: true,
+            disabledEditing: true,
+            visible: true,
+            fixed: true,
+            freeze: 'left',
+            fieldName: 'selection',
+            type: 'string',
+            label: '',
+            isFilter: false,
+            isGroup: false,
+        });
+        return listColumns;
+    }
+    static calculateWidthOfSelectionColumn(parsedGridViewData) {
+        const longestBranch = this.findLongestBranchLength(parsedGridViewData);
+        if (longestBranch === 0 || longestBranch === 1 || longestBranch === 2) {
+            return '60px';
+        }
+        return longestBranch * 25 + 'px';
+    }
+
+    static findLongestBranchLength(nodes) {
+        const nodeMap = new Map(nodes.map((node) => [node._ID, node]));
+        const pathLengths = new Array(nodes.length).fill(0);
+        function findPathLength(nodeId) {
+            const node = nodeMap.get(nodeId);
+            if (!node._ID_PARENT) {
+                return 1;
+            }
+            const parentPathLength = findPathLength(node._ID_PARENT);
+            return parentPathLength + 1;
+        }
+        nodes.forEach((node) => (pathLengths[node._ID] = findPathLength(node._ID)));
+        let highestValue = null;
+        for (const key in pathLengths) {
+            const value = pathLengths[key];
+            if (highestValue === null || value > highestValue) {
+                highestValue = value;
+            }
+        }
+        return highestValue;
+    }
 }

@@ -16,6 +16,7 @@ import {ConfirmationEditQuitDialog} from '../../components/prolab/ConfirmationEd
 import {DataGridUtils} from '../../utils/component/DataGridUtils';
 import SchedulerComponent from './SchedulerComponent';
 import SchedulerService from '../../services/SchedulerService';
+import {StringUtils} from '../../utils/StringUtils';
 
 export class SchedulerContainer extends BaseContainer {
     _isMounted = false;
@@ -228,7 +229,7 @@ export class SchedulerContainer extends BaseContainer {
     //override
     renderHeadPanel = () => {
         const operations = this.state?.parsedView?.operations;
-        if (operations?.length === 0) {
+        if (operations?.length === 0 || StringUtils.isBlank(operations)) {
             return <React.Fragment />;
         }
         return (

@@ -67,7 +67,6 @@ $base-color: #0e49eb;
 .dx-datagrid .dx-row-lines > td {
     border-bottom: 1px solid $table-border;
 }
-
 .dx-treelist-rowsview .dx-selection > td,
 .dx-treelist-rowsview .dx-selection > tr > td,
 .dx-treelist-rowsview .dx-selection > td,
@@ -75,16 +74,10 @@ $base-color: #0e49eb;
     background-color: $table-selection !important;
     color: $data-label;
     text-align: left;
-    font-size: 12px !important;
     line-height: 14px !important;
     letter-spacing: 0;
     font-style: normal;
     font-variant: normal;
-    font-weight: 500;
-}
-
-.dx-state-hover {
-    // opacity: 100% !important;
 }
 .dx-treelist-rowsview .dx-row-focused > td,
 .dx-treelist-rowsview .dx-row-focused:hover > td,
@@ -230,21 +223,11 @@ $base-color: #0e49eb;
     }
 }
 
-.card-grid-body {
-    display: inline-flex;
-    align-items: flex-start;
-    max-height: calc(100% - 50px);
-
-    .card-grid-body-content {
-        word-break: normal;
-        display: block;
-        overflow: hidden;
-        text-overflow: ellipsis;
+#column_0_selection-fixed {
+    .dx-checkbox-container {
+        padding-top: 8px;
     }
-
-    .card-grid-body-image {
-        padding-right: 10px;
-    }
+    pointer-events: none !important;
 }
 
 .card-grid-header {
@@ -445,8 +428,8 @@ body .grid-container {
     }
     .dx-row.dx-data-row.dx-row-lines.dx-column-lines.dx-state-hover {
         td {
-            // background-color: $base-color !important;
-            // color: white !important;
+            background-color: $base-color !important;
+            color: white !important;
         }
     }
 }

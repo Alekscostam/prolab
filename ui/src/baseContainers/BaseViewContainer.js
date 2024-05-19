@@ -424,6 +424,7 @@ export class BaseViewContainer extends BaseContainer {
                                 document.body.appendChild(confirmDialogWrapper);
                                 ReactDOM.render(
                                     <ConfirmDialog
+                                        closable={false}
                                         visible={true}
                                         message={LocUtils.loc(
                                             this.props.labels,
@@ -631,6 +632,7 @@ export class BaseViewContainer extends BaseContainer {
 
                 {this.state.visibleMessagePluginPanel ? (
                     <ConfirmDialog
+                        closable={false}
                         acceptLabel={PluginConfirmDialogUtils.acceptLabel(parsedPluginView, this.props.labels)}
                         rejectLabel={PluginConfirmDialogUtils.rejectLabel(parsedPluginView, this.props.labels)}
                         header={PluginConfirmDialogUtils.header(parsedPluginView, this.props.labels)}
@@ -670,13 +672,11 @@ export class BaseViewContainer extends BaseContainer {
     async executeDocument(data, viewId, elementId, parentId) {
         const idRowKeys = this.state.selectedRowKeys.map((el) => el.ID);
         const requestBody = {
-            listId: idRowKeys,
+            listId: StringUtils.isBlank(data) && idRowKeys.length === 0 ? [elementId] : idRowKeys,
             data: data,
         };
-
         let fileId;
         let fileName;
-
         this.blockUi();
         await this.crudService
             .generateDocument(requestBody, viewId, elementId, parentId)
@@ -692,7 +692,6 @@ export class BaseViewContainer extends BaseContainer {
                 this.showErrorMessage(ex.error.message);
                 this.unblockUi();
             });
-
         if (fileId) {
             this.crudService.downloadDocument(viewId, elementId, fileId, fileName);
 

@@ -10,6 +10,7 @@ EntryResponseUtils.run = (entryResponse, accept, reject) => {
         document.body.appendChild(confirmDialogWrapper);
         ReactDOM.render(
             <ConfirmDialog
+                closable={false}
                 visible={true}
                 message={entryResponse?.question?.text || entryResponse?.message?.text}
                 header={entryResponse?.question?.title || entryResponse?.message?.title}
@@ -36,5 +37,4 @@ EntryResponseUtils.run = (entryResponse, accept, reject) => {
         accept();
     }
 };
-
 export default EntryResponseUtils;

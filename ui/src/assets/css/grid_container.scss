@@ -290,6 +290,8 @@ $base-color: #0e49eb;
 
     .card-grid-footer-content {
         display: block;
+        border-radius: 5px;
+        padding: 3px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -302,6 +304,8 @@ $base-color: #0e49eb;
     max-height: calc(100% - 50px);
 
     .card-grid-body-content {
+        border-radius: 5px;
+        padding: 3px;
         word-break: normal;
         display: block;
         overflow: hidden;
@@ -332,6 +336,8 @@ $base-color: #0e49eb;
     justify-content: space-between;
 
     .card-grid-header-title {
+        padding: 3px;
+        border-radius: 5px;
         //flex-basis: initial;
         //flex-shrink: 0;
         //flex-grow: 1;
@@ -410,7 +416,7 @@ $base-color: #0e49eb;
 .dashboard {
     .dx-item.dx-tile {
         .shortcut.p-button {
-            border-radius: 0;
+            border-radius: 4px;
         }
 
         .shortcut.p-button:first-child {
@@ -437,21 +443,6 @@ $base-color: #0e49eb;
     box-shadow: none;
 }
 .grid-container {
-    .dx-row.dx-data-row.dx-row-lines.dx-column-lines.dx-state-hover {
-        background-color: $base-color !important;
-        td {
-            background-color: $base-color !important;
-            div {
-                color: white !important;
-                .dx-dropdowneditor-icon {
-                    color: $data-label !important;
-                }
-            }
-            .deleted-row {
-                color: red !important;
-            }
-        }
-    }
     .dx-datagrid-rowsview .dx-row-focused.dx-data-row .dx-command-edit .dx-link,
     .dx-datagrid-rowsview
         .dx-row-focused.dx-data-row
@@ -460,12 +451,30 @@ $base-color: #0e49eb;
     }
     .dx-row.dx-data-row.dx-row-lines.dx-column-lines.dx-row-focused {
         td {
+            background-color: #dde6ff !important;
+            div {
+                // color: white !important;
+            }
+        }
+    }
+    .dx-row.dx-data-row.dx-row-lines.dx-column-lines.dx-state-hover,
+    .dx-row.dx-data-row.dx-row-lines.dx-state-hover {
+        background-color: $base-color !important;
+        td {
             background-color: $base-color !important;
             div {
                 color: white !important;
             }
+            .deleted-row {
+                color: red !important;
+            }
         }
     }
+}
+.dx-datebox-date .dx-dropdowneditor-icon::before,
+.dx-datebox-datetime .dx-dropdowneditor-icon::before,
+.dx-dropdowneditor-icon {
+    color: $data-label;
 }
 
 body #subviews-panel .dx-tabs {

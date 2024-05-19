@@ -109,7 +109,7 @@ export default class UserRowComponent extends BaseRowComponent {
         this.props.onCancel(editInfo.viewId, editInfo.recordId, editInfo.parentId);
     }
 
-    renderField(field, fieldIndex, groupName) {
+    renderField(field, fieldIndex, groupUuid) {
         const visibleDocumentCriteria = this.props?.visibleDocumentPanel;
         const {onChange} = this.props;
         const {onBlur} = this.props;
@@ -138,7 +138,7 @@ export default class UserRowComponent extends BaseRowComponent {
                                         fieldIndex,
                                         onChange,
                                         onBlur,
-                                        groupName,
+                                        groupUuid,
                                         required,
                                         validationMsg,
                                         () => {
@@ -173,7 +173,7 @@ export default class UserRowComponent extends BaseRowComponent {
                 >
                     <DivContainer>
                         {group.fields?.map((field, index) => {
-                            return this.renderField(field, index, group.groupName);
+                            return this.renderField(field, index, group.uuid);
                         })}
                     </DivContainer>
                 </Panel>

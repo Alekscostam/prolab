@@ -218,18 +218,14 @@ export class AddSpecContainer extends BaseContainer {
             const documentsListTmp = this.documentListCreate(responseView);
             const batchesListTmp = this.batchListCreate(responseView);
             const filtersListTmp = this.filtersListCreate(responseView);
-            const columnsTmp = this.columnsFromGroupCreate(responseView);
             Breadcrumb.currentBreadcrumbAsUrlParam();
+            this.blockUi();
             this.setState(
                 () => ({
-                    parsedView: responseView,
-                    columns: columnsTmp,
-                    viewInfo: responseView.viewInfo,
                     pluginsList: pluginsListTmp,
                     documentsList: documentsListTmp,
                     batchesList: batchesListTmp,
                     filtersList: filtersListTmp,
-                    tabs: this.createValidTabs(responseView.tabs),
                     expandAll: responseView.gridOptions.groupExpandAll,
                 }),
                 () => {
@@ -250,16 +246,36 @@ export class AddSpecContainer extends BaseContainer {
                                 }
                                 el._ID = el.ID;
                             });
-                            if (header === false) {
+                            const kind = responseView?.info?.kind || '';
+                            const isGrid = kind.toUpperCase() === 'GRID';
+                            if (header === false && !isGrid) {
                                 res.data = TreeListUtils.paintDatas(res.data);
                             }
-                            this.setState({
-                                loading: false,
-                                parsedData: res.data,
-                            });
+                            if (isGrid) {
+                                TreeListUtils.createSelectonStaticColumn(responseView.gridColumns[0].columns);
+                            } else {
+                                TreeListUtils.createSelectonColumn(responseView.gridColumns[0].columns, res.data);
+                            }
+                            const columnsTmp = this.columnsFromGroupCreate(responseView);
+                            this.setState(
+                                {
+                                    parsedView: responseView,
+                                    columns: columnsTmp,
+                                    viewInfo: responseView.viewInfo,
+                                    tabs: this.createValidTabs(responseView.tabs),
+                                },
+                                () => {
+                                    this.setState({
+                                        loading: false,
+                                        blocking: false,
+                                        parsedData: res.data,
+                                    });
+                                }
+                            );
                         })
                         .catch((ex) => {
                             this.showErrorMessages(ex);
+                            this.unblockUi();
                         });
                 }
             );
@@ -475,9 +491,7 @@ export class AddSpecContainer extends BaseContainer {
                 } else {
                     this.setLinesForChild(result);
                 }
-                console.log(result, 'ONE');
                 this.replaceReapetedIds(result);
-                console.log(result, 'TWO');
                 this.props.handleAddElements(result);
                 this.props.onHide();
                 this.unblockUi();
@@ -638,7 +652,9 @@ export class AddSpecContainer extends BaseContainer {
                                 handleUnselectAll={() => {
                                     this.unselectAllDataGrid();
                                 }}
-                                handleUnblockUi={() => this.unblockUi()}
+                                handleUnblockUi={() => {
+                                    this.unblockUi();
+                                }}
                                 handleShowEditPanel={(editDataResponse) => this.handleShowEditPanel(editDataResponse)}
                                 handleSelectedRowKeys={(e, rerenderColorAfterClickCheckbox) => {
                                     this.setState(
@@ -678,12 +694,8 @@ export class AddSpecContainer extends BaseContainer {
                                 handleDown={(id) => this.down(id)}
                                 handleRestoreRow={(id) => this.restore(id)}
                                 handleCopyRow={(id) => this.copyEntry(id)}
-                                handleDocumentsRow={(id) => {
-                                    this.generate(id);
-                                }}
-                                handlePluginsRow={(id) => {
-                                    this.plugin(id);
-                                }}
+                                handleDocumentsRow={(id) => this.generate(id)}
+                                handlePluginsRow={(id) => this.plugin(id)}
                                 handleDownloadRow={(id) => this.downloadAttachment(id)}
                                 handleAttachmentRow={(id) => this.attachment(id)}
                                 handleArchiveRow={(id) => this.archive(id)}

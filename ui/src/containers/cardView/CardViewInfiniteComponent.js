@@ -14,6 +14,7 @@ import OperationsButtons from '../../components/prolab/OperationsButtons';
 import {EditSpecUtils} from '../../utils/EditSpecUtils';
 import {compress} from 'int-compress-string';
 import {TreeListUtils} from '../../utils/component/TreeListUtils';
+import EntryResponseUtils from '../../utils/EntryResponseUtils';
 
 class CardViewInfiniteComponent extends React.Component {
     constructor(props) {
@@ -307,15 +308,39 @@ class CardViewInfiniteComponent extends React.Component {
                                                 const result = this.props.handleBlockUi();
                                                 if (result) {
                                                     this.crudService
-                                                        .edit(viewId, recordId, subviewId, elementKindView)
-                                                        .then((editDataResponse) => {
-                                                            this.setState(
-                                                                {
-                                                                    editData: editDataResponse,
-                                                                },
+                                                        .editEntry(viewId, recordId, subviewId, elementKindView, '')
+                                                        .then((entryResponse) => {
+                                                            EntryResponseUtils.run(
+                                                                entryResponse,
                                                                 () => {
-                                                                    this.props.handleShowEditPanel(editDataResponse);
-                                                                }
+                                                                    if (!!entryResponse.next) {
+                                                                        this.crudService
+                                                                            .edit(
+                                                                                viewId,
+                                                                                recordId,
+                                                                                subviewId,
+                                                                                elementKindView
+                                                                            )
+                                                                            .then((editDataResponse) => {
+                                                                                this.setState(
+                                                                                    {
+                                                                                        editData: editDataResponse,
+                                                                                    },
+                                                                                    () => {
+                                                                                        this.props.handleShowEditPanel(
+                                                                                            editDataResponse
+                                                                                        );
+                                                                                    }
+                                                                                );
+                                                                            })
+                                                                            .catch((err) => {
+                                                                                this.props.showErrorMessages(err);
+                                                                            });
+                                                                    } else {
+                                                                        this.props.handleUnblockUi();
+                                                                    }
+                                                                },
+                                                                () => this.props.handleUnblockUi()
                                                             );
                                                         })
                                                         .catch((err) => {

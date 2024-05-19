@@ -35,6 +35,8 @@ class LoginContainer extends BaseContainer {
         this.registration = this.registration.bind(this);
         this.userService = new UserService();
         this.messages = React.createRef();
+        this.recaptchaRef = React.createRef();
+
         this._isMounted = false;
         this.state = {
             username: '',
@@ -342,6 +344,14 @@ class LoginContainer extends BaseContainer {
                                                                     />
                                                                 </p>
                                                             </div>
+                                                            {/* <ReCAPTCHA
+                                                                    ref={this.recaptchaRef}
+                                                                    sitekey='TWOJ_SITE_KEY'
+                                                                    onChange={() => {
+                                                                        debugger;
+                                                                    }}
+                                                                /> */}
+
                                                             <ActionButton
                                                                 label={labels['Login_Signin']}
                                                                 className='mt-4'

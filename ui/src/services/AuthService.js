@@ -258,13 +258,15 @@ export default class AuthService {
     }
 
     setToken(idToken, expirationToken, loggedUser, idRefreshToken, sessionTimeoutInMinutes) {
+        // loggedUser.avatar = '';
+        loggedUser = JSON.stringify(loggedUser);
         localStorage.setItem(CookiesName.ID_TOKEN, idToken);
         localStorage.setItem(CookiesName.EXPIRATION_TOKEN, decode(idToken).exp);
-        localStorage.setItem(CookiesName.LOGGED_USER, JSON.stringify(loggedUser));
         localStorage.setItem(CookiesName.ID_REFRESH_TOKEN, idRefreshToken);
         const sessionTimeout = moment(new Date()).add(sessionTimeoutInMinutes, 'm').toString();
         localStorage.setItem(CookiesName.SESSION_TIMEOUT, sessionTimeout);
         localStorage.setItem(CookiesName.SESSION_TIMEOUT_IN_MINUTES, sessionTimeoutInMinutes);
+        localStorage.setItem(CookiesName.LOGGED_USER, loggedUser);
     }
     setRefreshedToken(idToken, idRefreshToken) {
         // Saves user token to localStorage

@@ -31,7 +31,6 @@ export default class HistoryLogDialogComponent extends React.Component {
 
     render() {
         const parsedHistoryLogView = this.props.parsedHistoryLogView;
-
         const width = parsedHistoryLogView?.info?.windowSize?.width || '50vw';
         const height = parsedHistoryLogView?.info?.windowSize?.height || undefined;
 
@@ -47,6 +46,7 @@ export default class HistoryLogDialogComponent extends React.Component {
             <div>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
                 <Dialog
+                    closable={false}
                     id='HistoryLogListDialog'
                     header={this.props.parsedHistoryLogView?.info?.title}
                     footer={
@@ -75,6 +75,7 @@ export default class HistoryLogDialogComponent extends React.Component {
                         parsedGridViewData={this.props.parsedHistoryLogViewData}
                         gridViewColumns={this.props.parsedHistoryLogView?.viewColumns}
                         packageRows={this.props.parsedHistoryLogView?.info?.dataPackageSize}
+                        hoverStateEnabled={true}
                         handleBlockUi={() => {
                             this.props.handleBlockUi();
                         }}

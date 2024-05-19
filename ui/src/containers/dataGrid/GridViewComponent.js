@@ -45,6 +45,7 @@ class GridViewComponent extends CellEditComponent {
         this.dataGrid = null;
         this.crudService = new CrudService();
         this.menu = React.createRef();
+        this.focusedRowKey = React.createRef();
         this.editSpecService = new EditSpecService();
         this.state = {
             allRowsShow: false,
@@ -343,7 +344,8 @@ class GridViewComponent extends CellEditComponent {
         return showSelection ? (multiSelection ? 'multiple' : 'single') : 'none';
     };
     repaintChangesOnly() {
-        return this.props.cellModeEnabled;
+        // return this.props.cellModeEnabled;
+        return true;
     }
     canRenderAdditionalOperationCol() {
         const operationsRecord = this.props.parsedGridView?.operationsRecord;

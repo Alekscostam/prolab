@@ -39,6 +39,9 @@ class TreeViewComponent extends CellEditComponent {
         this.labels = this.props;
         this.crudService = new CrudService();
         this.ref = React.createRef();
+        this.selectionClicked = React.createRef(false);
+        this.selectionCheckboxClicked = React.createRef(false);
+        this.ref = React.createRef();
         this.refDateTime = React.createRef();
         this.menu = React.createRef();
         this.modelRef = React.createRef([]);
@@ -78,7 +81,6 @@ class TreeViewComponent extends CellEditComponent {
 
     componentDidMount() {
         super.componentDidMount();
-        this.createCheckboxColumn();
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -110,43 +112,6 @@ class TreeViewComponent extends CellEditComponent {
         } else if (menu !== null && e.row.rowType === 'data') {
             menu.hide(e.event);
         }
-    }
-    createCheckboxColumn() {
-        const gridViewColumns = this.props.gridViewColumns;
-        if (!gridViewColumns[0]) {
-            return;
-        }
-        if (gridViewColumns[0].id !== undefined && gridViewColumns[0].id !== null) {
-            gridViewColumns.unshift({width: this.calculateWidthOfSelectionColumn(), checkbox: true});
-        }
-    }
-    calculateWidthOfSelectionColumn() {
-        const longestBranch = this.findLongestBranchLength(this.props.parsedGridViewData);
-        if (longestBranch === 0 || longestBranch === 1 || longestBranch === 2) {
-            return '60px';
-        }
-        return longestBranch * 25 + 'px';
-    }
-    findLongestBranchLength(nodes) {
-        const nodeMap = new Map(nodes.map((node) => [node._ID, node]));
-        const pathLengths = new Array(nodes.length).fill(0);
-        function findPathLength(nodeId) {
-            const node = nodeMap.get(nodeId);
-            if (!node._ID_PARENT) {
-                return 1;
-            }
-            const parentPathLength = findPathLength(node._ID_PARENT);
-            return parentPathLength + 1;
-        }
-        nodes.forEach((node) => (pathLengths[node._ID] = findPathLength(node._ID)));
-        let highestValue = null;
-        for (const key in pathLengths) {
-            const value = pathLengths[key];
-            if (highestValue === null || value > highestValue) {
-                highestValue = value;
-            }
-        }
-        return highestValue;
     }
 
     componentWillUnmount() {
@@ -242,7 +207,7 @@ class TreeViewComponent extends CellEditComponent {
                     wordWrapEnabled={rowAutoHeight}
                     columnAutoWidth={columnAutoWidth}
                     columnResizingMode='widget'
-                    repaintChangesOnly={true}
+                    repaintChangesOnly={this.props.isAddSpec ? false : true}
                     onOptionChanged={(e) => {
                         if (e.fullName.includes('filterValue') && e.name === 'columns') {
                             if (this.ref) {
@@ -289,7 +254,7 @@ class TreeViewComponent extends CellEditComponent {
                     }}
                     selectedRowKeys={selectedRowKeys}
                     onSelectionChanged={(e) => {
-                        this.props.handleSelectedRowKeys(e.selectedRowKeys, this.rerenderColorAfterClickCheckbox());
+                        this.props.handleSelectedRowKeys(e.selectedRowKeys, this.rerenderColorCheckboxIfPossible());
                     }}
                     renderAsync={true}
                     selectAsync={false}
@@ -426,10 +391,15 @@ class TreeViewComponent extends CellEditComponent {
             this.props.parsedGridViewData.length !== 0
         ) {
             const expandedRowKeys = this.props.parsedGridViewData.map((el) => el._ID);
-            this.setState({
-                expandedRowKeys: expandedRowKeys,
-                initializedExpandAll: true,
-            });
+            this.setState(
+                {
+                    expandedRowKeys: expandedRowKeys,
+                    initializedExpandAll: true,
+                },
+                () => {
+                    this.rerenderColorCheckboxIfPossible();
+                }
+            );
         }
     };
 
@@ -547,7 +517,7 @@ class TreeViewComponent extends CellEditComponent {
         const {info} = this.props.parsedGridView;
         return this.props.isAddSpec && info?.header === false;
     };
-    rerenderColorAfterClickCheckbox = () => {
+    rerenderColorCheckboxIfPossible = () => {
         if (this.shouldBeRepainting()) {
             setTimeout(() => {
                 const rowDatas = this.ref.instance.getVisibleRows();
@@ -574,7 +544,6 @@ class TreeViewComponent extends CellEditComponent {
     }
 
     preGenerateColumnsDefinition() {
-        this.createCheckboxColumn();
         let columns = [];
         this.props.gridViewColumns?.forEach((columnDefinition, INDEX_COLUMN) => {
             let sortOrder;
@@ -616,15 +585,6 @@ class TreeViewComponent extends CellEditComponent {
         return columns;
     }
 
-    isFakeColumnWithoutIndex(columnDefinition) {
-        return (
-            columnDefinition?.fieldName === undefined &&
-            columnDefinition?.checkbox === true &&
-            columnDefinition.index === undefined &&
-            columnDefinition?.label === undefined
-        );
-    }
-
     postCustomizeColumns = (columns) => {
         let INDEX_COLUMN = 0;
         if (columns?.length > 0) {
@@ -647,6 +607,9 @@ class TreeViewComponent extends CellEditComponent {
                             column.allowResizing = true;
                             column.allowSorting = columnDefinition?.isSort;
                             column.visibleIndex = columnDefinition?.columnOrder;
+                            if (columnDefinition.disabledEditing) {
+                                column.allowEditing = false;
+                            }
                             column.headerId =
                                 'column_' + INDEX_COLUMN + '_' + columnDefinition?.fieldName?.toLowerCase();
                             column.width = columnDefinition?.width || 100;
@@ -654,22 +617,15 @@ class TreeViewComponent extends CellEditComponent {
                             column.caption = columnDefinition?.label;
                             column.dataType = TreeListUtils.specifyColumnType(columnDefinition?.type);
                             column.format = TreeListUtils.specifyColumnFormat(columnDefinition?.type);
-                            if (this.isFakeColumnWithoutIndex(columnDefinition)) {
-                                column.index = 0;
-                                column.fixed = true;
-                                column.fixedPosition = 'left';
-                            } else {
-                                column.fixed =
-                                    columnDefinition.freeze !== undefined && columnDefinition?.freeze !== null
-                                        ? columnDefinition?.freeze?.toLowerCase() === 'left' ||
-                                          columnDefinition?.freeze?.toLowerCase() === 'right'
-                                        : false;
-                                column.fixedPosition = !!columnDefinition.freeze
-                                    ? columnDefinition.freeze?.toLowerCase()
-                                    : null;
-                            }
+                            column.fixed =
+                                columnDefinition.freeze !== undefined && columnDefinition?.freeze !== null
+                                    ? columnDefinition?.freeze?.toLowerCase() === 'left' ||
+                                      columnDefinition?.freeze?.toLowerCase() === 'right'
+                                    : false;
+                            column.fixedPosition = !!columnDefinition.freeze
+                                ? columnDefinition.freeze?.toLowerCase()
+                                : null;
                             column.renderAsync = false;
-                            //own properties
                             column.ownType = columnDefinition?.type;
                             column.ownFieldId = columnDefinition?.id;
                             column.ownFieldName = columnDefinition?.fieldName;
@@ -967,7 +923,7 @@ class TreeViewComponent extends CellEditComponent {
     }
     // doklejamy style
     paintLineIfPossible = (datas) => {
-        const elements = Array.from(document.querySelectorAll('td[aria-describedby=column_0_undefined-fixed]')).filter(
+        const elements = Array.from(document.querySelectorAll('td[aria-describedby=column_0_selection-fixed]')).filter(
             (el) => el.className !== 'dx-editor-cell'
         );
         if (elements.length - datas.length) {

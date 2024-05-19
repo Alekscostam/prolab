@@ -60,6 +60,7 @@ function renderConfirmDialog(message, header, icon, onAccept, isQuestionDialog =
     document.body.appendChild(confirmDialogWrapper);
     ReactDOM.render(
         <ConfirmDialog
+            closable={false}
             visible={true}
             message={message}
             header={header}

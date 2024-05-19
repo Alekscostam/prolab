@@ -227,6 +227,7 @@ class DashboardContainer extends BaseContainer {
                                 ReactDOM.render(
                                     <ConfirmDialog
                                         visible={true}
+                                        closable={false}
                                         message={LocUtils.loc(
                                             this.props.labels,
                                             'Question_Close_Edit',

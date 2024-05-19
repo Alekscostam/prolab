@@ -26,6 +26,7 @@ import {DataGridUtils} from '../utils/component/DataGridUtils';
 import {Password} from 'primereact/password';
 import {InputType} from '../model/InputType';
 import {ColumnType} from '../model/ColumnType';
+import {StringUtils} from '../utils/StringUtils';
 
 let clickCount = 0;
 let timeout;
@@ -342,7 +343,7 @@ export class BaseRowComponent extends BaseContainer {
         //TODO:
     }
 
-    renderInputComponent(field, fieldIndex, onChange, onBlur, groupName, required, validatorMsgs, onClickEditList) {
+    renderInputComponent(field, fieldIndex, onChange, onBlur, groupUuid, required, validatorMsgs, onClickEditList) {
         //mock functionality
         const visibleDocumentCriteria = this.props?.visibleDocumentPanel;
         field.edit = MockService.getFieldEnableDisableOrMock(field.edit, 'edit');
@@ -353,6 +354,7 @@ export class BaseRowComponent extends BaseContainer {
             field.refreshFieldVisibility,
             'refreshFieldVisibility'
         );
+        console.log(field.refreshFieldVisibility, 'field.refreshFieldVisibility');
         field.selectionList = MockService.getFieldEnableDisableOrMock(field.selectionList, 'selectionList');
         field.visible = MockService.getFieldEnableDisableOrMock(field.visible, 'visible');
         //end mock functionality
@@ -412,9 +414,9 @@ export class BaseRowComponent extends BaseContainer {
                                         type='text'
                                         value={field.value}
                                         onChange={(e) =>
-                                            onChange ? onChange(InputType.TEXT, e, groupName, info) : null
+                                            onChange ? onChange(InputType.TEXT, e, groupUuid, info) : null
                                         }
-                                        onBlur={(e) => (onBlur ? onBlur(InputType.TEXT, e, groupName, info) : null)}
+                                        onBlur={(e) => (onBlur ? onBlur(InputType.TEXT, e, groupUuid, info) : null)}
                                         disabled={!field.edit}
                                         required={required}
                                     />
@@ -450,8 +452,8 @@ export class BaseRowComponent extends BaseContainer {
                                 style={{width: '100%'}}
                                 type='text'
                                 value={field.value}
-                                onChange={(e) => (onChange ? onChange(InputType.TEXT, e, groupName, info) : null)}
-                                onBlur={(e) => (onBlur ? onBlur(InputType.TEXT, e, groupName, info) : null)}
+                                onChange={(e) => (onChange ? onChange(InputType.TEXT, e, groupUuid, info) : null)}
+                                onBlur={(e) => (onBlur ? onBlur(InputType.TEXT, e, groupUuid, info) : null)}
                                 disabled={!field.edit}
                                 required={required}
                                 feedback={false}
@@ -529,10 +531,10 @@ export class BaseRowComponent extends BaseContainer {
                                             });
 
                                             if (onChange) {
-                                                onChange(InputType.TEXT, e, groupName, info);
+                                                onChange(InputType.TEXT, e, groupUuid, info);
                                             }
                                         }}
-                                        onBlur={(e) => (onBlur ? onBlur(InputType.TEXT, e, groupName, info) : null)}
+                                        onBlur={(e) => (onBlur ? onBlur(InputType.TEXT, e, groupUuid, info) : null)}
                                         disabled={!field.edit}
                                         required={required}
                                     />
@@ -571,10 +573,14 @@ export class BaseRowComponent extends BaseContainer {
                                 onChange={(e) => {
                                     if (this.props.onChange) {
                                         e.refreshFieldVisibility = field.refreshFieldVisibility;
-                                        this.props.onChange(InputType.CHECKBOX, e, groupName, info);
+                                        this.props.onChange(InputType.CHECKBOX, e, groupUuid, info);
                                     } else {
-                                        if (typeof onChange === 'function')
-                                            onChange(InputType.CHECKBOX, e, groupName, info);
+                                        if (typeof onChange === 'function') {
+                                            if (!StringUtils.isBlank(e)) {
+                                                e.refreshFieldVisibility = field.refreshFieldVisibility;
+                                                onChange(InputType.CHECKBOX, e, groupUuid, info);
+                                            }
+                                        }
                                     }
                                 }}
                                 checked={
@@ -604,7 +610,7 @@ export class BaseRowComponent extends BaseContainer {
                             style={{width: '100%'}}
                             value={field.value}
                             options={this.yesNoTypes}
-                            onChange={(e) => (onChange ? onChange(InputType.DROPDOWN, e, groupName, info) : null)}
+                            onChange={(e) => (onChange ? onChange(InputType.DROPDOWN, e, groupUuid, info) : null)}
                             appendTo='self'
                             showClear
                             optionLabel='name'
@@ -633,7 +639,7 @@ export class BaseRowComponent extends BaseContainer {
                             style={{width: '100%'}}
                             value={field.value}
                             dateFormat='yy-mm-dd'
-                            onChange={(e) => (onChange ? onChange(InputType.DATE, e, groupName, info) : null)}
+                            onChange={(e) => (onChange ? onChange(InputType.DATE, e, groupUuid, info) : null)}
                             appendTo={document.body}
                             disabled={!field.edit}
                             required={required}
@@ -676,7 +682,7 @@ export class BaseRowComponent extends BaseContainer {
                                     clickCount = 0;
                                 }
                             }}
-                            onChange={(e) => (onChange ? onChange(InputType.DATETIME, e, groupName, info) : null)}
+                            onChange={(e) => (onChange ? onChange(InputType.DATETIME, e, groupUuid, info) : null)}
                             appendTo={document.body}
                             disabled={!field.edit}
                             required={required}
@@ -707,7 +713,7 @@ export class BaseRowComponent extends BaseContainer {
                             style={{width: '100%'}}
                             value={field.value}
                             appendTo={document.body}
-                            onChange={(e) => (onChange ? onChange(InputType.TIME, e, groupName, info) : null)}
+                            onChange={(e) => (onChange ? onChange(InputType.TIME, e, groupUuid, info) : null)}
                             disabled={!field.edit}
                             required={required}
                             showButtonBar
@@ -740,9 +746,9 @@ export class BaseRowComponent extends BaseContainer {
                                     name: field.fieldName,
                                     value: e,
                                 };
-                                onChange(InputType.EDITOR, event, groupName, info);
+                                onChange(InputType.EDITOR, event, groupUuid, info);
                             }}
-                            onFocusOut={(e) => (onBlur ? onBlur(InputType.EDITOR, e, groupName, info) : null)}
+                            onFocusOut={(e) => (onBlur ? onBlur(InputType.EDITOR, e, groupUuid, info) : null)}
                             validationMessageMode='always'
                             disabled={!field.edit}
                             required={required}
@@ -815,7 +821,7 @@ export class BaseRowComponent extends BaseContainer {
                                             fieldName: field.fieldName,
                                             base64: '',
                                         },
-                                        groupName,
+                                        groupUuid,
                                         info
                                     );
                                 }}
@@ -829,7 +835,7 @@ export class BaseRowComponent extends BaseContainer {
                                             fieldName: field.fieldName,
                                             base64: e,
                                         },
-                                        groupName,
+                                        groupUuid,
                                         info
                                     )
                                 }
@@ -861,7 +867,7 @@ export class BaseRowComponent extends BaseContainer {
                                             fieldName: field.fieldName,
                                             base64: '',
                                         },
-                                        groupName,
+                                        groupUuid,
                                         info
                                     );
                                 }}
@@ -875,7 +881,7 @@ export class BaseRowComponent extends BaseContainer {
                                             fieldName: field.fieldName,
                                             base64: e,
                                         },
-                                        groupName,
+                                        groupUuid,
                                         info
                                     )
                                 }
@@ -902,8 +908,8 @@ export class BaseRowComponent extends BaseContainer {
                             style={{width: '100%'}}
                             type='text'
                             value={field.value}
-                            onChange={(e) => (onChange ? onChange(InputType.TEXT, e, groupName, info) : null)}
-                            onBlur={(e) => (onBlur ? onBlur(InputType.TEXT, e, groupName, info) : null)}
+                            onChange={(e) => (onChange ? onChange(InputType.TEXT, e, groupUuid, info) : null)}
+                            onBlur={(e) => (onBlur ? onBlur(InputType.TEXT, e, groupUuid, info) : null)}
                             disabled={!field.edit}
                             required={required}
                         />

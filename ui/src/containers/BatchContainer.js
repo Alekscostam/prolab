@@ -21,6 +21,7 @@ import {ViewResponseUtils} from '../utils/ViewResponseUtils';
 import ActionButtonWithMenu from '../components/prolab/ActionButtonWithMenu';
 import {ConfirmationEditQuitDialog} from '../components/prolab/ConfirmationEditQuitDialog';
 import {OperationType} from '../model/OperationType';
+import {StringUtils} from '../utils/StringUtils';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -389,7 +390,7 @@ export class BatchContainer extends BaseContainer {
     }
     renderHeadPanel = () => {
         const operations = this.state?.parsedView?.operations;
-        if (operations?.length === 0) {
+        if (operations?.length === 0 || StringUtils.isBlank(operations)) {
             return <React.Fragment />;
         }
         return (

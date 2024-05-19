@@ -5,6 +5,7 @@ import {saveAs} from 'file-saver';
 import UrlUtils from '../utils/UrlUtils';
 import {renderNoRefreshContentFnc} from '../App';
 import {ColumnType} from '../model/ColumnType';
+import EditListUtils from '../utils/EditListUtils';
 /*
 Kontroler do edycji danych.
  */
@@ -53,6 +54,7 @@ export default class CrudService extends BaseService {
             method: 'POST',
         })
             .then((addDataResponse) => {
+                EditListUtils.addUuidToFields(addDataResponse);
                 return Promise.resolve(EditRowUtils.convertEditResponse(addDataResponse));
             })
             .catch((err) => {
@@ -92,6 +94,7 @@ export default class CrudService extends BaseService {
                         renderNoRefreshContentFnc();
                     }
                 }
+                EditListUtils.addUuidToFields(editDataResponse);
                 return Promise.resolve(EditRowUtils.convertEditResponse(editDataResponse));
             })
             .catch((err) => {

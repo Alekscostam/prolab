@@ -21,7 +21,7 @@ import UrlUtils from '../../utils/UrlUtils';
 import Avatar from '../../components/prolab/Avatar';
 import ConsoleHelper from '../../utils/ConsoleHelper';
 import AuthService from '../../services/AuthService';
-import { CookiesName } from '../../model/CookieName';
+import {CookiesName} from '../../model/CookieName';
 
 class Sidebar extends React.Component {
     constructor(props) {
@@ -55,40 +55,40 @@ class Sidebar extends React.Component {
 
     componentDidMount() {
         ConsoleHelper('sidebar => componentDidMount');
-            if (!localStorage.getItem(CookiesName.MENU) || this.state?.menu?.length === 0 ) {
-                this.menuService
-                    .getMenu()
-                    .then((data) => {
-                        localStorage.setItem('menu', JSON.stringify(data.menu));
-                        MenuValidatorUtils.validation(data.menu);
-                        this.setState(
-                            {
-                                loading: false,
-                                menu: data.menu,
-                            },
-                            () => {
-                                this.handleFilter('');
-                            }
-                        );
-                    })
-                    .catch((err) => {
-                        console.error('Error initialized menu. Error = ', err);
-                        this.setState({
+        if (!localStorage.getItem(CookiesName.MENU) || this.state?.menu?.length === 0) {
+            this.menuService
+                .getMenu()
+                .then((data) => {
+                    localStorage.setItem('menu', JSON.stringify(data.menu));
+                    MenuValidatorUtils.validation(data.menu);
+                    this.setState(
+                        {
                             loading: false,
-                        });
+                            menu: data.menu,
+                        },
+                        () => {
+                            this.handleFilter('');
+                        }
+                    );
+                })
+                .catch((err) => {
+                    console.error('Error initialized menu. Error = ', err);
+                    this.setState({
+                        loading: false,
                     });
-            } else {
-                this.handleFilter('');
-            }
-            if (!localStorage.getItem(CookiesName.VERSION_API) || this.state?.menu?.length === 0 ) {
-                this.versionService
-                    .getVersion()
-                    .then((data) => {
-                        localStorage.setItem(CookiesName.VERSION_API, JSON.stringify(data.VersionAPI));
-                        this.forceUpdate();
-                    })
-                    .catch(() => {});
-            }
+                });
+        } else {
+            this.handleFilter('');
+        }
+        if (!localStorage.getItem(CookiesName.VERSION_API) || this.state?.menu?.length === 0) {
+            this.versionService
+                .getVersion()
+                .then((data) => {
+                    localStorage.setItem(CookiesName.VERSION_API, JSON.stringify(data.VersionAPI));
+                    this.forceUpdate();
+                })
+                .catch(() => {});
+        }
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -459,7 +459,7 @@ class Sidebar extends React.Component {
                     <SidebarFooter id={'menu-footer'} style={{textAlign: 'center'}}>
                         <div id={'user-credentials'} className={'col-12'}>
                             <div className='row mt-3 mb-2'>
-                                <Avatar base64={avatar} userName={userName} collapsed={collapsed} />
+                                {userName && <Avatar base64={avatar} userName={userName} collapsed={collapsed} />}
                             </div>
                         </div>
                         <div id={'logout_button'} className='sidebar-btn-wrapper' style={{padding: '5px 24px'}}>

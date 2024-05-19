@@ -27,6 +27,7 @@ import HistoryLogDialogComponent from '../../components/prolab/HistoryLogDialogC
 import {PluginConfirmDialogUtils} from '../../utils/component/PluginUtils';
 import {OperationType} from '../../model/OperationType';
 import ReactDOM from 'react-dom';
+import {StringUtils} from '../../utils/StringUtils';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -250,6 +251,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                                     ReactDOM.render(
                                         <ConfirmDialog
                                             visible={true}
+                                            closable={false}
                                             message={LocUtils.loc(
                                                 this.props.labels,
                                                 'Question_Close_Edit',
@@ -406,6 +408,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                     ) : null}
                     {this.state.visibleMessagePluginPanel ? (
                         <ConfirmDialog
+                            closable={false}
                             acceptLabel={PluginConfirmDialogUtils.acceptLabel(
                                 this.state.parsedPluginView,
                                 this.props.labels
@@ -541,7 +544,7 @@ export class DashboardGridViewComponent extends BaseContainer {
     //override
     renderHeadPanel = () => {
         const operations = this.state?.parsedGridView?.operations;
-        if (operations?.length === 0) {
+        if (operations?.length === 0 || StringUtils.isBlank(operations)) {
             return <React.Fragment />;
         }
         return (
@@ -645,6 +648,8 @@ export class DashboardGridViewComponent extends BaseContainer {
                             parsedGridViewData={this.state.parsedGridViewData}
                             gridViewColumns={this.state.gridViewColumns}
                             elementRecordId={this.props.parentId}
+                            hoverStateEnabled={true}
+                            focu={true}
                             selectedRowKeys={this.state.selectedRowKeys}
                             handleBlockUi={() => {
                                 return this.blockUi();

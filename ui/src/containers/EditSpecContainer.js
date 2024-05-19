@@ -26,9 +26,6 @@ import {ConfirmationEditQuitDialog} from '../components/prolab/ConfirmationEditQ
 import EditSpecService from '../services/EditSpecService';
 import {OperationType} from '../model/OperationType';
 import {StringUtils} from '../utils/StringUtils';
-//
-//    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
-//
 
 export let operationClicked = false;
 export class EditSpecContainer extends BaseContainer {
@@ -149,7 +146,6 @@ export class EditSpecContainer extends BaseContainer {
                 .then((responseView) => {
                     const resView = {
                         ...responseView,
-
                         viewInfo: {
                             id: responseView.editInfo.viewId,
                             name: responseView.editInfo.viewName,
@@ -195,13 +191,9 @@ export class EditSpecContainer extends BaseContainer {
             const documentsListTmp = this.documentListCreate(responseView);
             const batchesListTmp = this.batchListCreate(responseView);
             const filtersListTmp = this.filtersListCreate(responseView);
-            const columnsTmp = this.columnsFromGroupCreate(responseView);
             Breadcrumb.currentBreadcrumbAsUrlParam();
             this.setState(
                 () => ({
-                    parsedView: responseView,
-                    viewInfo: responseView.viewInfo,
-                    columns: columnsTmp,
                     pluginsList: pluginsListTmp,
                     documentsList: documentsListTmp,
                     batchesList: batchesListTmp,
@@ -221,10 +213,20 @@ export class EditSpecContainer extends BaseContainer {
                         .getDataTreeStoreDirect(viewIdArg, parentIdArg, recordIdArg, packageCount)
                         .then((res) => {
                             const data = TreeListUtils.paintDatas(res.data);
-                            this.setState({
-                                loading: false,
-                                parsedData: data,
-                            });
+                            TreeListUtils.createSelectonColumn(responseView.gridColumns[0].columns, data);
+                            const columnsTmp = this.columnsFromGroupCreate(responseView);
+                            this.setState(
+                                {
+                                    parsedView: responseView,
+                                    viewInfo: responseView.viewInfo,
+                                    columns: columnsTmp,
+                                },
+                                () =>
+                                    this.setState({
+                                        loading: false,
+                                        parsedData: data,
+                                    })
+                            );
                         })
                         .catch((ex) => {
                             this.showErrorMessages(ex);
@@ -516,7 +518,7 @@ export class EditSpecContainer extends BaseContainer {
     //override
     renderHeadPanel = () => {
         const operations = this.state?.parsedView?.operations;
-        if (operations?.length === 0) {
+        if (operations?.length === 0 || StringUtils.isBlank(operations)) {
             return <React.Fragment />;
         }
         return (

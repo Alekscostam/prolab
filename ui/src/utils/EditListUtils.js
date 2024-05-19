@@ -33,6 +33,16 @@ export class EditListUtils {
         ConsoleHelper('objToHash = ', JSON.stringify(objToHash) + ' hash = ' + calculateCRC);
         return calculateCRC;
     }
+    static addUuidToFields(editData){
+        editData.editFields?.forEach((editField) => {
+            editField?.panels?.forEach((panel) => {
+                panel?.groups?.forEach((group) => {
+                    group.uuid = crypto.randomUUID();
+
+                });
+            });
+        });
+    }
     static createBodyToEditList(editData) {
         let arrayTmp = [];
         for (const item in editData) {

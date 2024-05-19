@@ -42,7 +42,7 @@ export class Breadcrumb {
 
     static updateView(viewInfo, viewId, recordId) {
         const sidebar = window.sidebarRef;
-        if (sidebar) {
+        if (sidebar && typeof sidebar.current?.props?.onCustomClose === 'function') {
             sidebar.current?.props?.onCustomClose();
         }
         ConsoleHelper(`*Breadcrumb::updateView, viewId=${viewId}, recordId=${recordId}, viewInfo`, viewInfo);

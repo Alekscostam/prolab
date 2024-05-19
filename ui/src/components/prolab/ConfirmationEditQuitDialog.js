@@ -13,6 +13,14 @@ export const ConfirmationEditQuitDialog = (props) => {
                 <Button
                     type='button'
                     onClick={() => {
+                        onHide();
+                    }}
+                    className='mr-2 p-button inverse'
+                    label={LocUtils.loc(labels, 'Confirm_no', 'Nie')}
+                />
+                <Button
+                    type='button'
+                    onClick={() => {
                         onAccept();
                     }}
                     label={LocUtils.loc(labels, 'Confirm_yes', 'Tak')}
@@ -32,8 +40,8 @@ export const ConfirmationEditQuitDialog = (props) => {
             footer={dialogFooter}
             visible={visible}
             resizable={false}
+            closable={false}
             breakpoints={{'960px': '75vw', '640px': '100vw'}}
-            onHide={() => onHide()}
         ></Dialog>
     );
 };

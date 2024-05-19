@@ -90,6 +90,9 @@ class UrlUtils {
     static isBcParamExist() {
         return window.location.href.includes('bc');
     }
+    static isQuestionMarkParamExist() {
+        return window.location.href.includes('?');
+    }
     static isKindViewParamExist() {
         return window.location.href.includes('editKindView');
     }
@@ -161,7 +164,12 @@ class UrlUtils {
 
     static getUrlWithEditRowParams(recordId, parentId, viewId, kindView) {
         let queryStringTmp = [];
-        const firstChar = UrlUtils.isBcParamExist() ? '&' : '?';
+        let firstChar = '?';
+        if (UrlUtils.isQuestionMarkParamExist()) {
+            firstChar = '&';
+        } else if (UrlUtils.isBcParamExist()) {
+            firstChar = '&';
+        }
         if (!!viewId && StringUtils.isBlank(UrlUtils.getURLParameter('editViewId'))) {
             queryStringTmp.push(`editViewId=${viewId}`);
         }

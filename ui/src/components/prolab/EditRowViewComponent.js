@@ -11,7 +11,6 @@ import ConsoleHelper from '../../utils/ConsoleHelper';
 import EditListComponent from './EditListComponent';
 import {Toast} from 'primereact/toast';
 import EditListDataStore from '../../containers/dao/DataEditListStore';
-import EditListUtils from '../../utils/EditListUtils';
 import CrudService from '../../services/CrudService';
 import BaseRowComponent from '../../baseContainers/BaseRowComponent';
 import UrlUtils from '../../utils/UrlUtils';
@@ -278,10 +277,12 @@ export class EditRowViewComponent extends BaseRowComponent {
                 boxShadow: 'none',
                 paddingBottom: '0px',
             };
-            const sizeLeft = this.scaleSize(editField, 'left');
-            const sizeRight = this.scaleSize(editField, 'right');
-            const sizeMiddle = this.scaleSize(editField, 'middle');
-            const sizeBottom = this.scaleSize(editField, 'bottom');
+            const sizeLeft = this.scaleSize(editField, 'left') === 0 ? undefined : this.scaleSize(editField, 'left');
+            const sizeRight = this.scaleSize(editField, 'right') === 0 ? undefined : this.scaleSize(editField, 'right');
+            const sizeMiddle =
+                this.scaleSize(editField, 'middle') === 0 ? undefined : this.scaleSize(editField, 'middle');
+            const sizeBottom =
+                this.scaleSize(editField, 'bottom') === 0 ? undefined : this.scaleSize(editField, 'bottom');
             return (
                 <React.Fragment key={`panel_${panelIndex}`}>
                     {sizeLeft && (
@@ -416,9 +417,7 @@ export class EditRowViewComponent extends BaseRowComponent {
                         <DivContainer>
                             {group.fields?.map((field, index) => {
                                 return (
-                                    <span key={`field_col_` + index}>
-                                        {this.renderField(field, index, group.groupName)}
-                                    </span>
+                                    <span key={`field_col_` + index}>{this.renderField(field, index, group.uuid)}</span>
                                 );
                             })}
                         </DivContainer>

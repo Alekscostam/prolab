@@ -13,7 +13,6 @@ import ConsoleHelper from '../../utils/ConsoleHelper';
 import EditListComponent from './EditListComponent';
 import {Toast} from 'primereact/toast';
 import EditListDataStore from '../../containers/dao/DataEditListStore';
-import EditListUtils from '../../utils/EditListUtils';
 import CrudService from '../../services/CrudService';
 import BaseRowComponent from '../../baseContainers/BaseRowComponent';
 import LocUtils from '../../utils/LocUtils';
@@ -69,11 +68,30 @@ export class EditRowComponent extends BaseRowComponent {
         window.sidebarRef = null;
         copyDataGlobalTop = null;
     }
-
+    onCustomClose() {
+        if (typeof this.props?.onCustomClose === 'function') {
+            this.props.onCustomClose();
+        }
+    }
+    getColSize() {
+        const editData = this.props.editData;
+        const width = parseInt(this.getWidthSizeSidebar(editData?.editFields).width.split('%').join(''));
+        if (width <= 33) {
+            return {left: 'ccol-56', right: 'ccol-44'};
+        }
+        if (width <= 50) {
+            return {left: 'ccol-65', right: 'ccol-35'};
+        }
+        if (width <= 75) {
+            return {left: 'col-9', right: 'col-3'};
+        }
+    }
     render() {
         const labels = this.props?.labels;
         const operations = this.props?.editData?.operations || [];
         const kindOperation = this.props.editData?.editInfo?.kindOperation;
+        const leftColSize = this.getColSize().left;
+        const rightColSize = this.getColSize().right;
 
         const opSave = DataGridUtils.getOrCreateOpButton(operations, labels, OperationType.OP_SAVE, 'Zapisz');
         const opCancel = DataGridUtils.getOrCreateOpButton(operations, labels, OperationType.OP_CANCEL, 'Anuluj');
@@ -85,8 +103,6 @@ export class EditRowComponent extends BaseRowComponent {
         if (this.props?.copyData) {
             copyDataGlobalTop = this.props.copyData;
         }
-        console.log(this.state.selectedRowData, 'this.state.selectedRowData');
-        console.log(this.state.defaultSelectedRowKeys, 'this.state.defaultSelectedRowKeys');
         return (
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
@@ -125,15 +141,13 @@ export class EditRowComponent extends BaseRowComponent {
                     modal={true}
                     dismissable={false}
                     style={this.getWidthSizeSidebar(editData?.editFields)}
-                    onHide={() => this.props.onCloseCustom()}
-                    onCustomClose={() => {
-                        this.props.onCloseCustom();
-                    }}
+                    onHide={() => this.onCustomClose()}
+                    onCustomClose={() => this.onCustomClose()}
                     position='right'
                     icons={() => (
                         <React.Fragment>
                             <div className='row'>
-                                <div className='col-9'>
+                                <div className={leftColSize}>
                                     <div className='row ' style={{flex: 'auto'}}>
                                         <div id='label' className='label col-lg-12 '>
                                             <div className=''>{editData?.editInfo?.viewName}</div>
@@ -147,8 +161,8 @@ export class EditRowComponent extends BaseRowComponent {
                                         ) : null}
                                     </div>
                                 </div>
-                                <div className='col-3' style={{paddingLeft: '0px'}}>
-                                    <div id='buttons' style={{textAlign: 'right'}} className='mr-3'>
+                                <div className={rightColSize} style={{paddingLeft: '0px'}}>
+                                    <div id='buttons' style={{textAlign: 'right'}}>
                                         <ShortcutButton
                                             id={'opSave'}
                                             className={`grid-button-panel inverse mt-1 mb-1 mr-1`}
@@ -253,7 +267,7 @@ export class EditRowComponent extends BaseRowComponent {
                 >
                     <DivContainer>
                         {group.fields?.map((field, index) => {
-                            return this.renderField(field, index, group.groupName);
+                            return this.renderField(field, index, group.uuid);
                         })}
                     </DivContainer>
                 </Panel>
