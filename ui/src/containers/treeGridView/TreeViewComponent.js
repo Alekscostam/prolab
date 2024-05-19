@@ -38,7 +38,6 @@ class TreeViewComponent extends CellEditComponent {
         super(props);
         this.labels = this.props;
         this.crudService = new CrudService();
-        this.ref = React.createRef();
         this.selectionClicked = React.createRef(false);
         this.selectionCheckboxClicked = React.createRef(false);
         this.ref = React.createRef();
@@ -207,7 +206,7 @@ class TreeViewComponent extends CellEditComponent {
                     wordWrapEnabled={rowAutoHeight}
                     columnAutoWidth={columnAutoWidth}
                     columnResizingMode='widget'
-                    repaintChangesOnly={this.props.isAddSpec ? false : true}
+                    repaintChangesOnly={true}
                     onOptionChanged={(e) => {
                         if (e.fullName.includes('filterValue') && e.name === 'columns') {
                             if (this.ref) {
@@ -520,8 +519,10 @@ class TreeViewComponent extends CellEditComponent {
     rerenderColorCheckboxIfPossible = () => {
         if (this.shouldBeRepainting()) {
             setTimeout(() => {
-                const rowDatas = this.ref.instance.getVisibleRows();
-                this.paintLineIfPossible(rowDatas);
+                if (this.ref?.instance) {
+                    const rowDatas = this.ref.instance.getVisibleRows();
+                    this.paintLineIfPossible(rowDatas);
+                }
             }, 0);
         }
     };

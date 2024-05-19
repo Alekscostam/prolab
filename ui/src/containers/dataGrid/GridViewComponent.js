@@ -37,6 +37,7 @@ import {saveObjToCookieGlobal} from '../../utils/Cookie';
 import {ColumnType} from '../../model/ColumnType';
 import OperationCell from '../../model/OperationCell';
 import {OperationType} from '../../model/OperationType';
+// TODO: niepotrzebnie pobiermay subgrid jesli przechodzimy z widoku grida na karty
 
 class GridViewComponent extends CellEditComponent {
     constructor(props) {
