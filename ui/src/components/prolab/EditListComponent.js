@@ -22,6 +22,7 @@ export default class EditListComponent extends React.Component {
             this.props.blockUiIfNeccessery();
         }
     }
+
     render() {
         const width = this.props.parsedGridView?.info?.windowSize?.width || '50vw';
         const height = this.props.parsedGridView?.info?.windowSize?.height || '150vw';
@@ -31,7 +32,6 @@ export default class EditListComponent extends React.Component {
             OperationType.OP_SELECT,
             'Wybierz'
         );
-        console.log(this.props.defaultSelectedRowKeys, 'this.props.defaultSelectedRowKeys');
         return (
             <React.Fragment>
                 <Dialog
@@ -60,6 +60,7 @@ export default class EditListComponent extends React.Component {
                                                     }
                                                 }
                                             });
+
                                             field.fieldValue =
                                                 values.join(separatorJoin) === undefined || null
                                                     ? ''

@@ -31,7 +31,10 @@ import {MenuWithButtons} from '../../components/prolab/MenuWithButtons';
 import LocUtils from '../../utils/LocUtils';
 import ActionButton from '../../components/ActionButton';
 import {ColumnType} from '../../model/ColumnType';
+
 let clearSelection = false;
+
+// TODO: pozbyc sie border bottom na selection na lsicie
 
 class TreeViewComponent extends CellEditComponent {
     constructor(props) {

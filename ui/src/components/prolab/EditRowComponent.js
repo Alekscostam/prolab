@@ -84,6 +84,8 @@ export class EditRowComponent extends BaseRowComponent {
         }
         if (width <= 75) {
             return {left: 'col-9', right: 'col-3'};
+        } else {
+            return {left: 'ccol-80', right: 'ccol-20'};
         }
     }
     render() {

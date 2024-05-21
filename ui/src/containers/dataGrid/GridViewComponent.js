@@ -172,7 +172,6 @@ class GridViewComponent extends CellEditComponent {
             : this.props.parsedGridView?.gridOptions?.showGroupPanel || false;
         const groupExpandAll = this.props.parsedGridView?.gridOptions?.groupExpandAll || false;
         const columnAutoWidth = this.props.parsedGridView?.gridOptions?.columnAutoWidth || true;
-        const rowAutoHeight = this.props.parsedGridView?.gridOptions?.rowAutoHeight || false;
         const headerAutoHeight = this.props.parsedGridView?.gridOptions?.headerAutoHeight || false;
         const showColumnHeaders = this.props.showColumnHeaders;
         const showColumnLines = this.props.showColumnLines;
@@ -213,7 +212,7 @@ class GridViewComponent extends CellEditComponent {
                     }}
                     dataSource={this.props.parsedGridViewData}
                     customizeColumns={this?.postCustomizeColumns}
-                    wordWrapEnabled={rowAutoHeight}
+                    wordWrapEnabled={headerAutoHeight}
                     columnAutoWidth={columnAutoWidth}
                     focusedRowEnabled={this.props.focusedRowEnabled}
                     hoverStateEnabled={this.props.hoverStateEnabled}

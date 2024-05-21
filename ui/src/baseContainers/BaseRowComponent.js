@@ -30,7 +30,7 @@ import {StringUtils} from '../utils/StringUtils';
 
 let clickCount = 0;
 let timeout;
-// TODO: brak block ui na tryb sidepanel; po wejsciu w liste podpowiedzi
+// TODO: brak block ui na tryb sidepanel po wejsciu w liste podpowiedzi
 export class BaseRowComponent extends BaseContainer {
     constructor(props) {
         super(props);
@@ -72,7 +72,36 @@ export class BaseRowComponent extends BaseContainer {
             'Wypełnij wszystkie wymagane pola'
         );
     }
+    canRegisterKeyDownEvent() {
+        const kindOperation = this.props.editData?.editInfo?.kindOperation;
+        if (kindOperation) {
+            if (kindOperation.toUpperCase() === 'ADD') {
+                return true;
+            }
+        }
+        return false;
+    }
+    componentDidMount() {
+        super.componentDidMount();
+        if (this.canRegisterKeyDownEvent()) {
+            this.registerKeydownEvent();
+        }
+    }
 
+    registerKeydownEvent() {
+        document.addEventListener('keydown', this.keydownEvent);
+    }
+    unregisterKeydownEvent() {
+        document.removeEventListener('keydown', this.keydownEvent);
+    }
+    keydownEvent = (event) => {
+        if (event.key === 'F5' || event.keyCode === 116) {
+            this.handleCancel();
+        }
+    };
+    componentWillUnmount() {
+        super.componentWillUnmount();
+    }
     handleSelectedRowData(e) {
         const addMode = !!(e.currentSelectedRowKeys.length !== 0);
         const setFields = this.state.parsedGridView.setFields;
@@ -114,7 +143,7 @@ export class BaseRowComponent extends BaseContainer {
     }
 
     handleCancel() {
-        this.props.onHide();
+        if (typeof this.props.onHide === 'function') this.props.onHide();
     }
 
     selectionListValuesToJson(selectionListValues) {
@@ -224,6 +253,15 @@ export class BaseRowComponent extends BaseContainer {
         }
         return {width: `${size}%`};
     }
+    canPushRowData(value) {
+        if (StringUtils.isBlank(value)) {
+            return false;
+        }
+        if (StringUtils.isEmpty(value)) {
+            return false;
+        }
+        return true;
+    }
     editListVisible(field) {
         this.blockUi();
         ConsoleHelper('EditRowComponent::editListVisible');
@@ -248,9 +286,11 @@ export class BaseRowComponent extends BaseContainer {
                         let countSeparator = 0;
                         setFields.forEach((field) => {
                             EditRowUtils.searchField(editData, field.fieldEdit, (foundFields) => {
-                                const fieldValue = ('' + foundFields.value).split(separatorJoin);
-                                if (fieldValue.length > countSeparator) {
-                                    countSeparator = fieldValue.length;
+                                if (this.canPushRowData(foundFields.value)) {
+                                    const fieldValue = ('' + foundFields.value).split(separatorJoin);
+                                    if (fieldValue.length > countSeparator) {
+                                        countSeparator = fieldValue.length;
+                                    }
                                 }
                             });
                         });
@@ -259,15 +299,20 @@ export class BaseRowComponent extends BaseContainer {
                             setFields.forEach((field) => {
                                 EditRowUtils.searchField(editData, field.fieldEdit, (foundFields) => {
                                     let fieldTmp = {};
-                                    const fieldValue = ('' + foundFields.value).split(separatorJoin);
-                                    fieldTmp[field.fieldList] = fieldValue[index];
-                                    singleSelectedRowDataTmp.push(fieldTmp);
+                                    if (this.canPushRowData(foundFields.value)) {
+                                        console.log(foundFields.value);
+                                        const fieldValue = ('' + foundFields.value).split(separatorJoin);
+                                        fieldTmp[field.fieldList] = fieldValue[index];
+                                        singleSelectedRowDataTmp.push(fieldTmp);
+                                    }
                                 });
                             });
-                            let CALC_CRC = EditListUtils.calculateCRC(singleSelectedRowDataTmp);
-                            singleSelectedRowDataTmp[0].CALC_CRC = CALC_CRC;
-                            selectedRowDataTmp.push(singleSelectedRowDataTmp);
-                            defaultSelectedRowKeysTmp.push(CALC_CRC);
+                            if (singleSelectedRowDataTmp.length !== 0) {
+                                let CALC_CRC = EditListUtils.calculateCRC(singleSelectedRowDataTmp);
+                                singleSelectedRowDataTmp[0].CALC_CRC = CALC_CRC;
+                                selectedRowDataTmp.push(singleSelectedRowDataTmp);
+                                defaultSelectedRowKeysTmp.push(CALC_CRC);
+                            }
                         }
                         ConsoleHelper(
                             'EditRowComponent::ListVisible:: defaultSelectedRowKeys = %s hash = %s ',
@@ -354,7 +399,6 @@ export class BaseRowComponent extends BaseContainer {
             field.refreshFieldVisibility,
             'refreshFieldVisibility'
         );
-        console.log(field.refreshFieldVisibility, 'field.refreshFieldVisibility');
         field.selectionList = MockService.getFieldEnableDisableOrMock(field.selectionList, 'selectionList');
         field.visible = MockService.getFieldEnableDisableOrMock(field.visible, 'visible');
         //end mock functionality
