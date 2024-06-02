@@ -20,6 +20,7 @@ import {sessionPrelongFnc} from '../App';
 import {Dialog} from 'primereact/dialog';
 import {OperationType} from '../model/OperationType';
 import {TabSpecType} from '../model/TabSpecType';
+import {StringUtils} from '../utils/StringUtils';
 
 const autOfRangeIndex = 6;
 
@@ -308,6 +309,11 @@ export class AddSpecContainer extends BaseContainer {
                                 onContentReady={(e) => {
                                     if (e?.element) {
                                         e.element.children[0].className = 'dx-wrapper';
+                                        const selectedIndex = this.state.selectedIndex;
+                                        if (!StringUtils.isBlank(selectedIndex)) {
+                                            const child = e.element.children[0].children[selectedIndex];
+                                            child.className = 'dx-item dx-tab dx-tab-selected-item';
+                                        }
                                     }
                                 }}
                                 style={{maxHeight: '300px'}}
@@ -322,6 +328,22 @@ export class AddSpecContainer extends BaseContainer {
                                     }
                                 }}
                                 onOptionChanged={(args, e, b, d) => {
+                                    const element = args?.element;
+                                    if (element) {
+                                        const children = element.children;
+                                        if (children.length === 1 && children[0].classList.contains('dx-wrapper')) {
+                                            Array.from(children[0].children).forEach((child) => {
+                                                if (
+                                                    child.classList.contains('dx-tab-selected') ||
+                                                    child.classList.contains('dx-tab-selected-item')
+                                                ) {
+                                                    setTimeout(() => {
+                                                        child.classList.remove('dx-tab-selected');
+                                                    });
+                                                }
+                                            });
+                                        }
+                                    }
                                     if (args.name === 'selectedIndex') {
                                         if (this.state.isSubView) {
                                             this.setState({
@@ -616,6 +638,8 @@ export class AddSpecContainer extends BaseContainer {
                                 elementParentId={this.state.elementParentId}
                                 isAddSpec={true}
                                 preloadEnabled={false}
+                                focusedRowEnabled={true}
+                                hoverStateEnabled={true}
                                 handleExecSpec={() => this.handleExecSpec()}
                                 handleAddSpecCount={() => this.increaseNumberOfCopies()}
                                 elementRecordId={this.state.elementRecordId}

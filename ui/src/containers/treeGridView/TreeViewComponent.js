@@ -34,8 +34,6 @@ import {ColumnType} from '../../model/ColumnType';
 
 let clearSelection = false;
 
-// TODO: pozbyc sie border bottom na selection na lsicie
-
 class TreeViewComponent extends CellEditComponent {
     constructor(props) {
         super(props);

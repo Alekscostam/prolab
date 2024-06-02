@@ -21,6 +21,12 @@ class ActionButtonWithMenuUtils {
         }
         return menuItems;
     }
+    static hideActionButtomWithMenuPopup = () => {
+        const actionButtomWithMenuPopup = document.getElementsByClassName('action-button-with-menu-popup');
+        if (actionButtomWithMenuPopup.length > 0) {
+            document.getElementById('action-button-with-menu-contant').click();
+        }
+    };
 }
 
 export default ActionButtonWithMenuUtils;

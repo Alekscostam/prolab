@@ -72,7 +72,7 @@ export const EditorDialog = (props) => {
                                 setValue(value);
                             }
                         }}
-                        className='border-around-editor editor '
+                        className={`border-around-editor editor editor-dialog ${editable ? '' : 'disabled'}`}
                         defaultValue={value}
                         validationMessageMode='always'
                     >

@@ -44,6 +44,7 @@ import HistoryLogDialogComponent from '../components/prolab/HistoryLogDialogComp
 import {PluginConfirmDialogUtils} from '../utils/component/PluginUtils';
 import {OperationType} from '../model/OperationType';
 import ReactDOM from 'react-dom';
+import {QrCodesDialog} from '../containers/QrCodesDialog';
 
 let dataGrid;
 
@@ -73,6 +74,7 @@ export class BaseViewContainer extends BaseContainer {
             loading: true,
             elementId: props.id,
             elementSubViewId: null,
+            qrCodesDialog: false,
             visibleAddSpec: false,
             elementRecordId: null,
             elementParentId: null,
@@ -155,7 +157,7 @@ export class BaseViewContainer extends BaseContainer {
         const newUrl = UrlUtils.deleteParameterFromURL(window.document.URL.toString(), 'force');
         window.history.replaceState('', '', newUrl);
         this.openEditRowIfPossible();
-
+        this.registerKeydownEvent();
         this.setState(
             {
                 elementViewType: viewType,
@@ -251,11 +253,26 @@ export class BaseViewContainer extends BaseContainer {
         }
     }
 
+    registerKeydownEvent() {
+        document.addEventListener('keydown', (e) => this.keyDownFunction(e));
+    }
+    unregisterKeydownEvent() {
+        document.removeEventListener('keydown', (e) => this.keyDownFunction(e));
+    }
+
+    keyDownFunction = (event) => {
+        if (event.ctrlKey && event.key === 'k') {
+            event.preventDefault();
+            this.setState({qrCodesDialog: true});
+        }
+    };
+
     componentWillUnmount() {
         super.componentWillUnmount();
         if (window?.dataGrid) {
             delete window?.dataGrid;
         }
+        this.unregisterKeydownEvent();
     }
 
     getDataByViewResponse(responseView) {
@@ -1154,6 +1171,11 @@ export class BaseViewContainer extends BaseContainer {
                             onContentReady={(e) => {
                                 if (e?.element) {
                                     e.element.children[0].className = 'dx-wrapper';
+                                    Array.from(e.element.children[0].children).forEach((child) => {
+                                        if (child.classList.contains('dx-tab-selected')) {
+                                            child.className = 'dx-item dx-tab dx-tab-selected-item';
+                                        }
+                                    });
                                 }
                             }}
                             dataSource={this.state.subView.subViewsTabs}
@@ -1393,6 +1415,16 @@ export class BaseViewContainer extends BaseContainer {
                             : this.isDashboard()
                             ? this.renderDashboardViewComponent()
                             : null}
+                        {this.state.qrCodesDialog && (
+                            <QrCodesDialog
+                                onHide={() =>
+                                    this.setState({
+                                        qrCodesDialog: false,
+                                    })
+                                }
+                                labels={this.props.labels}
+                            />
+                        )}
                     </React.Fragment>
                 )}
             </React.Fragment>
@@ -1450,6 +1482,17 @@ export class BaseViewContainer extends BaseContainer {
                     packageRows={this.state.packageRows}
                     handleShowEditPanel={(editDataResponse) => {
                         this.handleShowEditPanel(editDataResponse);
+                    }}
+                    handleSelectRows={(rowData) => {
+                        const prevDataGridGlobalReference = this.state?.prevDataGridGlobalReference;
+                        if (prevDataGridGlobalReference) {
+                            window.dataGrid = prevDataGridGlobalReference;
+                            dataGrid = prevDataGridGlobalReference;
+                        }
+                        this.setState({
+                            selectedRowKeys: rowData,
+                            prevDataGridGlobalReference: null,
+                        });
                     }}
                     handleSelectAll={(selectionValue) => {
                         this.blockUi();

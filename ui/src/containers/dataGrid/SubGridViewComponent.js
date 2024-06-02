@@ -91,7 +91,6 @@ class SubGridViewComponent extends React.Component {
     }
     render() {
         const {imageViewer, editorViewer} = this.state;
-        //TODO jak będzie potrzeba przepiąć guziki na OperationsRecordButtons
         const {labels} = this.props;
         let showEditButton = false;
         let menuItems = [];

@@ -19,7 +19,9 @@ export default class PluginListComponent extends React.Component {
     }
 
     handleSelectedRowData(selectedRowData) {
-        this.setState({selectedRowKeys: selectedRowData.selectedRowKeys});
+        if (!!selectedRowData) {
+            this.setState({selectedRowKeys: selectedRowData.selectedRowKeys});
+        }
     }
 
     onHide() {

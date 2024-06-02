@@ -41,9 +41,7 @@ export let reStateApp;
 export let renderNoRefreshContentFnc;
 export let sessionPrelongFnc = null;
 export let addBtn = null;
-// TODO: Uszczegolowienie dzialania col w edycji anglowka
 // TODO: captcha
-// TODO: seelcitony na treelist jak jade myszka po ekranie i na rescie gridow
 class App extends Component {
     constructor() {
         super();

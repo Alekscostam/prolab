@@ -249,6 +249,9 @@ $edit-padding-bottom: 11px;
     .p-inputtext {
         background-color: $disabled-background;
     }
+    .dx-htmleditor-toolbar-wrapper {
+        display: none;
+    }
 }
 #row-edit label {
     margin-bottom: 0.1rem;

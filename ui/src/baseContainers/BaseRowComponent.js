@@ -382,10 +382,19 @@ export class BaseRowComponent extends BaseContainer {
                 return null;
             }
         }
+        return date;
     }
 
-    doubleClickFakeEvent(e, element) {
-        //TODO:
+    doubleClickFakeEvent(fieldIndex) {
+        const dataTimeComponent = document.getElementById(`date_time_${fieldIndex}`);
+        if (dataTimeComponent) {
+            if (dataTimeComponent.children.length >= 2) {
+                const calendarBtn = dataTimeComponent?.children[1];
+                if (calendarBtn) {
+                    calendarBtn.click();
+                }
+            }
+        }
     }
 
     renderInputComponent(field, fieldIndex, onChange, onBlur, groupUuid, required, validatorMsgs, onClickEditList) {
@@ -681,7 +690,7 @@ export class BaseRowComponent extends BaseContainer {
                             name={field.fieldName}
                             className={`${autoFill} ${editable} ${validate}`}
                             style={{width: '100%'}}
-                            value={field.value}
+                            value={this.validateDate(field)}
                             dateFormat='yy-mm-dd'
                             onChange={(e) => (onChange ? onChange(InputType.DATE, e, groupUuid, info) : null)}
                             appendTo={document.body}
@@ -697,6 +706,7 @@ export class BaseRowComponent extends BaseContainer {
                 return (
                     <React.Fragment>
                         <label
+                            id={`label-${EditRowUtils.getType(field.type)}${fieldIndex}`}
                             htmlFor={`date_time_${fieldIndex}`}
                             style={{color: labelColor}}
                             title={MockService.printField(field)}
@@ -721,7 +731,7 @@ export class BaseRowComponent extends BaseContainer {
                                         clickCount = 0;
                                     }, 300); // Ustaw interwał czasowy na oczekiwanie na drugie kliknięcie (np. 300ms)
                                 } else if (clickCount >= 2) {
-                                    this.doubleClickFakeEvent(e, this);
+                                    this.doubleClickFakeEvent(fieldIndex);
                                     clearTimeout(timeout);
                                     clickCount = 0;
                                 }
@@ -755,7 +765,7 @@ export class BaseRowComponent extends BaseContainer {
                             name={field.fieldName}
                             className={`${autoFill} ${editable} ${validate}`}
                             style={{width: '100%'}}
-                            value={field.value}
+                            value={this.validateDate(field)}
                             appendTo={document.body}
                             onChange={(e) => (onChange ? onChange(InputType.TIME, e, groupUuid, info) : null)}
                             disabled={!field.edit}
@@ -780,8 +790,7 @@ export class BaseRowComponent extends BaseContainer {
                         <HtmlEditor
                             id={`editor_${fieldIndex}`}
                             onContentReady={(e) => {
-                                e.element.className =
-                                    'editor editable-border dx-show-invalid-badge dx-htmleditor dx-htmleditor-custom-underlined dx-widget';
+                                e.element.className = `editor ${editable} dx-show-invalid-badge dx-htmleditor dx-htmleditor-custom-underlined dx-widget`;
                             }}
                             className={`editor ${autoFill} ${editable} ${validate}`}
                             defaultValue={field.value}

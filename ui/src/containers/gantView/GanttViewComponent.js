@@ -37,6 +37,7 @@ import {MenuWithButtons} from '../../components/prolab/MenuWithButtons.js';
 import {DataGridUtils} from '../../utils/component/DataGridUtils.js';
 import {ColumnType} from '../../model/ColumnType.js';
 import moment from 'moment/moment.js';
+import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils.js';
 
 const UNCOLLAPSED_CUT_SIZE = 327;
 const COLLAPSED_CUT_SIZE = 140;
@@ -88,6 +89,7 @@ class GanttViewComponent extends React.Component {
     }
     showMenu(e) {
         const menu = this.menu.current;
+        ActionButtonWithMenuUtils.hideActionButtomWithMenuPopup();
         if (menu !== null && e.targetType === 'task' && !!e?.data?.ID) {
             const mouseX = e.event.clientX;
             const mouseY = e.event.clientY;
@@ -205,6 +207,11 @@ class GanttViewComponent extends React.Component {
         });
         this.refreshRef();
     }
+
+    getRangeDate(dateRange) {
+        return !!dateRange ? moment(dateRange, 'YYYY-MM-DD').toDate() : null;
+    }
+
     render() {
         const showRowLines = this.props.showRowLines;
         const showColumnHeaders = this.props.showColumnHeaders;
@@ -212,12 +219,8 @@ class GanttViewComponent extends React.Component {
         const brawserWidth = document.body.offsetWidth;
         const width = this.props.collapsed ? brawserWidth - COLLAPSED_CUT_SIZE : brawserWidth - UNCOLLAPSED_CUT_SIZE;
 
-        const endDateRange = !!this.props?.parsedGanttView?.ganttOptions?.endDateRange
-            ? moment(this.props?.parsedGanttView?.ganttOptions?.endDateRange, 'YYYY-MM-DD').toDate()
-            : null;
-        const startDateRange = !!this.props?.parsedGanttView?.ganttOptions?.startDateRange
-            ? moment(this.props?.parsedGanttView?.ganttOptions?.startDateRange, 'YYYY-MM-DD').toDate()
-            : null;
+        const endDateRange = this.getRangeDate(this.props?.parsedGanttView?.ganttOptions?.endDateRange);
+        const startDateRange = this.getRangeDate(this.props?.parsedGanttView?.ganttOptions?.startDateRange);
 
         const isDependencies = this.props?.parsedGanttView?.ganttOptions?.isDependencies;
         const scaleType = this.props?.parsedGanttView?.ganttOptions?.scaleType;
@@ -269,7 +272,7 @@ class GanttViewComponent extends React.Component {
                         hoverStateEnabled={false}
                         ref={this.ganttRef}
                         scaleType={scaleType}
-                        activeStateEnabled={true}
+                        activeStateEnabled={false}
                         taskListWidth={taskListWidth}
                         taskTitlePosition={taskTitlePosition}
                         startDateRange={startDateRange}
@@ -320,7 +323,11 @@ class GanttViewComponent extends React.Component {
                         />
 
                         {this.state.columns}
-                        <StripLine start={currentDate} title='Current Time' cssClass='current-time' />
+                        <StripLine
+                            start={currentDate}
+                            title={LocUtils.loc(this.props.labels, 'Current_time', 'Aktualny czas')}
+                            cssClass='current-time'
+                        />
                         <Editing enabled={isEditing} />
                         <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'} />
                     </Gantt>
@@ -418,9 +425,9 @@ class GanttViewComponent extends React.Component {
         );
     }
     handleHrefSubview(viewId, recordId, currentBreadcrumb) {
-        let result = this.props.handleBlockUi();
+        const result = this.props.handleBlockUi();
         if (result) {
-            let newUrl = AppPrefixUtils.locationHrefUrl(
+            const newUrl = AppPrefixUtils.locationHrefUrl(
                 `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${
                     !!currentBreadcrumb ? currentBreadcrumb : ``
                 }`
@@ -632,7 +639,6 @@ class GanttViewComponent extends React.Component {
                             const kindView = this.props.elementKindView;
                             const recordId = info.row?.data?.ID;
                             const parentId = info.row?.data?.ID_PARENT;
-
                             const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
                             let viewId = this.props.id;
                             viewId = GanttUtils.getRealViewId(subViewId, viewId);
@@ -660,42 +666,20 @@ class GanttViewComponent extends React.Component {
                                             compress([recordId]),
                                             currentBreadcrumb
                                         )}
-                                        handleHrefSubview={() => {
-                                            this.handleHrefSubview(viewId, recordId, currentBreadcrumb);
-                                        }}
-                                        handleDocuments={(el) => {
-                                            this.props.handleDocumentRow(el.id);
-                                        }}
-                                        handlePlugins={(el) => {
-                                            this.props.handlePluginRow(el.id);
-                                        }}
-                                        handleArchive={() => {
-                                            this.props.handleArchiveRow(recordId);
-                                        }}
-                                        handleDownload={() => {
-                                            this.props.handleDownloadRow(recordId);
-                                        }}
-                                        handleAttachments={() => {
-                                            this.props.handleAttachmentRow(recordId);
-                                        }}
-                                        handlePublish={() => {
-                                            this.props.handlePublish(recordId);
-                                        }}
-                                        handleHistory={() => {
-                                            this.props.handleHistoryLogRow(recordId);
-                                        }}
-                                        handleCopy={() => {
-                                            this.props.handleCopyRow(recordId);
-                                        }}
-                                        handleDelete={() => {
-                                            this.props.handleDeleteRow(recordId);
-                                        }}
-                                        handleRestore={() => {
-                                            this.props.handleRestoreRow(recordId);
-                                        }}
-                                        handleBlockUi={() => {
-                                            this.props.handleBlockUi();
-                                        }}
+                                        handleHrefSubview={() =>
+                                            this.handleHrefSubview(viewId, recordId, currentBreadcrumb)
+                                        }
+                                        handleDocuments={(el) => this.props.handleDocumentRow(el.id)}
+                                        handlePlugins={(el) => this.props.handlePluginRow(el.id)}
+                                        handleArchive={() => this.props.handleArchiveRow(recordId)}
+                                        handleDownload={() => this.props.handleDownloadRow(recordId)}
+                                        handleAttachments={() => this.props.handleAttachmentRow(recordId)}
+                                        handlePublish={() => this.props.handlePublish(recordId)}
+                                        handleHistory={() => this.props.handleHistoryLogRow(recordId)}
+                                        handleCopy={() => this.props.handleCopyRow(recordId)}
+                                        handleDelete={() => this.props.handleDeleteRow(recordId)}
+                                        handleRestore={() => this.props.handleRestoreRow(recordId)}
+                                        handleBlockUi={() => this.props.handleBlockUi()}
                                     />
                                 </div>,
                                 element

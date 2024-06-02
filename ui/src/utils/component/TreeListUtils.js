@@ -578,42 +578,35 @@ export class TreeListUtils extends ViewDataCompUtils {
         return;
     }
 
-    // TODO: refactor
+    static createSelectionColumn(listColumns, options = {}) {
+        const defaultColumn = {
+            width: options.width || 60,
+            id: 0,
+            checkbox: true,
+            visible: true,
+            freeze: 'left',
+            fixed: true,
+            disabledEditing: true,
+            fieldName: 'selection',
+            type: 'string',
+            label: '',
+            isFilter: false,
+            isGroup: false,
+        };
+
+        listColumns.unshift(defaultColumn);
+        return listColumns;
+    }
 
     static createSelectonColumn(listColumns, parsedGridViewData) {
-        listColumns.unshift({
-            width: this.calculateWidthOfSelectionColumn(parsedGridViewData),
-            id: 0,
-            checkbox: true,
-            visible: true,
-            freeze: 'left',
-            fixed: true,
-            disabledEditing: true,
-            fieldName: 'selection',
-            type: 'string',
-            label: '',
-            isFilter: false,
-            isGroup: false,
-        });
-        return listColumns;
+        const width = this.calculateWidthOfSelectionColumn(parsedGridViewData);
+        return this.createSelectionColumn(listColumns, {width});
     }
+
     static createSelectonStaticColumn(listColumns) {
-        listColumns.unshift({
-            width: 60,
-            id: 0,
-            checkbox: true,
-            disabledEditing: true,
-            visible: true,
-            fixed: true,
-            freeze: 'left',
-            fieldName: 'selection',
-            type: 'string',
-            label: '',
-            isFilter: false,
-            isGroup: false,
-        });
-        return listColumns;
+        return this.createSelectionColumn(listColumns);
     }
+
     static calculateWidthOfSelectionColumn(parsedGridViewData) {
         const longestBranch = this.findLongestBranchLength(parsedGridViewData);
         if (longestBranch === 0 || longestBranch === 1 || longestBranch === 2) {

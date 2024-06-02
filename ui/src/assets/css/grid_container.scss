@@ -519,11 +519,11 @@ body #subviews-panel .dx-tabs {
         }
     }
 
-    .dx-tab.dx-tab-selected::before {
+    .dx-tab.dx-tab-selected-item::before {
         background-color: $base-color;
     }
 
-    .dx-tab.dx-tab-selected::after {
+    .dx-tab.dx-tab-selected-item::after {
         border: none;
     }
 }
@@ -536,7 +536,7 @@ body #subviews-panel .dx-tabs {
             }
         }
     }
-    .dx-item.dx-tab.dx-tab-selected {
+    .dx-item.dx-tab.dx-tab-selected-item {
         border-bottom: 2px solid $base-color;
     }
 }

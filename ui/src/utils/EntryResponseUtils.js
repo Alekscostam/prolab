@@ -3,7 +3,6 @@ import {localeOptions} from 'primereact/api';
 import ReactDOM from 'react-dom';
 
 function EntryResponseUtils() {}
-// TODO: nie zamyka sie context menu jak najpierw wybierzemy cos z trzech kroopek a potem prawym klikamy na liste
 EntryResponseUtils.run = (entryResponse, accept, reject) => {
     if (!!entryResponse.message || !!entryResponse.question) {
         const confirmDialogWrapper = document.createElement('div');

@@ -817,6 +817,19 @@ td[aria-roledescription='Editable'] {
 .p-menu-list.p-reset {
     margin-bottom: 0px;
 }
+.editor-dialog.disabled {
+    .dx-htmleditor-toolbar-wrapper {
+        display: none;
+    }
+}
+.qrcode {
+    .dx-texteditor-input,
+    .dx-clear-button-area,
+    .dx-texteditor-buttons-container {
+        background: #ebebeb;
+        border-radius: 0px;
+    }
+}
 .ccol-1,
 .ccol-2,
 .ccol-3,

@@ -37,7 +37,7 @@ import {saveObjToCookieGlobal} from '../../utils/Cookie';
 import {ColumnType} from '../../model/ColumnType';
 import OperationCell from '../../model/OperationCell';
 import {OperationType} from '../../model/OperationType';
-// TODO: niepotrzebnie pobiermay subgrid jesli przechodzimy z widoku grida na karty
+import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils';
 
 class GridViewComponent extends CellEditComponent {
     constructor(props) {
@@ -47,9 +47,11 @@ class GridViewComponent extends CellEditComponent {
         this.crudService = new CrudService();
         this.menu = React.createRef();
         this.focusedRowKey = React.createRef();
+        this.keyDownClicked = React.createRef(false);
         this.editSpecService = new EditSpecService();
         this.state = {
             allRowsShow: false,
+            keyDownClicked: false,
             focusedRowKey: UrlUtils.getURLParameter('selectedFromPrevGrid')
                 ? parseInt(UrlUtils.getURLParameter('selectedFromPrevGrid'))
                 : undefined,
@@ -73,6 +75,7 @@ class GridViewComponent extends CellEditComponent {
     }
     showMenu(e) {
         const menu = this.menu.current;
+        ActionButtonWithMenuUtils.hideActionButtomWithMenuPopup();
         if (menu !== null && e.row.rowType === 'data' && !!e?.row?.data?.ID) {
             const mouseX = e.event.clientX;
             const mouseY = e.event.clientY;
@@ -201,6 +204,9 @@ class GridViewComponent extends CellEditComponent {
                     onContextMenuPreparing={(e) => {
                         this.showMenu(e);
                     }}
+                    onKeyDown={() => {
+                        this.keyDownClicked.current = true;
+                    }}
                     id={`grid-container`}
                     defaultFocusedRowKey={this.state.focusedRowKey}
                     keyExpr='ID'
@@ -240,7 +246,16 @@ class GridViewComponent extends CellEditComponent {
                     width={columnAutoWidth ? '100%' : undefined}
                     rowAlternationEnabled={false}
                     selectedRowKeys={defaultSelectedRowKeys || selectedRowKeys}
-                    onSelectionChanged={this.props.handleSelectedRowKeys}
+                    onSelectionChanged={(e) => {
+                        if (!!this.props.handleSelectedRowKeys) {
+                            this.props.handleSelectedRowKeys(e);
+                            return;
+                        }
+                        if (!!this.props.handleSelectAll && this.keyDownClicked.current) {
+                            this.onKeyDownSelectRows();
+                            return;
+                        }
+                    }}
                     renderAsync={true}
                     selectAsync={false}
                     cacheEnabled={false}
@@ -255,6 +270,7 @@ class GridViewComponent extends CellEditComponent {
                                 // global dla mobile
                                 this.props.handleSelectAll(null);
                             }
+                            this.keyDownClicked.current = false;
                         }
                     }}
                     onInitialized={(ref) => {
@@ -346,6 +362,20 @@ class GridViewComponent extends CellEditComponent {
     repaintChangesOnly() {
         // return this.props.cellModeEnabled;
         return true;
+    }
+    onKeyDownSelectRows() {
+        let selectedRows = this.props.selectedRows;
+        const currentSelectedRowIndex = document.getElementsByClassName('dx-row-focused')[0].rowIndex + 1;
+        const element = {
+            ID: `${this.props.getRef().instance.getKeyByRowIndex(currentSelectedRowIndex)}`,
+        };
+        if (selectedRows.find((row) => row.ID === element.ID)) {
+            selectedRows = selectedRows.filter((selectedRow) => selectedRow.ID !== element.ID);
+        } else {
+            selectedRows.push(element);
+        }
+        this.keyDownClicked.current = false;
+        this.props.handleSelectRows(selectedRows);
     }
     canRenderAdditionalOperationCol() {
         const operationsRecord = this.props.parsedGridView?.operationsRecord;
@@ -451,7 +481,6 @@ class GridViewComponent extends CellEditComponent {
                         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
                         let viewId = this.props.id;
                         viewId = DataGridUtils.getRealViewId(subViewId, viewId);
-
                         ReactDOM.render(
                             <div style={{textAlign: 'center', display: 'flex'}}>
                                 <OperationsButtons

@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import ShortcutButton from './ShortcutButton';
 import {Menu} from 'primereact/menu';
 import {sessionPrelongFnc} from '../../App';
-// TODO: double clik na dattimer
+
 export class ActionButtonWithMenu extends React.Component {
     handleClick = (event) => {
         event.stopPropagation();
