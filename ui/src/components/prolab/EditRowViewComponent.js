@@ -104,7 +104,7 @@ export class EditRowViewComponent extends BaseRowComponent {
 
     render() {
         const labels = this.props.labels;
-        const operations = [];
+        const operations = this.props?.editData?.operations || [];
         const opSave = DataGridUtils.getOpButton(operations, OperationType.OP_SAVE);
         const opFill = DataGridUtils.getOpButton(operations, OperationType.OP_FILL);
         const opCancel = DataGridUtils.getOpButton(operations, OperationType.OP_CANCEL);

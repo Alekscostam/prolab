@@ -232,7 +232,7 @@ export class BatchContainer extends BaseContainer {
 
     //override
     renderHeaderRight() {
-        const operations = [];
+        const operations = this.state?.parsedView?.operations || [];
         const opSave = DataGridUtils.getOpButton(operations, OperationType.OP_SAVE);
         const opCancel = DataGridUtils.getOpButton(operations, OperationType.OP_CANCEL);
         return (
