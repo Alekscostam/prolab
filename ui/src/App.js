@@ -199,7 +199,10 @@ class App extends Component {
         };
         const sessionTimeOutComponentRef = document.getElementById('session-time-out-component-ref');
         if (sessionTimeOutComponentRef) {
-            sessionTimeOutComponentRef.innerText = PageViewUtils.tickerSessionTimeoutFormat(timeToLeaveSession);
+            sessionTimeOutComponentRef.innerText = PageViewUtils.tickerSessionTimeoutFormat(
+                timeToLeaveSession,
+                this.state.labels
+            );
         }
         if (duration.seconds() < 0) {
             this.authService.logout();
@@ -316,6 +319,7 @@ class App extends Component {
         if (this.authService.loggedIn()) {
             try {
                 const language = JSON.parse(localStorage.getItem(CookiesName.LOGGED_USER)).lang.toLowerCase();
+                // const language = 'ENG';
                 this.getTranslations(configUrl, language);
             } catch (ex) {
                 console.log(ex);
@@ -419,14 +423,14 @@ class App extends Component {
     }
     addButton = () => {
         const {labels} = this.state;
-        const foundedOpADD = DataGridUtils.getOpButton(this.state.operations, OperationType.OP_ADD);
-        const foundedOpADDSpec = DataGridUtils.getOpButton(this.state.operations, OperationType.OP_ADD_SPEC);
+        const foundedOpADD = DataGridUtils.getOpButton(this.state.operations, OperationType.OP_ADD_BUTTON);
+        const foundedOpADDSpec = DataGridUtils.getOpButton(this.state.operations, OperationType.OP_ADD_SPEC_BUTTON);
         if (foundedOpADD || foundedOpADDSpec) {
             const opADD = DataGridUtils.getOrCreateOpButton(
                 this.state.operations,
                 labels,
-                OperationType.OP_ADD,
-                'Dodaj'
+                OperationType.OP_ADD_BUTTON,
+                foundedOpADD ? foundedOpADD?.label : foundedOpADDSpec?.label
             );
             return (
                 <ActionButton
@@ -459,10 +463,15 @@ class App extends Component {
 
     getOpButton() {
         const {labels} = this.state;
-        const foundedOpADD = DataGridUtils.getOpButton(this.state.operations, OperationType.OP_ADD);
-        const foundedOpADDSpec = DataGridUtils.getOpButton(this.state.operations, OperationType.OP_ADDSPEC_ADD);
+        const foundedOpADD = DataGridUtils.getOpButton(this.state.operations, OperationType.OP_ADD_BUTTON);
+        const foundedOpADDSpec = DataGridUtils.getOpButton(this.state.operations, OperationType.OP_ADD_SPEC_BUTTON);
         if (foundedOpADD || foundedOpADDSpec) {
-            return DataGridUtils.getOrCreateOpButton(this.state.operations, labels, OperationType.OP_ADD, 'Dodaj');
+            return DataGridUtils.getOrCreateOpButton(
+                this.state.operations,
+                labels,
+                OperationType.OP_ADD,
+                foundedOpADD ? foundedOpADD?.label : foundedOpADDSpec?.label
+            );
         }
         return null;
     }

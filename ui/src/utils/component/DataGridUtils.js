@@ -110,6 +110,7 @@ export class DataGridUtils extends ViewDataCompUtils {
                             }}
                             title={StringUtils.textFromHtmlString(info.text)}
                         >
+                            {/* <span dangerouslySetInnerHTML={{__html: info.text}} /> */}
                             {StringUtils.textFromHtmlString(info.text)}
                         </div>,
                         element

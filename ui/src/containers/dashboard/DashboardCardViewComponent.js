@@ -78,17 +78,13 @@ class DashboardCardViewComponent extends React.Component {
                         });
                         showMenu = menuItems.length > 0;
                     }
-                    const oppEdit = DataGridUtils.getOrCreateOpButton(
+                    const oppEdit = DataGridUtils.getOpButton(
                         this.props.parsedGridView?.operations,
-                        this.labels,
-                        OperationType.OP_EDIT,
-                        'Edycja'
+                        OperationType.OP_EDIT
                     );
-                    const oppSubview = DataGridUtils.getOrCreateOpButton(
+                    const oppSubview = DataGridUtils.getOpButton(
                         this.props.parsedGridView?.operations,
-                        this.labels,
-                        OperationType.OP_SUBVIEWS,
-                        'Podwidok'
+                        OperationType.OP_SUBVIEWS
                     );
                     const canRenderEdit = !!(showEditButton && oppEdit);
                     const elementSubViewId = this.props.elementSubViewId;
@@ -138,48 +134,52 @@ class DashboardCardViewComponent extends React.Component {
                                         : null}
                                     {showEditButton || showMenu || showSubviewButton ? (
                                         <div className='card-grid-header-buttons'>
-                                            <ShortcutButton
-                                                id={`${recordId}_menu_button`}
-                                                className={`action-button-with-menu`}
-                                                iconName={'mdi-pencil'}
-                                                label={''}
-                                                title={oppEdit?.label}
-                                                handleClick={() => {
-                                                    let result = this.props.handleBlockUi();
-                                                    if (result) {
-                                                        this.crudService
-                                                            .edit(viewId, recordId, subviewId, elementKindView)
-                                                            .then((editDataResponse) => {
-                                                                this.setState(
-                                                                    {
-                                                                        editData: editDataResponse,
-                                                                    },
-                                                                    () => {
-                                                                        this.props.handleShowEditPanel(
-                                                                            editDataResponse
-                                                                        );
-                                                                    }
-                                                                );
-                                                            })
-                                                            .catch((err) => {
-                                                                this.props.showErrorMessages(err);
-                                                            });
-                                                    }
-                                                }}
-                                                rendered={canRenderEdit}
-                                            />
-                                            <ShortcutButton
-                                                id={`${recordId}_menu_button`}
-                                                className={`action-button-with-menu`}
-                                                iconName={'mdi-playlist-plus '}
-                                                title={oppSubview?.label}
-                                                rendered={oppSubview}
-                                                href={AppPrefixUtils.locationHrefUrl(
-                                                    `/#/grid-view/${viewId}${
-                                                        !!recordId ? `?recordId=${recordId}` : ``
-                                                    }${!!currentBreadcrumb ? currentBreadcrumb : ``}`
-                                                )}
-                                            />
+                                            {oppEdit && (
+                                                <ShortcutButton
+                                                    id={`${recordId}_menu_button`}
+                                                    className={`action-button-with-menu`}
+                                                    iconName={'mdi-pencil'}
+                                                    label={''}
+                                                    title={oppEdit?.label}
+                                                    handleClick={() => {
+                                                        let result = this.props.handleBlockUi();
+                                                        if (result) {
+                                                            this.crudService
+                                                                .edit(viewId, recordId, subviewId, elementKindView)
+                                                                .then((editDataResponse) => {
+                                                                    this.setState(
+                                                                        {
+                                                                            editData: editDataResponse,
+                                                                        },
+                                                                        () => {
+                                                                            this.props.handleShowEditPanel(
+                                                                                editDataResponse
+                                                                            );
+                                                                        }
+                                                                    );
+                                                                })
+                                                                .catch((err) => {
+                                                                    this.props.showErrorMessages(err);
+                                                                });
+                                                        }
+                                                    }}
+                                                    rendered={canRenderEdit}
+                                                />
+                                            )}
+                                            {oppSubview && (
+                                                <ShortcutButton
+                                                    id={`${recordId}_menu_button`}
+                                                    className={`action-button-with-menu`}
+                                                    iconName={'mdi-playlist-plus '}
+                                                    title={oppSubview?.label}
+                                                    rendered={oppSubview}
+                                                    href={AppPrefixUtils.locationHrefUrl(
+                                                        `/#/grid-view/${viewId}${
+                                                            !!recordId ? `?recordId=${recordId}` : ``
+                                                        }${!!currentBreadcrumb ? currentBreadcrumb : ``}`
+                                                    )}
+                                                />
+                                            )}
                                             <ActionButtonWithMenu
                                                 id={`${recordId}_more_shortcut`}
                                                 className={`action-button-with-menu`}

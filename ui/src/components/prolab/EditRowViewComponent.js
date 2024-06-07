@@ -105,9 +105,9 @@ export class EditRowViewComponent extends BaseRowComponent {
     render() {
         const labels = this.props.labels;
         const operations = [];
-        const opSave = DataGridUtils.getOrCreateOpButton(operations, labels, OperationType.OP_SAVE, 'Zapisz');
-        const opFill = DataGridUtils.getOrCreateOpButton(operations, labels, OperationType.OP_FILL, 'Wypełnij');
-        const opCancel = DataGridUtils.getOrCreateOpButton(operations, labels, OperationType.OP_CANCEL, 'Anuluj');
+        const opSave = DataGridUtils.getOpButton(operations, OperationType.OP_SAVE);
+        const opFill = DataGridUtils.getOpButton(operations, OperationType.OP_FILL);
+        const opCancel = DataGridUtils.getOpButton(operations, OperationType.OP_CANCEL);
         const editData = this.props.editData;
         const editListVisible = this.state.editListVisible;
         return (
@@ -170,30 +170,36 @@ export class EditRowViewComponent extends BaseRowComponent {
                                 </div>
                             </div>
                             <div className='col-lg-6 col-md-12 text-right'>
-                                <ShortcutButton
-                                    id={'opSave'}
-                                    className={`grid-button-panel-big inverse mt-1 mb-1 mr-1 `}
-                                    handleClick={this.handleFormSubmit}
-                                    title={opSave?.label}
-                                    label={opSave?.label}
-                                    rendered={opSave}
-                                />
-                                <ShortcutButton
-                                    id={'opFill'}
-                                    className={`grid-button-panel-big inverse mt-1 mb-1 mr-1 `}
-                                    handleClick={this.handleAutoFill}
-                                    title={opFill?.label}
-                                    label={opFill?.label}
-                                    rendered={opFill}
-                                />
-                                <ShortcutButton
-                                    id={'opCancel'}
-                                    className={`grid-button-panel-big normal mt-1 mb-1 mr-1 `}
-                                    handleClick={this.handleCancel}
-                                    title={opCancel?.label}
-                                    label={opCancel?.label}
-                                    rendered={opCancel}
-                                />
+                                {opSave && (
+                                    <ShortcutButton
+                                        id={'opSave'}
+                                        className={`grid-button-panel-big inverse mt-1 mb-1 mr-1 `}
+                                        handleClick={this.handleFormSubmit}
+                                        title={opSave?.label}
+                                        label={opSave?.label}
+                                        rendered={opSave}
+                                    />
+                                )}
+                                {opFill && (
+                                    <ShortcutButton
+                                        id={'opFill'}
+                                        className={`grid-button-panel-big inverse mt-1 mb-1 mr-1 `}
+                                        handleClick={this.handleAutoFill}
+                                        title={opFill?.label}
+                                        label={opFill?.label}
+                                        rendered={opFill}
+                                    />
+                                )}
+                                {opCancel && (
+                                    <ShortcutButton
+                                        id={'opCancel'}
+                                        className={`grid-button-panel-big normal mt-1 mb-1 mr-1 `}
+                                        handleClick={this.handleCancel}
+                                        title={opCancel?.label}
+                                        label={opCancel?.label}
+                                        rendered={opCancel}
+                                    />
+                                )}
                             </div>
                         </div>
                         <div id='row-edit' className='mt-4 row row-edit-view'>

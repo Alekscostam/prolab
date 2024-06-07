@@ -154,8 +154,11 @@ class GridViewComponent extends CellEditComponent {
         return currentEditListRow;
     }
     addButton() {
-        const opAdd = !!DataGridUtils.getOpButton(this.props.parsedGridView?.operations, OperationType.OP_ADD);
-        const opAddSpec = !!DataGridUtils.getOpButton(this.props.parsedGridView?.operations, OperationType.OP_ADD_SPEC);
+        const opAdd = !!DataGridUtils.getOpButton(this.props.parsedGridView?.operations, OperationType.OP_ADD_BUTTON);
+        const opAddSpec = !!DataGridUtils.getOpButton(
+            this.props.parsedGridView?.operations,
+            OperationType.OP_ADD_SPEC_BUTTON
+        );
         return (
             !UrlUtils.isBatch() &&
             (opAdd || opAddSpec) && (
@@ -360,8 +363,7 @@ class GridViewComponent extends CellEditComponent {
         return showSelection ? (multiSelection ? 'multiple' : 'single') : 'none';
     };
     repaintChangesOnly() {
-        // return this.props.cellModeEnabled;
-        return true;
+        return this.props.cellModeEnabled; // musi byc ze wzgledu na delete and restore
     }
     onKeyDownSelectRows() {
         let selectedRows = this.props.selectedRows;
@@ -640,6 +642,7 @@ class GridViewComponent extends CellEditComponent {
                                 this.props.handleUnblockUi();
                             }
                         },
+                        () => this.props.handleUnblockUi(),
                         () => this.props.handleUnblockUi()
                     );
                 })
@@ -675,6 +678,7 @@ class GridViewComponent extends CellEditComponent {
                                     this.props.handleUnblockUi();
                                 }
                             },
+                            () => this.props.handleUnblockUi(),
                             () => this.props.handleUnblockUi()
                         );
                     })

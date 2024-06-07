@@ -45,6 +45,7 @@ import {PluginConfirmDialogUtils} from '../utils/component/PluginUtils';
 import {OperationType} from '../model/OperationType';
 import ReactDOM from 'react-dom';
 import {QrCodesDialog} from '../containers/QrCodesDialog';
+import ActionShortcutWithoutMenu from '../components/prolab/ActionShortcutWithoutMenu';
 
 let dataGrid;
 
@@ -275,6 +276,9 @@ export class BaseViewContainer extends BaseContainer {
         this.unregisterKeydownEvent();
     }
 
+    showAddSpecDialog(recordId) {
+        // to overide
+    }
     getDataByViewResponse(responseView) {
         // to overide
     }
@@ -304,15 +308,11 @@ export class BaseViewContainer extends BaseContainer {
             const documentsListTmp = this.documentListCreate(responseView);
             const batchesListTmp = this.batchListCreate(responseView);
             const filtersListTmp = this.filtersListCreate(responseView);
+            this.processOperations(responseView, this.props.labels);
             Breadcrumb.currentBreadcrumbAsUrlParam();
 
             const viewInfoTypesTmp = [];
-            const cardButton = DataGridUtils.getOrCreateOpButton(
-                responseView.operations,
-                this.props.labels,
-                OperationType.OP_CARDVIEW,
-                ''
-            );
+            const cardButton = DataGridUtils.getOpButton(responseView.operations, OperationType.OP_CARDVIEW);
             if (cardButton) {
                 viewInfoTypesTmp.push({
                     icon: 'mediumiconslayout',
@@ -320,12 +320,7 @@ export class BaseViewContainer extends BaseContainer {
                     hint: cardButton?.label,
                 });
             }
-            const viewButton = DataGridUtils.getOrCreateOpButton(
-                responseView.operations,
-                this.props.labels,
-                OperationType.OP_GRIDVIEW,
-                ''
-            );
+            const viewButton = DataGridUtils.getOpButton(responseView.operations, OperationType.OP_GRIDVIEW);
             if (viewButton) {
                 viewInfoTypesTmp.push({
                     icon: 'contentlayout',
@@ -407,6 +402,9 @@ export class BaseViewContainer extends BaseContainer {
             case OperationType.OP_HISTORY:
             case OperationType.SK_HISTORY:
                 this.historyLog(elementId);
+                break;
+            case OperationType.OP_ADD:
+                this.addView();
                 break;
             default:
                 return null;
@@ -830,6 +828,7 @@ export class BaseViewContainer extends BaseContainer {
                             )}
                         </React.Fragment>
                     );
+
                 case OperationType.OP_DOCUMENTS:
                     return (
                         <React.Fragment>
@@ -879,6 +878,36 @@ export class BaseViewContainer extends BaseContainer {
                                     customEventClick={() => this.prepareCalculateFormula()}
                                     iconName={operation?.iconCode || 'mdi-cogs'}
                                     title={operation?.label}
+                                />
+                            )}
+                        </React.Fragment>
+                    );
+                case OperationType.OP_ADD_SPEC:
+                    return (
+                        <React.Fragment>
+                            {operation.showAlways && (
+                                <ActionShortcutWithoutMenu
+                                    id='button_add_spec'
+                                    className={`${margin}`}
+                                    iconName={operation?.iconCode || 'mdi-cogs'}
+                                    operationType={OperationType.OP_ADD_SPEC}
+                                    title={operation?.label}
+                                    customEventClick={() => this.showAddSpecDialog()}
+                                />
+                            )}
+                        </React.Fragment>
+                    );
+                case OperationType.OP_ADD:
+                    return (
+                        <React.Fragment>
+                            {operation.showAlways && (
+                                <ActionShortcutWithoutMenu
+                                    id='button_add'
+                                    className={`${margin}`}
+                                    iconName={operation?.iconCode || 'mdi-cogs'}
+                                    operationType={OperationType.OP_ADD}
+                                    title={operation?.label}
+                                    customEventClick={(el) => this.handleRightHeadPanelContent(el)}
                                 />
                             )}
                         </React.Fragment>
@@ -1240,8 +1269,7 @@ export class BaseViewContainer extends BaseContainer {
         this.blockUi();
         const subViewId = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
         const parentId = this.state.subView == null ? UrlUtils.getParentId() : this.state.elementRecordId;
-        let viewId = this.props.id;
-        viewId = DataGridUtils.getRealViewId(subViewId, viewId);
+        const viewId = DataGridUtils.getRealViewId(subViewId, this.props.id);
         this.crudService
             .addEntry(viewId, parentId)
             .then((entryResponse) => {
@@ -1451,6 +1479,7 @@ export class BaseViewContainer extends BaseContainer {
         return (
             <React.Fragment>
                 <GridViewComponent
+                    labels={this.props.labels}
                     id={this.props.id}
                     isAttachement={this.isAttachement}
                     selectedRows={this.state.selectedRowKeys}

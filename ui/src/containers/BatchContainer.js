@@ -232,31 +232,34 @@ export class BatchContainer extends BaseContainer {
 
     //override
     renderHeaderRight() {
-        const {labels} = this.props;
         const operations = [];
-        const opSave = DataGridUtils.getOrCreateOpButton(operations, labels, OperationType.OP_SAVE, 'Zapisz');
-        const opCancel = DataGridUtils.getOrCreateOpButton(operations, labels, OperationType.OP_CANCEL, 'Anuluj');
+        const opSave = DataGridUtils.getOpButton(operations, OperationType.OP_SAVE);
+        const opCancel = DataGridUtils.getOpButton(operations, OperationType.OP_CANCEL);
         return (
             <React.Fragment>
                 <div id='global-top-components'>
-                    <ActionButton
-                        rendered={!!opSave}
-                        label={opSave?.label}
-                        className='ml-2'
-                        handleClick={() => {
-                            this.handleSaveAction();
-                        }}
-                    />
-                    <ActionButton
-                        rendered={!!opCancel}
-                        label={opCancel?.label}
-                        className='ml-2 inverse'
-                        handleClick={() => {
-                            this.setState({
-                                renderConfirmationEditQuitDialog: true,
-                            });
-                        }}
-                    />
+                    {opSave && (
+                        <ActionButton
+                            rendered={!!opSave}
+                            label={opSave?.label}
+                            className='ml-2'
+                            handleClick={() => {
+                                this.handleSaveAction();
+                            }}
+                        />
+                    )}
+                    {opCancel && (
+                        <ActionButton
+                            rendered={!!opCancel}
+                            label={opCancel?.label}
+                            className='ml-2 inverse'
+                            handleClick={() => {
+                                this.setState({
+                                    renderConfirmationEditQuitDialog: true,
+                                });
+                            }}
+                        />
+                    )}
                 </div>
             </React.Fragment>
         );

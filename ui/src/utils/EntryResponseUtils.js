@@ -3,8 +3,11 @@ import {localeOptions} from 'primereact/api';
 import ReactDOM from 'react-dom';
 
 function EntryResponseUtils() {}
-EntryResponseUtils.run = (entryResponse, accept, reject) => {
+EntryResponseUtils.run = (entryResponse, accept, reject, unblockUi) => {
     if (!!entryResponse.message || !!entryResponse.question) {
+        if (typeof unblockUi === 'function') {
+            unblockUi();
+        }
         const confirmDialogWrapper = document.createElement('div');
         document.body.appendChild(confirmDialogWrapper);
         ReactDOM.render(
@@ -18,20 +21,25 @@ EntryResponseUtils.run = (entryResponse, accept, reject) => {
                 rejectLabel={entryResponse?.question ? localeOptions('reject') : undefined}
                 accept={() => {
                     accept();
-                    document.body.removeChild(confirmDialogWrapper);
+                    safeRemoveChild();
                 }}
                 reject={() => {
                     reject();
-                    document.body.removeChild(confirmDialogWrapper);
+                    safeRemoveChild();
                 }}
                 onHide={() => {
-                    document.body.removeChild(confirmDialogWrapper);
                     reject();
+                    safeRemoveChild();
                 }}
-                rejectClassName={entryResponse?.question ? 'hidden' : undefined} // Ukryj przycisk reject dla pytania
+                rejectClassName={entryResponse?.message || entryResponse?.question ? 'hidden' : undefined} // Ukryj przycisk reject dla pytania i odpowiedzi
             />,
             confirmDialogWrapper
         );
+        const safeRemoveChild = () => {
+            if (document.body.contains(confirmDialogWrapper)) {
+                document.body.removeChild(confirmDialogWrapper);
+            }
+        };
     } else {
         accept();
     }

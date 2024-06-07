@@ -26,12 +26,7 @@ export default class EditListComponent extends React.Component {
     render() {
         const width = this.props.parsedGridView?.info?.windowSize?.width || '50vw';
         const height = this.props.parsedGridView?.info?.windowSize?.height || '150vw';
-        const opSelect = DataGridUtils.getOrCreateOpButton(
-            this.props.parsedGridView?.operations,
-            this.props.labels,
-            OperationType.OP_SELECT,
-            'Wybierz'
-        );
+        const opSelect = DataGridUtils.getOpButton(this.props.parsedGridView?.operations, OperationType.OP_SELECT);
         return (
             <React.Fragment>
                 <Dialog

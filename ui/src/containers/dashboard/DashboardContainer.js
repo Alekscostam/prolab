@@ -111,6 +111,7 @@ class DashboardContainer extends BaseContainer {
                                 this.unblockUi();
                             }
                         },
+                        () => this.unblockUi(),
                         () => this.unblockUi()
                     );
                 })

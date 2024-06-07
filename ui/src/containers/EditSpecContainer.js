@@ -26,6 +26,7 @@ import {ConfirmationEditQuitDialog} from '../components/prolab/ConfirmationEditQ
 import EditSpecService from '../services/EditSpecService';
 import {OperationType} from '../model/OperationType';
 import {StringUtils} from '../utils/StringUtils';
+import ActionShortcutWithoutMenu from '../components/prolab/ActionShortcutWithoutMenu';
 
 export let operationClicked = false;
 export class EditSpecContainer extends BaseContainer {
@@ -191,6 +192,7 @@ export class EditSpecContainer extends BaseContainer {
             const documentsListTmp = this.documentListCreate(responseView);
             const batchesListTmp = this.batchListCreate(responseView);
             const filtersListTmp = this.filtersListCreate(responseView);
+            this.processOperations(responseView, this.props.labels);
             Breadcrumb.currentBreadcrumbAsUrlParam();
             this.setState(
                 () => ({
@@ -325,6 +327,7 @@ export class EditSpecContainer extends BaseContainer {
                             ) : null}
                         </React.Fragment>
                     );
+
                 case OperationType.OP_FORMULA:
                     return (
                         <React.Fragment>
@@ -335,6 +338,21 @@ export class EditSpecContainer extends BaseContainer {
                                 iconName={operation?.iconCode || 'mdi-cogs'}
                                 title={operation?.label}
                             />{' '}
+                        </React.Fragment>
+                    );
+                case OperationType.OP_ADD_SPEC_BUTTON:
+                    return (
+                        <React.Fragment>
+                            {operation.showAlways && (
+                                <ActionShortcutWithoutMenu
+                                    id='button_add_spec'
+                                    className={`${margin}`}
+                                    iconName={operation?.iconCode || 'mdi-cogs'}
+                                    operationType={OperationType.OP_ADD_SPEC_BUTTON}
+                                    customEventClick={() => this.showAddSpecDialog()}
+                                    title={operation?.label}
+                                />
+                            )}
                         </React.Fragment>
                     );
                 default:
@@ -367,19 +385,9 @@ export class EditSpecContainer extends BaseContainer {
 
     //override
     renderHeaderRight() {
-        const operations = [];
-        const opSave = DataGridUtils.getOrCreateOpButton(
-            operations,
-            this.props.labels,
-            OperationType.OP_SAVE,
-            'Zapisz'
-        );
-        const opCancel = DataGridUtils.getOrCreateOpButton(
-            operations,
-            this.props.labels,
-            OperationType.OP_CANCEL,
-            'Anuluj'
-        );
+        const operations = this.state?.parsedView?.operations;
+        const opSave = DataGridUtils.getOpButton(operations, OperationType.OP_SAVE);
+        const opCancel = DataGridUtils.getOpButton(operations, OperationType.OP_CANCEL);
         return (
             <React.Fragment>
                 <div id='global-top-components'>

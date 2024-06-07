@@ -546,6 +546,7 @@ export class TreeListUtils extends ViewDataCompUtils {
                             handleUnblockUiCallback();
                         }
                     },
+                    () => handleUnblockUiCallback(),
                     () => handleUnblockUiCallback()
                 );
             })

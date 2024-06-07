@@ -340,6 +340,7 @@ class CardViewInfiniteComponent extends React.Component {
                                                                         this.props.handleUnblockUi();
                                                                     }
                                                                 },
+                                                                () => this.props.handleUnblockUi(),
                                                                 () => this.props.handleUnblockUi()
                                                             );
                                                         })

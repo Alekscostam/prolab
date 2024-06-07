@@ -13,6 +13,7 @@
         {"code": "View_LoadError", "caption": "Nie udało się pobrać danych strony o id:"},
         {"code": "View_AdditionalOptions", "caption": "Dodatkowe opcje"},
         {"code": "View_StartPage", "caption": "Strona startowa"},
+        {"code": "Session_expiration_time", "caption": "Czas do wygaśnięcia sesji: "},
         {
             "code": "Session_Expired",
             "caption": "Sesja wygasła",
@@ -34,6 +35,22 @@
         {
             "code": "No",
             "caption": "Nie"
+        },
+        {
+            "code": "OP_SAVE",
+            "caption": "Zapisz"
+        },
+        {
+            "code": "OP_CANCEL",
+            "caption": "Anuluj"
+        },
+        {
+            "code": "OP_FILL",
+            "caption": "Wupełnij"
+        },
+        {
+            "code": "OP_SELECT",
+            "caption": "Wybierz"
         }
     ]
 }

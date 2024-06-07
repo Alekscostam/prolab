@@ -219,6 +219,7 @@ export class AddSpecContainer extends BaseContainer {
             const documentsListTmp = this.documentListCreate(responseView);
             const batchesListTmp = this.batchListCreate(responseView);
             const filtersListTmp = this.filtersListCreate(responseView);
+            this.processOperations(responseView, this.props.labels);
             Breadcrumb.currentBreadcrumbAsUrlParam();
             this.blockUi();
             this.setState(
@@ -399,17 +400,13 @@ export class AddSpecContainer extends BaseContainer {
     //override
     renderHeaderRight() {
         const operations = this.state.parsedView.operations;
-        const opAdd = DataGridUtils.getOrCreateOpButton(
+        const opAdd = DataGridUtils.getOpButton(
             operations,
-            this.props.labels,
             OperationType.OP_ADDSPEC_ADD,
-            'Dodaj'
         );
-        const opCount = DataGridUtils.getOrCreateOpButton(
+        const opCount = DataGridUtils.getOpButton(
             operations,
-            this.props.labels,
             OperationType.OP_ADDSPEC_COUNT,
-            'Ilość'
         );
         return (
             <div>
@@ -435,7 +432,7 @@ export class AddSpecContainer extends BaseContainer {
                                 />
                             </React.Fragment>
                         ) : undefined}
-                        <ActionButton
+                       {opAdd && <ActionButton
                             rendered={!!opAdd}
                             label={opAdd?.label}
                             disabled={this.state.selectedRowKeys.length === 0}
@@ -443,7 +440,7 @@ export class AddSpecContainer extends BaseContainer {
                             handleClick={() => {
                                 this.handleExecSpec();
                             }}
-                        />
+                        />} 
                     </div>
                 </div>
             </div>

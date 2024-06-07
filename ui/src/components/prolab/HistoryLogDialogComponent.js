@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import {Dialog} from 'primereact/dialog';
 import GridViewComponent from '../../containers/dataGrid/GridViewComponent';
 import {Button} from 'primereact/button';
-import LocUtils from '../../utils/LocUtils';
 import {Toast} from 'primereact/toast';
+import {OperationType} from '../../model/OperationType';
+import {DataGridUtils} from '../../utils/component/DataGridUtils';
 
 export default class HistoryLogDialogComponent extends React.Component {
     constructor(props) {
@@ -35,7 +36,8 @@ export default class HistoryLogDialogComponent extends React.Component {
         const parsedHistoryLogView = this.props.parsedHistoryLogView;
         const width = parsedHistoryLogView?.info?.windowSize?.width || '50vw';
         const height = parsedHistoryLogView?.info?.windowSize?.height || undefined;
-
+        // OP_CLOSE
+        const opClose = DataGridUtils.getOpButton(this.props.parsedHistoryLogView.operations, OperationType.OP_CLOSE);
         let convertedParsedView = {...parsedHistoryLogView};
         /** Przemapowanie viewOptions na gridOptions */
         if (parsedHistoryLogView?.viewOptions) {
@@ -53,13 +55,15 @@ export default class HistoryLogDialogComponent extends React.Component {
                     header={this.props.parsedHistoryLogView?.info?.title}
                     footer={
                         <React.Fragment>
-                            <Button
-                                type='button'
-                                onClick={() => {
-                                    this.onHide();
-                                }}
-                                label={LocUtils.loc(this.props.labels, 'Close_dialog', 'Zamknij okno')}
-                            />
+                            {opClose && (
+                                <Button
+                                    type='button'
+                                    onClick={() => {
+                                        this.onHide();
+                                    }}
+                                    label={opClose.label}
+                                />
+                            )}
                         </React.Fragment>
                     }
                     visible={isVisible}

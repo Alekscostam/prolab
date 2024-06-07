@@ -13,6 +13,13 @@
         {"code": "View_LoadError", "caption": "Failed to fetch data for page with id:"},
         {"code": "View_AdditionalOptions", "caption": "Additional Options"},
         {"code": "View_StartPage", "caption": "Home Page"},
+        {"code": "Confirm_Label", "caption": "Confirmation"},
+        {"code": "Session_expiration_time", "caption": "Session expiration time: "},
+        {"code": "Add_button", "caption": "Add"},
+        {"code": "Close_dialog", "caption": "Close"},
+        {"code": "Positions", "caption": "Positions"},
+        {"code": "Confirm_no", "caption": "No"},
+        {"code": "Confirm_yes", "caption": "Yes"},
         {
             "code": "Session_Expired",
             "caption": "Sesja wygasła",
@@ -21,7 +28,11 @@
         {"code": "Calendar_ButtonClear", "caption": "Clear"},
         {
             "code": "Session_Timeout",
-            "caption": "Sesja wyagasa. Czy chcesz ją przedłużyć?"
+            "caption": "Session Expires. Do you want to extend it??"
+        },
+        {
+            "code": "Question_Close_Edit",
+            "caption": "Are you sure you want to close the edit?"
         },
         {
             "code": "extend_session",
@@ -29,11 +40,159 @@
         },
         {
             "code": "Yes",
-            "caption": "Tak"
+            "caption": "Yes"
         },
         {
             "code": "No",
-            "caption": "Nie"
+            "caption": "No"
+        },
+        {
+            "code": "OP_SAVE",
+            "caption": "Save"
+        },
+        {
+            "code": "OP_CANCEL",
+            "caption": "Cancel"
+        },
+        {
+            "code": "OP_FILL",
+            "caption": "Fill"
+        },
+        {
+            "code": "OP_SELECT",
+            "caption": "Select"
+        },
+        {
+            "code": "OP_ATTACHMENTS",
+            "caption": "Attachements"
+        },
+        {
+            "code": "OP_ADDSPEC_SPEC",
+            "caption": "Select"
+        },
+        {
+            "code": "OP_ADDSPEC_ADD",
+            "caption": "Add"
+        },
+        {
+            "code": "OP_ARCHIVE",
+            "caption": "Archive"
+        },
+        {
+            "code": "OP_ADD",
+            "caption": "Add"
+        },
+        {
+            "code": "OP_ADD_LEVEL",
+            "caption": "Add level"
+        },
+        {
+            "code": "OP_UP",
+            "caption": "Up"
+        },
+        {
+            "code": "OP_DOWN",
+            "caption": "Down"
+        },
+        {
+            "code": "OP_BATCH",
+            "caption": "Batch"
+        },
+        {
+            "code": "OP_EDIT",
+            "caption": "Edit"
+        },
+        {
+            "code": "OP_EDIT_SPEC",
+            "caption": "Edit specification"
+        },
+        {
+            "code": "OP_DELETE",
+            "caption": "Delete"
+        },
+        {
+            "code": "OP_SUBVIEWS",
+            "caption": "Subviews"
+        },
+        {
+            "code": "OP_COPY",
+            "caption": "Copy"
+        },
+        {
+            "code": "OP_FILTER",
+            "caption": "Filter"
+        },
+        {
+            "code": "OP_PUBLIC",
+            "caption": "Public"
+        },
+        {
+            "code": "OP_RESTORE",
+            "caption": "Restore"
+        },
+        {
+            "code": "OP_PLUGINS",
+            "caption": "plugins"
+        },
+        {
+            "code": "OP_FORMULA",
+            "caption": "Formula"
+        },
+        {
+            "code": "OP_HISTORY",
+            "caption": "History"
+        },
+        {
+            "code": "OP_PUBLISH",
+            "caption": "Publish"
+        },
+        {
+            "code": "OP_TREE_UNCHECK",
+            "caption": "Tree uncheck"
+        },
+        {
+            "code": "OP_TREE_CHECK",
+            "caption": "Tree uncheck"
+        },
+        {
+            "code": "OP_TREE_COLLAPSE",
+            "caption": "Tree colapse"
+        },
+        {
+            "code": "OP_TREE_EXPAND",
+            "caption": "Tree expand"
+        },
+        {
+            "code": "OP_DOWNLOAD",
+            "caption": "Download"
+        },
+        {
+            "code": "OP_ADDSPEC_COUNT",
+            "caption": "Count"
+        },
+        {
+            "code": "OP_DOCUMENTS",
+            "caption": "Documents"
+        },
+        {
+            "code": "SK_PUBLISH",
+            "caption": "Publish"
+        },
+        {
+            "code": "SK_DOCUMENT",
+            "caption": "Document"
+        },
+        {
+            "code": "SK_BATCH",
+            "caption": "Batch"
+        },
+        {
+            "code": "SK_HISTORY",
+            "caption": "History"
+        },
+        {
+            "code": "SK_PLUGIN",
+            "caption": "Plugin"
         }
     ]
 }

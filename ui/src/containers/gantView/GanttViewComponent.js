@@ -403,6 +403,7 @@ class GanttViewComponent extends React.Component {
                                     this.props.handleUnblockUi();
                                 }
                             },
+                            () => this.props.handleUnblockUi(),
                             () => this.props.handleUnblockUi()
                         );
                     })

@@ -47,7 +47,7 @@ export class ViewContainer extends BaseViewContainer {
     addButtonFunction = (e) => {
         const addSpecFunction = () => this.showAddSpecDialog();
         const addFunction = (e) => this.addView(e);
-        DataGridUtils.getOpButton(this.state.parsedGridView?.operations, OperationType.OP_ADD_SPEC)
+        DataGridUtils.getOpButton(this.state.parsedGridView?.operations, OperationType.OP_ADD_SPEC_BUTTON)
             ? addSpecFunction()
             : addFunction(e);
     };
@@ -188,6 +188,7 @@ export class ViewContainer extends BaseViewContainer {
                                 this.unblockUi();
                             }
                         },
+                        () => this.unblockUi(),
                         () => this.unblockUi()
                     );
                 })

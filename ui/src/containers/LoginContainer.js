@@ -44,7 +44,7 @@ class LoginContainer extends BaseContainer {
             redirectToReferrer: true,
             editData: {},
             authValid: true,
-            lang: 'PL',
+            lang: undefined,
             langs: [],
             visibleUserComponent: false,
             userInfo: {},
@@ -115,16 +115,16 @@ class LoginContainer extends BaseContainer {
 
     getLocalizationLoginPage() {
         new ReadConfigService(this.getConfigUrl()).getConfiguration().then((configuration) => {
+            const lang = this.state.lang ? this.state.lang : configuration.LANG;
             this.localizationService
-                .getTranslationsFromFile('rd', this.state.lang)
+                .getTranslationsFromFile('rd', lang)
                 .then((resp) => {
                     const langs = configuration.LANG_LIST;
                     const labels = {};
-                    const lang = this.state.lang;
                     if (resp.labels) {
                         resp.labels.forEach((label) => (labels[label.code] = label.caption));
                     }
-                    this.setState({langs, labels, lang}, () => {
+                    this.setState({langs, labels, lang: lang}, () => {
                         this.unblockUi();
                         this._isMounted = true;
                     });

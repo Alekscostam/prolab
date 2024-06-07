@@ -20,6 +20,7 @@ import {MenuWithButtons} from '../../components/prolab/MenuWithButtons';
 import {sessionPrelongFnc} from '../../App';
 import {EditorDialog} from '../../components/prolab/EditorDialog';
 import {OperationType} from '../../model/OperationType';
+import LocUtils from '../../utils/LocUtils';
 
 class SubGridViewComponent extends React.Component {
     constructor(props) {

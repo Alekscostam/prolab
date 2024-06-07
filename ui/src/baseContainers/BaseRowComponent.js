@@ -257,8 +257,10 @@ export class BaseRowComponent extends BaseContainer {
         if (StringUtils.isBlank(value)) {
             return false;
         }
-        if (StringUtils.isEmpty(value)) {
-            return false;
+        if (typeof value !== 'number') {
+            if (StringUtils.isEmpty(value)) {
+                return false;
+            }
         }
         return true;
     }
@@ -284,6 +286,7 @@ export class BaseRowComponent extends BaseContainer {
                         const setFields = responseView.setFields;
                         const separatorJoin = responseView.options?.separatorJoin || ',';
                         let countSeparator = 0;
+                        // TODO: CRC
                         setFields.forEach((field) => {
                             EditRowUtils.searchField(editData, field.fieldEdit, (foundFields) => {
                                 if (this.canPushRowData(foundFields.value)) {

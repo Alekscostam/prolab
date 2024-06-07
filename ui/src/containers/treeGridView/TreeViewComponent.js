@@ -484,6 +484,7 @@ class TreeViewComponent extends CellEditComponent {
                                     this.props.handleUnblockUi();
                                 }
                             },
+                            () => this.props.handleUnblockUi(),
                             () => this.props.handleUnblockUi()
                         );
                     })

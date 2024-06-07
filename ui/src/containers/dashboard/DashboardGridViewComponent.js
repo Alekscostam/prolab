@@ -119,6 +119,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                         const pluginsListTmp = this.puginListCreate(responseView);
                         const documentsListTmp = this.documentListCreate(responseView);
                         const batchesListTmp = this.batchListCreate(responseView);
+                        this.processOperations(responseView, this.props.labels);
                         let filtersListTmp = [];
                         for (let filter in responseView?.filtersList) {
                             filtersListTmp.push({
@@ -139,11 +140,9 @@ export class DashboardGridViewComponent extends BaseContainer {
                             });
                         }
                         const viewInfoTypesTmp = [];
-                        const viewButton = DataGridUtils.getOrCreateOpButton(
+                        const viewButton = DataGridUtils.getOpButton(
                             responseView.operations,
-                            this.props.labels,
-                            OperationType.OP_GRIDVIEW,
-                            ''
+                            OperationType.OP_GRIDVIEW
                         );
                         if (viewButton) {
                             viewInfoTypesTmp.push({
@@ -457,15 +456,10 @@ export class DashboardGridViewComponent extends BaseContainer {
 
     //override
     renderHeaderRight() {
-        const opADD = DataGridUtils.getOrCreateOpButton(
-            this.state.parsedGridView?.operations,
-            this.props.labels,
-            OperationType.OP_ADD,
-            'Dodaj'
-        );
+        const opADD = DataGridUtils.getOpButton(this.state.parsedGridView?.operations, OperationType.OP_ADD);
         return (
             <React.Fragment>
-                <ActionButton rendered={opADD} label={opADD?.label} handleClick={() => {}} />
+                {opADD && <ActionButton rendered={opADD} label={opADD?.label} handleClick={() => {}} />}
             </React.Fragment>
         );
     }
@@ -481,24 +475,12 @@ export class DashboardGridViewComponent extends BaseContainer {
 
     leftHeadPanelContent = () => {
         const centerElementStyle = 'mr-1 ';
-        const opBatches = DataGridUtils.getOrCreateOpButton(
+        const opBatches = DataGridUtils.getOpButton(this.state.parsedGridView?.operations, OperationType.OP_BATCH);
+        const opDocuments = DataGridUtils.getOpButton(
             this.state.parsedGridView?.operations,
-            this.props.labels,
-            OperationType.OP_BATCH,
-            'Modyfikacja seryjna'
+            OperationType.OP_DOCUMENTS
         );
-        const opDocuments = DataGridUtils.getOrCreateOpButton(
-            this.state.parsedGridView?.operations,
-            this.props.labels,
-            OperationType.OP_DOCUMENTS,
-            'Dokumenty'
-        );
-        const opPlugins = DataGridUtils.getOrCreateOpButton(
-            this.state.parsedGridView?.operations,
-            this.props.labels,
-            OperationType.OP_PLUGINS,
-            'Wtyczki'
-        );
+        const opPlugins = DataGridUtils.getOpButton(this.state.parsedGridView?.operations, OperationType.OP_PLUGINS);
         return (
             <React.Fragment>
                 <ButtonGroup

@@ -7,6 +7,7 @@ import OperationsButtons from './OperationsButtons';
 import {Breadcrumb} from '../../utils/BreadcrumbUtils';
 import {DataGridUtils} from '../../utils/component/DataGridUtils';
 import {TreeListUtils} from '../../utils/component/TreeListUtils';
+import LocUtils from '../../utils/LocUtils';
 //Komponent wyświetlający górną ramkę i okalający wszystkie przyciski, filtry ....
 export const HeadPanel = (props) => {
     const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
@@ -66,7 +67,7 @@ export const HeadPanel = (props) => {
                         <div id='grid-panel-selection' className='grid-panel-selection'>
                             <div id='grid-separator' className='p-1 grid-separator-fragment' />
                             <div id='grid-count-panel' className='grid-count-fragment center-text-in-div'>
-                                Pozycje: {props.selectedRowKeys.length | 0}
+                                {LocUtils.loc(props.labels, 'Positions', 'Pozycje')}: {props.selectedRowKeys.length | 0}
                             </div>
                             <div id='grid-separator' className='p-1 grid-separator-fragment' />
                             <div id='grid-buttons-fragment' className='pt-1 grid-buttons-fragment'>

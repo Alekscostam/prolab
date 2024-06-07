@@ -29,6 +29,7 @@ import EditSpecService from '../services/EditSpecService';
 import {OperationType} from '../model/OperationType';
 import {InputType} from '../model/InputType';
 import {StringUtils} from '../utils/StringUtils';
+import LocUtils from '../utils/LocUtils';
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -2102,6 +2103,24 @@ class BaseContainer extends React.Component {
             });
         }
         return filtersListTmp;
+    }
+
+    processOperations(responseView, labels) {
+        // const operations = responseView.operations || [];
+        // const operationsPPM = responseView.operationsPPM || [];
+        // const operationsRecord = responseView.operationsRecord || [];
+        // const operationsRecordList = responseView.operationsRecordList || [];
+        // this.replaceOperationsLabels(operations, labels);
+        // this.replaceOperationsLabels(operationsPPM, labels);
+        // this.replaceOperationsLabels(operationsRecord, labels);
+        // this.replaceOperationsLabels(operationsRecordList, labels);
+    }
+
+    replaceOperationsLabels(operations, labels) {
+        for (let index = 0; index < operations.length; index++) {
+            const operation = operations[index];
+            operation.label = LocUtils.loc(labels, operation.type, operation.label);
+        }
     }
 
     getRefGridView() {

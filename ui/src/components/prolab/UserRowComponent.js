@@ -25,9 +25,14 @@ export default class UserRowComponent extends BaseRowComponent {
         const {labels} = this.props;
         const editData = this.props.editData;
         const operations = editData.operations;
-        const opSave = DataGridUtils.getOrCreateOpButton(operations, labels, OperationType.OP_SAVE, 'Zapisz');
-        const opFill = DataGridUtils.getOrCreateOpButton(operations, labels, OperationType.OP_FILL, 'Uzupełnij');
-        const opCancel = DataGridUtils.getOrCreateOpButton(operations, labels, OperationType.OP_CANCEL, 'Anuluj');
+        const opSave = DataGridUtils.getOpButtonWithTranslation(operations, labels, OperationType.OP_SAVE, 'Zapisz');
+        const opFill = DataGridUtils.getOpButtonWithTranslation(operations, labels, OperationType.OP_FILL, 'Uzupełnij');
+        const opCancel = DataGridUtils.getOpButtonWithTranslation(
+            operations,
+            labels,
+            OperationType.OP_CANCEL,
+            'Anuluj'
+        );
         return (
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
@@ -45,30 +50,36 @@ export default class UserRowComponent extends BaseRowComponent {
                     icons={
                         <React.Fragment>
                             <div id='buttons' style={{textAlign: 'right'}}>
-                                <ShortcutButton
-                                    id={'opSave'}
-                                    className={`grid-button-panel inverse mt-1 mb-1 mr-1`}
-                                    handleClick={this.handleFormSubmit}
-                                    title={opSave?.label}
-                                    label={opSave?.label}
-                                    rendered={opSave}
-                                />
-                                <ShortcutButton
-                                    id={'opFill'}
-                                    className={`grid-button-panel inverse mt-1 mb-1 mr-1`}
-                                    handleClick={this.handleAutoFill}
-                                    title={opFill?.label}
-                                    label={opFill?.label}
-                                    rendered={opFill}
-                                />
-                                <ShortcutButton
-                                    id={'opCancel'}
-                                    className={`grid-button-panel normal mt-1 mb-1 mr-1`}
-                                    handleClick={this.handleCancel}
-                                    title={opCancel?.label}
-                                    label={opCancel?.label}
-                                    rendered={opCancel}
-                                />
+                                {opSave && (
+                                    <ShortcutButton
+                                        id={'opSave'}
+                                        className={`grid-button-panel inverse mt-1 mb-1 mr-1`}
+                                        handleClick={this.handleFormSubmit}
+                                        title={opSave?.label}
+                                        label={opSave?.label}
+                                        rendered={opSave}
+                                    />
+                                )}
+                                {opFill && (
+                                    <ShortcutButton
+                                        id={'opFill'}
+                                        className={`grid-button-panel inverse mt-1 mb-1 mr-1`}
+                                        handleClick={this.handleAutoFill}
+                                        title={opFill?.label}
+                                        label={opFill?.label}
+                                        rendered={opFill}
+                                    />
+                                )}
+                                {opCancel && (
+                                    <ShortcutButton
+                                        id={'opCancel'}
+                                        className={`grid-button-panel normal mt-1 mb-1 mr-1`}
+                                        handleClick={this.handleCancel}
+                                        title={opCancel?.label}
+                                        label={opCancel?.label}
+                                        rendered={opCancel}
+                                    />
+                                )}
                             </div>
                         </React.Fragment>
                     }
