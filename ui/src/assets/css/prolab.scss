@@ -830,6 +830,28 @@ td[aria-roledescription='Editable'] {
         border-radius: 0px;
     }
 }
+.p-button.p-component.p-button-icon-only.p-button-text.p-button-rounded.p-button-danger,
+.p-inputnumber-button.p-inputnumber-button-up.p-button.p-button-icon-only.p-component,
+.p-inputnumber-button.p-inputnumber-button-down.p-button.p-button-icon-only.p-component {
+    svg {
+        color: white;
+    }
+}
+
+.p-inputnumber-button.p-inputnumber-button-up.p-button.p-button-icon-only.p-component,
+.p-inputnumber-button.p-inputnumber-button-down.p-button.p-button-icon-only.p-component {
+    max-height: 21px;
+    border-radius: 0px;
+    // border-top-right-radius: 5px;
+}
+#numberOfCopy {
+    max-height: 42px;
+}
+#qrCode-textbox {
+    input {
+        padding-left: 10px;
+    }
+}
 .ccol-1,
 .ccol-2,
 .ccol-3,

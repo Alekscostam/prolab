@@ -70,7 +70,11 @@ export const HeadPanel = (props) => {
                                 {LocUtils.loc(props.labels, 'Positions', 'Pozycje')}: {props.selectedRowKeys.length | 0}
                             </div>
                             <div id='grid-separator' className='p-1 grid-separator-fragment' />
-                            <div id='grid-buttons-fragment' className='pt-1 grid-buttons-fragment'>
+                            <div
+                                id='grid-buttons-fragment'
+                                className=' grid-buttons-fragment'
+                                style={{paddingTop: '5px', paddingLeft: '5px'}}
+                            >
                                 <OperationsButtons
                                     labels={props.labels}
                                     operations={props.operations}
@@ -104,7 +108,11 @@ export const HeadPanel = (props) => {
                 ) : (
                     <React.Fragment>
                         <div id='grid-panel-selection' className='grid-panel-selection'>
-                            <div id='grid-buttons-fragment' className='p-2 grid-buttons-fragment'>
+                            <div
+                                id='grid-buttons-fragment'
+                                className='grid-buttons-fragment'
+                                style={{paddingTop: '5px', paddingLeft: '5px'}}
+                            >
                                 <OperationsButtons
                                     labels={props.labels}
                                     operations={props.operations}

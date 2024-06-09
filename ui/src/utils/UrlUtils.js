@@ -218,6 +218,9 @@ class UrlUtils {
 
     static addParameterToURL(url, paramName, paramValue) {
         let updateMode = false;
+        if (url === null) {
+            return null;
+        }
         const id1 = url.indexOf(`?${paramName}=`);
         const id2 = url.indexOf(`&${paramName}=`);
         if (id1 > 0 || id2 > 0) {

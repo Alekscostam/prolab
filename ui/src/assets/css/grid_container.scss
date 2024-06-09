@@ -442,6 +442,49 @@ $base-color: #0e49eb;
 .card-grid-header .shortcut.p-button {
     box-shadow: none;
 }
+#grid-container {
+    tr {
+        .dx-datagrid-action.dx-cell-focus-disabled.dx-datagrid-drag-action {
+            text-align: left !important;
+            .dx-column-indicators.dx-visibility-hidden {
+                display: none;
+            }
+
+            .dx-column-indicators {
+                float: right !important;
+            }
+        }
+    }
+}
+
+#grid-container {
+    .dx-datagrid .dx-datagrid-table .dx-header-row > td {
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+    .dx-datagrid
+        .dx-datagrid-content
+        .dx-datagrid-table
+        .dx-header-row
+        > td.dx-cell-modified:not(.dx-field-item-content):not(.dx-validation-pending):not(.dx-command-select):not(
+            .header-button
+        ),
+    .dx-datagrid
+        .dx-datagrid-content
+        .dx-datagrid-table
+        .dx-header-row
+        > td.dx-datagrid-invalid:not(.dx-field-item-content):not(.dx-validation-pending):not(
+            .dx-datagrid-select-all
+        ):not(.dx-command-select):not(.header-button),
+    .dx-datagrid
+        .dx-datagrid-content
+        .dx-datagrid-table
+        .dx-header-row
+        > td:not(.dx-validation-pending):not(.dx-datagrid-select-all):not(.dx-command-select):not(.header-button) {
+        vertical-align: initial;
+    }
+}
+
 .grid-container {
     .dx-datagrid-rowsview .dx-row-focused.dx-data-row .dx-command-edit .dx-link,
     .dx-datagrid-rowsview

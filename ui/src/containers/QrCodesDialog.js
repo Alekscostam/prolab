@@ -3,13 +3,12 @@ import {Dialog} from 'primereact/dialog';
 import {useEffect, useRef, useState} from 'react';
 
 import PropTypes from 'prop-types';
-import HtmlEditor, {Item, MediaResizing, Toolbar} from 'devextreme-react/html-editor';
 import ShortcutButton from '../components/prolab/ShortcutButton';
 import LocUtils from '../utils/LocUtils';
 
 export const QrCodesDialog = (props) => {
     const {onSave, onHide, editable, labels} = props;
-
+    const qrCodeRef = useRef(undefined);
     const [visible, setVisible] = useState(props.visible);
     const [value, setValue] = useState(props.value);
 
@@ -22,7 +21,7 @@ export const QrCodesDialog = (props) => {
         setVisible(false);
     };
     const dialogHeader = () => {
-        return <div> {LocUtils.loc(labels, '', 'Szukaj')}</div>;
+        return <div> {LocUtils.loc(labels, 'Search', 'Szukaj')}</div>;
     };
     const dialogFooter = editable && (
         <div>
@@ -33,14 +32,14 @@ export const QrCodesDialog = (props) => {
                     hideDialog();
                 }}
                 title={'Anulowanie'}
-                label={LocUtils.loc(labels, '', 'Anuluj')}
+                label={LocUtils.loc(labels, 'Cancel', 'Anuluj')}
             />
             <ShortcutButton
-                id={'opSave'}
+                id={'opConfirm'}
                 className={`grid-button-panel-big inverse mt-1 mb-1 mr-1`}
                 handleClick={() => {}}
                 title={'Zatwierdzanie kryteriów'}
-                label={LocUtils.loc(labels, '', 'Zatwierdź')}
+                label={LocUtils.loc(labels, 'Confirm', 'Zatwierdź')}
             />
         </div>
     );
@@ -59,10 +58,22 @@ export const QrCodesDialog = (props) => {
                 <div className='p-2'>
                     <div className='dx-field'>
                         <div className='dx-field-label' style={{fontSize: '15px'}}>
-                            <b>{LocUtils.loc(labels, '', 'Kod kreskowy')}</b>
+                            <b>{LocUtils.loc(labels, 'Qrcode', 'Kod kreskowy')}</b>
                         </div>
                         <div className='dx-field-value'>
                             <TextBox
+                                id='qrCode-textbox'
+                                onContentReady={() => {
+                                    setTimeout(() => {
+                                        const ref = qrCodeRef.current;
+                                        if (ref) {
+                                            ref.instance.focus();
+                                        }
+                                    }, 100);
+                                }}
+                                hoverStateEnabled
+                                focusStateEnabled
+                                ref={qrCodeRef}
                                 placeholder=''
                                 inputAttr={fullNameLabel}
                                 showClearButton={true}

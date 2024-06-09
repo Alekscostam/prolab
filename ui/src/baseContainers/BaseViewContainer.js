@@ -912,6 +912,21 @@ export class BaseViewContainer extends BaseContainer {
                             )}
                         </React.Fragment>
                     );
+                case OperationType.OP_ADD_FILE:
+                    return (
+                        <React.Fragment>
+                            {operation.showAlways && (
+                                <ActionShortcutWithoutMenu
+                                    id='button_add'
+                                    className={`${margin}`}
+                                    iconName={operation?.iconCode || 'mdi-cogs'}
+                                    operationType={OperationType.OP_ADD}
+                                    title={operation?.label}
+                                    customEventClick={() => this.addButtonFunction()}
+                                />
+                            )}
+                        </React.Fragment>
+                    );
                 case OperationType.OP_CARDVIEW:
                 case OperationType.OP_GRIDVIEW:
                     return this.viewOperation(index);

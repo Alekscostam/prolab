@@ -155,13 +155,17 @@ class GridViewComponent extends CellEditComponent {
     }
     addButton() {
         const opAdd = !!DataGridUtils.getOpButton(this.props.parsedGridView?.operations, OperationType.OP_ADD_BUTTON);
+        const opAddFile = !!DataGridUtils.getOpButton(
+            this.props.parsedGridView?.operations,
+            OperationType.OP_ADD_FILE_BUTTON
+        );
         const opAddSpec = !!DataGridUtils.getOpButton(
             this.props.parsedGridView?.operations,
             OperationType.OP_ADD_SPEC_BUTTON
         );
         return (
             !UrlUtils.isBatch() &&
-            (opAdd || opAddSpec) && (
+            (opAdd || opAddSpec || opAddFile) && (
                 <ActionButton
                     rendered={true}
                     label={LocUtils.loc(this.props.labels, 'Add_button', 'Dodaj')}
@@ -468,6 +472,7 @@ class GridViewComponent extends CellEditComponent {
                     caption: '',
                     fixed: true,
                     headerCellTemplate: (element) => {
+                        element.parentNode.classList.add('header-button');
                         ReactDOM.render(this.addButton(), element);
                     },
                     width: 10 + (33 * operationsRecord.length + (operationsRecordList?.length > 0 ? 33 : 0)),

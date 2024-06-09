@@ -48,7 +48,7 @@ export default class CopyDialogComponent extends React.Component {
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
                 <Dialog
                     id='copyDialog'
-                    header={LocUtils.loc(this.props.labels, 'Copy_header', 'Kopiowanie')}
+                    header={LocUtils.loc(this.props.labels, 'Copy', 'Kopiowanie')}
                     footer={
                         <React.Fragment>
                             <div>
@@ -58,7 +58,7 @@ export default class CopyDialogComponent extends React.Component {
                                         this.props.handleCopy(this.state);
                                         this.props.onHide();
                                     }}
-                                    label={LocUtils.loc(this.props.labels, 'Confirm_button', 'Zatwierdź')}
+                                    label={LocUtils.loc(this.props.labels, 'Confirm_Label', 'Zatwierdź')}
                                 />
                             </div>
                         </React.Fragment>
@@ -78,7 +78,7 @@ export default class CopyDialogComponent extends React.Component {
                                 onChange={this.handleChangeCopyOptions}
                             />
                             <label style={{color: '#000'}}>
-                                {LocUtils.loc(this.props.labels, 'copy_header', 'Kopiowanie nagłówka')}
+                                {LocUtils.loc(this.props.labels, 'Copy_header', 'Kopiowanie nagłówka')}
                             </label>
                         </div>
                         {this.props.isSpecification ? (
@@ -92,7 +92,7 @@ export default class CopyDialogComponent extends React.Component {
                                         onChange={this.handleChangeCopyOptions}
                                     />
                                     <label style={{color: '#000'}}>
-                                        {LocUtils.loc(this.props.labels, 'copy_spec', 'Kopiowanie specyfikacji')}
+                                        {LocUtils.loc(this.props.labels, 'Copy_spec', 'Kopiowanie specyfikacji')}
                                     </label>
                                 </div>
                                 <div className='row mt-2  col-lg-12'>
@@ -104,20 +104,32 @@ export default class CopyDialogComponent extends React.Component {
                                         onChange={this.handleChangeCopyOptions}
                                     />
                                     <label style={{color: '#000'}}>
-                                        {LocUtils.loc(this.props.labels, 'copy_spec_result', 'z wynikami')}
+                                        {LocUtils.loc(this.props.labels, 'Copy_spec_result', 'z wynikami')}
                                     </label>
                                 </div>
                             </React.Fragment>
                         ) : null}
-
+                        <div className='row mb-2 mt-1 col-lg-12'>
+                            <Checkbox
+                                id='copyLastModifiedObject'
+                                name='copyLastModifiedObject'
+                                className=' mr-2'
+                                checked={this.state.copyOptions.copyLastModifiedObject}
+                                onChange={this.handleChangeCopyOptions}
+                            />
+                            <label style={{color: '#000'}}>
+                                {LocUtils.loc(this.props.labels, 'Copy_last_modified', 'Kopiuj ostatni zmodyfikowany')}
+                            </label>
+                        </div>
                         <label style={{color: '#000'}} className='mt-2'>
-                            {LocUtils.loc(this.props.labels, 'number_of_copy', 'Liczba kopii')}
+                            {LocUtils.loc(this.props.labels, 'Number_of_copy', 'Liczba kopii')}
                         </label>
+
                         <div className='row'>
                             <InputNumber
                                 id='numberOfCopy'
                                 name='numberOfCopy'
-                                className='p-inputtext-sm  col-lg-6'
+                                className='col-lg-6'
                                 min={1}
                                 value={this.state.copyOptions.numberOfCopy}
                                 onValueChange={(e) => {
@@ -130,18 +142,6 @@ export default class CopyDialogComponent extends React.Component {
                                 }}
                                 showButtons
                             />
-                        </div>
-                        <div className='row mt-3 col-lg-12'>
-                            <Checkbox
-                                id='copyLastModifiedObject'
-                                name='copyLastModifiedObject'
-                                className='ml-3 mr-2'
-                                checked={this.state.copyOptions.copyLastModifiedObject}
-                                onChange={this.handleChangeCopyOptions}
-                            />
-                            <label style={{color: '#000'}}>
-                                {LocUtils.loc(this.props.labels, 'copy_last_modified', 'Kopiuj ostatni zmodyfikowany')}
-                            </label>
                         </div>
                     </div>
                 </Dialog>

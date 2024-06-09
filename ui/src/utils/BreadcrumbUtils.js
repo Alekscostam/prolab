@@ -42,6 +42,7 @@ export class Breadcrumb {
 
     static updateView(viewInfo, viewId, recordId) {
         const sidebar = window.sidebarRef;
+
         if (sidebar && typeof sidebar.current?.props?.onCustomClose === 'function') {
             sidebar.current?.props?.onCustomClose();
         }
@@ -112,6 +113,12 @@ export class Breadcrumb {
                 if (!isNaN(name)) {
                     path = window.location.href;
                 }
+                breadcrumb.push({
+                    name: subViewResponse.viewInfo.name,
+                    id: subViewResponse.viewInfo.name,
+                    type: 'subview',
+                    path,
+                });
                 breadcrumb.push({name, id: subViewResponse.viewInfo.id, type: 'subview', path});
             }
         }
