@@ -30,6 +30,8 @@ class CellEditComponent extends Component {
         this.editListDataStore = new EditListDataStore();
         this.crudService = new CrudService();
         this.trashClicked = React.createRef(false);
+        this.currentClickedCell = React.createRef();
+
         this.state = {
             cellInfo: undefined,
             editListVisible: false,
@@ -57,10 +59,29 @@ class CellEditComponent extends Component {
         ConsoleHelper('CellEditComponent -> constructor');
     }
 
+    modifyCurrentClickedCell(id) {
+        this.currentClickedCell.current = id;
+    }
+
     render() {
         return <React.Fragment></React.Fragment>;
     }
 
+    registerKeydownEvent() {
+        document.addEventListener('mousedown', (e) => this.handleAltAndLeftClickFunction(e));
+    }
+    unregisterKeydownEvent() {
+        document.removeEventListener('mousedown', (e) => this.handleAltAndLeftClickFunction(e));
+    }
+
+    handleAltAndLeftClickFunction = (event) => {
+        if (event.button === 0 && event.altKey) {
+            if (this.currentClickedCell.current) {
+                // TODO: alt + click
+            }
+            // document.getElementById('output').innerText = 'Lewy klawisz myszy i Alt zostały wciśnięte!';
+        }
+    };
     forceLeaveEditMode() {
         document.getElementById('header-left').click();
     }
@@ -87,6 +108,7 @@ class CellEditComponent extends Component {
                 event.preventDefault();
             }
         });
+        this.registerKeydownEvent();
     }
 
     editorComponent = (editable, eViewier) => {

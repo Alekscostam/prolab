@@ -108,6 +108,7 @@ export class EditRowViewComponent extends BaseRowComponent {
         const opSave = DataGridUtils.getOpButton(operations, OperationType.OP_SAVE);
         const opFill = DataGridUtils.getOpButton(operations, OperationType.OP_FILL);
         const opCancel = DataGridUtils.getOpButton(operations, OperationType.OP_CANCEL);
+        const opClose = DataGridUtils.getOpButton(operations, OperationType.OP_CLOSE);
         const editData = this.props.editData;
         const editListVisible = this.state.editListVisible;
         return (
@@ -198,6 +199,17 @@ export class EditRowViewComponent extends BaseRowComponent {
                                         title={opCancel?.label}
                                         label={opCancel?.label}
                                         rendered={opCancel}
+                                    />
+                                )}
+
+                                {opClose && (
+                                    <ShortcutButton
+                                        id={'opClose'}
+                                        className={`grid-button-panel normal mt-1 mb-1 mr-1 col-lg-12`}
+                                        handleClick={this.handleCancel}
+                                        title={opClose?.label}
+                                        label={opClose?.label}
+                                        rendered={opClose}
                                     />
                                 )}
                             </div>

@@ -31,6 +31,8 @@ import {MenuWithButtons} from '../../components/prolab/MenuWithButtons';
 import LocUtils from '../../utils/LocUtils';
 import ActionButton from '../../components/ActionButton';
 import {ColumnType} from '../../model/ColumnType';
+import {OperationType} from '../../model/OperationType';
+import {DataGridUtils} from '../../utils/component/DataGridUtils';
 
 let clearSelection = false;
 
@@ -59,9 +61,9 @@ class TreeViewComponent extends CellEditComponent {
             editListRecordId: null,
             expandedRowKeys: [],
             mode: 'cell',
-            ssss: false,
             parsedGridView: {},
-            operationsPPM: this.props.parsedGridView.operationsPPM,
+            operationsPPM: this.props.parsedGridView.operationsPPM || [],
+            operations: this.props.parsedGridView.operations || [],
             parsedGridViewData: {},
             rowRenderingMode: this.props.parsedGridView?.gridOptions?.groupExpandAll ? 'standard' : 'virtual',
             gridViewColumns: [],
@@ -199,7 +201,7 @@ class TreeViewComponent extends CellEditComponent {
                     }}
                     onExpandedRowKeysChange={(e) => this.setState({expandedRowKeys: e})}
                     expandedRowKeys={this.state.expandedRowKeys}
-                    focusedRowEnabled={this.props.focusedRowEnabled}
+                    focusedRowEnabled={false}
                     hoverStateEnabled={this.props.hoverStateEnabled}
                     autoNavigateToFocusedRow={false}
                     dataSource={this.props.parsedGridViewData}
@@ -748,14 +750,18 @@ class TreeViewComponent extends CellEditComponent {
         }
     };
     addButton() {
+        const operations = this.state.operations;
+        const opAddFile = !!DataGridUtils.getOpButton(operations, OperationType.OP_ADD_SPEC_BUTTON);
         return (
-            <ActionButton
-                rendered={true}
-                label={LocUtils.loc(this.props.labels, 'Add_button', 'Dodaj')}
-                handleClick={(e) => {
-                    this.props.addButtonFunction();
-                }}
-            />
+            opAddFile && (
+                <ActionButton
+                    rendered={true}
+                    label={LocUtils.loc(this.props.labels, 'Add_button', 'Dodaj')}
+                    handleClick={(e) => {
+                        this.props.addButtonFunction();
+                    }}
+                />
+            )
         );
     }
     onHideImageCallBack() {

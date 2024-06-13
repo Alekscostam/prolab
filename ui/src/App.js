@@ -152,6 +152,8 @@ class App extends Component {
         root.addEventListener('contextmenu', eventForSessionPrelong);
         bodyApp.addEventListener('keydown', eventForSessionPrelong);
         root.addEventListener('keydown', eventForSessionPrelong);
+        bodyApp.addEventListener('scroll', eventForSessionPrelong);
+        root.addEventListener('scroll', eventForSessionPrelong);
     }
     showSessionTimeoutIfPossible() {
         if (this.timer === undefined || this.timer === null) {
@@ -252,8 +254,10 @@ class App extends Component {
             if (sessionPrelongFnc) {
                 bodyApp.removeEventListener('click', sessionPrelongFnc);
                 bodyApp.removeEventListener('keydown', sessionPrelongFnc);
+                bodyApp.removeEventListener('scroll', sessionPrelongFnc);
                 root.removeEventListener('click', sessionPrelongFnc);
                 root.removeEventListener('keydown', sessionPrelongFnc);
+                root.removeEventListener('scroll', sessionPrelongFnc);
             }
         } catch (err) {
             console.log(err);

@@ -223,11 +223,14 @@ class GridViewComponent extends CellEditComponent {
                     ref={(ref) => {
                         this.props.handleOnDataGrid(ref);
                     }}
+                    onRowClick={(e) => {
+                        this.currentClickedCell.current = e.data.ID;
+                    }}
                     dataSource={this.props.parsedGridViewData}
                     customizeColumns={this?.postCustomizeColumns}
                     wordWrapEnabled={headerAutoHeight}
                     columnAutoWidth={columnAutoWidth}
-                    focusedRowEnabled={this.props.focusedRowEnabled}
+                    focusedRowEnabled={true}
                     hoverStateEnabled={this.props.hoverStateEnabled}
                     autoNavigateToFocusedRow={false}
                     columnResizingMode='widget'

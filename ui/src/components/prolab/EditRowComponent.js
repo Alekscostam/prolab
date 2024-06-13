@@ -99,6 +99,7 @@ export class EditRowComponent extends BaseRowComponent {
         const opSave = DataGridUtils.getOpButton(operations, OperationType.OP_SAVE);
         const opFill = DataGridUtils.getOpButton(operations, OperationType.OP_FILL);
         const opCancel = DataGridUtils.getOpButton(operations, OperationType.OP_CANCEL);
+        const opClose = DataGridUtils.getOpButton(operations, OperationType.OP_CLOSE);
 
         const visibleEditPanel = this.props.visibleEditPanel;
         const editData = this.props.editData;
@@ -204,6 +205,26 @@ export class EditRowComponent extends BaseRowComponent {
                                                 title={opCancel?.label}
                                                 label={opCancel?.label}
                                                 rendered={opCancel}
+                                            />
+                                        )}{' '}
+                                        {opClose && (
+                                            <ShortcutButton
+                                                id={'opClose'}
+                                                className={`grid-button-panel normal mt-1 mb-1 mr-1 col-lg-12`}
+                                                handleClick={() => {
+                                                    const editInfo = this.props.editData?.editInfo;
+                                                    if (editInfo) {
+                                                        this.props.onHide(
+                                                            !visibleEditPanel,
+                                                            editInfo.viewId,
+                                                            editInfo.recordId,
+                                                            editInfo.parentId
+                                                        );
+                                                    }
+                                                }}
+                                                title={opClose?.label}
+                                                label={opClose?.label}
+                                                rendered={opClose}
                                             />
                                         )}
                                     </div>

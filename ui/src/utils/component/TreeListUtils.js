@@ -613,6 +613,9 @@ export class TreeListUtils extends ViewDataCompUtils {
         if (longestBranch === 0 || longestBranch === 1 || longestBranch === 2) {
             return '60px';
         }
+        if(longestBranch=== null){
+            return "60px"
+        }
         return longestBranch * 25 + 'px';
     }
 

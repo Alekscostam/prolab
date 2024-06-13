@@ -228,7 +228,7 @@ $base-color: #0e49eb;
     .dx-checkbox-container {
         padding-top: 8px;
     }
-    pointer-events: none !important;
+    // pointer-events: none !important;
 }
 
 .card-grid-header {
@@ -308,10 +308,12 @@ body
     .dx-header-row
     > td:last-child
     > .dx-treelist-text-content {
-    position: absolute;
+    // position: absolute;
+    margin-top: 10px;
     justify-content: center;
     display: flex;
-    transform: translate(85%, 0%);
+    align-items: center;
+    // transform: translate(75%, 0%);
 }
 .base-container-content #spec-edit .dx-treelist-headers .dx-treelist-table .dx-row > td:last-child {
     border-bottom: none;
