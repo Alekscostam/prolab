@@ -235,7 +235,7 @@ export default class DataGridStore extends BaseService {
                     .then((response) => {
                         ConsoleHelper('DataGridStore -> fetch ');
                         if (onSuccessCallback) {
-                            onSuccessCallback();
+                            onSuccessCallback(group);
                         }
                         this.lastFetchedData = {
                             data: response.data,

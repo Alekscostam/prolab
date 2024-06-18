@@ -1396,6 +1396,9 @@ export class BaseViewContainer extends BaseContainer {
                 },
                 () => this.unblockUi()
             );
+        }).catch((err)=>{
+                console.log(err)
+                this.unblockUi();
         });
     }
 
@@ -1494,6 +1497,7 @@ export class BaseViewContainer extends BaseContainer {
         return (
             <React.Fragment>
                 <GridViewComponent
+                    altAndLeftClickEnabled={true}
                     labels={this.props.labels}
                     id={this.props.id}
                     isAttachement={this.isAttachement}

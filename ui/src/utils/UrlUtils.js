@@ -218,8 +218,8 @@ class UrlUtils {
 
     static addParameterToURL(url, paramName, paramValue) {
         let updateMode = false;
-        if (url === null) {
-            return null;
+        if (url === null || url === undefined) {
+            return url;
         }
         const id1 = url.indexOf(`?${paramName}=`);
         const id2 = url.indexOf(`&${paramName}=`);
@@ -250,7 +250,9 @@ class UrlUtils {
         }
         return newUrl;
     }
-
+    static cutEverythingFromCurrentUrlAfterWord(word){
+        return window.location.href.split(word)[0]
+    }
     static getViewIdFromURL() {
         let url = window.document.URL.toString();
         var regexp = new RegExp('^.+\\/grid-view\\/([0-9]+)([\\?|\\/]+.*)?$', 'g');

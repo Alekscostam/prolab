@@ -484,15 +484,7 @@ $base-color: #0e49eb;
         vertical-align: initial;
     }
 }
-// .dx-row.dx-data-row.dx-row-lines.dx-column-lines.dx-row-focused {
-//     td {
-//         // background-color: transparent !important;
-//         z-index: -10000;
-//         div {
-//             // color: white !important;
-//         }
-//     }
-// }
+
 .grid-container {
     .dx-datagrid-rowsview .dx-row-focused.dx-data-row .dx-command-edit .dx-link,
     .dx-datagrid-rowsview
@@ -500,15 +492,10 @@ $base-color: #0e49eb;
         > td:not(.dx-focused):not(.dx-cell-modified):not(.dx-datagrid-invalid) {
         background-color: transparent;
         z-index: -10000;
-        // border-bottom: 1px solid #ddd;
     }
     .dx-row.dx-data-row.dx-row-lines.dx-column-lines.dx-row-focused {
         td {
-            // background-color: transparent !important;
             z-index: -10000;
-            div {
-                // color: white !important;
-            }
         }
     }
     .dx-row.dx-data-row.dx-row-lines.dx-column-lines.dx-state-hover,

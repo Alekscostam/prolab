@@ -778,15 +778,15 @@ td[aria-roledescription='Editable'] {
     margin-right: 10px;
     background-color: white;
 }
-.p-calendar-w-btn:hover {
-    border: 1px solid rgba(0, 0, 0, 0.87);
-}
 
-.p-calendar-w-btn:active,
+.p-calendar-w-btn.not-editable:hover {
+    border-color: rgba(0, 0, 0, 0.38);
+}
+.p-calendar-w-btn:active, 
 .p-calendar-w-btn:visited,
 .p-calendar-w-btn:focus-visible,
 .p-calendar-w-btn:focus {
-    border: 1px solid $base-color;
+    border: 1px solid $base-color!important;
 }
 .dx-htmleditor-toolbar-wrapper {
     .dx-overlay-content .dx-popup-content .dx-scrollable-content .dx-item-content {
@@ -851,6 +851,10 @@ td[aria-roledescription='Editable'] {
     input {
         padding-left: 10px;
     }
+}
+.dx-widget.dx-button.dx-button-mode-contained.dx-button-normal.dx-button-has-icon.dx-tabs-nav-button.dx-state-disabled.dx-tabs-nav-button-right,
+.dx-widget.dx-button.dx-button-mode-contained.dx-button-normal.dx-button-has-icon.dx-tabs-nav-button.dx-state-disabled.dx-tabs-nav-button-left{
+    display:  none;
 }
 .ccol-1,
 .ccol-2,

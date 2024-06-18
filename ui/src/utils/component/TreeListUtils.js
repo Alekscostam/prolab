@@ -593,6 +593,7 @@ export class TreeListUtils extends ViewDataCompUtils {
             label: '',
             isFilter: false,
             isGroup: false,
+            isSort: false,
         };
 
         listColumns.unshift(defaultColumn);

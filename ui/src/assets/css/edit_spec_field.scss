@@ -113,9 +113,9 @@
 .dx-quill-container {
     border: 2px solid white;
 }
-.dx-quill-container:hover,
-.dx-quill-container:focus,
-.dx-quill-container:active {
+.dx-quill-container:hover:not(.ql-disabled),
+.dx-quill-container:focus:not(.ql-disabled),
+.dx-quill-container:active:not(.ql-disabled) {
     border: 2px solid $base-color;
 }
 #spec-edit-dialog {

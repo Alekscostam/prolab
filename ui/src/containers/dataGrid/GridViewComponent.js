@@ -75,7 +75,7 @@ class GridViewComponent extends CellEditComponent {
     }
     showMenu(e) {
         const menu = this.menu.current;
-        ActionButtonWithMenuUtils.hideActionButtomWithMenuPopup();
+        ActionButtonWithMenuUtils.hideActionButtonWithMenuPopup();
         if (menu !== null && e.row.rowType === 'data' && !!e?.row?.data?.ID) {
             const mouseX = e.event.clientX;
             const mouseY = e.event.clientY;
@@ -124,6 +124,36 @@ class GridViewComponent extends CellEditComponent {
         element.append(span);
     };
 
+    clickInsideGridContainer(event){
+        if(event.target){
+            let currentElement = event.target;
+            while (currentElement.parentNode) {
+                currentElement = currentElement.parentNode;
+                if (currentElement.id === "grid-container") {
+                    return true;
+                }   
+
+            }
+        }
+        return false;
+    }
+    handleAltAndLeftClickFunction = (event) => {
+        if (this.props.altAndLeftClickEnabled && event.button === 0 && event.altKey) {
+            const isOnGrid = this.clickInsideGridContainer(event);
+            if (this.currentClickedCell.current && this.props?.getRef() && isOnGrid) {
+                    const clickedCell = parseInt(this.currentClickedCell.current);
+                    const gridRef = this.props.getRef()._instance;
+                    let selectedRows = this.props.selectedRows.map(selectedRow => {return{ID: parseInt(selectedRow.ID)}});
+                    if (selectedRows.find((row) => row.ID  === clickedCell)) {
+                        selectedRows = selectedRows.filter((selectedRow) => selectedRow.ID !== clickedCell);
+                     } else {
+                         selectedRows.push({ID:clickedCell});
+                     }
+                     gridRef.selectRows(selectedRows.map(el=>el.ID))
+                     this.props.handleSelectRows(selectedRows);
+            }
+        }
+    };
     waitForSuccess() {
         return this.props.dataGridStoreSuccess === false || this.props.gridViewColumns?.length === 0;
     }
@@ -225,6 +255,11 @@ class GridViewComponent extends CellEditComponent {
                     }}
                     onRowClick={(e) => {
                         this.currentClickedCell.current = e.data.ID;
+                    }}
+                    onFocusedRowChanging={(e)=>{
+                        if( e.rows[e.newRowIndex]?.data){
+                            this.currentClickedCell.current = e.rows[e.newRowIndex].data.ID;
+                        }
                     }}
                     dataSource={this.props.parsedGridViewData}
                     customizeColumns={this?.postCustomizeColumns}
@@ -374,17 +409,19 @@ class GridViewComponent extends CellEditComponent {
     }
     onKeyDownSelectRows() {
         let selectedRows = this.props.selectedRows;
-        const currentSelectedRowIndex = document.getElementsByClassName('dx-row-focused')[0].rowIndex + 1;
-        const element = {
-            ID: `${this.props.getRef().instance.getKeyByRowIndex(currentSelectedRowIndex)}`,
-        };
-        if (selectedRows.find((row) => row.ID === element.ID)) {
-            selectedRows = selectedRows.filter((selectedRow) => selectedRow.ID !== element.ID);
-        } else {
-            selectedRows.push(element);
-        }
-        this.keyDownClicked.current = false;
-        this.props.handleSelectRows(selectedRows);
+        if(document.getElementsByClassName('dx-row-focused')[0]){
+            const currentSelectedRowIndex = document.getElementsByClassName('dx-row-focused')[0].rowIndex + 1;
+            const element = {
+                ID: `${this.props.getRef().instance.getKeyByRowIndex(currentSelectedRowIndex)}`,
+            };
+            if (selectedRows.find((row) => row.ID === element.ID)) {
+                selectedRows = selectedRows.filter((selectedRow) => selectedRow.ID !== element.ID);
+            } else {
+                selectedRows.push(element);
+            }
+            this.keyDownClicked.current = false;
+            this.props.handleSelectRows(selectedRows);
+        } 
     }
     canRenderAdditionalOperationCol() {
         const operationsRecord = this.props.parsedGridView?.operationsRecord;
@@ -848,6 +885,7 @@ GridViewComponent.defaultProps = {
     gridFromDashboard: false,
     showSelection: true,
     dataGridStoreSuccess: true,
+    altAndLeftClickEnabled: false,
     focusedRowEnabled: false,
     hoverStateEnabled: false,
     cellModeEnabled: false,
@@ -875,6 +913,8 @@ GridViewComponent.propTypes = {
     handleSelectAll: PropTypes.func,
     selectionDeferred: PropTypes.bool,
     cellModeEnabled: PropTypes.bool,
+
+    altAndLeftClickEnabled: PropTypes.bool,
 
     //buttons
     handleArchiveRow: PropTypes.func,

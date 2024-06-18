@@ -292,9 +292,11 @@ export class ViewContainer extends BaseViewContainer {
                             selectAll: this.state.selectAll,
                         };
                     },
-                    () => {
+                    (group) => {
+                        const gridViewColumns = this.getColumnsWithRemovedGroupingIfNecessary(group);
                         this.setState(
                             {
+                                gridViewColumns,
                                 select: false,
                                 selectAll: false,
                                 dataGridStoreSuccess: true,
@@ -326,6 +328,19 @@ export class ViewContainer extends BaseViewContainer {
                 this.unblockUi();
             });
         }
+    }
+    getColumnsWithRemovedGroupingIfNecessary(group){
+        let gridViewColumns = this.state.gridViewColumns
+        if(group){
+            gridViewColumns = this.state.gridViewColumns.map(columnDefinition=>{
+               const foundedEl = !!group.find((el)=> el.selector === columnDefinition.fieldName);
+                if(!!columnDefinition.groupIndex && columnDefinition.groupIndex > 0 && foundedEl){
+                   delete columnDefinition.groupIndex;
+                }
+                return columnDefinition;
+            });
+        }
+        return gridViewColumns;
     }
     //override
     additionalTopComponents() {

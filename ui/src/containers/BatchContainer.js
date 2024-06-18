@@ -527,6 +527,7 @@ export class BatchContainer extends BaseContainer {
                             onAccept={this.batchCancel}
                         />
                         <GridViewComponent
+                            altAndLeftClickEnabled={false}
                             handleSaveAction={() => this.handleSaveAction()}
                             id={this.props.id}
                             elementParentId={this.state.elementParentId}

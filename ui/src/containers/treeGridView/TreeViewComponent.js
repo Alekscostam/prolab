@@ -84,7 +84,7 @@ class TreeViewComponent extends CellEditComponent {
     componentDidMount() {
         super.componentDidMount();
     }
-
+    
     componentDidUpdate(prevProps, prevState, snapshot) {
         console.log('update --> treelist');
         return prevProps.id !== prevState.id && prevProps.elementRecordId !== prevState.elementRecordId;
@@ -201,7 +201,7 @@ class TreeViewComponent extends CellEditComponent {
                     }}
                     onExpandedRowKeysChange={(e) => this.setState({expandedRowKeys: e})}
                     expandedRowKeys={this.state.expandedRowKeys}
-                    focusedRowEnabled={false}
+                    focusedRowEnabled={true}
                     hoverStateEnabled={this.props.hoverStateEnabled}
                     autoNavigateToFocusedRow={false}
                     dataSource={this.props.parsedGridViewData}
@@ -216,6 +216,11 @@ class TreeViewComponent extends CellEditComponent {
                                 this.ref.instance.clearSelection();
                                 clearSelection = true;
                             }
+                        }
+                    }}
+                    onFocusedRowChanging={(e)=>{
+                        if( e.rows[e.newRowIndex]?.data){
+                            this.currentClickedCell.current = e.rows[e.newRowIndex].data._ID;
                         }
                     }}
                     onContentReady={(e) => {
@@ -404,7 +409,40 @@ class TreeViewComponent extends CellEditComponent {
             );
         }
     };
+    handleAltAndLeftClickFunction = (event) => {
+        if (this.props.altAndLeftClickEnabled && event.button === 0 && event.altKey) {
+            if (this.currentClickedCell.current) {
+                if(this.clickInsideTreeContainer(event)){
+                    if(this.ref){
+                        const clickedCell = parseInt(this.currentClickedCell.current);
+                        const treeRef =this.ref.instance;
+                        let selectedRows = this.ref.instance.getSelectedRowsData().map(selectedRow => {return{ID: parseInt(selectedRow.ID)}});
+                        if (selectedRows.find((row) => row.ID  === clickedCell)) {
+                                selectedRows = selectedRows.filter((selectedRow) => selectedRow.ID !== clickedCell);
+                             } 
+                        else {
+                                 selectedRows.push({ID:clickedCell});
+                             }
+                        treeRef.selectRows(selectedRows.map(el=>el.ID))
+                    }
+             
+                }
+            }
+        }
+    };
+    clickInsideTreeContainer(event){
+        if(event.target){
+            let currentElement = event.target;
+            while (currentElement.parentNode) {
+                currentElement = currentElement.parentNode;
+                if (currentElement.id === "spec-edit") {
+                    return true;
+                }   
 
+            }
+        }
+        return false;
+    }
     handleCheck(recordId) {
         const parentId = recordId === undefined ? this.selectedRecordIdRef.current : recordId;
         const tree = this.props.parsedGridViewData;

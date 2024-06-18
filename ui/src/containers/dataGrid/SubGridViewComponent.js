@@ -271,7 +271,13 @@ class SubGridViewComponent extends React.Component {
                                                             items={ActionButtonWithMenuUtils.createItemsWithCommand(
                                                                 menuItems,
                                                                 undefined,
-                                                                this.props.handleRightHeadPanelContent,
+                                                                (e) =>{ 
+                                                                 if(e.type === OperationType.OP_EDIT){
+                                                                    e.viewId = viewId;
+                                                                    e.recordId = recordId;
+                                                                    e.parentId = UrlUtils.getParentId();
+                                                                }
+                                                                this.props.handleRightHeadPanelContent(e)},
                                                                 undefined,
                                                                 true
                                                             )}

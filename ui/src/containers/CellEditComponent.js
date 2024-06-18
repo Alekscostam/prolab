@@ -73,14 +73,9 @@ class CellEditComponent extends Component {
     unregisterKeydownEvent() {
         document.removeEventListener('mousedown', (e) => this.handleAltAndLeftClickFunction(e));
     }
-
+    // to oveerdie
     handleAltAndLeftClickFunction = (event) => {
-        if (event.button === 0 && event.altKey) {
-            if (this.currentClickedCell.current) {
-                // TODO: alt + click
-            }
-            // document.getElementById('output').innerText = 'Lewy klawisz myszy i Alt zostały wciśnięte!';
-        }
+      
     };
     forceLeaveEditMode() {
         document.getElementById('header-left').click();

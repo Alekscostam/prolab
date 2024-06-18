@@ -50,7 +50,6 @@ export class Breadcrumb {
         let breadcrumb = this.readFromUrl();
         let currentUrl = window.document.URL.toString();
         breadcrumb = this.cutBreadcrumpToURL(breadcrumb, currentUrl);
-
         if (viewInfo) {
             if (viewInfo.menu) {
                 breadcrumb = [];
@@ -109,6 +108,8 @@ export class Breadcrumb {
 
                 let path = AppPrefixUtils.locationHrefUrl(
                     `/#/grid-view/${subViewResponse.viewInfo.id}?recordId=${subViewId}`
+                );  let prevPath = AppPrefixUtils.locationHrefUrl(
+                    `/#/grid-view/${subViewResponse.viewInfo.id}`
                 );
                 if (!isNaN(name)) {
                     path = window.location.href;
@@ -117,7 +118,7 @@ export class Breadcrumb {
                     name: subViewResponse.viewInfo.name,
                     id: subViewResponse.viewInfo.name,
                     type: 'subview',
-                    path,
+                    path:prevPath,
                 });
                 breadcrumb.push({name, id: subViewResponse.viewInfo.id, type: 'subview', path});
             }
@@ -211,12 +212,19 @@ export class Breadcrumb {
     }
 
     static shouldHaveBreadCrumb() {
-        return !UrlUtils.batchIdParamExist();
+        return !UrlUtils.batchIdParamExist() &&  (UrlUtils.parentIdParamExist() || UrlUtils.recordIdParamExist() );
     }
     static currentBreadcrumbAsUrlParam() {
         const currentBredcrump = UrlUtils.getURLParameter(BREADCRUMB_URL_PARAM_NAME);
-        if (currentBredcrump && this.shouldHaveBreadCrumb()) {
-            return `&${BREADCRUMB_URL_PARAM_NAME}=${currentBredcrump}`;
+        if (currentBredcrump) {
+            if(this.shouldHaveBreadCrumb()){
+                return `&${BREADCRUMB_URL_PARAM_NAME}=${currentBredcrump}`;
+            }
+            if(UrlUtils.isBcParamExist()){
+                const result = UrlUtils.cutEverythingFromCurrentUrlAfterWord("bc=")
+                window.location.href = result;
+                return '';
+            }
         }
         return '';
     }

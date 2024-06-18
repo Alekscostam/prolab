@@ -627,6 +627,7 @@ export class AddSpecContainer extends BaseContainer {
                     <React.Fragment>
                         <div id='spec-edit-dialog' className='spec-edit-dialog '>
                             <TreeViewComponent
+                                altAndLeftClickEnabled={true}
                                 ref={this?.refTreeList}
                                 id={this.props.id}
                                 viewInfo={this.state.viewInfo}

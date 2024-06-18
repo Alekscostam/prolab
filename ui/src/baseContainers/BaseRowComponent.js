@@ -110,7 +110,7 @@ export class BaseRowComponent extends BaseContainer {
         const selectedRowsKeys = e.selectedRowKeys;
         let transformedRowsData = [];
         let transformedRowsCRC = [];
-        const multiSelect = this.state?.parsedGridView?.gridOptions?.multiSelect;
+        const multiSelect = this.state?.parsedGridView?.gridOptions?.multiSelect; 
         if (multiSelect) {
             transformedRowsData = prevSelectedRowData;
             transformedRowsCRC = selectedRowsKeys;
@@ -281,9 +281,12 @@ export class BaseRowComponent extends BaseContainer {
                     .then((responseView) => {
                         let selectedRowDataTmp = [];
                         //CRC key
+                        // TODO: CRC
                         let defaultSelectedRowKeysTmp = [];
                         const editData = this.props.editData;
-                        const setFields = responseView.setFields;
+                        const setFields = structuredClone(responseView.setFields);
+                        setFields.length = 1
+                        // const setFields = responseView.setFields[0];
                         const separatorJoin = responseView.options?.separatorJoin || ',';
                         let countSeparator = 0;
                         // TODO: CRC
@@ -461,7 +464,7 @@ export class BaseRowComponent extends BaseContainer {
                                     required={required}
                                 />
                             ) : (
-                                <div className={`${selectionList}`}>
+                                <div className={`${selectionList} ${editable}`}>
                                     <InputText
                                         id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                                         name={field.fieldName}
@@ -500,7 +503,7 @@ export class BaseRowComponent extends BaseContainer {
                             {field.label}
                             {required ? '*' : ''}
                         </label>
-                        <div className={`${selectionList}`}>
+                        <div className={`${selectionList} ${editable}`}>
                             <Password
                                 id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                                 name={field.fieldName}
@@ -552,7 +555,7 @@ export class BaseRowComponent extends BaseContainer {
                                     required={required}
                                 />
                             ) : (
-                                <div className={`${selectionList}`}>
+                                <div className={`${selectionList} ${editable}`}>
                                     <InputText
                                         id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                                         name={field.fieldName}

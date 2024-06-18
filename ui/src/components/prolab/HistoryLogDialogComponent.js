@@ -73,6 +73,8 @@ export default class HistoryLogDialogComponent extends React.Component {
                     onHide={() => this.onHide()}
                 >
                     <GridViewComponent
+                    
+                     altAndLeftClickEnabled={false}
                         id={this.props.id}
                         showRenderingViewMode={false}
                         elementSubViewId={null}

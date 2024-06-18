@@ -89,7 +89,7 @@ class GanttViewComponent extends React.Component {
     }
     showMenu(e) {
         const menu = this.menu.current;
-        ActionButtonWithMenuUtils.hideActionButtomWithMenuPopup();
+        ActionButtonWithMenuUtils.hideActionButtonWithMenuPopup();
         if (menu !== null && e.targetType === 'task' && !!e?.data?.ID) {
             const mouseX = e.event.clientX;
             const mouseY = e.event.clientY;

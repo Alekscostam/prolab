@@ -16,7 +16,6 @@ $base-color: #0e49eb;
     font-variant: normal;
     font-weight: 500;
 }
-
 ::ng-deep .dx-row.dx-data-row.dx-column-lines.dx-state-hover td {
     background: red !important;
 }
@@ -58,7 +57,25 @@ $base-color: #0e49eb;
 .dx-treelist-rowsview {
     z-index: 0;
 }
+#spec-edit {
+    .dx-treelist-rowsview .dx-row-focused.dx-data-row .dx-command-edit .dx-link, .dx-treelist-rowsview .dx-row-focused.dx-data-row>td:not(.dx-cell-modified):not(.disabled-background):not(.dx-treelist-invalid){
+        background-color: transparent!important;;
+    }
+     .dx-treelist-rowsview .dx-row-focused.dx-data-row>td.disabled-background:not(.dx-cell-modified):not(.dx-treelist-invalid){
+        background-color:  #f5f5f5!important;;
+    }
+    .dx-treelist-rowsview .dx-row-focused.dx-state-hover.dx-data-row .dx-command-edit .dx-link, .dx-treelist-rowsview .dx-row-focused.dx-state-hover.dx-data-row>td:not(.dx-cell-modified):not(.dx-treelist-invalid){
+        background-color: $base-color!important;;
+    }
+    .dx-treelist-rowsview .dx-row-focused.dx-selection.dx-data-row .dx-command-edit .dx-link, .dx-treelist-rowsview .dx-row-focused.dx-selection.dx-data-row>td:not(.dx-cell-modified):not(.dx-treelist-invalid){
+        background-color: $table-selection!important;;
+    }
+    .dx-treelist-rowsview .dx-row-focused.dx-selection.dx-state-hover.dx-data-row .dx-command-edit .dx-link, .dx-treelist-rowsview .dx-row-focused.dx-state-hover.dx-selection.dx-data-row>td:not(.dx-cell-modified):not(.dx-treelist-invalid){
+        background-color: $base-color!important;;
+    }
+   
 
+}
 .dx-datagrid .dx-column-lines > td {
     border-left: 1px solid $table-border;
     border-right: 1px solid $table-border;

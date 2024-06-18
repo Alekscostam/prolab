@@ -37,31 +37,32 @@ export default class EditListComponent extends React.Component {
                             <Button
                                 type='button'
                                 onClick={() => {
-                                    const setFields = this.props.parsedGridView?.setFields;
+                                    const setFields = this.props.parsedGridView?.setFields || [];
                                     const separatorJoin = this.props.parsedGridView?.options?.separatorJoin || ',';
-                                    let selectedRowData = this.props.selectedRowData;
-                                    if (!!setFields) {
-                                        setFields.forEach((field) => {
-                                            const fieldKey = field.fieldList;
-                                            let values = [];
-                                            selectedRowData.forEach((row) => {
-                                                for (const item in row) {
-                                                    const object = row[item];
-                                                    const firstObjKey = Object.keys(object)[0];
-                                                    if (firstObjKey === fieldKey) {
-                                                        const foundValue = object[firstObjKey];
-                                                        values.push(foundValue === 'null' ? '' : '' + foundValue);
-                                                        break;
+                                    let selectedRowData = this.props.selectedRowData || [];
+                                    const setFieldsLength = setFields.length;
+                                    const isEditMode = !!this.props.selectedRowData.find(el => el.length === setFieldsLength);
+                                    if(isEditMode){
+                                            setFields.forEach((field) => {
+                                                const fieldKey = field.fieldList;
+                                                let values = [];
+                                                selectedRowData.forEach((row) => {
+                                                    for (const item in row) {
+                                                        const object = row[item];
+                                                        const firstObjKey = Object.keys(object)[0];
+                                                        if (firstObjKey === fieldKey) {
+                                                            const foundValue = object[firstObjKey];
+                                                            values.push(foundValue === 'null' ? '' : '' + foundValue);
+                                                            break;
+                                                        }
                                                     }
-                                                }
+                                                });
+                                                field.fieldValue =
+                                                    values.join(separatorJoin) === undefined || null
+                                                        ? ''
+                                                        : values.join(separatorJoin);
                                             });
-
-                                            field.fieldValue =
-                                                values.join(separatorJoin) === undefined || null
-                                                    ? ''
-                                                    : values.join(separatorJoin);
-                                        });
-                                        this.props.handleOnChosen(setFields, this.props.field);
+                                            this.props.handleOnChosen(setFields, this.props.field);
                                     }
                                     this.props.onHide();
                                 }}
@@ -77,6 +78,7 @@ export default class EditListComponent extends React.Component {
                     onHide={() => this.props.onHide()}
                 >
                     <GridViewComponent
+                    altAndLeftClickEnabled={true}
                         id={this.props.id}
                         elementSubViewId={null}
                         handleOnDataGrid={(ref) => (this.refDataGrid = ref)}

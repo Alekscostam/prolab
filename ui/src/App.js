@@ -152,9 +152,7 @@ class App extends Component {
         root.addEventListener('contextmenu', eventForSessionPrelong);
         bodyApp.addEventListener('keydown', eventForSessionPrelong);
         root.addEventListener('keydown', eventForSessionPrelong);
-        bodyApp.addEventListener('scroll', eventForSessionPrelong);
-        root.addEventListener('scroll', eventForSessionPrelong);
-    }
+   }
     showSessionTimeoutIfPossible() {
         if (this.timer === undefined || this.timer === null) {
             this.timer = setInterval(() => {
@@ -620,9 +618,11 @@ class App extends Component {
                                                             subView={this.state.subView}
                                                             labels={labels}
                                                             handleRightHeadPanelContent={(e) => {
-                                                                this.viewContainer?.current?.handleRightHeadPanelContent(
-                                                                    e
-                                                                );
+                                                                if(e.type === OperationType.OP_EDIT){
+                                                                    this.viewContainer?.current?.editSubView(e);
+                                                                }else{
+                                                                    this.viewContainer?.current?.handleRightHeadPanelContent(e);
+                                                                }
                                                                 saveValueToCookieGlobal('refreshSubView', true);
                                                             }}
                                                             handleOnEditClick={(e) => {

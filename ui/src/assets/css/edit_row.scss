@@ -315,14 +315,15 @@ $edit-padding-bottom: 11px;
     color: $base-color !important;
 }
 
-#row-edit .p-inputgroup {
+#row-edit .p-inputgroup{
     border: 1px solid rgba(0, 0, 0, 0.38);
     border-radius: 4px;
-
-    &:hover {
+    &:hover:not(.not-editable)  {
+        // border: 1px solid rgba(0, 0, 0, 0.38);
         border-color: rgba(0, 0, 0, 0.87);
     }
 }
+
 
 #row-edit .p-inputgroup > .p-inputtext {
     border: none;

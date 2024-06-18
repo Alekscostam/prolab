@@ -91,6 +91,7 @@ export default class PluginListComponent extends React.Component {
                     onHide={() => this.onHide()}
                 >
                     <GridViewComponent
+                        altAndLeftClickEnabled={true}
                         id={this.props.id}
                         showRenderingViewMode={false}
                         elementSubViewId={null}
