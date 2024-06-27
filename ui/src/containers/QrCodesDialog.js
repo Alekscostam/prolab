@@ -23,7 +23,7 @@ export const QrCodesDialog = (props) => {
     const dialogHeader = () => {
         return <div> {LocUtils.loc(labels, 'Search', 'Szukaj')}</div>;
     };
-    const dialogFooter = editable && (
+    const dialogFooter = editable ? (
         <div>
             <ShortcutButton
                 id={'opCancel'}
@@ -42,7 +42,7 @@ export const QrCodesDialog = (props) => {
                 label={LocUtils.loc(labels, 'Confirm', 'Zatwierdź')}
             />
         </div>
-    );
+    ):<div></div>;
     const fullNameLabel = {'aria-label': 'Full Name'};
     return (
         <div>

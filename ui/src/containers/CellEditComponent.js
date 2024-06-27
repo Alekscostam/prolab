@@ -67,16 +67,6 @@ class CellEditComponent extends Component {
         return <React.Fragment></React.Fragment>;
     }
 
-    registerKeydownEvent() {
-        document.addEventListener('mousedown', (e) => this.handleAltAndLeftClickFunction(e));
-    }
-    unregisterKeydownEvent() {
-        document.removeEventListener('mousedown', (e) => this.handleAltAndLeftClickFunction(e));
-    }
-    // to oveerdie
-    handleAltAndLeftClickFunction = (event) => {
-      
-    };
     forceLeaveEditMode() {
         document.getElementById('header-left').click();
     }
@@ -103,7 +93,6 @@ class CellEditComponent extends Component {
                 event.preventDefault();
             }
         });
-        this.registerKeydownEvent();
     }
 
     editorComponent = (editable, eViewier) => {

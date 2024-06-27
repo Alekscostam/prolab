@@ -255,10 +255,10 @@ export class BaseViewContainer extends BaseContainer {
     }
 
     registerKeydownEvent() {
-        document.addEventListener('keydown', (e) => this.keyDownFunction(e));
+        window.addEventListener('keydown',this.keyDownFunction);
     }
     unregisterKeydownEvent() {
-        document.removeEventListener('keydown', (e) => this.keyDownFunction(e));
+        window.removeEventListener('keydown', this.keyDownFunction);
     }
 
     keyDownFunction = (event) => {
@@ -301,8 +301,7 @@ export class BaseViewContainer extends BaseContainer {
             if (id === undefined) {
                 id = this.props.id;
             }
-
-            if (this.state.updateBreadcrumb) Breadcrumb.updateView(responseView.viewInfo, id, recordId);
+            if (this.state.updateBreadcrumb !== false) Breadcrumb.updateView(responseView.viewInfo, id, recordId);
             const gridViewColumnsTmp = this.columnsFromGroupCreate(responseView);
             const pluginsListTmp = this.puginListCreate(responseView);
             const documentsListTmp = this.documentListCreate(responseView);
@@ -1076,11 +1075,8 @@ export class BaseViewContainer extends BaseContainer {
     }
     //override
     renderHeadPanel = () => {
-        const operations = this.state?.parsedGridView?.operations;
+        const operations = this.state?.parsedGridView?.operations || [];
         if (this.isDashboard()) {
-            return <React.Fragment />;
-        }
-        if (operations?.length === 0) {
             return <React.Fragment />;
         }
         return (
@@ -1308,7 +1304,8 @@ export class BaseViewContainer extends BaseContainer {
                             this.unblockUi();
                         }
                     },
-                    () => this.unblockUi()
+                    () => this.unblockUi(),
+                    () => this.unblockUi(),
                 );
             })
             .catch((err) => {
@@ -1351,7 +1348,8 @@ export class BaseViewContainer extends BaseContainer {
                                     this.unblockUi();
                                 }
                             },
-                            () => this.unblockUi()
+                            () => this.unblockUi(),
+                            () => this.unblockUi(),
                         );
                     })
                     .catch((err) => {
@@ -1391,9 +1389,10 @@ export class BaseViewContainer extends BaseContainer {
                                 this.showGlobalErrorMessage(err);
                             });
                     } else {
-                        this.handleUnblockUi();
+                        this.unblockUi();
                     }
                 },
+                () => this.unblockUi(),
                 () => this.unblockUi()
             );
         }).catch((err)=>{

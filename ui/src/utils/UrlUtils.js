@@ -82,7 +82,7 @@ class UrlUtils {
     static parentIdParamExist() {
         const batchId = this.getURLParameter('parentId');
         return batchId !== undefined && batchId !== null;
-    }
+    } 
     static recordIdParamExist() {
         const recordId = this.getURLParameter('recordId');
         return recordId !== undefined && recordId !== null;

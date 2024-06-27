@@ -55,7 +55,7 @@ export default class HistoryLogDialogComponent extends React.Component {
                     header={this.props.parsedHistoryLogView?.info?.title}
                     footer={
                         <React.Fragment>
-                            {opClose && (
+                            {opClose ? (
                                 <Button
                                     type='button'
                                     onClick={() => {
@@ -63,7 +63,7 @@ export default class HistoryLogDialogComponent extends React.Component {
                                     }}
                                     label={opClose.label}
                                 />
-                            )}
+                            ):<div></div>}
                         </React.Fragment>
                     }
                     visible={isVisible}
@@ -73,8 +73,8 @@ export default class HistoryLogDialogComponent extends React.Component {
                     onHide={() => this.onHide()}
                 >
                     <GridViewComponent
-                    
-                     altAndLeftClickEnabled={false}
+                        className={'history-dialog'}
+                        altAndLeftClickEnabled={false}
                         id={this.props.id}
                         showRenderingViewMode={false}
                         elementSubViewId={null}

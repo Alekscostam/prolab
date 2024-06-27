@@ -525,10 +525,7 @@ export class EditSpecContainer extends BaseContainer {
 
     //override
     renderHeadPanel = () => {
-        const operations = this.state?.parsedView?.operations;
-        if (operations?.length === 0 || StringUtils.isBlank(operations)) {
-            return <React.Fragment />;
-        }
+        const operations = this.state?.parsedView?.operations || [];
         return (
             <React.Fragment>
                 <HeadPanel

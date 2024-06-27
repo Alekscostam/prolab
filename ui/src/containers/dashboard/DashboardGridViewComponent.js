@@ -525,10 +525,7 @@ export class DashboardGridViewComponent extends BaseContainer {
 
     //override
     renderHeadPanel = () => {
-        const operations = this.state?.parsedGridView?.operations;
-        if (operations?.length === 0 || StringUtils.isBlank(operations)) {
-            return <React.Fragment />;
-        }
+        const operations = this.state?.parsedGridView?.operations || [];
         return (
             <React.Fragment>
                 <HeadPanel

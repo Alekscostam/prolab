@@ -83,6 +83,7 @@ export default class UserRowComponent extends BaseRowComponent {
                             </div>
                         </React.Fragment>
                     }
+                    footer={()=><div></div>}
                     visible={this.props.visible}
                     resizable={false}
                     breakpoints={{'860px': '75vw', '640px': '100vw'}}

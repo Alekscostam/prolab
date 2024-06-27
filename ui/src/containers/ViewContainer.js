@@ -13,10 +13,6 @@ import UrlUtils from '../utils/UrlUtils';
 import {OperationType} from '../model/OperationType';
 import {StringUtils} from '../utils/StringUtils';
 
-//
-//    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
-//
-
 export class ViewContainer extends BaseViewContainer {
     constructor(props) {
         ConsoleHelper('ViewContainer -> constructor');
@@ -313,7 +309,7 @@ export class ViewContainer extends BaseViewContainer {
                                 selectAll: false,
                             },
                             () => {
-                                this.showErrorMessages(err);
+                                this.showGlobalErrorMessage(err);
                                 this.unblockUi();
                             }
                         );

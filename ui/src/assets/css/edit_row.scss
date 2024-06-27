@@ -358,8 +358,14 @@ $edit-padding-bottom: 11px;
 
 #editListDialog .dx-datagrid-headers .dx-checkbox-container {
     visibility: hidden;
+    pointer-events: none;
 }
-
+#editListDialog {
+        #grid-container .dx-datagrid .dx-datagrid-table .dx-header-row > td.dx-command-select{
+            pointer-events: none!important;;
+        }
+       
+}
 #row-edit .dx-button.dx-button-has-icon:not(.dx-button-has-text):not(.dx-shape-standard) {
     border-radius: 0;
 }

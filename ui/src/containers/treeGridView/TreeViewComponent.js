@@ -83,6 +83,7 @@ class TreeViewComponent extends CellEditComponent {
 
     componentDidMount() {
         super.componentDidMount();
+        this.registerKeydownEvent();
     }
     
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -115,13 +116,20 @@ class TreeViewComponent extends CellEditComponent {
             menu.hide(e.event);
         }
     }
-
+    registerKeydownEvent() {
+        window.addEventListener('mousedown', this.handleAltAndLeftClickFunction);
+    }
+    unregisterKeydownEvent() {
+        window.removeEventListener('mousedown', this.handleAltAndLeftClickFunction);
+    }
+    
     componentWillUnmount() {
         clearSelection = false;
         this.viewInfo = {
             headerId: undefined,
             type: undefined,
         };
+        this.unregisterKeydownEvent();
     }
     findRowDataById(recordId) {
         let editData = this.props.parsedGridViewData.filter((item) => {
@@ -811,10 +819,16 @@ class TreeViewComponent extends CellEditComponent {
             this.props.onHideEditorCallback();
         }
     }
+    isWart(dataField){
+        if(dataField){
+           return dataField.toUpperCase() === 'WART'; 
+        }
+        return false
+    }
     cellRenderSpecial(cellInfo) {
         try {
             let _bgColor;
-            if (cellInfo.data?.FORMULA && cellInfo.column.dataField.toUpperCase() === 'WART') {
+            if (cellInfo.data?.FORMULA && this.isWart(cellInfo?.column?.dataField)) { 
                 const elements = Array.from(
                     document.querySelectorAll('td[aria-describedby="' + cellInfo.column.headerId + '"]')
                 ).filter((el) => {
@@ -886,6 +900,7 @@ class TreeViewComponent extends CellEditComponent {
                     try {
                         return (
                             <span
+                                className={this.isWart(cellInfo?.column?.dataField)? 'WART' : '' }
                                 style={{
                                     color: fontColorFinal,
                                 }}

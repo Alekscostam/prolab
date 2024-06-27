@@ -15,6 +15,7 @@ export default class DataGanttStore extends BaseService {
         const filter = loadOptions?.filter;
         const sort = loadOptions?.sort;
         const group = loadOptions?.group;
+        const take = loadOptions?.take;
         let params = '?';
         [
             'filter',
@@ -42,12 +43,14 @@ export default class DataGanttStore extends BaseService {
         const filterIdParam = filterIdArg !== undefined && filterIdArg != null ? `&filterId=${filterIdArg}` : '';
         const recordParentIdParam = !!recordParentIdArg ? `&parentId=${recordParentIdArg}` : '';
         const kindViewParam = kindViewArg !== undefined && kindViewArg != null ? `&kindView=${kindViewArg}` : '';
-        let url = `${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${recordParentIdParam}${kindViewParam}`;
+        const takeParam = take !== undefined && take != null ? `&take=${take}` : '';
+        let url = `${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${recordParentIdParam}${kindViewParam}${takeParam}`;
 
         const requestBody = {
             filter: filter,
             sort: sort,
             group: group,
+            take: take,
         };
 
         url = this.commonCorrectUrl(url);

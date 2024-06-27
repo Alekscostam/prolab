@@ -108,18 +108,10 @@ export class Breadcrumb {
 
                 let path = AppPrefixUtils.locationHrefUrl(
                     `/#/grid-view/${subViewResponse.viewInfo.id}?recordId=${subViewId}`
-                );  let prevPath = AppPrefixUtils.locationHrefUrl(
-                    `/#/grid-view/${subViewResponse.viewInfo.id}`
-                );
+                ); 
                 if (!isNaN(name)) {
                     path = window.location.href;
                 }
-                breadcrumb.push({
-                    name: subViewResponse.viewInfo.name,
-                    id: subViewResponse.viewInfo.name,
-                    type: 'subview',
-                    path:prevPath,
-                });
                 breadcrumb.push({name, id: subViewResponse.viewInfo.id, type: 'subview', path});
             }
         }
@@ -212,18 +204,13 @@ export class Breadcrumb {
     }
 
     static shouldHaveBreadCrumb() {
-        return !UrlUtils.batchIdParamExist() &&  (UrlUtils.parentIdParamExist() || UrlUtils.recordIdParamExist() );
+        return !UrlUtils.batchIdParamExist();
     }
     static currentBreadcrumbAsUrlParam() {
         const currentBredcrump = UrlUtils.getURLParameter(BREADCRUMB_URL_PARAM_NAME);
         if (currentBredcrump) {
             if(this.shouldHaveBreadCrumb()){
                 return `&${BREADCRUMB_URL_PARAM_NAME}=${currentBredcrump}`;
-            }
-            if(UrlUtils.isBcParamExist()){
-                const result = UrlUtils.cutEverythingFromCurrentUrlAfterWord("bc=")
-                window.location.href = result;
-                return '';
             }
         }
         return '';

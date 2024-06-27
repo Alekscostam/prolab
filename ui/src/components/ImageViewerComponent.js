@@ -20,7 +20,7 @@ export const ImageViewerComponent = (props) => {
             visible={visible}
             resizable={false}
             footer={
-                editable && (
+                editable ? (
                     <React.Fragment>
                         <Button
                             type='button'
@@ -30,7 +30,7 @@ export const ImageViewerComponent = (props) => {
                             label={LocUtils.loc(labels, 'Approve', 'Zatwierdź')}
                         />
                     </React.Fragment>
-                )
+                ) :<div></div>
             }
             breakpoints={{'860px': '75vw', '640px': '100vw'}}
             onHide={onHide}

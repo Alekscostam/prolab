@@ -149,6 +149,7 @@ export class AddSpecContainer extends BaseContainer {
                             }
                             resizable={false}
                             visible={true}
+                            footer={()=>{<div></div>}}
                         >
                             {this.renderHeadPanel()}
                             {this.renderContent()}

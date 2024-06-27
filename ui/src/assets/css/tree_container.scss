@@ -73,8 +73,22 @@ $base-color: #0e49eb;
     .dx-treelist-rowsview .dx-row-focused.dx-selection.dx-state-hover.dx-data-row .dx-command-edit .dx-link, .dx-treelist-rowsview .dx-row-focused.dx-state-hover.dx-selection.dx-data-row>td:not(.dx-cell-modified):not(.dx-treelist-invalid){
         background-color: $base-color!important;;
     }
+    .dx-treelist-rowsview .dx-state-hover{
+        td{
+            .WART{
+                color:white!important
+            }
+        }
+    }
    
 
+}
+// TODO: porpawic paddingy w card view
+.dx-row-focused{
+    td{ 
+        border-bottom:1px solid #ddd!important;
+
+    }
 }
 .dx-datagrid .dx-column-lines > td {
     border-left: 1px solid $table-border;

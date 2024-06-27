@@ -82,6 +82,7 @@ export class EditRowViewComponent extends BaseRowComponent {
                             this.unblockUi();
                         }
                     },
+                    () => this.unblockUi(),
                     () => this.unblockUi()
                 );
             })

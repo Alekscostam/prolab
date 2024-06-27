@@ -373,8 +373,26 @@ class App extends Component {
         };
         rawFile.send(null);
     }
+    canRenderLogin = () => {
+        const isLoggedUser =this.authService.isLoggedUser();
+        if(isLoggedUser){
+            const isExpired = this.authService.isTokenExpiredDate();
+            return isExpired;
+        }
+        return true
+    }
+    
+    renderLoginOrStartPage = (props) => {
+        if(this.canRenderLogin()){
+            return this.renderLoginContainer(props)
+        }
+        if(!UrlUtils.isStartPage()){
+            window.location.href = window.location.href + "start"
+        }
+        
+    }
 
-    renderLoginContainer(props) {
+    renderLoginContainer(props) {   
         return (
             <Login
                 {...props}
@@ -638,7 +656,7 @@ class App extends Component {
                                             <Route
                                                 exact
                                                 path='/'
-                                                render={(props) => this.renderLoginContainer(props)}
+                                                render={(props) =>this.renderLoginOrStartPage(props)}
                                             />
                                             <Route path='/login' render={(props) => this.renderLoginContainer(props)} />
                                             {this.state.user && (

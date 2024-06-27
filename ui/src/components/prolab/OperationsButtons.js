@@ -8,6 +8,7 @@ import Constants from '../../utils/Constants';
 import ActionButtonWithMenu from './ActionButtonWithMenu';
 import {sessionPrelongFnc} from '../../App';
 import {OperationType} from '../../model/OperationType';
+import { CookiesName } from '../../model/CookieName';
 
 export const OperationsButtons = (props) => {
     const renderOperationsButton = (operations) => {
@@ -96,7 +97,8 @@ export const OperationsButtons = (props) => {
                                     iconColor={`${inverseColor ? `white` : `blue`}`}
                                     buttonShadow={buttonShadow}
                                     title={operations.label}
-                                    handleClick={() => afterClickOperation(props.handleBlockUi())}
+                                    handleClick={() => {
+                                        afterClickOperation(props.handleBlockUi())}}
                                     href={props.hrefSubview}
                                 />
                             </React.Fragment>

@@ -137,6 +137,25 @@ class GridViewComponent extends CellEditComponent {
         }
         return false;
     }
+
+    componentDidMount(){
+        super.componentDidMount();
+        this.registerKeydownEvent()
+    }
+    componentWillUnmount(){
+        this.unregisterKeydownEvent()
+    }
+    registerKeydownEvent() {
+        if(!this.props?.isAttachement){
+            window.addEventListener('mousedown', this.handleAltAndLeftClickFunction);
+        }
+    }
+    unregisterKeydownEvent() {
+        if(!this.props?.isAttachement){
+            window.removeEventListener('mousedown', this.handleAltAndLeftClickFunction);
+        }
+    }
+    
     handleAltAndLeftClickFunction = (event) => {
         if (this.props.altAndLeftClickEnabled && event.button === 0 && event.altKey) {
             const isOnGrid = this.clickInsideGridContainer(event);
@@ -146,9 +165,9 @@ class GridViewComponent extends CellEditComponent {
                     let selectedRows = this.props.selectedRows.map(selectedRow => {return{ID: parseInt(selectedRow.ID)}});
                     if (selectedRows.find((row) => row.ID  === clickedCell)) {
                         selectedRows = selectedRows.filter((selectedRow) => selectedRow.ID !== clickedCell);
-                     } else {
+                    } else {
                          selectedRows.push({ID:clickedCell});
-                     }
+                    }
                      gridRef.selectRows(selectedRows.map(el=>el.ID))
                      this.props.handleSelectRows(selectedRows);
             }
@@ -241,23 +260,36 @@ class GridViewComponent extends CellEditComponent {
                     onContextMenuPreparing={(e) => {
                         this.showMenu(e);
                     }}
-                    onKeyDown={() => {
+                    onKeyDown={(e) => {
+                        // console.log(e) 
+                        // if(e?.event?.originalEvent?.code === "Space"){
+                        //     debugger
+                        //     e?.event?.originalEvent.preventDefault();
+                        //     e?.event?.originalEvent.stopPropagation();
+                        //     this.selectRowBySpace();
+                        // }else{
+                        // }
                         this.keyDownClicked.current = true;
                     }}
                     id={`grid-container`}
                     defaultFocusedRowKey={this.state.focusedRowKey}
                     keyExpr='ID'
-                    className={`${this.props?.isAttachement ? 'attachement ' : 'grid'} grid-container${
+                    className={`${this.props?.isAttachement ? 'attachement ' : 'grid'} ${this.props?.className ? this.props?.className : ''} grid-container${
                         headerAutoHeight ? ' grid-header-auto-height' : ''
                     } ${this.canRenderAdditionalOperationCol() ? 'grid-with-opperations' : ''}`}
                     ref={(ref) => {
                         this.props.handleOnDataGrid(ref);
-                    }}
+                    }}  
                     onRowClick={(e) => {
                         this.currentClickedCell.current = e.data.ID;
                     }}
+                    // onCellHoverChanged={(e)=>{
+                    //     if(e?.data){
+                    //         // this.currentClickedCell.current = e.data?.ID;
+                    //     }
+                    // }} 
                     onFocusedRowChanging={(e)=>{
-                        if( e.rows[e.newRowIndex]?.data){
+                        if(e.rows[e.newRowIndex]?.data){
                             this.currentClickedCell.current = e.rows[e.newRowIndex].data.ID;
                         }
                     }}
@@ -423,6 +455,22 @@ class GridViewComponent extends CellEditComponent {
             this.props.handleSelectRows(selectedRows);
         } 
     }
+
+    // selectRowBySpace = () => {        
+    //     let selectedRows = this.props.selectedRows;
+    //     const selectedRowKey = this.currentClickedCell.current;
+    //     debugger
+    //     const element = {
+    //         ID: selectedRowKey,
+    //     };     
+    //     if (selectedRows.find((row) => row.ID === element.ID)) {
+    //         selectedRows = selectedRows.filter((selectedRow) => selectedRow.ID !== element.ID);
+    //     } else {
+    //         selectedRows.push(element);
+    //     }
+    //     this.props.handleSelectRows(selectedRows);
+    // }
+
     canRenderAdditionalOperationCol() {
         const operationsRecord = this.props.parsedGridView?.operationsRecord;
         const operationsRecordList = this.props.parsedGridView?.operationsRecordList;

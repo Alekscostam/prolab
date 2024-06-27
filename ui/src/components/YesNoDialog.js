@@ -6,7 +6,7 @@ import ActionButton from './ActionButton';
 export const YesNoDialog = (props) => {
 	const { children, className, header, id, key, name, noButtonClassName, noButtonLabel, noButtonVariant, onAfterNoStateChange, onAfterYesStateChange, onChange, onHide, stateField, visible, yesButtonClassName, yesButtonLabel, yesButtonVariant , singleButton} = props;
 	return (
-		<Dialog ariaCloseIconLabel='Zamknij okno dialogowe' header={header} visible={visible} className={className} style={{ width: '30vw' }} key={`${key ? key : id ? id : name}-dialog`} onHide={() => (onHide ? onHide() : null)}>
+		<Dialog footer={()=><div></div>} ariaCloseIconLabel='Zamknij okno dialogowe' header={header} visible={visible} className={className} style={{ width: '30vw' }} key={`${key ? key : id ? id : name}-dialog`} onHide={() => (onHide ? onHide() : null)}>
 			<div style={{ marginBottom: '20px' }} className='row col-12'>
 				{children ? children : 'Czy jesteś pewien?'}
 			</div>

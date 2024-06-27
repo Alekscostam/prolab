@@ -68,7 +68,7 @@ export default class EditListComponent extends React.Component {
                                 }}
                                 label={opSelect?.label}
                             />
-                        ) : null
+                        ) : <div></div>
                     }
                     visible={this.props.visible}
                     resizable={false}

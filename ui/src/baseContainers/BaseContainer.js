@@ -1013,6 +1013,7 @@ class BaseContainer extends React.Component {
                             this.unblockUi();
                         }
                     },
+                    () => this.unblockUi(),
                     () => this.unblockUi()
                 );
             })
@@ -1328,7 +1329,8 @@ class BaseContainer extends React.Component {
                             this.unblockUi();
                         }
                     },
-                    () => this.unblockUi()
+                    () => this.unblockUi(),
+                    () => this.unblockUi(),
                 );
             })
             .catch((err) => {
@@ -1411,7 +1413,8 @@ class BaseContainer extends React.Component {
                             this.unblockUi();
                         }
                     },
-                    () => this.unblockUi()
+                    () => this.unblockUi(),  
+                    () => this.unblockUi()  
                 );
             })
             .catch((err) => {
@@ -1789,7 +1792,8 @@ class BaseContainer extends React.Component {
                             this.unblockUi();
                         }
                     },
-                    () => this.unblockUi()
+                    () => this.unblockUi(),
+                    () => this.unblockUi(),
                 );
             })
             .catch((err) => {

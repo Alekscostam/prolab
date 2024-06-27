@@ -218,7 +218,7 @@ class UploadMultiImageFileBase64 extends React.Component {
     render() {
         return (
             <React.Fragment>
-                <div id='drop-region' style={{width: '100%'}}>
+                <div id='drop-region' className={`${this.props.className ?this.props.className :''}`} style={{width: '100%'}}>
                     <div className='drop-message'>{this.props.displayText}</div>
                     <div id='image-preview' />
                 </div>

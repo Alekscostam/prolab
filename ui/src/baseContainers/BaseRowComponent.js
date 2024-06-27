@@ -871,8 +871,9 @@ export class BaseRowComponent extends BaseContainer {
                             </label>
                             <br />
                             <UploadMultiImageFileBase64
+                                className={`${editable}`}
                                 multiple={false}
-                                deleteBtn={true}
+                                deleteBtn={field?.edit}
                                 onDeleteChange={() => {
                                     onChange(
                                         InputType.IMAGE64,
@@ -917,7 +918,8 @@ export class BaseRowComponent extends BaseContainer {
                             </label>
                             <br />
                             <UploadMultiImageFileBase64
-                                deleteBtn={true}
+                                className={`${editable}`}
+                                deleteBtn={field?.edit}
                                 multiple={true}
                                 onDeleteChange={() => {
                                     onChange(

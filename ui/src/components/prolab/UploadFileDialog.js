@@ -62,6 +62,7 @@ export default class UploadFileDialog extends React.Component {
                     header={LocUtils.loc(this.props.labels, 'Choose_file_header', 'Wybór plików')}
                     visible={this.props.visible}
                     resizable={false}
+                    footer={()=><div></div>}
                     breakpoints={{'860px': '75vw', '640px': '100vw'}}
                     onHide={() => this.props.onHide()}
                 >

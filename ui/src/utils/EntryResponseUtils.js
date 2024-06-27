@@ -5,7 +5,7 @@ import ReactDOM from 'react-dom';
 function EntryResponseUtils() {}
 EntryResponseUtils.run = (entryResponse, accept, reject, unblockUi) => {
     if (!!entryResponse.message || !!entryResponse.question) {
-        if (typeof unblockUi === 'function') {
+        if (typeof unblockUi === 'function' && entryResponse?.next===false) {
             unblockUi();
         }
         const confirmDialogWrapper = document.createElement('div');

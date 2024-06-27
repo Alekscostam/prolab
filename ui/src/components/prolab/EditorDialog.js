@@ -32,7 +32,7 @@ export const EditorDialog = (props) => {
         onHide();
         setVisible(false);
     };
-    const dialogFooter = editable && (
+    const dialogFooter = editable ? (
         <div>
             <Button
                 id='save-editor-button'
@@ -44,8 +44,8 @@ export const EditorDialog = (props) => {
                     hideDialog();
                 }}
             />
-        </div>
-    );
+        </div> 
+    ): <div></div>;
 
     return (
         <div>

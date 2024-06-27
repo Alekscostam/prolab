@@ -164,7 +164,8 @@ export class BatchContainer extends BaseContainer {
                                 this.unblockUi();
                             }
                         },
-                        () => this.unblockUi()
+                        () => this.unblockUi(),
+                        () => this.unblockUi(),
                     );
                 })
                 .catch((err) => {
@@ -392,10 +393,7 @@ export class BatchContainer extends BaseContainer {
         }
     }
     renderHeadPanel = () => {
-        const operations = this.state?.parsedView?.operations;
-        if (operations?.length === 0 || StringUtils.isBlank(operations)) {
-            return <React.Fragment />;
-        }
+        const operations = this.state?.parsedView?.operations || [];
         return (
             <React.Fragment>
                 <HeadPanel

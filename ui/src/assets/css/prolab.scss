@@ -781,6 +781,14 @@ td[aria-roledescription='Editable'] {
 
 .p-calendar-w-btn.not-editable:hover {
     border-color: rgba(0, 0, 0, 0.38);
+   
+}
+.p-calendar-w-btn.not-editable {
+    button{
+        svg{
+            display: none;
+        }
+    }
 }
 .p-calendar-w-btn:active, 
 .p-calendar-w-btn:visited,
@@ -856,6 +864,12 @@ td[aria-roledescription='Editable'] {
 .dx-widget.dx-button.dx-button-mode-contained.dx-button-normal.dx-button-has-icon.dx-tabs-nav-button.dx-state-disabled.dx-tabs-nav-button-left{
     display:  none;
 }
+.p-dialog .p-dialog-content {
+    background: #ffffff;
+    color: rgba(0, 0, 0, 0.87);
+    padding: 0 1.5rem 0rem 1.5rem;
+}
+
 .ccol-1,
 .ccol-2,
 .ccol-3,

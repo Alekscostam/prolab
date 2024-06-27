@@ -3,6 +3,7 @@ import {OperationType} from '../../model/OperationType';
 import React from 'react';
 
 export const MenuWithButtons = (props) => {
+    
     const menuItems = props?.operationList
         ? props.operationList.map((i, index) => {
               let url = undefined;
@@ -34,7 +35,7 @@ export const MenuWithButtons = (props) => {
                           case OperationType.OP_ADD_SPEC:
                               return props.handleAddSpec();
                           case OperationType.OP_SUBVIEWS:
-                              return props.handleHrefSubview();
+                                return props.handleHrefSubview();
                           case OperationType.OP_DELETE:
                               return props.handleDelete();
                           case OperationType.OP_RESTORE:

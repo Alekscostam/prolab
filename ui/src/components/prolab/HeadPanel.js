@@ -13,8 +13,7 @@ export const HeadPanel = (props) => {
     const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
     const subViewId = props.elementSubViewId;
     const parentId = props.elementRecordId;
-    let viewId = props.elementId;
-    viewId = DataGridUtils.getRealViewId(subViewId, viewId);
+    const viewId = DataGridUtils.getRealViewId(subViewId, props.elementId);
 
     const handleEdit = (e, props, viewId, parentId, currentBreadcrumb) => {
         if (props.elementKindView === 'ViewSpec' && props.selectedRowKeys.length > 0) {

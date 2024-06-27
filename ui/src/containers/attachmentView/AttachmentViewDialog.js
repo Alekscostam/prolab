@@ -339,6 +339,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
                 header={LocUtils.loc(this.props.labels, 'Attachments_header', 'Załączniki')}
                 visible={true}
                 resizable={true}
+                footer={()=><div></div>}
                 breakpoints={{'960px': '75vw'}}
                 style={{width: '90vw'}}
                 onHide={() => this.props.onHide()}

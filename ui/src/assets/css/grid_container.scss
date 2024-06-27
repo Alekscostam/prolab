@@ -485,7 +485,7 @@ $base-color: #0e49eb;
     }
 }
 
-.grid-container {
+.grid-container:not(.history-dialog) {
     .dx-datagrid-rowsview .dx-row-focused.dx-data-row .dx-command-edit .dx-link,
     .dx-datagrid-rowsview
         .dx-row-focused.dx-data-row
@@ -509,6 +509,15 @@ $base-color: #0e49eb;
             .deleted-row {
                 color: red !important;
             }
+        }
+    }
+    
+}
+#HistoryLogListDialog_content{
+    .dx-row-focused, .dx-state-hover,.dx-selection{
+        td{
+            background: white!important;
+            color: black!important;
         }
     }
 }
