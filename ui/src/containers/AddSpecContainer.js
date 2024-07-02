@@ -13,7 +13,7 @@ import TreeViewComponent from './treeGridView/TreeViewComponent';
 import ActionButton from '../components/ActionButton';
 import DivContainer from '../components/DivContainer';
 import LocUtils from '../utils/LocUtils';
-import {Tabs} from 'devextreme-react';
+import { Tabs} from 'devextreme-react';
 import {InputNumber} from 'primereact/inputnumber';
 import {TreeListUtils} from '../utils/component/TreeListUtils';
 import {sessionPrelongFnc} from '../App';
@@ -21,6 +21,7 @@ import {Dialog} from 'primereact/dialog';
 import {OperationType} from '../model/OperationType';
 import {TabSpecType} from '../model/TabSpecType';
 import {StringUtils} from '../utils/StringUtils';
+import SelectedElements from '../components/SelectedElements';
 
 const autOfRangeIndex = 6;
 
@@ -33,7 +34,8 @@ export class AddSpecContainer extends BaseContainer {
         this.crudService = new CrudService();
         this.dataTreeStore = new DataTreeStore();
         this.refTreeList = React.createRef();
-        this.numberOfCopies = React.createRef();
+        this.numberOfCopiesRef = React.createRef();
+        this.numberOfCopies = React.createRef(1);
         this.messages = React.createRef();
         this.blocking = React.createRef(true);
         this.state = {
@@ -52,7 +54,6 @@ export class AddSpecContainer extends BaseContainer {
             parsedData: null,
             columns: [],
             selectedRowKeys: [],
-            numberOfCopies: 1,
         };
         this.getViewById = this.getViewById.bind(this);
         this.downloadData = this.downloadData.bind(this);
@@ -130,11 +131,11 @@ export class AddSpecContainer extends BaseContainer {
             <div>
                 <React.Fragment>
                     {this.props.visibleAddSpec && (
-                        <Dialog
+                    <Dialog
                             id={'popup-add-spec'}
                             key={`popup-add-spec`}
                             blockScroll={true}
-                            draggable
+                            draggable={false}
                             onHide={this.props.onHide}
                             style={{maxWidth: '1500px', maxHeight: '800px', height: '800px', overflow: 'none'}}
                             ariaCloseIconLabel='Zamknij okno dialogowe'
@@ -154,6 +155,7 @@ export class AddSpecContainer extends BaseContainer {
                             {this.renderHeadPanel()}
                             {this.renderContent()}
                         </Dialog>
+                        
                     )}
                 </React.Fragment>
             </div>
@@ -255,9 +257,9 @@ export class AddSpecContainer extends BaseContainer {
                                 res.data = TreeListUtils.paintDatas(res.data);
                             }
                             if (isGrid) {
-                                TreeListUtils.createSelectonStaticColumn(responseView.gridColumns[0].columns);
+                                TreeListUtils.createSelectionStaticColumn(responseView.gridColumns[0].columns);
                             } else {
-                                TreeListUtils.createSelectonColumn(responseView.gridColumns[0].columns, res.data);
+                                TreeListUtils.createSelectionColumn(responseView.gridColumns[0].columns, res.data);
                             }
                             const columnsTmp = this.columnsFromGroupCreate(responseView);
                             this.setState(
@@ -272,6 +274,7 @@ export class AddSpecContainer extends BaseContainer {
                                         loading: false,
                                         blocking: false,
                                         parsedData: res.data,
+                                        totalCounts: res.totalCount
                                     });
                                 }
                             );
@@ -300,6 +303,8 @@ export class AddSpecContainer extends BaseContainer {
         return <React.Fragment />;
     }
 
+  
+ 
     //override
     renderHeaderLeft() {
         return (
@@ -387,7 +392,6 @@ export class AddSpecContainer extends BaseContainer {
             this.getViewAddSpec(elementId, elementParentId, elementRecordId, tab.type, header, headerId);
             this.setState({
                 selectedIndex: index,
-                numberOfCopies: 1,
                 initializedExpandAll: false,
             });
             this.unselectAllDataGrid();
@@ -417,13 +421,15 @@ export class AddSpecContainer extends BaseContainer {
                             <React.Fragment>
                                 {LocUtils.loc(this.props.labels, 'number_of_copy', opCount.label + ' ')}
                                 <InputNumber
-                                    ref={this.numberOfCopies}
+                                    ref={this.numberOfCopiesRef}
                                     id='numberOsfCopy'
                                     name='numberOfCopy'
-                                    onChange={() => {
+                                    onDragStart={(e)=>{console.log("DRAG" + e)}}
+                                    onChange={(e) => {
                                         if (sessionPrelongFnc) {
                                             sessionPrelongFnc();
                                         }
+                                      this.numberOfCopies.current = e.value;
                                     }}
                                     className='p-inputtext-sm mr-2'
                                     min={1}
@@ -481,7 +487,7 @@ export class AddSpecContainer extends BaseContainer {
     }
     //override
     specExec = (viewId, parentId, type, headerId, header) => {
-        const numberOfCopies = this.numberOfCopies?.current.getElement().children[0]?.value;
+        const numberOfCopies = this.numberOfCopiesRef?.current.getElement().children[0]?.value;
         this.blockUi();
         if (this.isGridViewUrlExist()) {
             parentId = UrlUtils.getRecordId();
@@ -498,20 +504,9 @@ export class AddSpecContainer extends BaseContainer {
                 numberOfCopies
             )
             .then((saveResponse) => {
-                const validArray = this.createValidArray(saveResponse.data);
-                const result = this.setFakeIds(validArray);
-                const parsedGridViewData = this.props?.parsedGridViewData;
-                if (parsedGridViewData) {
-                    const foundedElementToSetLine = parsedGridViewData.find((el) => {
-                        return parseInt(el._ID) === parseInt(result[0]._ID_PARENT);
-                    });
-                    foundedElementToSetLine
-                        ? this.setLinesForChild(result, foundedElementToSetLine._LINE_COLOR_GRADIENT)
-                        : this.setLinesForChild(result);
-                } else {
-                    this.setLinesForChild(result);
-                }
-                this.replaceReapetedIds(result);
+                const minNextId =  this.props.lastId;
+                const levelId =  this.props.levelId;
+                const result = this.createValidArray(saveResponse.data,minNextId, levelId);
                 this.props.handleAddElements(result);
                 this.props.onHide();
                 this.unblockUi();
@@ -520,66 +515,14 @@ export class AddSpecContainer extends BaseContainer {
                 this.showGlobalErrorMessage(err);
             });
     };
-    replaceReapetedIds(result) {
-        const parsedGridViewData = this.props?.parsedGridViewData || [];
-        const concatedArray = result.concat(parsedGridViewData);
-        result.forEach((el) => {
-            while (this.anyoneAlreadyHasId(el._ID, concatedArray)) {
-                el._ID = parseInt(el._ID) + 1;
-            }
-        });
-    }
-    anyoneAlreadyHasId(id, array) {
-        const result = array.filter((el) => el._ID === id);
-        return result.length >= 2;
-    }
-    setLinesForChild(array, prevGradients) {
-        const clonedPrevGradients = structuredClone(prevGradients);
-
-        if (clonedPrevGradients) {
-            clonedPrevGradients.sort(function (a, b) {
-                return b - a;
-            });
-            array.forEach((el) => {
-                el._LINE_COLOR_GRADIENT = structuredClone(clonedPrevGradients);
-                el._LINE_COLOR_GRADIENT.push(el._LINE_COLOR_GRADIENT[el._LINE_COLOR_GRADIENT.length - 1] - 10);
-                const set = [...new Set(el._LINE_COLOR_GRADIENT)];
-                el._LINE_COLOR_GRADIENT = [...set];
-            });
-        } else {
-            array.forEach((el) => {
-                el._LINE_COLOR_GRADIENT = [100];
-            });
-        }
-    }
-
-    setFakeIds(array) {
-        let startElementId = this.state.lastElementId + 1;
-        let clonedArray = structuredClone(array);
-        for (let x = 0; x < array.length; x++) {
-            for (let y = 0; y < clonedArray.length; y++) {
-                if (array[x]._ID === clonedArray[y]._ID) {
-                    clonedArray[y]._ID = startElementId;
-                    clonedArray[y].ID = null;
-                }
-                if (array[x]._ID === clonedArray[y]._ID_PARENT) {
-                    clonedArray[y]._ID_PARENT = startElementId;
-                }
-            }
-            startElementId = ++startElementId;
-        }
-        return clonedArray;
-    }
-
-    createValidArray(array) {
+    createValidArray(array, minNextId, levelId) {
         array.forEach((el) => {
-            if (!el.ID_PARENT || el.ID_PARENT === 0) {
-                el._ID_PARENT = this.props.levelId ? this.props.levelId : 0;
-            } else {
-                el._ID_PARENT = el.ID_PARENT;
+            el._ID = el._ID +  minNextId
+            if(!StringUtils.isBlank(levelId)){
+                el._ID_PARENT = levelId
             }
-            if (!el._ID) {
-                el._ID = el.ID;
+            else if(el._ID_PARENT !== 0){
+                el._ID_PARENT = el._ID_PARENT +  minNextId
             }
             el._STATUS = 'inserted';
         });
@@ -616,7 +559,7 @@ export class AddSpecContainer extends BaseContainer {
         return shouldBeRerendered;
     }
     increaseNumberOfCopies() {
-        const inputRef = this.numberOfCopies.current.inputRef.current;
+        const inputRef = this.numberOfCopiesRef.current.inputRef.current;
         inputRef.value = (parseInt(inputRef.value) + 1).toString();
     }
     //override
@@ -726,6 +669,7 @@ export class AddSpecContainer extends BaseContainer {
                                 showErrorMessages={(err) => this.showErrorMessages(err)}
                                 labels={this.props.labels}
                             />
+                            <SelectedElements selectedRowKeys={this.state.selectedRowKeys} totalCounts={this.state.totalCounts} />
                         </div>
                     </React.Fragment>
                 )}

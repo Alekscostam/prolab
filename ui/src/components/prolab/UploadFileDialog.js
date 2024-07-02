@@ -68,7 +68,9 @@ export default class UploadFileDialog extends React.Component {
                 >
                     <div className='fileuploader-container border'>
                         <FileUpload
-                            uploadLabel='Zapisz'
+                            uploadLabel={LocUtils.loc(this.props.labels, 'Save', 'Zapisz')}
+                            chooseLabel={LocUtils.loc(this.props.labels, 'Choose', 'Wybierz')}
+                            cancelLabel={LocUtils.loc(this.props.labels, 'Cancel', 'Anuluj')}
                             multiple
                             customUpload
                             onSelect={this.onSelect}

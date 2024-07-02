@@ -506,6 +506,14 @@ export class TreeListUtils extends ViewDataCompUtils {
         findChildren(parentId);
         return descendants;
     }
+    static removeLineColorGradient(array) {
+        array.forEach(element => {
+            delete element._LINE_COLOR_GRADIENT;
+            if (Array.isArray(element.children)) {
+                this.removeLineColorGradient(element.children);
+            }
+        });
+    }
     static elementsToCalculate = (startIndex, allTheElements) => {
         const array = [];
         const parent = allTheElements.find((el) => {
@@ -579,7 +587,7 @@ export class TreeListUtils extends ViewDataCompUtils {
         return;
     }
 
-    static createSelectionColumn(listColumns, options = {}) {
+    static addSelectionColumn(listColumns, options = {}) {
         const defaultColumn = {
             width: options.width || 60,
             id: 0,
@@ -600,13 +608,13 @@ export class TreeListUtils extends ViewDataCompUtils {
         return listColumns;
     }
 
-    static createSelectonColumn(listColumns, parsedGridViewData) {
-        const width = this.calculateWidthOfSelectionColumn(parsedGridViewData);
-        return this.createSelectionColumn(listColumns, {width});
+    static createSelectionColumn(listColumns, parsedGridViewData) {
+        const width = this.calculateWidthOfSelectionColumn(parsedGridViewData);     
+        return this.addSelectionColumn(listColumns, {width});
     }
 
-    static createSelectonStaticColumn(listColumns) {
-        return this.createSelectionColumn(listColumns);
+    static createSelectionStaticColumn(listColumns) {     
+        return this.addSelectionColumn(listColumns);
     }
 
     static calculateWidthOfSelectionColumn(parsedGridViewData) {

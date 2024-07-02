@@ -38,6 +38,7 @@ import {DataGridUtils} from '../../utils/component/DataGridUtils.js';
 import {ColumnType} from '../../model/ColumnType.js';
 import moment from 'moment/moment.js';
 import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils.js';
+import { HtmlUtils } from '../../utils/HtmlUtils.js';
 
 const UNCOLLAPSED_CUT_SIZE = 327;
 const COLLAPSED_CUT_SIZE = 140;
@@ -52,7 +53,9 @@ class GanttViewComponent extends React.Component {
         this.crudService = new CrudService();
         this.ganttRef = React.createRef();
         this.selectAllRef = React.createRef();
-        this.dataGanttStore = new DataGanttStore();
+        this.dataGanttStore = new DataGanttStore();       
+         this.currentClickedCell = React.createRef();
+
         this.labels = this.props;
         this.menu = React.createRef();
         this.state = {
@@ -165,6 +168,11 @@ class GanttViewComponent extends React.Component {
                 this.generateColumns();
             });
         }
+        this.unregisterKeydownEvent()
+        this.registerKeydownEvent();
+    }
+    componentWillUnmount(){
+        this.unregisterKeydownEvent()
     }
 
     isSelectionEnabled() {
@@ -208,6 +216,24 @@ class GanttViewComponent extends React.Component {
         this.refreshRef();
     }
 
+    registerKeydownEvent() {
+        window.addEventListener('mousedown', this.handleAltAndLeftClickFunction);
+    }
+    unregisterKeydownEvent() {
+        window.removeEventListener('mousedown', this.handleAltAndLeftClickFunction);
+    }
+    handleAltAndLeftClickFunction = (event) => {     
+        if (this.props.altAndLeftClickEnabled && event.button === 0 && event.altKey) {
+            setTimeout(()=>{
+                if (this.currentClickedCell.current) {
+                    if(HtmlUtils.clickedInsideComponent(event,"gantt-container" )){
+                        const clickedCell = parseInt(this.currentClickedCell.current);
+                        this.selectSingleRow(undefined, clickedCell)
+                    }
+                }
+            },100)
+        }
+    };
     getRangeDate(dateRange) {
         return !!dateRange ? moment(dateRange, 'YYYY-MM-DD').toDate() : null;
     }
@@ -279,6 +305,11 @@ class GanttViewComponent extends React.Component {
                         endDateRange={endDateRange}
                         rowAlternationEnabled={false}
                         width={width}
+                        onTaskClick={(e)=>{
+                            if( e?.data?.ID){
+                                this.currentClickedCell.current = e.data.ID;
+                            }
+                        }}
                         // Jesli robimy checkboxy to allowSelection w tym miejscu musi byc false
                         allowSelection={false}
                         editing={isEditing}
@@ -897,6 +928,7 @@ GanttViewComponent.defaultProps = {
     showRowLines: true,
     showBorders: true,
     showColumnHeaders: true,
+    altAndLeftClickEnabled: true,
     showFilterRow: true,
     showSelection: true,
     dataGridStoreSuccess: true,
@@ -933,6 +965,7 @@ GanttViewComponent.propTypes = {
     showErrorMessages: PropTypes.func.isRequired,
     showColumnHeaders: PropTypes.bool,
     showColumnLines: PropTypes.bool,
+    altAndLeftClickEnabled: PropTypes.bool,
     showRowLines: PropTypes.bool,
     showBorders: PropTypes.bool,
     showFilterRow: PropTypes.bool,

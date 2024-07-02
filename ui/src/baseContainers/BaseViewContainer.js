@@ -46,6 +46,7 @@ import {OperationType} from '../model/OperationType';
 import ReactDOM from 'react-dom';
 import {QrCodesDialog} from '../containers/QrCodesDialog';
 import ActionShortcutWithoutMenu from '../components/prolab/ActionShortcutWithoutMenu';
+import SelectedElements from '../components/SelectedElements';
 
 let dataGrid;
 
@@ -73,6 +74,7 @@ export class BaseViewContainer extends BaseContainer {
         this.isAttachement = false;
         this.state = {
             loading: true,
+            totalCounts: undefined,
             elementId: props.id,
             elementSubViewId: null,
             qrCodesDialog: false,
@@ -1384,7 +1386,6 @@ export class BaseViewContainer extends BaseContainer {
                                 });
                                 this.unblockUi();
                             })
-
                             .catch((err) => {
                                 this.showGlobalErrorMessage(err);
                             });
@@ -1396,7 +1397,7 @@ export class BaseViewContainer extends BaseContainer {
                 () => this.unblockUi()
             );
         }).catch((err)=>{
-                console.log(err)
+                this.showGlobalErrorMessage(err);
                 this.unblockUi();
         });
     }
@@ -1460,6 +1461,7 @@ export class BaseViewContainer extends BaseContainer {
                             : this.isDashboard()
                             ? this.renderDashboardViewComponent()
                             : null}
+                        <SelectedElements selectedRowKeys={this.state.selectedRowKeys} totalCounts={this.state.totalCounts} />
                         {this.state.qrCodesDialog && (
                             <QrCodesDialog
                                 onHide={() =>
@@ -1590,7 +1592,7 @@ export class BaseViewContainer extends BaseContainer {
                     handleCopyRow={(id) => this.showCopyView(id)}
                     handleArchiveRow={(id) => this.archive(id)}
                     handlePublishRow={(id) => this.publishEntry(id)}
-                />
+                />                 
             </React.Fragment>
         );
     };

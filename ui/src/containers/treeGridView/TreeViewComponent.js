@@ -33,6 +33,7 @@ import ActionButton from '../../components/ActionButton';
 import {ColumnType} from '../../model/ColumnType';
 import {OperationType} from '../../model/OperationType';
 import {DataGridUtils} from '../../utils/component/DataGridUtils';
+import { HtmlUtils } from '../../utils/HtmlUtils';
 
 let clearSelection = false;
 
@@ -83,6 +84,7 @@ class TreeViewComponent extends CellEditComponent {
 
     componentDidMount() {
         super.componentDidMount();
+        this.unregisterKeydownEvent();
         this.registerKeydownEvent();
     }
     
@@ -117,11 +119,30 @@ class TreeViewComponent extends CellEditComponent {
         }
     }
     registerKeydownEvent() {
-        window.addEventListener('mousedown', this.handleAltAndLeftClickFunction);
+       const specEdit = document.getElementById("spec-edit");
+       const allSpecEdit = document.querySelectorAll('#spec-edit');
+       if(specEdit){
+            if(this.props.isAddSpec){
+                if(allSpecEdit.length === 3)
+                    allSpecEdit[2].addEventListener('mousedown', this.handleAltAndLeftClickFunction);
+            }else
+                specEdit.addEventListener('mousedown', this.handleAltAndLeftClickFunction);
+             
+       }
     }
     unregisterKeydownEvent() {
-        window.removeEventListener('mousedown', this.handleAltAndLeftClickFunction);
+       const specEdit = document.getElementById("spec-edit");       
+       const allSpecEdit = document.querySelectorAll('#spec-edit');
+       if(specEdit){
+            if(this.props.isAddSpec){
+                if(allSpecEdit.length === 3)
+                    allSpecEdit[2].removeEventListener('mousedown', this.handleAltAndLeftClickFunction);
+            }else
+                specEdit.removeEventListener('mousedown', this.handleAltAndLeftClickFunction);
+            
+        }
     }
+
     
     componentWillUnmount() {
         clearSelection = false;
@@ -225,6 +246,9 @@ class TreeViewComponent extends CellEditComponent {
                                 clearSelection = true;
                             }
                         }
+                    }}
+                    onRowClick={(e) => {
+                        this.currentClickedCell.current = e.data.ID;
                     }}
                     onFocusedRowChanging={(e)=>{
                         if( e.rows[e.newRowIndex]?.data){
@@ -417,40 +441,30 @@ class TreeViewComponent extends CellEditComponent {
             );
         }
     };
-    handleAltAndLeftClickFunction = (event) => {
+    handleAltAndLeftClickFunction = (event) => {        
         if (this.props.altAndLeftClickEnabled && event.button === 0 && event.altKey) {
-            if (this.currentClickedCell.current) {
-                if(this.clickInsideTreeContainer(event)){
-                    if(this.ref){
-                        const clickedCell = parseInt(this.currentClickedCell.current);
-                        const treeRef =this.ref.instance;
-                        let selectedRows = this.ref.instance.getSelectedRowsData().map(selectedRow => {return{ID: parseInt(selectedRow.ID)}});
-                        if (selectedRows.find((row) => row.ID  === clickedCell)) {
-                                selectedRows = selectedRows.filter((selectedRow) => selectedRow.ID !== clickedCell);
-                             } 
-                        else {
-                                 selectedRows.push({ID:clickedCell});
-                             }
-                        treeRef.selectRows(selectedRows.map(el=>el.ID))
+            setTimeout(()=>{
+                if (this.currentClickedCell.current) {
+                    if(HtmlUtils.clickedInsideComponent(event, "spec-edit")){
+                        if(this.ref){
+                            const clickedCell = parseInt(this.currentClickedCell.current);
+                            const treeRef =this.ref.instance;
+                            let selectedRows = this.ref.instance.getSelectedRowsData().map(selectedRow => {return{ID: parseInt(selectedRow.ID)}});
+                            if (selectedRows.find((row) => row.ID  === clickedCell)) {
+                                    selectedRows = selectedRows.filter((selectedRow) => selectedRow.ID !== clickedCell);
+                                 } 
+                            else {
+                                     selectedRows.push({ID:clickedCell});
+                                 }
+                            treeRef.selectRows(selectedRows.map(el=>el.ID))
+                        }
+                 
                     }
-             
                 }
-            }
+            },0)
         }
     };
-    clickInsideTreeContainer(event){
-        if(event.target){
-            let currentElement = event.target;
-            while (currentElement.parentNode) {
-                currentElement = currentElement.parentNode;
-                if (currentElement.id === "spec-edit") {
-                    return true;
-                }   
 
-            }
-        }
-        return false;
-    }
     handleCheck(recordId) {
         const parentId = recordId === undefined ? this.selectedRecordIdRef.current : recordId;
         const tree = this.props.parsedGridViewData;

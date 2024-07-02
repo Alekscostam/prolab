@@ -60,7 +60,7 @@ ActionShortcutWithoutMenu.defaultProps = {
 };
 
 ActionShortcutWithoutMenu.propTypes = {
-    items: PropTypes.array.isRequired,
+    items: PropTypes.array,
     label: PropTypes.string,
     title: PropTypes.string,
     id: PropTypes.string,

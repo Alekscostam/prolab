@@ -25,6 +25,7 @@ export class ViewContainer extends BaseViewContainer {
         this.handleAddElements = this.handleAddElements.bind(this);
         this.state = {
             prevDataGridGlobalReference: null,
+            totalCounts:undefined
         };
         this.getGridViewType = () => {
             return this.state.gridViewType;
@@ -288,7 +289,7 @@ export class ViewContainer extends BaseViewContainer {
                             selectAll: this.state.selectAll,
                         };
                     },
-                    (group) => {
+                    (group, totalCounts) => {
                         const gridViewColumns = this.getColumnsWithRemovedGroupingIfNecessary(group);
                         this.setState(
                             {
@@ -296,6 +297,7 @@ export class ViewContainer extends BaseViewContainer {
                                 select: false,
                                 selectAll: false,
                                 dataGridStoreSuccess: true,
+                                totalCounts: totalCounts,
                             },
                             () => {
                                 this.unblockUi();

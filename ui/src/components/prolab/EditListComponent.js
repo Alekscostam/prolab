@@ -33,7 +33,7 @@ export default class EditListComponent extends React.Component {
                     id='editListDialog'
                     header={LocUtils.loc(this.props.labels, 'Selection_List_Label', 'Lista podpowiedzi')}
                     footer={
-                        opSelect ? (
+                        (opSelect) ? (
                             <Button
                                 type='button'
                                 onClick={() => {
@@ -78,7 +78,7 @@ export default class EditListComponent extends React.Component {
                     onHide={() => this.props.onHide()}
                 >
                     <GridViewComponent
-                    altAndLeftClickEnabled={true}
+                        altAndLeftClickEnabled={true}
                         id={this.props.id}
                         elementSubViewId={null}
                         handleOnDataGrid={(ref) => (this.refDataGrid = ref)}

@@ -745,7 +745,6 @@ class BaseContainer extends React.Component {
             !UrlUtils.getRecordId()
         );
     }
-    // TODO: w zalacznikach buttonuy dodac w uplaodzie
     notValidTypeForRefresh() {
         return (
             UrlUtils.getViewType() === 'gridView' &&
@@ -1334,7 +1333,7 @@ class BaseContainer extends React.Component {
                 );
             })
             .catch((err) => {
-                this.showErrorMessages(err);
+                this.showGlobalErrorMessage(err);
             });
     }
 

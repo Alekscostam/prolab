@@ -70,6 +70,9 @@
         {
             "code": "OP_SELECT",
             "caption": "Select"
+        }, {
+            "code": "OP_CLOSE",
+            "caption": "Close"
         },
         {
             "code": "OP_ATTACHMENTS",

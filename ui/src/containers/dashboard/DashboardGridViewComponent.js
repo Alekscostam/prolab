@@ -531,7 +531,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                 <HeadPanel
                     labels={this.props.labels}
                     selectedRowKeys={this.state.selectedRowKeys}
-                    operations={this.state.parsedGridView?.operations}
+                    operations={operations}
                     leftContent={this.leftHeadPanelContent()}
                     rightContent={this.rightHeadPanelContent()}
                     handleDelete={() => this.delete()}

@@ -31,6 +31,7 @@ import {StringUtils} from '../utils/StringUtils';
 let clickCount = 0;
 let timeout;
 // TODO: brak block ui na tryb sidepanel po wejsciu w liste podpowiedzi
+// TODO: fix zalaczniki hover-state
 export class BaseRowComponent extends BaseContainer {
     constructor(props) {
         super(props);

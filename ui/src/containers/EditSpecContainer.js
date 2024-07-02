@@ -27,6 +27,7 @@ import EditSpecService from '../services/EditSpecService';
 import {OperationType} from '../model/OperationType';
 import {StringUtils} from '../utils/StringUtils';
 import ActionShortcutWithoutMenu from '../components/prolab/ActionShortcutWithoutMenu';
+import SelectedElements from '../components/SelectedElements';
 
 export let operationClicked = false;
 export class EditSpecContainer extends BaseContainer {
@@ -50,6 +51,7 @@ export class EditSpecContainer extends BaseContainer {
             elementParentId: null,
             elementRecordId: null,
             elementFilterId: null,
+            totalCounts: undefined,
             parsedData: null,
             columns: [],
             selectedRowKeys: [],
@@ -215,13 +217,14 @@ export class EditSpecContainer extends BaseContainer {
                         .getDataTreeStoreDirect(viewIdArg, parentIdArg, recordIdArg, packageCount)
                         .then((res) => {
                             const data = TreeListUtils.paintDatas(res.data);
-                            TreeListUtils.createSelectonColumn(responseView.gridColumns[0].columns, data);
+                            TreeListUtils.createSelectionColumn(responseView.gridColumns[0].columns, data);
                             const columnsTmp = this.columnsFromGroupCreate(responseView);
                             this.setState(
                                 {
                                     parsedView: responseView,
                                     viewInfo: responseView.viewInfo,
                                     columns: columnsTmp,
+                                    totalCounts: res?.totalCount
                                 },
                                 () =>
                                     this.setState({
@@ -340,7 +343,7 @@ export class EditSpecContainer extends BaseContainer {
                             />{' '}
                         </React.Fragment>
                     );
-                case OperationType.OP_ADD_SPEC_BUTTON:
+                case OperationType.OP_ADD_SPEC:
                     return (
                         <React.Fragment>
                             {operation.showAlways && (
@@ -348,7 +351,7 @@ export class EditSpecContainer extends BaseContainer {
                                     id='button_add_spec'
                                     className={`${margin}`}
                                     iconName={operation?.iconCode || 'mdi-cogs'}
-                                    operationType={OperationType.OP_ADD_SPEC_BUTTON}
+                                    operationType={OperationType.OP_ADD_SPEC}
                                     customEventClick={() => this.showAddSpecDialog()}
                                     title={operation?.label}
                                 />
@@ -431,9 +434,13 @@ export class EditSpecContainer extends BaseContainer {
     }
     handleAddElements = (elements) => {
         const addParsedView = (this.state.parsedData || []).concat(elements);
+        TreeListUtils.removeLineColorGradient(addParsedView);
+        TreeListUtils.paintDatas(addParsedView);
         this.setState(
             {
                 parsedData: addParsedView,
+                totalCounts: addParsedView.length
+                 
             },
             this.refreshTable()
         );
@@ -679,7 +686,7 @@ export class EditSpecContainer extends BaseContainer {
     }
 
     updateData(dataToUpdate, callbackAction) {
-        this.setState({parsedData: dataToUpdate}, () => {
+        this.setState({parsedData: dataToUpdate, totalCounts:dataToUpdate.filter(el=>el._STATUS !== "deleted").length}, () => {
             if (!!callbackAction) callbackAction();
         });
     }
@@ -721,6 +728,7 @@ export class EditSpecContainer extends BaseContainer {
 
                         <div id='spec-edit'>
                             <TreeViewComponent
+                                altAndLeftClickEnabled={true}
                                 id={this.props.id}
                                 onHideEditorCallback={() => this.forceUpdate()}
                                 viewInfo={this.state.viewInfo}
@@ -780,6 +788,9 @@ export class EditSpecContainer extends BaseContainer {
                                 showErrorMessages={(err) => this.showErrorMessages(err)}
                                 labels={this.props.labels}
                             />
+                            
+                            <SelectedElements selectedRowKeys={this.state.selectedRowKeys} totalCounts={this.state.totalCounts}/>
+
                         </div>
                         {this.state.visibleAddSpec ? (
                             <AddSpecContainer
@@ -792,10 +803,11 @@ export class EditSpecContainer extends BaseContainer {
                                 visibleAddSpec={this.state.visibleAddSpec}
                                 levelId={this.state.levelId}
                                 handleAddElements={(el) => this.handleAddElements(el)}
-                                onHide={() =>
+                                onHide={() =>{
                                     this.setState({
                                         visibleAddSpec: false,
-                                    })
+                                        levelId:undefined
+                                    })}
                                 }
                                 collapsed={this.props.collapsed}
                             />

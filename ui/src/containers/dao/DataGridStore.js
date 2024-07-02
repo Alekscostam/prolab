@@ -144,16 +144,6 @@ export default class DataGridStore extends BaseService {
                     // Tu wchodiz tylko dla opcji grupowania, initial value na 60 oraz selectiona
                     loadOptions.take = 60;
                 } else {
-                    //TODO: CZASAMI pobiera dwa razy
-                    // if (loadOptions.take === 60) {
-                    //     return Promise.resolve({
-                    //         totalCount: this.lastFetchedData.totalCount,
-                    //         data: this.lastFetchedData.data,
-                    //         skip: 0,
-                    //         take: 60,
-                    //         selectAll: false,
-                    //     });
-                    // }
                 }
 
                 this.cachedLoadOptions = loadOptions;
@@ -227,7 +217,6 @@ export default class DataGridStore extends BaseService {
                     sort: sort,
                     group: group,
                 };
-                //blokuje niepotrzebne requesty do backendu o ID rekordów
                 return this.fetch(url, {
                     method: 'POST',
                     body: JSON.stringify(requestBody),
@@ -235,7 +224,7 @@ export default class DataGridStore extends BaseService {
                     .then((response) => {
                         ConsoleHelper('DataGridStore -> fetch ');
                         if (onSuccessCallback) {
-                            onSuccessCallback(group);
+                            onSuccessCallback(group, response.totalCount);
                         }
                         this.lastFetchedData = {
                             data: response.data,

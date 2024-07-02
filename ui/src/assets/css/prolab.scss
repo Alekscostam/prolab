@@ -1379,6 +1379,26 @@ td[aria-roledescription='Editable'] {
         max-width: 100%;
     }
 }
+#selected-elements-outer{
+    #selected-elements{
+        position: absolute; /* or 'static' */
+        bottom: 40px;
+        background-color: $base-color;
+        padding: 9px;
+        min-width: 50px;
+        display: inline-block;
+        border-radius: 8px;
+        font-weight: 600;
+        opacity: 0.9;
+        font-size: 15px;
+        border-color: $base-color;
+        color: white;
+        left: 50%; 
+        text-align: center;
+        transform: translateX(-50%);
+    }
+}
+
 
 @import 'edit_spec_field';
 @import 'edit_row';

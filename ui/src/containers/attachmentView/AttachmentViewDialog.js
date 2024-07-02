@@ -21,6 +21,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
         this.state = {
             currentViewType: 'gridView',
             realParentId: undefined,
+            totalCounts: undefined,
         };
     }
 
@@ -192,14 +193,16 @@ export class AttachmentViewDialog extends BaseViewContainer {
                     return {
                         select: this.state.select,
                         selectAll: this.state.selectAll,
+                       
                     };
                 },
-                () => {
+                (group, totalCounts) => {
                     this.setState(
                         {
                             select: false,
                             selectAll: false,
-                            dataGridStoreSuccess: true,
+                            dataGridStoreSuccess: true, 
+                            totalCounts: totalCounts,
                         },
                         () => {
                             this.unblockUi();

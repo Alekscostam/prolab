@@ -348,7 +348,6 @@ class LoginContainer extends BaseContainer {
                                                                     ref={this.recaptchaRef}
                                                                     sitekey='TWOJ_SITE_KEY'
                                                                     onChange={() => {
-                                                                        debugger;
                                                                     }}
                                                                 /> */}
 
