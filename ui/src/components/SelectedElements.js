@@ -6,7 +6,9 @@ import PropTypes from 'prop-types';
 import { StringUtils } from '../utils/StringUtils';
 
 export const SelectedElements = ({selectedRowKeys, totalCounts}) => {
-	
+	if(!selectedRowKeys){
+		return <div></div>
+	}
 	if(selectedRowKeys?.length<1){
 		return <div></div>
 	}
