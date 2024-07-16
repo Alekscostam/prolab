@@ -32,8 +32,9 @@ export const ShortcutButton = (props) => {
                 {props.children}
                 <a
                     onBlur={(e) => {
-                        if (handleBlur) {
-                            handleBlur(e);
+                        if (!e?.relatedTarget?.classList?.contains('p-menuitem-link')) {
+                            const content = document.getElementById('header-left');
+                            if (content) content.click();
                         }
                     }}
                     title={`${title ? title : ''}${ariaLabel}`}

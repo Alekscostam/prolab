@@ -119,7 +119,6 @@ export class DashboardGridViewComponent extends BaseContainer {
                         const pluginsListTmp = this.puginListCreate(responseView);
                         const documentsListTmp = this.documentListCreate(responseView);
                         const batchesListTmp = this.batchListCreate(responseView);
-                        this.processOperations(responseView, this.props.labels);
                         let filtersListTmp = [];
                         for (let filter in responseView?.filtersList) {
                             filtersListTmp.push({

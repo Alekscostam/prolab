@@ -31,7 +31,6 @@ class CellEditComponent extends Component {
         this.crudService = new CrudService();
         this.trashClicked = React.createRef(false);
         this.currentClickedCell = React.createRef();
-
         this.state = {
             cellInfo: undefined,
             editListVisible: false,
@@ -354,7 +353,8 @@ class CellEditComponent extends Component {
                                         //onStart
                                         () => {
                                             return {selectAll: this.state.selectAll};
-                                        }
+                                        },
+                                        selectedRowDataTmp
                                     );
                                     this.setState({
                                         loading: false,

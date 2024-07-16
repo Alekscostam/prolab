@@ -22,8 +22,9 @@ import {OperationType} from '../model/OperationType';
 import {TabSpecType} from '../model/TabSpecType';
 import {StringUtils} from '../utils/StringUtils';
 import SelectedElements from '../components/SelectedElements';
+import AddSpecService from '../services/AddSpecService';
 
-const autOfRangeIndex = 6;
+const autOfRangeIndexTab = 6;
 
 export class AddSpecContainer extends BaseContainer {
     _isMounted = false;
@@ -32,6 +33,8 @@ export class AddSpecContainer extends BaseContainer {
         super(props);
         this.viewService = new ViewService();
         this.crudService = new CrudService();
+        this.crudService = new CrudService();
+        this.addSpecService =  new AddSpecService();
         this.dataTreeStore = new DataTreeStore();
         this.refTreeList = React.createRef();
         this.numberOfCopiesRef = React.createRef();
@@ -222,7 +225,6 @@ export class AddSpecContainer extends BaseContainer {
             const documentsListTmp = this.documentListCreate(responseView);
             const batchesListTmp = this.batchListCreate(responseView);
             const filtersListTmp = this.filtersListCreate(responseView);
-            this.processOperations(responseView, this.props.labels);
             Breadcrumb.currentBreadcrumbAsUrlParam();
             this.blockUi();
             this.setState(
@@ -330,7 +332,7 @@ export class AddSpecContainer extends BaseContainer {
                                     if (sessionPrelongFnc) {
                                         sessionPrelongFnc();
                                     }
-                                    if (this.state.selectedIndex === autOfRangeIndex) {
+                                    if (this.state.selectedIndex === autOfRangeIndexTab) {
                                         this.onItemTabClick(event.itemIndex);
                                     }
                                 }}
@@ -356,7 +358,7 @@ export class AddSpecContainer extends BaseContainer {
                                             this.setState({
                                                 blocking: true,
                                                 isSubView: false,
-                                                selectedIndex: autOfRangeIndex,
+                                                selectedIndex: autOfRangeIndexTab,
                                             });
                                         }
                                         if (args.value !== -1 && args.previousValue !== -1) {
@@ -375,7 +377,7 @@ export class AddSpecContainer extends BaseContainer {
         );
     }
     onItemTabClick(index) {
-        if (index !== autOfRangeIndex) {
+        if (index !== autOfRangeIndexTab) {
             let id = UrlUtils.getViewIdFromURL();
             if (id === undefined) {
                 id = this.props.id;
@@ -492,8 +494,8 @@ export class AddSpecContainer extends BaseContainer {
         if (this.isGridViewUrlExist()) {
             parentId = UrlUtils.getRecordId();
         }
-        this.crudService
-            .executeSpec(
+        this.addSpecService
+            .execute(
                 viewId,
                 parentId,
                 type,

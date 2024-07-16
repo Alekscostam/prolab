@@ -40,6 +40,11 @@ export class ActionButtonWithMenu extends React.Component {
                     id={`${id}_popup_menu`}
                     className='action-button-with-menu-popup'
                     popup
+                    onBlur={(event)=>{
+                        if (!event?.relatedTarget?.classList?.contains('p-menuitem-link')) {
+                            this.menu.toggle(event);
+                        }
+                    }}
                     ref={(el) => (this.menu = el)}
                     model={items}
                 />
@@ -47,12 +52,6 @@ export class ActionButtonWithMenu extends React.Component {
                     id={`${id}_menu_button`}
                     className={`action-button-with-menu ${className}`}
                     disabled={disabled}
-                    handleBlur={(e) => {
-                        if (!e?.relatedTarget?.classList?.contains('p-menuitem-link')) {
-                            const content = document.getElementById('header-left');
-                            if (content) content.click();
-                        }
-                    }}
                     handleClick={(event) => {
                         if (sessionPrelongFnc) {
                             sessionPrelongFnc();

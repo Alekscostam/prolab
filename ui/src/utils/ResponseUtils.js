@@ -17,8 +17,7 @@ function ResponseUtils() {
 
     return null;
 }
-
-ResponseUtils.run = (response, nokAcceptFnc, okAcceptFnc, errMessage, resErrorMessage) => {
+ResponseUtils.run = (response, nokAcceptFnc, okAcceptFnc, errMessage, resErrorMessage, onAfterOkClick) => {
     switch (response.status) {
         case 'OK':
             if (!!response.message) {
@@ -39,7 +38,7 @@ ResponseUtils.run = (response, nokAcceptFnc, okAcceptFnc, errMessage, resErrorMe
                     true
                 );
             } else if (!!response.message) {
-                renderConfirmDialog(response.message.text, response.message.title, 'pi pi-info-circle');
+                renderConfirmDialog(response.message.text, response.message.title, 'pi pi-info-circle', onAfterOkClick);
             } else if (!!response.error) {
                 resErrorMessage(response);
             }
@@ -53,7 +52,6 @@ ResponseUtils.run = (response, nokAcceptFnc, okAcceptFnc, errMessage, resErrorMe
             break;
     }
 };
-
 function renderConfirmDialog(message, header, icon, onAccept, isQuestionDialog = false) {
     const confirmDialogWrapper = document.createElement('div');
     confirmDialogWrapper.classList.add('confirm-dialog-wrapper');

@@ -612,11 +612,25 @@ body main div.container-fluid {
 .p-toast .p-toast-message .p-toast-message-content .p-toast-message-text {
     margin: 0;
 }
+.p-toast-summary{
+    font-size: 18px;
+    padding-right: 15px;
+}
+.p-toast {
+    opacity: 1;
+}
+div#toast-messages .p-toast-message-success, div#toast-messages .p-toast-message-error {
+    padding: 8px;
+    border-radius: 5px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
 
+}
 .p-dialog-title {
     white-space: pre-line;
 }
-
+.p-icon.p-toast-message-icon{
+    display: none;
+}
 .p-confirm-dialog-message {
     white-space: pre-line;
 }

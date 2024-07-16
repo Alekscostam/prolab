@@ -194,7 +194,6 @@ export class EditSpecContainer extends BaseContainer {
             const documentsListTmp = this.documentListCreate(responseView);
             const batchesListTmp = this.batchListCreate(responseView);
             const filtersListTmp = this.filtersListCreate(responseView);
-            this.processOperations(responseView, this.props.labels);
             Breadcrumb.currentBreadcrumbAsUrlParam();
             this.setState(
                 () => ({
@@ -579,7 +578,6 @@ export class EditSpecContainer extends BaseContainer {
 
     //override
     delete(id) {
-        // this.blockUi();
         let data = this.state?.parsedData;
         this.refTreeList?.instance?.beginCustomLoading();
         if (!!id) {
@@ -594,13 +592,12 @@ export class EditSpecContainer extends BaseContainer {
                 this.refreshTable();
             });
         }
-
         this.refTreeList?.instance?.endCustomLoading();
     }
 
     //usunięcie pojedyńczego rekordu
     deleteSingleRow(id, data) {
-        let el = data.find((x) => x._ID === id);
+        const el = data.find((x) => x._ID === id);
         if (el._STATUS === 'inserted') {
             const index = data.findIndex((x) => x._ID === id);
             if (index !== undefined) {
@@ -609,15 +606,10 @@ export class EditSpecContainer extends BaseContainer {
         } else {
             el._STATUS = 'deleted';
         }
-        let elements = data.filter((x) => x._ID_PARENT === el._ID);
-
-        elements.forEach((e) => {
+        data.filter((x) => x._ID_PARENT === el._ID).forEach((e) => {
             this.delete(e._ID);
         });
-        if (elements.length === 0) {
-            return data;
-        }
-        return null;
+        return data;
     }
     //metoda przenosi rekord o poziom wyżej
     up(id) {

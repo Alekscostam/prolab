@@ -837,22 +837,30 @@ class BaseContainer extends React.Component {
             .then((saveResponse) => {
                 ResponseUtils.run(
                     saveResponse,
-                    () => this.specSave(viewId, parentId, saveElement, true),
-                    () => {},
+                    () => {
+                        this.specSave(viewId, parentId, saveElement, true)},
+                    () => {
+                    },
                     (res) => {
                         this.showErrorMessages(res);
                     },
                     (res) => {
                         this.showResponseErrorMessage(res);
+                    },
+                    ()=>{
+                        if (fncRedirect) {
+                            fncRedirect();
+                        }            
                     }
                 );
+                if((StringUtils.isBlank(saveResponse?.status) || saveResponse?.status !== "NOK") && fncRedirect){
+                    fncRedirect();
+                }
                 this.refreshView();
                 if (UrlUtils.urlParamExsits('grid-view')) this.refreshSubView(true);
                 this.unselectAllDataGrid();
-                if (fncRedirect) {
-                    fncRedirect();
-                }
                 this.unblockUi();
+               
             })
             .catch((err) => {
                 this.showGlobalErrorMessage(err);
@@ -1360,7 +1368,7 @@ class BaseContainer extends React.Component {
                 });
             })
             .catch((err) => {
-                this.showErrorMessages(err);
+                this.showGlobalErrorMessage(err);
             });
     }
 
@@ -1521,10 +1529,8 @@ class BaseContainer extends React.Component {
 
     prepareCalculateFormula(rowId) {
         this.blockUi();
-
         const viewId = this.getRealViewId();
         const parentId = this.state.elementParentId;
-
         let datas = [];
         if (this.state?.elementViewType?.toUpperCase() !== 'CARDVIEW') {
             if (!!this.getRefGridView()) {
@@ -1534,7 +1540,7 @@ class BaseContainer extends React.Component {
                 datas = this.state.parsedData;
             }
         }
-        const fieldsToCalculate = this.createObjectToCalculate(datas);
+        const fieldsToCalculate = this.createObjectToCalculate(datas.filter(data=>data._STATUS !== "deleted" ));
         this.calculateFormula(viewId, parentId, rowId, fieldsToCalculate);
     }
     // TODO:  tutaj powinien byc jakis refactoring
@@ -2107,17 +2113,6 @@ class BaseContainer extends React.Component {
             });
         }
         return filtersListTmp;
-    }
-
-    processOperations(responseView, labels) {
-        // const operations = responseView.operations || [];
-        // const operationsPPM = responseView.operationsPPM || [];
-        // const operationsRecord = responseView.operationsRecord || [];
-        // const operationsRecordList = responseView.operationsRecordList || [];
-        // this.replaceOperationsLabels(operations, labels);
-        // this.replaceOperationsLabels(operationsPPM, labels);
-        // this.replaceOperationsLabels(operationsRecord, labels);
-        // this.replaceOperationsLabels(operationsRecordList, labels);
     }
 
     replaceOperationsLabels(operations, labels) {

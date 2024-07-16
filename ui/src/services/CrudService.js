@@ -139,23 +139,6 @@ export default class CrudService extends BaseService {
             throw err;
         });
     }
-
-    executeSpec(viewId, parentId, type, headerId, header, listId, data, count) {
-        let url = `${this.getDomain()}/${this.path}/${viewId}/addspec/${parentId}/execute?count=${count}`;
-        if (type !== 'DEF') {
-            url += `&type=${type}&header=${header}&headerId=${headerId}`;
-        }
-        return this.fetch(url, {
-            method: 'POST',
-            body: JSON.stringify({
-                listId: listId,
-                data: data,
-            }),
-        }).catch((err) => {
-            throw err;
-        });
-    }
-
     getPluginColumnsDefnitions(viewId, pluginId, listId, parentId) {
         return this.fetch(
             `${this.getDomain()}/${this.path}/${viewId}/plugin/${pluginId}${parentId ? `?parentId=${parentId}` : ''}`,

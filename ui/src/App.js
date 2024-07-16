@@ -149,6 +149,7 @@ class App extends Component {
         bodyApp.addEventListener('click', eventForSessionPrelong);
         root.addEventListener('click', eventForSessionPrelong);
         bodyApp.addEventListener('contextmenu', eventForSessionPrelong);
+        document.addEventListener('wheel', eventForSessionPrelong);
         root.addEventListener('contextmenu', eventForSessionPrelong);
         bodyApp.addEventListener('keydown', eventForSessionPrelong);
         root.addEventListener('keydown', eventForSessionPrelong);
@@ -256,6 +257,7 @@ class App extends Component {
                 root.removeEventListener('click', sessionPrelongFnc);
                 root.removeEventListener('keydown', sessionPrelongFnc);
                 root.removeEventListener('scroll', sessionPrelongFnc);
+                document.addEventListener('wheel', sessionPrelongFnc);
             }
         } catch (err) {
             console.log(err);

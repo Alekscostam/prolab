@@ -453,6 +453,7 @@ export const OperationsButtons = (props) => {
                     case OperationType.OP_ATTACHMENTS:
                         return props.handleAttachments();
                     case OperationType.OP_BATCH:
+                    case OperationType.SK_BATCH:
                         return props.handleBatch(i);
                     case OperationType.OP_ADD_LEVEL:
                         return props.handleAddLevel();

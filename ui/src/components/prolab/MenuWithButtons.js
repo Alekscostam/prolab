@@ -63,6 +63,8 @@ export const MenuWithButtons = (props) => {
                           case OperationType.OP_ATTACHMENTS:
                               return props.handleAttachments();
                           case OperationType.OP_BATCH:
+                            return props.handleBatch(i);
+                          case OperationType.SK_BATCH:
                               return props.handleBatch(i);
                           case OperationType.OP_ADD_LEVEL:
                               return props.handleAddLevel();

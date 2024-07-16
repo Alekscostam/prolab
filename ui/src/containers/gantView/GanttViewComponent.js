@@ -39,6 +39,7 @@ import {ColumnType} from '../../model/ColumnType.js';
 import moment from 'moment/moment.js';
 import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils.js';
 import { HtmlUtils } from '../../utils/HtmlUtils.js';
+import { ViewDataCompUtils } from '../../utils/component/ViewDataCompUtils.js';
 
 const UNCOLLAPSED_CUT_SIZE = 327;
 const COLLAPSED_CUT_SIZE = 140;
@@ -77,12 +78,14 @@ class GanttViewComponent extends React.Component {
             this.props.handleRefreshData();
         };
         this.uncheckAllData = () => {
-            const fakeEvent = {
-                target: {
-                    checked: false,
-                },
-            };
-            this.selectAll(fakeEvent);
+            if(!StringUtils.isBlank(this.selectAllRef.current)){
+                const fakeEvent = {
+                    target: {
+                        checked: false,
+                    },
+                };
+                this.selectAll(fakeEvent);
+            }
         };
         this.refreshRef = () => {
             if (this.ganttRef?.current?.instance) {
@@ -545,8 +548,9 @@ class GanttViewComponent extends React.Component {
             : null;
     }
     // doklejamy style
-
-    selectAll(e) {
+    selectAll = (e) => {
+       
+        
         let selectedRowKeys = [];
         let store = this.state.rowElementsStorage;
         if (e.target.checked) {
@@ -657,7 +661,7 @@ class GanttViewComponent extends React.Component {
                     <Column
                         caption=''
                         fixed={true}
-                        width={10 + (33 * operationsRecord.length + (operationsRecordList?.length > 0 ? 33 : 0))}
+                        width={ViewDataCompUtils.operationsColumnLength(operationsRecord, operationsRecordList)}
                         fixedPosition={'right'}
                         headerCellTemplate={(element) => {
                             ReactDOM.render(this.addButton(), element);

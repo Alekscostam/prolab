@@ -6,6 +6,7 @@ import ConsoleHelper from '../../utils/ConsoleHelper';
 import EditListUtils from '../../utils/EditListUtils';
 import UrlUtils from '../../utils/UrlUtils';
 import TansformFiltersUtil from '../dao/util/TransformFiltersUtil';
+import { StringUtils } from '../../utils/StringUtils';
 //example
 //api//View/{id}/Edit/{recordId}/list/{fieldId}/data?skip={skip}&take={take}&parentId={parentId}&sort={sort}&filter={filter}
 export default class EditListDataStore extends BaseService {
@@ -27,7 +28,8 @@ export default class EditListDataStore extends BaseService {
         setFields,
         onError,
         onSuccess,
-        onStart
+        onStart,
+        selectedRows
     ) {
         if (!viewIdArg) {
             return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0});
@@ -95,9 +97,20 @@ export default class EditListDataStore extends BaseService {
                     })
                         .then((response) => {
                             let data = response.data;
-                            data.forEach((rowData) => {
+                            data.forEach((rowData, index) => {
                                 if (rowData.CALC_CRC === undefined || rowData.CALC_CRC === null) {
+                                    rowData.INDEX = index;
                                     rowData.CALC_CRC = EditListUtils.calculateCRCBySetFields(rowData, setFields);
+                                    selectedRows.forEach(selectedRow=>{
+                                       const selectedRowName =  selectedRow[0][setFields[0]?.fieldList];
+                                       const responseRowName = rowData[setFields[0]?.fieldList];
+                                       if(selectedRowName === responseRowName && StringUtils.isBlank(selectedRow?.found)){
+                                            selectedRow[0].found=true  
+                                            rowData.INDEX = selectedRow[0].INDEX;
+                                            rowData.CALC_CRC = selectedRow[0].CALC_CRC;
+
+                                       }
+                                    })
                                 }
                             });
                             ConsoleHelper('EditListDataStore -> fetch data');

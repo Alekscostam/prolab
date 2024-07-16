@@ -147,7 +147,20 @@ export default class BaseService {
                 ...options,
             })
                 .then((response) => {
-                    return resolve(response);
+                    if(response?.ok === false){
+                        headers.accept = 'application/json';
+                        response.json().then(
+                            (json) => {
+                              return  reject({
+                                    status: response.status,
+                                    ok: response.ok,
+                                    error:json.error,
+                                });
+                            }
+                        );
+                    }else{
+                        return resolve(response);
+                    }
                 })
                 .catch((error) => {
                     if (

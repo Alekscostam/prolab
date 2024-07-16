@@ -34,6 +34,7 @@ import {ColumnType} from '../../model/ColumnType';
 import {OperationType} from '../../model/OperationType';
 import {DataGridUtils} from '../../utils/component/DataGridUtils';
 import { HtmlUtils } from '../../utils/HtmlUtils';
+import { ViewDataCompUtils } from '../../utils/component/ViewDataCompUtils';
 
 let clearSelection = false;
 
@@ -722,7 +723,7 @@ class TreeViewComponent extends CellEditComponent {
                             }
                             return;
                         },
-                        width: 10 + (33 * operationsRecord.length + (operationsRecordList?.length > 0 ? 33 : 0)),
+                        width: ViewDataCompUtils.operationsColumnLength(operationsRecord, operationsRecordList),
                         fixedPosition: 'right',
                         cellTemplate: (element, info) => {
                             let el = document.createElement('div');

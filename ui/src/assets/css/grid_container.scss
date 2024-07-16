@@ -521,8 +521,11 @@ $base-color: #0e49eb;
         }
     }
 }
+// TODO: zapisz fix na komponenty w batchu  
+// TODO: wyrownaj guziol dodal w edycji specyfikacji
 .dx-datebox-date .dx-dropdowneditor-icon::before,
 .dx-datebox-datetime .dx-dropdowneditor-icon::before,
+.dx-datebox-time .dx-dropdowneditor-icon::before,
 .dx-dropdowneditor-icon {
     color: $data-label;
 }

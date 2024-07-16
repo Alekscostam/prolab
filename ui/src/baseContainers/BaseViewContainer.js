@@ -309,7 +309,6 @@ export class BaseViewContainer extends BaseContainer {
             const documentsListTmp = this.documentListCreate(responseView);
             const batchesListTmp = this.batchListCreate(responseView);
             const filtersListTmp = this.filtersListCreate(responseView);
-            this.processOperations(responseView, this.props.labels);
             Breadcrumb.currentBreadcrumbAsUrlParam();
 
             const viewInfoTypesTmp = [];
@@ -936,7 +935,6 @@ export class BaseViewContainer extends BaseContainer {
             }
         }
     }
-
     viewOperation = (index) => {
         const margin = Constants.DEFAULT_MARGIN_BETWEEN_BUTTONS;
         const indexInArray = this.state.parsedGridView?.operations?.findIndex(
@@ -978,7 +976,6 @@ export class BaseViewContainer extends BaseContainer {
             return null;
         }
     };
-
     leftHeadPanelContent = () => {
         if (this.isDashboard()) {
             return <React.Fragment />;
@@ -991,7 +988,6 @@ export class BaseViewContainer extends BaseContainer {
             </React.Fragment>
         );
     };
-
     isCalendarDateBox(event) {
         try {
             const dateBoxCalendar = event?.target?.parentElement?.parentElement?.parentElement?.parentElement;
@@ -1003,7 +999,6 @@ export class BaseViewContainer extends BaseContainer {
             return false;
         } catch (err) {}
     }
-
     onInitialize(e) {
         dataGrid = e.component;
         window.dataGrid = dataGrid;
@@ -1035,7 +1030,6 @@ export class BaseViewContainer extends BaseContainer {
             }
         });
     }
-
     filterArrayFromInitialize(tr) {
         let filterArray = [];
         for (let index = 0; index < tr.children.length; index++) {
@@ -1054,7 +1048,6 @@ export class BaseViewContainer extends BaseContainer {
         }
         return filterArray;
     }
-
     isCalendarDateBoxValidForFilter(event) {
         const inputValue = event.target.value;
         return inputValue === undefined || inputValue === null || inputValue === '' || inputValue.includes('*');
@@ -1093,9 +1086,7 @@ export class BaseViewContainer extends BaseContainer {
                     operations={operations}
                     leftContent={this.leftHeadPanelContent()}
                     rightContent={this.rightHeadPanelContent()}
-                    handleFormula={(e) => {
-                        this.prepareCalculateFormula();
-                    }}
+                    handleFormula={() =>this.prepareCalculateFormula()}
                     handleDelete={() => this.delete()}
                     handleRestore={() => this.restore()}
                     handleCopy={() => this.showCopyView()}
@@ -1204,7 +1195,6 @@ export class BaseViewContainer extends BaseContainer {
         }
         return (
             <React.Fragment>
-                {/*Zakładki podwidoków*/}
                 <div id='subviews-panel'>
                     {this.state.subView != null &&
                     this.state.subView.subViews != null &&

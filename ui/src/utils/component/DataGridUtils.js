@@ -85,7 +85,7 @@ export class DataGridUtils extends ViewDataCompUtils {
                             }}
                             title={StringUtils.textFromHtmlString(info.text)}
                         >
-                            {StringUtils.textFromHtmlString(info.text)}
+                            {DataGridUtils.getText(info)}
                         </div>,
                         element
                     );
@@ -110,8 +110,7 @@ export class DataGridUtils extends ViewDataCompUtils {
                             }}
                             title={StringUtils.textFromHtmlString(info.text)}
                         >
-                            {/* <span dangerouslySetInnerHTML={{__html: info.text}} /> */}
-                            {StringUtils.textFromHtmlString(info.text)}
+                            {DataGridUtils.getText(info)}
                         </div>,
                         element
                     );
@@ -276,5 +275,13 @@ export class DataGridUtils extends ViewDataCompUtils {
                     );
             }
         };
+    }
+
+    static getText(info){
+        // if(info){
+        //     return <span dangerouslySetInnerHTML={{__html: info.text}} /> 
+        // }
+        return StringUtils.textFromHtmlString(info.text)
+
     }
 }

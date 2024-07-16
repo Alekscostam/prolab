@@ -16,6 +16,7 @@ export class EditListUtils {
                     break;
                 }
             }
+            
             defaultSelectedRowKeysTmp.push(newObject);
         }
         return defaultSelectedRowKeysTmp;
@@ -29,6 +30,9 @@ export class EditListUtils {
     //data structure from API
     static calculateCRCBySetFields(rowData, setFields) {
         const objToHash = EditListUtils.transformBySetFields(rowData, setFields);
+        objToHash.forEach(obj=>{
+            obj.INDEX = rowData.INDEX
+        })
         const calculateCRC = EditListUtils.calculateCRC(objToHash);
         ConsoleHelper('objToHash = ', JSON.stringify(objToHash) + ' hash = ' + calculateCRC);
         return calculateCRC;

@@ -39,6 +39,7 @@ import OperationCell from '../../model/OperationCell';
 import {OperationType} from '../../model/OperationType';
 import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils';
 import { HtmlUtils } from '../../utils/HtmlUtils';
+import { ViewDataCompUtils } from '../../utils/component/ViewDataCompUtils';
 
 class GridViewComponent extends CellEditComponent {
     constructor(props) {
@@ -146,8 +147,6 @@ class GridViewComponent extends CellEditComponent {
         }
     }
     handleSpaceClickFunction = (event) =>{ console.log(event, "SPACE")
-        
-        const gridRef = this.props?.getRef()?._instance;
         if (event.code === 'Space' || event.keyCode === 32) {
                     console.log(event, "SPACE")
             const gridRef = this.props?.getRef()?._instance;
@@ -155,8 +154,7 @@ class GridViewComponent extends CellEditComponent {
                 const dxStateHovers =  Array.from(document.getElementsByClassName("dx-state-hover"));
                 if(dxStateHovers.length>0){
                 const currentHoveredRowIndex =  dxStateHovers[0].rowIndex;
-                console.log(dxStateHovers)
-             let selectedRows = this.props.selectedRows;
+                let selectedRows = this.props.selectedRows;
                     const element = {
                         ID: `${this.props.getRef().instance.getKeyByRowIndex(currentHoveredRowIndex)}`,
                     };
@@ -266,8 +264,7 @@ class GridViewComponent extends CellEditComponent {
         const selectedRecordId = this.state.selectedRecordId;
         const parentId = this.props.elementRecordId;
         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
-        let viewId = this.props.id;
-        viewId = DataGridUtils.getRealViewId(subViewId, viewId);
+        const viewId = DataGridUtils.getRealViewId(subViewId, this.props.id);
         return (
             <React.Fragment>
                 {this.state.editListVisible && this.editListComponent()}
@@ -415,7 +412,8 @@ class GridViewComponent extends CellEditComponent {
                         handleDocuments={() => this.props.handleDocumentRow(selectedRecordId)}
                         handlePluginsSk={(el) => this.props.handlePluginRow(el.id)}
                         handlePlugins={() => this.props.handlePluginRow(selectedRecordId)}
-                        handleBatch={(batch) => this.handleBatch(batch.id, viewId, parentId, selectedRecordId)}
+                        handleBatch={(batch) => {
+                            this.handleBatch(batch.id, viewId, parentId, selectedRecordId)}}
                         handleAdd={() => this.props.addButtonFunction()}
                         handleDownload={() => this.props.handleDownloadRow(selectedRecordId)}
                         handleAttachments={() => this.props.handleAttachmentRow(selectedRecordId)}
@@ -460,7 +458,6 @@ class GridViewComponent extends CellEditComponent {
         } 
         this.keyDownClicked.current = false;
     }
-    // TODO: spacja jesli klikniemy na selectuion to nie dziala
     canRenderAdditionalOperationCol() {
         const operationsRecord = this.props.parsedGridView?.operationsRecord;
         const operationsRecordList = this.props.parsedGridView?.operationsRecordList;
@@ -553,7 +550,7 @@ class GridViewComponent extends CellEditComponent {
                         element.parentNode.classList.add('header-button');
                         ReactDOM.render(this.addButton(), element);
                     },
-                    width: 10 + (33 * operationsRecord.length + (operationsRecordList?.length > 0 ? 33 : 0)),
+                    width: ViewDataCompUtils.operationsColumnLength(operationsRecord, operationsRecordList),
                     fixedPosition: 'right',
                     cellTemplate: (element, info) => {
                         let el = document.createElement('div');
@@ -602,9 +599,11 @@ class GridViewComponent extends CellEditComponent {
                                     handleArchive={() => this.props.handleArchiveRow(recordId)}
                                     handlePublish={() => this.props.handlePublishRow(recordId)}
                                     handleCopy={() => this.props.handleCopyRow(recordId)}
+
                                     handleDocuments={(el) => this.props.handleDocumentRow(el.id)}
                                     handlePlugins={(el) => this.props.handlePluginRow(el.id)}
                                     handleDownload={() => this.props.handleDownloadRow(recordId)}
+                                    handleBatch={(batch) => this.handleBatch(batch.id, viewId, parentId, recordId)}
                                     handleAttachments={() => this.props.handleAttachmentRow(recordId)}
                                     handleDelete={() => this.props.handleDeleteRow(recordId)}
                                     handleRestore={() => this.props.handleRestoreRow(recordId)}
@@ -690,7 +689,7 @@ class GridViewComponent extends CellEditComponent {
                 ID: selectedRecordId,
             },
         ];
-        if (parentId === undefined) {
+        if (StringUtils.isBlank(parentId)) {
             parentId = 0;
         }
         const urlEditSpecBatch = AppPrefixUtils.locationHrefUrl(
@@ -816,6 +815,9 @@ class GridViewComponent extends CellEditComponent {
             switch (type) {
                 case ColumnType.H:
                 case ColumnType.B:
+                case ColumnType.E:
+                case ColumnType.D:
+                case ColumnType.T:
                 case ColumnType.L:
                 case ColumnType.C:
                 case ColumnType.O:

@@ -225,7 +225,13 @@ export class ViewDataCompUtils {
             return undefined;
         }
     }
-
+    static operationsColumnLength(operationsRecord,operationsRecordList){
+        const result = 10 + (33 * operationsRecord.length + (operationsRecordList?.length > 0 ? 33 : 0)) ;
+        if(result < 50)
+              return 110  
+        return result ;
+    }
+    
     static formatDateFilterExpression(type, value) {
         const dateMoment = moment(value);
         if (type === ColumnType.D) {

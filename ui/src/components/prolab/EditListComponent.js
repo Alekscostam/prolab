@@ -40,9 +40,6 @@ export default class EditListComponent extends React.Component {
                                     const setFields = this.props.parsedGridView?.setFields || [];
                                     const separatorJoin = this.props.parsedGridView?.options?.separatorJoin || ',';
                                     let selectedRowData = this.props.selectedRowData || [];
-                                    const setFieldsLength = setFields.length;
-                                    const isEditMode = !!this.props.selectedRowData.find(el => el.length === setFieldsLength);
-                                    if(isEditMode){
                                             setFields.forEach((field) => {
                                                 const fieldKey = field.fieldList;
                                                 let values = [];
@@ -63,7 +60,6 @@ export default class EditListComponent extends React.Component {
                                                         : values.join(separatorJoin);
                                             });
                                             this.props.handleOnChosen(setFields, this.props.field);
-                                    }
                                     this.props.onHide();
                                 }}
                                 label={opSelect?.label}

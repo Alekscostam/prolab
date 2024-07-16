@@ -31,7 +31,6 @@ import {StringUtils} from '../utils/StringUtils';
 let clickCount = 0;
 let timeout;
 // TODO: brak block ui na tryb sidepanel po wejsciu w liste podpowiedzi
-// TODO: fix zalaczniki hover-state
 export class BaseRowComponent extends BaseContainer {
     constructor(props) {
         super(props);
@@ -287,7 +286,6 @@ export class BaseRowComponent extends BaseContainer {
                         const editData = this.props.editData;
                         const setFields = structuredClone(responseView.setFields);
                         setFields.length = 1
-                        // const setFields = responseView.setFields[0];
                         const separatorJoin = responseView.options?.separatorJoin || ',';
                         let countSeparator = 0;
                         // TODO: CRC
@@ -307,9 +305,9 @@ export class BaseRowComponent extends BaseContainer {
                                 EditRowUtils.searchField(editData, field.fieldEdit, (foundFields) => {
                                     let fieldTmp = {};
                                     if (this.canPushRowData(foundFields.value)) {
-                                        console.log(foundFields.value);
                                         const fieldValue = ('' + foundFields.value).split(separatorJoin);
                                         fieldTmp[field.fieldList] = fieldValue[index];
+                                        fieldTmp.INDEX = index.toString();
                                         singleSelectedRowDataTmp.push(fieldTmp);
                                     }
                                 });
@@ -327,6 +325,7 @@ export class BaseRowComponent extends BaseContainer {
                             JSON.stringify(defaultSelectedRowKeysTmp)
                         );
                         let filtersListTmp = [];
+
                         this.setState(
                             () => ({
                                 gridViewType: responseView?.viewInfo?.type,
@@ -358,7 +357,8 @@ export class BaseRowComponent extends BaseContainer {
                                     },
                                     () => {
                                         return {selectAll: this.state.selectAll};
-                                    }
+                                    },
+                                    selectedRowDataTmp
                                 );
                                 this.setState(
                                     {
