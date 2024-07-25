@@ -19,7 +19,7 @@ import $ from 'jquery';
 import {localeOptions} from 'primereact/api';
 import ConsoleHelper from '../utils/ConsoleHelper';
 import LocUtils from '../utils/LocUtils';
-import EntryResponseUtils from '../utils/EntryResponseUtils';
+import EntryResponseHelper from '../utils/helper/EntryResponseHelper';
 import GanttViewComponent from '../containers/gantView/GanttViewComponent';
 import PluginListComponent from '../components/prolab/PluginListComponent';
 import ActionButtonWithMenuUtils from '../utils/ActionButtonWithMenuUtils';
@@ -47,6 +47,7 @@ import ReactDOM from 'react-dom';
 import {QrCodesDialog} from '../containers/QrCodesDialog';
 import ActionShortcutWithoutMenu from '../components/prolab/ActionShortcutWithoutMenu';
 import SelectedElements from '../components/SelectedElements';
+import { ResponseUtils } from '../utils/ResponseUtils';
 
 let dataGrid;
 
@@ -304,13 +305,12 @@ export class BaseViewContainer extends BaseContainer {
                 id = this.props.id;
             }
             if (this.state.updateBreadcrumb !== false) Breadcrumb.updateView(responseView.viewInfo, id, recordId);
-            const gridViewColumnsTmp = this.columnsFromGroupCreate(responseView);
-            const pluginsListTmp = this.puginListCreate(responseView);
-            const documentsListTmp = this.documentListCreate(responseView);
-            const batchesListTmp = this.batchListCreate(responseView);
-            const filtersListTmp = this.filtersListCreate(responseView);
+            const gridViewColumnsTmp = ResponseUtils.columnsFromGroupCreate(responseView);
+            const pluginsListTmp = ResponseUtils.pluginListCreate(responseView);
+            const documentsListTmp = ResponseUtils.documentListCreate(responseView);
+            const batchesListTmp = ResponseUtils.batchListCreate(responseView);
+            const filtersListTmp = ResponseUtils.filtersListCreate(responseView);
             Breadcrumb.currentBreadcrumbAsUrlParam();
-
             const viewInfoTypesTmp = [];
             const cardButton = DataGridUtils.getOpButton(responseView.operations, OperationType.OP_CARDVIEW);
             if (cardButton) {
@@ -1100,7 +1100,7 @@ export class BaseViewContainer extends BaseContainer {
             </React.Fragment>
         );
     };
-
+// callback na zaznaczone elementy
     selectAllDataGrid(selectionValue) {
         if (this.isGridView()) {
             this.setState(
@@ -1120,7 +1120,17 @@ export class BaseViewContainer extends BaseContainer {
                                 : this.state.elementRecordId,
                             this.state.elementFilterId,
                             this.state.kindView,
-                            this.getRefGridView()?.instance.getCombinedFilter()
+                            this.getRefGridView()?.instance.getCombinedFilter(),
+                            undefined,
+                            undefined,
+                            undefined,
+                            (totalCounts)=>{
+                                this.setState(
+                                    {
+                                        totalCounts: totalCounts,
+                                    }
+                                );
+                            }
                         )
                         .then((result) => {
                             this.setState(
@@ -1276,7 +1286,7 @@ export class BaseViewContainer extends BaseContainer {
         this.crudService
             .addEntry(viewId, parentId)
             .then((entryResponse) => {
-                EntryResponseUtils.run(
+                EntryResponseHelper.run(
                     entryResponse,
                     () => {
                         if (!!entryResponse.next) {
@@ -1315,7 +1325,7 @@ export class BaseViewContainer extends BaseContainer {
                 this.crudService
                     .editEntry(editViewId, editRecordId, editParentId, editKindView)
                     .then((entryResponse) => {
-                        EntryResponseUtils.run(
+                        EntryResponseHelper.run(
                             entryResponse,
                             () => {
                                 if (!!entryResponse.next) {
@@ -1363,7 +1373,7 @@ export class BaseViewContainer extends BaseContainer {
         const parentId = e.parentId || this.state.elementRecordId;
         const kindView = this.state.elementKindView;
         this.crudService.editEntry(e.viewId, e.recordId, parentId, kindView).then((entryResponse) => {
-            EntryResponseUtils.run(
+            EntryResponseHelper.run(
                 entryResponse,
                 () => {
                     if (!!entryResponse.next) {
@@ -1407,7 +1417,6 @@ export class BaseViewContainer extends BaseContainer {
     loadGanttData(viewIdArg, parentIdArg, filterIdArg, kindViewArg, loadSortOptions) {
         this.setState({loading: true}, () => {
             const sort = [];
-
             if (loadSortOptions) {
                 const operation = {
                     desc: loadSortOptions?.sortOrder?.toUpperCase() === 'DESC',
@@ -1451,7 +1460,7 @@ export class BaseViewContainer extends BaseContainer {
                             : this.isDashboard()
                             ? this.renderDashboardViewComponent()
                             : null}
-                        <SelectedElements selectedRowKeys={this.state.selectedRowKeys} totalCounts={this.state.totalCounts} />
+                     {!this.isDashboard() && <SelectedElements selectedRowKeys={this.state.selectedRowKeys} totalCounts={this.state.totalCounts} /> }   
                         {this.state.qrCodesDialog && (
                             <QrCodesDialog
                                 onHide={() =>
@@ -1593,6 +1602,7 @@ export class BaseViewContainer extends BaseContainer {
             : this.state.parsedGridView?.viewInfo?.filterdId;
         const kindViewArg = !!this.state.elementKindView ? this.state.elementKindView : UrlUtils.getKindView();
         const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
+        const viewHeight = window.innerHeight - 220;
         return (
             <React.Fragment>
                 {!!this.state.parsedCardViewData && (
@@ -1608,6 +1618,7 @@ export class BaseViewContainer extends BaseContainer {
                         handleShowEditPanel={(editDataResponse) => {
                             this.handleShowEditPanel(editDataResponse);
                         }}
+                        viewHeight={viewHeight}
                         showErrorMessages={(err) => this.showErrorMessages(err)}
                         handleBlockUi={() => {
                             this.blockUi();

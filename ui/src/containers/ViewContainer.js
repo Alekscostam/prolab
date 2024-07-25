@@ -6,7 +6,7 @@ import ConsoleHelper from '../utils/ConsoleHelper';
 import LocUtils from '../utils/LocUtils';
 import {AttachmentViewDialog} from './attachmentView/AttachmentViewDialog';
 import {BaseViewContainer} from '../baseContainers/BaseViewContainer';
-import EntryResponseUtils from '../utils/EntryResponseUtils';
+import EntryResponseHelper from '../utils/helper/EntryResponseHelper';
 import {DataGridUtils} from '../utils/component/DataGridUtils';
 import {AddSpecContainer} from './AddSpecContainer';
 import UrlUtils from '../utils/UrlUtils';
@@ -87,7 +87,7 @@ export class ViewContainer extends BaseViewContainer {
             this.viewService
                 .subViewEntry(viewId, recordId, parentId)
                 .then((entryResponse) => {
-                    EntryResponseUtils.run(
+                    EntryResponseHelper.run(
                         entryResponse,
                         () => {
                             if (!!entryResponse.next) {
@@ -226,7 +226,6 @@ export class ViewContainer extends BaseViewContainer {
         const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
         const parentIdArg = this.state.subView == null ? parentId : this.state.elementRecordId;
         const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId;
-
         const kindViewArg = this.state?.gridViewType?.toUpperCase() === 'CARDVIEW' ? 'cardView' : this.state.kindView;
         const dataPackageSize = this.state.parsedGridView?.viewInfo?.dataPackageSize;
         const packageCount =
@@ -349,9 +348,7 @@ export class ViewContainer extends BaseViewContainer {
                         ref={this.viewContainer}
                         recordId={this.state.attachmentViewInfo.recordId}
                         id={this.state.attachmentViewInfo.viewId}
-                        handleRenderNoRefreshContent={(renderNoRefreshContent) => {
-                            this.setState({renderNoRefreshContent: renderNoRefreshContent});
-                        }}
+                        handleRenderNoRefreshContent={(renderNoRefreshContent) => this.setState({renderNoRefreshContent: renderNoRefreshContent})}
                         isKindViewSpec={this.state?.attachmentViewInfo?.isKindViewSpec}
                         prevDataGridGlobalReference={this.state.prevDataGridGlobalReference}
                         setPrevDataGridGlobalReference={() => {
@@ -373,29 +370,17 @@ export class ViewContainer extends BaseViewContainer {
                             });
                             this.showGlobalErrorMessage(err);
                         }}
-                        handleShowErrorMessages={(err) => {
-                            this.showErrorMessage(err);
-                        }}
-                        handleShowEditPanel={(editDataResponse) => {
-                            this.handleShowEditPanel(editDataResponse);
-                        }}
+                        handleShowErrorMessages={(err) => this.showErrorMessage(err)}
+                        handleShowEditPanel={(editDataResponse) => this.handleShowEditPanel(editDataResponse)}
                         onHide={() => {
                             this.setState({
                                 attachmentViewInfo: null,
                             });
                         }}
-                        handleViewInfoName={(viewInfoName) => {
-                            this.setState({viewInfoName: viewInfoName});
-                        }}
-                        handleSubView={(subView) => {
-                            this.setState({subView: subView});
-                        }}
-                        handleOperations={(operations) => {
-                            this.setState({operations: operations});
-                        }}
-                        handleShortcutButtons={(shortcutButtons) => {
-                            this.setState({shortcutButtons: shortcutButtons});
-                        }}
+                        handleViewInfoName={(viewInfoName) => this.setState({viewInfoName: viewInfoName})}
+                        handleSubView={(subView) => this.setState({subView: subView})}
+                        handleOperations={(operations) =>  this.setState({operations: operations})}
+                        handleShortcutButtons={(shortcutButtons) =>  this.setState({shortcutButtons: shortcutButtons})}
                         collapsed={this.state.collapsed}
                     />
                 ) : null}
@@ -405,9 +390,7 @@ export class ViewContainer extends BaseViewContainer {
                         id={this.props.id}
                         visibleAddSpec={this.state.visibleAddSpec}
                         levelId={this.state.levelId}
-                        handleAddElements={(el) => {
-                            this.handleAddElements(el);
-                        }}
+                        handleAddElements={(el) => this.handleAddElements(el)}
                         onHide={() =>
                             this.setState({
                                 visibleAddSpec: false,

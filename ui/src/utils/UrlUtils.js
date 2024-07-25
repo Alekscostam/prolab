@@ -133,6 +133,9 @@ class UrlUtils {
     }
     static isBatch() {
         return window.location.href.includes('batch');
+    } 
+    static isGrid() {
+        return window.location.href.includes('grid-view');
     }
     static mainViewUrl() {
         return window.location.href.split('?')[0];

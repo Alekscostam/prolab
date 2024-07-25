@@ -162,11 +162,7 @@ class App extends Component {
                 const onLogoutUrl = !(textAfterHash && textAfterHash.trim() !== '');
                 if (isExpired) {
                     const isNotLoggedIn = !this.authService.isLoggedUser();
-                    if (isNotLoggedIn) {
-                        this.authService.logout();
-                        return;
-                    }
-                    if (onLogoutUrl) {
+                    if (isNotLoggedIn || onLogoutUrl) {
                         this.authService.logout();
                         return;
                     }

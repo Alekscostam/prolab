@@ -330,7 +330,6 @@ $base-color: #0e49eb;
 .disabled-background {
     background-color: whitesmoke !important;
 }
-
 body
     .base-container-content
     #spec-edit
@@ -345,9 +344,16 @@ body
     align-items: center;
     // transform: translate(75%, 0%);
 }
+.base-container-content #spec-edit .dx-treelist-headers .dx-treelist-table .dx-row.dx-header-row > td:last-child {
+    height: 45px;
+}
+// wyklucz tutaj add spec
 .base-container-content #spec-edit .dx-treelist-headers .dx-treelist-table .dx-row > td:last-child {
     border-bottom: none;
     background-color: white;
+    // justify-content: center;
+    // align-items: center;
+    // display: flex;
 }
 .base-container-content #spec-edit .dx-treelist-headers .dx-treelist-table .dx-row > td:last-child:hover {
     background-color: white !important;

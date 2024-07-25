@@ -1,89 +1,79 @@
-import {ConfirmDialog} from 'primereact/confirmdialog';
-import {localeOptions} from 'primereact/api';
-import ReactDOM from 'react-dom';
-import React from 'react';
-import {useEffect} from 'react';
+import { StringUtils } from "./StringUtils";
 
-function ResponseUtils() {
-    useEffect(() => {
-        return () => {
-            // Czyść wszystkie dialogi potwierdzające przy odmontowywaniu komponentu
-            document.querySelectorAll('.confirm-dialog-wrapper').forEach((element) => {
-                ReactDOM.unmountComponentAtNode(element);
-                document.body.removeChild(element);
+export class ResponseUtils {
+    static columnsFromGroupCreate(responseView) {
+        const columnsTmp = [];
+        let columnOrderCounter = 0;
+        new Array(responseView.gridColumns).forEach((gridColumns) => {
+            gridColumns?.forEach((group) => {
+                group.columns?.forEach((column) => {
+                    column.groupName = group.groupName;
+                    column.freeze = StringUtils.isBlank(column?.freeze) ? group.freeze : column.freeze;
+                    column.columnOrder = columnOrderCounter++;
+                    columnsTmp.push(column);
+                });
             });
-        };
-    }, []);
-
-    return null;
-}
-ResponseUtils.run = (response, nokAcceptFnc, okAcceptFnc, errMessage, resErrorMessage, onAfterOkClick) => {
-    switch (response.status) {
-        case 'OK':
-            if (!!response.message) {
-                renderConfirmDialog(response.message.text, response.message.title, 'pi pi-info-circle', okAcceptFnc);
-            } else if (!!response.error) {
-                resErrorMessage(response);
-            } else {
-                okAcceptFnc();
-            }
-            break;
-        case 'NOK':
-            if (!!response.question) {
-                renderConfirmDialog(
-                    response.question.text,
-                    response.question.title,
-                    'pi pi-question-circle',
-                    nokAcceptFnc,
-                    true
-                );
-            } else if (!!response.message) {
-                renderConfirmDialog(response.message.text, response.message.title, 'pi pi-info-circle', onAfterOkClick);
-            } else if (!!response.error) {
-                resErrorMessage(response);
-            }
-            break;
-        default:
-            if (!!response.error) {
-                resErrorMessage(response);
-            } else {
-                errMessage(response);
-            }
-            break;
+        });
+        return columnsTmp;
     }
-};
-function renderConfirmDialog(message, header, icon, onAccept, isQuestionDialog = false) {
-    const confirmDialogWrapper = document.createElement('div');
-    confirmDialogWrapper.classList.add('confirm-dialog-wrapper');
-    document.body.appendChild(confirmDialogWrapper);
-    ReactDOM.render(
-        <ConfirmDialog
-            closable={false}
-            visible={true}
-            message={message}
-            header={header}
-            icon={icon}
-            acceptLabel={isQuestionDialog ? localeOptions('accept') : 'OK'}
-            rejectLabel={isQuestionDialog ? localeOptions('reject') : undefined}
-            accept={
-                onAccept
-                    ? () => {
-                          onAccept();
-                          document.body.removeChild(confirmDialogWrapper);
-                      }
-                    : () => {
-                          document.body.removeChild(confirmDialogWrapper);
-                      }
-            }
-            reject={
-                isQuestionDialog
-                    ? () => document.body.removeChild(confirmDialogWrapper)
-                    : () => document.body.removeChild(confirmDialogWrapper)
-            }
-            rejectClassName={`${isQuestionDialog ? `` : 'p-hidden'} `} // Ukryj przycisk reject
-        />,
-        confirmDialogWrapper
-    );
+    static pluginListCreate(responseView) {
+        const pluginsListTmp = [];
+        for (let plugin in responseView?.pluginsList) {
+            pluginsListTmp.push({
+                id: responseView?.pluginsList[plugin].id,
+                label: responseView?.pluginsList[plugin].label,
+            });
+        }
+        return pluginsListTmp;
+    }
+    static documentListCreate(responseView) {
+        const documentsListTmp = [];
+        for (let document in responseView?.documentsList) {
+            documentsListTmp.push({
+                id: responseView?.documentsList[document].id,
+                label: responseView?.documentsList[document].label,
+            });
+        }
+        return documentsListTmp;
+    }
+    static batchListCreate(responseView) {
+        const batchesListTmp = [];
+        for (let batch in responseView?.batchesList) {
+            batchesListTmp.push({
+                id: responseView?.batchesList[batch].id,
+                label: responseView?.batchesList[batch].label,
+            });
+        }
+        return batchesListTmp;
+    }
+    static filtersListCreate(responseView) {
+        const filtersListTmp = [];
+        for (let filter in responseView?.filtersList) {
+            filtersListTmp.push({
+                id: responseView?.filtersList[filter].id,
+                label: responseView?.filtersList[filter].label,
+            });
+        }
+        return filtersListTmp;
+    }
+    static editInfoToViewInfo(response, type, kindView) {
+        return {
+            ...response,
+            viewInfo: {
+                id: response.editInfo.viewId,
+                name: response.editInfo.viewName,
+                parentId: response.editInfo.parentId,
+                type: type,
+                kindView: kindView,
+            },
+            gridColumns: [
+                {
+                    groupName: '',
+                    freeze: '',
+                    columns: response.listColumns,
+                },
+            ],
+            gridOptions: response.listOptions,
+        };
+    }
 }
-
-export default ResponseUtils;

@@ -6,12 +6,12 @@ import HtmlEditor, {Item, MediaResizing, Toolbar} from 'devextreme-react/html-ed
 import {CheckBox, DateBox, NumberBox, TextBox, Validator} from 'devextreme-react';
 import {RequiredRule} from 'devextreme-react/validator';
 import moment from 'moment';
-import EntryResponseUtils from '../EntryResponseUtils';
 import {compress} from 'int-compress-string/src';
 import {EditSpecUtils} from '../EditSpecUtils';
 import EditSpecService from '../../services/EditSpecService';
 import OperationCell from '../../model/OperationCell';
 import {StringUtils} from '../StringUtils';
+import EntryResponseHelper from '../helper/EntryResponseHelper';
 
 const sizeValues = ['8pt', '10pt', '12pt', '14pt', '18pt', '24pt', '36pt'];
 const fontValues = [
@@ -544,7 +544,7 @@ export class TreeListUtils extends ViewDataCompUtils {
         TreeListUtils.getEditSpecService()
             .getViewEntry(viewId, parentId, recordIds, null)
             .then((entryResponse) => {
-                EntryResponseUtils.run(
+                EntryResponseHelper.run(
                     entryResponse,
                     () => {
                         if (!!entryResponse.next) {

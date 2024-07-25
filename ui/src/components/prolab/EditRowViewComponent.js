@@ -14,9 +14,9 @@ import EditListDataStore from '../../containers/dao/DataEditListStore';
 import CrudService from '../../services/CrudService';
 import BaseRowComponent from '../../baseContainers/BaseRowComponent';
 import UrlUtils from '../../utils/UrlUtils';
-import EntryResponseUtils from '../../utils/EntryResponseUtils';
 import BlockUi from '../waitPanel/BlockUi';
 import {OperationType} from '../../model/OperationType';
+import EntryResponseHelper from '../../utils/helper/EntryResponseHelper';
 
 export class EditRowViewComponent extends BaseRowComponent {
     constructor(props) {
@@ -63,7 +63,7 @@ export class EditRowViewComponent extends BaseRowComponent {
         this.crudService
             .editEntry(editViewId, editRecordId, editParentId, editKindView, '')
             .then((entryResponse) => {
-                EntryResponseUtils.run(
+                EntryResponseHelper.run(
                     entryResponse,
                     () => {
                         if (!!entryResponse.next) {

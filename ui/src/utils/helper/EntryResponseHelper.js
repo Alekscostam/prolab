@@ -2,8 +2,8 @@ import {ConfirmDialog} from 'primereact/confirmdialog';
 import {localeOptions} from 'primereact/api';
 import ReactDOM from 'react-dom';
 
-function EntryResponseUtils() {}
-EntryResponseUtils.run = (entryResponse, accept, reject, unblockUi) => {
+function EntryResponseHelper() {}
+EntryResponseHelper.run = (entryResponse, accept, reject, unblockUi) => {
     if (!!entryResponse.message || !!entryResponse.question) {
         if (typeof unblockUi === 'function' && entryResponse?.next===false) {
             unblockUi();
@@ -44,4 +44,4 @@ EntryResponseUtils.run = (entryResponse, accept, reject, unblockUi) => {
         accept();
     }
 };
-export default EntryResponseUtils;
+export default EntryResponseHelper;

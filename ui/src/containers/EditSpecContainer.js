@@ -28,6 +28,7 @@ import {OperationType} from '../model/OperationType';
 import {StringUtils} from '../utils/StringUtils';
 import ActionShortcutWithoutMenu from '../components/prolab/ActionShortcutWithoutMenu';
 import SelectedElements from '../components/SelectedElements';
+import { ResponseUtils } from '../utils/ResponseUtils';
 
 export let operationClicked = false;
 export class EditSpecContainer extends BaseContainer {
@@ -190,10 +191,10 @@ export class EditSpecContainer extends BaseContainer {
                 id = this.props.id;
             }
             Breadcrumb.updateView(responseView.viewInfo, id, recordId);
-            const pluginsListTmp = this.puginListCreate(responseView);
-            const documentsListTmp = this.documentListCreate(responseView);
-            const batchesListTmp = this.batchListCreate(responseView);
-            const filtersListTmp = this.filtersListCreate(responseView);
+            const pluginsListTmp = ResponseUtils.pluginListCreate(responseView);
+            const documentsListTmp = ResponseUtils.documentListCreate(responseView);
+            const batchesListTmp = ResponseUtils.batchListCreate(responseView);
+            const filtersListTmp = ResponseUtils.filtersListCreate(responseView);
             Breadcrumb.currentBreadcrumbAsUrlParam();
             this.setState(
                 () => ({
@@ -217,7 +218,7 @@ export class EditSpecContainer extends BaseContainer {
                         .then((res) => {
                             const data = TreeListUtils.paintDatas(res.data);
                             TreeListUtils.createSelectionColumn(responseView.gridColumns[0].columns, data);
-                            const columnsTmp = this.columnsFromGroupCreate(responseView);
+                            const columnsTmp = ResponseUtils.columnsFromGroupCreate(responseView);
                             this.setState(
                                 {
                                     parsedView: responseView,

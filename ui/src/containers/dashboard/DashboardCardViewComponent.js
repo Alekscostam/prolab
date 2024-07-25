@@ -43,14 +43,13 @@ class DashboardCardViewComponent extends React.Component {
         }
         return styleTile;
     }
-
     render() {
         const padding = 2;
-        let cardWidth = this.props.parsedGridView?.cardOptions?.width ?? 300;
-        let cardHeight = this.props.parsedGridView?.cardOptions?.height ?? 200;
-        let cardBgColor1 = this.props.parsedGridView?.cardOptions?.bgColor1;
-        let cardBgColor2 = this.props.parsedGridView?.cardOptions?.bgColor2;
-        let fontColor = this.props.parsedGridView?.cardOptions?.fontColor;
+        const cardWidth = this.props.parsedGridView?.cardOptions?.width ?? 300;
+        const cardHeight = this.props.parsedGridView?.cardOptions?.height ?? 200;
+        const cardBgColor1 = this.props.parsedGridView?.cardOptions?.bgColor1;
+        const cardBgColor2 = this.props.parsedGridView?.cardOptions?.bgColor2;
+        const fontColor = this.props.parsedGridView?.cardOptions?.fontColor;
         return (
             <TileView
                 onInitialized={(e) => {
@@ -199,7 +198,9 @@ class DashboardCardViewComponent extends React.Component {
                                 </div>
                                 <div className='card-grid-body'>
                                     {cardImage?.visible && cardImage?.fieldName && rowData[cardImage?.fieldName]
-                                        ? CardViewUtils.cellTemplate(cardImage, rowData, 'card-grid-body-image', 'IMG')
+                                        ? CardViewUtils.cellTemplate(cardImage, rowData, 'card-grid-body-image', 'IMG', (rowData, title)=>{
+                                             this.props.onImageClick(rowData, title)
+                                         })
                                         : null}
                                     {cardBody?.visible
                                         ? CardViewUtils.cellTemplate(

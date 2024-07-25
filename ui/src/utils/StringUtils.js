@@ -14,4 +14,12 @@ export class StringUtils {
     static isNumber(value) {
         return !isNaN(parseFloat(value)) && isFinite(value);
     }
+    static truncateText(text, maxLength) {
+        if (text.length <= maxLength) {
+            return text;
+        }
+        return text.slice(0, maxLength) + '...';
+    }
+
+ 
 }

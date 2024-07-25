@@ -10,6 +10,7 @@ import Constants from '../../utils/Constants';
 import {OperationType} from '../../model/OperationType';
 import {ButtonGroup} from 'devextreme-react';
 import CardViewInfiniteComponent from '../cardView/CardViewInfiniteComponent';
+import { StringUtils } from '../../utils/StringUtils';
 
 export class AttachmentViewDialog extends BaseViewContainer {
     constructor(props) {
@@ -118,7 +119,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
         return UrlUtils.getViewType() === 'cardView';
     }
     classListIncludesSelectedBorder(element) {
-        if (element === undefined || element === null) {
+        if (StringUtils.isBlank(element)) {
             return true;
         }
         return Array.from(element.classList).includes('card-grid-selected');

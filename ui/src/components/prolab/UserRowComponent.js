@@ -117,7 +117,7 @@ export default class UserRowComponent extends BaseRowComponent {
     }
 
     handleCancel() {
-        let editInfo = this.props.editData?.editInfo;
+        const editInfo = this.props.editData?.editInfo;
         this.props.onCancel(editInfo.viewId, editInfo.recordId, editInfo.parentId);
     }
 

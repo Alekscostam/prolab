@@ -21,7 +21,6 @@ import {Breadcrumb} from '../../utils/BreadcrumbUtils';
 import ReactDOM from 'react-dom';
 import OperationsButtons from '../../components/prolab/OperationsButtons';
 import AppPrefixUtils from '../../utils/AppPrefixUtils';
-import EntryResponseUtils from '../../utils/EntryResponseUtils';
 import DataGanttStore from '../dao/DataGanttStore.js';
 import {GanttUtils} from '../../utils/component/GanttUtils.js';
 import '../../assets/css/gantt_container.scss';
@@ -40,6 +39,7 @@ import moment from 'moment/moment.js';
 import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils.js';
 import { HtmlUtils } from '../../utils/HtmlUtils.js';
 import { ViewDataCompUtils } from '../../utils/component/ViewDataCompUtils.js';
+import EntryResponseHelper from '../../utils/helper/EntryResponseHelper.js';
 
 const UNCOLLAPSED_CUT_SIZE = 327;
 const COLLAPSED_CUT_SIZE = 140;
@@ -414,7 +414,7 @@ class GanttViewComponent extends React.Component {
                 this.crudService
                     .editEntry(viewId, recordId, parentId, kindView, '')
                     .then((entryResponse) => {
-                        EntryResponseUtils.run(
+                        EntryResponseHelper.run(
                             entryResponse,
                             () => {
                                 if (!!entryResponse.next) {
@@ -549,8 +549,6 @@ class GanttViewComponent extends React.Component {
     }
     // doklejamy style
     selectAll = (e) => {
-       
-        
         let selectedRowKeys = [];
         let store = this.state.rowElementsStorage;
         if (e.target.checked) {
@@ -559,7 +557,6 @@ class GanttViewComponent extends React.Component {
                 selectedRowKeys.push({ID: ids[index]});
             }
         }
-
         for (const [key] of store.entries()) {
             let array = [
                 {
@@ -620,7 +617,6 @@ class GanttViewComponent extends React.Component {
         if (showSelection && this.isSelectionEnabled()) {
             this.renderCustomSelection(columns, selectedRowKeys);
         }
-
         if (this.props.parsedGanttView?.ganttColumns?.length > 0) {
             this.props.parsedGanttView?.ganttColumns?.forEach((columnDefinition, INDEX_COLUMN) => {
                 columns.push(
@@ -652,7 +648,6 @@ class GanttViewComponent extends React.Component {
                 );
             });
             this.clearProperties();
-
             if (
                 (operationsRecord instanceof Array && operationsRecord.length > 0) ||
                 (operationsRecordList instanceof Array && operationsRecordList.length > 0)

@@ -25,6 +25,9 @@ export class DocumentRowComponent extends BaseRowComponent {
         this.handleCancel = this.handleCancel.bind(this);
     }
 
+    componentWillUnmount(){
+        super.componentWillUnmount()
+    }
     componentDidUpdate(prevProps, prevState, snapshot) {
         const visibleDocumentPanelPrevious = prevProps.visibleDocumentPanel;
         const visibleDocumentPanel = this.props.visibleDocumentPanel;

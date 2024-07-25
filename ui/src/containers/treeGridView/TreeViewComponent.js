@@ -19,7 +19,6 @@ import {Breadcrumb} from '../../utils/BreadcrumbUtils';
 import ReactDOM from 'react-dom';
 import OperationsButtons from '../../components/prolab/OperationsButtons';
 import AppPrefixUtils from '../../utils/AppPrefixUtils';
-import EntryResponseUtils from '../../utils/EntryResponseUtils';
 import {TreeListUtils} from '../../utils/component/TreeListUtils';
 import EditListDataStore from '../dao/DataEditListStore';
 import {EditSpecUtils} from '../../utils/EditSpecUtils';
@@ -35,6 +34,8 @@ import {OperationType} from '../../model/OperationType';
 import {DataGridUtils} from '../../utils/component/DataGridUtils';
 import { HtmlUtils } from '../../utils/HtmlUtils';
 import { ViewDataCompUtils } from '../../utils/component/ViewDataCompUtils';
+import EntryResponseHelper from '../../utils/helper/EntryResponseHelper';
+import UrlUtils from '../../utils/UrlUtils';
 
 let clearSelection = false;
 
@@ -82,13 +83,11 @@ class TreeViewComponent extends CellEditComponent {
             );
         };
     }
-
     componentDidMount() {
         super.componentDidMount();
         this.unregisterKeydownEvent();
         this.registerKeydownEvent();
     }
-    
     componentDidUpdate(prevProps, prevState, snapshot) {
         console.log('update --> treelist');
         return prevProps.id !== prevState.id && prevProps.elementRecordId !== prevState.elementRecordId;
@@ -100,7 +99,6 @@ class TreeViewComponent extends CellEditComponent {
         }
         return true;
     }
-
     showMenu(e) {
         const menu = this.menu.current;
         if (menu !== null && e.row.rowType === 'data' && !!e?.row?.data?._ID) {
@@ -126,6 +124,8 @@ class TreeViewComponent extends CellEditComponent {
             if(this.props.isAddSpec){
                 if(allSpecEdit.length === 3)
                     allSpecEdit[2].addEventListener('mousedown', this.handleAltAndLeftClickFunction);
+                else if(UrlUtils.isGrid() && allSpecEdit === 1)
+                    allSpecEdit[0].addEventListener('mousedown', this.handleAltAndLeftClickFunction);
             }else
                 specEdit.addEventListener('mousedown', this.handleAltAndLeftClickFunction);
              
@@ -138,13 +138,13 @@ class TreeViewComponent extends CellEditComponent {
             if(this.props.isAddSpec){
                 if(allSpecEdit.length === 3)
                     allSpecEdit[2].removeEventListener('mousedown', this.handleAltAndLeftClickFunction);
+                else if(UrlUtils.isGrid() && allSpecEdit.length  === 1)
+                    allSpecEdit[0].addEventListener('mousedown', this.handleAltAndLeftClickFunction);
             }else
                 specEdit.removeEventListener('mousedown', this.handleAltAndLeftClickFunction);
             
         }
     }
-
-    
     componentWillUnmount() {
         clearSelection = false;
         this.viewInfo = {
@@ -167,7 +167,6 @@ class TreeViewComponent extends CellEditComponent {
     }
     isSpecialCell(columnDefinition) {
         const type = columnDefinition?.type;
-
         try {
             switch (type) {
                 case ColumnType.H:
@@ -183,10 +182,6 @@ class TreeViewComponent extends CellEditComponent {
         } catch (ex) {}
         return false;
     }
-    getAllRowsId() {
-        return this.props.parsedGridViewData.map((el) => el._ID);
-    }
-
     render() {
         const columnAutoWidth = this.props.parsedGridView?.gridOptions?.columnAutoWidth || true;
         const rowAutoHeight = this.props.parsedGridView?.gridOptions?.rowAutoHeight || false;
@@ -204,15 +199,12 @@ class TreeViewComponent extends CellEditComponent {
         const selectAll = this.props.allowSelectAll;
         const allowSelectAll = selectAll === undefined || selectAll === null || !!selectAll;
         const selectedRowKeys = this.props.selectedRowKeys;
-
         const kindView = this.props.elementKindView;
         const parentId = this.props.elementRecordId;
         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
-        let viewId = this.props.id;
         const subViewId = this.props.elementSubViewId;
-        viewId = TreeListUtils.getRealViewId(subViewId, viewId);
+        const viewId = TreeListUtils.getRealViewId(subViewId, this.props.id);
         const selectedRecordId = this.selectedRecordIdRef.current;
-
         return (
             <React.Fragment>
                 {this.state.editListVisible && this.editListComponent()}
@@ -252,7 +244,7 @@ class TreeViewComponent extends CellEditComponent {
                         this.currentClickedCell.current = e.data.ID;
                     }}
                     onFocusedRowChanging={(e)=>{
-                        if( e.rows[e.newRowIndex]?.data){
+                        if(e.rows[e.newRowIndex]?.data){
                             this.currentClickedCell.current = e.rows[e.newRowIndex].data._ID;
                         }
                     }}
@@ -451,12 +443,8 @@ class TreeViewComponent extends CellEditComponent {
                             const clickedCell = parseInt(this.currentClickedCell.current);
                             const treeRef =this.ref.instance;
                             let selectedRows = this.ref.instance.getSelectedRowsData().map(selectedRow => {return{ID: parseInt(selectedRow.ID)}});
-                            if (selectedRows.find((row) => row.ID  === clickedCell)) {
-                                    selectedRows = selectedRows.filter((selectedRow) => selectedRow.ID !== clickedCell);
-                                 } 
-                            else {
-                                     selectedRows.push({ID:clickedCell});
-                                 }
+                            if (selectedRows.find((row) => row.ID  === clickedCell)) selectedRows = selectedRows.filter((selectedRow) => selectedRow.ID !== clickedCell);
+                            else selectedRows.push({ID:clickedCell});
                             treeRef.selectRows(selectedRows.map(el=>el.ID))
                         }
                  
@@ -524,7 +512,7 @@ class TreeViewComponent extends CellEditComponent {
                 this.crudService
                     .editEntry(viewId, recordId, parentId, kindView, '')
                     .then((entryResponse) => {
-                        EntryResponseUtils.run(
+                        EntryResponseHelper.run(
                             entryResponse,
                             () => {
                                 if (!!entryResponse.next) {
@@ -718,12 +706,15 @@ class TreeViewComponent extends CellEditComponent {
                         caption: '',
                         fixed: true,
                         headerCellTemplate: (element) => {
+                            element.offsetParent.style.alignItems= "center";
+                            element.offsetParent.style.justifyContent= "center";
+                            element.offsetParent.style.display= "flex";
                             if (this.props?.addButtonFunction) {
                                 ReactDOM.render(this.addButton(), element);
                             }
                             return;
                         },
-                        width: ViewDataCompUtils.operationsColumnLength(operationsRecord, operationsRecordList),
+                        width: this.props.isAddSpec ? 43 :  ViewDataCompUtils.operationsColumnLength(operationsRecord, operationsRecordList) ,
                         fixedPosition: 'right',
                         cellTemplate: (element, info) => {
                             let el = document.createElement('div');

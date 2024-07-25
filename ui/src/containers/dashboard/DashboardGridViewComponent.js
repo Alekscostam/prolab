@@ -28,6 +28,7 @@ import {PluginConfirmDialogUtils} from '../../utils/component/PluginUtils';
 import {OperationType} from '../../model/OperationType';
 import ReactDOM from 'react-dom';
 import {StringUtils} from '../../utils/StringUtils';
+import { ResponseUtils } from '../../utils/ResponseUtils';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -115,10 +116,10 @@ export class DashboardGridViewComponent extends BaseContainer {
                 .then((responseView) => {
                     if (this._isMounted) {
                         ViewValidatorUtils.validation(responseView);
-                        const gridViewColumnsTmp = this.columnsFromGroupCreate(responseView);
-                        const pluginsListTmp = this.puginListCreate(responseView);
-                        const documentsListTmp = this.documentListCreate(responseView);
-                        const batchesListTmp = this.batchListCreate(responseView);
+                        const gridViewColumnsTmp = ResponseUtils.columnsFromGroupCreate(responseView);
+                        const pluginsListTmp = ResponseUtils.pluginListCreate(responseView);
+                        const documentsListTmp = ResponseUtils.documentListCreate(responseView);
+                        const batchesListTmp = ResponseUtils.batchListCreate(responseView);
                         let filtersListTmp = [];
                         for (let filter in responseView?.filtersList) {
                             filtersListTmp.push({

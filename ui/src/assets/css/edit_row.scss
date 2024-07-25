@@ -238,11 +238,6 @@ $edit-padding-bottom: 11px;
 #row-edit input[type='file'] {
     color: transparent;
 }
-
-#row-edit .autofill-border {
-    background-color: $autofill-background !important;
-}
-
 #row-edit .not-editable {
     background-color: $disabled-background;
     // background-color: rgba(0, 0, 0, 0.12) !important;
@@ -251,6 +246,12 @@ $edit-padding-bottom: 11px;
     }
     .dx-htmleditor-toolbar-wrapper {
         display: none;
+    }
+}
+#row-edit .autofill-border {
+    background-color: $autofill-background !important;
+    .p-inputtext {
+        background-color: $autofill-background!important;
     }
 }
 #row-edit label {

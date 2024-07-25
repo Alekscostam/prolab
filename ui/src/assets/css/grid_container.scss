@@ -255,7 +255,7 @@ $base-color: #0e49eb;
     .dx-item.dx-tile .dx-tile-image {
         box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.2607843137);
         .card-grid-body {
-            padding-right: 4px;
+            padding-right: 3px;
         }
     }
 }
@@ -323,7 +323,7 @@ $base-color: #0e49eb;
         }
         .card-grid-header {
             padding: 3px;
-            padding-right: 4px;
+            padding-right: 3px;
         }
     }
 }
@@ -520,6 +520,15 @@ $base-color: #0e49eb;
             color: black!important;
         }
     }
+}
+#attachmentDialog_content{
+#content{
+    // min-height: 10px;
+    #selected-elements, #selected-elements-outer{
+        margin-top:  100px;
+        margin-bottom: -40px;
+    }
+}
 }
 // TODO: zapisz fix na komponenty w batchu  
 // TODO: wyrownaj guziol dodal w edycji specyfikacji
@@ -989,7 +998,13 @@ body .grid-container {
 
 .infinite-loader-card {
     width: 100% !important;
-    //height: 100% !important;
+    div{
+        justify-content: space-between;
+    }
+    .dx-item.dx-tile {
+        box-shadow: 0px 0px 5px #00000029;
+        margin: 2px;
+    }
 }
 
 .infinite-loader-card::-webkit-scrollbar {

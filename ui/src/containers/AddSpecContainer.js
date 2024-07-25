@@ -23,12 +23,14 @@ import {TabSpecType} from '../model/TabSpecType';
 import {StringUtils} from '../utils/StringUtils';
 import SelectedElements from '../components/SelectedElements';
 import AddSpecService from '../services/AddSpecService';
+import { ResponseUtils } from '../utils/ResponseUtils';
 
 const autOfRangeIndexTab = 6;
 
 export class AddSpecContainer extends BaseContainer {
     _isMounted = false;
     constructor(props) {
+        
         ConsoleHelper('AddSpecContainer -> constructor');
         super(props);
         this.viewService = new ViewService();
@@ -39,7 +41,9 @@ export class AddSpecContainer extends BaseContainer {
         this.refTreeList = React.createRef();
         this.numberOfCopiesRef = React.createRef();
         this.numberOfCopies = React.createRef(1);
+        this.numberOfCopiesEvent = React.createRef();
         this.messages = React.createRef();
+        this.tabClicked = React.createRef();
         this.blocking = React.createRef(true);
         this.state = {
             lastElementId: this.props.lastId,
@@ -63,6 +67,8 @@ export class AddSpecContainer extends BaseContainer {
     }
 
     componentDidMount() {
+        this.tabClicked.current= false;
+        this.numberOfCopies.current =1;
         this._isMounted = true;
         let id = UrlUtils.getViewIdFromURL();
         if (id === undefined) {
@@ -221,10 +227,10 @@ export class AddSpecContainer extends BaseContainer {
                 id = this.props.id;
             }
             Breadcrumb.updateView(responseView.viewInfo, id, recordId);
-            const pluginsListTmp = this.puginListCreate(responseView);
-            const documentsListTmp = this.documentListCreate(responseView);
-            const batchesListTmp = this.batchListCreate(responseView);
-            const filtersListTmp = this.filtersListCreate(responseView);
+            const pluginsListTmp = ResponseUtils.pluginListCreate(responseView);
+            const documentsListTmp = ResponseUtils.documentListCreate(responseView);
+            const batchesListTmp = ResponseUtils.batchListCreate(responseView);
+            const filtersListTmp = ResponseUtils.filtersListCreate(responseView);
             Breadcrumb.currentBreadcrumbAsUrlParam();
             this.blockUi();
             this.setState(
@@ -263,7 +269,7 @@ export class AddSpecContainer extends BaseContainer {
                             } else {
                                 TreeListUtils.createSelectionColumn(responseView.gridColumns[0].columns, res.data);
                             }
-                            const columnsTmp = this.columnsFromGroupCreate(responseView);
+                            const columnsTmp = ResponseUtils.columnsFromGroupCreate(responseView);
                             this.setState(
                                 {
                                     parsedView: responseView,
@@ -299,14 +305,10 @@ export class AddSpecContainer extends BaseContainer {
         });
         return res;
     }
-
     //override
     renderGlobalTop() {
         return <React.Fragment />;
     }
-
-  
- 
     //override
     renderHeaderLeft() {
         return (
@@ -362,8 +364,10 @@ export class AddSpecContainer extends BaseContainer {
                                             });
                                         }
                                         if (args.value !== -1 && args.previousValue !== -1) {
-                                            this.refTreeList?.instance?.beginCustomLoading();
-                                            this.onItemTabClick(args.value);
+                                            if(this.tabClicked.current === false){
+                                                this.tabClicked.current = true
+                                                this.onItemTabClick(args.value);
+                                            }
                                         }
                                     }
                                 }}
@@ -378,6 +382,7 @@ export class AddSpecContainer extends BaseContainer {
     }
     onItemTabClick(index) {
         if (index !== autOfRangeIndexTab) {
+            this.refTreeList?.instance?.beginCustomLoading();
             let id = UrlUtils.getViewIdFromURL();
             if (id === undefined) {
                 id = this.props.id;
@@ -400,10 +405,11 @@ export class AddSpecContainer extends BaseContainer {
             setTimeout(() => {
                 this?.refTreeList?.current.reInitilizedExpandAll();
                 this.refTreeList?.instance?.endCustomLoading();
+                this.tabClicked.current = false
             }, 1000);
         }
     }
-
+    // TODO: naprwic komponent up and down bo sie zacina nalezy uzyc metody onValueChabnge
     //override
     renderHeaderRight() {
         const operations = this.state.parsedView.operations;
@@ -431,7 +437,7 @@ export class AddSpecContainer extends BaseContainer {
                                         if (sessionPrelongFnc) {
                                             sessionPrelongFnc();
                                         }
-                                      this.numberOfCopies.current = e.value;
+                                        this.numberOfCopies.current = e.value;
                                     }}
                                     className='p-inputtext-sm mr-2'
                                     min={1}

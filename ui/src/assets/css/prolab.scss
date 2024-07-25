@@ -51,7 +51,17 @@ html * {
 html {
     height: 100%;
 }
-
+.p-fileupload-row{
+    .p-badge.p-badge-warning{
+        display: none!important;
+    }
+}
+.p-fileupload .p-fileupload-buttonbar{
+    justify-content: space-around;
+}
+.p-fileupload .p-fileupload-content{
+    padding: 1rem 1rem;
+}
 body {
     height: 100%;
     background-attachment: fixed;

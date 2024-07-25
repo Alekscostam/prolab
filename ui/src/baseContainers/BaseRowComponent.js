@@ -27,6 +27,7 @@ import {Password} from 'primereact/password';
 import {InputType} from '../model/InputType';
 import {ColumnType} from '../model/ColumnType';
 import {StringUtils} from '../utils/StringUtils';
+import { RequestUtils } from '../utils/RequestUtils';
 
 let clickCount = 0;
 let timeout;
@@ -87,7 +88,6 @@ export class BaseRowComponent extends BaseContainer {
             this.registerKeydownEvent();
         }
     }
-
     registerKeydownEvent() {
         document.addEventListener('keydown', this.keydownEvent);
     }
@@ -97,10 +97,12 @@ export class BaseRowComponent extends BaseContainer {
     keydownEvent = (event) => {
         if (event.key === 'F5' || event.keyCode === 116) {
             this.handleCancel();
+            this.unregisterKeydownEvent();
         }
     };
     componentWillUnmount() {
         super.componentWillUnmount();
+        this.unregisterKeydownEvent();
     }
     handleSelectedRowData(e) {
         const addMode = !!(e.currentSelectedRowKeys.length !== 0);
@@ -269,7 +271,7 @@ export class BaseRowComponent extends BaseContainer {
         ConsoleHelper('EditRowComponent::editListVisible');
         const editInfo = this.props.editData?.editInfo;
         const kindView = this.props.kindView;
-        const editListObject = this.service.createObjectDataToRequest(this.props);
+        const editListObject = RequestUtils.createObjectDataToRequest(this.props);
         this.setState(
             {
                 loading: true,
@@ -280,15 +282,12 @@ export class BaseRowComponent extends BaseContainer {
                     .editList(editInfo.viewId, editInfo.recordId, editInfo.parentId, field.id, kindView, editListObject)
                     .then((responseView) => {
                         let selectedRowDataTmp = [];
-                        //CRC key
-                        // TODO: CRC
                         let defaultSelectedRowKeysTmp = [];
                         const editData = this.props.editData;
                         const setFields = structuredClone(responseView.setFields);
                         setFields.length = 1
                         const separatorJoin = responseView.options?.separatorJoin || ',';
                         let countSeparator = 0;
-                        // TODO: CRC
                         setFields.forEach((field) => {
                             EditRowUtils.searchField(editData, field.fieldEdit, (foundFields) => {
                                 if (this.canPushRowData(foundFields.value)) {

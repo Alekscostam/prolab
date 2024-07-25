@@ -22,7 +22,6 @@ import {Breadcrumb} from '../../utils/BreadcrumbUtils';
 import ReactDOM from 'react-dom';
 import OperationsButtons from '../../components/prolab/OperationsButtons';
 import AppPrefixUtils from '../../utils/AppPrefixUtils';
-import EntryResponseUtils from '../../utils/EntryResponseUtils';
 import {EditSpecUtils} from '../../utils/EditSpecUtils';
 import {compress} from 'int-compress-string/src';
 import {TreeListUtils} from '../../utils/component/TreeListUtils';
@@ -40,6 +39,7 @@ import {OperationType} from '../../model/OperationType';
 import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils';
 import { HtmlUtils } from '../../utils/HtmlUtils';
 import { ViewDataCompUtils } from '../../utils/component/ViewDataCompUtils';
+import EntryResponseHelper from '../../utils/helper/EntryResponseHelper';
 
 class GridViewComponent extends CellEditComponent {
     constructor(props) {
@@ -415,6 +415,7 @@ class GridViewComponent extends CellEditComponent {
                         handleBatch={(batch) => {
                             this.handleBatch(batch.id, viewId, parentId, selectedRecordId)}}
                         handleAdd={() => this.props.addButtonFunction()}
+                        handleAddSpec={()=>this.props.addButtonFunction()}
                         handleDownload={() => this.props.handleDownloadRow(selectedRecordId)}
                         handleAttachments={() => this.props.handleAttachmentRow(selectedRecordId)}
                         handleDelete={() => this.props.handleDeleteRow(selectedRecordId)}
@@ -714,7 +715,7 @@ class GridViewComponent extends CellEditComponent {
             this.editSpecService
                 .getViewEntry(viewId, parentId, [recordId], kindView, null)
                 .then((entryResponse) => {
-                    EntryResponseUtils.run(
+                    EntryResponseHelper.run(
                         entryResponse,
                         () => {
                             if (!!entryResponse.next) {
@@ -737,7 +738,7 @@ class GridViewComponent extends CellEditComponent {
                 this.crudService
                     .editEntry(viewId, recordId, parentId, kindView, '')
                     .then((entryResponse) => {
-                        EntryResponseUtils.run(
+                        EntryResponseHelper.run(
                             entryResponse,
                             () => {
                                 if (!!entryResponse.next) {

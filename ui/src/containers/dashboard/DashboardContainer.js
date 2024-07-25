@@ -18,11 +18,13 @@ import UrlUtils from '../../utils/UrlUtils';
 import LocUtils from '../../utils/LocUtils';
 import DashboardCardViewComponent from './DashboardCardViewComponent';
 import CrudService from '../../services/CrudService';
-import EntryResponseUtils from '../../utils/EntryResponseUtils';
 import HistoryLogDialogComponent from '../../components/prolab/HistoryLogDialogComponent';
 import {AttachmentViewDialog} from '../attachmentView/AttachmentViewDialog';
 import {OperationType} from '../../model/OperationType';
 import ReactDOM from 'react-dom';
+import EntryResponseHelper from '../../utils/helper/EntryResponseHelper';
+import ImageViewerComponent from '../../components/ImageViewerComponent';
+import { StringUtils } from '../../utils/StringUtils';
 
 class DashboardContainer extends BaseContainer {
     constructor(props) {
@@ -33,6 +35,11 @@ class DashboardContainer extends BaseContainer {
         this.crudService = new CrudService();
         this.messages = React.createRef();
         this.state = {
+            imageViewer: {
+                imageViewDialogVisible: false,
+                imageBase64: undefined,
+                header: undefined,
+            },
             loading: true,
             copyData: null,
             cardView: undefined,
@@ -84,7 +91,7 @@ class DashboardContainer extends BaseContainer {
             this.viewService
                 .subViewEntry(id, recordId, parentId)
                 .then((entryResponse) => {
-                    EntryResponseUtils.run(
+                    EntryResponseHelper.run(
                         entryResponse,
                         () => {
                             if (!!entryResponse.next) {
@@ -376,8 +383,18 @@ class DashboardContainer extends BaseContainer {
                 return null;
         }
     };
-
+    onHideImageViewer = () => {
+        this.setState(
+            {
+                imageViewer: {
+                    imageViewDialogVisible: false,
+                    imageBase64: '',
+                },
+            }
+        );
+    }
     renderContent() {
+        const imageViewer = this.state.imageViewer;
         const recordId = UrlUtils.getRecordId();
         const cardId = this.state.dashboard?.headerData ? this.state.dashboard?.headerData[0]?.ID : null;
         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
@@ -385,12 +402,36 @@ class DashboardContainer extends BaseContainer {
         const widthStyle = width ? {width: width + 10} : {};
         return (
             <React.Fragment>
+                 {imageViewer.imageViewDialogVisible && <ImageViewerComponent
+                        editable={false}
+                        header={imageViewer.header}
+                        onHide={() => {
+                            this.onHideImageViewer();
+                        }}
+                        base64={
+                            StringUtils.isBlank(imageViewer.imageBase64)
+                                ? ''
+                                : imageViewer.imageBase64.replace('data:image/jpeg;base64,', '')
+                        }
+                        viewBase64={imageViewer.imageBase64}
+                        labels={this.labels}
+                        visible
+                    /> }
                 {this.state.cardView && (
                     <div className='rows'>
                         <div className='column left' style={widthStyle}>
                             <DashboardCardViewComponent
                                 id={this.state.cardView.viewInfo?.id}
                                 mode='dashboard'
+                                onImageClick={(rowData, title)=>{
+                                    this.setState({
+                                        imageViewer: {
+                                            imageViewDialogVisible: true,
+                                            imageBase64: "data:image/jpeg;base64,"+rowData,
+                                            header: title,
+                                        },
+                                    })
+                                }}
                                 handleOnInitialized={(ref) => (this.cardGrid = ref)}
                                 parsedGridView={this.state.cardView}
                                 parsedCardViewData={this.state.dashboard?.headerData}

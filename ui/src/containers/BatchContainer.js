@@ -16,17 +16,19 @@ import ActionButton from '../components/ActionButton';
 import DivContainer from '../components/DivContainer';
 import GridViewComponent from './dataGrid/GridViewComponent';
 import BatchService from '../services/BatchService';
-import EntryResponseUtils from '../utils/EntryResponseUtils';
-import {ViewResponseUtils} from '../utils/ViewResponseUtils';
+import EntryResponseHelper from '../utils/helper/EntryResponseHelper';
+import {ResponseUtils} from '../utils/ResponseUtils';
 import ActionButtonWithMenu from '../components/prolab/ActionButtonWithMenu';
 import {ConfirmationEditQuitDialog} from '../components/prolab/ConfirmationEditQuitDialog';
 import {OperationType} from '../model/OperationType';
 import {StringUtils} from '../utils/StringUtils';
+import { ViewUtils } from '../utils/ViewUtils';
 
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
 export class BatchContainer extends BaseContainer {
+    
     _isMounted = false;
 
     constructor(props) {
@@ -138,14 +140,14 @@ export class BatchContainer extends BaseContainer {
             this.batchService
                 .getViewEntry(viewId, parentId)
                 .then((entryResponse) => {
-                    EntryResponseUtils.run(
+                    EntryResponseHelper.run(
                         entryResponse,
                         () => {
                             if (!!entryResponse.next) {
                                 this.batchService
                                     .getView(viewId, parentId)
                                     .then((responseView) => {
-                                        const transformedResponse = ViewResponseUtils.editInfoToViewInfo(
+                                        const transformedResponse = ResponseUtils.editInfoToViewInfo(
                                             responseView,
                                             'gridView',
                                             null
@@ -187,7 +189,7 @@ export class BatchContainer extends BaseContainer {
                 id = this.props.id;
             }
             Breadcrumb.updateView(responseView.viewInfo, id, batchId);
-            const columnsTmp = this.columnsFromGroupCreate(responseView);
+            const columnsTmp = ResponseUtils.columnsFromGroupCreate(responseView);
             Breadcrumb.currentBreadcrumbAsUrlParam();
             this.setState(
                 () => ({
@@ -396,7 +398,7 @@ export class BatchContainer extends BaseContainer {
         const operations = this.state?.parsedView?.operations || [];
         return (
             <React.Fragment>
-                <HeadPanel
+                {ViewUtils.canViewHeaderPanel(this.state?.parsedView) && <HeadPanel
                     elementId={this.state.elementId}
                     elementRecordId={this.state.elementRecordId}
                     elementSubViewId={this.state.elementSubViewId}
@@ -411,7 +413,8 @@ export class BatchContainer extends BaseContainer {
                     handleUnblockUi={() => this.unblockUi()}
                     showErrorMessages={(err) => this.showErrorMessages(err)}
                     handleBlockUi={() => this.blockUi()}
-                />
+                />}
+                
             </React.Fragment>
         );
     };

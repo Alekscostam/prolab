@@ -40,7 +40,8 @@ export default class DataGridStore extends BaseService {
         filters,
         recordParentViewIdArg,
         isAttachmentDialog,
-        isKindViewSpec
+        isKindViewSpec,
+        onSuccessCallback,
     ) {
         let params = '?';
         let filter = undefined;
@@ -106,6 +107,9 @@ export default class DataGridStore extends BaseService {
             method: 'POST',
             body: JSON.stringify(requestBody),
         }).then((res) => {
+            if(onSuccessCallback){
+                onSuccessCallback(res.totalCount)
+            }
             this.cachedFromSelectAll = {
                 selectAll: res.totalCount === res.data.length,
                 data: res.data,
@@ -143,9 +147,7 @@ export default class DataGridStore extends BaseService {
                 if (loadOptions?.take === undefined || loadOptions?.take === null) {
                     // Tu wchodiz tylko dla opcji grupowania, initial value na 60 oraz selectiona
                     loadOptions.take = 60;
-                } else {
-                }
-
+                } 
                 this.cachedLoadOptions = loadOptions;
                 let params = '?';
                 const filter = loadOptions?.filter;

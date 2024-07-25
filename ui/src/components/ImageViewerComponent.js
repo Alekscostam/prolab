@@ -10,9 +10,9 @@ import UploadMultiImageFileBase64 from './prolab/UploadMultiImageFileBase64';
 import {StringUtils} from '../utils/StringUtils';
 
 export const ImageViewerComponent = (props) => {
+    
     const {editable, base64, labels, visible, onHide, onApprove, header, viewBase64} = props;
     const [imageSource, setImageSource] = useState(base64);
-
     return (
         <Dialog
             id='imageViewer'
@@ -25,7 +25,9 @@ export const ImageViewerComponent = (props) => {
                         <Button
                             type='button'
                             onClick={() => {
-                                onApprove(imageSource);
+                                if(onApprove){
+                                    onApprove(imageSource);
+                                }
                             }}
                             label={LocUtils.loc(labels, 'Approve', 'Zatwierdź')}
                         />

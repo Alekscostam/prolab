@@ -119,37 +119,37 @@ export default class DataCardStore extends BaseService {
                     method: 'POST',
                     body: JSON.stringify({}),
                 })
-                    .then((response) => {
-                        ConsoleHelper('DataCardStore -> fetch ');
-                        let parsedData = response.data.map(function (item) {
-                            for (var key in item) {
-                                var upper = key.toUpperCase();
-                                // check if it already wasn't uppercase
-                                if (upper !== key) {
-                                    item[upper] = item[key];
-                                    delete item[key];
-                                }
+                .then((response) => {
+                    ConsoleHelper('DataCardStore -> fetch ');
+                    let parsedData = response.data.map(function (item) {
+                        for (var key in item) {
+                            var upper = key.toUpperCase();
+                            // check if it already wasn't uppercase
+                            if (upper !== key) {
+                                item[upper] = item[key];
+                                delete item[key];
                             }
-                            return item;
-                        });
-                        this.cachedLastResponse = {
-                            data: parsedData,
-                            totalCount: response.totalCount,
-                            summary: response.summary || [],
-                            groupCount: response.groupCount || 0,
-                        };
-                        if (onSuccessCallback) {
-                            onSuccessCallback();
                         }
-                        return this.cachedLastResponse;
-                    })
-                    .catch((err) => {
-                        ConsoleHelper('Error fetch data card store for view id={%s}. Error = ', viewIdArg, err);
-                        if (onErrorCallback) {
-                            onErrorCallback(err);
-                        }
-                        return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0, selectAll: false});
+                        return item;
                     });
+                    this.cachedLastResponse = {
+                        data: parsedData,
+                        totalCount: response.totalCount,
+                        summary: response.summary || [],
+                        groupCount: response.groupCount || 0,
+                    };
+                    if (onSuccessCallback) {
+                        onSuccessCallback();
+                    }
+                    return this.cachedLastResponse;
+                })
+                .catch((err) => {
+                    ConsoleHelper('Error fetch data card store for view id={%s}. Error = ', viewIdArg, err);
+                    if (onErrorCallback) {
+                        onErrorCallback(err);
+                    }
+                    return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0, selectAll: false});
+                });
             },
         });
     }

@@ -16,7 +16,7 @@ import EditRowUtils from '../utils/EditRowUtils';
 import ConsoleHelper from '../utils/ConsoleHelper';
 import {LoadIndicator} from 'devextreme-react';
 import {DataGridUtils} from '../utils/component/DataGridUtils';
-import EntryResponseUtils from '../utils/EntryResponseUtils';
+import EntryResponseHelper from '../utils/helper/EntryResponseHelper';
 import CrudService from '../services/CrudService';
 import UrlUtils from '../utils/UrlUtils';
 import {readObjFromCookieGlobal, readValueCookieGlobal, removeCookieGlobal} from '../utils/Cookie';
@@ -24,12 +24,14 @@ import DataPluginStore from '../containers/dao/DataPluginStore';
 import LocalizationService from '../services/LocalizationService';
 import DataHistoryLogStore from '../containers/dao/DataHistoryLogStore';
 import BatchService from '../services/BatchService';
-import ResponseUtils from '../utils/ResponseUtils';
+import ResponseHelper from '../utils/helper/ResponseHelper';
 import EditSpecService from '../services/EditSpecService';
 import {OperationType} from '../model/OperationType';
 import {InputType} from '../model/InputType';
 import {StringUtils} from '../utils/StringUtils';
 import LocUtils from '../utils/LocUtils';
+import EditListUtils from '../utils/EditListUtils';
+import { RequestUtils } from '../utils/RequestUtils';
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -340,69 +342,6 @@ class BaseContainer extends React.Component {
         }
     }
 
-    handleChangeSetState(varName, varValue, onAfterStateChange, stateField, parameter) {
-        if (stateField && stateField !== '') {
-            const stateFieldArray = stateField.split('.');
-            let stateFieldValue;
-            stateFieldValue = this.getValueInObjPath(stateFieldArray[0]);
-            if (this._isMounted) {
-                if (parameter) {
-                    let varValueArray;
-                    if (varValue instanceof Array) {
-                        varValueArray = varValue.map((el) => el[parameter]);
-                    } else {
-                        varValueArray = varValue[parameter];
-                    }
-                    this.setValueInObjPath(stateFieldValue, varValue, `${varName}Obj`, stateFieldArray);
-                    this.setValueInObjPath(stateFieldValue, varValueArray, varName, stateFieldArray);
-                    this.setState(
-                        {
-                            [stateFieldArray[0]]: stateFieldValue,
-                        },
-                        () => (onAfterStateChange ? onAfterStateChange() : null)
-                    );
-                } else {
-                    this.setValueInObjPath(stateFieldValue, varValue, varName, stateFieldArray);
-                    this.setState(
-                        {
-                            [stateFieldArray[0]]: stateFieldValue,
-                        },
-                        () => (onAfterStateChange ? onAfterStateChange() : null)
-                    );
-                }
-            } else {
-                ConsoleHelper("component isn't mounted");
-            }
-        } else {
-            if (this._isMounted) {
-                if (parameter) {
-                    let varValueArray;
-                    if (varValue instanceof Array) {
-                        varValueArray = varValue.map((el) => el[parameter]);
-                    } else {
-                        varValueArray = varValue[parameter];
-                    }
-                    this.setState(
-                        {
-                            [varName]: varValueArray,
-                            [`${varName}Obj`]: varValue,
-                        },
-                        () => (onAfterStateChange ? onAfterStateChange() : null)
-                    );
-                } else {
-                    this.setState(
-                        {
-                            [varName]: varValue,
-                        },
-                        () => (onAfterStateChange ? onAfterStateChange() : null)
-                    );
-                }
-            } else {
-                ConsoleHelper("component isn't mounted");
-            }
-        }
-    }
-
     handleValidForm() {}
 
     handleFormSubmit(event) {
@@ -703,7 +642,7 @@ class BaseContainer extends React.Component {
 
     handleEditRowSave(viewId, recordId, parentId, token) {
         ConsoleHelper(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`);
-        const saveElement = this.crudService.createObjectDataToRequest(
+        const saveElement = RequestUtils.createObjectDataToRequest(
             UrlUtils.isEditRowView() ? this.props : this.state
         );
         ConsoleHelper(`handleEditRowSave: element to save = ${JSON.stringify(saveElement)}`);
@@ -736,7 +675,6 @@ class BaseContainer extends React.Component {
             this.getRefGridView()?.instance?.getDataSource()?.reload();
         }
     }
-
     windowNotHaveSubView() {
         return (
             this.isCardView() &&
@@ -799,7 +737,7 @@ class BaseContainer extends React.Component {
         this.batchService
             .save(viewId, parentId, saveElement, confirmSave)
             .then((saveResponse) => {
-                ResponseUtils.run(
+                ResponseHelper.run(
                     saveResponse,
                     () => this.batchSave(viewId, parentId, saveElement, true),
                     () => {},
@@ -835,7 +773,7 @@ class BaseContainer extends React.Component {
         this.editSpecService
             .save(viewId, parentId, saveElement, confirmSave)
             .then((saveResponse) => {
-                ResponseUtils.run(
+                ResponseHelper.run(
                     saveResponse,
                     () => {
                         this.specSave(viewId, parentId, saveElement, true)},
@@ -867,14 +805,12 @@ class BaseContainer extends React.Component {
                 this.unblockUi();
             });
     };
-
     kindOperationForRow() {
         if (UrlUtils.isEditRowView()) {
             return 'Edit';
         }
         return this.state.editData.editInfo?.kindOperation ? this.state.editData.editInfo?.kindOperation : undefined;
     }
-
     rowSave = (viewId, recordId, parentId, saveElement, confirmSave, token) => {
         this.blockUi();
         const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
@@ -882,7 +818,7 @@ class BaseContainer extends React.Component {
         this.crudService
             .save(viewId, recordId, parentId, kindView, kindOperation, saveElement, confirmSave, token)
             .then((saveResponse) => {
-                ResponseUtils.run(
+                ResponseHelper.run(
                     saveResponse,
                     () => () => this.rowSave(viewId, recordId, parentId, saveElement, true),
                     () => {
@@ -962,7 +898,6 @@ class BaseContainer extends React.Component {
             selectedRowKeys: selectedRowKeys,
         }));
     };
-
     rowCancel = (viewId, recordId, parentId, saveElement) => {
         this.blockUi();
         const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
@@ -978,7 +913,6 @@ class BaseContainer extends React.Component {
                 this.showGlobalErrorMessage(err);
             });
     };
-
     delete(id) {
         this.blockUi();
         const viewId = this.getRealViewId();
@@ -988,7 +922,7 @@ class BaseContainer extends React.Component {
         this.crudService
             .deleteEntry(viewId, parentId, kindView, selectedRowKeysIds)
             .then((entryResponse) => {
-                EntryResponseUtils.run(
+                EntryResponseHelper.run(
                     entryResponse,
                     () => {
                         if (!!entryResponse.next) {
@@ -1028,7 +962,6 @@ class BaseContainer extends React.Component {
                 this.showGlobalErrorMessage(err);
             });
     }
-
     generate(id) {
         const viewId = this.getRealViewId();
         const parentId = this.state.elementRecordId;
@@ -1064,8 +997,6 @@ class BaseContainer extends React.Component {
                 this.showResponseErrorMessage(ex);
             });
     }
-
-    /** Metoda już typowo pod plugin. executePlugin wykonuje się w momencie przejscia z pierwszego do drugiego kroku*/
     isDashboardView() {
         return this.state.subView === null && this.state?.gridViewType === 'dashboard';
     }
@@ -1175,7 +1106,6 @@ class BaseContainer extends React.Component {
                 this.showResponseErrorMessage(err);
             });
     }
-
     historyLog(recordId) {
         const viewId = this.realViewSelector(recordId);
         const recordIsZero = recordId === 0 || recordId === '0';
@@ -1220,7 +1150,6 @@ class BaseContainer extends React.Component {
                 this.showResponseErrorMessage(err);
             });
     }
-
     handleRightHeadPanelContent(element) {
         const elementId = `${element?.id}`;
         switch (element.type) {
@@ -1247,7 +1176,6 @@ class BaseContainer extends React.Component {
                 return null;
         }
     }
-
     getSelectedRowKeysIds(id) {
         return id === undefined || id === null || id === ''
             ? this.state.selectedRowKeys.map((e) => {
@@ -1255,7 +1183,6 @@ class BaseContainer extends React.Component {
               })
             : [id];
     }
-
     getParentValidNumber(gridView) {
         const recordId = UrlUtils.getRecordId();
         if (recordId === undefined || recordId === null) {
@@ -1269,7 +1196,7 @@ class BaseContainer extends React.Component {
             }
         } else {
             // is header
-            let elementId = UrlUtils.getIdFromUrl();
+            const elementId = UrlUtils.getIdFromUrl();
             if (elementId === this.props.id) {
                 return UrlUtils.getRecordId();
             }
@@ -1279,8 +1206,6 @@ class BaseContainer extends React.Component {
             }
         }
     }
-
-    // gridView przekazywany dla załaczników
     uploadAttachemnt(gridView, attachmentFile) {
         this.blockUi();
         const viewInfo = gridView.viewInfo;
@@ -1291,7 +1216,7 @@ class BaseContainer extends React.Component {
         this.crudService
             .uploadAttachemnt(viewId, parentId, parentViewId, attachmentFile, isKindViewSpec)
             .then((uploadResponse) => {
-                EntryResponseUtils.run(
+                EntryResponseHelper.run(
                     uploadResponse,
                     () => {
                         if (uploadResponse?.status === 'OK') {
@@ -1344,21 +1269,17 @@ class BaseContainer extends React.Component {
                 this.showGlobalErrorMessage(err);
             });
     }
-
     downloadAttachment(id) {
         const viewId = this.getRealViewId();
         let recordId = this.getSelectedRowKeysIds(id);
-
         if (Array.isArray(recordId)) {
             recordId = recordId[0];
         }
-
         this.crudService
             .downloadAttachment(viewId, recordId)
             .then(() => {
                 const selectedRowKeys = this.state.selectedRowKeys.filter((el) => el.ID !== recordId);
                 if (selectedRowKeys.length !== 0) {
-                    // rekurencyjnie
                     this.downloadAttachment(selectedRowKeys[0].ID);
                 } else {
                     this.unselectAllDataGrid();
@@ -1371,7 +1292,6 @@ class BaseContainer extends React.Component {
                 this.showGlobalErrorMessage(err);
             });
     }
-
     copyEntry(id, callBack) {
         this.blockUi();
         const viewId = this.getRealViewId();
@@ -1381,7 +1301,7 @@ class BaseContainer extends React.Component {
         this.crudService
             .copyEntry(viewId, parentId, kindView, selectedRowKeys)
             .then((entryResponse) => {
-                EntryResponseUtils.run(
+                EntryResponseHelper.run(
                     entryResponse,
                     () => {
                         if (!!entryResponse.next) {
@@ -1389,7 +1309,8 @@ class BaseContainer extends React.Component {
                             let copyOptions = {copyOptions: copyData.copyOptions};
                             this.crudService
                                 .copy(viewId, parentId, kindView, selectedRowKeys[0], copyOptions)
-                                .then((copyResponse) => {
+                                .then((copyResponse) => {    
+                                    EditListUtils.addUuidToFields(copyResponse);
                                     const msg = copyResponse.message;
                                     if (!!msg) {
                                         this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title);
@@ -1428,7 +1349,6 @@ class BaseContainer extends React.Component {
                 this.showGlobalErrorMessage(err);
             });
     }
-
     restore(id) {
         this.blockUi();
         const viewId = this.getRealViewId();
@@ -1438,7 +1358,7 @@ class BaseContainer extends React.Component {
         this.crudService
             .restoreEntry(viewId, parentId, kindView, selectedRowKeysIds)
             .then((entryResponse) => {
-                EntryResponseUtils.run(
+                EntryResponseHelper.run(
                     entryResponse,
                     () => {
                         if (!!entryResponse.next) {
@@ -1469,7 +1389,6 @@ class BaseContainer extends React.Component {
                 this.showGlobalErrorMessage(err);
             });
     }
-
     attachment(id, isAttachmentFromHeader) {
         this.blockUi();
         const viewId = isAttachmentFromHeader ? this.props.id : this.getRealViewId();
@@ -1490,12 +1409,11 @@ class BaseContainer extends React.Component {
         }
         this.handleAttachmentEntry(viewId, recordId, parentIdParam, isKindViewSpec);
     }
-
     handleAttachmentEntry(viewId, recordId, parentIdParam, isKindViewSpec) {
         this.crudService
             .attachmentEntry(viewId, recordId, parentIdParam)
             .then((attachmentResponse) => {
-                EntryResponseUtils.run(
+                EntryResponseHelper.run(
                     attachmentResponse,
                     () => {
                         if (!!attachmentResponse.next) {
@@ -1517,7 +1435,6 @@ class BaseContainer extends React.Component {
                 this.showGlobalErrorMessage(err);
             });
     }
-
     isKindViewSpec(recordId) {
         return (
             this.state.elementKindView === 'ViewSpec' &&
@@ -1526,7 +1443,6 @@ class BaseContainer extends React.Component {
             recordId !== 0
         );
     }
-
     prepareCalculateFormula(rowId) {
         this.blockUi();
         const viewId = this.getRealViewId();
@@ -1540,7 +1456,7 @@ class BaseContainer extends React.Component {
                 datas = this.state.parsedData;
             }
         }
-        const fieldsToCalculate = this.createObjectToCalculate(datas.filter(data=>data._STATUS !== "deleted" ));
+        const fieldsToCalculate = RequestUtils.createObjectToCalculate(datas.filter(data=>data._STATUS !== "deleted" ));
         this.calculateFormula(viewId, parentId, rowId, fieldsToCalculate);
     }
     // TODO:  tutaj powinien byc jakis refactoring
@@ -1577,13 +1493,11 @@ class BaseContainer extends React.Component {
             this.calculateFormulaForView(viewId, parentId, params);
         }
     }
-
     changeWart(calcultedFormula, oldFormula) {
         if (parseInt(calcultedFormula[0].value) === parseInt(oldFormula.ID)) {
             oldFormula.WART = calcultedFormula[1].value;
         }
     }
-
     calculateFormulaForEditSpec(viewId, parentId, id, fieldsToCalculate) {
         this.crudService
             .calculateFormula(viewId, parentId, id, fieldsToCalculate)
@@ -1603,7 +1517,6 @@ class BaseContainer extends React.Component {
                 this.unselectAllDataGrid();
             });
     }
-
     calculateFormulaForBatch(viewId, batchId, id, fieldsToCalculate) {
         this.crudService
             .calculateFormula(viewId, batchId, id, fieldsToCalculate)
@@ -1619,7 +1532,6 @@ class BaseContainer extends React.Component {
                 this.unselectAllDataGrid();
             });
     }
-
     calculateFormulaForView(viewId, recordId, params) {
         this.blockUi();
         this.crudService
@@ -1634,7 +1546,6 @@ class BaseContainer extends React.Component {
                 this.unselectAllDataGrid();
             });
     }
-
     responseMessage(res) {
         const msg = res.message;
         if (!!msg) {
@@ -1643,24 +1554,6 @@ class BaseContainer extends React.Component {
             this.showResponseErrorMessage(res);
         }
     }
-
-    createObjectToCalculate(datas) {
-        const data = [];
-        let arrTemp = [];
-        datas?.forEach((fields) => {
-            arrTemp = [];
-            Object.entries(fields).forEach((field) => {
-                const elementTmp = {
-                    fieldName: field[0],
-                    value: field[1],
-                };
-                arrTemp.push(elementTmp);
-            });
-            data.push(arrTemp);
-        });
-        return {data: data};
-    }
-
     archive(id) {
         ConsoleHelper('handleArchive');
         this.blockUi();
@@ -1671,7 +1564,7 @@ class BaseContainer extends React.Component {
         this.crudService
             .archiveEntry(viewId, parentId, kindView, selectedRowKeysIds)
             .then((entryResponse) => {
-                EntryResponseUtils.run(
+                EntryResponseHelper.run(
                     entryResponse,
                     () => {
                         if (!!entryResponse.next) {
@@ -1715,7 +1608,6 @@ class BaseContainer extends React.Component {
             .publish(viewId, parentId, kindView, selectedRowKeysIds, publishOptions)
             .then((publishResponse) => {
                 let visiblePublishSummaryDialog = false;
-
                 const msg = publishResponse.message;
                 if (!!msg) {
                     this.showSuccessMessage(msg.text, Constants.SUCCESS_MSG_LIFE, msg.title);
@@ -1761,7 +1653,7 @@ class BaseContainer extends React.Component {
         this.crudService
             .publishEntry(viewId, parentId, kindView, selectedRowKeysIds)
             .then((entryResponse) => {
-                EntryResponseUtils.run(
+                EntryResponseHelper.run(
                     entryResponse,
                     () => {
                         if (!!entryResponse.next) {
@@ -1837,7 +1729,7 @@ class BaseContainer extends React.Component {
 
     handleAutoFillRowChange(viewId, recordId, parentId, kindView) {
         this.blockUi();
-        const autofillBodyRequest = this.crudService.createObjectDataToRequest(
+        const autofillBodyRequest = RequestUtils.createObjectDataToRequest(
             UrlUtils.isEditRowView() ? this.props : this.state
         );
         this.crudService
@@ -1858,7 +1750,7 @@ class BaseContainer extends React.Component {
 
     handleCancelRowChange(viewId, recordId, parentId) {
         ConsoleHelper(`handleCancelRowChange: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`);
-        const cancelElement = this.crudService.createObjectDataToRequest(
+        const cancelElement = RequestUtils.createObjectDataToRequest(
             UrlUtils.isEditRowView() ? this.props : this.state
         );
         ConsoleHelper(`handleCancelRowChange: element to cancel = ${JSON.stringify(cancelElement)}`);
@@ -2027,7 +1919,7 @@ class BaseContainer extends React.Component {
     refreshFieldVisibility(info) {
         this.blockUi();
         const isEditRowView = UrlUtils.isEditRowView();
-        const refreshObject = this.crudService.createObjectDataToRequest(isEditRowView ? this.props : this.state);
+        const refreshObject = RequestUtils.createObjectDataToRequest(isEditRowView ? this.props : this.state);
         const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
         this.crudService
             .refreshFieldVisibility(info.viewId, info.recordId, info.parentId, kindView, refreshObject)
@@ -2059,62 +1951,6 @@ class BaseContainer extends React.Component {
         });
         this.unblockUi();
     }
-    columnsFromGroupCreate(responseView) {
-        const columnsTmp = [];
-        let columnOrderCounter = 0;
-        new Array(responseView.gridColumns).forEach((gridColumns) => {
-            gridColumns?.forEach((group) => {
-                group.columns?.forEach((column) => {
-                    column.groupName = group.groupName;
-                    column.freeze = StringUtils.isBlank(column?.freeze) ? group.freeze : column.freeze;
-                    column.columnOrder = columnOrderCounter++;
-                    columnsTmp.push(column);
-                });
-            });
-        });
-        return columnsTmp;
-    }
-    puginListCreate(responseView) {
-        const pluginsListTmp = [];
-        for (let plugin in responseView?.pluginsList) {
-            pluginsListTmp.push({
-                id: responseView?.pluginsList[plugin].id,
-                label: responseView?.pluginsList[plugin].label,
-            });
-        }
-        return pluginsListTmp;
-    }
-    documentListCreate(responseView) {
-        const documentsListTmp = [];
-        for (let document in responseView?.documentsList) {
-            documentsListTmp.push({
-                id: responseView?.documentsList[document].id,
-                label: responseView?.documentsList[document].label,
-            });
-        }
-        return documentsListTmp;
-    }
-    batchListCreate(responseView) {
-        const batchesListTmp = [];
-        for (let batch in responseView?.batchesList) {
-            batchesListTmp.push({
-                id: responseView?.batchesList[batch].id,
-                label: responseView?.batchesList[batch].label,
-            });
-        }
-        return batchesListTmp;
-    }
-    filtersListCreate(responseView) {
-        const filtersListTmp = [];
-        for (let filter in responseView?.filtersList) {
-            filtersListTmp.push({
-                id: responseView?.filtersList[filter].id,
-                label: responseView?.filtersList[filter].label,
-            });
-        }
-        return filtersListTmp;
-    }
-
     replaceOperationsLabels(operations, labels) {
         for (let index = 0; index < operations.length; index++) {
             const operation = operations[index];

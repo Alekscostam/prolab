@@ -2,9 +2,10 @@ import {CheckBox} from 'devextreme-react';
 import React from 'react';
 import CardImage from '../components/CardImage';
 import {ColumnType} from '../model/ColumnType';
-
+import { StringUtils } from './StringUtils';
+// TODO: dac znac zeby przetetsowac cardy
 export class CardViewUtils {
-    static cellTemplate(fieldDefinition, rowData, className, type) {
+    static cellTemplate(fieldDefinition, rowData, className, type, cardImageClick) {
         if (!!rowData[fieldDefinition.fieldName]) {
             const bgColor = rowData[`_BGCOLOR_${fieldDefinition.fieldName.toUpperCase()}`];
             const fontColor = rowData[`_FONTCOLOR_${fieldDefinition.fieldName.toUpperCase()}`];
@@ -19,7 +20,16 @@ export class CardViewUtils {
                         return (
                             <CardImage
                                 alt={alt}
+                                onClick={(e)=>{
+                                    if(cardImageClick){
+                                        e.preventDefault(); 
+                                        e.stopPropagation();
+                                         
+                                        cardImageClick(rowData[fieldDefinition.fieldName], fieldDefinition.label);
+                                    }
+                                }}
                                 style={{
+                                    cursor: "pointer",
                                     backgroundColor: bgColor === undefined ? rowData._BGCOLOR : bgColor,
                                     color: fontColor === undefined ? rowData._FONTCOLOR : fontColor,
                                     display: 'block',
@@ -33,7 +43,15 @@ export class CardViewUtils {
                         return (
                             <CardImage
                                 alt={alt}
+                                onClick={(e)=>{
+                                    if(cardImageClick){
+                                        e.preventDefault(); 
+                                        e.stopPropagation(); 
+                                        cardImageClick(rowData[fieldDefinition.fieldName], fieldDefinition.label);
+                                    }
+                                }}
                                 style={{
+                                    cursor: "pointer",
                                     backgroundColor: bgColor === undefined ? rowData._BGCOLOR : bgColor,
                                     color: fontColor === undefined ? rowData._FONTCOLOR : fontColor,
                                     display: 'block',
@@ -68,8 +86,7 @@ export class CardViewUtils {
                             }}
                             className={className}
                             title={rowData[fieldDefinition.fieldName]}
-                            // eslint-disable-next-line
-                            dangerouslySetInnerHTML={{__html: rowData[fieldDefinition.fieldName]}}
+                            dangerouslySetInnerHTML={{__html: StringUtils.truncateText(StringUtils.textFromHtmlString(rowData[fieldDefinition.fieldName]),300 )  }}
                         ></span>
                     );
             }

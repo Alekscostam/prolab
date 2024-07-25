@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
 import {DataGridUtils} from '../../utils/component/DataGridUtils';
 import {Breadcrumb} from '../../utils/BreadcrumbUtils';
 import $ from 'jquery';
@@ -14,15 +14,22 @@ import OperationsButtons from '../../components/prolab/OperationsButtons';
 import {EditSpecUtils} from '../../utils/EditSpecUtils';
 import {compress} from 'int-compress-string';
 import {TreeListUtils} from '../../utils/component/TreeListUtils';
-import EntryResponseUtils from '../../utils/EntryResponseUtils';
+import { StringUtils } from '../../utils/StringUtils';
+import EntryResponseHelper from '../../utils/helper/EntryResponseHelper';
+import ImageViewerComponent from '../../components/ImageViewerComponent';
 
-class CardViewInfiniteComponent extends React.Component {
+class CardViewInfiniteComponent extends PureComponent {
     constructor(props) {
         super(props);
         this.crudService = new CrudService();
         this.labels = this.props;
         this.dataCardStore = new DataCardStore();
         this.state = {
+            imageViewer: {
+                imageViewDialogVisible: false,
+                imageBase64: undefined,
+                header: undefined,
+            },
             hasNextPage: true,
             isNextPageLoading: false,
             items: [],
@@ -33,17 +40,14 @@ class CardViewInfiniteComponent extends React.Component {
         this.cardViewRef = React.createRef();
         ConsoleHelper('CardViewComponent -> constructor');
     }
-
     componentDidMount() {}
-
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (this.props.collapsed !== prevProps.collapsed) {
-            let windowSizeWidth = window.innerWidth;
-            let cardWidth = this.props.parsedCardView?.cardOptions?.width ?? 300;
+            const windowSizeWidth = window.innerWidth;
+            const cardWidth = this.props.parsedCardView?.cardOptions?.width ?? 300;
             this.setState({columnCount: this.calculateColumns(windowSizeWidth, cardWidth)});
         }
     }
-
     isSelectionEnabled() {
         return !!this.props.handleSelectedRowKeys && !!this.props.selectedRowKeys;
     }
@@ -51,7 +55,6 @@ class CardViewInfiniteComponent extends React.Component {
     isDashboard() {
         return this.props.mode === 'dashboard';
     }
-
     styleTile(rowData, cardBgColor1, cardBgColor2, fontColor, width, height) {
         let styleTile;
         if (this.isDashboard()) {
@@ -66,8 +69,7 @@ class CardViewInfiniteComponent extends React.Component {
         }
         return styleTile;
     }
-
-    refresh(noLoadNextPage) {
+    refresh() {
         this.setState(
             {
                 hasNextPage: true,
@@ -82,7 +84,6 @@ class CardViewInfiniteComponent extends React.Component {
                 }
             }
         );
-        //
     }
     canLoadNextPage() {
         return (this.props?.elementSubViewId && !this.state.isNextPageLoading) || this.state.items.length < 5;
@@ -105,7 +106,6 @@ class CardViewInfiniteComponent extends React.Component {
                         let divide = args[0] * columnCount;
                         skip = Math.ceil(divide / packageCount) * dataPackageSize;
                     }
-
                     this.dataCardStore
                         .getDataForCard(
                             this.props.id,
@@ -125,7 +125,6 @@ class CardViewInfiniteComponent extends React.Component {
                             res.data.forEach((item) => {
                                 for (var key in item) {
                                     var upper = key.toUpperCase();
-                                    // check if it already wasn't uppercase
                                     if (upper !== key) {
                                         item[upper] = item[key];
                                         delete item[key];
@@ -155,7 +154,6 @@ class CardViewInfiniteComponent extends React.Component {
             );
         }
     };
-
     chunkData = (array, size = 1) => {
         size = Math.max(parseInt(size), 0);
         const length = array == null ? 0 : array.length;
@@ -171,14 +169,23 @@ class CardViewInfiniteComponent extends React.Component {
         }
         return result;
     };
-
     calculateColumns(windowWidth, cardWidth) {
         return Math.floor(
             (windowWidth - (windowWidth <= 768 ? 0 : this.props.collapsed ? 70 : 320)) / (cardWidth + 10)
         );
     }
-
+    onHideImageViewer = () => {
+            this.setState(
+                {
+                    imageViewer: {
+                        imageViewDialogVisible: false,
+                        imageBase64: '',
+                    },
+                }
+            );
+    }
     render() {
+        const imageViewer = this.state.imageViewer;
         const cardWidth = this.props.parsedCardView?.cardOptions?.width ?? 300;
         const cardHeight = this.props.parsedCardView?.cardOptions?.height ?? 200;
         const isItemLoaded = (index) => !this.state.hasNextPage || index < this.state.items.length;
@@ -222,10 +229,24 @@ class CardViewInfiniteComponent extends React.Component {
                         cardHeight={cardHeight}
                     />
                 </WindowSizeListener>
+                {imageViewer.imageViewDialogVisible && <ImageViewerComponent
+                        editable={false}
+                        header={imageViewer.header}
+                        onHide={() => {
+                            this.onHideImageViewer();
+                        }}
+                        base64={
+                            StringUtils.isBlank(imageViewer.imageBase64)
+                                ? ''
+                                : imageViewer.imageBase64.replace('data:image/jpeg;base64,', '')
+                        }
+                        viewBase64={imageViewer.imageBase64}
+                        labels={this.labels}
+                        visible
+                    /> }
             </React.Fragment>
         );
     }
-
     renderSingleTile(rowData, index, cardWidth, cardHeight) {
         let cardBgColor1 = this.props.parsedCardView?.cardOptions?.bgColor1;
         let cardBgColor2 = this.props.parsedCardView?.cardOptions?.bgColor2;
@@ -239,16 +260,8 @@ class CardViewInfiniteComponent extends React.Component {
         const recordId = rowData.ID;
         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
         const subviewId = elementSubViewId ? elementId : undefined;
-        setTimeout(() => {
-            const cardHeight = this.props.parsedCardView?.cardOptions?.heigh ?? 200;
-            var p = $(`#${recordId} .card-grid-body-content`);
-            while ($(p).outerHeight() > cardHeight - 52) {
-                $(p).text(function (index, text) {
-                    return text.replace(/\W*\s(\S)*$/, '...');
-                });
-            }
-        }, 10);
         let selectedRowKeys = this.props.selectedRowKeys;
+
         return (
             <React.Fragment>
                 <div
@@ -310,7 +323,7 @@ class CardViewInfiniteComponent extends React.Component {
                                                     this.crudService
                                                         .editEntry(viewId, recordId, subviewId, elementKindView, '')
                                                         .then((entryResponse) => {
-                                                            EntryResponseUtils.run(
+                                                            EntryResponseHelper.run(
                                                                 entryResponse,
                                                                 () => {
                                                                     if (!!entryResponse.next) {
@@ -383,49 +396,37 @@ class CardViewInfiniteComponent extends React.Component {
                                                 }`
                                             )}
                                             handleHrefSubview={() => {
-                                                let newUrl = AppPrefixUtils.locationHrefUrl(
+                                                const newUrl = AppPrefixUtils.locationHrefUrl(
                                                     `/#/grid-view/${viewId}${
                                                         !!recordId ? `?recordId=${recordId}` : ``
                                                     }${!!currentBreadcrumb ? currentBreadcrumb : ``}`
                                                 );
                                                 window.location.assign(newUrl);
                                             }}
-                                            handleArchive={() => {
-                                                this.props.handleArchiveRow(recordId);
-                                            }}
-                                            handleDownload={() => {
-                                                this.props.handleDownloadRow(recordId);
-                                            }}
-                                            handleAttachments={() => {
-                                                this.props.handleAttachmentRow(recordId);
-                                            }}
-                                            handleCopy={() => {
-                                                this.props.handleCopyRow(recordId);
-                                            }}
-                                            handleDelete={() => {
-                                                this.props.handleDeleteRow(recordId);
-                                            }}
-                                            handleHistory={() => {
-                                                this.props.handleHistoryLogRow(recordId);
-                                            }}
-                                            handleFormula={() => {
-                                                this.props.handleFormulaRow(recordId);
-                                            }}
-                                            handleRestore={() => {
-                                                this.props.handleRestoreRow(recordId);
-                                            }}
-                                            handlePublish={() => {
-                                                this.props.handlePublishRow(recordId);
-                                            }}
-                                            handleBlockUi={() => {
-                                                this.props.handleBlockUi();
-                                            }}
+                                            handleArchive={() => this.props.handleArchiveRow(recordId)}
+                                            handleDownload={() =>  this.props.handleDownloadRow(recordId)}
+                                            handleAttachments={() => this.props.handleAttachmentRow(recordId)}
+                                            handleCopy={() => this.props.handleCopyRow(recordId)}
+                                            handleDelete={() =>  this.props.handleDeleteRow(recordId)}
+                                            handleHistory={() => this.props.handleHistoryLogRow(recordId)}
+                                            handleFormula={() => this.props.handleFormulaRow(recordId)}
+                                            handleRestore={() => this.props.handleRestoreRow(recordId)}
+                                            handlePublish={() => this.props.handlePublishRow(recordId)}
+                                            handleBlockUi={() => this.props.handleBlockUi()}
                                         />
                                     </div>
                                 </div>
                                 <div className='card-grid-body'>
                                     {cardImage?.visible && cardImage?.fieldName && rowData[cardImage?.fieldName]
-                                        ? CardViewUtils.cellTemplate(cardImage, rowData, 'card-grid-body-image', 'IMG')
+                                        ? CardViewUtils.cellTemplate(cardImage, rowData, 'card-grid-body-image', 'IMG', (rowData, title)=>{
+                                                this.setState({
+                                                    imageViewer: {
+                                                        imageViewDialogVisible: true,
+                                                        imageBase64: "data:image/jpeg;base64,"+rowData,
+                                                        header: title,
+                                                    },
+                                                })
+                                        })
                                         : null}
                                     {cardBody?.visible
                                         ? CardViewUtils.cellTemplate(

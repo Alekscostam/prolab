@@ -31,7 +31,6 @@ export default class CrudService extends BaseService {
         this.restoreEntry = this.restoreEntry.bind(this);
         this.attachmentEntry = this.attachmentEntry.bind(this);
         this.restore = this.restore.bind(this);
-        this.createObjectDataToRequest = this.createObjectDataToRequest.bind(this);
     }
 
     addEntry(viewId, parentId) {
@@ -68,8 +67,7 @@ export default class CrudService extends BaseService {
             }`,
             {
                 method: 'POST',
-            }
-        )
+            })
             .then((editDataEntryResponse) => {
                 window.location.href = UrlUtils.getUrlWithEditRowParams(recordId, parentId, viewId, kindView);
                 return Promise.resolve(editDataEntryResponse);
@@ -84,22 +82,21 @@ export default class CrudService extends BaseService {
             `${this.getDomain()}/${this.path}/${viewId}/Edit/${recordId}${parentId ? `?parentId=${parentId}` : ''}`,
             {
                 method: 'GET',
-            }
-        )
-            .then((editDataResponse) => {
-                // if (editDataResponse.editInfo.editFormType.toUpperCase() === 'SIDEPANEL') {
-                if (editDataResponse.editInfo.editFormType.toUpperCase() === 'FULLSCREEN') {
-                    window.location.href = window.location.href.replace('grid-view', 'edit-row-view');
-                    if (renderNoRefreshContentFnc) {
-                        renderNoRefreshContentFnc();
-                    }
-                }
-                EditListUtils.addUuidToFields(editDataResponse);
-                return Promise.resolve(EditRowUtils.convertEditResponse(editDataResponse));
             })
-            .catch((err) => {
-                throw err;
-            });
+        .then((editDataResponse) => {
+            // if (editDataResponse.editInfo.editFormType.toUpperCase() === 'SIDEPANEL') {
+            if (editDataResponse.editInfo.editFormType.toUpperCase() === 'FULLSCREEN') {
+                window.location.href = window.location.href.replace('grid-view', 'edit-row-view');
+                if (renderNoRefreshContentFnc) {
+                    renderNoRefreshContentFnc();
+                }
+            }
+            EditListUtils.addUuidToFields(editDataResponse);
+            return Promise.resolve(EditRowUtils.convertEditResponse(editDataResponse));
+        })
+        .catch((err) => {
+            throw err;
+        });
     }
 
     editAutoFill(viewId, recordId, parentId, kindView, element) {
@@ -155,7 +152,7 @@ export default class CrudService extends BaseService {
             });
     }
     getHistoryLogColumnsDefnitions(viewId, recordId, parentId, kindView) {
-        let queryStringTmp = [];
+        const queryStringTmp = [];
         if (!!parentId) {
             queryStringTmp.push(`parentId=${parentId}`);
         }
@@ -578,56 +575,5 @@ export default class CrudService extends BaseService {
             throw err;
         });
     }
-    createObjectDataToRequest(state) {
-        let editData = state.editData;
-        let arrayTmp = [];
-        for (let editField of editData?.editFields) {
-            for (let panel of editField.panels) {
-                for (let group of panel.groups) {
-                    for (let field of group.fields) {
-                        field = this.convertFieldsPerType(field);
-                        const elementTmp = {
-                            fieldName: field.fieldName,
-                            value: field.value,
-                        };
-                        arrayTmp.push(elementTmp);
-                    }
-                }
-            }
-        }
-        return {data: arrayTmp};
-    }
-
-    convertFieldsPerType(field) {
-        try {
-            if (field?.type) {
-                switch (field.type) {
-                    case ColumnType.B:
-                        field.value = field.value === 0 || field.value === '0' || !field.value ? 0 : 1;
-                        break;
-                    case ColumnType.L:
-                        field.value = field.value === 'N' || !field.value ? 'N' : 'T';
-                        break;
-                    case ColumnType.D:
-                        field.value = this.dateFormatAndKeepCorrectness(field.value, 'YYYY-MM-DD');
-                        break;
-                    case ColumnType.E:
-                        field.value = this.dateFormatAndKeepCorrectness(field.value, 'YYYY-MM-DD HH:mm');
-                        break;
-                    case ColumnType.T:
-                        field.value = this.dateFormatAndKeepCorrectness(field.value, 'HH:mm');
-                        break;
-                    default:
-                }
-            }
-        } catch (err) {}
-        return field;
-    }
-
-    dateFormatAndKeepCorrectness(fieldValue, format) {
-        if (fieldValue === null || fieldValue === '' || !(fieldValue instanceof Date && !isNaN(fieldValue))) {
-            return '';
-        }
-        return moment(new Date(fieldValue)).format(format);
-    }
+  
 }

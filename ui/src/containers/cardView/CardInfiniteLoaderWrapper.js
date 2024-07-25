@@ -54,7 +54,7 @@ export default function CardInfiniteLoaderWrapper({
             >
                 {({onItemsRendered, ref}) => (
                     <List
-                        style={{marginTop: '10px'}}
+                        style={{marginTop: '10px', border:"1px solid rgba(221,221,221,.6)"}}
                         className='infinite-loader-card'
                         height={!!viewHeight ? viewHeight : 800}
                         width={1200}
