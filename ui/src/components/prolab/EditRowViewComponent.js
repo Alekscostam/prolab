@@ -73,7 +73,7 @@ export class EditRowViewComponent extends BaseRowComponent {
                                     this.props.editDataChange(editDataResponse);
                                 })
                                 .catch((err) => {
-                                    this.showErrorMessages(err);
+                                    this.showGlobalErrorMessage(err);
                                 })
                                 .finally(() => {
                                     this.unblockUi();
@@ -87,7 +87,7 @@ export class EditRowViewComponent extends BaseRowComponent {
                 );
             })
             .catch((err) => {
-                this.showErrorMessages(err);
+                this.showGlobalErrorMessage(err);
                 this.unblockUi();
             });
     }
@@ -155,7 +155,7 @@ export class EditRowViewComponent extends BaseRowComponent {
                                 editInfo.field = field;
                                 this.handleEditListRowChange(editInfo, editListData);
                             }}
-                            showErrorMessages={(err) => this.showErrorMessages(err)}
+                            showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                             dataGridStoreSuccess={this.state.dataGridStoreSuccess}
                             selectedRowData={this.state.selectedRowData}
                             defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
@@ -380,7 +380,7 @@ export class EditRowViewComponent extends BaseRowComponent {
         } else {
             this.setState({preventSave: true}, () => {
                 this.validator.showMessages();
-                this.showErrorMessages(this.fieldsMandatoryLabel);
+                this.showGlobalErrorMessage(this.fieldsMandatoryLabel);
                 // rerender to show messages for the first time
                 this.scrollToError = true;
                 this.preventSave = true;

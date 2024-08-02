@@ -91,7 +91,6 @@ class App extends Component {
         ConsoleHelper('App version = ' + packageJson.version);
         this.handleCollapseChange = this.handleCollapseChange.bind(this);
     }
-
     setFakeSeesionTimeout() {
         const myDate = new Date();
         myDate.setSeconds(myDate.getSeconds() + 60);
@@ -500,7 +499,6 @@ class App extends Component {
 
         return (
             <React.Fragment>
-                <AppContext.Provider value={{}}>
                     {this.state.rednerSessionTimeoutDialog && (
                         <TickerSessionDialog
                             secondsToPopup={this.state.secondsToPopupTicker}
@@ -630,6 +628,7 @@ class App extends Component {
                                                     {this.haveSubViewColumns() ? (
                                                         <SubGridViewComponent
                                                             key={'sub'}
+                                                            className="from-app"
                                                             handleOnInitialized={(ref) => (this.selectedDataGrid = ref)}
                                                             subView={this.state.subView}
                                                             labels={labels}
@@ -829,7 +828,6 @@ class App extends Component {
                             {LocUtils.loc(labels, 'App_Loading', 'Proszę czekać, trwa ładowanie aplikacji....')}
                         </React.Fragment>
                     )}
-                </AppContext.Provider>
             </React.Fragment>
         );
     }

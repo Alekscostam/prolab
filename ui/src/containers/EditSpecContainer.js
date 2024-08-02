@@ -42,6 +42,7 @@ export class EditSpecContainer extends BaseContainer {
         this.crudService = new CrudService();
         this.dataTreeStore = new DataTreeStore();
         this.refTreeList = React.createRef();
+        this.treeListComponentRef = React.createRef();
         this.messages = React.createRef();
         this.state = {
             loading: true,
@@ -62,7 +63,6 @@ export class EditSpecContainer extends BaseContainer {
         this.downloadData = this.downloadData.bind(this);
         this.unselectAllDataGrid = this.unselectAllDataGrid.bind(this);
         this.getMaxViewid = this.getMaxViewid.bind(this);
-        this.blockUi();
     }
 
     componentDidMount() {
@@ -191,10 +191,10 @@ export class EditSpecContainer extends BaseContainer {
                 id = this.props.id;
             }
             Breadcrumb.updateView(responseView.viewInfo, id, recordId);
-            const pluginsListTmp = ResponseUtils.pluginListCreate(responseView);
-            const documentsListTmp = ResponseUtils.documentListCreate(responseView);
-            const batchesListTmp = ResponseUtils.batchListCreate(responseView);
-            const filtersListTmp = ResponseUtils.filtersListCreate(responseView);
+            const pluginsListTmp = ResponseUtils.pluginListCreateAndPass(responseView);
+            const documentsListTmp = ResponseUtils.documentListCreateAndPass(responseView);
+            const batchesListTmp = ResponseUtils.batchListCreateAndPass(responseView);
+            const filtersListTmp = ResponseUtils.filtersListCreateAndPass(responseView);
             Breadcrumb.currentBreadcrumbAsUrlParam();
             this.setState(
                 () => ({
@@ -234,7 +234,7 @@ export class EditSpecContainer extends BaseContainer {
                             );
                         })
                         .catch((ex) => {
-                            this.showErrorMessages(ex);
+                            this.showGlobalErrorMessage(ex);
                         });
                 }
             );
@@ -441,8 +441,12 @@ export class EditSpecContainer extends BaseContainer {
                 parsedData: addParsedView,
                 totalCounts: addParsedView.length
                  
-            },
-            this.refreshTable()
+            },()=>{
+                if(this.state?.parsedView?.gridOptions?.groupExpandAll && this.treeListComponentRef?.current){
+                    this.treeListComponentRef.current.reInitilizedExpandAll();
+                }
+                this.refreshTable()
+            }
         );
     };
 
@@ -460,7 +464,7 @@ export class EditSpecContainer extends BaseContainer {
     createObjectToSave(rowArray) {
         const booleanLogicColumns = this.state.columns.filter((el) => el.type === 'L');
         const booleanNumberColumns = this.state.columns.filter((el) => el.type === 'B');
-        let arrayTmp = [];
+        const arrayTmp = [];
         for (let row of rowArray) {
             Object.keys(row).forEach((el) => {
                 booleanLogicColumns.forEach((bool) => {
@@ -482,6 +486,14 @@ export class EditSpecContainer extends BaseContainer {
             }
             arrayTmp.push(rowArray);
         }
+        arrayTmp.forEach((array) => {
+            array.forEach((el) => {
+                if (el.fieldName === '_STATUS' && el.value === 'inserted') {
+                    let ID = array.find((arr) => arr.fieldName === 'ID');
+                    ID.value = null;
+                }
+            });
+        });
         return arrayTmp;
     }
 
@@ -513,9 +525,9 @@ export class EditSpecContainer extends BaseContainer {
             <div style={{marginLeft: '2px'}}>
                 <SubGridViewComponent
                     key={'sub'}
+                    className="from-edit-spec"
                     handleOnInitialized={(ref) => (this.selectedDataGrid = ref)}
                     subView={subView}
-                    minHeight={'110px'}
                     getRef={() => {
                         return this.selectedDataGrid;
                     }}
@@ -570,7 +582,7 @@ export class EditSpecContainer extends BaseContainer {
                     handleAttachments={() => this.attachment()}
                     handlePublish={() => this.publishEntry()}
                     handleUnblockUi={() => this.unblockUi()}
-                    showErrorMessages={(err) => this.showErrorMessages(err)}
+                    showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                     handleBlockUi={() => this.blockUi()}
                 />
             </React.Fragment>
@@ -717,10 +729,11 @@ export class EditSpecContainer extends BaseContainer {
                                     this.cancelSpec();
                                 }}
                             />
-                        )}
+                        )}  
 
                         <div id='spec-edit'>
                             <TreeViewComponent
+                                ref={this.treeListComponentRef}
                                 altAndLeftClickEnabled={true}
                                 id={this.props.id}
                                 onHideEditorCallback={() => this.forceUpdate()}
@@ -778,7 +791,7 @@ export class EditSpecContainer extends BaseContainer {
                                 handleAttachmentRow={(id) => this.attachment(id)}
                                 handleArchiveRow={(id) => this.archive(id)}
                                 handlePublishRow={(id) => this.publishEntry(id)}
-                                showErrorMessages={(err) => this.showErrorMessages(err)}
+                                showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                                 labels={this.props.labels}
                             />
                             

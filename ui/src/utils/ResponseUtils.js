@@ -16,7 +16,7 @@ export class ResponseUtils {
         });
         return columnsTmp;
     }
-    static pluginListCreate(responseView) {
+    static pluginListCreateAndPass(responseView) {
         const pluginsListTmp = [];
         for (let plugin in responseView?.pluginsList) {
             pluginsListTmp.push({
@@ -24,9 +24,10 @@ export class ResponseUtils {
                 label: responseView?.pluginsList[plugin].label,
             });
         }
+        responseView.pluginsList = pluginsListTmp; 
         return pluginsListTmp;
     }
-    static documentListCreate(responseView) {
+    static documentListCreateAndPass(responseView) {
         const documentsListTmp = [];
         for (let document in responseView?.documentsList) {
             documentsListTmp.push({
@@ -34,9 +35,10 @@ export class ResponseUtils {
                 label: responseView?.documentsList[document].label,
             });
         }
+        responseView.documentsList = documentsListTmp; 
         return documentsListTmp;
     }
-    static batchListCreate(responseView) {
+    static batchListCreateAndPass(responseView) {
         const batchesListTmp = [];
         for (let batch in responseView?.batchesList) {
             batchesListTmp.push({
@@ -44,9 +46,10 @@ export class ResponseUtils {
                 label: responseView?.batchesList[batch].label,
             });
         }
+        responseView.batchesList = batchesListTmp; 
         return batchesListTmp;
     }
-    static filtersListCreate(responseView) {
+    static filtersListCreateAndPass(responseView) {
         const filtersListTmp = [];
         for (let filter in responseView?.filtersList) {
             filtersListTmp.push({
@@ -54,6 +57,7 @@ export class ResponseUtils {
                 label: responseView?.filtersList[filter].label,
             });
         }
+        responseView.filtersList = filtersListTmp; 
         return filtersListTmp;
     }
     static editInfoToViewInfo(response, type, kindView) {

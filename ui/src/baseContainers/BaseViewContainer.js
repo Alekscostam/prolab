@@ -135,7 +135,6 @@ export class BaseViewContainer extends BaseContainer {
         this.getViewById = this.getViewById.bind(this);
         this.handleRightHeadPanelContent = this.handleRightHeadPanelContent.bind(this);
         this.executePlugin = this.executePlugin.bind(this);
-        this.refreshGanttData = this.refreshGanttData.bind(this);
         this.additionalTopComponents = this.additionalTopComponents.bind(this);
         this.executeDocument = this.executeDocument.bind(this);
         this.showCopyView = this.showCopyView.bind(this);
@@ -228,6 +227,7 @@ export class BaseViewContainer extends BaseContainer {
             fromSubviewToFirstSubView ||
             !DataGridUtils.equalNumbers(this.state.elementFilterId, filterId) ||
             !DataGridUtils.equalNumbers(this.state.elementRecordId, recordId);
+
         if (updatePage || this.state?.attachmentCloseWindow) {
             const newUrl = UrlUtils.deleteParameterFromURL(window.document.URL.toString(), 'force');
             window.history.replaceState('', '', newUrl);
@@ -306,10 +306,10 @@ export class BaseViewContainer extends BaseContainer {
             }
             if (this.state.updateBreadcrumb !== false) Breadcrumb.updateView(responseView.viewInfo, id, recordId);
             const gridViewColumnsTmp = ResponseUtils.columnsFromGroupCreate(responseView);
-            const pluginsListTmp = ResponseUtils.pluginListCreate(responseView);
-            const documentsListTmp = ResponseUtils.documentListCreate(responseView);
-            const batchesListTmp = ResponseUtils.batchListCreate(responseView);
-            const filtersListTmp = ResponseUtils.filtersListCreate(responseView);
+            const pluginsListTmp = ResponseUtils.pluginListCreateAndPass(responseView);
+            const documentsListTmp = ResponseUtils.documentListCreateAndPass(responseView);
+            const batchesListTmp = ResponseUtils.batchListCreateAndPass(responseView);
+            const filtersListTmp = ResponseUtils.filtersListCreateAndPass(responseView);
             Breadcrumb.currentBreadcrumbAsUrlParam();
             const viewInfoTypesTmp = [];
             const cardButton = DataGridUtils.getOpButton(responseView.operations, OperationType.OP_CARDVIEW);
@@ -373,9 +373,6 @@ export class BaseViewContainer extends BaseContainer {
         }
         const id = this.props.id;
         const elementId = `${element?.id}`;
-        const urlEditSpecBatch = AppPrefixUtils.locationHrefUrl(
-            `/#/batch/${id}?batchId=${elementId}&parentId=${parentIdArg}`
-        );
         switch (element.type) {
             case OperationType.OP_PLUGINS:
             case OperationType.SK_PLUGIN:
@@ -386,7 +383,9 @@ export class BaseViewContainer extends BaseContainer {
                 // zapamietanie do cookiesa bo zmieniamy url :(
                 const selectedRowKeys = this.state.selectedRowKeys;
                 saveObjToCookieGlobal('selectedRowKeys', selectedRowKeys);
-                window.location.href = urlEditSpecBatch;
+                window.location.href = AppPrefixUtils.locationHrefUrl(
+                    `/#/batch/${id}?batchId=${elementId}&parentId=${parentIdArg}`
+                );
                 break;
             case OperationType.OP_DOCUMENTS:
             case OperationType.SK_DOCUMENT:
@@ -469,7 +468,7 @@ export class BaseViewContainer extends BaseContainer {
                         }}
                         onError={(e) => this.showErrorMessage(e)}
                         labels={this.props.labels}
-                        showErrorMessages={(err) => this.showErrorMessages(err)}
+                        showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                     />
                 ) : null}
                 {this.state.visibleDocumentPanel ? (
@@ -488,7 +487,7 @@ export class BaseViewContainer extends BaseContainer {
                         onHide={() => this.setState({visibleDocumentPanel: false})}
                         onError={(e) => this.showErrorMessage(e)}
                         labels={this.props.labels}
-                        showErrorMessages={(err) => this.showErrorMessages(err)}
+                        showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                     />
                 ) : null}
 
@@ -610,7 +609,7 @@ export class BaseViewContainer extends BaseContainer {
                         executePlugin={this.executePlugin}
                         selectedRowKeys={this.state.selectedRowKeys}
                         handleUnblockUi={() => this.unblockUi}
-                        showErrorMessages={(err) => this.showErrorMessages(err)}
+                        showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                         dataGridStoreSuccess={this.state.dataPluginStoreSuccess}
                         selectedRowData={this.state.selectedRowData}
                         defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
@@ -637,7 +636,7 @@ export class BaseViewContainer extends BaseContainer {
                         historyLogId={this.state.historyLogId}
                         selectedRowKeys={this.state.selectedRowKeys}
                         handleUnblockUi={() => this.unblockUi}
-                        showErrorMessages={(err) => this.showErrorMessages(err)}
+                        showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                         dataGridStoreSuccess={this.state.dataHistoryLogStoreSuccess}
                         selectedRowData={this.state.selectedRowData}
                         defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
@@ -684,39 +683,51 @@ export class BaseViewContainer extends BaseContainer {
         // to overide
     }
 
-    async executeDocument(data, viewId, elementId, parentId) {
+    async executeDocument(data, viewId, elementId, parentId, recordId) {
         const idRowKeys = this.state.selectedRowKeys.map((el) => el.ID);
-        const requestBody = {
+        const requestBody = recordId ? {listId: [recordId], 
+            data:data} : {
             listId: StringUtils.isBlank(data) && idRowKeys.length === 0 ? [elementId] : idRowKeys,
             data: data,
         };
-        let fileId;
-        let fileName;
+        let info = undefined;
         this.blockUi();
         await this.crudService
-            .generateDocument(requestBody, viewId, elementId, parentId)
+            .executeDocument(requestBody, viewId, elementId, parentId)
             .then((res) => {
-                if (res?.info?.fileId) {
-                    fileId = res?.info?.fileId;
-                    fileName = res?.info?.fileName;
-                } else {
-                    this.showErrorMessage(res.message.text, undefined, res.message.title);
+                if (!res?.info?.fileId) {
+                    this.showGlobalErrorMessage(res?.message?.text, undefined, res?.message?.title);
                 }
+                info = res?.info;
+
             })
             .catch((ex) => {
-                this.showErrorMessage(ex.error.message);
+                this.showGlobalErrorMessage(ex);
                 this.unblockUi();
             });
-        if (fileId) {
-            this.crudService.downloadDocument(viewId, elementId, fileId, fileName);
 
+        const fileId = info?.fileId;
+        const fileName = info?.fileName;
+        const isEdit = StringUtils.isBlank(info?.isEdit) ? false : info.isEdit ;
+        const isPreview =  StringUtils.isBlank(info?.isPreview) ? false : info.isPreview;
+
+        if (this.canDownloadAfterExecuteDocument(fileId, isEdit, isPreview)) {
+            this.crudService.downloadDocument(viewId, elementId, fileId, fileName);
             this.setState({
                 visibleDocumentPanel: false,
             });
         }
         this.unblockUi();
     }
-
+    canDownloadAfterExecuteDocument = (fileId, isEdit, isPreview) => {
+        if(StringUtils.isBlank(fileId) || fileId === "0" || fileId === 0){
+            return false;
+        }
+        if(isEdit === false || isPreview === false){
+            return false;
+        }
+        return true;
+    }
     //override
     renderHeaderRight() {
         return <React.Fragment />;
@@ -1031,7 +1042,7 @@ export class BaseViewContainer extends BaseContainer {
         });
     }
     filterArrayFromInitialize(tr) {
-        let filterArray = [];
+        const filterArray = [];
         for (let index = 0; index < tr.children.length; index++) {
             const child = tr.children[index];
             if (this.isValidChildForFilter(child)) {
@@ -1094,13 +1105,13 @@ export class BaseViewContainer extends BaseContainer {
                     handleArchive={() => this.archive()}
                     handlePublish={() => this.publishEntry()}
                     handleUnblockUi={() => this.unblockUi()}
-                    showErrorMessages={(err) => this.showErrorMessages(err)}
+                    showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                     handleBlockUi={() => this.blockUi()}
                 />
             </React.Fragment>
         );
     };
-// callback na zaznaczone elementy
+    // callback na zaznaczone elementy
     selectAllDataGrid(selectionValue) {
         if (this.isGridView()) {
             this.setState(
@@ -1152,7 +1163,6 @@ export class BaseViewContainer extends BaseContainer {
             );
         }
     }
-
     unselectAllDataGrid(selectionValue) {
         this.blockUi();
         if (this.isGridView()) {
@@ -1197,7 +1207,6 @@ export class BaseViewContainer extends BaseContainer {
             );
         }
     }
-
     //override
     renderHeaderContent() {
         if (this.isDashboard()) {
@@ -1277,7 +1286,6 @@ export class BaseViewContainer extends BaseContainer {
             </React.Fragment>
         );
     }
-
     addView() {
         this.blockUi();
         const subViewId = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
@@ -1314,7 +1322,6 @@ export class BaseViewContainer extends BaseContainer {
                 this.showGlobalErrorMessage(err);
             });
     }
-
     openEditRowIfPossible() {
         if (UrlUtils.isEditRowOpen()) {
             setTimeout(() => {
@@ -1342,9 +1349,7 @@ export class BaseViewContainer extends BaseContainer {
                                             );
                                         })
                                         .catch((res) => {
-                                            res.error
-                                                ? this.showErrorMessage(res?.error?.message, 4000, true)
-                                                : this.showErrorMessages(res?.error);
+                                            this.showGlobalErrorMessage(res);
                                         });
                                 } else {
                                     this.unblockUi();
@@ -1360,14 +1365,12 @@ export class BaseViewContainer extends BaseContainer {
             }, 1000);
         }
     }
-
     showCopyView(id) {
         this.setState({
             visibleCopyDialog: true,
             copyId: id,
         });
     }
-
     editSubView(e) {
         this.blockUi();
         const parentId = e.parentId || this.state.elementRecordId;
@@ -1402,7 +1405,7 @@ export class BaseViewContainer extends BaseContainer {
         });
     }
 
-    refreshGanttData() {
+    refreshGanttData = () => {
         const initFilterId = this.state.parsedGridView?.viewInfo?.filterdId;
         const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
         const parentIdArg = this.state.subView == null ? UrlUtils.getParentId() : this.state.elementRecordId;
@@ -1424,7 +1427,6 @@ export class BaseViewContainer extends BaseContainer {
                 };
                 sort.push(operation);
             }
-
             const res = this.dataGanttStore.getDataForGantt(
                 viewIdArg,
                 {
@@ -1434,7 +1436,14 @@ export class BaseViewContainer extends BaseContainer {
                 },
                 parentIdArg,
                 filterIdArg,
-                kindViewArg
+                kindViewArg,
+                (totalCounts)=>{
+                    this.setState(
+                        {
+                            totalCounts: totalCounts,
+                        }
+                    );
+                }
             );
             if (!!res) {
                 this.setState({
@@ -1526,7 +1535,7 @@ export class BaseViewContainer extends BaseContainer {
                     }}
                     addButtonFunction={this.addButtonFunction}
                     handleUnblockUi={() => this.unblockUi()}
-                    showErrorMessages={(err) => this.showErrorMessages(err)}
+                    showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                     packageRows={this.state.packageRows}
                     handleShowEditPanel={(editDataResponse) => {
                         this.handleShowEditPanel(editDataResponse);
@@ -1581,8 +1590,8 @@ export class BaseViewContainer extends BaseContainer {
                     }}
                     dataGridStoreSuccess={this.state.dataGridStoreSuccess}
                     selectionDeferred={true}
-                    handlePluginRow={(id) => this.plugin(id)}
-                    handleDocumentRow={(id) => this.generate(id)}
+                    handlePluginRow={(id, recordId) => this.plugin(id, recordId)}
+                    handleDocumentRow={(id, recordId) => this.generate(id, recordId)}
                     handleDeleteRow={(id) => this.delete(id)}
                     handleRestoreRow={(id) => this.restore(id)}
                     handleDownloadRow={(id) => this.downloadAttachment(id)}
@@ -1619,7 +1628,7 @@ export class BaseViewContainer extends BaseContainer {
                             this.handleShowEditPanel(editDataResponse);
                         }}
                         viewHeight={viewHeight}
-                        showErrorMessages={(err) => this.showErrorMessages(err)}
+                        showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                         handleBlockUi={() => {
                             this.blockUi();
                             return true;
@@ -1638,8 +1647,8 @@ export class BaseViewContainer extends BaseContainer {
                             this.prepareCalculateFormula(id);
                         }}
                         handleHistoryLogRow={(id) => this.historyLog(id)}
-                        handlePluginRow={(id) => this.plugin(id)}
-                        handleDocumentRow={(id) => this.generate(id)}
+                        handlePluginRow={(id,recordId) => this.plugin(id,recordId)}
+                        handleDocumentRow={(id,recordId) => this.generate(id,recordId)}
                         handleDeleteRow={(id) => this.delete(id)}
                         handleAttachmentRow={(id) => this.attachment(id)}
                         handleDownloadRow={(id) => this.downloadAttachment(id)}
@@ -1697,7 +1706,7 @@ export class BaseViewContainer extends BaseContainer {
                     gridViewColumns={this.state.ganttViewColumns}
                     dataGanttStoreSuccess={this.state.dataGanttStoreSuccess}
                     handleUnblockUi={() => this.unblockUi()}
-                    showErrorMessages={(err) => this.showErrorMessages(err)}
+                    showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                     packageRows={this.state.packageRows}
                     handleShowEditPanel={(editDataResponse) => {
                         this.handleShowEditPanel(editDataResponse);
@@ -1708,8 +1717,8 @@ export class BaseViewContainer extends BaseContainer {
                     addButtonFunction={this.addButtonFunction}
                     dataGridStoreSuccess={this.state.dataGridStoreSuccess}
                     selectionDeferred={true}
-                    handlePluginRow={(id) => this.plugin(id)}
-                    handleDocumentRow={(id) => this.generate(id)}
+                    handlePluginRow={(id,recordId) => this.plugin(id,recordId)}
+                    handleDocumentRow={(id,recordId) => this.generate(id,recordId)}
                     handleDeleteRow={(id) => this.delete(id)}
                     handleDownloadRow={(id) => this.downloadAttachment(id)}
                     handleAttachmentRow={(id) => this.attachment(id)}

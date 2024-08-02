@@ -51,9 +51,10 @@ export class ViewContainer extends BaseViewContainer {
 
     //override
     createObjectToSave(rowArray) {
-        let arrayTmp = [];
+        rowArray.forEach(el=>el._STATUS = "inserted" )
+        const arrayTmp = [];
         for (let row of rowArray) {
-            let rowArray = [];
+            const rowArray = [];
             for (let field in row) {
                 rowArray.push({fieldName: field, value: row[field]});
             }
@@ -257,7 +258,7 @@ export class ViewContainer extends BaseViewContainer {
                     },
                     (err) => {
                         this.unblockUi();
-                        this.showErrorMessages(err);
+                        this.showGlobalErrorMessage(err);
                     }
                 );
                 if (!!res) {
@@ -402,13 +403,13 @@ export class ViewContainer extends BaseViewContainer {
             </div>
         );
     }
-
+  
     handleAddElements(elements) {
         const viewIdArg = this.state.elementSubViewId;
         const parentIdArg = this.state.elementRecordId;
-        const saveElement = this.createObjectToSave((this.state.parsedData || []).concat(elements));
-        ConsoleHelper(`handleAddElements: element to save = ${JSON.stringify(saveElement)}`);
-        this.specSave(viewIdArg, parentIdArg, saveElement, false);
+        ConsoleHelper(`handleAddElements: element to save = ${JSON.stringify(elements)}`);
+        const results = this.createObjectToSave(elements)
+        this.specSave(viewIdArg, parentIdArg, results, false);
     }
 
     //override

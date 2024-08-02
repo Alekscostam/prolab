@@ -14,6 +14,10 @@
         {"code": "View_AdditionalOptions", "caption": "Dodatkowe opcje"},
         {"code": "View_StartPage", "caption": "Strona startowa"},
         {"code": "Session_expiration_time", "caption": "Czas do wygaśnięcia sesji: "},
+        {"code": "Confirm", "caption": "Zatwierdź"},
+        {"code": "Cancel", "caption": "Anuluj"},
+        {"code": "Fill", "caption": "Wypełnij"},
+        {"code": "Save", "caption": "Zapisz"},
         {
             "code": "Session_Expired",
             "caption": "Sesja wygasła",

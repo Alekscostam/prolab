@@ -40,6 +40,7 @@ import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils.js'
 import { HtmlUtils } from '../../utils/HtmlUtils.js';
 import { ViewDataCompUtils } from '../../utils/component/ViewDataCompUtils.js';
 import EntryResponseHelper from '../../utils/helper/EntryResponseHelper.js';
+import { CheckBox } from 'devextreme-react';
 
 const UNCOLLAPSED_CUT_SIZE = 327;
 const COLLAPSED_CUT_SIZE = 140;
@@ -55,8 +56,8 @@ class GanttViewComponent extends React.Component {
         this.ganttRef = React.createRef();
         this.selectAllRef = React.createRef();
         this.dataGanttStore = new DataGanttStore();       
-         this.currentClickedCell = React.createRef();
-
+        this.currentClickedCell = React.createRef();
+        this.clickedPosition = React.createRef();
         this.labels = this.props;
         this.menu = React.createRef();
         this.state = {
@@ -106,6 +107,10 @@ class GanttViewComponent extends React.Component {
                 const menu = document.getElementById('menu-with-buttons');
                 menu.style.left = mouseX + 'px';
                 menu.style.top = mouseY + 'px';
+                this.clickedPosition.current = {
+                    x:mouseX +"px",
+                    y:mouseY + 'px'
+                }
             });
         } else if (menu !== null && e.targetType === 'task') {
             menu.hide(e.event);
@@ -113,7 +118,7 @@ class GanttViewComponent extends React.Component {
     }
     setSelectionWidth(data) {
         const allDatas = data.map((el) => new ParentModel(el.ID, el.ID_PARENT));
-        let parents = allDatas.filter((el) => el.idParent === null);
+        const parents = allDatas.filter((el) => el.idParent === null);
         let childrens = allDatas.filter((el) => el.idParent != null);
         let resultLength = 0;
         if (childrens.length === 0) {
@@ -231,7 +236,7 @@ class GanttViewComponent extends React.Component {
                 if (this.currentClickedCell.current) {
                     if(HtmlUtils.clickedInsideComponent(event,"gantt-container" )){
                         const clickedCell = parseInt(this.currentClickedCell.current);
-                        this.selectSingleRow(undefined, clickedCell)
+                        this.selectSingleRow(clickedCell)
                     }
                 }
             },100)
@@ -284,9 +289,7 @@ class GanttViewComponent extends React.Component {
         const selectedRecordId = this.state.selectedRecordId;
         const parentId = this.props.elementRecordId;
         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
-        let viewId = this.props.id;
-        viewId = DataGridUtils.getRealViewId(subViewId, viewId);
-
+        const viewId = DataGridUtils.getRealViewId(subViewId, this.props.id);
         return (
             this.state.tasks.length > 0 && (
                 <React.Fragment>
@@ -366,6 +369,10 @@ class GanttViewComponent extends React.Component {
                         <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'} />
                     </Gantt>
                     <MenuWithButtons
+                        gridView={this.props.parsedGanttView}
+                        clickedPosition={this.clickedPosition}
+                        handlePlugins={(e) => this.props.handlePluginRow(e.id, selectedRecordId)}
+                        handleDocuments={(e) => this.props.handleDocumentRow(e.id, selectedRecordId)}
                         componentInducedTime={this.state.menuWithButtonInducedTime}
                         zIndex={1000001}
                         handleSaveAction={() => this.props.handleSaveAction()}
@@ -382,8 +389,6 @@ class GanttViewComponent extends React.Component {
                         handlePublish={() => this.props.handlePublishRow(selectedRecordId)}
                         handleDocumentsSk={(el) => this.props.handleDocumentRow(el.id)}
                         handlePluginsSk={(el) => this.props.handlePluginRow(el.id)}
-                        handleDocuments={(el) => this.props.handleDocumentRow(selectedRecordId)}
-                        handlePlugins={(el) => this.props.handlePluginRow(selectedRecordId)}
                         handleDownload={() => this.props.handleDownloadRow(selectedRecordId)}
                         handleAttachments={() => this.props.handleAttachmentRow(selectedRecordId)}
                         handleDelete={() => this.props.handleDeleteRow(selectedRecordId)}
@@ -494,15 +499,19 @@ class GanttViewComponent extends React.Component {
                           element.parentNode.classList.add('parent-checkbox-area');
                           ReactDOM.render(
                               <label className={`container-checkbox`}>
-                                  <input
-                                      ref={this.selectAllRef}
-                                      type='checkbox'
-                                      className='dx-datagrid-checkbox-size dx-show-invalid-badge dx-checkbox dx-widget'
-                                      onChange={(e) => {
-                                          e.preventDefault();
-                                          e.stopPropagation();
-                                          this.selectAll(e);
-                                      }}
+                                   <CheckBox
+                                    ref={this.selectAllRef}   
+                                    iconSize={15} 
+                                    key={'checkbox-select-all'} 
+                                    onValueChange={(e)=>{
+                                        const fakeEvent = {
+                                            target: {
+                                                checked: e,
+                                            },
+                                        };
+                                        this.selectAll(fakeEvent);
+                                    }}
+                                    className={'checkBoxSelection select-all'}
                                   />
                                   <span className='checkmark'></span>
                               </label>,
@@ -527,17 +536,15 @@ class GanttViewComponent extends React.Component {
                           const recordId = info.row?.data?.ID;
                           ReactDOM.render(
                               <label className={`container-checkbox `}>
-                                  <input
-                                      key={'checkbox' + recordId}
-                                      type='checkbox'
-                                      checked={this.state.rowElementsStorage.get(recordId)[1].value}
-                                      className={'checkBoxSelection'}
-                                      onChange={(e) => {
-                                          e.preventDefault();
-                                          e.stopPropagation();
-                                          this.selectSingleRow(selectedRowKeys, recordId);
-                                      }}
-                                  />{' '}
+                                  <CheckBox   
+                                    iconSize={15} 
+                                    key={'checkbox' + recordId} 
+                                    onValueChange={()=>{
+                                        this.selectSingleRow(recordId);
+                                    }}
+                                    defaultValue={this.state.rowElementsStorage.get(recordId)[1].value}
+                                    className={'checkBoxSelection'}
+                                  />
                                   <span className='checkmark'></span>
                               </label>,
                               element
@@ -568,15 +575,13 @@ class GanttViewComponent extends React.Component {
             ];
             store.set(key, array);
         }
-        this.selectAllRef.current.checked = e.target.checked;
         this.props.handleSelectAll(e.target.checked, selectedRowKeys);
         this.datasRefreshSelector(store);
     }
 
-    selectSingleRow(selectedRowKeys, recordId) {
-        selectedRowKeys = this.props.selectedRowKeys;
-        let store = this.state.rowElementsStorage;
-
+    selectSingleRow(recordId) {
+        const selectedRowKeys = this.props.selectedRowKeys;
+        const store = this.state.rowElementsStorage;
         for (const [key, value] of store.entries()) {
             if (recordId === key) {
                 let array = [
@@ -603,7 +608,6 @@ class GanttViewComponent extends React.Component {
 
     generateColumns() {
         let columns = [];
-
         const selectedRowKeys = this.props.selectedRowKeys;
         let operationsRecord = this.props.parsedGanttView?.operationsRecord;
         const operationsRecordList = this.props.parsedGanttView?.operationsRecordList;
@@ -656,7 +660,7 @@ class GanttViewComponent extends React.Component {
                     <Column
                         caption=''
                         fixed={true}
-                        width={ViewDataCompUtils.operationsColumnLength(operationsRecord, operationsRecordList)}
+                        width={ViewDataCompUtils.operationsColumnLength(operationsRecord, operationsRecordList, true)}
                         fixedPosition={'right'}
                         headerCellTemplate={(element) => {
                             ReactDOM.render(this.addButton(), element);

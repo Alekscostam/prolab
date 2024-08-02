@@ -40,7 +40,7 @@ export default class PublishDialogComponent extends React.Component {
                                     onClick={() => {
                                         this.props.onHide();
                                     }}
-                                    label={LocUtils.loc(this.props.labels, 'Cancle_button', 'Anuluj')}
+                                    label={LocUtils.loc(this.props.labels, 'Cancel', 'Anuluj')}
                                 />
                                 <Button
                                     type='button'
@@ -52,7 +52,7 @@ export default class PublishDialogComponent extends React.Component {
                                         this.props.handlePublish(publishOptions);
                                         this.props.close();
                                     }}
-                                    label={LocUtils.loc(this.props.labels, 'Confirm_button', 'Zatwierdź')}
+                                    label={LocUtils.loc(this.props.labels, 'Confirm', 'Zatwierdź')}
                                 />
                             </div>
                         </React.Fragment>

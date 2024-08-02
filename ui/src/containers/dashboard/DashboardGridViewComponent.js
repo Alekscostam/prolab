@@ -117,9 +117,9 @@ export class DashboardGridViewComponent extends BaseContainer {
                     if (this._isMounted) {
                         ViewValidatorUtils.validation(responseView);
                         const gridViewColumnsTmp = ResponseUtils.columnsFromGroupCreate(responseView);
-                        const pluginsListTmp = ResponseUtils.pluginListCreate(responseView);
-                        const documentsListTmp = ResponseUtils.documentListCreate(responseView);
-                        const batchesListTmp = ResponseUtils.batchListCreate(responseView);
+                        const pluginsListTmp = ResponseUtils.pluginListCreateAndPass(responseView);
+                        const documentsListTmp = ResponseUtils.documentListCreateAndPass(responseView);
+                        const batchesListTmp = ResponseUtils.batchListCreateAndPass(responseView);
                         let filtersListTmp = [];
                         for (let filter in responseView?.filtersList) {
                             filtersListTmp.push({
@@ -187,7 +187,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                                             });
                                         },
                                         (err) => {
-                                            this.showErrorMessages(err);
+                                            this.showGlobalErrorMessage(err);
                                         }
                                     );
                                     this.setState({
@@ -279,7 +279,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                             }}
                             onError={(e) => this.showErrorMessage(e)}
                             labels={this.props.labels}
-                            showErrorMessages={(err) => this.showErrorMessages(err)}
+                            showErrorMessages={(err) => this.customShowErrorMessages(err)}
                         />
                     ) : null}
                     {this.state.visibleCopyDialog ? (
@@ -325,29 +325,17 @@ export class DashboardGridViewComponent extends BaseContainer {
                                 });
                                 this.showGlobalErrorMessage(err);
                             }}
-                            handleShowErrorMessages={(err) => {
-                                this.showErrorMessage(err);
-                            }}
-                            handleShowEditPanel={(editDataResponse) => {
-                                this.handleShowEditPanel(editDataResponse);
-                            }}
+                            handleShowErrorMessages={(err) =>  this.customShowErrorMessages(err)}
+                            handleShowEditPanel={(editDataResponse) =>  this.handleShowEditPanel(editDataResponse)}
                             onHide={() => {
                                 this.setState({
                                     attachmentViewInfo: undefined,
                                 });
                             }}
-                            handleViewInfoName={(viewInfoName) => {
-                                this.setState({viewInfoName: viewInfoName});
-                            }}
-                            handleSubView={(subView) => {
-                                this.setState({subView: subView});
-                            }}
-                            handleOperations={(operations) => {
-                                this.setState({operations: operations});
-                            }}
-                            handleShortcutButtons={(shortcutButtons) => {
-                                this.setState({shortcutButtons: shortcutButtons});
-                            }}
+                            handleViewInfoName={(viewInfoName) =>  this.setState({viewInfoName: viewInfoName})}
+                            handleSubView={(subView) => this.setState({subView: subView})}
+                            handleOperations={(operations) =>  this.setState({operations: operations})}
+                            handleShortcutButtons={(shortcutButtons) =>  this.setState({shortcutButtons: shortcutButtons})}
                             collapsed={this.state.collapsed}
                         />
                     ) : null}
@@ -372,7 +360,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                             executePlugin={this.executePlugin}
                             selectedRowKeys={this.state.selectedRowKeys}
                             handleUnblockUi={() => this.unblockUi}
-                            showErrorMessages={(err) => this.showErrorMessages(err)}
+                            showErrorMessages={(err) => this.customShowErrorMessages(err)}
                             dataGridStoreSuccess={this.state.dataPluginStoreSuccess}
                             selectedRowData={this.state.selectedRowData}
                             defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
@@ -398,7 +386,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                             historyLogId={this.state.historyLogId}
                             selectedRowKeys={this.state.selectedRowKeys}
                             handleUnblockUi={() => this.unblockUi}
-                            showErrorMessages={(err) => this.showErrorMessages(err)}
+                            showErrorMessages={(err) => this.customShowErrorMessages(err)}
                             dataGridStoreSuccess={this.state.dataHistoryLogStoreSuccess}
                             selectedRowData={this.state.selectedRowData}
                             defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
@@ -544,7 +532,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                     handleAttachments={() => this.attachment()}
                     handlePublish={() => this.publishEntry()}
                     handleUnblockUi={() => this.unblockUi()}
-                    showErrorMessages={(err) => this.showErrorMessages(err)}
+                    showErrorMessages={(err) => this.customShowErrorMessages(err)}
                     handleBlockUi={() => this.blockUi()}
                 />
             </React.Fragment>
@@ -597,11 +585,11 @@ export class DashboardGridViewComponent extends BaseContainer {
     }
 
     //override
-    showErrorMessages(err) {
+    customShowErrorMessages(err) {
         if (!!this.props.handleShowErrorMessages(err)) {
             return this.props.handleShowErrorMessages(err);
         } else {
-            this.showErrorMessages(err);
+            this.showGlobalErrorMessage(err);
             return true;
         }
     }
@@ -640,7 +628,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                                 return this.unblockUi();
                             }}
                             showErrorMessages={(err) => {
-                                return this.showErrorMessages(err);
+                                return this.customShowErrorMessages(err);
                             }}
                             packageRows={this.state.packageRows}
                             handleShowEditPanel={(editDataResponse) => {
@@ -668,8 +656,8 @@ export class DashboardGridViewComponent extends BaseContainer {
                             }}
                             handleHistoryLogRow={(id) => this.historyLog(id)}
                             handleRestoreRow={(id) => this.restore(id)}
-                            handleDocumentRow={(id) => this.generate(id)}
-                            handlePluginRow={(id) => this.plugin(id)}
+                            handlePluginRow={(id,recordId) => this.plugin(id,recordId)}
+                            handleDocumentRow={(id,recordId) => this.generate(id,recordId)}
                             handleCopyRow={(id) => this.showCopyView(id)}
                             handleArchiveRow={(id) => this.archive(id)}
                             handleDownloadRow={(id) => this.downloadAttachment(id)}

@@ -145,11 +145,7 @@ class DashboardContainer extends BaseContainer {
                 );
             })
             .catch((err) => {
-                if (!!err.error) {
-                    this.showResponseErrorMessage(err);
-                } else {
-                    this.showErrorMessages(err);
-                }
+                this.showGlobalErrorMessage(err)
             })
             .finally(() => {
                 this.setState({
@@ -262,9 +258,8 @@ class DashboardContainer extends BaseContainer {
                                 });
                             }
                         }}
-                        onError={(e) => this.showErrorMessage(e)}
                         labels={this.props.labels}
-                        showErrorMessages={(err) => this.showErrorMessages(err)}
+                        showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                     />
                 )}
 
@@ -287,7 +282,7 @@ class DashboardContainer extends BaseContainer {
                         historyLogId={this.state.historyLogId}
                         selectedRowKeys={this.state.selectedRowKeys}
                         handleUnblockUi={() => this.unblockUi}
-                        showErrorMessages={(err) => this.showErrorMessages(err)}
+                        showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                         dataGridStoreSuccess={this.state.dataHistoryLogStoreSuccess}
                         selectedRowData={this.state.selectedRowData}
                         defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
@@ -322,29 +317,17 @@ class DashboardContainer extends BaseContainer {
                             });
                             this.showGlobalErrorMessage(err);
                         }}
-                        handleShowErrorMessages={(err) => {
-                            this.showErrorMessage(err);
-                        }}
-                        handleShowEditPanel={(editDataResponse) => {
-                            this.handleShowEditPanel(editDataResponse);
-                        }}
+                        handleShowErrorMessages={(err) =>  this.showGlobalErrorMessage(err)}
+                        handleShowEditPanel={(editDataResponse) =>   this.handleShowEditPanel(editDataResponse)}
                         onHide={() => {
                             this.setState({
                                 attachmentViewInfo: undefined,
                             });
                         }}
-                        handleViewInfoName={(viewInfoName) => {
-                            this.setState({viewInfoName: viewInfoName});
-                        }}
-                        handleSubView={(subView) => {
-                            this.setState({subView: subView});
-                        }}
-                        handleOperations={(operations) => {
-                            this.setState({operations: operations});
-                        }}
-                        handleShortcutButtons={(shortcutButtons) => {
-                            this.setState({shortcutButtons: shortcutButtons});
-                        }}
+                        handleViewInfoName={(viewInfoName) =>  this.setState({viewInfoName: viewInfoName})}
+                        handleSubView={(subView) => this.setState({subView: subView})}
+                        handleOperations={(operations) => this.setState({operations: operations})}
+                        handleShortcutButtons={(shortcutButtons) =>  this.setState({shortcutButtons: shortcutButtons})}
                         collapsed={this.state.collapsed}
                     />
                 ) : null}
@@ -445,7 +428,7 @@ class DashboardContainer extends BaseContainer {
                                     this.blockUi();
                                     return true;
                                 }}
-                                showErrorMessages={(err) => this.showErrorMessages(err)}
+                                showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                             />
                             {this.state.dashboard?.views
                                 ?.filter((item) => item.position === 'left')
@@ -523,7 +506,7 @@ class DashboardContainer extends BaseContainer {
                         return true;
                     }}
                     handleShowErrorMessages={(err) => {
-                        this.showErrorMessages(err);
+                        this.showGlobalErrorMessage(err);
                         return true;
                     }}
                     dataGridHeight={_cardHeight - 60}

@@ -247,6 +247,9 @@ $edit-padding-bottom: 11px;
     .dx-htmleditor-toolbar-wrapper {
         display: none;
     }
+    .p-checkbox.p-component.p-disabled *{
+        background-color: $disabled-background;
+    }
 }
 #row-edit .autofill-border {
     background-color: $autofill-background !important;

@@ -47,7 +47,8 @@ class TreeViewComponent extends CellEditComponent {
         this.selectionClicked = React.createRef(false);
         this.selectionCheckboxClicked = React.createRef(false);
         this.ref = React.createRef();
-        this.refDateTime = React.createRef();
+        this.refDateTime = React.createRef();        
+        this.clickedPosition = React.createRef();
         this.menu = React.createRef();
         this.modelRef = React.createRef([]);
         this.selectedRecordIdRef = React.createRef();
@@ -112,6 +113,10 @@ class TreeViewComponent extends CellEditComponent {
             if (menuWithButtons) {
                 menuWithButtons.style.left = mouseX + 'px';
                 menuWithButtons.style.top = mouseY + 'px';
+                this.clickedPosition.current = {
+                    x:mouseX + "px",
+                    y:mouseY + 'px'
+                }
             }
         } else if (menu !== null && e.row.rowType === 'data') {
             menu.hide(e.event);
@@ -251,6 +256,7 @@ class TreeViewComponent extends CellEditComponent {
                     onContentReady={(e) => {
                         const editListDialog = document.getElementById('editListDialog');
                         this.expandRows();
+
                         if (!editListDialog) {
                             this.rerenderRows(e);
                             return;
@@ -348,6 +354,10 @@ class TreeViewComponent extends CellEditComponent {
                 </TreeList>
                 {this.props.parsedGridView?.operationsPPM && this.props.parsedGridView.operationsPPM.length !== 0 && (
                     <MenuWithButtons
+                        gridView={this.props.parsedGridView}
+                        clickedPosition={this.clickedPosition}
+                        handlePlugins={(e) => this.props.handlePluginRow(e.id, selectedRecordId)}
+                        handleDocuments={(e) => this.props.handleDocumentRow(e.id, selectedRecordId)}
                         handleSaveAction={() => this.props.handleSaveAction()}
                         handleAddSpecCount={() => this.props.handleAddSpecCount()}
                         handleAddSpecSpec={() => this.props.handleAddSpecSpec(selectedRecordId)}
@@ -364,9 +374,7 @@ class TreeViewComponent extends CellEditComponent {
                         handleArchive={() => this.props.handleArchiveRow(selectedRecordId)}
                         handlePublish={() => this.props.handlePublishRow(selectedRecordId)}
                         handleDocumentsSk={(el) => this.props.handleDocumentRow(el.id)}
-                        handleDocuments={() => this.props.handleDocumentRow(selectedRecordId)}
                         handlePluginsSk={(el) => this.props.handlePluginRow(el.id)}
-                        handlePlugins={() => this.props.handlePluginRow(selectedRecordId)}
                         handleDownload={() => this.props.handleDownloadRow(selectedRecordId)}
                         handleAttachments={() => this.props.handleAttachmentRow(selectedRecordId)}
                         handleDelete={() => this.props.handleDeleteRow(selectedRecordId)}
@@ -714,7 +722,7 @@ class TreeViewComponent extends CellEditComponent {
                             }
                             return;
                         },
-                        width: this.props.isAddSpec ? 43 :  ViewDataCompUtils.operationsColumnLength(operationsRecord, operationsRecordList) ,
+                        width: this.props.isAddSpec ? 43 :  ViewDataCompUtils.operationsColumnLength(operationsRecord, operationsRecordList, this.addButtonExists()) ,
                         fixedPosition: 'right',
                         cellTemplate: (element, info) => {
                             let el = document.createElement('div');
@@ -751,12 +759,8 @@ class TreeViewComponent extends CellEditComponent {
                                             compress([recordId]),
                                             currentBreadcrumb
                                         )}
-                                        handleHrefSubview={() => {
-                                            this.handleHrefSubview(viewId, recordId, currentBreadcrumb);
-                                        }}
-                                        handleAddSpecSpec={() => {
-                                            this.props.handleAddSpecSpec(recordId);
-                                        }}
+                                        handleHrefSubview={() => this.handleHrefSubview(viewId, recordId, currentBreadcrumb) }
+                                        handleAddSpecSpec={() =>  this.props.handleAddSpecSpec(recordId)}
                                         handleArchive={() => this.props.handleArchiveRow(recordId)}
                                         handlePublish={() => this.props.handlePublish(recordId)}
                                         handleDownload={() => this.props.handleDownloadRow(recordId)}
@@ -802,10 +806,8 @@ class TreeViewComponent extends CellEditComponent {
         }
     };
     addButton() {
-        const operations = this.state.operations;
-        const opAddFile = !!DataGridUtils.getOpButton(operations, OperationType.OP_ADD_SPEC_BUTTON);
         return (
-            opAddFile && (
+            this.addButtonExists() && (
                 <ActionButton
                     rendered={true}
                     label={LocUtils.loc(this.props.labels, 'Add_button', 'Dodaj')}
@@ -815,6 +817,11 @@ class TreeViewComponent extends CellEditComponent {
                 />
             )
         );
+    }
+    addButtonExists(){
+        const operations = this.state.operations;
+        const opAddFile = !!DataGridUtils.getOpButton(operations, OperationType.OP_ADD_SPEC_BUTTON);
+        return !!opAddFile;
     }
     onHideImageCallBack() {
         const rowDatas = this.ref.instance.getVisibleRows();

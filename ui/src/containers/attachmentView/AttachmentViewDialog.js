@@ -301,7 +301,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
                     handleShowEditPanel={(editDataResponse) => {
                         this.handleShowEditPanel(editDataResponse);
                     }}
-                    showErrorMessages={(err) => this.showErrorMessages(err)}
+                    showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                     handleBlockUi={() => {
                         this.blockUi();
                         return true;
@@ -323,8 +323,8 @@ export class AttachmentViewDialog extends BaseViewContainer {
                         this.prepareCalculateFormula(id);
                     }}
                     handleHistoryLogRow={(id) => this.historyLog(id)}
-                    handlePluginRow={(id) => this.plugin(id)}
-                    handleDocumentRow={(id) => this.generate(id)}
+                    handlePluginRow={(id,recordId) => this.plugin(id,recordId)}
+                    handleDocumentRow={(id,recordId) => this.generate(id,recordId)}
                     handleDeleteRow={(id) => this.delete(id)}
                     handleAttachmentRow={(id) => this.attachment(id)}
                     handleDownloadRow={(id) => this.downloadAttachment(id)}

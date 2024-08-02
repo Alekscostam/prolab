@@ -17,7 +17,7 @@ function ResponseHelper() {
 
     return null;
 }
-ResponseHelper.run = (response, nokAcceptFnc, okAcceptFnc, errMessage, resErrorMessage, onAfterOkClick) => {
+ResponseHelper.run = (response, nokAcceptFnc, okAcceptFnc, resErrorMessage, onAfterOkClick) => {
     switch (response.status) {
         case 'OK':
             if (!!response.message) {
@@ -44,11 +44,7 @@ ResponseHelper.run = (response, nokAcceptFnc, okAcceptFnc, errMessage, resErrorM
             }
             break;
         default:
-            if (!!response.error) {
-                resErrorMessage(response);
-            } else {
-                errMessage(response);
-            }
+            resErrorMessage(response);
             break;
     }
 };

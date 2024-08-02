@@ -227,7 +227,8 @@ export class BatchContainer extends BaseContainer {
         return (
             <React.Fragment>
                 <DivContainer id='header-left'>
-                    <div className='font-medium mb-4'>{this.state.parsedView?.editInfo?.viewName}</div>
+                {Breadcrumb.render(this.props.labels)}
+                    <div className='font-medium mb-2'>{this.state.parsedView?.editInfo?.viewName}</div>
                 </DivContainer>
             </React.Fragment>
         );
@@ -411,7 +412,7 @@ export class BatchContainer extends BaseContainer {
                     handleFormula={() => this.calculateData()}
                     handleFill={() => this.fillData()}
                     handleUnblockUi={() => this.unblockUi()}
-                    showErrorMessages={(err) => this.showErrorMessages(err)}
+                    showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                     handleBlockUi={() => this.blockUi()}
                 />}
                 
@@ -502,10 +503,10 @@ export class BatchContainer extends BaseContainer {
                 this.unblockUi();
             });
     }
-    changeWart(calcultedFormula, oldFormula) {
-        if (this.valueIsEqualToId(calcultedFormula, oldFormula)) {
-            oldFormula[calcultedFormula[1].fieldName] = calcultedFormula[1].value;
-            oldFormula._CALC_OK = calcultedFormula[2].value;
+    changeWart(calculatedFormula, oldFormula) {
+        if (this.valueIsEqualToId(calculatedFormula, oldFormula)) {
+            oldFormula[calculatedFormula[1].fieldName] = calculatedFormula[1].value;
+            oldFormula._CALC_OK = calculatedFormula[2].value;
             return oldFormula;
         }
     }
@@ -578,7 +579,7 @@ export class BatchContainer extends BaseContainer {
                             defaultSelectedRowKeys={this.props.defaultSelectedRowKeys}
                             handleSelectedRowKeys={(e) => this.handleSelectedRowData(e)}
                             showFilterRow={true}
-                            showErrorMessages={(err) => this.showErrorMessages(err)}
+                            showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                             dataGridStoreSuccess={this.state.dataGridStoreSuccess}
                             allowSelectAll={false}
                             handleFormulaRow={(id) => {

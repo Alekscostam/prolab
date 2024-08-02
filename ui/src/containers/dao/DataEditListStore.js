@@ -104,7 +104,7 @@ export default class EditListDataStore extends BaseService {
                                     selectedRows.forEach(selectedRow=>{
                                        const selectedRowName =  selectedRow[0][setFields[0]?.fieldList];
                                        const responseRowName = rowData[setFields[0]?.fieldList];
-                                       if(selectedRowName === responseRowName && StringUtils.isBlank(selectedRow?.found)){
+                                       if(selectedRowName === responseRowName && StringUtils.isBlank(selectedRow[0]?.found)){
                                             selectedRow[0].found=true  
                                             rowData.INDEX = selectedRow[0].INDEX;
                                             rowData.CALC_CRC = selectedRow[0].CALC_CRC;

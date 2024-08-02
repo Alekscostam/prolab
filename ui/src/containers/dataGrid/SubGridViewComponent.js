@@ -188,7 +188,7 @@ class SubGridViewComponent extends React.Component {
                                 }}
                             />
                         ) : (
-                            <div className='maximalized-sub-view' style={{minHeight: this.props?.minHeight}}>
+                            <div className={`maximalized-sub-view ${this.props?.className ? this.props.className : ''}`}>
                                 <DataGrid
                                     onContextMenuPreparing={(e) => this.showMenu(e)}
                                     id='selection-data-grid'

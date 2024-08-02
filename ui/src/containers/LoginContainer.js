@@ -72,7 +72,7 @@ class LoginContainer extends BaseContainer {
                 this.add(res);
             })
             .catch((ex) => {
-                this.showErrorMessage(ex.error.message);
+                this.showGlobalErrorMessage(ex.error.message);
             });
     }
 
@@ -84,7 +84,7 @@ class LoginContainer extends BaseContainer {
                 this.add(res);
             })
             .catch((ex) => {
-                this.showErrorMessage(ex.error.message);
+                this.showGlobalErrorMessage(ex.error.message);
             });
     }
 
@@ -100,7 +100,7 @@ class LoginContainer extends BaseContainer {
                 });
             })
             .catch((ex) => {
-                this.showErrorMessage(ex?.error?.message);
+                this.showGlobalErrorMessage(ex?.error?.message);
             });
     }
 
@@ -131,7 +131,7 @@ class LoginContainer extends BaseContainer {
                 })
                 .catch((err) => {
                     ConsoleHelper(`LoginContainer:getLocalizationLoginPage error`, err);
-                    this.showErrorMessages(err);
+                    this.showGlobalErrorMessage(err);
                     this.unblockUi();
                 });
         });

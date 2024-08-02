@@ -146,7 +146,7 @@ export class AddSpecContainer extends BaseContainer {
                             blockScroll={true}
                             draggable={false}
                             onHide={this.props.onHide}
-                            style={{maxWidth: '1500px', maxHeight: '800px', height: '800px', overflow: 'none'}}
+                            style={{maxWidth: '1500px', height: '800px', overflow: 'none'}}
                             ariaCloseIconLabel='Zamknij okno dialogowe'
                             breakpoints={{'960px': '75vw', '640px': '100vw'}}
                             header={
@@ -227,10 +227,10 @@ export class AddSpecContainer extends BaseContainer {
                 id = this.props.id;
             }
             Breadcrumb.updateView(responseView.viewInfo, id, recordId);
-            const pluginsListTmp = ResponseUtils.pluginListCreate(responseView);
-            const documentsListTmp = ResponseUtils.documentListCreate(responseView);
-            const batchesListTmp = ResponseUtils.batchListCreate(responseView);
-            const filtersListTmp = ResponseUtils.filtersListCreate(responseView);
+            const pluginsListTmp = ResponseUtils.pluginListCreateAndPass(responseView);
+            const documentsListTmp = ResponseUtils.documentListCreateAndPass(responseView);
+            const batchesListTmp = ResponseUtils.batchListCreateAndPass(responseView);
+            const filtersListTmp = ResponseUtils.filtersListCreateAndPass(responseView);
             Breadcrumb.currentBreadcrumbAsUrlParam();
             this.blockUi();
             this.setState(
@@ -288,7 +288,7 @@ export class AddSpecContainer extends BaseContainer {
                             );
                         })
                         .catch((ex) => {
-                            this.showErrorMessages(ex);
+                            this.showGlobalErrorMessage(ex);
                             this.unblockUi();
                         });
                 }
@@ -514,7 +514,13 @@ export class AddSpecContainer extends BaseContainer {
             .then((saveResponse) => {
                 const minNextId =  this.props.lastId;
                 const levelId =  this.props.levelId;
-                const result = this.createValidArray(saveResponse.data,minNextId, levelId);
+                let result = []; 
+                if(minNextId === undefined && levelId === undefined){
+                    result = saveResponse.data;
+                }
+                else{
+                    result = this.createValidArray(saveResponse.data,minNextId, levelId);
+                }
                 this.props.handleAddElements(result);
                 this.props.onHide();
                 this.unblockUi();
@@ -674,7 +680,7 @@ export class AddSpecContainer extends BaseContainer {
                                 handleAttachmentRow={(id) => this.attachment(id)}
                                 handleArchiveRow={(id) => this.archive(id)}
                                 handlePublishRow={(id) => this.publishEntry(id)}
-                                showErrorMessages={(err) => this.showErrorMessages(err)}
+                                showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                                 labels={this.props.labels}
                             />
                             <SelectedElements selectedRowKeys={this.state.selectedRowKeys} totalCounts={this.state.totalCounts} />

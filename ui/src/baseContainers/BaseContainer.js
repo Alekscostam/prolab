@@ -212,7 +212,7 @@ class BaseContainer extends React.Component {
 
     showGlobalErrorMessage(err) {
         console.error(err);
-        if (!!err.error) {
+        if (!!err?.error) {
             this.showResponseErrorMessage(err);
         } else {
             this.showErrorMessages(err);
@@ -742,11 +742,8 @@ class BaseContainer extends React.Component {
                     () => this.batchSave(viewId, parentId, saveElement, true),
                     () => {},
                     (res) => {
-                        this.showErrorMessages(res);
+                        this.showGlobalErrorMessage(res);
                     },
-                    (res) => {
-                        this.showResponseErrorMessage(res);
-                    }
                 );
                 if (fncRedirect) {
                     fncRedirect();
@@ -755,21 +752,13 @@ class BaseContainer extends React.Component {
                 this.unblockUi();
             })
             .catch((ex) => {
-                this.showResponseErrorMessage(ex);
+                this.showGlobalErrorMessage(ex);
                 this.unblockUi();
             });
     };
 
     specSave = (viewId, parentId, saveElement, confirmSave, fncRedirect) => {
         this.blockUi();
-        saveElement.forEach((array) => {
-            array.forEach((el) => {
-                if (el.fieldName === '_STATUS' && el.value === 'inserted') {
-                    let ID = array.find((arr) => arr.fieldName === 'ID');
-                    ID.value = null;
-                }
-            });
-        });
         this.editSpecService
             .save(viewId, parentId, saveElement, confirmSave)
             .then((saveResponse) => {
@@ -780,10 +769,7 @@ class BaseContainer extends React.Component {
                     () => {
                     },
                     (res) => {
-                        this.showErrorMessages(res);
-                    },
-                    (res) => {
-                        this.showResponseErrorMessage(res);
+                        this.showGlobalErrorMessage(res);
                     },
                     ()=>{
                         if (fncRedirect) {
@@ -826,10 +812,7 @@ class BaseContainer extends React.Component {
                         this.returnFromRowEdit();
                     },
                     (res) => {
-                        this.showErrorMessages(res);
-                    },
-                    (res) => {
-                        this.showResponseErrorMessage(res);
+                        this.showGlobalErrorMessage(res);
                     }
                 );
                 let refresh = true;
@@ -962,11 +945,11 @@ class BaseContainer extends React.Component {
                 this.showGlobalErrorMessage(err);
             });
     }
-    generate(id) {
+    generate(id, recordId) {
         const viewId = this.getRealViewId();
         const parentId = this.state.elementRecordId;
         const idRowKeys = this.state.selectedRowKeys.map((el) => el.ID);
-        const listId = {listId: idRowKeys};
+        const listId = recordId ? {listId: [recordId]} : {listId: idRowKeys};
         this.crudService
             .getDocumentDatasInfo(viewId, id, listId, parentId)
             .then((res) => {
@@ -975,7 +958,7 @@ class BaseContainer extends React.Component {
                         if (res.message) {
                             this.showSuccessMessage(res.message.text, undefined, res.message.title);
                         } else {
-                            this.executeDocument(null, viewId, id, parentId);
+                            this.executeDocument(null, viewId, id, parentId, recordId);
                         }
                     }
                 } else {
@@ -989,12 +972,12 @@ class BaseContainer extends React.Component {
                             documentInfo: documentInfo,
                         });
                     } else {
-                        this.executeDocument(null, viewId, id, parentId);
+                        this.executeDocument(null, viewId, id, parentId, recordId);
                     }
                 }
             })
             .catch((ex) => {
-                this.showResponseErrorMessage(ex);
+                this.showGlobalErrorMessage(ex);
             });
     }
     isDashboardView() {
@@ -1022,7 +1005,7 @@ class BaseContainer extends React.Component {
                         requestBody,
                         parentIdArg,
                         (err) => {
-                            this.showErrorMessages(err);
+                            this.showGlobalErrorMessage(err);
                         },
                         () => {
                             this.setState({dataPluginStoreSuccess: true});
@@ -1054,14 +1037,14 @@ class BaseContainer extends React.Component {
                 }
             })
             .catch((ex) => {
-                this.showResponseErrorMessage(ex);
+                this.showGlobalErrorMessage(ex);
             });
     }
-    plugin(id) {
+    plugin(id, recordId) {
         const viewId = this.getRealViewId();
         const parentId = this.state.elementRecordId;
         const idRowKeys = this.state.selectedRowKeys.map((el) => el.ID);
-        const listId = {listId: idRowKeys};
+        const listId = recordId ? {listId:[recordId]} : {listId: idRowKeys};
         let visiblePluginPanel = false;
         let visibleMessagePluginPanel = false;
         this.crudService
@@ -1073,7 +1056,7 @@ class BaseContainer extends React.Component {
                     if (!this.dataPluginStore) {
                         this.dataPluginStore = new DataPluginStore();
                     }
-                    let datas = this.dataPluginStore.getPluginDataStore(
+                    const datas = this.dataPluginStore.getPluginDataStore(
                         viewId,
                         id,
                         listId,
@@ -1082,7 +1065,7 @@ class BaseContainer extends React.Component {
                             if (typeof this.showErrorMessage === 'undefined') {
                                 this.props.showErrorMessage(err);
                             } else {
-                                this.showErrorMessages(err);
+                                this.showGlobalErrorMessage(err);
                             }
                         },
                         () => {
@@ -1103,7 +1086,7 @@ class BaseContainer extends React.Component {
                 });
             })
             .catch((err) => {
-                this.showResponseErrorMessage(err);
+                this.showGlobalErrorMessage(err);
             });
     }
     historyLog(recordId) {
@@ -1147,7 +1130,7 @@ class BaseContainer extends React.Component {
                 });
             })
             .catch((err) => {
-                this.showResponseErrorMessage(err);
+                this.showGlobalErrorMessage(err);
             });
     }
     handleRightHeadPanelContent(element) {
@@ -1243,7 +1226,7 @@ class BaseContainer extends React.Component {
                                     }
                                 })
                                 .catch((err) => {
-                                    this.showErrorMessages(err);
+                                    this.showGlobalErrorMessage(err);
                                 });
                         } else {
                             if (!!uploadResponse.error) {
@@ -1721,7 +1704,7 @@ class BaseContainer extends React.Component {
                 this.refreshFieldVisibility(editInfo);
             }
         } catch (err) {
-            this.showErrorMessages(err);
+            this.showGlobalErrorMessage(err);
         } finally {
             this.unblockUi();
         }
@@ -1784,8 +1767,7 @@ class BaseContainer extends React.Component {
                 (field) => field.fieldName.toUpperCase() === varName.toUpperCase()
             );
             fieldArr.value = varValue;
-
-            this.setState({documentdInfo: documentInfo, modifyEditData: true});
+            this.setState({documentdInfo: documentInfo, modifyEditData: true}); // TODO: documentInfo?
         }
     }
     handleEditRowChange(inputType, event, groupUuid, info) {
@@ -1829,7 +1811,9 @@ class BaseContainer extends React.Component {
         if (UrlUtils.isEditRowView()) {
             this.props.editDataChange(editData);
         } else {
-            this.setState({editData: editData, modifyEditData: true});
+            setTimeout(()=>{
+                this.setState({editData:editData, modifyEditData: true});
+            },0)
         }
     }
     setVariableFromEvent(inputType, event) {
@@ -1951,13 +1935,6 @@ class BaseContainer extends React.Component {
         });
         this.unblockUi();
     }
-    replaceOperationsLabels(operations, labels) {
-        for (let index = 0; index < operations.length; index++) {
-            const operation = operations[index];
-            operation.label = LocUtils.loc(labels, operation.type, operation.label);
-        }
-    }
-
     getRefGridView() {
         return !!this.refDataGrid ? this.refDataGrid : null;
     }

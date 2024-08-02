@@ -11,7 +11,7 @@ export default class DataGanttStore extends BaseService {
         this.cachedLoadOptions = null;
     }
 
-    getDataForGantt(viewIdArg, loadOptions, recordParentIdArg, filterIdArg, kindViewArg) {
+    getDataForGantt(viewIdArg, loadOptions, recordParentIdArg, filterIdArg, kindViewArg, onSuccessCallback) {
         const filter = loadOptions?.filter;
         const sort = loadOptions?.sort;
         const group = loadOptions?.group;
@@ -44,16 +44,13 @@ export default class DataGanttStore extends BaseService {
         const recordParentIdParam = !!recordParentIdArg ? `&parentId=${recordParentIdArg}` : '';
         const kindViewParam = kindViewArg !== undefined && kindViewArg != null ? `&kindView=${kindViewArg}` : '';
         const takeParam = take !== undefined && take != null ? `&take=${take}` : '';
-        let url = `${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${recordParentIdParam}${kindViewParam}${takeParam}`;
-
+        const url = this.commonCorrectUrl(`${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${recordParentIdParam}${kindViewParam}${takeParam}`);
         const requestBody = {
             filter: filter,
             sort: sort,
             group: group,
             take: take,
         };
-
-        url = this.commonCorrectUrl(url);
         return this.fetch(url, {
             method: 'POST',
             body: JSON.stringify(requestBody),
@@ -66,6 +63,7 @@ export default class DataGanttStore extends BaseService {
                 resourcesData: res.resourcesData,
                 resourcesAssigmentData: res.resourcesAssigmentData,
             };
+            onSuccessCallback(res.totalCount)
             return this.cachedLastResponse;
         });
     }

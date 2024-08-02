@@ -4,6 +4,7 @@ import CardImage from '../components/CardImage';
 import {ColumnType} from '../model/ColumnType';
 import { StringUtils } from './StringUtils';
 // TODO: dac znac zeby przetetsowac cardy
+
 export class CardViewUtils {
     static cellTemplate(fieldDefinition, rowData, className, type, cardImageClick) {
         if (!!rowData[fieldDefinition.fieldName]) {
@@ -24,7 +25,6 @@ export class CardViewUtils {
                                     if(cardImageClick){
                                         e.preventDefault(); 
                                         e.stopPropagation();
-                                         
                                         cardImageClick(rowData[fieldDefinition.fieldName], fieldDefinition.label);
                                     }
                                 }}

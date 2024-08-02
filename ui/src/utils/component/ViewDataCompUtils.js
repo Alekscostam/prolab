@@ -225,10 +225,16 @@ export class ViewDataCompUtils {
             return undefined;
         }
     }
-    static operationsColumnLength(operationsRecord,operationsRecordList){
+    static operationsColumnLength(operationsRecord,operationsRecordList, addButtonExists){
         const result = 10 + (33 * operationsRecord.length + (operationsRecordList?.length > 0 ? 33 : 0)) ;
-        if(result < 50)
-              return 110  
+        if(addButtonExists){
+            if(result < 80)
+                return 90  
+        }
+        else{
+            if(result < 50)
+                return 110  
+        }
         return result ;
     }
     

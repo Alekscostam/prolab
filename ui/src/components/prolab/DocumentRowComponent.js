@@ -56,7 +56,7 @@ export class DocumentRowComponent extends BaseRowComponent {
 
     render() {
         const visibleDocumentPanel = this.props.visibleDocumentPanel;
-        let inputDataFields = this.props.documentInfo.inputDataFields;
+        const inputDataFields = this.props.documentInfo.inputDataFields;
 
         return (
             <React.Fragment>
@@ -81,15 +81,13 @@ export class DocumentRowComponent extends BaseRowComponent {
                                     id={'opSave'}
                                     className={`grid-button-panel inverse mt-1 mb-1 mr-1`}
                                     handleClick={this.handleFormSubmit}
-                                    title={'Zatwierdzanie kryteriów'}
-                                    label={LocUtils.loc(this.props.labels, '', 'Zatwierdź')}
+                                    label={LocUtils.loc(this.props.labels, 'Confirm', 'Zatwierdź')}
                                 />
                                 <ShortcutButton
                                     id={'opCancel'}
                                     className={`grid-button-panel inverse mt-1 mb-1 mr-1`}
                                     handleClick={this.handleCancel}
-                                    title={'Anulowanie'}
-                                    label={LocUtils.loc(this.props.labels, '', 'Anuluj')}
+                                    label={LocUtils.loc(this.props.labels, 'Cancel', 'Anuluj')}
                                 />
                             </div>
                         </React.Fragment>

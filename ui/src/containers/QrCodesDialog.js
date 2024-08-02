@@ -31,14 +31,12 @@ export const QrCodesDialog = (props) => {
                 handleClick={() => {
                     hideDialog();
                 }}
-                title={'Anulowanie'}
                 label={LocUtils.loc(labels, 'Cancel', 'Anuluj')}
             />
             <ShortcutButton
                 id={'opConfirm'}
                 className={`grid-button-panel-big inverse mt-1 mb-1 mr-1`}
                 handleClick={() => {}}
-                title={'Zatwierdzanie kryteriów'}
                 label={LocUtils.loc(labels, 'Confirm', 'Zatwierdź')}
             />
         </div>

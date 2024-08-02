@@ -617,7 +617,7 @@ body #subviews-panel .dx-tabs {
 .p-menuitem-text {
     word-wrap: break-word !important;
 }
-#menu-with-buttons {
+#menu-with-buttons, #menu-with-buttons-extended {
     z-index: 10000000;
     .p-menuitem {
         margin-bottom: -10px;
@@ -966,6 +966,20 @@ body .grid-container {
     background: #ffffff;
     padding: 0.35rem 0.5rem;
     position: relative;
+
+ 
+}
+.maximalized-sub-view.from-edit-spec{
+    .dx-scrollable-content{
+        min-height:46px;
+    }
+
+}
+.maximalized-sub-view.from-app{
+    .dx-scrollable-content{
+        min-height:55px;
+    }
+
 }
 
 #selection-data-grid {
@@ -998,9 +1012,6 @@ body .grid-container {
 
 .infinite-loader-card {
     width: 100% !important;
-    div{
-        justify-content: space-between;
-    }
     .dx-item.dx-tile {
         box-shadow: 0px 0px 5px #00000029;
         margin: 2px;

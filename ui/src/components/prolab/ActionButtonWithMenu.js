@@ -42,7 +42,7 @@ export class ActionButtonWithMenu extends React.Component {
                     popup
                     onBlur={(event)=>{
                         if (!event?.relatedTarget?.classList?.contains('p-menuitem-link')) {
-                            this.menu.toggle(event);
+                            this.menu.hide(event);
                         }
                     }}
                     ref={(el) => (this.menu = el)}
@@ -53,6 +53,7 @@ export class ActionButtonWithMenu extends React.Component {
                     className={`action-button-with-menu ${className}`}
                     disabled={disabled}
                     handleClick={(event) => {
+                      
                         if (sessionPrelongFnc) {
                             sessionPrelongFnc();
                         }

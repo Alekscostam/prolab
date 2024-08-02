@@ -208,7 +208,7 @@ export default class CrudService extends BaseService {
             });
     }
 
-    generateDocument(requestBody, viewId, documentId, parentId) {
+    executeDocument(requestBody, viewId, documentId, parentId) {
         return this.fetch(
             `${this.getDomain()}/${this.path}/${viewId}/document/${documentId}/execute${
                 parentId ? `?parentId=${parentId}` : ''
