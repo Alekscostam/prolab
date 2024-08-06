@@ -188,8 +188,8 @@ class DashboardContainer extends BaseContainer {
                     loader={this.loader}
                     renderBlockUi={true}
                 >
-                    <DivContainer colClass='col-12 dashboard-link-container'>
-                        {!!this.props.dashboard ? null : Breadcrumb.render(labels)}
+                    <DivContainer colClass='col-12 dashboard-link-container g-0' style={{marginLeft:"-10px", marginRight:"-10px" , paddingRight:"0px"}}>
+                        {!!this.props.dashboard ? null :<div style={{marginLeft:"10px"}}>{Breadcrumb.render(labels)}</div> }
                         <DivContainer colClass='dashboard'>
                             {this.state.loading === false ? (
                                 <React.Fragment>

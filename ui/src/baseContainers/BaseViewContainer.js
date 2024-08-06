@@ -48,6 +48,7 @@ import {QrCodesDialog} from '../containers/QrCodesDialog';
 import ActionShortcutWithoutMenu from '../components/prolab/ActionShortcutWithoutMenu';
 import SelectedElements from '../components/SelectedElements';
 import { ResponseUtils } from '../utils/ResponseUtils';
+import { ViewUtils } from '../utils/ViewUtils';
 
 let dataGrid;
 
@@ -708,10 +709,8 @@ export class BaseViewContainer extends BaseContainer {
 
         const fileId = info?.fileId;
         const fileName = info?.fileName;
-        const isEdit = StringUtils.isBlank(info?.isEdit) ? false : info.isEdit ;
-        const isPreview =  StringUtils.isBlank(info?.isPreview) ? false : info.isPreview;
 
-        if (this.canDownloadAfterExecuteDocument(fileId, isEdit, isPreview)) {
+        if (this.canDownloadAfterExecuteDocument(info)) {
             this.crudService.downloadDocument(viewId, elementId, fileId, fileName);
             this.setState({
                 visibleDocumentPanel: false,
@@ -719,14 +718,15 @@ export class BaseViewContainer extends BaseContainer {
         }
         this.unblockUi();
     }
-    canDownloadAfterExecuteDocument = (fileId, isEdit, isPreview) => {
+    canDownloadAfterExecuteDocument = (info) => {
+        const fileId = info?.fileId;
+        const isEdit = StringUtils.isBlank(info?.isEdit) ? false : info.isEdit ;
+        const isPreview =  StringUtils.isBlank(info?.isPreview) ? false : info.isPreview;
+        const isDownload =  StringUtils.isBlank(info?.isDownload) ? false : info.isDownload;
         if(StringUtils.isBlank(fileId) || fileId === "0" || fileId === 0){
             return false;
         }
-        if(isEdit === false || isPreview === false){
-            return false;
-        }
-        return true;
+        return isEdit || isPreview || isDownload;
     }
     //override
     renderHeaderRight() {
@@ -1085,9 +1085,10 @@ export class BaseViewContainer extends BaseContainer {
         if (this.isDashboard()) {
             return <React.Fragment />;
         }
+        const canViewHeaderPanel = ViewUtils.canViewHeaderPanel(this.state?.parsedGridView);
         return (
             <React.Fragment>
-                <HeadPanel
+            {canViewHeaderPanel ? <HeadPanel
                     elementId={this.state.elementId}
                     elementRecordId={this.state.elementRecordId}
                     elementSubViewId={this.state.elementSubViewId}
@@ -1107,7 +1108,7 @@ export class BaseViewContainer extends BaseContainer {
                     handleUnblockUi={() => this.unblockUi()}
                     showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                     handleBlockUi={() => this.blockUi()}
-                />
+                /> : <div className='mb-2'></div>}        
             </React.Fragment>
         );
     };
@@ -1489,7 +1490,8 @@ export class BaseViewContainer extends BaseContainer {
         const {labels} = this.props;
         return (
             <React.Fragment>
-                {Breadcrumb.render(labels)}
+                <div className='col-12 ' >{Breadcrumb.render(labels)}   </div>
+                
                 <DashboardContainer
                     key={'Dashboard'}
                     dashboard={this.state.subView}

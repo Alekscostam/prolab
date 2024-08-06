@@ -106,6 +106,7 @@ class App extends Component {
         this.prelongSeesionByRootClick();
         this.setRestateApp();
         this.setRenderNoRefreshContent();
+        this.onpopstate();
         this.readConfigAndSaveInCookie(configUrl).catch((err) => {
             console.error('Error start application = ', err);
         });
@@ -113,7 +114,17 @@ class App extends Component {
     componentDidUpdate() {
         this.showSessionTimeoutIfPossible();
     }
-
+    onpopstate = () =>{
+        window.onpopstate = function() {
+          const menuComponents =  document.getElementsByClassName('menu-component');
+          if(menuComponents[0]){
+            const root = document.getElementById("root");
+            if(root){
+                root.click();
+            }
+          }
+        };
+    }
     makeConfigUrl(urlPrefix) {
         let browseUrl = window.location.href;
         const id = browseUrl.indexOf('/#');

@@ -110,11 +110,11 @@ class SubGridViewComponent extends React.Component {
 
         const showMenu = menuItems.length > 0;
         let widthTmp = 0;
-        if (showMenu) {
-            widthTmp += 38;
+        if (showMenu && showEditButton) {
+            widthTmp = 76;
         }
-        if (showEditButton) {
-            widthTmp += 38;
+        else if (showMenu || showEditButton) {
+            widthTmp = 50;
         }
         const rowAutoHeight = false;
         const columnAutoWidth = true;

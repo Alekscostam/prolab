@@ -347,7 +347,7 @@ label {
     font-weight: normal;
     // font-weight: 600;
     letter-spacing: 0;
-    padding: 0.514rem 1rem;
+    padding: 0.514rem 0.85rem;
     background-color: white;
     color: $base-color !important;
     box-shadow: 0 2px 8px 3px rgba(0, 0, 0, 0.1);
@@ -365,7 +365,12 @@ label {
     border-radius: 6px;
     box-shadow: none;
 }
-
+#attachmentDialog_content{
+    .dx-header-row>td>.dx-datagrid-text-content:not(.dx-sort-indicator):not(.dx-header-filter-indicator){
+        justify-content: center;
+        display: flex;
+    }
+}
 .p-dropdown .p-dropdown-label,
 .p-dropdown-label .p-inputtext {
     border: 0;
@@ -634,6 +639,9 @@ body main div.container-fluid {
     }
 }
 
+.dx-widget.dx-button.dx-button-mode-text.dx-button-normal.dx-button-has-text.dx-button-has-icon.dx-htmleditor-toolbar-format.dx-format-active.dx-state-selected{
+    background: darkgray!important;
+}
 .p-toast-message-content .p-toast-message-icon {
     visibility: hidden;
 }

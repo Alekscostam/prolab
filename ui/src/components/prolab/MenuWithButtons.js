@@ -80,13 +80,13 @@ export const MenuWithButtons = (props) => {
                           case OperationType.OP_COPY:
                               return props.handleCopy();
                           case OperationType.SK_DOCUMENT:
-                              return props.handleDocumentsSk(i);
+                              return props.handleDocuments(i);
                           case OperationType.OP_DOCUMENTS:
                               if(props?.gridView)
                                 handleExtendedItems(e, props.gridView.documentsList, OperationType.OP_DOCUMENTS);
                               return ()=>{};
                           case OperationType.SK_PLUGIN:
-                              return props.handlePluginsSk(i);
+                              return props.handlePlugins(i);
                           case OperationType.OP_PLUGINS:
                               if(props?.gridView)
                                 handleExtendedItems(e, props.gridView.pluginsList, OperationType.OP_PLUGINS);
@@ -150,6 +150,7 @@ export const MenuWithButtons = (props) => {
                 id='menu-with-buttons'
                 appendTo={document.body}
                 baseZIndex={props?.zIndex}
+                className='menu-component'
                 style={{
                     position: 'absolute',
                 }}
@@ -174,6 +175,7 @@ export const MenuWithButtons = (props) => {
                 id='menu-with-buttons-extended'
                 appendTo={document.body}
                 baseZIndex={props?.zIndex}
+                className='menu-component'
                 style={{
                     position: 'absolute',
                 }}

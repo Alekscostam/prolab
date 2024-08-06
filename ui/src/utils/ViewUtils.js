@@ -1,11 +1,17 @@
 export class ViewUtils {
     static canViewHeaderPanel (view) {
-       const viewOperations = view?.operations || [];
+        const filterList = view.filtersList  || [];
+        const batchesList = view.batchesList  || [];
+        const documentsList = view.documentsList  || [];
+        const viewOperations = view?.operations || [];
+        const viewShortcutButtons = view?.shortcutButtons || [];
         if(viewOperations.length > 0){
             return true;
         }  
-        const viewShortcutButtons = view?.shortcutButtons || [];
         if(viewShortcutButtons.length > 0){
+            return true;
+        }
+        if(filterList.length !== 0 || batchesList.length !== 0 ||  documentsList.length !== 0) {
             return true;
         }
         return false;

@@ -107,7 +107,7 @@ $base-color: #0e49eb;
     font-style: normal;
     font-variant: normal;
     font-weight: 500;
-    padding-left: 5px;
+    padding-left: 2px;
     padding-right: 5px;
     margin-top: 5px;
     margin-bottom: 5px;
@@ -531,7 +531,6 @@ $base-color: #0e49eb;
 }
 }
 // TODO: zapisz fix na komponenty w batchu  
-// TODO: wyrownaj guziol dodal w edycji specyfikacji
 .dx-datebox-date .dx-dropdowneditor-icon::before,
 .dx-datebox-datetime .dx-dropdowneditor-icon::before,
 .dx-datebox-time .dx-dropdowneditor-icon::before,
@@ -983,7 +982,7 @@ body .grid-container {
 }
 
 #selection-data-grid {
-    width: 99%;
+    width: 99.5%;
 }
 
 #combo_filters {

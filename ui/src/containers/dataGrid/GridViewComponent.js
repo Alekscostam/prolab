@@ -425,12 +425,6 @@ class GridViewComponent extends CellEditComponent {
                         handleCopy={() => this.props.handleCopyRow(selectedRecordId)}
                         handleArchive={() => this.props.handleArchiveRow(selectedRecordId)}
                         handlePublish={() => this.props.handlePublishRow(selectedRecordId)}
-                        handleDocumentsSk={(el) => {
-                            this.props.handleDocumentRow(el.id)}}
-                       
-                        handlePluginsSk={(el) => {
-                            this.props.handlePluginRow(el.id)}}
-                       
                         handleBatch={(e) => this.handleBatch(e.id, viewId, parentId, selectedRecordId) }
                         handleAdd={() => this.props.addButtonFunction()}
                         handleAddSpec={()=>this.props.addButtonFunction()}
@@ -618,10 +612,10 @@ class GridViewComponent extends CellEditComponent {
                                     handleArchive={() => this.props.handleArchiveRow(recordId)}
                                     handlePublish={() => this.props.handlePublishRow(recordId)}
                                     handleCopy={() => this.props.handleCopyRow(recordId)}
-                                    handleDocuments={(el) => this.props.handleDocumentRow(el.id)}
-                                    handlePlugins={(el) => this.props.handlePluginRow(el.id)}
+                                    handleDocuments={(el) => this.props.handleDocumentRow(el.id,recordId)}
+                                    handlePlugins={(el) => this.props.handlePluginRow(el.id, recordId)}
                                     handleDownload={() => this.props.handleDownloadRow(recordId)}
-                                    handleBatch={(batch) => this.handleBatch(batch.id, viewId, parentId, recordId)}
+                                    handleBatch={(el) => this.handleBatch(el.id, viewId, parentId, recordId)}
                                     handleAttachments={() => this.props.handleAttachmentRow(recordId)}
                                     handleDelete={() => this.props.handleDeleteRow(recordId)}
                                     handleRestore={() => this.props.handleRestoreRow(recordId)}

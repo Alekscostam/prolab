@@ -150,6 +150,9 @@ export const MemoizedNumericInput = React.memo(
 //B – Logiczny (0/1)
 export const MemoizedBoolInput = React.memo(
     ({field, cellInfo, inputValue, fieldIndex, required, validateCheckbox, onOperationClick}) => {
+        if(inputValue === null){
+            inputValue =  false;
+        }
         return (
             <React.Fragment>
                 <div style={{display: 'inline-block'}} className={`${validateCheckbox}`}>
@@ -178,6 +181,9 @@ export const MemoizedBoolInput = React.memo(
 //L – Logiczny (T/N)
 export const MemoizedLogicInput = React.memo(
     ({field, cellInfo, inputValue, fieldIndex, required, validateCheckbox, onOperationClick}) => {
+        if((inputValue === null)){
+            inputValue =  false;
+        }
         return (
             <React.Fragment>
                 <div style={{display: 'inline-block'}} className={`${validateCheckbox}`}>

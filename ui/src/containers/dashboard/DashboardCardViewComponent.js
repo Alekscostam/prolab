@@ -55,7 +55,7 @@ class DashboardCardViewComponent extends React.Component {
                 onInitialized={(e) => {
                     this.props.handleOnInitialized(e.component);
                 }}
-                className='card-grid'
+                className='card-grid dashboard-card-view'
                 items={this.props.parsedCardViewData}
                 itemRender={(rowData) => {
                     const {cardBody, cardHeader, cardImage, cardFooter} = this.props.parsedGridView;

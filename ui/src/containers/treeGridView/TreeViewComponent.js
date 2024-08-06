@@ -187,6 +187,7 @@ class TreeViewComponent extends CellEditComponent {
         } catch (ex) {}
         return false;
     }
+    // TODO; usun dx-selection z gantt jak klikamy PPM
     render() {
         const columnAutoWidth = this.props.parsedGridView?.gridOptions?.columnAutoWidth || true;
         const rowAutoHeight = this.props.parsedGridView?.gridOptions?.rowAutoHeight || false;
@@ -373,8 +374,6 @@ class TreeViewComponent extends CellEditComponent {
                         handleCopy={() => this.props.handleCopyRow(selectedRecordId)}
                         handleArchive={() => this.props.handleArchiveRow(selectedRecordId)}
                         handlePublish={() => this.props.handlePublishRow(selectedRecordId)}
-                        handleDocumentsSk={(el) => this.props.handleDocumentRow(el.id)}
-                        handlePluginsSk={(el) => this.props.handlePluginRow(el.id)}
                         handleDownload={() => this.props.handleDownloadRow(selectedRecordId)}
                         handleAttachments={() => this.props.handleAttachmentRow(selectedRecordId)}
                         handleDelete={() => this.props.handleDeleteRow(selectedRecordId)}
@@ -768,8 +767,8 @@ class TreeViewComponent extends CellEditComponent {
                                         handleCopy={() => this.props.handleCopyRow(recordId)}
                                         handleDelete={() => this.props.handleDeleteRow(recordId)}
                                         handleRestore={() => this.props.handleRestoreRow(recordId)}
-                                        handleDocuments={(el) => this.props.handleDocumentRow(el.id)}
-                                        handlePlugins={(el) => this.props.handlePluginRow(el.id)}
+                                        handleDocuments={(el) => this.props.handleDocumentRow(el.id, recordId)}
+                                        handlePlugins={(el) => this.props.handlePluginRow(el.id, recordId)}
                                         handleFormula={() => this.props.handleFormulaRow(recordId)}
                                         handleHistory={() => alert('TODO')}
                                         handleBlockUi={() => this.props.handleBlockUi()}

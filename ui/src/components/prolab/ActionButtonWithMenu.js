@@ -38,7 +38,7 @@ export class ActionButtonWithMenu extends React.Component {
                 <Menu
                     appendTo={document.body}
                     id={`${id}_popup_menu`}
-                    className='action-button-with-menu-popup'
+                    className='action-button-with-menu-popup menu-component'
                     popup
                     onBlur={(event)=>{
                         if (!event?.relatedTarget?.classList?.contains('p-menuitem-link')) {

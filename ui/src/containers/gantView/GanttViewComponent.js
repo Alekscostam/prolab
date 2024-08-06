@@ -42,8 +42,8 @@ import { ViewDataCompUtils } from '../../utils/component/ViewDataCompUtils.js';
 import EntryResponseHelper from '../../utils/helper/EntryResponseHelper.js';
 import { CheckBox } from 'devextreme-react';
 
-const UNCOLLAPSED_CUT_SIZE = 327;
-const COLLAPSED_CUT_SIZE = 140;
+const UNCOLLAPSED_CUT_SIZE = 314;
+const COLLAPSED_CUT_SIZE = 125;
 
 let _rowIndex = null;
 let _bgcolor = null;
@@ -86,6 +86,8 @@ class GanttViewComponent extends React.Component {
                     },
                 };
                 this.selectAll(fakeEvent);
+                const instance = this.selectAllRef.current.instance;
+                instance.option('value', false);
             }
         };
         this.refreshRef = () => {
@@ -105,8 +107,15 @@ class GanttViewComponent extends React.Component {
             menu.show(e.event);
             this.setState({selectedRecordId: e.data.ID, menuWithButtonInducedTime: new Date()}, () => {
                 const menu = document.getElementById('menu-with-buttons');
+                const menuHeight = menu.clientHeight + 50;
+
+                let heighY = mouseY;
+                const browserHeight = window.innerHeight;
+                if (browserHeight < menuHeight + mouseY - 50) {
+                    heighY = mouseY - menuHeight + 50;
+                }
                 menu.style.left = mouseX + 'px';
-                menu.style.top = mouseY + 'px';
+                menu.style.top = heighY + 'px';
                 this.clickedPosition.current = {
                     x:mouseX +"px",
                     y:mouseY + 'px'
@@ -221,7 +230,6 @@ class GanttViewComponent extends React.Component {
             rowElementsStorage: store,
             tasks: this.state.tasks,
         });
-        this.refreshRef();
     }
 
     registerKeydownEvent() {
@@ -387,8 +395,6 @@ class GanttViewComponent extends React.Component {
                         handleCopy={() => this.props.handleCopyRow(selectedRecordId)}
                         handleArchive={() => this.props.handleArchiveRow(selectedRecordId)}
                         handlePublish={() => this.props.handlePublishRow(selectedRecordId)}
-                        handleDocumentsSk={(el) => this.props.handleDocumentRow(el.id)}
-                        handlePluginsSk={(el) => this.props.handlePluginRow(el.id)}
                         handleDownload={() => this.props.handleDownloadRow(selectedRecordId)}
                         handleAttachments={() => this.props.handleAttachmentRow(selectedRecordId)}
                         handleDelete={() => this.props.handleDeleteRow(selectedRecordId)}
@@ -554,10 +560,10 @@ class GanttViewComponent extends React.Component {
               )
             : null;
     }
-    // doklejamy style
     selectAll = (e) => {
-        let selectedRowKeys = [];
-        let store = this.state.rowElementsStorage;
+        this.props.handleBlockUi();
+        const selectedRowKeys = [];
+        const store = this.state.rowElementsStorage;
         if (e.target.checked) {
             let ids = this.state.tasks.map((task) => task.ID);
             for (let index = 0; index < ids.length; index++) {
@@ -577,6 +583,11 @@ class GanttViewComponent extends React.Component {
         }
         this.props.handleSelectAll(e.target.checked, selectedRowKeys);
         this.datasRefreshSelector(store);
+        setTimeout(()=>{
+            this.props.handleUnblockUi()
+        },1000);
+        this.refreshRef();
+
     }
 
     selectSingleRow(recordId) {
@@ -675,8 +686,7 @@ class GanttViewComponent extends React.Component {
                             const recordId = info.row?.data?.ID;
                             const parentId = info.row?.data?.ID_PARENT;
                             const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
-                            let viewId = this.props.id;
-                            viewId = GanttUtils.getRealViewId(subViewId, viewId);
+                            const viewId = GanttUtils.getRealViewId(subViewId, this.props.id);
                             ReactDOM.render(
                                 <div style={{textAlign: 'center', display: 'flex'}}>
                                     <OperationsButtons
@@ -704,8 +714,8 @@ class GanttViewComponent extends React.Component {
                                         handleHrefSubview={() =>
                                             this.handleHrefSubview(viewId, recordId, currentBreadcrumb)
                                         }
-                                        handleDocuments={(el) => this.props.handleDocumentRow(el.id)}
-                                        handlePlugins={(el) => this.props.handlePluginRow(el.id)}
+                                        handleDocuments={(el) => this.props.handleDocumentRow(el.id,recordId)}
+                                        handlePlugins={(el) => this.props.handlePluginRow(el.id,recordId)}
                                         handleArchive={() => this.props.handleArchiveRow(recordId)}
                                         handleDownload={() => this.props.handleDownloadRow(recordId)}
                                         handleAttachments={() => this.props.handleAttachmentRow(recordId)}
