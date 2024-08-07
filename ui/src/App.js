@@ -106,7 +106,7 @@ class App extends Component {
         this.prelongSeesionByRootClick();
         this.setRestateApp();
         this.setRenderNoRefreshContent();
-        this.onpopstate();
+        // this.onpopstate();
         this.readConfigAndSaveInCookie(configUrl).catch((err) => {
             console.error('Error start application = ', err);
         });
