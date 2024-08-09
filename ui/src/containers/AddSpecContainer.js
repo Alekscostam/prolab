@@ -401,6 +401,7 @@ export class AddSpecContainer extends BaseContainer {
                 selectedIndex: index,
                 initializedExpandAll: false,
             });
+            // TODO: paramatery sie psuja troszke 
             this.unselectAllDataGrid();
             setTimeout(() => {
                 this?.refTreeList?.current.reInitilizedExpandAll();

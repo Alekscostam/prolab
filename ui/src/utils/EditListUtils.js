@@ -1,5 +1,7 @@
 import hash from 'object-hash';
 import ConsoleHelper from './ConsoleHelper';
+import { v4 as uuidv4 } from 'uuid';
+
 export class EditListUtils {
     //data structure from API
     static transformBySetFields(rowData, setFields) {
@@ -41,8 +43,7 @@ export class EditListUtils {
         editData.editFields?.forEach((editField) => {
             editField?.panels?.forEach((panel) => {
                 panel?.groups?.forEach((group) => {
-                    group.uuid = crypto.randomUUID();
-
+                    group.uuid = uuidv4();
                 });
             });
         });

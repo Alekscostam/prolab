@@ -3,11 +3,11 @@ import {Dialog} from 'primereact/dialog';
 import {useEffect, useRef, useState} from 'react';
 
 import PropTypes from 'prop-types';
-import ShortcutButton from '../components/prolab/ShortcutButton';
-import LocUtils from '../utils/LocUtils';
+import ShortcutButton from './ShortcutButton';
+import LocUtils from '../../utils/LocUtils';
 
-export const QrCodesDialog = (props) => {
-    const {onSave, onHide, editable, labels} = props;
+export const QrCodesDialogComponent = (props) => {
+    const {onHide, editable, labels} = props;
     const qrCodeRef = useRef(undefined);
     const [visible, setVisible] = useState(props.visible);
     const [value, setValue] = useState(props.value);
@@ -85,7 +85,7 @@ export const QrCodesDialog = (props) => {
     );
 };
 
-QrCodesDialog.defaultProps = {
+QrCodesDialogComponent.defaultProps = {
     onSave: undefined,
     onHide: undefined,
     labels: undefined,
@@ -95,7 +95,7 @@ QrCodesDialog.defaultProps = {
     header: '',
 };
 
-QrCodesDialog.propTypes = {
+QrCodesDialogComponent.propTypes = {
     onSave: PropTypes.func,
     onHide: PropTypes.func,
     visible: PropTypes.bool,

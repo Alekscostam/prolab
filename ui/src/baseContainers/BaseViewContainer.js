@@ -44,7 +44,7 @@ import HistoryLogDialogComponent from '../components/prolab/HistoryLogDialogComp
 import {PluginConfirmDialogUtils} from '../utils/component/PluginUtils';
 import {OperationType} from '../model/OperationType';
 import ReactDOM from 'react-dom';
-import {QrCodesDialog} from '../containers/QrCodesDialog';
+import {QrCodesDialogComponent} from '../components/prolab/QrCodesDialogComponent';
 import ActionShortcutWithoutMenu from '../components/prolab/ActionShortcutWithoutMenu';
 import SelectedElements from '../components/SelectedElements';
 import { ResponseUtils } from '../utils/ResponseUtils';
@@ -76,6 +76,7 @@ export class BaseViewContainer extends BaseContainer {
         this.isAttachement = false;
         this.state = {
             loading: true,
+            pdfDialog: false,
             totalCounts: undefined,
             elementId: props.id,
             elementSubViewId: null,
@@ -1472,7 +1473,7 @@ export class BaseViewContainer extends BaseContainer {
                             : null}
                      {!this.isDashboard() && <SelectedElements selectedRowKeys={this.state.selectedRowKeys} totalCounts={this.state.totalCounts} /> }   
                         {this.state.qrCodesDialog && (
-                            <QrCodesDialog
+                            <QrCodesDialogComponent
                                 onHide={() =>
                                     this.setState({
                                         qrCodesDialog: false,
@@ -1481,6 +1482,16 @@ export class BaseViewContainer extends BaseContainer {
                                 labels={this.props.labels}
                             />
                         )}
+                        {/* {true && (
+                            <PDFViewerDialogComponent
+                                onHide={() =>
+                                    this.setState({
+                                        pdfDialog: false,
+                                    })
+                                }
+                                labels={this.props.labels}
+                            />
+                        )} */}
                     </React.Fragment>
                 )}
             </React.Fragment>

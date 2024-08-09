@@ -357,30 +357,30 @@ class TreeViewComponent extends CellEditComponent {
                     <MenuWithButtons
                         gridView={this.props.parsedGridView}
                         clickedPosition={this.clickedPosition}
-                        handlePlugins={(e) => this.props.handlePluginRow(e.id, selectedRecordId)}
-                        handleDocuments={(e) => this.props.handleDocumentRow(e.id, selectedRecordId)}
+                        handlePlugins={(e) => this.props.handlePluginRow(e.id, this.selectedRecordIdRef.current)}
+                        handleDocuments={(e) => this.props.handleDocumentRow(e.id, this.selectedRecordIdRef.current)}
                         handleSaveAction={() => this.props.handleSaveAction()}
                         handleAddSpecCount={() => this.props.handleAddSpecCount()}
-                        handleAddSpecSpec={() => this.props.handleAddSpecSpec(selectedRecordId)}
+                        handleAddSpecSpec={() => this.props.handleAddSpecSpec(this.selectedRecordIdRef.current)}
                         handleExecSpec={() => this.props.handleExecSpec()}
                         handleAddSpec={() => this.props.addButtonFunction()}
-                        handleHrefSubview={() => this.handleHrefSubview(viewId, selectedRecordId, currentBreadcrumb)}
+                        handleHrefSubview={() => this.handleHrefSubview(viewId, this.selectedRecordIdRef.current, currentBreadcrumb)}
                         handleEdit={() =>
-                            this.handleEdit(viewId, parentId, kindView, selectedRecordId, currentBreadcrumb)
+                            this.handleEdit(viewId, parentId, kindView, this.selectedRecordIdRef.current, currentBreadcrumb)
                         }
                         handleEditSpec={() =>
-                            this.handleEditSpec(viewId, parentId, selectedRecordId, currentBreadcrumb)
+                            this.handleEditSpec(viewId, parentId, this.selectedRecordIdRef.current, currentBreadcrumb)
                         }
-                        handleCopy={() => this.props.handleCopyRow(selectedRecordId)}
-                        handleArchive={() => this.props.handleArchiveRow(selectedRecordId)}
-                        handlePublish={() => this.props.handlePublishRow(selectedRecordId)}
-                        handleDownload={() => this.props.handleDownloadRow(selectedRecordId)}
-                        handleAttachments={() => this.props.handleAttachmentRow(selectedRecordId)}
-                        handleDelete={() => this.props.handleDeleteRow(selectedRecordId)}
-                        handleRestore={() => this.props.handleRestoreRow(selectedRecordId)}
-                        handleFormula={() => this.props.handleFormulaRow(selectedRecordId)}
-                        handleHistory={() => this.props.handleHistoryLogRow(selectedRecordId)}
-                        handleFill={() => this.props.handleFillRow(selectedRecordId)}
+                        handleCopy={() => this.props.handleCopyRow(this.selectedRecordIdRef.current)}
+                        handleArchive={() => this.props.handleArchiveRow(this.selectedRecordIdRef.current)}
+                        handlePublish={() => this.props.handlePublishRow(this.selectedRecordIdRef.current)}
+                        handleDownload={() => this.props.handleDownloadRow(this.selectedRecordIdRef.current)}
+                        handleAttachments={() => this.props.handleAttachmentRow(this.selectedRecordIdRef.current)}
+                        handleDelete={() => this.props.handleDeleteRow(this.selectedRecordIdRef.current)}
+                        handleRestore={() => this.props.handleRestoreRow(this.selectedRecordIdRef.current)}
+                        handleFormula={() => this.props.handleFormulaRow(this.selectedRecordIdRef.current)}
+                        handleHistory={() => this.props.handleHistoryLogRow(this.selectedRecordIdRef.current)}
+                        handleFill={() => this.props.handleFillRow(this.selectedRecordIdRef.current)}
                         handleExpand={() => this.handleExpand()}
                         handleCollapse={() => this.handleCollapse()}
                         handleCheck={() => this.handleCheck()}

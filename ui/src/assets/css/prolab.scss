@@ -638,7 +638,22 @@ body main div.container-fluid {
         }
     }
 }
+.dialog-pdf{
+    .p-dialog-header{
+        background: #cb0a2f;
+        color:white;
+        padding-bottom: 12px;
+        padding-top: 15px;
+        .p-dialog-header-icon.p-dialog-header-close.p-link,.p-dialog-header-icon.p-dialog-header-close.p-link:hover {
+            background: #cb0a2f;
 
+        }
+        .p-dialog-header-icon.p-dialog-header-close.p-link:hover {
+            background: #b6092c!important;
+
+        }
+    }
+}
 .dx-widget.dx-button.dx-button-mode-text.dx-button-normal.dx-button-has-text.dx-button-has-icon.dx-htmleditor-toolbar-format.dx-format-active.dx-state-selected{
     background: darkgray!important;
 }
