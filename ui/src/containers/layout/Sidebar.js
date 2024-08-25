@@ -52,7 +52,7 @@ class Sidebar extends React.Component {
         this.handleFilter = this.handleFilter.bind(this);
         this.handleCollapseChange = this.handleCollapseChange.bind(this);
     }
-
+    // TODO: podejrzany błędu
     componentDidMount() {
         ConsoleHelper('sidebar => componentDidMount');
         if (!localStorage.getItem(CookiesName.MENU) || this.state?.menu?.length === 0) {
@@ -458,7 +458,7 @@ class Sidebar extends React.Component {
 
                     <SidebarFooter id={'menu-footer'} style={{textAlign: 'center'}}>
                         <div id={'user-credentials'} className={'col-12'}>
-                            <div className='row mt-3 mb-2'>
+                            <div className='row mt-3 mb-2 cursor-pointer' onClick={()=>{window.location.href = AppPrefixUtils.locationHrefUrl('/#/start');}}>
                                 {userName && <Avatar base64={avatar} userName={userName} collapsed={collapsed} />}
                             </div>
                         </div>
@@ -477,7 +477,11 @@ class Sidebar extends React.Component {
                             {this.sessionTimeOutComponent()}
                         </div>
                         {!collapsed ? (
-                            <div id={'version'} className={'to-right'} style={{marginRight: '5px'}}>{`ver: ${
+                            <div id={'version'} onClick={()=>{
+                                if(this.props.onShowAboutVersionDialog){
+                                    this.props.onShowAboutVersionDialog();
+                                }
+                            }} className={'to-right cursor-pointer'} style={{marginRight: '5px'}}>{`ver: ${
                                 packageJson.version
                             }_${this.state.uiVersion?.buildNumber} api: ${JSON.parse(
                                 localStorage.getItem(CookiesName.VERSION_API)

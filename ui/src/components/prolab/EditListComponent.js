@@ -24,6 +24,7 @@ export default class EditListComponent extends React.Component {
     }
 
     render() {
+        const name = this.props.parsedGridView?.info?.fieldLabel;
         const width = this.props.parsedGridView?.info?.windowSize?.width || '50vw';
         const height = this.props.parsedGridView?.info?.windowSize?.height || '150vw';
         const opSelect = DataGridUtils.getOpButton(this.props.parsedGridView?.operations, OperationType.OP_SELECT);
@@ -31,7 +32,7 @@ export default class EditListComponent extends React.Component {
             <React.Fragment>
                 <Dialog
                     id='editListDialog'
-                    header={LocUtils.loc(this.props.labels, 'Selection_List_Label', 'Lista podpowiedzi')}
+                    header={<div>{LocUtils.loc(this.props.labels, 'Selection_List_Label', 'Lista podpowiedzi')} - {name}</div> }
                     footer={
                         (opSelect) ? (
                             <Button

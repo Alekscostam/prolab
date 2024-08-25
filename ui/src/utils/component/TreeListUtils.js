@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createRef } from 'react';
 import {ViewDataCompUtils} from './ViewDataCompUtils';
 import EditRowUtils from '../EditRowUtils';
 import {Button} from 'primereact/button';
@@ -12,6 +12,8 @@ import EditSpecService from '../../services/EditSpecService';
 import OperationCell from '../../model/OperationCell';
 import {StringUtils} from '../StringUtils';
 import EntryResponseHelper from '../helper/EntryResponseHelper';
+import { v4 as uuidv4 } from 'uuid';
+
 
 const sizeValues = ['8pt', '10pt', '12pt', '14pt', '18pt', '24pt', '36pt'];
 const fontValues = [
@@ -50,6 +52,7 @@ export const MemoizedOperations = React.memo(({editListVisible, fillDownVisible,
     );
 });
 
+
 export const MemoizedText = React.memo(
     ({
         field,
@@ -63,7 +66,19 @@ export const MemoizedText = React.memo(
         onOperationClick,
         downFill,
         onFillDownClick,
+        validatorFunction
     }) => {
+        const onValueFromEventChanged = (e) =>{
+            if(validatorFunction){
+                if(e?.value){
+                    e.value = validatorFunction(e.value);
+                }
+                if(e?.event?.currentTarget){
+                    e.event.currentTarget.value = validatorFunction(e.event.currentTarget.value);
+                    cellInfo.setValue(e.event.currentTarget.value);
+                }
+            }
+        } 
         return (
             <React.Fragment>
                 <div className={`${selectionList}`}>
@@ -71,22 +86,31 @@ export const MemoizedText = React.memo(
                         id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                         className={`${validate}`}
                         mode={mode || 'text'}
+                        onDisposing={()=>{ 
+                            let value =cellInfo.value ?? "";
+                            if (value.endsWith('.')) {
+                                value += '0';
+                                cellInfo.setValue(value)
+                            }
+                        }}
                         defaultValue={inputValue}
                         stylingMode={'filled'}
                         disabled={!field.edit}
                         valueChangeEvent={'keyup'}
                         onValueChanged={(e) => {
+                            onValueFromEventChanged(e);
                             switch (required) {
                                 case true:
                                     if (e.value !== '') {
                                         cellInfo.setValue(e.value);
                                     }
                                     break;
-                                default:
-                                    cellInfo.setValue(e.value);
-                                    break;
-                            }
-                        }}
+                                    default:
+                                        cellInfo.setValue(e.value);
+                                        break;
+                                    }
+                                    
+                                }}
                     >
                         {required ? (
                             <Validator>
@@ -609,11 +633,22 @@ export class TreeListUtils extends ViewDataCompUtils {
             isGroup: false,
             isSort: false,
         };
-
         listColumns.unshift(defaultColumn);
         return listColumns;
     }
 
+    static addUuidColumn(listColumns){
+        const uuidColumn = {
+            id: 0,
+            visible: false,
+            fieldName:  'uuid-'+ uuidv4(),
+            label: '',
+            isFilter: false,
+            isGroup: false,
+            isSort: false,
+        };
+        listColumns.push(uuidColumn);
+    }
     static createSelectionColumn(listColumns, parsedGridViewData) {
         const width = this.calculateWidthOfSelectionColumn(parsedGridViewData);     
         return this.addSelectionColumn(listColumns, {width});

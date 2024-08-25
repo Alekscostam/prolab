@@ -189,7 +189,7 @@ export class Breadcrumb {
                             const timestamp = Date.now();
                             path = UrlUtils.addParameterToURL(path, TIMESTAMP_URL_PARAM_NAME, timestamp);
                             return (
-                                <React.Fragment>
+                                <React.Fragment key={id}>
                                     <a href={path}>{item.name}</a>
                                     <span>{id + 1 === breadcrumb.length ? '' : ' > '}</span>
                                 </React.Fragment>

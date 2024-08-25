@@ -18,6 +18,7 @@ import ActionLink from '../components/ActionLink';
 import UserService from '../services/UserService';
 import UserRowComponent from '../components/prolab/UserRowComponent';
 import ReadConfigService from '../services/ReadConfigService';
+import { CookiesName } from '../model/CookieName';
 
 const element = {
     appName: 'ProlabRD',
@@ -30,13 +31,12 @@ class LoginContainer extends BaseContainer {
         this.localizationService = new LocalizationService(this.getConfigUrl());
         this.handleFormSubmit = this.handleFormSubmit.bind(this);
         this.showWarningMessage = this.showWarningMessage.bind(this);
-        this.getLocalizationLoginPage = this.getLocalizationLoginPage.bind(this);
+        this.getLocalizationLoginPage = this.getConfigForLoginPage.bind(this);
         this.resetPassword = this.resetPassword.bind(this);
         this.registration = this.registration.bind(this);
         this.userService = new UserService();
         this.messages = React.createRef();
         this.recaptchaRef = React.createRef();
-
         this._isMounted = false;
         this.state = {
             username: '',
@@ -45,10 +45,13 @@ class LoginContainer extends BaseContainer {
             editData: {},
             authValid: true,
             lang: undefined,
-            langs: [],
+            langs: this.props.appState?.configApp?.langs || [],
             visibleUserComponent: false,
             userInfo: {},
             labels: {},
+            defaultLang : this.props.appState?.configApp?.lang ??  "PL",
+            renderSignIn:this.props.appState?.configApp?.renderSignIn,
+            renderForgotPassword:this.props?.appState?.configApp?.renderForgotPassword
         };
         this.authValidValidator = new SimpleReactValidator({
             validators: {
@@ -110,31 +113,42 @@ class LoginContainer extends BaseContainer {
         this.authService.removeLoginCookies();
         const values = queryString.parse(this.props.location.search);
         this.targetLocation = values.location;
-        this.getLocalizationLoginPage();
+        this.getConfigForLoginPage();
+        this.getErrorCookieMessage();
     }
-
-    getLocalizationLoginPage() {
-        new ReadConfigService(this.getConfigUrl()).getConfiguration().then((configuration) => {
-            const lang = this.state.lang ? this.state.lang : configuration.LANG;
-            this.localizationService
-                .getTranslationsFromFile('rd', lang)
-                .then((resp) => {
-                    const langs = configuration.LANG_LIST;
-                    const labels = {};
-                    if (resp.labels) {
-                        resp.labels.forEach((label) => (labels[label.code] = label.caption));
-                    }
-                    this.setState({langs, labels, lang: lang}, () => {
-                        this.unblockUi();
-                        this._isMounted = true;
-                    });
-                })
-                .catch((err) => {
-                    ConsoleHelper(`LoginContainer:getLocalizationLoginPage error`, err);
-                    this.showGlobalErrorMessage(err);
+    componentDidUpdate(){
+        super.componentDidUpdate();
+    }
+    getErrorCookieMessage = () => {
+        setTimeout(()=>{
+           const cookieError =  localStorage.getItem(CookiesName.ERROR_AFTER_REFRESH)
+            if(cookieError){
+                const error = JSON.parse(cookieError);
+                this.showGlobalErrorMessage(error);
+                localStorage.removeItem(CookiesName.ERROR_AFTER_REFRESH);
+            }
+        },1500)
+    }
+    getConfigForLoginPage = () => {
+        const lang = this.state.lang ? this.state.lang : this.state?.defaultLang;
+        this.localizationService
+            .getTranslationsFromFile('rd', lang)
+            .then((resp) => {
+                const langs = this.state.langs;
+                const labels = {};
+                if (resp.labels) {
+                    resp.labels.forEach((label) => (labels[label.code] = label.caption));
+                }
+                this.setState({langs, labels, lang: lang}, () => {
                     this.unblockUi();
+                    this._isMounted = true;
                 });
-        });
+            })
+            .catch((err) => {
+                ConsoleHelper(`LoginContainer:getLocalizationLoginPage error`, err);
+                this.showGlobalErrorMessage(err);
+                this.unblockUi();
+            });
     }
 
     handleFormSubmit(e) {
@@ -216,7 +230,6 @@ class LoginContainer extends BaseContainer {
             );
         }
     }
-
     renderAfterAuth() {
         const {redirectToReferrer} = this.state;
         if (redirectToReferrer === true) {
@@ -224,7 +237,6 @@ class LoginContainer extends BaseContainer {
         }
         return <Redirect to={'/start'} />;
     }
-
     showWarningMessage(detail, life = Constants.ERROR_MSG_LIFE, summary = '') {
         this.messages.show({
             severity: 'warn',
@@ -237,14 +249,12 @@ class LoginContainer extends BaseContainer {
             ),
         });
     }
-
     onKeyDown(e) {
         if (e.key === 'Enter') {
             e.preventDefault();
             this.handleFormSubmit();
         }
     }
-
     renderBeforeAuth() {
         const {labels} = this.state;
         return (
@@ -278,7 +288,7 @@ class LoginContainer extends BaseContainer {
                                             inputId='langInput'
                                             name='lang'
                                             onChange={(e) =>
-                                                this.setState({lang: e.value}, () => this.getLocalizationLoginPage())
+                                                this.setState({lang: e.value}, () => this.getConfigForLoginPage())
                                             }
                                             appendTo='self'
                                         />
@@ -336,36 +346,38 @@ class LoginContainer extends BaseContainer {
                                                                     validators='not_required'
                                                                 />
                                                             </div>
-                                                            <div>
+                                                            {this.state.renderForgotPassword &&  <div>
                                                                 <p className='text-right'>
                                                                     <ActionLink
                                                                         handleClick={this.resetPassword}
                                                                         label={labels['Login_ResetPassword']}
                                                                     />
                                                                 </p>
-                                                            </div>
+                                                            </div>}
+                                                           
                                                             {/* <ReCAPTCHA
                                                                     ref={this.recaptchaRef}
                                                                     sitekey='TWOJ_SITE_KEY'
                                                                     onChange={() => {
                                                                     }}
                                                                 /> */}
-
+                                                        {this.state.renderSignIn && <div>
                                                             <ActionButton
-                                                                label={labels['Login_Signin']}
-                                                                className='mt-4'
-                                                                variant='login-button'
-                                                                handleClick={this.handleFormSubmit}
-                                                            />
-                                                            <div className='mt-4'>
-                                                                <p className='font-normal text-center'>
-                                                                    {labels['Login_Signup_Info']}&nbsp;
-                                                                    <ActionLink
-                                                                        handleClick={this.registration}
-                                                                        label={labels['Login_Signup']}
-                                                                    />
-                                                                </p>
-                                                            </div>
+                                                                    label={labels['Login_Signin']}
+                                                                    className='mt-4'
+                                                                    variant='login-button'
+                                                                    handleClick={this.handleFormSubmit}
+                                                                />
+                                                                <div className='mt-4'>
+                                                                    <p className='font-normal text-center'>
+                                                                        {labels['Login_Signup_Info']}&nbsp;
+                                                                        <ActionLink
+                                                                            handleClick={this.registration}
+                                                                            label={labels['Login_Signup']}
+                                                                        />
+                                                                    </p>
+                                                                </div>
+                                                         </div>}
                                                         </form>
                                                     </div>
                                                 </div>

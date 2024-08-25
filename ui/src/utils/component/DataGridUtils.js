@@ -23,7 +23,7 @@ export class DataGridUtils extends ViewDataCompUtils {
             const className = info?.data?.SKASOWANY === 1 ? 'deleted-row' : '';
             let bgColorFinal = undefined;
             let rowSelected = null;
-
+           
             if (_rowIndex !== info.row.dataIndex) {
                 rowSelected =
                     info?.row?.cells?.filter((c) => c.column?.type === 'selection' && c.value === true).length > 0;
@@ -103,6 +103,7 @@ export class DataGridUtils extends ViewDataCompUtils {
                                 // maxWidth: column.width + 'px',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
+                                minHeight:"18px",
                                 backgroundColor: bgColorFinal,
                                 color: fontColorFinal,
                                 borderRadius: info.column.allowWrapping ? '18px' : '25px',
@@ -278,9 +279,6 @@ export class DataGridUtils extends ViewDataCompUtils {
     }
 
     static getText(info){
-        // if(info){
-        //     return <span dangerouslySetInnerHTML={{__html: info.text}} /> 
-        // }
         return StringUtils.textFromHtmlString(info.text)
 
     }

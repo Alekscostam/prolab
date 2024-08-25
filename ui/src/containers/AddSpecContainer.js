@@ -269,6 +269,7 @@ export class AddSpecContainer extends BaseContainer {
                             } else {
                                 TreeListUtils.createSelectionColumn(responseView.gridColumns[0].columns, res.data);
                             }
+                            TreeListUtils.addUuidColumn(responseView.gridColumns[0].columns);
                             const columnsTmp = ResponseUtils.columnsFromGroupCreate(responseView);
                             this.setState(
                                 {

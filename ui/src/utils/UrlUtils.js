@@ -278,6 +278,18 @@ class UrlUtils {
         let joinResult = paramValues.join('&' + paramName + '=');
         return paramName + '=' + joinResult;
     }
+
+    static makeConfigUrl(urlPrefix) {
+        let browseUrl = window.location.href;
+        
+        const id = browseUrl.indexOf('/#');
+        if (id > 0) {
+            browseUrl = browseUrl.substring(0, id + 1);
+        }
+        return UrlUtils.notDefinedPrefix(urlPrefix)
+            ? browseUrl
+            : browseUrl.trim().match('^(?:https?:)?(?:\\/\\/)?([^\\/\\?]+)', '')[0] + '/' + urlPrefix;
+    }
 }
 
 export default UrlUtils;

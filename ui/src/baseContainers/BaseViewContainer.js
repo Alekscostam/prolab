@@ -49,6 +49,11 @@ import ActionShortcutWithoutMenu from '../components/prolab/ActionShortcutWithou
 import SelectedElements from '../components/SelectedElements';
 import { ResponseUtils } from '../utils/ResponseUtils';
 import { ViewUtils } from '../utils/ViewUtils';
+import { PDFViewerDialogComponent } from '../components/prolab/PDFViewerDialogComponent';
+import { ExcelEditorDialogComponent } from '../components/prolab/ExcelEditorDialogComponent';
+import { FileType } from '../model/FileType';
+import FileTypeUtils from '../utils/FileTypeUtils';
+import { DocxViewerDialogComponent } from '../components/prolab/DocxViewerDialogComponent';
 
 let dataGrid;
 
@@ -76,7 +81,12 @@ export class BaseViewContainer extends BaseContainer {
         this.isAttachement = false;
         this.state = {
             loading: true,
-            pdfDialog: false,
+            fileViewer:{
+                dialogEnabled:false,
+                file: undefined,
+                name: undefined,
+                type: '',
+            },
             totalCounts: undefined,
             elementId: props.id,
             elementSubViewId: null,
@@ -136,7 +146,6 @@ export class BaseViewContainer extends BaseContainer {
         this.getDataByViewResponse = this.getDataByViewResponse.bind(this);
         this.getViewById = this.getViewById.bind(this);
         this.handleRightHeadPanelContent = this.handleRightHeadPanelContent.bind(this);
-        this.executePlugin = this.executePlugin.bind(this);
         this.additionalTopComponents = this.additionalTopComponents.bind(this);
         this.executeDocument = this.executeDocument.bind(this);
         this.showCopyView = this.showCopyView.bind(this);
@@ -145,6 +154,7 @@ export class BaseViewContainer extends BaseContainer {
     }
 
     componentDidMount() {
+        
         this._isMounted = true;
         const subViewId = UrlUtils.getSubViewId();
         const recordId = this.props.recordId || UrlUtils.getRecordId();
@@ -482,9 +492,8 @@ export class BaseViewContainer extends BaseContainer {
                         onChange={this.handleChangeCriteria}
                         onBlur={this.handleChangeCriteria}
                         inputDataFields={this.state.inputDataFields}
-                        onSave={this.executeDocument}
+                        onApprove={this.executeDocument}
                         onAutoFill={this.handleAutoFillRowChange}
-                        onCancel={() => this.setState({visibleDocumentPanel: false})}
                         validator={this.validator}
                         onHide={() => this.setState({visibleDocumentPanel: false})}
                         onError={(e) => this.showErrorMessage(e)}
@@ -680,16 +689,14 @@ export class BaseViewContainer extends BaseContainer {
             </React.Fragment>
         );
     }
-
     additionalTopComponents() {
         // to overide
     }
-
     async executeDocument(data, viewId, elementId, parentId, recordId) {
         const idRowKeys = this.state.selectedRowKeys.map((el) => el.ID);
-        const requestBody = recordId ? {listId: [recordId], 
-            data:data} : {
-            listId: StringUtils.isBlank(data) && idRowKeys.length === 0 ? [elementId] : idRowKeys,
+        const requestBody = recordId ? {listId: [recordId],  data:data} : {
+            // listId: StringUtils.isBlank(data) && idRowKeys.length === 0 ? [elementId] : idRowKeys,
+            listId: idRowKeys.length === 0 ? [elementId] : idRowKeys,
             data: data,
         };
         let info = undefined;
@@ -707,33 +714,51 @@ export class BaseViewContainer extends BaseContainer {
                 this.showGlobalErrorMessage(ex);
                 this.unblockUi();
             });
-
         const fileId = info?.fileId;
         const fileName = info?.fileName;
-
         if (this.canDownloadAfterExecuteDocument(info)) {
             this.crudService.downloadDocument(viewId, elementId, fileId, fileName);
             this.setState({
                 visibleDocumentPanel: false,
             });
         }
+        const isPreview =  StringUtils.isBlank(info?.isPreview) ? false : info.isPreview;
+        if(isPreview){
+            this.showDocumentViewer(viewId, elementId, fileId, fileName)
+        }
         this.unblockUi();
+    }
+    showDocumentViewer = (viewId, elementId, fileId, fileName) =>{
+        this.crudService.getStreamResponseBodyFromDownload(viewId, elementId, fileId, fileName).then(res=>{
+            const realName =   (fileName ? fileName : '');
+            const name =   (fileName ? fileName : '').toUpperCase();
+            const type =  FileTypeUtils.getFileType(name) 
+            this.setState({
+                fileViewer:{
+                    dialogEnabled:true,
+                    file: res.body,
+                    name: realName,
+                    type:type
+                },
+            })
+        }).catch(error=>{
+            this.showGlobalErrorMessage(error)
+        });
     }
     canDownloadAfterExecuteDocument = (info) => {
         const fileId = info?.fileId;
         const isEdit = StringUtils.isBlank(info?.isEdit) ? false : info.isEdit ;
-        const isPreview =  StringUtils.isBlank(info?.isPreview) ? false : info.isPreview;
         const isDownload =  StringUtils.isBlank(info?.isDownload) ? false : info.isDownload;
         if(StringUtils.isBlank(fileId) || fileId === "0" || fileId === 0){
             return false;
         }
-        return isEdit || isPreview || isDownload;
+        // return true;
+        return isEdit || isDownload;
     }
     //override
     renderHeaderRight() {
         return <React.Fragment />;
     }
-
     //override
     renderHeaderLeft() {
         return <React.Fragment />;
@@ -742,7 +767,6 @@ export class BaseViewContainer extends BaseContainer {
     addButtonFunction = () => {
         return <React.Fragment />;
     };
-
     rightHeadPanelContent = () => {
         if (this.isDashboard()) {
             return <React.Fragment />;
@@ -757,7 +781,6 @@ export class BaseViewContainer extends BaseContainer {
             </React.Fragment>
         );
     };
-
     canNotBeRefreshed() {
         return (
             this.state.kindView === 'View' &&
@@ -1049,8 +1072,8 @@ export class BaseViewContainer extends BaseContainer {
             if (this.isValidChildForFilter(child)) {
                 const inputValue = this.getValueFromChild(child);
                 if (this.isValidValueFromChild(inputValue)) {
-                    let ariaDescribedby = child?.getAttribute('aria-describedby');
-                    let columnName = '' + ariaDescribedby?.replace(new RegExp('column_[0-9]+_'), '')?.toUpperCase();
+                    const ariaDescribedby = child?.getAttribute('aria-describedby');
+                    const columnName = '' + ariaDescribedby?.replace(new RegExp('column_[0-9]+_'), '')?.toUpperCase();
                     if (filterArray.length > 0) {
                         filterArray.push('and');
                     }
@@ -1456,6 +1479,42 @@ export class BaseViewContainer extends BaseContainer {
             this.unblockUi();
         });
     }
+    renderFileViewer = () =>{
+        const onHide = ()=>{ this.setState({
+            fileViewer:{
+                dialogEnabled: false,
+                file:undefined,
+                name:undefined,
+                type:''
+            }  
+        })};
+        switch (this.state?.fileViewer?.type) {
+            case FileType.XLSX:
+                return <ExcelEditorDialogComponent     
+                onHide={onHide}
+                name={this.state.fileViewer.name}
+                file={this.state.fileViewer.file}
+                labels={this.props.labels}
+            />
+            case FileType.PDF:
+                return <PDFViewerDialogComponent
+                onHide={onHide}
+                name={this.state.fileViewer.name}
+                file={this.state.fileViewer.file}
+                labels={this.props.labels}
+            />
+            
+            case FileType.DOCX:
+                return <DocxViewerDialogComponent
+                onHide={onHide}
+                name={this.state.fileViewer.name}
+                file={this.state.fileViewer.file}
+                labels={this.props.labels}
+            />
+            default:
+                return  <React.Fragment></React.Fragment>;
+        }
+    }
     //override
     renderContent = () => {
         return (
@@ -1482,27 +1541,17 @@ export class BaseViewContainer extends BaseContainer {
                                 labels={this.props.labels}
                             />
                         )}
-                        {/* {true && (
-                            <PDFViewerDialogComponent
-                                onHide={() =>
-                                    this.setState({
-                                        pdfDialog: false,
-                                    })
-                                }
-                                labels={this.props.labels}
-                            />
-                        )} */}
+                       {this.state.fileViewer?.dialogEnabled && this.renderFileViewer()}
                     </React.Fragment>
                 )}
             </React.Fragment>
         );
     };
-    renderDashboardViewComponent() {
+    renderDashboardViewComponent = () => {
         const {labels} = this.props;
         return (
             <React.Fragment>
                 <div className='col-12 ' >{Breadcrumb.render(labels)}   </div>
-                
                 <DashboardContainer
                     key={'Dashboard'}
                     dashboard={this.state.subView}

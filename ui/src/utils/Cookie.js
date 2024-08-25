@@ -17,3 +17,7 @@ export function saveValueToCookieGlobal(cookieName, cookieValue) {
 export function removeCookieGlobal(cookieName) {
     return sessionStorage.removeItem(cookieName);
 }
+export function canFitInCookie(str){
+    const byteLength = new TextEncoder().encode(str).length;
+    return byteLength <= 4096;
+}

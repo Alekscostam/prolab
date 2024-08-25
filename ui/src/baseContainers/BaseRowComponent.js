@@ -105,43 +105,11 @@ export class BaseRowComponent extends BaseContainer {
         this.unregisterKeydownEvent();
     }
     handleSelectedRowData(e) {
-        const addMode = !!(e.currentSelectedRowKeys.length !== 0);
         const setFields = this.state.parsedGridView.setFields;
         const prevSelectedRowData = this.state.selectedRowData;
-        const currentSelectedRowsData = e.selectedRowsData;
-        const selectedRowsKeys = e.selectedRowKeys;
-        let transformedRowsData = [];
-        let transformedRowsCRC = [];
-        const multiSelect = this.state?.parsedGridView?.gridOptions?.multiSelect; 
-        if (multiSelect) {
-            transformedRowsData = prevSelectedRowData;
-            transformedRowsCRC = selectedRowsKeys;
-            if (addMode) {
-                const foundedElementToAdd = currentSelectedRowsData.find(
-                    (el) => el.CALC_CRC === e.currentSelectedRowKeys[0]
-                );
-                const transformedSingleRowData = EditListUtils.transformBySetFields(foundedElementToAdd, setFields);
-                const CALC_CRC = EditListUtils.calculateCRC(transformedSingleRowData);
-                transformedSingleRowData[0].CALC_CRC = CALC_CRC;
-                transformedRowsData.push(transformedSingleRowData);
-            } else {
-                const foundedElementToRemove = prevSelectedRowData.find(
-                    (el) => el[0].CALC_CRC === e.currentDeselectedRowKeys[0]
-                );
-                transformedRowsData = transformedRowsData.filter(
-                    (el) => el[0].CALC_CRC !== foundedElementToRemove[0].CALC_CRC
-                );
-            }
-        } else {
-            for (let selectedRows in currentSelectedRowsData) {
-                let selectedRow = currentSelectedRowsData[selectedRows];
-                let transformedSingleRowData = EditListUtils.transformBySetFields(selectedRow, setFields);
-                let CALC_CRC = EditListUtils.calculateCRC(transformedSingleRowData);
-                transformedRowsData.push(transformedSingleRowData);
-                transformedRowsCRC.push(CALC_CRC);
-            }
-        }
-        this.setState({selectedRowData: transformedRowsData, defaultSelectedRowKeys: transformedRowsCRC});
+        const multiSelect = this.state?.parsedGridView?.gridOptions?.multiSelect;
+        const result =  EditListUtils.selectedRowData(e, setFields, prevSelectedRowData, multiSelect);
+        this.setState({selectedRowData: result.rowsData, defaultSelectedRowKeys: result.rowsCrc});
     }
 
     handleCancel() {
@@ -187,7 +155,6 @@ export class BaseRowComponent extends BaseContainer {
     }
     renderField(field, fieldIndex, groupName) {
         const visibleDocumentCriteria = this.props?.visibleDocumentPanel;
-
         const onChange = this.getOnChange();
         const onBlur = this.getOnBlur();
         const required = field.requiredValue && field.visible && !field.hidden;
@@ -402,8 +369,23 @@ export class BaseRowComponent extends BaseContainer {
             }
         }
     }
-
-    renderInputComponent(field, fieldIndex, onChange, onBlur, groupUuid, required, validatorMsgs, onClickEditList) {
+    handleOnChange = (field, value, onChange) => {
+        if(onChange){
+            onChange();
+            if(!StringUtils.isBlank(value) ){
+                field.value = value; 
+            }
+        }
+    }
+    handleOnBlur = (field, value, onBlur) =>{
+        if(onBlur){
+            onBlur();
+            if(!StringUtils.isBlank(value) ){
+                field.value = value; 
+            }
+        }
+    }
+    renderInputComponent(field, fieldIndex, onChange, onBlur, groupUuid, required, validatorMsgs, onClickEditList)  {
         //mock functionality
         const visibleDocumentCriteria = this.props?.visibleDocumentPanel;
         field.edit = MockService.getFieldEnableDisableOrMock(field.edit, 'edit');
@@ -425,13 +407,13 @@ export class BaseRowComponent extends BaseContainer {
         const labelColor = !!field.labelColor ? field.labelColor : '';
         const selectionList = field?.selectionList ? 'p-inputgroup' : null;
         const info = this.props.editData?.editInfo;
-
         let selectionListValues = field?.selectionListValues;
         if (visibleDocumentCriteria && selectionListValues) {
             selectionListValues = this.selectionListValuesToJson(selectionListValues);
         }
         switch (field.type) {
             case ColumnType.C:
+                
             default:
                 return (
                     <React.Fragment>
@@ -468,14 +450,14 @@ export class BaseRowComponent extends BaseContainer {
                                     <InputText
                                         id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                                         name={field.fieldName}
-                                        className={` ${editable} ${autoFill} ${validate}`}
+                                        className={`${editable} ${autoFill} ${validate}`}
                                         style={{width: '100%'}}
                                         type='text'
                                         value={field.value}
-                                        onChange={(e) =>
-                                            onChange ? onChange(InputType.TEXT, e, groupUuid, info) : null
-                                        }
-                                        onBlur={(e) => (onBlur ? onBlur(InputType.TEXT, e, groupUuid, info) : null)}
+                                        onChange={(e) => {
+                                            
+                                            this.handleOnChange(field, e?.target?.value, ()=>{onChange(InputType.TEXT, e, groupUuid, info)})}}
+                                        // onBlur={(e) => this.handleOnBlur(field,e?.target?.value,()=>{onBlur(InputType.TEXT, e, groupUuid, info)})}
                                         disabled={!field.edit}
                                         required={required}
                                     />
@@ -511,8 +493,8 @@ export class BaseRowComponent extends BaseContainer {
                                 style={{width: '100%'}}
                                 type='text'
                                 value={field.value}
-                                onChange={(e) => (onChange ? onChange(InputType.TEXT, e, groupUuid, info) : null)}
-                                onBlur={(e) => (onBlur ? onBlur(InputType.TEXT, e, groupUuid, info) : null)}
+                                onChange={(e) => this.handleOnChange(field,e?.target?.value,() => onChange(InputType.TEXT, e, groupUuid, info))}
+                                // onBlur={(e) => this.handleOnBlur(field,e?.target?.value,() => onBlur(InputType.TEXT, e, groupUuid, info))}
                                 disabled={!field.edit}
                                 required={required}
                                 feedback={false}
@@ -590,10 +572,10 @@ export class BaseRowComponent extends BaseContainer {
                                             });
 
                                             if (onChange) {
-                                                onChange(InputType.TEXT, e, groupUuid, info);
+                                                this.handleOnChange(field, e?.target?.value, ()=> onChange(InputType.TEXT, e, groupUuid, info))
                                             }
                                         }}
-                                        onBlur={(e) => (onBlur ? onBlur(InputType.TEXT, e, groupUuid, info) : null)}
+                                        // onBlur={(e) => this.handleOnBlur(field,e?.target?.value,() => onBlur(InputType.TEXT, e, groupUuid, info))}
                                         disabled={!field.edit}
                                         required={required}
                                     />

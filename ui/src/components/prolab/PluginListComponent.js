@@ -32,7 +32,8 @@ export default class PluginListComponent extends React.Component {
     }
 
     render() {
-        let width = this.props.parsedPluginView?.info?.windowSize?.width || '50vw';
+        let width = this.props.parsedPluginView?.info?.windowSize?.width ?? '50vw';
+        
         let height = this.props.parsedPluginView?.info?.windowSize?.height || undefined;
         const parsedPluginView = this.props.parsedPluginView;
         let convertedParsedView = {...parsedPluginView};

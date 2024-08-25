@@ -849,6 +849,8 @@ class TreeViewComponent extends CellEditComponent {
                 const element = elements[cellInfo.rowIndex];
                 if (element.parentNode.rowIndex === cellInfo.rowIndex) {
                     element.classList.add('calculated-cell-bakcground');
+                    element.style.setProperty('background', '#93ffb8', 'important');
+
                 }
             } else {
                 _bgColor = cellInfo.data['_BGCOLOR'];

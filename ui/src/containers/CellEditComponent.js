@@ -224,43 +224,11 @@ class CellEditComponent extends Component {
         );
     };
     handleSelectedRowData(e) {
-        const addMode = !!(e.currentSelectedRowKeys.length !== 0);
         const setFields = this.state.parsedEditListView.setFields;
         const prevSelectedRowData = this.state.selectedRowData;
-        const currentSelectedRowsData = e.selectedRowsData;
-        const selectedRowsKeys = e.selectedRowKeys;
-        let transformedRowsData = [];
-        let transformedRowsCRC = [];
         const multiSelect = this.state?.parsedGridView?.gridOptions?.multiSelect;
-        if (multiSelect) {
-            transformedRowsData = prevSelectedRowData;
-            transformedRowsCRC = selectedRowsKeys;
-            if (addMode) {
-                const foundedElementToAdd = currentSelectedRowsData.find(
-                    (el) => el.CALC_CRC === e.currentSelectedRowKeys[0]
-                );
-                const transformedSingleRowData = EditListUtils.transformBySetFields(foundedElementToAdd, setFields);
-                const CALC_CRC = EditListUtils.calculateCRC(transformedSingleRowData);
-                transformedSingleRowData[0].CALC_CRC = CALC_CRC;
-                transformedRowsData.push(transformedSingleRowData);
-            } else {
-                const foundedElementToRemove = prevSelectedRowData.find(
-                    (el) => el[0].CALC_CRC === e.currentDeselectedRowKeys[0]
-                );
-                transformedRowsData = transformedRowsData.filter(
-                    (el) => el[0].CALC_CRC !== foundedElementToRemove[0].CALC_CRC
-                );
-            }
-        } else {
-            for (let selectedRows in currentSelectedRowsData) {
-                let selectedRow = currentSelectedRowsData[selectedRows];
-                let transformedSingleRowData = EditListUtils.transformBySetFields(selectedRow, setFields);
-                let CALC_CRC = EditListUtils.calculateCRC(transformedSingleRowData);
-                transformedRowsData.push(transformedSingleRowData);
-                transformedRowsCRC.push(CALC_CRC);
-            }
-        }
-        this.setState({selectedRowDataEditList: transformedRowsData, defaultSelectedRowKeys: transformedRowsCRC});
+        const result =  EditListUtils.selectedRowData(e, setFields, prevSelectedRowData, multiSelect);
+        this.setState({selectedRowDataEditList: result.rowsData, defaultSelectedRowKeys: result.rowsCrc});
     }
 
     // to overide
@@ -397,23 +365,6 @@ class CellEditComponent extends Component {
         const selectionList = field?.selectionList ? 'p-inputgroup' : null;
         switch (field?.type) {
             case ColumnType.C:
-                if (cellInfo.column.dataField?.includes('WART') && cellInfo.data?.PIERW_TYP?.includes('N')) {
-                    return (
-                        <MemoizedNumericInput
-                            field={field}
-                            cellInfo={cellInfo}
-                            inputValue={cellInfo.value}
-                            fieldIndex={fieldIndex}
-                            editable={editable}
-                            autoFill={autoFill}
-                            required={required}
-                            validate={validate}
-                            selectionList={selectionList}
-                            onOperationClick={onOperationClick}
-                            downFill={downFill}
-                        />
-                    );
-                }
                 return (
                     <MemoizedText
                         field={field}
@@ -425,6 +376,18 @@ class CellEditComponent extends Component {
                         autoFill={autoFill}
                         required={required}
                         validate={validate}
+                        validatorFunction={(value)=>{
+                            if(cellInfo.column.dataField?.includes('WART') && cellInfo.data?.PIERW_TYP?.includes('N')){
+                                let result = value.replace(/,/g, '.');  // Zamiana przecinków na kropki
+                                result = result.replace(/([.\-+<>])\1+/g, '$1'); // Usuwanie nadmiarowych znaków specjalnych (w tym kropek) występujących obok siebie
+                                result = result.replace(/[^0-9.\-+<>]/g, ''); // Zdefiniowanie dozwolonych znaków
+                                result = result.replace(/(?<!\d)\./g, '0.'); // Dodanie zera przed kropką, jeśli przed kropką nie ma cyfry
+                                result = result.replace(/\.(?=[+\-<>])/g, '.0'); //Dodanie zera po kropce przed znakami specjalnymi 
+                                result = result.replace(/(\d+)\.(\d*\.)+/g, '$1.$2').replace(/(\d*\.\d*)\./g, '$1'); //Usunięcie nadmiarowych kropek w liczbach
+                                return result;
+                            }
+                            return undefined;
+                        }}
                         selectionList={selectionList}
                         onOperationClick={onOperationClick}
                         downFill={downFill}

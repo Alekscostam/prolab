@@ -2,10 +2,11 @@ import {ConfirmDialog} from 'primereact/confirmdialog';
 import {localeOptions} from 'primereact/api';
 import ReactDOM from 'react-dom';
 
+// TODO: pojawienie sie blokady i klkniecie ok nie zmienia sie url
 function EntryResponseHelper() {}
 EntryResponseHelper.run = (entryResponse, accept, reject, unblockUi) => {
     if (!!entryResponse.message || !!entryResponse.question) {
-        if (typeof unblockUi === 'function' && entryResponse?.next===false) {
+        if (typeof unblockUi === 'function' && (entryResponse?.next===false || entryResponse?.next===true )) {
             unblockUi();
         }
         const confirmDialogWrapper = document.createElement('div');

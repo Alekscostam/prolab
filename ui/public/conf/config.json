@@ -2,5 +2,9 @@
     "REACT_APP_BACKEND_URL": "https://rdprolab.inform-tech.pl:444/PPA/api",
     "REACT_APP_URL_PREFIX": "",
     "LANG": "PL",
-    "LANG_LIST": ["PL", "ENG", "DE"]
+    "LANG_LIST": ["PL", "ENG", "DE"],
+    "FORTOGPASSWORD_VIEWID" : 12312,
+    "SIGNIN_VIEWID" : 5555,
+    "SHOW_PREVIEW_DIALOG" : true
+
 }

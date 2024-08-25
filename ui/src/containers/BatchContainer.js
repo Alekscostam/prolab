@@ -24,9 +24,6 @@ import {OperationType} from '../model/OperationType';
 import {StringUtils} from '../utils/StringUtils';
 import { ViewUtils } from '../utils/ViewUtils';
 
-//
-//    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
-//
 export class BatchContainer extends BaseContainer {
     
     _isMounted = false;
@@ -275,8 +272,9 @@ export class BatchContainer extends BaseContainer {
         const globalComponents = document.getElementById('global-top-components');
         globalComponents.click();
         this.handleBatchSave(viewIdArg, parentIdArg, () => {
-            this.refreshView();
-            this.refreshTable();
+            if(this.refDataGrid?.instance){
+             this.refDataGrid?.instance?.refresh();
+            }
         });
     }
 
@@ -297,7 +295,7 @@ export class BatchContainer extends BaseContainer {
         const booleanLogicColumns = this.state.columns.filter((el) => el.type === 'L');
         const booleanNumberColumns = this.state.columns.filter((el) => el.type === 'B');
         const imageColumns = this.state.columns.filter((el) => el.type === 'I');
-        let arrayTmp = [];
+        const arrayTmp = [];
         for (let row of rowArray) {
             Object.keys(row).forEach((el) => {
                 imageColumns.forEach((image) => {
@@ -355,7 +353,16 @@ export class BatchContainer extends BaseContainer {
             </React.Fragment>
         );
     };
-
+    availableOperationsForHeaderPanel = () => {
+       const parsedView = structuredClone(this.state.parsedView);
+       const operations = parsedView?.operations || [];
+       const operationForBatch = [OperationType.OP_FORMULA,OperationType.OP_FILL];
+       const filteredOperations =  operations.filter((op)=>{
+            return operationForBatch.includes(op.type)
+       }); 
+       parsedView.operations = filteredOperations;
+       return parsedView;
+    }
     renderButton(operation, index) {
         const margin = Constants.DEFAULT_MARGIN_BETWEEN_BUTTONS;
         if (!!operation.type) {
@@ -399,7 +406,8 @@ export class BatchContainer extends BaseContainer {
         const operations = this.state?.parsedView?.operations || [];
         return (
             <React.Fragment>
-                {ViewUtils.canViewHeaderPanel(this.state?.parsedView) && <HeadPanel
+                {ViewUtils.canViewHeaderPanel(this.availableOperationsForHeaderPanel()) && 
+                <HeadPanel
                     elementId={this.state.elementId}
                     elementRecordId={this.state.elementRecordId}
                     elementSubViewId={this.state.elementSubViewId}
@@ -510,8 +518,6 @@ export class BatchContainer extends BaseContainer {
             return oldFormula;
         }
     }
-
-    // afterCalculated
     //override
     renderContent = () => {
         return (

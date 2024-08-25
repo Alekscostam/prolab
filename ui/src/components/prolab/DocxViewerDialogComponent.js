@@ -4,8 +4,9 @@ import {useEffect, useRef, useState} from 'react';
 import PropTypes from 'prop-types';
 import LocUtils from '../../utils/LocUtils';
 import PDFViewerComponent from './PDFViewerComponent';
+import DocxViewerComponent from './DocxViewerComponent';
 
-export const PDFViewerDialogComponent = (props) => {
+export const DocxViewerDialogComponent = (props) => {
     const {onHide, labels, file, name} = props;
     const [visible, setVisible] = useState(props.visible);
 
@@ -14,32 +15,32 @@ export const PDFViewerDialogComponent = (props) => {
         setVisible(false);
     };
     const dialogHeader = () => {
-        return <div>{LocUtils.loc(labels, 'Document_pdf', 'Dokument PDF')} - {name}</div>;
+        return <div>{LocUtils.loc(labels, 'Document_docx', 'Dokument docx')} - {name}</div>;
     };
     const dialogFooter =  (
         <div className='mt-1 mb-1 mr-1'>
         </div>
     );
     return (
-        <div>
+        <div className='container'>
             <Dialog
-                className='dialog-pdf'
+                className='dialog-docx'
                 closable={true}
                 header={dialogHeader}
                 blockScroll
                 visible={visible}
-                style={{ overflow: 'hidden !important'}}
+                style={{ overflow: 'hidden !important', maxWidth:"1310px"}}
                 onHide={hideDialog}
                 footer={(dialogFooter)}>
                     <div className='dx-field mt-2'>
-                      <PDFViewerComponent labels={labels} file={file}></PDFViewerComponent>
+                      <DocxViewerComponent labels={labels} file={file}></DocxViewerComponent>
                     </div>
             </Dialog>
         </div>
     );
 };
 
-PDFViewerDialogComponent.defaultProps = {
+DocxViewerDialogComponent.defaultProps = {
     onSave: undefined,
     onHide: undefined,
     labels: undefined,
@@ -49,7 +50,7 @@ PDFViewerDialogComponent.defaultProps = {
     header: '',
 };
 
-PDFViewerDialogComponent.propTypes = {
+DocxViewerDialogComponent.propTypes = {
     onSave: PropTypes.func,
     onHide: PropTypes.func,
     visible: PropTypes.bool,

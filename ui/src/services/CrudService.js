@@ -303,7 +303,18 @@ export default class CrudService extends BaseService {
                 throw err;
             });
     }
+    getStreamResponseBodyFromDownload(viewId, documentId, fileId, fileName){
+        const url = new URL(
+            `${this.domain}/${this.path}/${viewId}/document/${documentId}/download${fileId ? `?fileId=${fileId}` : ''}`
+        );
 
+        return this.fetchFileResponse(url, {
+            method: 'GET',
+        })
+            .catch((err) => {
+                throw err;
+            });
+    }
     refreshFieldVisibility(viewId, recordId, parentId, kindView, element) {
         return this.fetch(
             `${this.getDomain()}/${this.path}/${viewId}/Edit/${recordId}/RefreshFieldVisibility${

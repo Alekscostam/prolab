@@ -1,6 +1,6 @@
 import decode from 'jwt-decode';
 import moment from 'moment';
-import {readObjFromCookieGlobal} from '../utils/Cookie';
+import {canFitInCookie, readObjFromCookieGlobal, saveObjToCookieGlobal} from '../utils/Cookie';
 import ConsoleHelper from '../utils/ConsoleHelper';
 import AppPrefixUtils from '../utils/AppPrefixUtils';
 import {reStateApp} from '../App';
@@ -177,11 +177,15 @@ export default class AuthService {
     isAlreadyTokenNotExist() {
         return StringUtils.isBlank(localStorage.getItem(CookiesName.ID_TOKEN));
     }
-    refresh() {
+    refreshCall(){
         if (this.isAlreadyTokenNotExist()) {
             this.logout();
             return;
         }
+        this.refresh();
+    }
+    //  
+    refresh() {
         return this.fetch(
             `${this.getAndSetDomainIfNeccessery()}/auth/refreshToken`,
             {
@@ -202,11 +206,20 @@ export default class AuthService {
                 return Promise.resolve(res);
             })
             .catch((err) => {
+                const accessToken = localStorage.getItem(CookiesName.ID_TOKEN)
+                const refreshToken = localStorage.getItem(CookiesName.ID_REFRESH_TOKEN)
                 this.removeLoginCookies();
                 const textAfterHash = window.location.href.split('/#/')[1];
                 const onLogoutUrl = !(textAfterHash && textAfterHash.trim() !== '');
                 if (!onLogoutUrl) {
-                    window.location.reload();
+                    localStorage.setItem(CookiesName.ERROR_AFTER_REFRESH, JSON.stringify(err));
+                    console.log(accessToken, "accessToken");
+                    console.log(refreshToken, "refreshToken");
+                    localStorage.setItem(CookiesName.T1, refreshToken)
+                    localStorage.setItem(CookiesName.T2, accessToken)
+                    setTimeout(()=>{
+                        window.location.reload();
+                    },100)
                 }
                 return Promise.reject(err);
             })
@@ -216,8 +229,8 @@ export default class AuthService {
     }
 
     getTranslationParam(language, param) {
-        let frameworkType = 'rd'.toLowerCase();
-        let lang = language.toLowerCase();
+        const frameworkType = 'rd'.toLowerCase();
+        const lang = language.toLowerCase();
         return this.fetch(`${readObjFromCookieGlobal('CONFIG_URL')}/lang/${frameworkType}_translations_${lang}.json`, {
             method: 'GET',
         })
@@ -258,7 +271,10 @@ export default class AuthService {
     }
 
     setToken(idToken, expirationToken, loggedUser, idRefreshToken, sessionTimeoutInMinutes) {
-        // loggedUser.avatar = '';
+        if(!canFitInCookie(loggedUser)){
+            loggedUser.avatar = '';
+            console.log("Avatar have to much size")
+        }
         loggedUser = JSON.stringify(loggedUser);
         localStorage.setItem(CookiesName.ID_TOKEN, idToken);
         localStorage.setItem(CookiesName.EXPIRATION_TOKEN, decode(idToken).exp);
@@ -342,7 +358,15 @@ export default class AuthService {
         try {
             return localStorage.getItem(CookiesName.LOGGED_USER);
         } catch (err) {
-            return {};
+            return {
+                id:'',
+                login:'',
+                name:'',
+                lang:'',
+                sub:'',
+                name:'',
+                avatar:'',
+            }
         }
     }
 

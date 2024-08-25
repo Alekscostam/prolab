@@ -106,9 +106,7 @@ export default class DataPluginStore extends BaseService {
             key: _key,
             keyExpr: 'ID',
             load: (loadOptions) => {
-                // w pluginach liczby cos sie psuja nie wiadomo dlaczego tzn. zamieniaja sie na stringu. Tutaj podmieniamy string, który jest liczba na wartosc liczbowa
                 TransformFiltersUtil.filterValidTransform(loadOptions);
-
                 const filter = loadOptions?.filter;
                 const sort = loadOptions?.sort;
                 const group = loadOptions?.group;

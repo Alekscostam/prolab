@@ -110,7 +110,7 @@ export class EditRowComponent extends BaseRowComponent {
         return (
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
-
+             
                 <EditListComponent
                     visible={editListVisible}
                     field={this.state.editListField}

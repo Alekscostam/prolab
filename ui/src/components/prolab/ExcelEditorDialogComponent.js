@@ -1,11 +1,11 @@
-import {Button, TextBox} from 'devextreme-react';
 import {Dialog} from 'primereact/dialog';
-import {useEffect, useRef, useState} from 'react';
+import {useState} from 'react';
+
 import PropTypes from 'prop-types';
 import LocUtils from '../../utils/LocUtils';
-import PDFViewerComponent from './PDFViewerComponent';
+import ExcelEditorComponent from './ExcelEditorComponent';
 
-export const PDFViewerDialogComponent = (props) => {
+export const ExcelEditorDialogComponent = (props) => {
     const {onHide, labels, file, name} = props;
     const [visible, setVisible] = useState(props.visible);
 
@@ -14,7 +14,7 @@ export const PDFViewerDialogComponent = (props) => {
         setVisible(false);
     };
     const dialogHeader = () => {
-        return <div>{LocUtils.loc(labels, 'Document_pdf', 'Dokument PDF')} - {name}</div>;
+        return <div>{LocUtils.loc(labels, 'Excel', 'Excel')} - {name}</div>;
     };
     const dialogFooter =  (
         <div className='mt-1 mb-1 mr-1'>
@@ -23,23 +23,24 @@ export const PDFViewerDialogComponent = (props) => {
     return (
         <div>
             <Dialog
-                className='dialog-pdf'
+                className='dialog-excel'
                 closable={true}
                 header={dialogHeader}
                 blockScroll
                 visible={visible}
-                style={{ overflow: 'hidden !important'}}
+                style={{ overflow: 'hidden !important', maxWidth:"1600px"}}
+                
                 onHide={hideDialog}
                 footer={(dialogFooter)}>
-                    <div className='dx-field mt-2'>
-                      <PDFViewerComponent labels={labels} file={file}></PDFViewerComponent>
+                    <div className='dx-field mt-4 mb-4'>
+                     <ExcelEditorComponent file={file} ></ExcelEditorComponent>
                     </div>
             </Dialog>
         </div>
     );
 };
 
-PDFViewerDialogComponent.defaultProps = {
+ExcelEditorDialogComponent.defaultProps = {
     onSave: undefined,
     onHide: undefined,
     labels: undefined,
@@ -49,7 +50,7 @@ PDFViewerDialogComponent.defaultProps = {
     header: '',
 };
 
-PDFViewerDialogComponent.propTypes = {
+ExcelEditorDialogComponent.propTypes = {
     onSave: PropTypes.func,
     onHide: PropTypes.func,
     visible: PropTypes.bool,
@@ -58,3 +59,4 @@ PDFViewerDialogComponent.propTypes = {
     header: PropTypes.string,
     labels: PropTypes.object,
 };
+

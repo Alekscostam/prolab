@@ -11,6 +11,7 @@ import LocUtils from '../../utils/LocUtils';
 import CrudService from '../../services/CrudService';
 import BaseRowComponent from '../../baseContainers/BaseRowComponent';
 import {ColumnType} from '../../model/ColumnType';
+import { StringUtils } from '../../utils/StringUtils';
 
 export class DocumentRowComponent extends BaseRowComponent {
     constructor(props) {
@@ -42,18 +43,19 @@ export class DocumentRowComponent extends BaseRowComponent {
         }
         super.componentDidUpdate();
     }
-
-    createObjectToSave(rowArray) {
-        let arrayTmp = [];
+    createObjectToApprove(rowArray) {
+        const booleanShouldBeZero = (row) =>{
+            return StringUtils.isBlank(row.value) || row?.value === false || row?.value === "false" || row?.value === 0 || row?.value === "0"; 
+        }
+        const arrayTmp = [];
         for (let row of rowArray) {
             if (row.type === ColumnType.B) {
-                row.value = row.value === null ? false : row.value;
+                row.value = booleanShouldBeZero(row) ? "0" : "1";
             }
             arrayTmp.push({fieldName: row.fieldName, value: row.value});
         }
         return arrayTmp;
     }
-
     render() {
         const visibleDocumentPanel = this.props.visibleDocumentPanel;
         const inputDataFields = this.props.documentInfo.inputDataFields;
@@ -101,7 +103,7 @@ export class DocumentRowComponent extends BaseRowComponent {
                                 </div>
                             ) : null}
                             {inputDataFields?.map((field, index) => {
-                                return this.renderField(field, index, undefined);
+                                return <div key={index}>{this.renderField(field, index, undefined)}</div> ;
                             })}
                         </div>
                     </form>
@@ -111,10 +113,11 @@ export class DocumentRowComponent extends BaseRowComponent {
     }
 
     handleValidForm() {
-        const data = this.createObjectToSave(this.props.documentInfo.inputDataFields);
+        const data = this.createObjectToApprove(this.props.documentInfo.inputDataFields);
         const info = this.props.documentInfo.info;
         const parentIdArg = info.parentId ? `${info.parentId}` : null;
-        this.props.onSave(data, `${info.viewId}`, `${info.viewObjectId}`, parentIdArg);
+        this.props.onApprove(data, `${info.viewId}`, `${info.viewObjectId}`, parentIdArg);
+        this.props.onHide();
     }
 }
 
@@ -122,15 +125,14 @@ DocumentRowComponent.defaultProps = {};
 
 DocumentRowComponent.propTypes = {
     visibleDocumentPanel: PropTypes.bool.isRequired,
-    editData: PropTypes.object.isRequired,
+    editData: PropTypes.object,
     kindView: PropTypes.string,
     showErrorMessages: PropTypes.func.isRequired,
     onAfterStateChange: PropTypes.func,
     onChange: PropTypes.func.isRequired,
     onBlur: PropTypes.func,
-    onSave: PropTypes.func.isRequired,
+    onApprove: PropTypes.func.isRequired,
     onAutoFill: PropTypes.func.isRequired,
-    onCancel: PropTypes.func.isRequired,
     onEditList: PropTypes.func,
     onHide: PropTypes.func.isRequired,
     validator: PropTypes.instanceOf(SimpleReactValidator).isRequired,

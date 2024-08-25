@@ -963,7 +963,7 @@ class BaseContainer extends React.Component {
                     }
                 } else {
                     if (res.inputDataFields?.length) {
-                        let documentInfo = {
+                        const documentInfo = {
                             inputDataFields: res.inputDataFields,
                             info: res.info,
                         };
@@ -1811,9 +1811,7 @@ class BaseContainer extends React.Component {
         if (UrlUtils.isEditRowView()) {
             this.props.editDataChange(editData);
         } else {
-            setTimeout(()=>{
-                this.setState({editData:editData, modifyEditData: true});
-            },0)
+            this.setState({editData:editData, modifyEditData: true});
         }
     }
     setVariableFromEvent(inputType, event) {

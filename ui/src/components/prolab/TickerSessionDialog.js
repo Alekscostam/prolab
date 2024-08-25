@@ -18,6 +18,7 @@ export const TickerSessionDialog = (props) => {
     let counterStart = true;
     const [seconds, setSeconds] = useState(null);
     const progressBar = useRef();
+    const isMounted = useRef(true);  // Nowa zmienna ref
 
     const onCounterInit = useCallback(() => {
         if (intervalId.current === undefined) {
@@ -44,10 +45,16 @@ export const TickerSessionDialog = (props) => {
 
     useEffect(() => {
         if (counterStart) {
-            onCounterInit();
+            if(isMounted.current ===false){
+                onCounterInit();
+                isMounted.current = true;
+            }
+            ; 
         }
         return () => {
-            clearInterval(intervalId);
+            clearInterval(intervalId);           
+            isMounted.current = false;
+
         };
     }, [props, counterStart, intervalId, onCounterInit]);
 

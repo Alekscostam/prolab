@@ -28,7 +28,6 @@ export class EditListUtils {
         const calculateCRC = hash(objToHash);
         return calculateCRC;
     }
-
     //data structure from API
     static calculateCRCBySetFields(rowData, setFields) {
         const objToHash = EditListUtils.transformBySetFields(rowData, setFields);
@@ -63,6 +62,48 @@ export class EditListUtils {
     static searchField(editData, searchFieldName, callback) {
         callback({value: editData[searchFieldName]});
         return;
+    }
+    static selectedRowData(e, setFields, prevSelectedRowData, multiSelect) {
+        const addMode = !!(e.currentSelectedRowKeys.length !== 0);
+        const currentSelectedRowsData = e.selectedRowsData;
+        const selectedRowsKeys = e.selectedRowKeys;
+        let transformedRowsData = [];
+        let transformedRowsCRC = [];
+        if (multiSelect) {
+            transformedRowsData = prevSelectedRowData;
+            transformedRowsCRC = selectedRowsKeys;
+            if (addMode) {
+                const foundedElementToAdd = currentSelectedRowsData.find(
+                    (el) => el.CALC_CRC === e.currentSelectedRowKeys[0]
+                );
+                const transformedSingleRowData = this.transformBySetFields(foundedElementToAdd, setFields);
+                transformedSingleRowData.forEach(obj=>{
+                    obj.INDEX = foundedElementToAdd.INDEX
+                })
+                const CALC_CRC = this.calculateCRC(transformedSingleRowData);
+                transformedSingleRowData[0].CALC_CRC = CALC_CRC;
+                transformedRowsData.push(transformedSingleRowData);
+            } else {
+                const foundedElementToRemove = prevSelectedRowData.find(
+                    (el) => el[0].CALC_CRC === e.currentDeselectedRowKeys[0]
+                );
+                transformedRowsData = transformedRowsData.filter(
+                    (el) => el[0].CALC_CRC !== foundedElementToRemove[0].CALC_CRC
+                );
+            }
+        } else {
+            for (let selectedRows in currentSelectedRowsData) {
+                let selectedRow = currentSelectedRowsData[selectedRows];
+                let transformedSingleRowData = this.transformBySetFields(selectedRow, setFields);
+                let CALC_CRC = this.calculateCRC(transformedSingleRowData);
+                transformedRowsData.push(transformedSingleRowData);
+                transformedRowsCRC.push(CALC_CRC);
+            }
+        }
+        return {
+            rowsData:transformedRowsData,
+            rowsCrc:transformedRowsCRC,
+        };
     }
 }
 

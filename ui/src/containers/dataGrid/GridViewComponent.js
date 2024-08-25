@@ -377,7 +377,7 @@ class GridViewComponent extends CellEditComponent {
                         />
                     )}
                     <FilterRow visible={showFilterRow} applyFilter={true} />
-                    <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'} />
+                    <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'}  />
                     <Grouping autoExpandAll={groupExpandAll} allowCollapsing={true} contextMenuEnabled={true} />
                     <GroupPanel visible={showGroupPanel} />
                     <Sorting mode='multiple' />

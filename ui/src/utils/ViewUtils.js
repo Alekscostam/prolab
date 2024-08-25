@@ -18,6 +18,5 @@ export class ViewUtils {
             return false;
         }
         return true;
-       
     }
 }

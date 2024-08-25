@@ -35,6 +35,7 @@ import {ConfirmationEditQuitDialog} from './components/prolab/ConfirmationEditQu
 import AppContext from './context/AppContext';
 import {OperationType} from './model/OperationType';
 import {CookiesName} from './model/CookieName';
+import { VersionPreviewDialog } from './components/prolab/VersionPreviewDialog';
 
 // export const
 export let reStateApp;
@@ -53,11 +54,19 @@ class App extends Component {
         this.viewContainer = React.createRef();
         this.editSpecContainer = React.createRef();
         this.state = {
+            configApp:{
+                lang:"PL",
+                renderForgotPassword:false,
+                renderSignIn:false,
+                langs:[],
+            },
             loadedConfiguration: false,
             editData: undefined,
             secondsToPopupTicker: undefined,
             menuItemClickedId: undefined,
             renderEditQuitConfirmDialog: false,
+            renderAboutVersionDialog: false,
+            canRenderAboutVersionDialog: false,
             sidebarClickItemReactionEnabled: true,
             sessionMock: false,
             configUrl: null,
@@ -102,11 +111,10 @@ class App extends Component {
             this.setFakeSeesionTimeout();
         }
         const urlPrefixCookie = readObjFromCookieGlobal('REACT_APP_URL_PREFIX');
-        const configUrl = this.makeConfigUrl(urlPrefixCookie);
+        const configUrl =UrlUtils.makeConfigUrl(urlPrefixCookie);
         this.prelongSeesionByRootClick();
         this.setRestateApp();
         this.setRenderNoRefreshContent();
-        // this.onpopstate();
         this.readConfigAndSaveInCookie(configUrl).catch((err) => {
             console.error('Error start application = ', err);
         });
@@ -125,16 +133,7 @@ class App extends Component {
           }
         };
     }
-    makeConfigUrl(urlPrefix) {
-        let browseUrl = window.location.href;
-        const id = browseUrl.indexOf('/#');
-        if (id > 0) {
-            browseUrl = browseUrl.substring(0, id + 1);
-        }
-        return UrlUtils.notDefinedPrefix(urlPrefix)
-            ? browseUrl
-            : browseUrl.trim().match('^(?:https?:)?(?:\\/\\/)?([^\\/\\?]+)', '')[0] + '/' + urlPrefix;
-    }
+   
 
     setRestateApp() {
         reStateApp = () => {
@@ -181,7 +180,7 @@ class App extends Component {
                     }
                     if (this.isDurationFromSessionTimeoutPositive()) {
                         localStorage.setItem(CookiesName.TOKEN_REFRESHING, true);
-                        this.authService.refresh();
+                        this.authService.refreshCall();
                         return;
                     }
                 } else {
@@ -271,26 +270,40 @@ class App extends Component {
     }
 
     readConfigAndSaveInCookie(configUrl, afterSaveCookiesFnc) {
-        return new ReadConfigService(configUrl).getConfiguration().then((configuration) => {
-            saveObjToCookieGlobal('REACT_APP_BACKEND_URL', configuration.REACT_APP_BACKEND_URL);
-            saveObjToCookieGlobal('REACT_APP_URL_PREFIX', configuration.REACT_APP_URL_PREFIX);
-            saveObjToCookieGlobal('CONFIG_URL', configUrl);
-            if (afterSaveCookiesFnc) {
-                afterSaveCookiesFnc();
-            }
-            this.setState(
-                {
-                    loadedConfiguration: true,
-                    config: configuration,
-                    configUrl: configUrl,
-                },
-                () => {
-                    if (this.authService.loggedIn()) {
-                        this.getLocalization(configUrl);
+            return new ReadConfigService(configUrl).getConfiguration().then((configuration) => {
+                const lang = configuration.LANG;
+                const langs= configuration.LANG_LIST;
+                const renderForgotPassword = !StringUtils.isBlank(configuration?.FORTOGPASSWORD_VIEWID) ;
+                const renderSignIn = !StringUtils.isBlank(configuration?.SIGNIN_VIEWID);
+                const canRenderAboutVersionDialog =!StringUtils.isBlank(configuration?.SHOW_PREVIEW_DIALOG) ? Boolean(configuration?.SHOW_PREVIEW_DIALOG) : false;
+                this.setState({
+                    canRenderAboutVersionDialog:canRenderAboutVersionDialog,
+                    configApp:{
+                        lang,
+                        langs,
+                        renderForgotPassword,
+                        renderSignIn,
                     }
+                })
+                saveObjToCookieGlobal('REACT_APP_BACKEND_URL', configuration.REACT_APP_BACKEND_URL);
+                saveObjToCookieGlobal('REACT_APP_URL_PREFIX', configuration.REACT_APP_URL_PREFIX);
+                saveObjToCookieGlobal('CONFIG_URL', configUrl);
+                if (afterSaveCookiesFnc) {
+                    afterSaveCookiesFnc();
                 }
-            );
-        });
+                this.setState(
+                    {
+                        loadedConfiguration: true,
+                        config: configuration,
+                        configUrl: configUrl,
+                    },
+                    () => {
+                        if (this.authService.loggedIn()) {
+                            this.getLocalization(configUrl);
+                        }
+                    }
+                );
+            });
     }
 
     handleLogoutUser(forceByButton, labels) {
@@ -316,14 +329,12 @@ class App extends Component {
             }
         }
     }
-
     handleLogoutBySideBar() {
         this.authService.logout();
         if (this.state.user) {
             this.setState({user: null, renderNoRefreshContent: false});
         }
     }
-
     getLocalization(configUrl) {
         this.localizationService.reConfigureDomain();
         if (this.authService.loggedIn()) {
@@ -341,7 +352,6 @@ class App extends Component {
             this.getTranslations(configUrl, 'pl');
         }
     }
-
     getTranslations(configUrl, language) {
         const localizationService = new LocalizationService(configUrl);
         localizationService.getTranslationsFromFile('rd', language.toLowerCase()).then((res) => {
@@ -369,18 +379,6 @@ class App extends Component {
             });
         });
     }
-
-    readTextFile(file, callback) {
-        let rawFile = new XMLHttpRequest();
-        rawFile.overrideMimeType('application/json');
-        rawFile.open('GET', file, true);
-        rawFile.onreadystatechange = function () {
-            if (rawFile.readyState === 4 && rawFile.status === '200') {
-                callback(rawFile.responseText);
-            }
-        };
-        rawFile.send(null);
-    }
     canRenderLogin = () => {
         const isLoggedUser =this.authService.isLoggedUser();
         if(isLoggedUser){
@@ -404,8 +402,9 @@ class App extends Component {
         return (
             <Login
                 {...props}
+                appState={this.state}
                 onAfterLogin={() => {
-                    const configUrl = this.makeConfigUrl('');
+                    const configUrl = UrlUtils.makeConfigUrl('');
                     this.readConfigAndSaveInCookie(configUrl, () => {
                         sessionStorage.setItem(CookiesName.LOGGED_IN, true);
                         this.setState(
@@ -479,7 +478,7 @@ class App extends Component {
         if (!UrlUtils.isLoginPage() && !UrlUtils.isEditRowView()) {
             const prosidebar = document.getElementsByClassName('pro-sidebar');
             if (prosidebar.length === 0 && !UrlUtils.isStartPage()) {
-                this.authService.refresh();
+                this.authService.refreshCall();
             }
             if (this.authService.isLoggedUser()) {
                 return true;
@@ -503,6 +502,7 @@ class App extends Component {
         }
         return null;
     }
+
     render() {
         const authService = this.authService;
         const {labels} = this.state;
@@ -510,6 +510,11 @@ class App extends Component {
 
         return (
             <React.Fragment>
+                {(this.state.renderAboutVersionDialog && this.state.canRenderAboutVersionDialog) && <VersionPreviewDialog onHide={()=>{
+                    this.setState({
+                        renderAboutVersionDialog:false
+                    }) 
+                }} ></VersionPreviewDialog>}
                     {this.state.rednerSessionTimeoutDialog && (
                         <TickerSessionDialog
                             secondsToPopup={this.state.secondsToPopupTicker}
@@ -595,6 +600,12 @@ class App extends Component {
                                         onShowEditQuitConfirmDialog={(menuItemClickedId) =>
                                             this.onShowEditQuitConfirmDialog(menuItemClickedId)
                                         }
+                                        onShowAboutVersionDialog={()=>{
+                                           this.setState({
+                                               renderAboutVersionDialog:true
+
+                                           })
+                                        }}
                                         onClickItemHrefReactionEnabled={this.state.sidebarClickItemReactionEnabled}
                                         labels={this.state.labels}
                                         collapsed={true}
