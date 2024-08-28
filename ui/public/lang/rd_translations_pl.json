@@ -3,6 +3,7 @@
         {"code": "Login_SigninError", "caption": "Błąd logowania"},
         {"code": "Login_ConnectionError", "caption": "Nie można nawiązać połączenia z serwerem"},
         {"code": "Login_UserName", "caption": "Nazwa użytkownika"},
+        {"code": "Selection_List_Label", "caption": "Lista podpowiedzi"},
         {"code": "Login_Password", "caption": "Hasło"},
         {"code": "Login_Signin", "caption": "Zaloguj się"},
         {"code": "Login_Signup", "caption": "Stwórz profil"},

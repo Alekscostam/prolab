@@ -217,14 +217,19 @@ export default class AuthService {
                     console.log(refreshToken, "refreshToken");
                     localStorage.setItem(CookiesName.T1, refreshToken)
                     localStorage.setItem(CookiesName.T2, accessToken)
+                    const expirationTokenDateStr = localStorage.getItem(CookiesName.EXPIRATION_TOKEN);
+                    const xdddd =  new Date((expirationTokenDateStr * 1000)  );
+                    const xdddd2 =  new Date(Date.now() );
+                    localStorage.setItem(CookiesName.D1, xdddd.toString())
+                    localStorage.setItem(CookiesName.D2, xdddd2.toString())
                     setTimeout(()=>{
+                        localStorage.removeItem(CookiesName.TOKEN_REFRESHING);
                         window.location.reload();
                     },100)
+                }else{
+                    localStorage.removeItem(CookiesName.TOKEN_REFRESHING);
                 }
                 return Promise.reject(err);
-            })
-            .finally(() => {
-                localStorage.removeItem(CookiesName.TOKEN_REFRESHING);
             });
     }
 

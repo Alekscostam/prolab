@@ -2,7 +2,8 @@
     "labels": [
         {"code": "Login_SigninError", "caption": "Login Error"},
         {"code": "Login_ConnectionError", "caption": "Could not connect to the server"},
-        {"code": "Login_UserName", "caption": "Username"},
+        {"code": "Login_UserName", "caption": "Username"},        
+        {"code": "Selection_List_Label", "caption": "List of hints"},
         {"code": "Login_Password", "caption": "Password"},
         {"code": "Login_Signin", "caption": "Sign In"},
         {"code": "Login_Signup", "caption": "Sign Up"},

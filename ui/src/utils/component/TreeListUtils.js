@@ -98,14 +98,15 @@ export const MemoizedText = React.memo(
                         disabled={!field.edit}
                         valueChangeEvent={'keyup'}
                         onValueChanged={(e) => {
-                            onValueFromEventChanged(e);
                             switch (required) {
                                 case true:
                                     if (e.value !== '') {
+                                        onValueFromEventChanged(e);
                                         cellInfo.setValue(e.value);
                                     }
                                     break;
                                     default:
+                                        onValueFromEventChanged(e);
                                         cellInfo.setValue(e.value);
                                         break;
                                     }

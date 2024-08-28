@@ -209,7 +209,7 @@ export class BaseViewContainer extends BaseContainer {
             });
         }
     }
-
+// czasami tutaj leci w nieskonczonosc update
     componentDidUpdate(prevProps, prevState, snapshot) {
         let id = UrlUtils.getIdFromUrl();
         if (id === undefined) {
@@ -241,6 +241,15 @@ export class BaseViewContainer extends BaseContainer {
             !DataGridUtils.equalNumbers(this.state.elementRecordId, recordId);
 
         if (updatePage || this.state?.attachmentCloseWindow) {
+            console.log(
+                "view updating: force {}, elementId matches: {}, subViewId matches: {}, fromSubviewToFirstSubView: {}, filterId matches: {}, recordId matches: {}",
+                !!force,
+                !DataGridUtils.equalNumbers(this.state.elementId, id),
+                (!firstSubViewMode && !DataGridUtils.equalNumbers(this.state.elementSubViewId, subViewId)),
+                fromSubviewToFirstSubView,
+                !DataGridUtils.equalNumbers(this.state.elementFilterId, filterId),
+                !DataGridUtils.equalNumbers(this.state.elementRecordId, recordId)
+            ); 
             const newUrl = UrlUtils.deleteParameterFromURL(window.document.URL.toString(), 'force');
             window.history.replaceState('', '', newUrl);
             this.setState(
@@ -722,10 +731,10 @@ export class BaseViewContainer extends BaseContainer {
                 visibleDocumentPanel: false,
             });
         }
-        const isPreview =  StringUtils.isBlank(info?.isPreview) ? false : info.isPreview;
-        if(isPreview){
-            this.showDocumentViewer(viewId, elementId, fileId, fileName)
-        }
+        // const isPreview =  StringUtils.isBlank(info?.isPreview) ? false : info.isPreview;
+        // if(isPreview){
+        //     this.showDocumentViewer(viewId, elementId, fileId, fileName)
+        // }
         this.unblockUi();
     }
     showDocumentViewer = (viewId, elementId, fileId, fileName) =>{
@@ -749,11 +758,13 @@ export class BaseViewContainer extends BaseContainer {
         const fileId = info?.fileId;
         const isEdit = StringUtils.isBlank(info?.isEdit) ? false : info.isEdit ;
         const isDownload =  StringUtils.isBlank(info?.isDownload) ? false : info.isDownload;
+        const isPreview =  StringUtils.isBlank(info?.isPreview) ? false : info.isPreview;
+
         if(StringUtils.isBlank(fileId) || fileId === "0" || fileId === 0){
             return false;
         }
         // return true;
-        return isEdit || isDownload;
+        return isEdit || isDownload || isPreview;
     }
     //override
     renderHeaderRight() {

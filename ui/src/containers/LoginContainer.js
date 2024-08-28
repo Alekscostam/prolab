@@ -124,7 +124,8 @@ class LoginContainer extends BaseContainer {
            const cookieError =  localStorage.getItem(CookiesName.ERROR_AFTER_REFRESH)
             if(cookieError){
                 const error = JSON.parse(cookieError);
-                this.showGlobalErrorMessage(error);
+                console.error(error, "ERROR")
+                // this.showGlobalErrorMessage(error);
                 localStorage.removeItem(CookiesName.ERROR_AFTER_REFRESH);
             }
         },1500)
@@ -361,14 +362,14 @@ class LoginContainer extends BaseContainer {
                                                                     onChange={() => {
                                                                     }}
                                                                 /> */}
-                                                        {this.state.renderSignIn && <div>
+                                                        <div>
                                                             <ActionButton
                                                                     label={labels['Login_Signin']}
                                                                     className='mt-4'
                                                                     variant='login-button'
                                                                     handleClick={this.handleFormSubmit}
                                                                 />
-                                                                <div className='mt-4'>
+                                                             {this.state.renderSignIn &&    <div className='mt-4'>
                                                                     <p className='font-normal text-center'>
                                                                         {labels['Login_Signup_Info']}&nbsp;
                                                                         <ActionLink
@@ -376,8 +377,8 @@ class LoginContainer extends BaseContainer {
                                                                             label={labels['Login_Signup']}
                                                                         />
                                                                     </p>
-                                                                </div>
-                                                         </div>}
+                                                                </div>}
+                                                         </div>
                                                         </form>
                                                     </div>
                                                 </div>

@@ -386,7 +386,7 @@ class CellEditComponent extends Component {
                                 result = result.replace(/(\d+)\.(\d*\.)+/g, '$1.$2').replace(/(\d*\.\d*)\./g, '$1'); //Usunięcie nadmiarowych kropek w liczbach
                                 return result;
                             }
-                            return undefined;
+                            return value;
                         }}
                         selectionList={selectionList}
                         onOperationClick={onOperationClick}
