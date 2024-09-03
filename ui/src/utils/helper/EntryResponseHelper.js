@@ -15,6 +15,7 @@ EntryResponseHelper.run = (entryResponse, accept, reject, unblockUi) => {
         }
         const confirmDialogWrapper = document.createElement('div');
         document.body.appendChild(confirmDialogWrapper);
+        confirmDialogWrapper.className="confirm-dialog";
         ReactDOM.render(
             <ConfirmDialog
                 closable={false}

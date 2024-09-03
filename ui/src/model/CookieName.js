@@ -10,8 +10,4 @@ export const CookiesName = {
     MENU: 'menu',
     VERSION_API: 'versionAPI',
     TOKEN_REFRESHING: 'token_refreshing',
-    T1: 'T1',
-    T2: 'T2',
-    D1: 'D1',
-    D2: 'D2',
 };

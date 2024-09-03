@@ -38,6 +38,7 @@ import {CookiesName} from './model/CookieName';
 import { VersionPreviewDialog } from './components/prolab/VersionPreviewDialog';
 
 // export const
+export let clearState;
 export let reStateApp;
 export let renderNoRefreshContentFnc;
 export let sessionPrelongFnc = null;
@@ -114,7 +115,9 @@ class App extends Component {
         const configUrl =UrlUtils.makeConfigUrl(urlPrefixCookie);
         this.prelongSeesionByRootClick();
         this.setRestateApp();
+        this.setClearState();
         this.setRenderNoRefreshContent();
+        this.showSessionTimeoutIfPossible();
         this.readConfigAndSaveInCookie(configUrl).catch((err) => {
             console.error('Error start application = ', err);
         });
@@ -140,6 +143,20 @@ class App extends Component {
             this.forceUpdate();
         };
     }
+    setClearState() {
+        clearState = () => {
+            this.setState({
+                renderEditQuitConfirmDialog: false,
+                renderAboutVersionDialog: false,
+            }, ()=>{
+                setTimeout(()=>{
+                    clearTimeout(this.timer);
+                    this.timer = undefined;
+                },100)
+            })
+
+        };
+    }
     setRenderNoRefreshContent() {
         renderNoRefreshContentFnc = () => {
             this.setState({
@@ -163,33 +180,25 @@ class App extends Component {
         bodyApp.addEventListener('keydown', eventForSessionPrelong);
         root.addEventListener('keydown', eventForSessionPrelong);
    }
-    showSessionTimeoutIfPossible() {
+    showSessionTimeoutIfPossible = () => {
         if (this.timer === undefined || this.timer === null) {
             this.timer = setInterval(() => {
-                const isExpired = this.authService.isTokenExpiredDate();
+                const isLoggedUser = this.authService.isLoggedUser();
                 const textAfterHash = window.location.href.split('/#/')[1];
                 const onLogoutUrl = !(textAfterHash && textAfterHash.trim() !== '');
-                if (isExpired) {
-                    const isNotLoggedIn = !this.authService.isLoggedUser();
-                    if (isNotLoggedIn || onLogoutUrl) {
+                if(isLoggedUser){
+                    this.showSessionTimedOut();
+                }else{
+                    if (onLogoutUrl || !isLoggedUser) {
                         this.authService.logout();
                         return;
                     }
                     if (localStorage.getItem(CookiesName.TOKEN_REFRESHING)) {
                         return;
                     }
-                    if (this.isDurationFromSessionTimeoutPositive()) {
-                        localStorage.setItem(CookiesName.TOKEN_REFRESHING, true);
-                        this.authService.refreshCall();
-                        return;
-                    }
-                } else {
-                    if (this.authService.isLoggedUser()) {
-                        this.showSessionTimedOut();
-                    } else {
-                        this.authService.logout();
-                    }
+                    
                 }
+              
             }, 1000);
         }
     }
@@ -249,6 +258,7 @@ class App extends Component {
     componentWillUnmount() {
         this.unregisteredEventForSession();
         clearTimeout(this.timer);
+        this.timer = undefined;
         this.authService.removeLoginCookies();
     }
     unregisteredEventForSession() {
@@ -395,7 +405,6 @@ class App extends Component {
         if(!UrlUtils.isStartPage()){
             window.location.href = window.location.href + "start"
         }
-        
     }
 
     renderLoginContainer(props) {   

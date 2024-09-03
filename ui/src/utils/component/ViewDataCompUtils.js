@@ -3,6 +3,7 @@ import moment from 'moment';
 import ConsoleHelper from '../ConsoleHelper';
 import LocUtils from '../LocUtils';
 import {ColumnType} from '../../model/ColumnType';
+import { StringUtils } from '../StringUtils';
 
 export class ViewDataCompUtils {
     static getOpButton(operations, type) {
@@ -148,6 +149,9 @@ export class ViewDataCompUtils {
             (n2 === null || n2 === undefined || n2 === 'undefined')
         ) {
             // ConsoleHelper('equalNumbers: result=' + true + ' {' + n1 + ', ' + n2 + '}' );
+            return true;
+        }
+        if(StringUtils.isEmptyString(n1) && StringUtils.isEmptyString(n2)){
             return true;
         }
         let num1, num2;

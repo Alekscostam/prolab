@@ -11,6 +11,9 @@ export class StringUtils {
     static isEmpty(value) {
         return value.trim() === '';
     }
+    static isEmptyString(value){
+        return typeof value === 'string' && value === '';
+    }
     static isNumber(value) {
         return !isNaN(parseFloat(value)) && isFinite(value);
     }

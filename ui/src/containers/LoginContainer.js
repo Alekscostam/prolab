@@ -109,6 +109,7 @@ class LoginContainer extends BaseContainer {
 
     componentDidMount() {
         super.componentDidMount();
+        this.removeElementsAfterLogOut();
         this._isMounted = false;
         this.authService.removeLoginCookies();
         const values = queryString.parse(this.props.location.search);
@@ -118,6 +119,14 @@ class LoginContainer extends BaseContainer {
     }
     componentDidUpdate(){
         super.componentDidUpdate();
+    }
+    removeElementsAfterLogOut = () => {
+     const dialogs =  Array.from(document.getElementsByClassName("confirm-dialog"));   
+     if(dialogs.length !== 0 ){
+        dialogs.forEach(d=>{
+            document.body.removeChild(d);
+        })
+     }
     }
     getErrorCookieMessage = () => {
         setTimeout(()=>{

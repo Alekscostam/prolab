@@ -4,6 +4,7 @@ import {canFitInCookie, readObjFromCookieGlobal, saveObjToCookieGlobal} from '..
 import ConsoleHelper from '../utils/ConsoleHelper';
 import AppPrefixUtils from '../utils/AppPrefixUtils';
 import {reStateApp} from '../App';
+import {clearState} from '../App';
 import {CookiesName} from '../model/CookieName';
 import {StringUtils} from '../utils/StringUtils';
 
@@ -206,22 +207,11 @@ export default class AuthService {
                 return Promise.resolve(res);
             })
             .catch((err) => {
-                const accessToken = localStorage.getItem(CookiesName.ID_TOKEN)
-                const refreshToken = localStorage.getItem(CookiesName.ID_REFRESH_TOKEN)
                 this.removeLoginCookies();
                 const textAfterHash = window.location.href.split('/#/')[1];
                 const onLogoutUrl = !(textAfterHash && textAfterHash.trim() !== '');
                 if (!onLogoutUrl) {
                     localStorage.setItem(CookiesName.ERROR_AFTER_REFRESH, JSON.stringify(err));
-                    console.log(accessToken, "accessToken");
-                    console.log(refreshToken, "refreshToken");
-                    localStorage.setItem(CookiesName.T1, refreshToken)
-                    localStorage.setItem(CookiesName.T2, accessToken)
-                    const expirationTokenDateStr = localStorage.getItem(CookiesName.EXPIRATION_TOKEN);
-                    const xdddd =  new Date((expirationTokenDateStr * 1000)  );
-                    const xdddd2 =  new Date(Date.now() );
-                    localStorage.setItem(CookiesName.D1, xdddd.toString())
-                    localStorage.setItem(CookiesName.D2, xdddd2.toString())
                     setTimeout(()=>{
                         localStorage.removeItem(CookiesName.TOKEN_REFRESHING);
                         window.location.reload();
@@ -276,7 +266,7 @@ export default class AuthService {
     }
 
     setToken(idToken, expirationToken, loggedUser, idRefreshToken, sessionTimeoutInMinutes) {
-        if(!canFitInCookie(loggedUser)){
+        if(!canFitInCookie(loggedUser?.avatar)){
             loggedUser.avatar = '';
             console.log("Avatar have to much size")
         }
@@ -341,8 +331,8 @@ export default class AuthService {
         this.removeLoginCookies();
         window.location.href = AppPrefixUtils.locationHrefUrl('/#/');
         setTimeout(() => {
-            if (reStateApp) {
-                reStateApp();
+            if (clearState) {
+                clearState();
             }
         }, 100);
     }

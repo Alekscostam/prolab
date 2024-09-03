@@ -3,6 +3,7 @@ import AuthService from "../services/AuthService";
 import * as PropTypes from "prop-types";
 import Address from "./Address";
 import ConsoleHelper from "../utils/ConsoleHelper";
+import { CookiesName } from '../model/CookieName';
 
 
 class AuthComponent extends React.Component {
@@ -19,9 +20,7 @@ class AuthComponent extends React.Component {
         let {
             roles, viewMode, historyBrowser
         } = this.props;
-        if (!this.authService.loggedIn()) {
-            this.props.handleLogout(false);
-        } else {
+       
             const userRoles = this.authService.getRoles();
             let authorized = false;
             if (roles !== undefined && roles !== null) {
@@ -47,13 +46,11 @@ class AuthComponent extends React.Component {
             } else {
                 historyBrowser.replace('/403');
             }
-        }
+       
     }
 
     componentDidUpdate() {
-        if (!this.authService.loggedIn()) {
-            this.props.handleLogout();
-        }
+       
     }
 
     render() {

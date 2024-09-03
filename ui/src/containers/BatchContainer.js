@@ -524,7 +524,7 @@ export class BatchContainer extends BaseContainer {
             <React.Fragment>
                 {this.state.loading ? null : (
                     <React.Fragment>
-                        <ConfirmationEditQuitDialog
+                        {this.state.renderConfirmationEditQuitDialog && <ConfirmationEditQuitDialog
                             onHide={() => {
                                 this.setState({
                                     renderConfirmationEditQuitDialog: false,
@@ -533,7 +533,8 @@ export class BatchContainer extends BaseContainer {
                             visible={this.state.renderConfirmationEditQuitDialog}
                             labels={this.props.labels}
                             onAccept={this.batchCancel}
-                        />
+                        />}
+                        
                         <GridViewComponent
                             altAndLeftClickEnabled={false}
                             handleSaveAction={() => this.handleSaveAction()}

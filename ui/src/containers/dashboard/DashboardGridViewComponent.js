@@ -246,6 +246,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                             onHide={(e, viewId, recordId, parentId) => {
                                 if (!!this.state.modifyEditData) {
                                     const confirmDialogWrapper = document.createElement('div');
+                                    confirmDialogWrapper.className="confirm-dialog";
                                     document.body.appendChild(confirmDialogWrapper);
                                     ReactDOM.render(
                                         <ConfirmDialog

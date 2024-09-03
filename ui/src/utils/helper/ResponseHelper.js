@@ -51,6 +51,7 @@ ResponseHelper.run = (response, nokAcceptFnc, okAcceptFnc, resErrorMessage, onAf
 function renderConfirmDialog(message, header, icon, onAccept, isQuestionDialog = false) {
     const confirmDialogWrapper = document.createElement('div');
     confirmDialogWrapper.classList.add('confirm-dialog-wrapper');
+    confirmDialogWrapper.classList.add('confirm-dialog');
     document.body.appendChild(confirmDialogWrapper);
     ReactDOM.render(
         <ConfirmDialog

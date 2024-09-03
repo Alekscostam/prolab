@@ -6,7 +6,7 @@ import {Button} from 'primereact/button';
 
 export const ConfirmationEditQuitDialog = (props) => {
     const {onHide, onAccept, visible, labels} = props;
-
+    
     const dialogFooter = (
         <React.Fragment>
             <div>
@@ -26,7 +26,7 @@ export const ConfirmationEditQuitDialog = (props) => {
                     label={LocUtils.loc(labels, 'Confirm_yes', 'Tak')}
                 />
             </div>
-        </React.Fragment>
+        </React.Fragment> 
     );
 
     const dialogHeader = (

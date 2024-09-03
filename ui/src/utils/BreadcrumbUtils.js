@@ -2,6 +2,7 @@ import React from 'react';
 import AppPrefixUtils from './AppPrefixUtils';
 import UrlUtils from './UrlUtils';
 import ConsoleHelper from './ConsoleHelper';
+import hash from 'object-hash';
 
 const BREADCRUMB_URL_PARAM_NAME = 'bc';
 const TIMESTAMP_URL_PARAM_NAME = 'ts';
@@ -42,7 +43,6 @@ export class Breadcrumb {
 
     static updateView(viewInfo, viewId, recordId) {
         const sidebar = window.sidebarRef;
-
         if (sidebar && typeof sidebar.current?.props?.onCustomClose === 'function') {
             sidebar.current?.props?.onCustomClose();
         }
@@ -50,15 +50,15 @@ export class Breadcrumb {
         let breadcrumb = this.readFromUrl();
         let currentUrl = window.document.URL.toString();
         breadcrumb = this.cutBreadcrumpToURL(breadcrumb, currentUrl);
-        if (viewInfo) {
-            if (viewInfo.menu) {
+        if (viewInfo) {                
+            if (viewInfo.menu) {                
                 breadcrumb = [];
                 breadcrumb.push({name: viewInfo.menu.name, id: viewInfo.menu.id, type: 'menu'});
                 if (viewInfo.menu?.sub) {
                     this.pushSubView(viewInfo.menu?.sub, breadcrumb);
                 }
             }
-            if (breadcrumb?.filter((i) => i.id === viewInfo.id && i.type === 'view').length === 0) {
+            if ( breadcrumb?.filter((i) => i.id === viewInfo.id && i.type === 'view').length === 0) {
                 const last = breadcrumb.length > 0 ? breadcrumb[breadcrumb.length - 1] : null;
                 if (last && last.type === 'view') {
                     breadcrumb.pop();
@@ -68,6 +68,12 @@ export class Breadcrumb {
                 path = AppPrefixUtils.locationHrefUrl(path.substring(id > 0 ? id : 0));
                 path = UrlUtils.deleteParameterFromURL(path, TIMESTAMP_URL_PARAM_NAME);
                 path = UrlUtils.deleteParameterFromURL(path, BREADCRUMB_URL_PARAM_NAME);
+                breadcrumb.push({name: viewInfo.name, id: viewInfo.id, type: 'view', path});
+            }
+            if(UrlUtils.isBatch()){
+                let path = window.document.URL.toString();
+                const id = path.indexOf('/#');
+                path = AppPrefixUtils.locationHrefUrl(path.substring(id > 0 ? id : 0));
                 breadcrumb.push({name: viewInfo.name, id: viewInfo.id, type: 'view', path});
             }
         }
@@ -80,6 +86,18 @@ export class Breadcrumb {
 
         ConsoleHelper('Breadcrumb::updateView, newUrl', newUrl);
         window.history.replaceState('', '', newUrl);
+    }
+    static pushForBatch(viewInfo, breadcrumb){
+        breadcrumb = breadcrumb ?? [];
+        let path = window.document.URL.toString();
+        const id = path.indexOf('/#');
+        path = AppPrefixUtils.locationHrefUrl(path.substring(id > 0 ? id : 0));
+        const currentObj ={name: viewInfo.name, id: viewInfo.id, type: 'view', path};
+       const foundedElement =  breadcrumb.find(b=>hash(b) === hash(currentObj));
+       if(!foundedElement){
+           breadcrumb.push(currentObj);
+       }
+
     }
 
     static updateSubView(subViewResponse, subViewId) {

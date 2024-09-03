@@ -405,7 +405,7 @@ export class BaseViewContainer extends BaseContainer {
                 const selectedRowKeys = this.state.selectedRowKeys;
                 saveObjToCookieGlobal('selectedRowKeys', selectedRowKeys);
                 window.location.href = AppPrefixUtils.locationHrefUrl(
-                    `/#/batch/${id}?batchId=${elementId}&parentId=${parentIdArg}`
+                    `/#/batch/${id}?batchId=${elementId}&parentId=${parentIdArg}&bc=${UrlUtils.getBc()}`
                 );
                 break;
             case OperationType.OP_DOCUMENTS:
@@ -456,6 +456,7 @@ export class BaseViewContainer extends BaseContainer {
                         onHide={(e, viewId, recordId, parentId) => {
                             if (!!this.state.modifyEditData) {
                                 const confirmDialogWrapper = document.createElement('div');
+                                confirmDialogWrapper.className="confirm-dialog";
                                 document.body.appendChild(confirmDialogWrapper);
                                 ReactDOM.render(
                                     <ConfirmDialog

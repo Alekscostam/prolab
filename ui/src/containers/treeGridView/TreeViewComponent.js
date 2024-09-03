@@ -837,21 +837,27 @@ class TreeViewComponent extends CellEditComponent {
         }
         return false
     }
+    paintCalculated(cellInfo){
+        if(StringUtils.isNumber(cellInfo?.row?.dataIndex)){
+            const rows =  Array.from(document.querySelectorAll('tr[aria-rowindex="' + Number(cellInfo.row?.dataIndex +1)  + '"]'));
+            const penultimateElement = rows[rows.length - 2]; 
+            if(penultimateElement){
+                if(!StringUtils.isBlank(cellInfo?.column?.headerId)){
+                    const elements = Array.from(penultimateElement.children).filter(child => child.getAttribute('aria-describedby') === cellInfo.column.headerId);
+                    if(elements.length!==0){
+                       const element =  elements[0];
+                        element.classList.add('calculated-cell-bakcground');
+                        element.style.setProperty('background', '#93ffb8', 'important');
+                    }
+                }
+            }
+        }
+    }
     cellRenderSpecial(cellInfo) {
         try {
             let _bgColor;
             if (cellInfo.data?.FORMULA && this.isWart(cellInfo?.column?.dataField)) { 
-                const elements = Array.from(
-                    document.querySelectorAll('td[aria-describedby="' + cellInfo.column.headerId + '"]')
-                ).filter((el) => {
-                    return !el.ariaLabel;
-                });
-                const element = elements[cellInfo.rowIndex];
-                if (element.parentNode.rowIndex === cellInfo.rowIndex) {
-                    element.classList.add('calculated-cell-bakcground');
-                    element.style.setProperty('background', '#93ffb8', 'important');
-
-                }
+                this.paintCalculated(cellInfo)
             } else {
                 _bgColor = cellInfo.data['_BGCOLOR'];
             }
