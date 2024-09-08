@@ -62,7 +62,6 @@ class BaseContainer extends React.Component {
         this.handleGetDetailsError = this.handleGetDetailsError.bind(this);
         this.renderGlobalTop = this.renderGlobalTop.bind(this);
         this.handleEditRowChange = this.handleEditRowChange.bind(this);
-        this.handleLogoutUser = this.handleLogoutUser.bind(this);
         this.handleEditRowSave = this.handleEditRowSave.bind(this);
         this.handleEditRowBlur = this.handleEditRowBlur.bind(this);
         this.handleAutoFillRowChange = this.handleAutoFillRowChange.bind(this);
@@ -96,34 +95,11 @@ class BaseContainer extends React.Component {
     componentDidMount() {
         window.addEventListener('beforeunload', function () {});
         this._isMounted = true;
-        if (!this.jwtRefreshBlocked && this.authService.loggedIn()) {
-            if (this.authService.isTokenExpiredDate()) {
-                this.refreshFromAuthService();
-            }
-        }
         this.scrollToError = false;
         // eslint-disable-next-line no-undef
         $(window).off('beforeunload');
         // eslint-disable-next-line no-undef
         $(window).unbind();
-    }
-
-    refreshJwtToken() {
-        if (!this.jwtRefreshBlocked && this.authService.loggedIn() && this.authService.isTokenValidForRefresh()) {
-            this.refreshFromAuthService();
-        }
-    }
-
-    refreshFromAuthService() {
-        this.jwtRefreshBlocked = true;
-        this.authService
-            .refresh()
-            .then(() => {
-                this.jwtRefreshBlocked = false;
-            })
-            .catch((err) => {
-                this.jwtRefreshBlocked = false;
-            });
     }
 
     getTranslationParam(language, param) {
@@ -132,23 +108,18 @@ class BaseContainer extends React.Component {
         return this.fetch(`${readObjFromCookieGlobal('CONFIG_URL')}/lang/${frameworkType}_translations_${lang}.json`, {
             method: 'GET',
         })
-            .then((arr) => {
-                return Promise.resolve(arr.labels.find((el) => el.code.toLowerCase() === param.toLowerCase()));
-            })
-            .catch((err) => {
-                throw err;
-            });
+        .then((arr) => {
+            return Promise.resolve(arr.labels.find((el) => el.code.toLowerCase() === param.toLowerCase()));
+        })
+        .catch((err) => {
+            throw err;
+        });
     }
     componentDidUpdate() {
-        this.refreshJwtToken();
         if (this.scrollToError) {
             this.scrollToError = false;
             this.scrollToFirstError();
         }
-    }
-
-    handleLogoutUser() {
-        this.authService.logout();
     }
 
     componentWillUnmount() {

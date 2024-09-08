@@ -10,13 +10,12 @@ class BackgroundComponent extends Component {
 	}
 
 	render() {
-		let backgroundStyle;
-		backgroundStyle = {
+		const backgroundStyle = {
 			backgroundImage: `url(${this.loginBackGroundImgSrc})`,
 			backgroundSize: 'cover',
 			backgroundRepeat: 'no-repeat',
 		};
-		let containerClassName = this.auth.loggedIn() ? 'container-fluid flex-fill-after-login' : 'container-fluid flex-fill';
+		let containerClassName = this.auth.isLoggedUser() ? 'container-fluid flex-fill-after-login' : 'container-fluid flex-fill';
 		return (
 			<React.Fragment>
 				<main id='main-login' className={containerClassName} style={backgroundStyle}>

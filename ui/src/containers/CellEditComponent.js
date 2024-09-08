@@ -505,7 +505,6 @@ class CellEditComponent extends Component {
                         cellInfo,
                     });
                 }
-
                 return null;
             case ColumnType.IM: //IM – Obrazki
             case ColumnType.I: //I – Obrazek

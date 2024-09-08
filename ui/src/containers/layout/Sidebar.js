@@ -52,7 +52,6 @@ class Sidebar extends React.Component {
         this.handleFilter = this.handleFilter.bind(this);
         this.handleCollapseChange = this.handleCollapseChange.bind(this);
     }
-    // TODO: podejrzany błędu
     componentDidMount() {
         ConsoleHelper('sidebar => componentDidMount');
         if (!localStorage.getItem(CookiesName.MENU) || this.state?.menu?.length === 0) {
@@ -251,7 +250,7 @@ class Sidebar extends React.Component {
         ConsoleHelper('sidebar => render', this.state.viewId);
         let {authService} = this.props;
         const {collapsed, filterValue} = this.state;
-        const loggedIn = authService.loggedIn();
+        const loggedIn = authService.isLoggedUser();
         $(document).on('click', '.pro-inner-item', function () {
             $('.pro-inner-item').each(function () {
                 $(this).removeClass('active');
@@ -354,7 +353,7 @@ class Sidebar extends React.Component {
                 </SidebarContent>
             );
         };
-        if (!authService.loggedIn()) {
+        if (!authService.isLoggedUser()) {
             return null;
         }
         const {labels} = this.props;

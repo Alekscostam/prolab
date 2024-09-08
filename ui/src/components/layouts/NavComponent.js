@@ -90,7 +90,7 @@ class NavComponent extends Component {
 	}
 
 	render() {
-		if (this.authService.loggedIn()) {
+		if (this.authService.isLoggedUser()) {
 			return this.renderAfterAuth();
 		} else {
 			return this.renderBeforeAuth();

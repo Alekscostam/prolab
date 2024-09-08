@@ -50,7 +50,6 @@ class AuthComponent extends React.Component {
     }
 
     componentDidUpdate() {
-       
     }
 
     render() {

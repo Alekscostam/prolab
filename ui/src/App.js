@@ -32,7 +32,6 @@ import EditRowViewComponent from './components/prolab/EditRowViewComponent';
 import UrlUtils from './utils/UrlUtils';
 import {PageViewUtils} from './utils/parser/PageViewUtils';
 import {ConfirmationEditQuitDialog} from './components/prolab/ConfirmationEditQuitDialog';
-import AppContext from './context/AppContext';
 import {OperationType} from './model/OperationType';
 import {CookiesName} from './model/CookieName';
 import { VersionPreviewDialog } from './components/prolab/VersionPreviewDialog';
@@ -43,7 +42,7 @@ export let reStateApp;
 export let renderNoRefreshContentFnc;
 export let sessionPrelongFnc = null;
 export let addBtn = null;
-// TODO: captcha
+
 class App extends Component {
     constructor() {
         super();
@@ -84,7 +83,6 @@ class App extends Component {
             timer: null,
             sessionTimeOut: null,
         };
-        this.handleLogoutUser = this.handleLogoutUser.bind(this);
         this.handleLogoutBySideBar = this.handleLogoutBySideBar.bind(this);
         this.getTranslations = this.getTranslations.bind(this);
         PrimeReact.ripple = true;
@@ -101,7 +99,7 @@ class App extends Component {
         ConsoleHelper('App version = ' + packageJson.version);
         this.handleCollapseChange = this.handleCollapseChange.bind(this);
     }
-    setFakeSeesionTimeout() {
+    setFakeSessionTimeout() {
         const myDate = new Date();
         myDate.setSeconds(myDate.getSeconds() + 60);
         localStorage.setItem(CookiesName.SESSION_TIMEOUT, myDate);
@@ -109,14 +107,30 @@ class App extends Component {
     }
     componentDidMount() {
         if (this.state.sessionMock) {
-            this.setFakeSeesionTimeout();
+            this.setFakeSessionTimeout();
         }
+        const refreshPressed = localStorage.getItem(CookiesName.REFRESH_PRESSED);
+        if(!!refreshPressed){
+            setTimeout(()=>{
+                localStorage.removeItem(CookiesName.REFRESH_PRESSED)
+                this.authService.refresh().then(()=>{
+                    this.appInitialize();
+                }).catch(()=>{
+                    this.appInitialize()
+                })
+            },100)
+            return;
+        }
+        this.appInitialize();
+    }
+    appInitialize = () =>{
         const urlPrefixCookie = readObjFromCookieGlobal('REACT_APP_URL_PREFIX');
         const configUrl =UrlUtils.makeConfigUrl(urlPrefixCookie);
-        this.prelongSeesionByRootClick();
+        this.prelongSessionByRootClick();
         this.setRestateApp();
         this.setClearState();
         this.setRenderNoRefreshContent();
+        this.registerRefreshKeyButtonEvent();
         this.showSessionTimeoutIfPossible();
         this.readConfigAndSaveInCookie(configUrl).catch((err) => {
             console.error('Error start application = ', err);
@@ -136,8 +150,20 @@ class App extends Component {
           }
         };
     }
-   
-
+    
+    registerRefreshKeyButtonEvent =()=>{
+         document.addEventListener('keydown', this.refreshKeyButtonEvent);
+    }
+    unregisterRefreshKeyButtonEvent =()=>{
+         document.addEventListener('keydown', this.refreshKeyButtonEvent);
+    }
+    refreshKeyButtonEvent = (event) => {
+        if (event.key === 'F5' || event.keyCode === 116) {
+            if(this.authService.isLoggedUser())
+                localStorage.setItem(CookiesName.REFRESH_PRESSED, "TRUE");
+        }
+    };
+ 
     setRestateApp() {
         reStateApp = () => {
             this.forceUpdate();
@@ -164,7 +190,7 @@ class App extends Component {
             });
         };
     }
-    prelongSeesionByRootClick() {
+    prelongSessionByRootClick() {
         const bodyApp = document.getElementById('body-app');
         const root = document.getElementById('root');
         const eventForSessionPrelong = () => {
@@ -193,12 +219,7 @@ class App extends Component {
                         this.authService.logout();
                         return;
                     }
-                    if (localStorage.getItem(CookiesName.TOKEN_REFRESHING)) {
-                        return;
-                    }
-                    
                 }
-              
             }, 1000);
         }
     }
@@ -257,6 +278,7 @@ class App extends Component {
     }
     componentWillUnmount() {
         this.unregisteredEventForSession();
+        this.unregisterRefreshKeyButtonEvent();
         clearTimeout(this.timer);
         this.timer = undefined;
         this.authService.removeLoginCookies();
@@ -308,16 +330,12 @@ class App extends Component {
                         configUrl: configUrl,
                     },
                     () => {
-                        if (this.authService.loggedIn()) {
+                        if (this.authService.isLoggedUser()) {
                             this.getLocalization(configUrl);
                         }
                     }
                 );
             });
-    }
-
-    handleLogoutUser(forceByButton, labels) {
-        this.authService.logout();
     }
 
     handleLogoutByTokenExpired(forceByButton, labels) {
@@ -347,7 +365,7 @@ class App extends Component {
     }
     getLocalization(configUrl) {
         this.localizationService.reConfigureDomain();
-        if (this.authService.loggedIn()) {
+        if (this.authService.isLoggedUser()) {
             try {
                 const language = JSON.parse(localStorage.getItem(CookiesName.LOGGED_USER)).lang.toLowerCase();
                 // const language = 'ENG';
@@ -392,8 +410,7 @@ class App extends Component {
     canRenderLogin = () => {
         const isLoggedUser =this.authService.isLoggedUser();
         if(isLoggedUser){
-            const isExpired = this.authService.isTokenExpiredDate();
-            return isExpired;
+            return false;
         }
         return true
     }
@@ -423,7 +440,7 @@ class App extends Component {
                             },
                             () => {
                                 if (this.state.sessionMock) {
-                                    this.setFakeSeesionTimeout();
+                                    this.setFakeSessionTimeout();
                                 }
                                 this.getLocalization(this.state.configUrl);
                             }
@@ -442,11 +459,11 @@ class App extends Component {
     }
     enabledTopComponents() {
         const authService = this.authService;
-        const tokenExpired = authService.isTokenExpiredDate();
+        const isNotLogged = !authService.isLoggedUser();
         if (UrlUtils.isEditRowView()) {
             return false;
         }
-        if (tokenExpired) {
+        if (isNotLogged) {
             return false;
         }
         return true;
@@ -485,10 +502,6 @@ class App extends Component {
             return false;
         }
         if (!UrlUtils.isLoginPage() && !UrlUtils.isEditRowView()) {
-            const prosidebar = document.getElementsByClassName('pro-sidebar');
-            if (prosidebar.length === 0 && !UrlUtils.isStartPage()) {
-                this.authService.refreshCall();
-            }
             if (this.authService.isLoggedUser()) {
                 return true;
             }
@@ -515,7 +528,7 @@ class App extends Component {
     render() {
         const authService = this.authService;
         const {labels} = this.state;
-        const loggedIn = authService.loggedIn();
+        const loggedIn = authService.isLoggedUser();
 
         return (
             <React.Fragment>
@@ -531,7 +544,6 @@ class App extends Component {
                             authService={authService}
                             visible={this.state.rednerSessionTimeoutDialog}
                             onProlongSession={() => {
-                                localStorage.setItem(CookiesName.TOKEN_REFRESHING, true);
                                 authService.refresh().then(() => {
                                     this.prelongSessionIfUserExist(true, () => {
                                         this.setState({
@@ -697,9 +709,6 @@ class App extends Component {
                                                                 <AuthComponent
                                                                     viewMode={'VIEW'}
                                                                     historyBrowser={this.historyBrowser}
-                                                                    handleLogout={(forceByButton) =>
-                                                                        this.handleLogoutUser(forceByButton)
-                                                                    }
                                                                 >
                                                                     <EditRowViewComponent
                                                                         key={'edit-row-component'}
@@ -723,9 +732,6 @@ class App extends Component {
                                                                 <AuthComponent
                                                                     viewMode={'VIEW'}
                                                                     historyBrowser={this.historyBrowser}
-                                                                    handleLogout={(forceByButton) =>
-                                                                        this.handleLogoutUser(forceByButton)
-                                                                    }
                                                                 >
                                                                     <DashboardContainer
                                                                         key={'Dashboard'}
@@ -751,9 +757,6 @@ class App extends Component {
                                                                 <AuthComponent
                                                                     viewMode={'VIEW'}
                                                                     historyBrowser={this.historyBrowser}
-                                                                    handleLogout={(forceByButton) =>
-                                                                        this.handleLogoutUser(forceByButton)
-                                                                    }
                                                                 >
                                                                     <ViewContainer
                                                                         ref={this.viewContainer}
@@ -795,9 +798,6 @@ class App extends Component {
                                                                 <AuthComponent
                                                                     viewMode={'VIEW'}
                                                                     historyBrowser={this.historyBrowser}
-                                                                    handleLogout={(forceByButton) =>
-                                                                        this.handleLogoutUser(forceByButton)
-                                                                    }
                                                                 >
                                                                     <EditSpecContainer
                                                                         ref={this.editSpecContainer}
@@ -825,9 +825,6 @@ class App extends Component {
                                                                 <AuthComponent
                                                                     viewMode={'VIEW'}
                                                                     historyBrowser={this.historyBrowser}
-                                                                    handleLogout={(forceByButton) =>
-                                                                        this.handleLogoutUser(forceByButton)
-                                                                    }
                                                                 >
                                                                     <BatchContainer
                                                                         ref={this.editSpecContainer}

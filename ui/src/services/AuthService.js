@@ -8,6 +8,7 @@ import {clearState} from '../App';
 import {CookiesName} from '../model/CookieName';
 import {StringUtils} from '../utils/StringUtils';
 
+
 export default class AuthService {
     // Initializing important variables
     constructor(domain) {
@@ -38,7 +39,7 @@ export default class AuthService {
         this.unblockUi = unblockUi;
     }
 
-    fetch(url, options, headers, shouldAddAuthorization) {
+    fetch(url, options, headers, shouldAddAuthorization = true) {
         const method = options !== undefined ? options.method : undefined;
         // performs api calls sending the required authentication headers
         if (headers === null || headers === undefined) {
@@ -48,9 +49,6 @@ export default class AuthService {
                 'Cache-Control': 'no-cache, no-store, must-revalidate',
                 Pragma: 'no-cahce',
             };
-        }
-        if (shouldAddAuthorization === undefined || shouldAddAuthorization == null) {
-            shouldAddAuthorization = true;
         }
         if (shouldAddAuthorization && this.isLoggedUser()) {
             headers['Authorization'] = this.getToken();
@@ -153,9 +151,7 @@ export default class AuthService {
         }
     }
 
-    //api/auth/token
     login(username, password) {
-        // Get a token from api server using the fetch api
         return this.fetch(`${this.domain}/auth/token`, {
             method: 'POST',
             body: JSON.stringify({
@@ -178,14 +174,7 @@ export default class AuthService {
     isAlreadyTokenNotExist() {
         return StringUtils.isBlank(localStorage.getItem(CookiesName.ID_TOKEN));
     }
-    refreshCall(){
-        if (this.isAlreadyTokenNotExist()) {
-            this.logout();
-            return;
-        }
-        this.refresh();
-    }
-    //  
+   
     refresh() {
         return this.fetch(
             `${this.getAndSetDomainIfNeccessery()}/auth/refreshToken`,
@@ -213,11 +202,9 @@ export default class AuthService {
                 if (!onLogoutUrl) {
                     localStorage.setItem(CookiesName.ERROR_AFTER_REFRESH, JSON.stringify(err));
                     setTimeout(()=>{
-                        localStorage.removeItem(CookiesName.TOKEN_REFRESHING);
                         window.location.reload();
                     },100)
                 }else{
-                    localStorage.removeItem(CookiesName.TOKEN_REFRESHING);
                 }
                 return Promise.reject(err);
             });
@@ -236,33 +223,8 @@ export default class AuthService {
                 throw err;
             });
     }
-
-    loggedIn() {
-        // Checks if there is a saved token and it's still valid
-        const token = this.getToken(); // Getting token from localstorage
-        return !!token && !this.isTokenExpiredDate(); // Handwaiving here
-    }
     isLoggedUser() {
         return !!localStorage.getItem(CookiesName.LOGGED_USER);
-    }
-    isTokenValidForRefresh() {
-        const token = this.getToken();
-        try {
-            const decoded = decode(token);
-            const seconds = moment().diff(new Date(decoded.created), 'seconds');
-            return seconds > 30;
-        } catch (err) {
-            return false;
-        }
-    }
-
-    isTokenExpiredDate() {
-        try {
-            const expirationTokenDateStr = localStorage.getItem(CookiesName.EXPIRATION_TOKEN);
-            return !expirationTokenDateStr || new Date(expirationTokenDateStr * 1000) < Date.now();
-        } catch (err) {
-            return false;
-        }
     }
 
     setToken(idToken, expirationToken, loggedUser, idRefreshToken, sessionTimeoutInMinutes) {
@@ -272,7 +234,6 @@ export default class AuthService {
         }
         loggedUser = JSON.stringify(loggedUser);
         localStorage.setItem(CookiesName.ID_TOKEN, idToken);
-        localStorage.setItem(CookiesName.EXPIRATION_TOKEN, decode(idToken).exp);
         localStorage.setItem(CookiesName.ID_REFRESH_TOKEN, idRefreshToken);
         const sessionTimeout = moment(new Date()).add(sessionTimeoutInMinutes, 'm').toString();
         localStorage.setItem(CookiesName.SESSION_TIMEOUT, sessionTimeout);
@@ -282,13 +243,13 @@ export default class AuthService {
     setRefreshedToken(idToken, idRefreshToken) {
         // Saves user token to localStorage
         localStorage.setItem(CookiesName.ID_TOKEN, idToken);
-        localStorage.setItem(CookiesName.EXPIRATION_TOKEN, decode(idToken).exp);
         localStorage.setItem(CookiesName.ID_REFRESH_TOKEN, idRefreshToken);
     }
 
     getSessionTimeout() {
         return localStorage.getItem(CookiesName.SESSION_TIMEOUT);
     }
+
     getSessionTimeoutInMinutes() {
         return localStorage.getItem(CookiesName.SESSION_TIMEOUT_IN_MINUTES);
     }
@@ -296,11 +257,6 @@ export default class AuthService {
     getToken() {
         // Retrieves the user token from localStorage
         return localStorage.getItem(CookiesName.ID_TOKEN);
-    }
-
-    getTokenExpirationDate() {
-        // Retrieves the user token from localStorage
-        return localStorage.getItem(CookiesName.EXPIRATION_TOKEN);
     }
 
     logout() {
@@ -336,9 +292,8 @@ export default class AuthService {
             }
         }, 100);
     }
-    removeLoginCookies() {
+    removeLoginCookies = () => {
         localStorage.removeItem(CookiesName.ID_TOKEN);
-        localStorage.removeItem(CookiesName.EXPIRATION_TOKEN);
         localStorage.removeItem(CookiesName.LOGGED_USER);
         sessionStorage.removeItem(CookiesName.LOGGED_IN);
         localStorage.removeItem(CookiesName.SESSION_TIMEOUT);
@@ -346,7 +301,6 @@ export default class AuthService {
         localStorage.removeItem(CookiesName.ID_REFRESH_TOKEN);
         localStorage.removeItem(CookiesName.MENU);
         localStorage.removeItem(CookiesName.VERSION_API);
-        localStorage.removeItem(CookiesName.TOKEN_REFRESHING);
     }
 
     getProfile() {
@@ -402,16 +356,6 @@ export default class AuthService {
     getUserId() {
         const user = this.getProfile();
         return user.userId ? user.userId : null;
-    }
-
-    expirationTimer() {
-        try {
-            const decoded = decode(this.getToken());
-            let seconds = moment().diff(new Date(decoded.exp * 1000), 'seconds');
-            return moment.utc(-seconds * 1000).format('mm [minut] ss [sekund]');
-        } catch (err) {
-            this.logout();
-        }
     }
 
     getUserLang() {

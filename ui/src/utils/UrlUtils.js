@@ -281,7 +281,6 @@ class UrlUtils {
 
     static makeConfigUrl(urlPrefix) {
         let browseUrl = window.location.href;
-        
         const id = browseUrl.indexOf('/#');
         if (id > 0) {
             browseUrl = browseUrl.substring(0, id + 1);

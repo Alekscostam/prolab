@@ -27,7 +27,6 @@ const fontValues = [
     'Verdana',
 ];
 const headerValues = [false, 1, 2, 3, 4, 5];
-//P - Hasło
 
 export const MemoizedOperations = React.memo(({editListVisible, fillDownVisible, onOperationClick}) => {
     return (

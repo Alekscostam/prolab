@@ -199,7 +199,7 @@ class LoginContainer extends BaseContainer {
     }
 
     render() {
-        if (this.authService.loggedIn()) {
+        if (this.authService.isLoggedUser()) {
             return this.renderAfterAuth();
         } else {
             const {labels} = this.state;

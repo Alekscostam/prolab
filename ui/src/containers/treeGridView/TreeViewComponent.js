@@ -590,8 +590,8 @@ class TreeViewComponent extends CellEditComponent {
     preColumnDefinition(editable, INDEX_COLUMN) {
         if (INDEX_COLUMN !== 0) {
             const preInitializedColumns = this.state.preInitializedColumns;
-            const foundedelement = preInitializedColumns.find((el) => el.columnIndex === INDEX_COLUMN);
-            if (!foundedelement) {
+            const foundedElement = preInitializedColumns.find((el) => el.columnIndex === INDEX_COLUMN);
+            if (!foundedElement) {
                 const column = {
                     columnIndex: INDEX_COLUMN,
                     editable: editable,

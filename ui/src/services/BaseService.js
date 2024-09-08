@@ -1,6 +1,7 @@
 import moment from 'moment';
 import AuthService from './AuthService';
 import {readObjFromCookieGlobal} from '../utils/Cookie';
+import { StringUtils } from '../utils/StringUtils';
 
 export default class BaseService {
     // Initializing important variables
@@ -47,7 +48,7 @@ export default class BaseService {
                 Pragma: 'no-cache',
             };
         }
-        if (this.auth.loggedIn()) {
+        if (this.auth.isLoggedUser()) {
             headers['Authorization'] = 'Bearer ' + this.auth.getToken();
         }
         if (token) {
@@ -96,16 +97,20 @@ export default class BaseService {
                 })
                 .catch((error) => {
                     if (error.status === 401) {
-                        this.auth
+                            this.auth
                             .refresh()
-                            .then((res) => {
+                            .then(() => {
                                 return this.fetch(url, options, headers, token).then((el) => {
                                     return resolve(el);
+                                }).catch(error=>{
+                                    if(StringUtils.isBlank(error.status)){
+                                        return resolve(error)
+                                    }
+                                    this.auth.logout();
                                 });
                             })
-                            .catch((error) => {
+                            .catch(() => {
                                 this.auth.logout();
-                                // reject(error);
                             });
                     } else {
                         if (method === 'POST' || method === 'PUT') {
@@ -138,7 +143,7 @@ export default class BaseService {
                 Pragma: 'no-cahce',
             };
         }
-        if (this.auth.loggedIn()) {
+        if (this.auth.isLoggedUser()) {
             headers['Authorization'] = 'Bearer ' + this.auth.getToken();
         }
         return new Promise((resolve, reject) => {
