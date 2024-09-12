@@ -54,7 +54,9 @@ class Sidebar extends React.Component {
     }
     componentDidMount() {
         ConsoleHelper('sidebar => componentDidMount');
-        if (!localStorage.getItem(CookiesName.MENU) || this.state?.menu?.length === 0) {
+        const refreshPressed = localStorage.getItem(CookiesName.REFRESH_PRESSED);
+        const refreshParamExists =  UrlUtils.isRefreshParamExist();
+        if ((!localStorage.getItem(CookiesName.MENU)|| !localStorage.getItem(CookiesName.VERSION_API)  || this.state?.menu?.length === 0) && (!refreshPressed || !refreshParamExists) ) {
             this.menuService
                 .getMenu()
                 .then((data) => {
@@ -66,6 +68,13 @@ class Sidebar extends React.Component {
                             menu: data.menu,
                         },
                         () => {
+                            this.versionService
+                            .getVersion()
+                            .then((data) => {
+                                localStorage.setItem(CookiesName.VERSION_API, JSON.stringify(data.VersionAPI));
+                                this.forceUpdate();
+                            })
+                            .catch(() => {});
                             this.handleFilter('');
                         }
                     );
@@ -78,15 +87,6 @@ class Sidebar extends React.Component {
                 });
         } else {
             this.handleFilter('');
-        }
-        if (!localStorage.getItem(CookiesName.VERSION_API) || this.state?.menu?.length === 0) {
-            this.versionService
-                .getVersion()
-                .then((data) => {
-                    localStorage.setItem(CookiesName.VERSION_API, JSON.stringify(data.VersionAPI));
-                    this.forceUpdate();
-                })
-                .catch(() => {});
         }
     }
 

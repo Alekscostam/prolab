@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import LocUtils from '../../utils/LocUtils';
 import { TabPanel } from 'devextreme-react';
 import { tabsPositions,stylingModes, iconPositions, dataSource } from './dataSource/VersionDataSource';
+import { StringUtils } from '../../utils/StringUtils';
 
 
 export const VersionPreviewDialog = (props) => {
@@ -36,6 +37,7 @@ export const VersionPreviewDialog = (props) => {
             <div className={`ver-item ver-item-color-${task.color}`}>
             <span className="ver-item-text">{task.text}</span>
             <span className="ver-item-info">{`${task.description}`}</span>
+            {!StringUtils.isBlank(task?.link) && <span className="ver-item-text" ><a href={`${task.link}`} >link do zadania</a> </span>} 
           </div>
         ));
         return <div className="tabpanel-item">{taskItems}</div>;
@@ -48,7 +50,7 @@ export const VersionPreviewDialog = (props) => {
                 blockScroll
 
                 visible={visible}
-                style={{width: '468px', overflow: 'hidden !important'}}
+                style={{width: '868px', overflow: 'hidden !important'}}
                 onHide={hideDialog}
                 footer={dialogFooter}
             >

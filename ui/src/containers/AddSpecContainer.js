@@ -518,10 +518,10 @@ export class AddSpecContainer extends BaseContainer {
                 const levelId =  this.props.levelId;
                 let result = []; 
                 if(minNextId === undefined && levelId === undefined){
-                    result = saveResponse.data;
+                    result = this.createValidOrder(saveResponse.data);
                 }
                 else{
-                    result = this.createValidArray(saveResponse.data,minNextId, levelId);
+                    result = this.createValidOrder(this.createValidIdAndParentId(saveResponse.data, minNextId, levelId));
                 }
                 this.props.handleAddElements(result);
                 this.props.onHide();
@@ -531,7 +531,7 @@ export class AddSpecContainer extends BaseContainer {
                 this.showGlobalErrorMessage(err);
             });
     };
-    createValidArray(array, minNextId, levelId) {
+    createValidIdAndParentId(array, minNextId, levelId) {
         array.forEach((el) => {
             el._ID = el._ID +  minNextId
             if(!StringUtils.isBlank(levelId)){
@@ -544,7 +544,14 @@ export class AddSpecContainer extends BaseContainer {
         });
         return array;
     }
-
+    createValidOrder(array){
+        array.forEach((el) => {
+            if(StringUtils.isBlank(el?.ID)){
+                el._ORDER = el._ID;
+            }
+        });
+        return array;
+    }
     //override
     renderHeaderContent() {}
 

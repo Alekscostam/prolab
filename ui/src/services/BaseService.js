@@ -3,6 +3,8 @@ import AuthService from './AuthService';
 import {readObjFromCookieGlobal} from '../utils/Cookie';
 import { StringUtils } from '../utils/StringUtils';
 
+let lastRefreshTime = null;
+
 export default class BaseService {
     // Initializing important variables
     constructor(domain) {
@@ -97,6 +99,8 @@ export default class BaseService {
                 })
                 .catch((error) => {
                     if (error.status === 401) {
+                        const calculateNextRefreshTime = this.setAndGetNextRefreshDelay();
+                        setTimeout(()=>{
                             this.auth
                             .refresh()
                             .then(() => {
@@ -112,6 +116,7 @@ export default class BaseService {
                             .catch(() => {
                                 this.auth.logout();
                             });
+                        },calculateNextRefreshTime)
                     } else {
                         if (method === 'POST' || method === 'PUT') {
                             this.counter -= 1;
@@ -168,6 +173,27 @@ export default class BaseService {
                     }
                 })
                 .catch((error) => {
+                    if (error.status === 401) {
+                        const calculateNextRefreshTime = this.setAndGetNextRefreshDelay();
+                        setTimeout(()=>{ 
+                            this.auth
+                            .refresh()
+                            .then(() => {
+                                return this.fetchFileResponse(url, options, headers).then((el) => {
+                                    return resolve(el);
+                                }).catch(error=>{
+                                    if(StringUtils.isBlank(error.status)){
+                                        return resolve(error)
+                                    }
+                                    this.auth.logout();
+                                });
+                            })
+                            .catch(() => {
+                                this.auth.logout();
+                            });
+                        },calculateNextRefreshTime)
+                       
+                } else {
                     if (
                         error !== undefined &&
                         error !== null &&
@@ -179,7 +205,7 @@ export default class BaseService {
                         error.message = 'komunikacji z serwerem podczas pobierania danych.';
                     }
                     reject(error);
-                });
+                }});
         });
     }
 
@@ -268,4 +294,20 @@ export default class BaseService {
         }
         return correctUrl;
     }
+    
+    setAndGetNextRefreshDelay(){
+        const now = new Date();
+        if(lastRefreshTime === null){
+            lastRefreshTime = now;
+            return 100;
+        }
+        const random = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+        const differenceInMs = Math.abs(lastRefreshTime - now);
+        if(differenceInMs < 500){
+            return random(250, 450);;    
+        }   
+        lastRefreshTime = now;
+        return 100;
+    }
+
 }

@@ -6,7 +6,7 @@ import ActionButton from '../components/ActionButton';
 import DivContainer from '../components/DivContainer';
 import SimpleReactValidator from '../components/validator';
 import AuthService from '../services/AuthService';
-import $ from 'jquery';
+import $, { error } from 'jquery';
 import Constants from '../utils/Constants';
 import BlockUi from '../components/waitPanel/BlockUi';
 import {Toast} from 'primereact/toast';
@@ -1059,7 +1059,7 @@ class BaseContainer extends React.Component {
             .catch((err) => {
                 this.showGlobalErrorMessage(err);
             });
-    }
+    } 
     historyLog(recordId) {
         const viewId = this.realViewSelector(recordId);
         const recordIsZero = recordId === 0 || recordId === '0';
@@ -1432,7 +1432,8 @@ class BaseContainer extends React.Component {
                     });
                 }
             }
-            this.calculateFormulaForView(viewId, parentId, params);
+            params = `?recordId=${parentId}${params}`  
+            this.calculateFormulaForView(viewId, params);
         } else {
             let params = '';
             if (!!rowId) {
@@ -1444,7 +1445,8 @@ class BaseContainer extends React.Component {
                     });
                 }
             }
-            this.calculateFormulaForView(viewId, parentId, params);
+            params =StringUtils.isBlank(params) ? `?parentId=${parentId}` : `${params}&parentId=${parentId}` ;  
+            this.calculateFormulaForView(viewId, params);
         }
     }
     changeWart(calcultedFormula, oldFormula) {
@@ -1486,14 +1488,18 @@ class BaseContainer extends React.Component {
                 this.unselectAllDataGrid();
             });
     }
-    calculateFormulaForView(viewId, recordId, params) {
+
+    calculateFormulaForView(viewId, params) {
         this.blockUi();
         this.crudService
-            .calculateFormulaForView(viewId, recordId, params)
+            .calculateFormulaForView(viewId, params)
             .then((res) => {
                 this.responseMessage(res);
                 this.refreshView();
                 this.refreshSubView(true);
+            })
+            .catch((err)=>{
+               this.showGlobalErrorMessage(err) 
             })
             .finally(() => {
                 this.unblockUi();

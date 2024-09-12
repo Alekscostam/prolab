@@ -135,7 +135,7 @@ class LoginContainer extends BaseContainer {
                 const error = JSON.parse(cookieError);
                 console.error(error, "ERROR")
                 // this.showGlobalErrorMessage(error);
-                localStorage.removeItem(CookiesName.ERROR_AFTER_REFRESH);
+                // localStorage.removeItem(CookiesName.ERROR_AFTER_REFRESH);
             }
         },1500)
     }

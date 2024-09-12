@@ -6,6 +6,7 @@ import UrlUtils from '../utils/UrlUtils';
 import {renderNoRefreshContentFnc} from '../App';
 import {ColumnType} from '../model/ColumnType';
 import EditListUtils from '../utils/EditListUtils';
+import { EditFormType } from '../model/EditFormType';
 /*
 Kontroler do edycji danych.
  */
@@ -53,6 +54,12 @@ export default class CrudService extends BaseService {
             method: 'POST',
         })
             .then((addDataResponse) => {
+                if (addDataResponse?.editInfo?.editFormType.toUpperCase() === EditFormType.FULLSCREEN) {
+                    window.location.href = window.location.href.replace('grid-view', 'edit-row-view');
+                    if (renderNoRefreshContentFnc) {
+                        renderNoRefreshContentFnc();
+                    }
+                }
                 EditListUtils.addUuidToFields(addDataResponse);
                 return Promise.resolve(EditRowUtils.convertEditResponse(addDataResponse));
             })
@@ -85,7 +92,7 @@ export default class CrudService extends BaseService {
             })
         .then((editDataResponse) => {
             // if (editDataResponse.editInfo.editFormType.toUpperCase() === 'SIDEPANEL') {
-            if (editDataResponse.editInfo.editFormType.toUpperCase() === 'FULLSCREEN') {
+            if (editDataResponse?.editInfo?.toUpperCase() === EditFormType.FULLSCREEN) {
                 window.location.href = window.location.href.replace('grid-view', 'edit-row-view');
                 if (renderNoRefreshContentFnc) {
                     renderNoRefreshContentFnc();
@@ -377,12 +384,12 @@ export default class CrudService extends BaseService {
         return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Delete/Entry?${queryStringTmp.join('&')}`, {
             method: 'POST',
         })
-            .then((deleteResponse) => {
-                return Promise.resolve(deleteResponse);
-            })
-            .catch((err) => {
-                throw err;
-            });
+        .then((deleteResponse) => {
+            return Promise.resolve(deleteResponse);
+        })
+        .catch((err) => {
+            throw err;
+        });
     }
 
     delete(viewId, parentId, kindView, selectedIds) {
@@ -403,17 +410,15 @@ export default class CrudService extends BaseService {
         });
     }
 
-    calculateFormulaForView(viewId, recordId, params) {
-        let url = `${this.getDomain()}/${this.path}/${viewId}/calculate?recordId=${recordId}${params}`;
-        if (recordId === null || recordId === undefined) {
-            url = `${this.getDomain()}/${this.path}/${viewId}/calculate${params}`;
-        }
+    calculateFormulaForView(viewId, params) {
+        let url = `${this.getDomain()}/${this.path}/${viewId}/calculate${params}`;
         return this.fetch(url, {
             method: 'POST',
         }).catch((err) => {
             throw err;
         });
     }
+    
     calculateFormula(viewId, parentId, recordId, fieldsToCalculate) {
         let url = `${this.getDomain()}/${this.path}/${viewId}/editspec/${parentId}/calculate`;
         if (recordId) {

@@ -109,16 +109,27 @@ class App extends Component {
         if (this.state.sessionMock) {
             this.setFakeSessionTimeout();
         }
-        const refreshPressed = localStorage.getItem(CookiesName.REFRESH_PRESSED);
-        if(!!refreshPressed){
-            setTimeout(()=>{
-                localStorage.removeItem(CookiesName.REFRESH_PRESSED)
-                this.authService.refresh().then(()=>{
-                    this.appInitialize();
-                }).catch(()=>{
-                    this.appInitialize()
-                })
-            },100)
+        const refreshPressed = localStorage.getItem(CookiesName.REFRESH_PRESSED) ;
+        const refreshParamExists =  UrlUtils.isRefreshParamExist();
+        if(!!refreshPressed || refreshParamExists){
+            this.setState({loadedConfiguration:false},()=>{
+                setTimeout(()=>{
+                    this.authService.refresh().then(()=>{
+                        window.location.href = UrlUtils.deleteParameterFromURL(window.location.href, "refresh");
+                        localStorage.removeItem(CookiesName.REFRESH_PRESSED);
+                        this.appInitialize();
+                    }).catch(()=>{
+                        const err = {
+                            msg :"Bład przy inicjalizacji apliakcji"
+                        };
+                        localStorage.setItem(CookiesName.ERROR_AFTER_REFRESH, err)
+                        localStorage.removeItem(CookiesName.REFRESH_PRESSED);
+                        window.location.href = UrlUtils.deleteParameterFromURL(window.location.href, "refresh");
+                        this.authService.logout();
+                    })
+                },1000)
+
+            })
             return;
         }
         this.appInitialize();
@@ -161,6 +172,7 @@ class App extends Component {
         if (event.key === 'F5' || event.keyCode === 116) {
             if(this.authService.isLoggedUser())
                 localStorage.setItem(CookiesName.REFRESH_PRESSED, "TRUE");
+                window.location.href = UrlUtils.addParameterToURL(window.location.href,"refresh", true)
         }
     };
  

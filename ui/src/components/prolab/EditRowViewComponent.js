@@ -17,6 +17,7 @@ import UrlUtils from '../../utils/UrlUtils';
 import BlockUi from '../waitPanel/BlockUi';
 import {OperationType} from '../../model/OperationType';
 import EntryResponseHelper from '../../utils/helper/EntryResponseHelper';
+import { StringUtils } from '../../utils/StringUtils';
 
 export class EditRowViewComponent extends BaseRowComponent {
     constructor(props) {
@@ -50,15 +51,58 @@ export class EditRowViewComponent extends BaseRowComponent {
     }
 
     componentDidMount() {
-        this.openEditRow();
+        this.openEntryOperation();
         super.componentDidMount();
         this.blockUi();
     }
 
-    openEditRow() {
+    openEntryOperation() {
         const editViewId = UrlUtils.getEditViewId();
-        const editParentId = UrlUtils.getEditParentId();
         const editRecordId = UrlUtils.getEditRecordId();
+        const isAddEntry = StringUtils.isBlank(editViewId) && StringUtils.isBlank(editRecordId);
+        if (isAddEntry) this.addEntry();
+        else this.editEntry();
+    }
+
+    addEntry = () => {
+        const viewId = UrlUtils.getIdFromUrl();
+        const parentId = UrlUtils.getParentId();
+        this.crudService
+            .addEntry(viewId, parentId)
+            .then((entryResponse) => {
+                EntryResponseHelper.run(
+                    entryResponse,
+                    () => {
+                        if (!!entryResponse.next) {
+                            this.crudService
+                                .add(viewId, parentId)
+                                .then((editDataResponse) => {
+                                    this.props.editDataChange(editDataResponse);
+                                })
+                                .catch((err) => {
+                                    this.showGlobalErrorMessage(err);
+                                })
+                                .finally(() => {
+                                    this.unblockUi();
+                                });
+                        } else {
+                            this.unblockUi();
+                        }
+                    },
+                    () => this.unblockUi(),
+                    () => this.unblockUi(),
+                );
+            })
+            .catch((err) => {
+                this.showGlobalErrorMessage(err);
+                this.unblockUi();
+            });
+    }
+
+    editEntry = () => {
+        const editViewId = UrlUtils.getEditViewId();
+        const editRecordId = UrlUtils.getEditRecordId();
+        const editParentId = UrlUtils.getEditParentId();
         const editKindView = UrlUtils.getEditKindView();
         this.crudService
             .editEntry(editViewId, editRecordId, editParentId, editKindView, '')

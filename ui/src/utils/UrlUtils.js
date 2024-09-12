@@ -90,6 +90,9 @@ class UrlUtils {
     static isBcParamExist() {
         return window.location.href.includes('bc');
     }
+    static isRefreshParamExist() {
+        return window.location.href.includes('refresh');
+    }
     static isQuestionMarkParamExist() {
         return window.location.href.includes('?');
     }
