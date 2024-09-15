@@ -651,7 +651,7 @@ class TreeViewComponent extends CellEditComponent {
         if (columns?.length > 0) {
             //when viewData respond a lot of data
             columns
-                .filter((column) => column.visible === true)
+                .filter((column) => column.visible === true || column?.name === "_ORDER")
                 ?.forEach((column) => {
                     if (column.name === '_ROWNUMBER') {
                         //rule -> hide row with autonumber
@@ -671,6 +671,7 @@ class TreeViewComponent extends CellEditComponent {
                             if (columnDefinition.disabledEditing) {
                                 column.allowEditing = false;
                             }
+                            this.fillOrderColumn(column, columnDefinition);
                             column.headerId =
                                 'column_' + INDEX_COLUMN + '_' + columnDefinition?.fieldName?.toLowerCase();
                             column.width = columnDefinition?.width || 100;
@@ -804,6 +805,15 @@ class TreeViewComponent extends CellEditComponent {
             });
         }
     };
+
+    fillOrderColumn = (column, columnDefinition)=>{
+        if (column?.name === "_ORDER") {
+            column.sortOrder = columnDefinition.sortOrder;
+            column.sortIndex = columnDefinition.sortIndex; 
+            column.visible = columnDefinition.visible;
+        }
+    }
+
     addButton() {
         return (
             this.addButtonExists() && (

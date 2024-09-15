@@ -637,6 +637,23 @@ export class TreeListUtils extends ViewDataCompUtils {
         return listColumns;
     }
 
+    static addOrderColumn(listColumns, visible) {
+        const defaultColumn = {
+            width: 0,
+            checkbox: false,
+            visible: visible,
+            disabledEditing: true,
+            fieldName: '_ORDER',
+            type: 'string',
+            isSort: true,
+            sortOrder: "asc",
+            sortIndex: 0
+
+        };
+        listColumns.push(defaultColumn);
+        return listColumns;
+    }
+
     static addUuidColumn(listColumns){
         const uuidColumn = {
             id: 0,

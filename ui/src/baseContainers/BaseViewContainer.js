@@ -241,15 +241,6 @@ export class BaseViewContainer extends BaseContainer {
             !DataGridUtils.equalNumbers(this.state.elementRecordId, recordId);
 
         if (updatePage || this.state?.attachmentCloseWindow) {
-            console.log(
-                "view updating: force {}, elementId matches: {}, subViewId matches: {}, fromSubviewToFirstSubView: {}, filterId matches: {}, recordId matches: {}",
-                !!force,
-                !DataGridUtils.equalNumbers(this.state.elementId, id),
-                (!firstSubViewMode && !DataGridUtils.equalNumbers(this.state.elementSubViewId, subViewId)),
-                fromSubviewToFirstSubView,
-                !DataGridUtils.equalNumbers(this.state.elementFilterId, filterId),
-                !DataGridUtils.equalNumbers(this.state.elementRecordId, recordId)
-            ); 
             const newUrl = UrlUtils.deleteParameterFromURL(window.document.URL.toString(), 'force');
             window.history.replaceState('', '', newUrl);
             this.setState(

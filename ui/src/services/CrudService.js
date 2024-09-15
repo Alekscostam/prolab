@@ -92,7 +92,7 @@ export default class CrudService extends BaseService {
             })
         .then((editDataResponse) => {
             // if (editDataResponse.editInfo.editFormType.toUpperCase() === 'SIDEPANEL') {
-            if (editDataResponse?.editInfo?.toUpperCase() === EditFormType.FULLSCREEN) {
+            if (editDataResponse?.editInfo?.editFormType?.toUpperCase() === EditFormType.FULLSCREEN) {
                 window.location.href = window.location.href.replace('grid-view', 'edit-row-view');
                 if (renderNoRefreshContentFnc) {
                     renderNoRefreshContentFnc();

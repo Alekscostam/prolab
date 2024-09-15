@@ -218,6 +218,7 @@ export class EditSpecContainer extends BaseContainer {
                         .then((res) => {
                             const data = TreeListUtils.paintDatas(res.data);
                             TreeListUtils.createSelectionColumn(responseView.gridColumns[0].columns, data);
+                            TreeListUtils.addOrderColumn(responseView.gridColumns[0].columns, !!responseView?.editInfo?.orderColumnVisible);
                             const columnsTmp = ResponseUtils.columnsFromGroupCreate(responseView);
                             this.setState(
                                 {
@@ -416,6 +417,7 @@ export class EditSpecContainer extends BaseContainer {
             </React.Fragment>
         );
     }
+
     handleSaveAction() {
         const viewIdArg = this.state.elementId;
         const parentIdArg = this.state.elementParentId;
@@ -432,6 +434,7 @@ export class EditSpecContainer extends BaseContainer {
             }
         });
     }
+
     handleAddElements = (elements) => {
         const addParsedView = (this.state.parsedData || []).concat(elements);
         TreeListUtils.removeLineColorGradient(addParsedView);
@@ -457,9 +460,11 @@ export class EditSpecContainer extends BaseContainer {
         ConsoleHelper(`handleEditSpecSave: element to save = ${JSON.stringify(saveElement)}`);
         this.specSave(viewId, parentId, saveElement, false, fncRedirect);
     }
+
     booleanShouldBeZero(row, el) {
         return row[el] === '0' || row[el] === 0 || row[el] === undefined || row[el] === null || row[el] === false;
     }
+
     //override
     createObjectToSave(rowArray) {
         const booleanLogicColumns = this.state.columns.filter((el) => el.type === 'L');
@@ -624,7 +629,7 @@ export class EditSpecContainer extends BaseContainer {
         });
         return data;
     }
-    //metoda przenosi rekord o poziom wyżej
+
     up(id) {
         const ref = this.refTreeList?.instance;
         let data = ref.getVisibleRows().map((el) => el.data);
@@ -639,8 +644,9 @@ export class EditSpecContainer extends BaseContainer {
                 break;
             }
         }
-        this.moveItem(id, currentElement, nextElement, data);
+        this.switchElements(currentElement,nextElement);
     }
+
     down(id) {
         const ref = this.refTreeList?.instance;
         let data = ref.getVisibleRows().map((el) => el.data);
@@ -655,30 +661,32 @@ export class EditSpecContainer extends BaseContainer {
                 break;
             }
         }
-        this.moveItem(id, currentElement, nextElement, data);
+        this.switchElements(currentElement,nextElement);
     }
-    isTheSameElement(foundedElement, currentElement) {
-        return foundedElement?._ID === currentElement?._ID;
-    }
-    moveItem(id, currentElement, nextElement, data) {
-        if (nextElement) {
-            if (!this.isTheSameElement(nextElement, currentElement)) {
-                const currentIndex = data.findIndex((d) => d._ID === id);
-                const currentOrder = currentElement._ORDER;
-                const prevOrder = nextElement._ORDER;
-                currentElement._ORDER = prevOrder;
-                nextElement._ORDER = currentOrder;
-                const prevIndex = data.findIndex((x) => x._ID === nextElement._ID);
-                this.switchPositionOfElements(data, currentIndex, prevIndex);
-                let concatData = [...new Set([...data, ...this.state.parsedData])];
 
-                this.updateData(concatData, () => {
-                    this.disableAllSort();
+    switchElements = (currentElement, nextElement) =>{
+        if(nextElement && currentElement){
+            if(this.haveTheSameParents(currentElement, nextElement)){
+                const orderNext = structuredClone(nextElement._ORDER)
+                const orderCurrent = structuredClone(currentElement._ORDER)
+                currentElement._ORDER = orderNext;
+                nextElement._ORDER = orderCurrent;
+                const parsedData = this.state.parsedData;
+                parsedData.forEach(pd=>{
+                    if(pd._ID === currentElement._ID) pd = currentElement;
+                    else if(pd._ID === nextElement._ID) pd = nextElement;
+                })
+                this.updateData(parsedData, () => {
                     this.refreshTable();
                 });
             }
         }
     }
+
+    isTheSameElement(foundedElement, currentElement) {
+        return foundedElement?._ID === currentElement?._ID;
+    }
+ 
     switchPositionOfElements(data, indexFirst, indexSecond) {
         const elementFirst = data[indexFirst];
         const elementSecond = data[indexSecond];
@@ -703,6 +711,10 @@ export class EditSpecContainer extends BaseContainer {
 
     getLastId() {
         return this.state.parsedData.length === 0 ? 0 : Math.max(...this.state.parsedData.map((el) => el._ID));
+    }
+
+    getLastOrder(){
+     return this.state.parsedData.length === 0 ? 0 : Math.max(...this.state.parsedData.map((el) => parseInt(el._ORDER) ));
     }
 
     refreshTable(callbackAction) {
@@ -802,6 +814,7 @@ export class EditSpecContainer extends BaseContainer {
                             <AddSpecContainer
                                 parsedGridViewData={parsedData}
                                 lastId={this.getLastId()}
+                                lastOrder={this.getLastOrder()}
                                 id={this.props.id}
                                 createObjectToSave={() => {
                                     return this.createObjectToSave(parsedData);

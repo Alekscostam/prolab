@@ -674,21 +674,24 @@ class BaseContainer extends React.Component {
                 if (window?.dataGrid) {
                     if (this.state?.gridViewType !== 'cardView') window.dataGrid.clearSelection();
                 }
-                const id = UrlUtils.getViewIdFromURL();
-                // Patrz na viewContainer
-                this.downloadData(
-                    id,
-                    this.state.elementRecordId,
-                    this.state.elementSubViewId,
-                    this.state.elementFilterId,
-                    this.state.elementParentId,
-                    this.state.elementViewType,
-                    forceReStateSubView
-                );
+                this.downloadSubViewData(forceReStateSubView);
             }
         } else {
             removeCookieGlobal('refreshSubView');
         }
+    }
+
+    downloadSubViewData = (forceReStateSubView) => {
+        const id = UrlUtils.getViewIdFromURL();
+        this.downloadData(
+            id,
+            this.state.elementRecordId,
+            this.state.elementSubViewId,
+            this.state.elementFilterId,
+            this.state.elementParentId,
+            this.state.elementViewType,
+            forceReStateSubView
+        );
     }
 
     reloadOnlyDataGrid() {
@@ -751,10 +754,9 @@ class BaseContainer extends React.Component {
                 if((StringUtils.isBlank(saveResponse?.status) || saveResponse?.status !== "NOK") && fncRedirect){
                     fncRedirect();
                 }
-                this.refreshView();
+                this.refreshView();   
                 if (UrlUtils.urlParamExsits('grid-view')) this.refreshSubView(true);
                 this.unselectAllDataGrid();
-                this.unblockUi();
                
             })
             .catch((err) => {

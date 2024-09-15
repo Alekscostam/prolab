@@ -46,8 +46,6 @@ export class AddSpecContainer extends BaseContainer {
         this.tabClicked = React.createRef();
         this.blocking = React.createRef(true);
         this.state = {
-            lastElementId: this.props.lastId,
-            // loading: true,
             selectedIndex: 0,
             tabs: 0,
             visibleAddSpec: false,
@@ -264,11 +262,8 @@ export class AddSpecContainer extends BaseContainer {
                             if (header === false && !isGrid) {
                                 res.data = TreeListUtils.paintDatas(res.data);
                             }
-                            if (isGrid) {
-                                TreeListUtils.createSelectionStaticColumn(responseView.gridColumns[0].columns);
-                            } else {
-                                TreeListUtils.createSelectionColumn(responseView.gridColumns[0].columns, res.data);
-                            }
+                            if (isGrid) TreeListUtils.createSelectionStaticColumn(responseView.gridColumns[0].columns);
+                            else TreeListUtils.createSelectionColumn(responseView.gridColumns[0].columns, res.data);
                             TreeListUtils.addUuidColumn(responseView.gridColumns[0].columns);
                             const columnsTmp = ResponseUtils.columnsFromGroupCreate(responseView);
                             this.setState(
@@ -517,12 +512,8 @@ export class AddSpecContainer extends BaseContainer {
                 const minNextId =  this.props.lastId;
                 const levelId =  this.props.levelId;
                 let result = []; 
-                if(minNextId === undefined && levelId === undefined){
-                    result = this.createValidOrder(saveResponse.data);
-                }
-                else{
-                    result = this.createValidOrder(this.createValidIdAndParentId(saveResponse.data, minNextId, levelId));
-                }
+                if (minNextId === undefined && levelId === undefined) result = saveResponse.data;
+                else result = this.createValidOrder(this.createValidIdAndParentId(saveResponse.data));
                 this.props.handleAddElements(result);
                 this.props.onHide();
                 this.unblockUi();
@@ -531,24 +522,21 @@ export class AddSpecContainer extends BaseContainer {
                 this.showGlobalErrorMessage(err);
             });
     };
-    createValidIdAndParentId(array, minNextId, levelId) {
+    createValidIdAndParentId(array) {
+        const minNextId =  this.props.lastId;
+        const levelId =  this.props.levelId;
         array.forEach((el) => {
             el._ID = el._ID +  minNextId
-            if(!StringUtils.isBlank(levelId)){
-                el._ID_PARENT = levelId
-            }
-            else if(el._ID_PARENT !== 0){
-                el._ID_PARENT = el._ID_PARENT +  minNextId
-            }
+            if(!StringUtils.isBlank(levelId)) el._ID_PARENT = levelId;
+            else if(el._ID_PARENT !== 0) el._ID_PARENT = el._ID_PARENT + minNextId
             el._STATUS = 'inserted';
         });
         return array;
     }
     createValidOrder(array){
-        array.forEach((el) => {
-            if(StringUtils.isBlank(el?.ID)){
-                el._ORDER = el._ID;
-            }
+        const lastOrder = this.props.lastOrder;
+        array.forEach((el, index) => {
+            el._ORDER = index + 1 + lastOrder;
         });
         return array;
     }

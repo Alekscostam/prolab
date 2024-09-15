@@ -65,9 +65,12 @@ export class ViewContainer extends BaseViewContainer {
 
     // overide
     downloadData(viewId, recordId, subviewId, filterId, parentId, viewType, forceReStateSubView) {
+        ConsoleHelper(
+            `ViewContainer::downloadData: viewId=${viewId}, recordId=${recordId}, filterId=${filterId}, parentId=${parentId}, viewType=${viewType},`
+        );
         const subviewMode = !!recordId && !!viewId;
         if (subviewMode) {
-            if (this.notProccessed(this.state.loading)) {
+            if (this.notProccessed()) {
                 this.getDataFromSubview(viewId, recordId, parentId, subviewId, filterId, viewType, forceReStateSubView);
             }
         } else {
@@ -200,7 +203,7 @@ export class ViewContainer extends BaseViewContainer {
 
     // overide
     getViewById(viewId, recordId, filterId, parentId, viewType, isSubView) {
-        if (this.notProccessed(this.state.loading)) {
+        if (this.notProccessed()) {
             this.setState({loading: true}, () => {
                 this.viewService
                     .getView(viewId, viewType, recordId, this.state.elementKindView)
@@ -217,7 +220,8 @@ export class ViewContainer extends BaseViewContainer {
         }
     }
 
-    notProccessed(loading) {
+    notProccessed() {
+        const loading =  this.state.loading
         return loading === false || loading === null || loading === undefined;
     }
 
@@ -405,9 +409,9 @@ export class ViewContainer extends BaseViewContainer {
     }
   
     handleAddElements(elements) {
+        ConsoleHelper(`handleAddElements: element to save = ${JSON.stringify(elements)}`);
         const viewIdArg = this.state.elementSubViewId;
         const parentIdArg = this.state.elementRecordId;
-        ConsoleHelper(`handleAddElements: element to save = ${JSON.stringify(elements)}`);
         const results = this.createObjectToSave(elements)
         this.specSave(viewIdArg, parentIdArg, results, false);
     }
