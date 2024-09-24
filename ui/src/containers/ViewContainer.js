@@ -42,6 +42,11 @@ export class ViewContainer extends BaseViewContainer {
     }
 
     addButtonFunction = (e) => {
+        const isAddFilesAddFrom =   !!this.state?.parsedGridView?.options?.addFilesAddForm;
+        if(isAddFilesAddFrom){
+            this.setState({visibleUploadFile: true})
+            return;
+        }  
         const addSpecFunction = () => this.showAddSpecDialog();
         const addFunction = (e) => this.addView(e);
         DataGridUtils.getOpButton(this.state.parsedGridView?.operations, OperationType.OP_ADD_SPEC_BUTTON)

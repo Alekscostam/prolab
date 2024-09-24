@@ -4,6 +4,7 @@ import 'whatwg-fetch';
 import BaseService from '../../services/BaseService';
 import ConsoleHelper from '../../utils/ConsoleHelper';
 import TansformFiltersUtil from '../dao/util/TransformFiltersUtil';
+import { StringUtils } from '../../utils/StringUtils';
 
 export default class DataGridStore extends BaseService {
     constructor() {
@@ -144,10 +145,17 @@ export default class DataGridStore extends BaseService {
             key: 'ID',
             keyExpr: 'ID',
             load: (loadOptions) => {
-                if (loadOptions?.take === undefined || loadOptions?.take === null) {
+                if (StringUtils.isBlank(loadOptions?.take)) {
                     // Tu wchodiz tylko dla opcji grupowania, initial value na 60 oraz selectiona
                     loadOptions.take = 60;
-                } 
+                }
+                // else{
+                //     if(!StringUtils.isBlank(loadOptions?.take) && !StringUtils.isBlank(this.lastFetchedData?.totalCount)){
+                //         if(loadOptions.take >  this.lastFetchedData.totalCount){
+                //             return Promise.resolve(this.lastFetchedData);
+                //         }
+                //     }
+                // } 
                 this.cachedLoadOptions = loadOptions;
                 let params = '?';
                 const filter = loadOptions?.filter;
@@ -223,26 +231,26 @@ export default class DataGridStore extends BaseService {
                     method: 'POST',
                     body: JSON.stringify(requestBody),
                 })
-                    .then((response) => {
-                        ConsoleHelper('DataGridStore -> fetch ');
-                        if (onSuccessCallback) {
-                            onSuccessCallback(group, response.totalCount);
-                        }
-                        this.lastFetchedData = {
-                            data: response.data,
-                            totalCount: response.totalCount,
-                            summary: response.summary || [],
-                            groupCount: response.groupCount || 0,
-                        };
-                        return this.lastFetchedData;
-                    })
-                    .catch((err) => {
-                        ConsoleHelper('Error fetch data grid store for view id={%s}. Error = ', viewIdArg, err);
-                        if (onErrorCallback) {
-                            onErrorCallback(err);
-                        }
-                        return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0, selectAll: false});
-                    });
+                .then((response) => {
+                    ConsoleHelper('DataGridStore -> fetch ');
+                    if (onSuccessCallback) {
+                        onSuccessCallback(group, response.totalCount);
+                    }
+                    this.lastFetchedData = {
+                        data: response.data,
+                        totalCount: response.totalCount,
+                        summary: response.summary || [],
+                        groupCount: response.groupCount || 0,
+                    };
+                    return this.lastFetchedData;
+                })
+                .catch((err) => {
+                    ConsoleHelper('Error fetch data grid store for view id={%s}. Error = ', viewIdArg, err);
+                    if (onErrorCallback) {
+                        onErrorCallback(err);
+                    }
+                    return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0, selectAll: false});
+                });
             },
         });
     }

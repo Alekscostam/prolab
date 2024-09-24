@@ -38,7 +38,7 @@ const PDFViewerComponent = ({ labels,  file }) => {
     };
 
     return (
-        <div>
+        <div className='container-fluid justify-content-center'>
             <TransformWrapper
                 initialScale={1}
                 minScale={0.5}
@@ -48,6 +48,7 @@ const PDFViewerComponent = ({ labels,  file }) => {
                 {() => (
                     <TransformComponent>
                          <Document
+
                             renderMode='canvas'
                             file={pdfArrayBuffer}
                             onLoadSuccess={onDocumentLoadSuccess}
@@ -56,6 +57,7 @@ const PDFViewerComponent = ({ labels,  file }) => {
                                 pageNumber={pageNumber}
                                 renderTextLayer={false}
                                 renderAnnotationLayer={false}
+                                width={"650"}
                             />
                         </Document>
                     </TransformComponent>

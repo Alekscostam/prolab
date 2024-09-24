@@ -202,7 +202,7 @@ class GridViewComponent extends CellEditComponent {
     };
     getPackageCount = () => {
         const result =
-            !!this.props.packageRows || this.props.packageRows === 0
+            StringUtils.isBlank(this.props.packageRows) || this.props.packageRows === 0
                 ? Constants.DEFAULT_DATA_PACKAGE_COUNT
                 : this.props.packageRows;
         if (this.props.cellModeEnabled && this.state.allRowsShow) {

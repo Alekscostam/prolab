@@ -176,6 +176,8 @@ export default class AuthService {
     }
    
     refresh() {
+        const idToken =localStorage.getItem(CookiesName.ID_TOKEN);
+        const idRefreshToken =localStorage.getItem(CookiesName.ID_REFRESH_TOKEN);
         return this.fetch(
             `${this.getAndSetDomainIfNeccessery()}/auth/refreshToken`,
             {
@@ -200,6 +202,8 @@ export default class AuthService {
                 const textAfterHash = window.location.href.split('/#/')[1];
                 const onLogoutUrl = !(textAfterHash && textAfterHash.trim() !== '');
                 if (!onLogoutUrl) {
+                    err.idToken = idToken;
+                    err.idRefreshToken = idRefreshToken;
                     localStorage.setItem(CookiesName.ERROR_AFTER_REFRESH, JSON.stringify(err));
                     setTimeout(()=>{
                         window.location.reload();

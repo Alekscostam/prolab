@@ -4,7 +4,7 @@ import EditRowUtils from '../EditRowUtils';
 import {Button} from 'primereact/button';
 import HtmlEditor, {Item, MediaResizing, Toolbar} from 'devextreme-react/html-editor';
 import {CheckBox, DateBox, NumberBox, TextBox, Validator} from 'devextreme-react';
-import {RequiredRule} from 'devextreme-react/validator';
+import {PatternRule, RequiredRule} from 'devextreme-react/validator';
 import moment from 'moment';
 import {compress} from 'int-compress-string/src';
 import {EditSpecUtils} from '../EditSpecUtils';
@@ -13,6 +13,7 @@ import OperationCell from '../../model/OperationCell';
 import {StringUtils} from '../StringUtils';
 import EntryResponseHelper from '../helper/EntryResponseHelper';
 import { v4 as uuidv4 } from 'uuid';
+import ValidatorPattern from '../../model/ValidatorPattern';
 
 
 const sizeValues = ['8pt', '10pt', '12pt', '14pt', '18pt', '24pt', '36pt'];
@@ -67,6 +68,7 @@ export const MemoizedText = React.memo(
         onFillDownClick,
         validatorFunction
     }) => {
+      const validatorPattern =  new ValidatorPattern(cellInfo, field);
         const onValueFromEventChanged = (e) =>{
             if(validatorFunction){
                 if(e?.value){
@@ -78,52 +80,62 @@ export const MemoizedText = React.memo(
                 }
             }
         } 
+        const startupValue = inputValue;
         return (
             <React.Fragment>
-                <div className={`${selectionList}`}>
+                <div className={`row`}>
+                    <div className={ `${selectionList} col-12`}>
                     <TextBox
-                        id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
-                        className={`${validate}`}
-                        mode={mode || 'text'}
-                        onDisposing={()=>{ 
-                            let value =cellInfo.value ?? "";
-                            if (value.endsWith('.')) {
-                                value += '0';
-                                cellInfo.setValue(value)
-                            }
-                        }}
-                        defaultValue={inputValue}
-                        stylingMode={'filled'}
-                        disabled={!field.edit}
-                        valueChangeEvent={'keyup'}
-                        onValueChanged={(e) => {
-                            switch (required) {
-                                case true:
-                                    if (e.value !== '') {
-                                        onValueFromEventChanged(e);
-                                        cellInfo.setValue(e.value);
-                                    }
-                                    break;
-                                    default:
-                                        onValueFromEventChanged(e);
-                                        cellInfo.setValue(e.value);
+                            id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
+                            className={`${validate}`}
+                            mode={mode || 'text'}
+                            onDisposing={()=>{ 
+                                let value =cellInfo.value ?? "";
+                                if(!validatorPattern.test(value)){
+                                    cellInfo.setValue(startupValue)
+                                }
+                            }}
+                            validationMessagePosition="left"
+                            defaultValue={inputValue}
+                            stylingMode={'filled'}
+                            disabled={!field.edit}
+                            valueChangeEvent={'keyup'}
+                            onValueChanged={(e) => {
+                                switch (required) {
+                                    case true:
+                                        if (e.value !== '') {
+                                            cellInfo.setValue(e.value);
+                                        }
                                         break;
+                                        default:
+                                            cellInfo.setValue(e.value);
+                                            break;
                                     }
-                                    
-                                }}
-                    >
-                        {required ? (
-                            <Validator>
-                                <RequiredRule />
-                            </Validator>
-                        ) : null}
-                    </TextBox>
-                    <MemoizedOperations
-                        editListVisible={!!selectionList}
-                        onOperationClick={onOperationClick}
-                        fillDownVisible={!!downFill}
-                        onFillDownClick={onFillDownClick}
-                    />
+                                    if(validatorPattern.shouldBeRegexUse()){
+                                        const vp =  validatorPattern.getValidatorTextHtml(e.value);
+                                        document.getElementById("message-outside-div").innerHTML = vp;    
+                                    }
+                                    }
+                                }
+                        >
+                                <Validator>
+                                    {validatorPattern.shouldBeRegexUse() && <PatternRule
+                                        pattern={validatorPattern.getRegex()}
+                                        message={""}
+                                    />}
+                                {required && <RequiredRule />}  
+                                </Validator>
+                        </TextBox>
+                        <MemoizedOperations
+                            editListVisible={!!selectionList}
+                            onOperationClick={onOperationClick}
+                            fillDownVisible={!!downFill}
+                            onFillDownClick={onFillDownClick}
+                        />
+                    </div>
+                        {validatorPattern.expressionSatisfiesCondition() && <div id='message-outside-div' className='col-lg-12'>
+                             {validatorPattern.getValidatorDivHtml(inputValue)}
+                        </div>}    
                 </div>
             </React.Fragment>
         );

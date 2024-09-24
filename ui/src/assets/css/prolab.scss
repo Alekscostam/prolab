@@ -50,7 +50,6 @@ html * {
 html {
     height: 100%;
 }
-
 .p-fileupload-row {
     .p-badge.p-badge-warning {
         display: none !important;
@@ -339,7 +338,7 @@ label{
     border-radius: 4px;
 }
 
-.p-dialog-header-close {
+.p-dialog-header-close,.p-dialog-header-maximize {
     border-radius: 50px;
     color: white;
 }
@@ -663,6 +662,19 @@ body main div.container-fluid {
 .react-transform-wrapper{
     min-height: 841px;
     min-width: 595px;
+    justify-content: center!important;        
+    width: initial!important;
+    .react-transform-component{
+        width: initial!important;
+        justify-content: center!important;
+    }
+    .react-pdf__Document{
+        justify-content: center!important
+    }
+    .react-pdf__Page__canvas{
+        display: block!important;
+        justify-content: center!important;
+    }
 }
 .dialog-pdf, .dialog-excel,.dialog-docx{
     .p-dialog-header{
@@ -1781,6 +1793,15 @@ td[aria-roledescription='Editable'] {
     }
 }
 
+#text-box-validator-custom-message-red{
+    background: $invalid-background-color!important;
+    color: white;
+    padding: 0px;
+    padding-left: 4px;
+    padding-right: 4px;
+    font-size: 12px;
+    border-radius: 0px;
+}
 
 @import 'edit_spec_field';
 @import 'edit_row';

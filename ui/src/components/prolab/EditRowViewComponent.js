@@ -135,8 +135,8 @@ export class EditRowViewComponent extends BaseRowComponent {
                 this.unblockUi();
             });
     }
-
     componentWillUnmount() {
+        window.location.href = UrlUtils.getUrlWithoutEditRowParams()
         super.componentWillUnmount();
     }
 

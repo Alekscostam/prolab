@@ -27,6 +27,7 @@ export const PDFViewerDialogComponent = (props) => {
                 closable={true}
                 header={dialogHeader}
                 blockScroll
+                maximizable 
                 visible={visible}
                 style={{ overflow: 'hidden !important'}}
                 onHide={hideDialog}

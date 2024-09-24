@@ -717,16 +717,17 @@ export class BaseViewContainer extends BaseContainer {
             });
         const fileId = info?.fileId;
         const fileName = info?.fileName;
-        if (this.canDownloadAfterExecuteDocument(info)) {
+        const isDownload =  StringUtils.isBlank(info?.isDownload) ? false : info.isDownload;
+        if (isDownload) {
             this.crudService.downloadDocument(viewId, elementId, fileId, fileName);
             this.setState({
                 visibleDocumentPanel: false,
             });
         }
-        // const isPreview =  StringUtils.isBlank(info?.isPreview) ? false : info.isPreview;
-        // if(isPreview){
-        //     this.showDocumentViewer(viewId, elementId, fileId, fileName)
-        // }
+        const isPreview =  StringUtils.isBlank(info?.isPreview) ? false : info.isPreview;
+        if(isPreview){
+            this.showDocumentViewer(viewId, elementId, fileId, fileName)
+        }
         this.unblockUi();
     }
     showDocumentViewer = (viewId, elementId, fileId, fileName) =>{
@@ -746,18 +747,7 @@ export class BaseViewContainer extends BaseContainer {
             this.showGlobalErrorMessage(error)
         });
     }
-    canDownloadAfterExecuteDocument = (info) => {
-        const fileId = info?.fileId;
-        const isEdit = StringUtils.isBlank(info?.isEdit) ? false : info.isEdit ;
-        const isDownload =  StringUtils.isBlank(info?.isDownload) ? false : info.isDownload;
-        const isPreview =  StringUtils.isBlank(info?.isPreview) ? false : info.isPreview;
-
-        if(StringUtils.isBlank(fileId) || fileId === "0" || fileId === 0){
-            return false;
-        }
-        // return true;
-        return isEdit || isDownload || isPreview;
-    }
+ 
     //override
     renderHeaderRight() {
         return <React.Fragment />;
@@ -1491,32 +1481,37 @@ export class BaseViewContainer extends BaseContainer {
                 type:''
             }  
         })};
-        switch (this.state?.fileViewer?.type) {
-            case FileType.XLSX:
-                return <ExcelEditorDialogComponent     
-                onHide={onHide}
-                name={this.state.fileViewer.name}
-                file={this.state.fileViewer.file}
-                labels={this.props.labels}
-            />
-            case FileType.PDF:
-                return <PDFViewerDialogComponent
-                onHide={onHide}
-                name={this.state.fileViewer.name}
-                file={this.state.fileViewer.file}
-                labels={this.props.labels}
-            />
-            
-            case FileType.DOCX:
-                return <DocxViewerDialogComponent
-                onHide={onHide}
-                name={this.state.fileViewer.name}
-                file={this.state.fileViewer.file}
-                labels={this.props.labels}
-            />
-            default:
-                return  <React.Fragment></React.Fragment>;
-        }
+        // switch (this.state?.fileViewer?.type) {
+        //     case FileType.XLSX:
+        //         return <ExcelEditorDialogComponent     
+        //         onHide={onHide}
+        //         name={this.state.fileViewer.name}
+        //         file={this.state.fileViewer.file}
+        //         labels={this.props.labels}
+        //     />
+        //     case FileType.PDF:
+        //         return <PDFViewerDialogComponent
+        //         onHide={onHide}
+        //         name={this.state.fileViewer.name}
+        //         file={this.state.fileViewer.file}
+        //         labels={this.props.labels}
+        //     />
+        //     case FileType.DOCX:
+        //         return <DocxViewerDialogComponent
+        //         onHide={onHide}
+        //         name={this.state.fileViewer.name}
+        //         file={this.state.fileViewer.file}
+        //         labels={this.props.labels}
+        //     />
+        //     default:
+        //         return  <React.Fragment></React.Fragment>;
+        // }
+        return  <PDFViewerDialogComponent
+        onHide={onHide}
+        name={this.state.fileViewer.name}
+        file={this.state.fileViewer.file}
+        labels={this.props.labels}
+    />
     }
     //override
     renderContent = () => {

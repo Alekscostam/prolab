@@ -1,9 +1,10 @@
 import moment from 'moment';
 import AuthService from './AuthService';
 import {readObjFromCookieGlobal} from '../utils/Cookie';
-import { StringUtils } from '../utils/StringUtils';
 
 let lastRefreshTime = null;
+let isRefreshing = false; 
+let refreshPromise = null;
 
 export default class BaseService {
     // Initializing important variables
@@ -21,6 +22,11 @@ export default class BaseService {
             return moment(this).format('YYYY-MM-DDTHH:mm:ssZ');
         };
         this.counter = 0;
+    }
+
+    clearRefreshCache(){
+        isRefreshing = false; 
+        refreshPromise = null;
     }
 
     reConfigureDomain() {
@@ -41,7 +47,7 @@ export default class BaseService {
 
     fetch(url, options, headers, token) {
         const method = options !== undefined ? options.method : undefined;
-        // performs api calls sending the required authentication headers
+
         if (headers === null || headers === undefined) {
             headers = {
                 Accept: 'application/json',
@@ -67,9 +73,7 @@ export default class BaseService {
                 headers,
                 ...options,
             })
-                .then((response) => {
-                    return this.parseJSON(response, headers);
-                })
+                .then((response) => this.parseJSON(response, headers))
                 .then((response) => {
                     if (method === 'POST' || method === 'PUT') {
                         this.counter -= 1;
@@ -77,67 +81,66 @@ export default class BaseService {
                             this.unblockUi();
                         }
                     }
-                    if (
-                        response.ok &&
-                        (headers === undefined ||
-                            headers.accept === 'application/json' ||
-                            headers.Accept === 'application/json')
-                    ) {
-                        return resolve(response.json);
-                    } else if (
-                        response.ok &&
-                        (headers === undefined ||
-                            headers.accept === 'application/octet-stream' ||
-                            headers.Accept === 'application/octet-stream')
-                    ) {
-                        return resolve(response.blob);
-                    } else if (response.ok) {
-                        return resolve(response.body);
+                    if (response.ok) {
+                        if (headers.Accept === 'application/json') {
+                            return resolve(response.json);
+                        } else if (headers.Accept === 'application/octet-stream') {
+                            return resolve(response.blob);
+                        } else {
+                            return resolve(response.body);
+                        }
+                    } else {
+                        throw response.json;
                     }
-                    // extract the error from the server's json
-                    return reject(response.json);
+                    
                 })
                 .catch((error) => {
-                    if (error.status === 401) {
-                        const calculateNextRefreshTime = this.setAndGetNextRefreshDelay();
-                        setTimeout(()=>{
-                            this.auth
-                            .refresh()
-                            .then(() => {
-                                return this.fetch(url, options, headers, token).then((el) => {
-                                    return resolve(el);
-                                }).catch(error=>{
-                                    if(StringUtils.isBlank(error.status)){
-                                        return resolve(error)
-                                    }
-                                    this.auth.logout();
-                                });
-                            })
-                            .catch(() => {
-                                this.auth.logout();
-                            });
-                        },calculateNextRefreshTime)
-                    } else {
-                        if (method === 'POST' || method === 'PUT') {
-                            this.counter -= 1;
-                            if (this.counter <= 0 && this.unblockUi !== undefined) {
-                                this.unblockUi();
-                            }
-                        }
-                        if (
-                            error !== undefined &&
-                            error !== null &&
-                            error.message !== undefined &&
-                            error.message !== null &&
-                            (error.message.includes('NetworkError when attempting to fetch resource') ||
-                                error.message.includes('Failed to fetch'))
-                        ) {
-                            error.message = 'komunikacji z serwerem podczas pobierania danych.';
-                        }
-                        reject(error);
-                    }
+                    this.handleErrorCommon(error, url, options, headers, token, resolve, reject, method, this.fetch);
                 });
         });
+    }
+    handleErrorCommon(error, url, options, headers, token, resolve, reject, method, fetchMethod) {
+        if (error.status === 401) {
+            if (!isRefreshing) {
+                isRefreshing = true; 
+                refreshPromise = this.auth.refresh()
+                    .then(() => {
+                        setTimeout(()=>{
+                            this.clearRefreshCache();
+                        },5000);
+                        return fetchMethod(url, options, headers, token).then(resolve).catch(reject);
+                    })
+                    .catch((refreshError) => {    
+                        this.clearRefreshCache();
+                        this.auth.logout();
+                        reject(refreshError);
+                    });
+            } else {
+                refreshPromise
+                    .then(() => {
+                        return fetchMethod(url, options, headers, token).then(resolve).catch(reject);
+                    })
+                    .catch(reject);
+            }
+        } else {
+            if (method === 'POST' || method === 'PUT') {
+                this.counter -= 1;
+                if (this.counter <= 0 && this.unblockUi !== undefined) {
+                    this.unblockUi();
+                }
+            }
+            if (
+                error !== undefined &&
+                error !== null &&
+                error.message !== undefined &&
+                error.message !== null &&
+                (error.message.includes('NetworkError when attempting to fetch resource') ||
+                    error.message.includes('Failed to fetch') || error.message.includes('NetworkError') )
+            ) {
+                error.message = 'komunikacji z serwerem podczas pobierania danych.';
+            }
+            reject(error);
+        }
     }
 
     fetchFileResponse(url, options, headers) {
@@ -173,39 +176,8 @@ export default class BaseService {
                     }
                 })
                 .catch((error) => {
-                    if (error.status === 401) {
-                        const calculateNextRefreshTime = this.setAndGetNextRefreshDelay();
-                        setTimeout(()=>{ 
-                            this.auth
-                            .refresh()
-                            .then(() => {
-                                return this.fetchFileResponse(url, options, headers).then((el) => {
-                                    return resolve(el);
-                                }).catch(error=>{
-                                    if(StringUtils.isBlank(error.status)){
-                                        return resolve(error)
-                                    }
-                                    this.auth.logout();
-                                });
-                            })
-                            .catch(() => {
-                                this.auth.logout();
-                            });
-                        },calculateNextRefreshTime)
-                       
-                } else {
-                    if (
-                        error !== undefined &&
-                        error !== null &&
-                        error.message !== undefined &&
-                        error.message !== null &&
-                        (error.message.includes('NetworkError when attempting to fetch resource') ||
-                            error.message.includes('Failed to fetch'))
-                    ) {
-                        error.message = 'komunikacji z serwerem podczas pobierania danych.';
-                    }
-                    reject(error);
-                }});
+                    this.handleErrorCommon(error, url, options, headers, null, resolve, reject, null, this.fetchFileResponse);
+                });
         });
     }
 
