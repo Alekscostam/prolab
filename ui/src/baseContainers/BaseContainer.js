@@ -197,6 +197,7 @@ class BaseContainer extends React.Component {
             life: life,
             summary: summary,
             detail: errMsg,
+            closable
         });
         this.unblockUi();
     }

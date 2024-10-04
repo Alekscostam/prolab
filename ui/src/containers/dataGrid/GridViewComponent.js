@@ -47,7 +47,8 @@ class GridViewComponent extends CellEditComponent {
         this.labels = this.props;
         this.dataGrid = null;
         this.crudService = new CrudService();
-        this.menu = React.createRef();
+        this.menu = React.createRef();        
+        this.refDateTime = React.createRef();        
         this.clickedPosition = React.createRef();
         this.focusedRowKey = React.createRef();
         this.keyDownClicked = React.createRef(false);
@@ -76,6 +77,8 @@ class GridViewComponent extends CellEditComponent {
         this.rowRenderingMode = UrlUtils.isBatch() ? 'standard' : 'virtual';
         ConsoleHelper('GridViewComponent -> constructor');
     }
+    // TODO: jesli wejdziemy w edycje specyfikacji to nie aktualizuje sie okruszek, up and down  
+    // FIXX: jesli jestesmy w edycji komorki i od razu klikniemy "zapisz" to pojawi sie walidacja jesli to konieczne, fix na zmiane background coloru po zmienie reoreringu column  
     showMenu(e) {
         const menu = this.menu.current;
         ActionButtonWithMenuUtils.hideActionButtonWithMenuPopup();

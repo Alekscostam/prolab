@@ -248,6 +248,7 @@ $edit-padding-bottom: 11px;
         display: none;
     }
     .p-checkbox.p-component.p-disabled *{
+        color:#3F51B5;
         background-color: $disabled-background;
     }
 }

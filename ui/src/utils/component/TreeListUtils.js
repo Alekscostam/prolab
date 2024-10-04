@@ -1,4 +1,4 @@
-import React, { createRef } from 'react';
+import React, { createRef, useRef, useState } from 'react';
 import {ViewDataCompUtils} from './ViewDataCompUtils';
 import EditRowUtils from '../EditRowUtils';
 import {Button} from 'primereact/button';
@@ -13,7 +13,7 @@ import OperationCell from '../../model/OperationCell';
 import {StringUtils} from '../StringUtils';
 import EntryResponseHelper from '../helper/EntryResponseHelper';
 import { v4 as uuidv4 } from 'uuid';
-import ValidatorPattern from '../../model/ValidatorPattern';
+import CellValidator from '../../model/ValidatorPattern';
 
 
 const sizeValues = ['8pt', '10pt', '12pt', '14pt', '18pt', '24pt', '36pt'];
@@ -52,7 +52,6 @@ export const MemoizedOperations = React.memo(({editListVisible, fillDownVisible,
     );
 });
 
-
 export const MemoizedText = React.memo(
     ({
         field,
@@ -66,21 +65,11 @@ export const MemoizedText = React.memo(
         onOperationClick,
         downFill,
         onFillDownClick,
-        validatorFunction
+        afterValidatorExecute
     }) => {
-      const validatorPattern =  new ValidatorPattern(cellInfo, field);
-        const onValueFromEventChanged = (e) =>{
-            if(validatorFunction){
-                if(e?.value){
-                    e.value = validatorFunction(e.value);
-                }
-                if(e?.event?.currentTarget){
-                    e.event.currentTarget.value = validatorFunction(e.event.currentTarget.value);
-                    cellInfo.setValue(e.event.currentTarget.value);
-                }
-            }
-        } 
-        const startupValue = inputValue;
+      const cellValidator = new CellValidator(cellInfo, field);
+      const [isValid, setIsValid] = useState(cellValidator.isValidField(inputValue));  
+      let currentVal = inputValue;
         return (
             <React.Fragment>
                 <div className={`row`}>
@@ -89,11 +78,11 @@ export const MemoizedText = React.memo(
                             id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                             className={`${validate}`}
                             mode={mode || 'text'}
-                            onDisposing={()=>{ 
-                                let value =cellInfo.value ?? "";
-                                if(!validatorPattern.test(value)){
-                                    cellInfo.setValue(startupValue)
-                                }
+                            isValid={isValid}
+                            onFocusOut={(e)=>{ afterValidatorExecute(cellValidator, currentVal, false);}}     
+                            onDisposing={(e)=>{ 
+                                const value = cellInfo?.value;
+                                afterValidatorExecute(cellValidator, value);
                             }}
                             validationMessagePosition="left"
                             defaultValue={inputValue}
@@ -101,26 +90,27 @@ export const MemoizedText = React.memo(
                             disabled={!field.edit}
                             valueChangeEvent={'keyup'}
                             onValueChanged={(e) => {
+                                const isValid = cellValidator.isValidField(e.value);
+                                setIsValid(isValid)
                                 switch (required) {
                                     case true:
                                         if (e.value !== '') {
+                                            currentVal = e.value;
                                             cellInfo.setValue(e.value);
                                         }
                                         break;
                                         default:
+                                            currentVal = e.value;
                                             cellInfo.setValue(e.value);
                                             break;
                                     }
-                                    if(validatorPattern.shouldBeRegexUse()){
-                                        const vp =  validatorPattern.getValidatorTextHtml(e.value);
-                                        document.getElementById("message-outside-div").innerHTML = vp;    
-                                    }
-                                    }
+                            
                                 }
+                            }
                         >
                                 <Validator>
-                                    {validatorPattern.shouldBeRegexUse() && <PatternRule
-                                        pattern={validatorPattern.getRegex()}
+                                    {cellValidator.expressionSatisfiesCondition() && <PatternRule
+                                        pattern={cellValidator.getRegex()}
                                         message={""}
                                     />}
                                 {required && <RequiredRule />}  
@@ -133,9 +123,6 @@ export const MemoizedText = React.memo(
                             onFillDownClick={onFillDownClick}
                         />
                     </div>
-                        {validatorPattern.expressionSatisfiesCondition() && <div id='message-outside-div' className='col-lg-12'>
-                             {validatorPattern.getValidatorDivHtml(inputValue)}
-                        </div>}    
                 </div>
             </React.Fragment>
         );

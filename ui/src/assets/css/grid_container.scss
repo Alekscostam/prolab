@@ -499,13 +499,22 @@ $base-color: #0e49eb;
         }
     }
     .dx-row.dx-data-row.dx-row-lines.dx-column-lines.dx-state-hover,
-    .dx-row.dx-data-row.dx-row-lines.dx-state-hover {
+    .dx-row.dx-data-row.dx-row-lines.dx-state-hover
+    {
         background-color: $base-color !important;
         td {
             background-color: $base-color !important;
             div {
                 color: white !important;
             }
+            .deleted-row {
+                color: red !important;
+            }
+        }
+    }
+    
+    .dx-row.dx-data-row.dx-row-lines.dx-column-lines.dx-selection{
+        td {
             .deleted-row {
                 color: red !important;
             }

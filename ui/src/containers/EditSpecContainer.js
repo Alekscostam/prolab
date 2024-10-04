@@ -41,7 +41,8 @@ export class EditSpecContainer extends BaseContainer {
         this.editSpecService = new EditSpecService();
         this.crudService = new CrudService();
         this.dataTreeStore = new DataTreeStore();
-        this.refTreeList = React.createRef();
+        this.refTreeList = React.createRef();  
+        this.invalidCellKeys = React.createRef([]);
         this.treeListComponentRef = React.createRef();
         this.messages = React.createRef();
         this.state = {
@@ -66,6 +67,7 @@ export class EditSpecContainer extends BaseContainer {
     }
 
     componentDidMount() {
+        this.invalidCellKeys.current = [];
         this._isMounted = true;
         let id = UrlUtils.getViewIdFromURL();
         if (id === undefined) {
@@ -419,6 +421,10 @@ export class EditSpecContainer extends BaseContainer {
     }
 
     handleSaveAction() {
+        if(this.invalidCellKeys?.current.length!==0){
+            this.showErrorMessage("Komórki o wartościach: " + this.invalidCellKeys?.current + " nie są prawidłowe!", 2500, false);
+            return;
+        }
         const viewIdArg = this.state.elementId;
         const parentIdArg = this.state.elementParentId;
         const globalComponents = document.getElementById('global-top-components');
@@ -631,6 +637,50 @@ export class EditSpecContainer extends BaseContainer {
     }
 
     up(id) {
+        if(StringUtils.isBlank(id)){
+            this.moveFewElements(false);
+            // TODO:
+        }else{
+            this.upSingleElement(id);
+        }
+    }
+    down(id) {
+        if(StringUtils.isBlank(id)){
+            this.moveFewElements(true);
+        }else{
+            this.downSingleElement(id);
+        }
+    }
+    moveFewElements(reverse){
+        this.blockUi();
+        const ref = this.refTreeList?.instance;
+        let data = ref.getVisibleRows().map((el) => el.data);
+        let arrayWithIndexAndKey = []; 
+        this.state.selectedRowKeys.forEach((id) => {
+            const currentIndex = data.findIndex((x) => x._ID === id);
+            const element = {index: currentIndex, key: id}
+            arrayWithIndexAndKey.push(element);
+        });
+
+        arrayWithIndexAndKey.sort((a, b) => a.index - b.index);
+        if(reverse){
+            arrayWithIndexAndKey.reverse()  
+        }
+        if(arrayWithIndexAndKey.length === 0){
+            this.unblockUi()
+        }
+        console.log(arrayWithIndexAndKey);
+        arrayWithIndexAndKey.forEach((el, index)=>{
+            setTimeout(() => {
+                this.downSingleElement(el.key);
+                if (index === arrayWithIndexAndKey.length - 1) {
+                    this.unblockUi()
+                }
+            }, index * 1500); 
+        })
+    }
+
+    upSingleElement(id){
         const ref = this.refTreeList?.instance;
         let data = ref.getVisibleRows().map((el) => el.data);
         const currentIndex = data.findIndex((x) => x._ID === id);
@@ -646,8 +696,7 @@ export class EditSpecContainer extends BaseContainer {
         }
         this.switchElements(currentElement,nextElement);
     }
-
-    down(id) {
+    downSingleElement(id){
         const ref = this.refTreeList?.instance;
         let data = ref.getVisibleRows().map((el) => el.data);
         const currentIndex = data.findIndex((x) => x._ID === id);
@@ -663,7 +712,7 @@ export class EditSpecContainer extends BaseContainer {
         }
         this.switchElements(currentElement,nextElement);
     }
-
+    
     switchElements = (currentElement, nextElement) =>{
         if(nextElement && currentElement){
             if(this.haveTheSameParents(currentElement, nextElement)){
@@ -721,6 +770,30 @@ export class EditSpecContainer extends BaseContainer {
         this.refTreeList?.instance?.refresh();
         if (!!callbackAction) callbackAction();
     }
+    
+    isValidAction(cellValidator){
+        if(!StringUtils.isBlank(this.invalidCellKeys?.current) ){
+           this.invalidCellKeys.current = this.invalidCellKeys.current.filter(key => key !== cellValidator.key);
+        }
+       }
+    isInvalidAction(cellValidator,withMessage = true){
+        if(withMessage){
+            this.showErrorMessage(cellValidator.getMessage(), 2500, true);
+        }
+        if(!StringUtils.isBlank(this.invalidCellKeys?.current)){
+           if(Array.isArray(this.invalidCellKeys.current)) {
+              this.invalidCellKeys.current = [...new Set([...this.invalidCellKeys.current, cellValidator.key])];
+           }
+        }
+    }
+    keyExistsInInvalidCellKeys(key){
+       if(!StringUtils.isBlank(this.invalidCellKeys?.current) ){
+           if(Array.isArray(this.invalidCellKeys.current)) {
+               return this.invalidCellKeys.current.some(el=>el === key);
+            }
+         }
+        return false;
+    }
     //override
     renderContent = () => {
         const parsedData = this.state?.parsedData?.filter((el) => el._STATUS !== 'deleted');
@@ -745,8 +818,17 @@ export class EditSpecContainer extends BaseContainer {
 
                         <div id='spec-edit'>
                             <TreeViewComponent
+                                invalidCellKeys={this.invalidCellKeys}
                                 ref={this.treeListComponentRef}
                                 altAndLeftClickEnabled={true}
+                                afterFinishEditCell={(cellValidator, value, withMessage)=>{
+                                    if(!StringUtils.isBlank(cellValidator)){
+                                    if(!cellValidator.test(value))this.isInvalidAction(cellValidator, withMessage)
+                                    else this.isValidAction(cellValidator);
+                                }}}
+                                keyExistsInInvalidCellKeys={(key)=>{
+                                   return this.keyExistsInInvalidCellKeys(key);
+                                }}
                                 id={this.props.id}
                                 onHideEditorCallback={() => this.forceUpdate()}
                                 viewInfo={this.state.viewInfo}

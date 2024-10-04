@@ -39,7 +39,19 @@ $base-color: #0e49eb;
         width: 15px; /* Szerokość paska */
     }
 }
-
+.dx-treelist-content .dx-treelist-table .dx-row .dx-editor-cell .dx-texteditor, .dx-treelist-content .dx-treelist-table .dx-row .dx-editor-cell .dx-texteditor-container{
+    margin-left: -2px!important;
+    margin-right: -2px!important;
+}
+#spec-edit{
+        .tex-box-view-field-invalid.dx-texteditor.dx-editor-filled {
+            background: rgba(51, 51, 51, .05);
+            border: 0px!important; 
+            margin-bottom: -2px;
+            margin-top: -2px;
+            margin-left: -5px !important;
+        }
+}
 .dx-treelist-rowsview .dx-treelist-expanded span::before {
     margin-left: -2px !important;
 }

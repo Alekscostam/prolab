@@ -1481,31 +1481,6 @@ export class BaseViewContainer extends BaseContainer {
                 type:''
             }  
         })};
-        // switch (this.state?.fileViewer?.type) {
-        //     case FileType.XLSX:
-        //         return <ExcelEditorDialogComponent     
-        //         onHide={onHide}
-        //         name={this.state.fileViewer.name}
-        //         file={this.state.fileViewer.file}
-        //         labels={this.props.labels}
-        //     />
-        //     case FileType.PDF:
-        //         return <PDFViewerDialogComponent
-        //         onHide={onHide}
-        //         name={this.state.fileViewer.name}
-        //         file={this.state.fileViewer.file}
-        //         labels={this.props.labels}
-        //     />
-        //     case FileType.DOCX:
-        //         return <DocxViewerDialogComponent
-        //         onHide={onHide}
-        //         name={this.state.fileViewer.name}
-        //         file={this.state.fileViewer.file}
-        //         labels={this.props.labels}
-        //     />
-        //     default:
-        //         return  <React.Fragment></React.Fragment>;
-        // }
         return  <PDFViewerDialogComponent
         onHide={onHide}
         name={this.state.fileViewer.name}

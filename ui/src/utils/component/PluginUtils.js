@@ -2,10 +2,10 @@ import LocUtils from '../LocUtils';
 
 export class PluginConfirmDialogUtils {
     static acceptLabel(parsedPluginView, labels) {
-        parsedPluginView.info.question ? LocUtils.loc(labels, 'Yes', 'Tak') : LocUtils.loc(labels, 'Ok', 'Ok');
+       return parsedPluginView.info.question ? LocUtils.loc(labels, 'Yes', 'Tak') : LocUtils.loc(labels, 'Ok', 'Ok');
     }
     static rejectLabel(parsedPluginView, labels) {
-        parsedPluginView.info.question ? LocUtils.loc(labels, 'No', 'Nie') : LocUtils.loc(labels, 'Close', 'Zamknij');
+        return parsedPluginView.info.question ? LocUtils.loc(labels, 'No', 'Nie') : LocUtils.loc(labels, 'Close', 'Zamknij');
     }
     static message(parsedPluginView, labels) {
         return parsedPluginView.info.question

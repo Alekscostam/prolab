@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import CrudService from '../../services/CrudService';
 import ConsoleHelper from '../../utils/ConsoleHelper';
-import {TreeList} from 'devextreme-react';
+import {TextBox, TreeList} from 'devextreme-react';
 import {
     Column,
     Editing,
@@ -36,6 +36,7 @@ import { HtmlUtils } from '../../utils/HtmlUtils';
 import { ViewDataCompUtils } from '../../utils/component/ViewDataCompUtils';
 import EntryResponseHelper from '../../utils/helper/EntryResponseHelper';
 import UrlUtils from '../../utils/UrlUtils';
+import CellValidator from '../../model/ValidatorPattern';
 
 let clearSelection = false;
 
@@ -47,7 +48,7 @@ class TreeViewComponent extends CellEditComponent {
         this.selectionClicked = React.createRef(false);
         this.selectionCheckboxClicked = React.createRef(false);
         this.ref = React.createRef();
-        this.refDateTime = React.createRef();        
+        this.refDateTime = React.createRef();              
         this.clickedPosition = React.createRef();
         this.menu = React.createRef();
         this.modelRef = React.createRef([]);
@@ -69,7 +70,8 @@ class TreeViewComponent extends CellEditComponent {
             operationsPPM: this.props.parsedGridView.operationsPPM || [],
             operations: this.props.parsedGridView.operations || [],
             parsedGridViewData: {},
-            rowRenderingMode: this.props.parsedGridView?.gridOptions?.groupExpandAll ? 'standard' : 'virtual',
+            // rowRenderingMode: this.props.parsedGridView?.gridOptions?.groupExpandAll ? 'standard' : 'virtual',
+            rowRenderingMode : "standard",
             gridViewColumns: [],
             selectedRowData: [],
             defaultSelectedRowKeys: [],
@@ -257,7 +259,6 @@ class TreeViewComponent extends CellEditComponent {
                     onContentReady={(e) => {
                         const editListDialog = document.getElementById('editListDialog');
                         this.expandRows();
-
                         if (!editListDialog) {
                             this.rerenderRows(e);
                             return;
@@ -281,13 +282,16 @@ class TreeViewComponent extends CellEditComponent {
                     height={dataTreeHeight ? dataTreeHeight + 'px' : '100%'}
                     width={columnAutoWidth ? '100%' : undefined}
                     rowAlternationEnabled={false}
+                    
                     onCellPrepared={(e) => {
                         if (e.rowType === 'data') {
-                            let preInitializedColumns = this.state.preInitializedColumns.find(
-                                (el) => el.columnIndex === e.columnIndex && el.editable === false
-                            );
-                            if (preInitializedColumns) {
-                                e.cellElement.classList.add('disabled-background');
+                            if(!this.props.isAddSpec){
+                                if(e.columnIndex !==0){
+                                    const columnDefinition = this.matchColumnDefinitionByFieldName(e.column.dataField);
+                                    if (!columnDefinition?.edit && e.column?.id !== "OP_COLUMN") {
+                                        e.cellElement.classList.add('disabled-background');
+                                    }
+                                }
                             }
                         }
                     }}
@@ -587,63 +591,11 @@ class TreeViewComponent extends CellEditComponent {
         }
     };
 
-    preColumnDefinition(editable, INDEX_COLUMN) {
-        if (INDEX_COLUMN !== 0) {
-            const preInitializedColumns = this.state.preInitializedColumns;
-            const foundedElement = preInitializedColumns.find((el) => el.columnIndex === INDEX_COLUMN);
-            if (!foundedElement) {
-                const column = {
-                    columnIndex: INDEX_COLUMN,
-                    editable: editable,
-                };
-                preInitializedColumns.push(column);
-                this.setState({
-                    preInitializedColumns,
-                });
-            }
-        }
-    }
-
-    preGenerateColumnsDefinition() {
-        let columns = [];
-        this.props.gridViewColumns?.forEach((columnDefinition, INDEX_COLUMN) => {
-            let sortOrder;
-            if (!!columnDefinition?.sortIndex && columnDefinition?.sortIndex > 0 && !!columnDefinition?.sortOrder) {
-                sortOrder = columnDefinition?.sortOrder?.toLowerCase();
-            }
-            const editable = columnDefinition?.edit;
-            this.preColumnDefinition(editable, INDEX_COLUMN);
-            columns.push(
-                <Column
-                    key={INDEX_COLUMN}
-                    sortOrder={sortOrder}
-                    dataField={columnDefinition?.fieldName}
-                    sortIndex={columnDefinition?.sortIndex}
-                    allowEditing={editable || columnDefinition?.selectionList}
-                    cellRender={
-                        this.isSpecialCell(columnDefinition)
-                            ? (cellInfo, columnDefinition) => this.cellRenderSpecial(cellInfo, columnDefinition)
-                            : undefined
-                    }
-                    editCellRender={(cellInfo) =>
-                        this.editCellRender(cellInfo, columnDefinition, () => {
-                            switch (columnDefinition.type) {
-                                case ColumnType.C:
-                                    this.editListVisible(cellInfo.row?.data?._ID, columnDefinition.id);
-                                    break;
-                                case ColumnType.L:
-                                case ColumnType.B:
-                                    this.forceUpdate();
-                                    break;
-                                default:
-                                    break;
-                            }
-                        })
-                    }
-                />
-            );
-        });
-        return columns;
+   // ovverated
+   afterValidatorExecute(cellValidator,value, withMessage){
+      if(this.props.afterFinishEditCell){
+          this.props.afterFinishEditCell(cellValidator, value, withMessage)
+      }
     }
 
     postCustomizeColumns = (columns) => {
@@ -711,6 +663,7 @@ class TreeViewComponent extends CellEditComponent {
                     (operationsRecord.length > 0 || operationsRecordList.length > 0)
                 ) {
                     columns?.push({
+                        id:"OP_COLUMN",
                         caption: '',
                         fixed: true,
                         headerCellTemplate: (element) => {
@@ -863,8 +816,12 @@ class TreeViewComponent extends CellEditComponent {
             }
         }
     }
+    isValidField = (cellInfo, columnDefinition) =>{
+        return new CellValidator(cellInfo, columnDefinition).isValidField();
+    }
     cellRenderSpecial(cellInfo) {
         try {
+            let className = "";
             let _bgColor;
             if (cellInfo.data?.FORMULA && this.isWart(cellInfo?.column?.dataField)) { 
                 this.paintCalculated(cellInfo)
@@ -918,29 +875,18 @@ class TreeViewComponent extends CellEditComponent {
                                 style={{
                                     color: fontColorFinal,
                                 }}
+                                className={className}
                             >
                                 {StringUtils.textFromHtmlString(cellInfo?.text)}{' '}
                             </span>
                         );
+                        
                     } catch (err) {
                         ConsoleHelper('Error render htmloutput. Exception=', err);
                     }
                     break;
                 case ColumnType.C:
-                    try {
-                        return (
-                            <span
-                                className={this.isWart(cellInfo?.column?.dataField)? 'WART' : '' }
-                                style={{
-                                    color: fontColorFinal,
-                                }}
-                                dangerouslySetInnerHTML={{__html: cellInfo?.text}}
-                            />
-                        );
-                    } catch (err) {
-                        ConsoleHelper('Error render htmloutput. Exception=', err);
-                    }
-                    break;
+                    return this.cColumnTypeRender(cellInfo, fontColorFinal);
                 case ColumnType.N:
                     try {
                         return (
@@ -948,6 +894,7 @@ class TreeViewComponent extends CellEditComponent {
                                 style={{
                                     color: fontColorFinal,
                                 }}
+                                className={className}
                                 dangerouslySetInnerHTML={{__html: cellInfo?.text}}
                             />
                         );
@@ -958,7 +905,7 @@ class TreeViewComponent extends CellEditComponent {
                 case ColumnType.IM:
                     try {
                         return !!cellInfo?.text ? (
-                            <img alt={''} height={100} src={`data:image/jpeg;base64,${cellInfo?.text}`} />
+                            <img alt={''} height={100} src={`data:image/jpeg;base64,${cellInfo?.text}`} className={className}/>
                         ) : (
                             <div />
                         );
@@ -1002,13 +949,90 @@ class TreeViewComponent extends CellEditComponent {
             ConsoleHelper('Error global cell render. Exception=', err);
         }
     }
+    preGenerateColumnsDefinition() {
+        let columns = [];
+        this.props.gridViewColumns?.forEach((columnDefinition, INDEX_COLUMN) => {
+            let sortOrder;
+            if (!!columnDefinition?.sortIndex && columnDefinition?.sortIndex > 0 && !!columnDefinition?.sortOrder) {
+                sortOrder = columnDefinition?.sortOrder?.toLowerCase();
+            }
+            const editable = columnDefinition?.edit;
+            columns.push(
+                <Column
+                    key={INDEX_COLUMN}
+                    sortOrder={sortOrder}
+                    allowReordering={true}
+                    dataField={columnDefinition?.fieldName}
+                    sortIndex={columnDefinition?.sortIndex}
+                    allowEditing={editable || columnDefinition?.selectionList}
+                    cellRender={
+                        this.isSpecialCell(columnDefinition)
+                            ? (cellInfo, cd) => this.cellRenderSpecial(cellInfo, editable)
+                            : undefined
+                    }
+                    editCellRender={(cellInfo) =>
+                        this.editCellRender(cellInfo, columnDefinition, () => {
+                            switch (columnDefinition.type) {
+                                case ColumnType.C:
+                                    this.editListVisible(cellInfo.row?.data?._ID, columnDefinition.id);
+                                    break;
+                                case ColumnType.L:
+                                case ColumnType.B:
+                                    this.forceUpdate();
+                                    break;
+                                default:
+                                    break;
+                            }
+                        })
+                    }
+                />
+            );
+        });
+        return columns;
+    }
+
+    cColumnTypeRender(cellInfo, fontColorFinal, className){
+        const keyExistsInInvalidCellKeys = this.props.keyExistsInInvalidCellKeys ? this.props.keyExistsInInvalidCellKeys(cellInfo.key) : false;
+         if(!keyExistsInInvalidCellKeys){
+         try {
+             return (
+                 <span
+                     className={this.isWart(cellInfo?.column?.dataField)? 'WART' : className }
+                     style={{
+                         color: fontColorFinal,
+                     }}
+                     dangerouslySetInnerHTML={{__html: cellInfo?.text}}
+                 />
+             );
+         } catch (err) {
+             ConsoleHelper('Error render htmloutput. Exception=', err);
+         }     
+         }else{
+             try{
+                 return  <TextBox
+                 className='tex-box-view-field-invalid'
+                 mode={ 'text'}
+                 isValid={false}
+                 validationMessagePosition="left"
+                 defaultValue={cellInfo?.text}
+                 stylingMode={'filled'}
+                 valueChangeEvent={'keyup'}
+               
+             >
+             </TextBox>
+             }catch(err){
+                 ConsoleHelper('Error render htmloutput. Exception=', err);
+             }
+         }
+        
+    }
 
     waitForSuccess() {
         return this.props.dataTreeStoreSuccess === false || this.props.gridViewColumns?.length === 0;
     }
 
     matchColumnDefinitionByFieldName(columnDataField) {
-        let columnDefinitionArray = this.props.gridViewColumns?.filter(
+        const columnDefinitionArray = this.props.gridViewColumns?.filter(
             (value) => value.fieldName?.toUpperCase() === columnDataField?.toUpperCase()
         );
         return columnDefinitionArray[0];
@@ -1096,6 +1120,8 @@ TreeViewComponent.propTypes = {
     handleBlockUi: PropTypes.func.isRequired,
     handleUnblockUi: PropTypes.func.isRequired,
     handleAddSpecSpec: PropTypes.func,
+    keyExistsInInvalidCellKeys: PropTypes.func,
+    afterFinishEditCell: PropTypes.func,
     handleUnselectAll: PropTypes.func,
     showErrorMessages: PropTypes.func.isRequired,
     showColumnHeaders: PropTypes.bool,

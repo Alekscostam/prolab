@@ -344,6 +344,9 @@ class CellEditComponent extends Component {
         );
     };
 
+    // ovveride
+    afterValidatorExecute(cellValidator, value, withMessage){}
+
     editCellRender = (cellInfo, columnDefinition, onOperationClick) => {
         const field = columnDefinition;
         const fieldIndex = field.id;
@@ -376,17 +379,8 @@ class CellEditComponent extends Component {
                         autoFill={autoFill}
                         required={required}
                         validate={validate}
-                        validatorFunction={(value)=>{
-                            if(cellInfo.column.dataField?.includes('WART') && cellInfo.data?.PIERW_TYP?.includes('N')){
-                                let result = value.replace(/,/g, '.');  // Zamiana przecinków na kropki
-                                result = result.replace(/([.\-+<>])\1+/g, '$1'); // Usuwanie nadmiarowych znaków specjalnych (w tym kropek) występujących obok siebie
-                                result = result.replace(/[^0-9.\-+<>]/g, ''); // Zdefiniowanie dozwolonych znaków
-                                result = result.replace(/(?<!\d)\./g, '0.'); // Dodanie zera przed kropką, jeśli przed kropką nie ma cyfry
-                                result = result.replace(/\.(?=[+\-<>])/g, '.0'); //Dodanie zera po kropce przed znakami specjalnymi 
-                                result = result.replace(/(\d+)\.(\d*\.)+/g, '$1.$2').replace(/(\d*\.\d*)\./g, '$1'); //Usunięcie nadmiarowych kropek w liczbach
-                                return result;
-                            }
-                            return value;
+                        afterValidatorExecute={(cellValidator, value, withMessage)=>{
+                            this.afterValidatorExecute(cellValidator, value, withMessage);
                         }}
                         selectionList={selectionList}
                         onOperationClick={onOperationClick}
