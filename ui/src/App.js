@@ -63,8 +63,11 @@ class App extends Component {
             loadedConfiguration: false,
             editData: undefined,
             secondsToPopupTicker: undefined,
-            menuItemClickedId: undefined,
-            renderEditQuitConfirmDialog: false,
+            confirmationQuitDialog:{
+                render: false,
+                menuItemClickedId: undefined,
+                callBackFnc : undefined,
+            },
             renderAboutVersionDialog: false,
             canRenderAboutVersionDialog: false,
             sidebarClickItemReactionEnabled: true,
@@ -109,39 +112,31 @@ class App extends Component {
         if (this.state.sessionMock) {
             this.setFakeSessionTimeout();
         }
-        const refreshPressed = localStorage.getItem(CookiesName.REFRESH_PRESSED) ;
-        const refreshParamExists =  UrlUtils.isRefreshParamExist();
-        if(!!refreshPressed || refreshParamExists){
-            this.setState({loadedConfiguration:false},()=>{
-                setTimeout(()=>{
-                    this.authService.refresh().then(()=>{
-                        window.location.href = UrlUtils.deleteParameterFromURL(window.location.href, "refresh");
-                        localStorage.removeItem(CookiesName.REFRESH_PRESSED);
-                        this.appInitialize();
-                    }).catch(()=>{
-                        const err = {
-                            msg :"Bład przy inicjalizacji apliakcji"
-                        };
-                        localStorage.setItem(CookiesName.ERROR_AFTER_REFRESH, err)
-                        localStorage.removeItem(CookiesName.REFRESH_PRESSED);
-                        window.location.href = UrlUtils.deleteParameterFromURL(window.location.href, "refresh");
-                        this.authService.logout();
-                    })
-                },1000)
+        this.setState({loadedConfiguration:false},()=>{
+            setTimeout(()=>{
+                this.authService.refresh().then(()=>{
+                    window.location.href = UrlUtils.deleteParameterFromURL(window.location.href, "refresh");
+                    this.appInitialize();
+                }).catch(()=>{
+                    const err = {
+                        msg :"Bład przy inicjalizacji apliakcji"
+                    };
+                    localStorage.setItem(CookiesName.ERROR_AFTER_REFRESH, err)
+                    window.location.href = UrlUtils.deleteParameterFromURL(window.location.href, "refresh");
+                    this.authService.logout();
+                })
+            },1000)
 
-            })
-            return;
-        }
+        })
         this.appInitialize();
     }
     appInitialize = () =>{
         const urlPrefixCookie = readObjFromCookieGlobal('REACT_APP_URL_PREFIX');
-        const configUrl =UrlUtils.makeConfigUrl(urlPrefixCookie);
+        const configUrl = UrlUtils.makeConfigUrl(urlPrefixCookie);
         this.prelongSessionByRootClick();
         this.setRestateApp();
         this.setClearState();
         this.setRenderNoRefreshContent();
-        this.registerRefreshKeyButtonEvent();
         this.showSessionTimeoutIfPossible();
         this.readConfigAndSaveInCookie(configUrl).catch((err) => {
             console.error('Error start application = ', err);
@@ -162,19 +157,6 @@ class App extends Component {
         };
     }
     
-    registerRefreshKeyButtonEvent =()=>{
-         document.addEventListener('keydown', this.refreshKeyButtonEvent);
-    }
-    unregisterRefreshKeyButtonEvent =()=>{
-         document.addEventListener('keydown', this.refreshKeyButtonEvent);
-    }
-    refreshKeyButtonEvent = (event) => {
-        if (event.key === 'F5' || event.keyCode === 116) {
-            if(this.authService.isLoggedUser())
-                localStorage.setItem(CookiesName.REFRESH_PRESSED, "TRUE");
-                window.location.href = UrlUtils.addParameterToURL(window.location.href,"refresh", true)
-        }
-    };
  
     setRestateApp() {
         reStateApp = () => {
@@ -290,7 +272,6 @@ class App extends Component {
     }
     componentWillUnmount() {
         this.unregisteredEventForSession();
-        this.unregisterRefreshKeyButtonEvent();
         clearTimeout(this.timer);
         this.timer = undefined;
         this.authService.removeLoginCookies();
@@ -369,6 +350,52 @@ class App extends Component {
             }
         }
     }
+
+    closeConfirmationEditQuitDialog = (callBackFnc) => {
+        this.setState((prevState) => ({
+            ...prevState,
+            sidebarClickItemReactionEnabled: false,
+            confirmationQuitDialog: {
+                menuItemClickedId: undefined,
+                callBackFnc:undefined,
+                render: false,
+            },
+        }),()=>{
+            if(callBackFnc){
+                callBackFnc();
+            }
+        });
+    }   
+    showEditQuitConfirmDialog(menuItemClickedId, callBackFnc) {
+        this.setState((prevState) => ({
+            ...prevState,
+            confirmationQuitDialog: {
+                menuItemClickedId,
+                callBackFnc,
+                render: true,
+            },
+        }));
+    }
+    acceptConfirmationEditQuitDialog = () => {
+        const menuItemClickedId = this.state.confirmationQuitDialog?.menuItemClickedId;
+        if(!StringUtils.isBlank(menuItemClickedId)){
+            this.closeConfirmationEditQuitDialog(()=>{
+                const itemToClick = document.getElementById(
+                    `menu_link_item_${menuItemClickedId}`
+                );
+                if (itemToClick) {
+                    itemToClick.click();
+                }
+                this.setState({
+                    sidebarClickItemReactionEnabled: true,
+                });
+            });
+        }else{
+            const callBackFnc = this.state.confirmationQuitDialog?.callBackFnc;
+            this.closeConfirmationEditQuitDialog(callBackFnc);
+        }
+    }
+
     handleLogoutBySideBar() {
         this.authService.logout();
         if (this.state.user) {
@@ -480,12 +507,7 @@ class App extends Component {
         }
         return true;
     }
-    onShowEditQuitConfirmDialog(menuItemClickedId) {
-        this.setState(() => ({
-            menuItemClickedId,
-            renderEditQuitConfirmDialog: true,
-        }));
-    }
+  
     addButton = () => {
         const {labels} = this.state;
         const foundedOpADD = DataGridUtils.getOpButton(this.state.operations, OperationType.OP_ADD_BUTTON);
@@ -548,7 +570,7 @@ class App extends Component {
                     this.setState({
                         renderAboutVersionDialog:false
                     }) 
-                }} ></VersionPreviewDialog>}
+                }} />}
                     {this.state.rednerSessionTimeoutDialog && (
                         <TickerSessionDialog
                             secondsToPopup={this.state.secondsToPopupTicker}
@@ -577,42 +599,14 @@ class App extends Component {
                             }}
                         />
                     )}
-
-                    {this.state.renderEditQuitConfirmDialog && (
+                    {this.state.confirmationQuitDialog?.render && (
                         <ConfirmationEditQuitDialog
-                            onHide={() => {
-                                this.setState({
-                                    renderEditQuitConfirmDialog: false,
-                                    menuItemClickedId: undefined,
-                                });
-                            }}
-                            onAccept={() => {
-                                const menuItemClickedId = this.state.menuItemClickedId;
-                                this.setState(
-                                    {
-                                        renderEditQuitConfirmDialog: false,
-                                        sidebarClickItemReactionEnabled: false,
-                                        menuItemClickedId: undefined,
-                                    },
-                                    () => {
-                                        const itemToClick = document.getElementById(
-                                            `menu_link_item_${menuItemClickedId}`
-                                        );
-                                        if (itemToClick) {
-                                            itemToClick.click();
-                                        }
-                                        this.setState({
-                                            sidebarClickItemReactionEnabled: true,
-                                        });
-                                    }
-                                );
-                            }}
-                            visible={this.state.renderEditQuitConfirmDialog}
+                            onHide={this.closeConfirmationEditQuitDialog}
+                            onAccept={this.acceptConfirmationEditQuitDialog}
+                            visible={this.state.confirmationQuitDialog?.render}
                             labels={labels}
-                            menuItemId={this.state.menuItemClickedId}
                         />
                     )}
-
                     <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
                     {this.state.loadedConfiguration ? (
                         <HashRouter
@@ -631,7 +625,7 @@ class App extends Component {
                                             this.handleLogoutBySideBar(forceByButton, this.state.labels)
                                         }
                                         onShowEditQuitConfirmDialog={(menuItemClickedId) =>
-                                            this.onShowEditQuitConfirmDialog(menuItemClickedId)
+                                            this.showEditQuitConfirmDialog(menuItemClickedId)
                                         }
                                         onShowAboutVersionDialog={()=>{
                                            this.setState({
@@ -649,7 +643,7 @@ class App extends Component {
                                     <div className={`${loggedIn ? 'container-fluid' : ''}`}>
                                         {this.state.renderNoRefreshContent && this.enabledTopComponents() ? (
                                             <React.Fragment>
-                                                {Breadcrumb.render(labels)}
+                                                {Breadcrumb.render(labels, (callBackFnc)=> this.showEditQuitConfirmDialog(null,callBackFnc))}
                                                 <DivContainer colClass='row base-container-header'>
                                                     <DivContainer
                                                         id='header-left'
@@ -812,6 +806,9 @@ class App extends Component {
                                                                     historyBrowser={this.historyBrowser}
                                                                 >
                                                                     <EditSpecContainer
+                                                                        onShowEditQuitConfirmDialog={(callBackFnc) =>
+                                                                            this.showEditQuitConfirmDialog(null,callBackFnc)
+                                                                        }
                                                                         ref={this.editSpecContainer}
                                                                         id={props.match.params.id}
                                                                         labels={labels}
@@ -839,6 +836,9 @@ class App extends Component {
                                                                     historyBrowser={this.historyBrowser}
                                                                 >
                                                                     <BatchContainer
+                                                                        onShowEditQuitConfirmDialog={(callBackFnc) =>
+                                                                            this.showEditQuitConfirmDialog(null,callBackFnc)
+                                                                        }
                                                                         ref={this.editSpecContainer}
                                                                         id={props.match.params.id}
                                                                         handleRenderNoRefreshContent={(

@@ -135,6 +135,7 @@ export default class DataGridStore extends BaseService {
         isAttachmentDialog,
         isKindViewSpec
     ) {
+        // this.lastFetchedData = null
         if (!viewIdArg) {
             if (onSuccessCallback) {
                 onSuccessCallback();

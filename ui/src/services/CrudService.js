@@ -378,11 +378,11 @@ export default class CrudService extends BaseService {
         if (!!parentId && !!kindView) {
             queryStringTmp.push(`kindView=${kindView}`);
         }
-        for (const id in selectedIds) {
-            queryStringTmp.push(`recordID=${selectedIds[id]}`);
-        }
         return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Delete/Entry?${queryStringTmp.join('&')}`, {
             method: 'POST',
+            body: JSON.stringify({
+                listId: selectedIds,
+            }),
         })
         .then((deleteResponse) => {
             return Promise.resolve(deleteResponse);
@@ -400,20 +400,24 @@ export default class CrudService extends BaseService {
         if (!!parentId && !!kindView) {
             queryStringTmp.push(`kindView=${kindView}`);
         }
-        for (const id in selectedIds) {
-            queryStringTmp.push(`recordID=${selectedIds[id]}`);
-        }
         return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Delete?${queryStringTmp.join('&')}`, {
             method: 'DELETE',
+            body: JSON.stringify({
+                listId: selectedIds,
+            }),
         }).catch((err) => {
             throw err;
         });
     }
 
-    calculateFormulaForView(viewId, params) {
-        let url = `${this.getDomain()}/${this.path}/${viewId}/calculate${params}`;
+    calculateFormulaForView(viewId, params, listIds, specListIds) {
+        const url = `${this.getDomain()}/${this.path}/${viewId}/calculate${params}`;
         return this.fetch(url, {
             method: 'POST',
+            body: JSON.stringify({
+                listId: listIds,
+                listIdSpec: specListIds,
+            }),
         }).catch((err) => {
             throw err;
         });
@@ -426,7 +430,9 @@ export default class CrudService extends BaseService {
         }
         return this.fetch(url, {
             method: 'POST',
-            body: JSON.stringify(fieldsToCalculate),
+            body: JSON.stringify({
+                listId: fieldsToCalculate,
+            }),
         }).catch((err) => {
             throw err;
         });
@@ -440,11 +446,11 @@ export default class CrudService extends BaseService {
         if (!!parentId && !!kindView) {
             queryStringTmp.push(`kindView=${kindView}`);
         }
-        for (const id in selectedIds) {
-            queryStringTmp.push(`recordID=${selectedIds[id]}`);
-        }
         return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Archive/Entry?${queryStringTmp.join('&')}`, {
             method: 'POST',
+            body: JSON.stringify({
+                listId: selectedIds,
+            }),
         }).catch((err) => {
             throw err;
         });
@@ -458,11 +464,11 @@ export default class CrudService extends BaseService {
         if (!!parentId && !!kindView) {
             queryStringTmp.push(`kindView=${kindView}`);
         }
-        for (const id in selectedIds) {
-            queryStringTmp.push(`recordID=${selectedIds[id]}`);
-        }
         return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Archive?${queryStringTmp.join('&')}`, {
             method: 'POST',
+            body: JSON.stringify({
+                listId: selectedIds,
+            }),
         }).catch((err) => {
             throw err;
         });
@@ -513,11 +519,11 @@ export default class CrudService extends BaseService {
         if (!!parentId && !!kindView) {
             queryStringTmp.push(`kindView=${kindView}`);
         }
-        for (const id in selectedIds) {
-            queryStringTmp.push(`recordID=${selectedIds[id]}`);
-        }
         return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Restore/Entry?${queryStringTmp.join('&')}`, {
             method: 'POST',
+            body: JSON.stringify({
+                listId: selectedIds,
+            }),
         }).catch((err) => {
             throw err;
         });
@@ -531,11 +537,11 @@ export default class CrudService extends BaseService {
         if (!!parentId && !!kindView) {
             queryStringTmp.push(`kindView=${kindView}`);
         }
-        for (const id in selectedIds) {
-            queryStringTmp.push(`recordID=${selectedIds[id]}`);
-        }
         return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Restore?${queryStringTmp.join('&')}`, {
             method: 'POST',
+            body: JSON.stringify({
+                listId: selectedIds,
+            }),
         }).catch((err) => {
             throw err;
         });
@@ -558,6 +564,7 @@ export default class CrudService extends BaseService {
             `${this.getDomain()}/${this.path}/${viewId}/Publish/${recordId}/Entry?${queryStringTmp.join('&')}`,
             {
                 method: 'POST',
+
             }
         ).catch((err) => {
             throw err;
@@ -573,11 +580,9 @@ export default class CrudService extends BaseService {
             queryStringTmp.push(`kindView=${kindView}`);
         }
         let recordId = selectedIds;
-
         if (Array.isArray(selectedIds)) {
             recordId = selectedIds[0];
         }
-
         for (const id in selectedIds) {
             queryStringTmp.push(`recordID=${selectedIds[id]}`);
         }

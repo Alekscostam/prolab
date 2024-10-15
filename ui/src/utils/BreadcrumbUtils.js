@@ -3,6 +3,7 @@ import AppPrefixUtils from './AppPrefixUtils';
 import UrlUtils from './UrlUtils';
 import ConsoleHelper from './ConsoleHelper';
 import hash from 'object-hash';
+import BreadcrumbButton from '../components/prolab/BreadcrumbButton';
 
 const BREADCRUMB_URL_PARAM_NAME = 'bc';
 const TIMESTAMP_URL_PARAM_NAME = 'ts';
@@ -175,19 +176,17 @@ export class Breadcrumb {
         return this.utf8_to_b64(JSON.stringify(result));
     }
 
-    static render(labels) {
+    static render(labels, afterBreadcrumbItemClick) {
         ConsoleHelper('#$#$#$#$', labels);
-        //const all = this.readFromUrl().length;
         const breadcrumb = this.cutBreadcrumpToURL(this.readFromUrl(), window.document.URL.toString());
-        //alert('render: ' + all + " :: " + breadcrumb.length);
-
         const mainPage = AppPrefixUtils.locationHrefUrl('/#/start');
         return (
             <React.Fragment>
                 <div className='breadcrumb-panel breadcrumb-link'>
-                    <a href={mainPage}>{labels['View_StartPage']}</a>
+                <BreadcrumbButton name={labels['View_StartPage']} isLast={false} redirectUrl={mainPage} afterClick={afterBreadcrumbItemClick} />
                     {' > '}
                     {breadcrumb.map((item, id) => {
+                        const isLast = id === breadcrumb.length - 1; 
                         if (item.type === 'menu') {
                             return (
                                 <React.Fragment>
@@ -208,7 +207,7 @@ export class Breadcrumb {
                             path = UrlUtils.addParameterToURL(path, TIMESTAMP_URL_PARAM_NAME, timestamp);
                             return (
                                 <React.Fragment key={id}>
-                                    <a href={path}>{item.name}</a>
+                                    <BreadcrumbButton name={item.name} isLast={isLast} redirectUrl={path} afterClick={afterBreadcrumbItemClick} />
                                     <span>{id + 1 === breadcrumb.length ? '' : ' > '}</span>
                                 </React.Fragment>
                             );

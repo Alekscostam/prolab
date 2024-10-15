@@ -26,7 +26,14 @@ $base-color: #0e49eb;
         }
     }
 }
+
 #gantt-container {
+    .dx-row.dx-data-row.dx-row-lines{
+    background: transparent!important;
+    td{
+        background: transparent!important;
+    }
+}
     z-index: 0;
     .checkBoxSelection {
         cursor: pointer;

@@ -38,7 +38,7 @@ class SubGridViewComponent extends React.Component {
                 header: undefined,
             },
             editorViewer: {
-                editorDialogVisisble: false,
+                visible: false,
                 editable: false,
                 value: undefined,
                 header: undefined,
@@ -47,7 +47,7 @@ class SubGridViewComponent extends React.Component {
     }
     showMenu(e) {
         const menu = this.menuSubGrid.current;
-        if (menu !== null && e.row.rowType === 'data' && !!e?.row?.data?.ID) {
+        if (menu !== null && e?.row?.rowType === 'data' && !!e?.row?.data?.ID) {
             const mouseX = e.event.clientX;
             const mouseY = e.event.clientY;
             e.event.stopPropagation();
@@ -58,7 +58,7 @@ class SubGridViewComponent extends React.Component {
                 menu.style.left = mouseX + 'px';
                 menu.style.top = mouseY + 'px';
             });
-        } else if (menu !== null && e.row.rowType === 'data') {
+        } else if (menu !== null && e?.row?.rowType === 'data') {
             menu.hide(e.event);
         }
     }
@@ -147,16 +147,16 @@ class SubGridViewComponent extends React.Component {
                         visible
                     />
                 )}
-                {editorViewer?.editorDialogVisisble && (
+                {editorViewer?.visible && (
                     <EditorDialog
                         header={editorViewer.header}
                         editable={editorViewer.editable}
                         value={editorViewer.value}
-                        visible={editorViewer?.editorDialogVisisble}
+                        visible={editorViewer?.visible}
                         onHide={() => {
                             this.setState({
                                 editorViewer: {
-                                    editorDialogVisisble: false,
+                                    visible: false,
                                     editable: false,
                                     value: undefined,
                                     header: undefined,
@@ -226,7 +226,7 @@ class SubGridViewComponent extends React.Component {
                                                         (value, header) => {
                                                             this.setState({
                                                                 editorViewer: {
-                                                                    editorDialogVisisble: true,
+                                                                    visible: true,
                                                                     editable: false,
                                                                     value: value,
                                                                     header: header,

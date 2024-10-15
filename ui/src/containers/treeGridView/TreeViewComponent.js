@@ -54,6 +54,10 @@ class TreeViewComponent extends CellEditComponent {
         this.modelRef = React.createRef([]);
         this.selectedRecordIdRef = React.createRef();
         this.editListDataStore = new EditListDataStore();
+        this.sort = {
+            field: "_ORDER",
+            order: "asc",
+        }
         this.viewInfo = {
             headerId: undefined,
             type: undefined,
@@ -77,6 +81,9 @@ class TreeViewComponent extends CellEditComponent {
             defaultSelectedRowKeys: [],
             preInitializedColumns: [],
         };
+        this.getSort = ()=> {
+            return this.sort;
+        }
         this.reInitilizedExpandAll = () => {
             this.setState(
                 {
@@ -104,7 +111,7 @@ class TreeViewComponent extends CellEditComponent {
     }
     showMenu(e) {
         const menu = this.menu.current;
-        if (menu !== null && e.row.rowType === 'data' && !!e?.row?.data?._ID) {
+        if (menu !== null && e?.row?.rowType === 'data' && !!e?.row?.data?._ID) {
             const mouseX = e.event.clientX;
             const mouseY = e.event.clientY;
             e.event.stopPropagation();
@@ -120,7 +127,7 @@ class TreeViewComponent extends CellEditComponent {
                     y:mouseY + 'px'
                 }
             }
-        } else if (menu !== null && e.row.rowType === 'data') {
+        } else if (menu !== null && e?.row?.rowType === 'data') {
             menu.hide(e.event);
         }
     }
@@ -178,7 +185,28 @@ class TreeViewComponent extends CellEditComponent {
             switch (type) {
                 case ColumnType.H:
                 case ColumnType.C:
-                    return columnDefinition.fieldName.toUpperCase() === 'WART';
+                switch (columnDefinition.fieldName.toUpperCase()) {
+                    case "WART":
+                    case "D_WART":
+                    case "W_NOM":
+                    case "W_NOM_B":
+                    case "W_NOM_C":
+                    case "W_MIN":
+                    case "W_MAX":
+                    case "W_MAX":
+                    case "W_MIN_O":
+                    case "W_MAX_O":
+                    case "W_MIN_B":
+                    case "W_MAX_B":
+                    case "W_MIN_C":
+                    case "W_MIN_C":
+                    case "W_MAX_C":
+                    case "METODA_MIN":
+                    case "METODA_MAX":
+                        return true;
+                    default:
+                        return false;
+                }
                 case ColumnType.O:
                 case ColumnType.I:
                 case ColumnType.IM:
@@ -189,7 +217,7 @@ class TreeViewComponent extends CellEditComponent {
         } catch (ex) {}
         return false;
     }
-    // TODO; usun dx-selection z gantt jak klikamy PPM
+    // TODO: naprawic w liscie podpwoiedzi klik jak jestsmy na dole  
     render() {
         const columnAutoWidth = this.props.parsedGridView?.gridOptions?.columnAutoWidth || true;
         const rowAutoHeight = this.props.parsedGridView?.gridOptions?.rowAutoHeight || false;
@@ -216,7 +244,7 @@ class TreeViewComponent extends CellEditComponent {
         return (
             <React.Fragment>
                 {this.state.editListVisible && this.editListComponent()}
-                {this.state.editorDialogVisisble && this.editorComponent()}
+                {this.editorComponent()}
                 {this.imageViewerComponent()}
                 <TreeList
                     id='spec-edit'
@@ -245,6 +273,14 @@ class TreeViewComponent extends CellEditComponent {
                             if (this.ref) {
                                 this.ref.instance.clearSelection();
                                 clearSelection = true;
+                            }
+                        }
+                        if(e.fullName.includes("sortOrder") && e.name === 'columns'){
+                            const colNumber = e.fullName.replace(/\D/g, '');  
+                            const column = this.props.gridViewColumns[colNumber];
+                            this.sort = {
+                                field:column.fieldName,
+                                order:e.value,
                             }
                         }
                     }}
@@ -282,7 +318,6 @@ class TreeViewComponent extends CellEditComponent {
                     height={dataTreeHeight ? dataTreeHeight + 'px' : '100%'}
                     width={columnAutoWidth ? '100%' : undefined}
                     rowAlternationEnabled={false}
-                    
                     onCellPrepared={(e) => {
                         if (e.rowType === 'data') {
                             if(!this.props.isAddSpec){
@@ -992,7 +1027,7 @@ class TreeViewComponent extends CellEditComponent {
     }
 
     cColumnTypeRender(cellInfo, fontColorFinal, className){
-        const keyExistsInInvalidCellKeys = this.props.keyExistsInInvalidCellKeys ? this.props.keyExistsInInvalidCellKeys(cellInfo.key) : false;
+        const keyExistsInInvalidCellKeys = this.props.keyExistsInInvalidCellKeys ? this.props.keyExistsInInvalidCellKeys(cellInfo.key, cellInfo?.column?.dataField) : false;
          if(!keyExistsInInvalidCellKeys){
          try {
              return (

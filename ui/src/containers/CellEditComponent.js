@@ -5,15 +5,7 @@ import ConsoleHelper from '../utils/ConsoleHelper';
 import EditListUtils from '../utils/EditListUtils';
 import CrudService from '../services/CrudService';
 import PropTypes from 'prop-types';
-import {
-    MemoizedBoolInput,
-    MemoizedDateInput,
-    MemoizedDateTimeInput,
-    MemoizedLogicInput,
-    MemoizedNumericInput,
-    MemoizedText,
-    MemoizedTimeInput,
-} from '../utils/component/TreeListUtils';
+
 import EditListDataStore from './dao/DataEditListStore';
 import EditListComponent from '../components/prolab/EditListComponent';
 import UrlUtils from '../utils/UrlUtils';
@@ -21,6 +13,13 @@ import {EditorDialog} from '../components/prolab/EditorDialog';
 import {StringUtils} from '../utils/StringUtils';
 import ImageViewerComponent from '../components/ImageViewerComponent';
 import {ColumnType} from '../model/ColumnType';
+import { MemoizedTextInput } from '../components/prolab/memoized/MemoizedTextInput';
+import { MemoizedNumericInput } from '../components/prolab/memoized/MemoizedNumericInput';
+import { MemoizedBoolInput } from '../components/prolab/memoized/MemoizedBoolInput';
+import { MemoizedLogicInput } from '../components/prolab/memoized/MemoizedLogicInput';
+import { MemoizedDateInput } from '../components/prolab/memoized/MemoizedDateInput';
+import { MemoizedDateTimeInput } from '../components/prolab/memoized/MemoizedDateTimeInput';
+import { MemoizedTimeInput } from '../components/prolab/memoized/MemoizedTimeInput';
 
 class CellEditComponent extends Component {
     constructor(props) {
@@ -49,7 +48,7 @@ class CellEditComponent extends Component {
                 header: undefined,
             },
             editorViewer: {
-                editorDialogVisisble: false,
+                visible: false,
                 editable: false,
                 value: undefined,
                 header: undefined,
@@ -74,7 +73,7 @@ class CellEditComponent extends Component {
         this.forceLeaveEditMode();
         this.setState({
             editorViewer: {
-                editorDialogVisisble: false,
+                visible: false,
                 editable: false,
                 value: undefined,
                 header: undefined,
@@ -95,16 +94,19 @@ class CellEditComponent extends Component {
     }
 
     editorComponent = (editable, eViewier) => {
+        const {editorViewer} = this.state;
+        if(!editorViewer?.visible){
+            return;
+        }
         const cellInfoValue = eViewier?.value ? eViewier.value : this.state.cellInfo.value;
         const cellInfoHeader = eViewier?.header ? eViewier.header : this.state.cellInfo.value;
-        const {editorViewer} = this.state;
         return (
-            editorViewer?.editorDialogVisisble && (
+            editorViewer?.visible && (
                 <EditorDialog
                     header={cellInfoHeader}
                     editable={editable}
                     value={cellInfoValue}
-                    visible={editorViewer?.editorDialogVisisble}
+                    visible={editorViewer?.visible}
                     onHide={() => {
                         this.onHideEditor();
                     }}
@@ -369,7 +371,7 @@ class CellEditComponent extends Component {
         switch (field?.type) {
             case ColumnType.C:
                 return (
-                    <MemoizedText
+                    <MemoizedTextInput
                         field={field}
                         cellInfo={cellInfo}
                         inputValue={cellInfo.value}
@@ -389,7 +391,7 @@ class CellEditComponent extends Component {
                 );
             case ColumnType.P: //P - hasło
                 return (
-                    <MemoizedText
+                    <MemoizedTextInput
                         field={field}
                         cellInfo={cellInfo}
                         inputValue={cellInfo.value}
@@ -406,6 +408,7 @@ class CellEditComponent extends Component {
                 );
             case ColumnType.N: //N – Numeryczny/Liczbowy
                 return (
+                    
                     <MemoizedNumericInput
                         field={field}
                         cellInfo={cellInfo}
@@ -490,10 +493,10 @@ class CellEditComponent extends Component {
                     />
                 );
             case ColumnType.O: //O – Opisowe
-                if (!this.state?.editorViewer?.editorDialogVisisble) {
+                if (!this.state?.editorViewer?.visible) {
                     this.setState({
                         editorViewer: {
-                            editorDialogVisisble: true,
+                            visible: true,
                             header: cellInfo.column?.caption,
                         },
                         cellInfo,
@@ -527,7 +530,7 @@ class CellEditComponent extends Component {
                 );
             case ColumnType.H: //H - Hyperlink
                 return (
-                    <MemoizedText
+                    <MemoizedTextInput
                         field={field}
                         cellInfo={cellInfo}
                         inputValue={cellInfo.value}

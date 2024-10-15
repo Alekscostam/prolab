@@ -17,7 +17,6 @@ import ConsoleHelper from '../utils/ConsoleHelper';
 import ActionLink from '../components/ActionLink';
 import UserService from '../services/UserService';
 import UserRowComponent from '../components/prolab/UserRowComponent';
-import ReadConfigService from '../services/ReadConfigService';
 import { CookiesName } from '../model/CookieName';
 
 const element = {
@@ -115,7 +114,6 @@ class LoginContainer extends BaseContainer {
         const values = queryString.parse(this.props.location.search);
         this.targetLocation = values.location;
         this.getConfigForLoginPage();
-        this.getErrorCookieMessage();
     }
     componentDidUpdate(){
         super.componentDidUpdate();
@@ -127,17 +125,6 @@ class LoginContainer extends BaseContainer {
             document.body.removeChild(d);
         })
      }
-    }
-    getErrorCookieMessage = () => {
-        setTimeout(()=>{
-           const cookieError =  localStorage.getItem(CookiesName.ERROR_AFTER_REFRESH)
-            if(cookieError){
-                const error = JSON.parse(cookieError);
-                console.error(error, "ERROR")
-                // this.showGlobalErrorMessage(error);
-                // localStorage.removeItem(CookiesName.ERROR_AFTER_REFRESH);
-            }
-        },1500)
     }
     getConfigForLoginPage = () => {
         const lang = this.state.lang ? this.state.lang : this.state?.defaultLang;

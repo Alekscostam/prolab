@@ -17,6 +17,9 @@
         {"code": "Session_expiration_time", "caption": "Czas do wygaśnięcia sesji: "},
         {"code": "Confirm", "caption": "Zatwierdź"},
         {"code": "Cancel", "caption": "Anuluj"},
+        {"code": "Unexpected_Error_Occurred", "caption": "Wystąpił nieoczekiwany błąd"},
+        {"code": "Error", "caption": "Błąd"},
+        {"code": "Information", "caption": "Informacja"},
         {"code": "Fill", "caption": "Wypełnij"},
         {"code": "Save", "caption": "Zapisz"},
         {

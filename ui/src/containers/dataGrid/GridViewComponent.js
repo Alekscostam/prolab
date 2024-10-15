@@ -67,7 +67,7 @@ class GridViewComponent extends CellEditComponent {
                 header: undefined,
             },
             editorViewer: {
-                editorDialogVisisble: false,
+                visible: false,
                 editable: false,
                 value: undefined,
                 header: undefined,
@@ -77,12 +77,10 @@ class GridViewComponent extends CellEditComponent {
         this.rowRenderingMode = UrlUtils.isBatch() ? 'standard' : 'virtual';
         ConsoleHelper('GridViewComponent -> constructor');
     }
-    // TODO: jesli wejdziemy w edycje specyfikacji to nie aktualizuje sie okruszek, up and down  
-    // FIXX: jesli jestesmy w edycji komorki i od razu klikniemy "zapisz" to pojawi sie walidacja jesli to konieczne, fix na zmiane background coloru po zmienie reoreringu column  
     showMenu(e) {
         const menu = this.menu.current;
         ActionButtonWithMenuUtils.hideActionButtonWithMenuPopup();
-        if (menu !== null && e.row.rowType === 'data' && !!e?.row?.data?.ID) {
+        if (menu !== null && e?.row?.rowType === 'data' && !!e?.row?.data?.ID) {
             const mouseX = e.event.clientX;
             const mouseY = e.event.clientY;
             e.event.stopPropagation();
@@ -103,7 +101,7 @@ class GridViewComponent extends CellEditComponent {
                     y:mouseY + 'px'
                 }
             });
-        } else if (menu !== null && e.row.rowType === 'data') {
+        } else if (menu !== null && e?.row?.rowType === 'data') {
             menu.hide(e.event);
         }
     }
@@ -279,7 +277,7 @@ class GridViewComponent extends CellEditComponent {
         return (
             <React.Fragment>
                 {this.state.editListVisible && this.editListComponent()}
-                {this.state.editorViewer.editorDialogVisisble &&
+                {this.state.editorViewer.visible &&
                     this.editorComponent(UrlUtils.isBatch(), this.state.editorViewer)}
                 {this.imageViewerComponent()}
                 <DataGrid
@@ -672,7 +670,7 @@ class GridViewComponent extends CellEditComponent {
                 }
                 this.setState({
                     editorViewer: {
-                        editorDialogVisisble: true,
+                        visible: true,
                         editable: false,
                         value: value,
                         header: header,

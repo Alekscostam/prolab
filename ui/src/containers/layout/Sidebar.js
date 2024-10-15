@@ -54,9 +54,7 @@ class Sidebar extends React.Component {
     }
     componentDidMount() {
         ConsoleHelper('sidebar => componentDidMount');
-        const refreshPressed = localStorage.getItem(CookiesName.REFRESH_PRESSED);
-        const refreshParamExists =  UrlUtils.isRefreshParamExist();
-        if ((!localStorage.getItem(CookiesName.MENU)|| !localStorage.getItem(CookiesName.VERSION_API)  || this.state?.menu?.length === 0) && (!refreshPressed || !refreshParamExists) ) {
+        if ((!localStorage.getItem(CookiesName.MENU)|| !localStorage.getItem(CookiesName.VERSION_API)  || this.state?.menu?.length === 0)) {
             this.menuService
                 .getMenu()
                 .then((data) => {

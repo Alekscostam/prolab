@@ -50,7 +50,6 @@ export class EditSpecContainer extends BaseContainer {
             expandAll: undefined,
             levelId: undefined,
             visibleAddSpec: false,
-            renderConfirmationEditQuitDialog: false,
             elementParentId: null,
             elementRecordId: null,
             elementFilterId: null,
@@ -377,7 +376,7 @@ export class EditSpecContainer extends BaseContainer {
         return (
             <React.Fragment>
                 <DivContainer id='header-left'>
-                    {Breadcrumb.render(this.props.labels)}
+                    {Breadcrumb.render(this.props.labels, (fnc) => this.props.onShowEditQuitConfirmDialog(()=> fnc()))}
                     <div className='font-medium mb-4'>{this.state.parsedView?.viewInfo?.name}</div>
                 </DivContainer>
             </React.Fragment>
@@ -410,9 +409,8 @@ export class EditSpecContainer extends BaseContainer {
                         label={opCancel?.label}
                         className='ml-2 inverse'
                         handleClick={() => {
-                            this.setState({
-                                renderConfirmationEditQuitDialog: true,
-                            });
+                            if(this.props.onShowEditQuitConfirmDialog) this.props.onShowEditQuitConfirmDialog(()=> this.cancelSpec())
+                            else this.cancelSpec();
                         }}
                     />
                 </div>
@@ -422,7 +420,7 @@ export class EditSpecContainer extends BaseContainer {
 
     handleSaveAction() {
         if(this.invalidCellKeys?.current.length!==0){
-            this.showErrorMessage("Komórki o wartościach: " + this.invalidCellKeys?.current + " nie są prawidłowe!", 2500, false);
+            this.showErrorMessage("Komórki o wartościach: " + JSON.stringify(this.invalidCellKeys?.current) + " nie są prawidłowe!", 3000, false);
             return;
         }
         const viewIdArg = this.state.elementId;
@@ -636,53 +634,92 @@ export class EditSpecContainer extends BaseContainer {
         return data;
     }
 
+    getSortedParsedData(data = this.state.parsedData){
+        const sort = this.treeListComponentRef.current.getSort();
+        return TreeListUtils.sortTreeByParameter(data, 0, sort.order, sort.field);
+    }
+
     up(id) {
-        if(StringUtils.isBlank(id)){
-            this.moveFewElements(false);
-            // TODO:
-        }else{
-            this.upSingleElement(id);
+        let parsedData = [];
+        if(StringUtils.isBlank(id)) parsedData =  this.moveFewElements(false);
+        else {
+            const sortedParsedData = this.getSortedParsedData();
+            const result  = this.upSingleElement(id,sortedParsedData);   
+            const successful = result.successful;
+            if(!successful){
+                return;
+            }
+            parsedData = result.data;
         }
+        if(parsedData.length === 0){
+            return; 
+        }
+        this.updateData(parsedData, () => {
+            this.refreshTable();
+        });
+
     }
+
     down(id) {
-        if(StringUtils.isBlank(id)){
-            this.moveFewElements(true);
-        }else{
-            this.downSingleElement(id);
+        let parsedData = [];
+        if(StringUtils.isBlank(id)) parsedData = this.moveFewElements(true); 
+        else {
+            const sortedParsedData = this.getSortedParsedData() ;
+            const result = this.downSingleElement(id, sortedParsedData); 
+            const successful = result.successful;
+            if(!successful){
+                return;
+            }
+            parsedData = result.data;
+        } 
+        if(parsedData.length === 0){
+            return; 
         }
+        this.updateData(parsedData, () => {
+            this.refreshTable();
+        });
     }
-    moveFewElements(reverse){
-        this.blockUi();
-        const ref = this.refTreeList?.instance;
-        let data = ref.getVisibleRows().map((el) => el.data);
-        let arrayWithIndexAndKey = []; 
-        this.state.selectedRowKeys.forEach((id) => {
-            const currentIndex = data.findIndex((x) => x._ID === id);
+
+    getNextElementToProcess(reverse, selectedRowKeys, sortedTreeList){
+        const arrayWithIndexAndKey = []; 
+        selectedRowKeys.forEach((id) => {
+            const currentIndex = sortedTreeList.findIndex((x) => x._ID === id);
             const element = {index: currentIndex, key: id}
             arrayWithIndexAndKey.push(element);
         });
-
         arrayWithIndexAndKey.sort((a, b) => a.index - b.index);
         if(reverse){
             arrayWithIndexAndKey.reverse()  
         }
         if(arrayWithIndexAndKey.length === 0){
-            this.unblockUi()
+            return null;
         }
-        console.log(arrayWithIndexAndKey);
-        arrayWithIndexAndKey.forEach((el, index)=>{
-            setTimeout(() => {
-                this.downSingleElement(el.key);
-                if (index === arrayWithIndexAndKey.length - 1) {
-                    this.unblockUi()
-                }
-            }, index * 1500); 
-        })
+        return arrayWithIndexAndKey[0];
+    }
+    
+    getDataFrom(items, idToRemove) {
+        return items.filter(item => item._ID !== idToRemove);
     }
 
-    upSingleElement(id){
-        const ref = this.refTreeList?.instance;
-        let data = ref.getVisibleRows().map((el) => el.data);
+    moveFewElements(reverse){
+        let data = this.state.parsedData;
+        const selectedRowKeys = this.state.selectedRowKeys;
+        let selectedRowKeysToProcess = selectedRowKeys;
+        for (let index = 0; index < selectedRowKeys.length; index++) {
+            const sortedTreeList = this.getSortedParsedData(data);
+            const elementToProcess = this.getNextElementToProcess(reverse, selectedRowKeysToProcess, sortedTreeList);
+            let dataToUpdate = reverse ? this.downSingleElement(elementToProcess.key, sortedTreeList).data : this.upSingleElement(elementToProcess.key, sortedTreeList).data;
+            data = this.getSortedParsedData(dataToUpdate);
+            selectedRowKeysToProcess = selectedRowKeysToProcess.filter(row=> {return row !== elementToProcess.key});
+        }
+        if(data.length === 0){
+            return [];
+        }
+        return data;
+    }
+
+    upSingleElement(id, data){
+        const dataToReplace = structuredClone(data);
         const currentIndex = data.findIndex((x) => x._ID === id);
         const currentElement = data.find((el) => el._ID === id);
         const cuttedArray = data.slice(0, currentIndex);
@@ -694,11 +731,11 @@ export class EditSpecContainer extends BaseContainer {
                 break;
             }
         }
-        this.switchElements(currentElement,nextElement);
+        return this.switchElements(currentElement,nextElement, dataToReplace);
     }
-    downSingleElement(id){
-        const ref = this.refTreeList?.instance;
-        let data = ref.getVisibleRows().map((el) => el.data);
+    
+    downSingleElement(id, data){
+        const dataToReplace = structuredClone(data);
         const currentIndex = data.findIndex((x) => x._ID === id);
         const currentElement = data.find((el) => el._ID === id);
         const cuttedArray = data.slice(currentIndex + 1);
@@ -710,26 +747,26 @@ export class EditSpecContainer extends BaseContainer {
                 break;
             }
         }
-        this.switchElements(currentElement,nextElement);
+        return this.switchElements(currentElement,nextElement, dataToReplace);
     }
     
-    switchElements = (currentElement, nextElement) =>{
+    switchElements = (currentElement, nextElement, parsedData) =>{
+        let dataToReplace =  structuredClone(parsedData)
         if(nextElement && currentElement){
             if(this.haveTheSameParents(currentElement, nextElement)){
                 const orderNext = structuredClone(nextElement._ORDER)
                 const orderCurrent = structuredClone(currentElement._ORDER)
                 currentElement._ORDER = orderNext;
                 nextElement._ORDER = orderCurrent;
-                const parsedData = this.state.parsedData;
-                parsedData.forEach(pd=>{
-                    if(pd._ID === currentElement._ID) pd = currentElement;
-                    else if(pd._ID === nextElement._ID) pd = nextElement;
-                })
-                this.updateData(parsedData, () => {
-                    this.refreshTable();
+                dataToReplace = dataToReplace.map(pd => {
+                    if (pd._ID === currentElement._ID) return currentElement;
+                    else if (pd._ID === nextElement._ID) return nextElement;
+                    return pd; 
                 });
+                return {successful:true , data: dataToReplace};
             }
         }
+        return {successful:false , data: dataToReplace};
     }
 
     isTheSameElement(foundedElement, currentElement) {
@@ -773,7 +810,7 @@ export class EditSpecContainer extends BaseContainer {
     
     isValidAction(cellValidator){
         if(!StringUtils.isBlank(this.invalidCellKeys?.current) ){
-           this.invalidCellKeys.current = this.invalidCellKeys.current.filter(key => key !== cellValidator.key);
+           this.invalidCellKeys.current = this.invalidCellKeys.current.filter(el => !(el.key === cellValidator.key && el.fieldName === cellValidator?.dataField));
         }
        }
     isInvalidAction(cellValidator,withMessage = true){
@@ -782,14 +819,22 @@ export class EditSpecContainer extends BaseContainer {
         }
         if(!StringUtils.isBlank(this.invalidCellKeys?.current)){
            if(Array.isArray(this.invalidCellKeys.current)) {
-              this.invalidCellKeys.current = [...new Set([...this.invalidCellKeys.current, cellValidator.key])];
+                const object = {
+                    key : cellValidator.key,
+                    fieldName : cellValidator.dataField
+                }
+                if(this.invalidCellKeys.current.length !== 0 && this.invalidCellKeys.current.some(el=>el.key === object.key && el.fieldName === object.fieldName ) ){
+                    this.invalidCellKeys.current = this.invalidCellKeys.current.filter(el => el.key !== object.key && el.fieldName !== object?.dataField);
+                }else{
+                    this.invalidCellKeys.current.push(object);
+                }
            }
         }
     }
-    keyExistsInInvalidCellKeys(key){
+    keyExistsInInvalidCellKeys(key, fieldName){
        if(!StringUtils.isBlank(this.invalidCellKeys?.current) ){
            if(Array.isArray(this.invalidCellKeys.current)) {
-               return this.invalidCellKeys.current.some(el=>el === key);
+               return this.invalidCellKeys.current.some(el=>el.key === key && el.fieldName === fieldName );
             }
          }
         return false;
@@ -801,21 +846,6 @@ export class EditSpecContainer extends BaseContainer {
             <React.Fragment>
                 {this.state.loading ? null : (
                     <React.Fragment>
-                        {this.state.renderConfirmationEditQuitDialog && (
-                            <ConfirmationEditQuitDialog
-                                onHide={() => {
-                                    this.setState({
-                                        renderConfirmationEditQuitDialog: false,
-                                    });
-                                }}
-                                visible={this.state.renderConfirmationEditQuitDialog}
-                                labels={this.props.labels}
-                                onAccept={() => {
-                                    this.cancelSpec();
-                                }}
-                            />
-                        )}  
-
                         <div id='spec-edit'>
                             <TreeViewComponent
                                 invalidCellKeys={this.invalidCellKeys}
@@ -826,8 +856,8 @@ export class EditSpecContainer extends BaseContainer {
                                     if(!cellValidator.test(value))this.isInvalidAction(cellValidator, withMessage)
                                     else this.isValidAction(cellValidator);
                                 }}}
-                                keyExistsInInvalidCellKeys={(key)=>{
-                                   return this.keyExistsInInvalidCellKeys(key);
+                                keyExistsInInvalidCellKeys={(key, fieldName)=>{
+                                   return this.keyExistsInInvalidCellKeys(key, fieldName);
                                 }}
                                 id={this.props.id}
                                 onHideEditorCallback={() => this.forceUpdate()}
@@ -944,9 +974,6 @@ export class EditSpecContainer extends BaseContainer {
         const viewIdArg = this.state.elementId;
         const parentIdArg = this.state.elementParentId;
         const ids = this.state.parsedData.map((el) => el._ID);
-        this.setState({
-            renderConfirmationEditQuitDialog: false,
-        });
         this.editSpecService
             .cancel(viewIdArg, parentIdArg, ids)
             .then(() => {

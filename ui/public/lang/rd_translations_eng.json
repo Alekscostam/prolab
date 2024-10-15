@@ -30,6 +30,9 @@
         {"code": "Search", "caption": "Search"},
         {"code": "Cancel", "caption": "Cancel"},
         {"code": "Confirm", "caption": "Confirm"},
+        {"code": "Unexpected_Error_Occurred", "caption": "An unexpected error occurred"},
+        {"code": "Error", "caption": "Error"},
+        {"code": "Information", "caption": "Information"},
         {
             "code": "Session_Expired",
             "caption": "Sesja wygasła",

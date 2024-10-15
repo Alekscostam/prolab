@@ -21,22 +21,6 @@ export class RequestUtils {
         }
         return {data: arrayTmp};
     }
-    static  createObjectToCalculate(datas) {
-        const data = [];
-        let arrTemp = [];
-        datas?.forEach((fields) => {
-            arrTemp = [];
-            Object.entries(fields).forEach((field) => {
-                const elementTmp = {
-                    fieldName: field[0],
-                    value: field[1],
-                };
-                arrTemp.push(elementTmp);
-            });
-            data.push(arrTemp);
-        });
-        return {data: data};
-    }
     static convertFieldsPerType(field) {
         try {
             if (field?.type) {

@@ -535,7 +535,13 @@ label{
 #version {
     font-size: 12px;
 }
-
+.breadcrumb-button{
+    color: $base-color;
+    border:none; 
+    background: white;
+    font-weight: bold;
+    padding: 0px;
+}
 .dx-closebutton {
     background: $base-color !important;
     height: 35px;

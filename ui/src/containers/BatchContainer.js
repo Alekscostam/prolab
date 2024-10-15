@@ -21,7 +21,6 @@ import {ResponseUtils} from '../utils/ResponseUtils';
 import ActionButtonWithMenu from '../components/prolab/ActionButtonWithMenu';
 import {ConfirmationEditQuitDialog} from '../components/prolab/ConfirmationEditQuitDialog';
 import {OperationType} from '../model/OperationType';
-import {StringUtils} from '../utils/StringUtils';
 import { ViewUtils } from '../utils/ViewUtils';
 
 export class BatchContainer extends BaseContainer {
@@ -42,7 +41,6 @@ export class BatchContainer extends BaseContainer {
             isChanged: undefined,
             packageRows: 30,
             levelId: undefined,
-            renderConfirmationEditQuitDialog: false,
             visibleAddSpec: false,
             elementParentId: null,
             elementBatchId: null,
@@ -224,7 +222,7 @@ export class BatchContainer extends BaseContainer {
         return (
             <React.Fragment>
                 <DivContainer id='header-left'>
-                {Breadcrumb.render(this.props.labels)}
+                {Breadcrumb.render(this.props.labels, (fnc) => this.props.onShowEditQuitConfirmDialog(()=> fnc()))}
                     <div className='font-medium mb-2'>{this.state.parsedView?.editInfo?.viewName}</div>
                 </DivContainer>
             </React.Fragment>
@@ -255,9 +253,8 @@ export class BatchContainer extends BaseContainer {
                             label={opCancel?.label}
                             className='ml-2 inverse'
                             handleClick={() => {
-                                this.setState({
-                                    renderConfirmationEditQuitDialog: true,
-                                });
+                                if(this.props.onShowEditQuitConfirmDialog) this.props.onShowEditQuitConfirmDialog(()=> this.batchCancel())
+                                else this.batchCancel()
                             }}
                         />
                     )}
@@ -524,17 +521,6 @@ export class BatchContainer extends BaseContainer {
             <React.Fragment>
                 {this.state.loading ? null : (
                     <React.Fragment>
-                        {this.state.renderConfirmationEditQuitDialog && <ConfirmationEditQuitDialog
-                            onHide={() => {
-                                this.setState({
-                                    renderConfirmationEditQuitDialog: false,
-                                });
-                            }}
-                            visible={this.state.renderConfirmationEditQuitDialog}
-                            labels={this.props.labels}
-                            onAccept={this.batchCancel}
-                        />}
-                        
                         <GridViewComponent
                             altAndLeftClickEnabled={false}
                             handleSaveAction={() => this.handleSaveAction()}

@@ -126,7 +126,7 @@ class BaseContainer extends React.Component {
         this._isMounted = false;
     }
 
-    showInfoMessage(detail, life = Constants.SUCCESS_MSG_LIFE, summary = 'Informacja') {
+    showInfoMessage(detail, life = Constants.SUCCESS_MSG_LIFE, summary = LocUtils.loc(this.props?.labels, 'Information', 'Informacja')) {
         this.getMessages()?.show({
             severity: 'info',
             life: Constants.SUCCESS_MSG_LIFE,
@@ -163,12 +163,12 @@ class BaseContainer extends React.Component {
     }
 
     showResponseErrorMessage(errorResponse) {
-        let title = 'Błąd';
+        let title = LocUtils.loc(this.props?.labels, 'Error', 'Błąd');
         let message;
         if (!!errorResponse?.error) {
             message = errorResponse.error?.message;
         } else {
-            message = 'Wystąpił nieoczekiwany błąd';
+            message = LocUtils.loc(this.props?.labels, "Unexpected_Error_Occurred", "Wystąpił nieoczekiwany błąd") ;
         }
         this.getMessages()?.show({
             severity: 'error',
@@ -190,7 +190,7 @@ class BaseContainer extends React.Component {
         }
     }
 
-    showErrorMessage(errMsg, life = Constants.ERROR_MSG_LIFE, closable = true, summary = 'Błąd!') {
+    showErrorMessage(errMsg, life = Constants.ERROR_MSG_LIFE, closable = true,  summary =  LocUtils.loc(this.props?.labels, 'Error', 'Błąd')) {
         this.getMessages()?.show({
             severity: 'error',
             sticky: false,
@@ -251,15 +251,15 @@ class BaseContainer extends React.Component {
             }
         }
         if (!message && messages.length === 0) {
-            message = 'Wystąpił nieoczekiwany błąd';
+            message = LocUtils.loc(this.props?.labels, "Unexpected_Error_Occurred", "Wystąpił nieoczekiwany błąd");
         }
         if (messages.length === 0) {
             messages.push(message);
         }
         if (title) {
-            title = `Błąd: ${title}`;
+            title = LocUtils.loc(this.props?.labels, 'Error', 'Błąd') `: ${title}`;
         } else {
-            title = 'Błąd';
+            title = LocUtils.loc(this.props?.labels, 'Error', 'Błąd');
         }
         this.getMessages()?.clear();
         this.getMessages()?.show({
@@ -1413,7 +1413,7 @@ class BaseContainer extends React.Component {
                 datas = this.state.parsedData;
             }
         }
-        const fieldsToCalculate = RequestUtils.createObjectToCalculate(datas.filter(data=>data._STATUS !== "deleted" ));
+        const fieldsToCalculate = datas.filter(data=>data._STATUS !== "deleted" ).filter(d=>!StringUtils.isBlank(d._ID)).map(d=>d?._ID);
         this.calculateFormula(viewId, parentId, rowId, fieldsToCalculate);
     }
     // TODO:  tutaj powinien byc jakis refactoring
@@ -1425,37 +1425,34 @@ class BaseContainer extends React.Component {
             this.calculateFormulaForBatch(viewId, parentId, rowId, fieldsToCalculate);
         } else if (this.state.elementKindView && this.state.elementKindView.toUpperCase() === 'VIEWSPEC') {
             parentId = UrlUtils.getRecordId();
+            let listIds = [];
+            let specListIds = this.getListIds(rowId);;
             let params = '';
-            if (!!rowId) {
-                params = `&specId=${rowId}`;
-            } else {
-                if (selectedRowKeys.length !== 0) {
-                    selectedRowKeys.forEach((rowKey) => {
-                        params = params + `&specId=${rowKey.ID}`;
-                    });
-                }
+            if(!StringUtils.isBlank(parentId)){
+                listIds.push(parentId);
+                params = `?recordId=${parentId}`  
             }
-            params = `?recordId=${parentId}${params}`  
-            this.calculateFormulaForView(viewId, params);
+            this.calculateFormulaForView(viewId, params, listIds, specListIds);
         } else {
             let params = '';
-            if (!!rowId) {
-                params = `?recordId=${rowId}`;
-            } else {
-                if (selectedRowKeys.length !== 0) {
-                    selectedRowKeys.forEach((rowKey, index) => {
-                        params = index === 0 ? params + `?recordId=${rowKey.ID}` : params + `&recordId=${rowKey.ID}`;
-                    });
-                }
+            let listIds = this.getListIds(rowId);
+            if(!StringUtils.isBlank(parentId)){
+                params = `?parentId=${parentId}`;  
             }
-            params =StringUtils.isBlank(params) ? `?parentId=${parentId}` : `${params}&parentId=${parentId}` ;  
-            this.calculateFormulaForView(viewId, params);
+            this.calculateFormulaForView(viewId, params, listIds, []);
         }
     }
     changeWart(calcultedFormula, oldFormula) {
         if (parseInt(calcultedFormula[0].value) === parseInt(oldFormula.ID)) {
             oldFormula.WART = calcultedFormula[1].value;
         }
+    }
+    getListIds(rowId){
+        const selectedRowKeys = this.state.selectedRowKeys;
+        let listIds = [];
+        if (!!rowId) listIds.push(rowId);
+        else listIds = selectedRowKeys.map(row => row.ID);
+        return listIds;
     }
     calculateFormulaForEditSpec(viewId, parentId, id, fieldsToCalculate) {
         this.crudService
@@ -1492,10 +1489,10 @@ class BaseContainer extends React.Component {
             });
     }
 
-    calculateFormulaForView(viewId, params) {
+    calculateFormulaForView(viewId, params, listIds, specListIds) {
         this.blockUi();
         this.crudService
-            .calculateFormulaForView(viewId, params)
+            .calculateFormulaForView(viewId, params, listIds, specListIds)
             .then((res) => {
                 this.responseMessage(res);
                 this.refreshView();

@@ -769,8 +769,7 @@ class GanttViewComponent extends React.Component {
                 _bgcolor = info.data['_BGCOLOR'];
                 _fontcolor = info.data['_FONTCOLOR'];
             }
-
-            if (_bgcolor) element.style.backgroundColor = _bgcolor;
+            if (_bgcolor) element.style.setProperty("background-color", _bgcolor, "important");
 
             let fontColorFinal = 'black';
             let bgColorFinal = '';

@@ -6,7 +6,6 @@ export const CookiesName = {
     SESSION_TIMEOUT: 'session_timeout',
     SESSION_TIMEOUT_IN_MINUTES: 'session_timeout_in_minutes',
     ID_REFRESH_TOKEN: 'id_refresh_token',
-    REFRESH_PRESSED: 'refresh_press',
     MENU: 'menu',
     VERSION_API: 'versionAPI',
 };
