@@ -430,9 +430,7 @@ export default class CrudService extends BaseService {
         }
         return this.fetch(url, {
             method: 'POST',
-            body: JSON.stringify({
-                listId: fieldsToCalculate,
-            }),
+            body: JSON.stringify(fieldsToCalculate),
         }).catch((err) => {
             throw err;
         });

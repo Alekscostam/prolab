@@ -1413,12 +1413,11 @@ class BaseContainer extends React.Component {
                 datas = this.state.parsedData;
             }
         }
-        const fieldsToCalculate = datas.filter(data=>data._STATUS !== "deleted" ).filter(d=>!StringUtils.isBlank(d._ID)).map(d=>d?._ID);
+        const fieldsToCalculate = RequestUtils.createObjectToCalculate(datas.filter(data=>data._STATUS !== "deleted" ));
         this.calculateFormula(viewId, parentId, rowId, fieldsToCalculate);
     }
     // TODO:  tutaj powinien byc jakis refactoring
     calculateFormula(viewId, parentId, rowId, fieldsToCalculate) {
-        const selectedRowKeys = this.state.selectedRowKeys;
         if (UrlUtils.isEditSpec()) {
             this.calculateFormulaForEditSpec(viewId, parentId, rowId, fieldsToCalculate);
         } else if (UrlUtils.isBatch()) {
