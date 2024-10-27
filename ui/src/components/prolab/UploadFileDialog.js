@@ -57,7 +57,7 @@ export default class UploadFileDialog extends React.Component {
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
                 <Dialog
                     id='attachmentDialog'
-                    header={LocUtils.loc(this.props.labels, 'Choose_file_header', 'Wybór plików')}
+                    header={LocUtils.loc(this.props.labels, 'Choose_files', 'Wybór plików')}
                     visible={this.props.visible}
                     resizable={false}
                     footer={()=><div></div>}
@@ -78,7 +78,8 @@ export default class UploadFileDialog extends React.Component {
                             accept='*'
                             emptyTemplate={
                                 <p style={{fontSize: '1.1em', color: 'var(--text-color-secondary)'}} className='m-0'>
-                                    Przeciągnij i upuść pliki tutaj, aby je przesłać.
+                                    
+                                    {LocUtils.loc(this.props.labels, 'Drag_and_drop', 'Przeciągnij i upuść pliki tutaj, aby je przesłać.')}
                                 </p>
                             }
                         />

@@ -8,4 +8,7 @@ export const CookiesName = {
     ID_REFRESH_TOKEN: 'id_refresh_token',
     MENU: 'menu',
     VERSION_API: 'versionAPI',
+    DEVICE_NAME: 'device_name',
+    APP_VERSION: 'app_version',
+    APP_NAME: 'app_name',
 };

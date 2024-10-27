@@ -517,7 +517,7 @@ class BaseContainer extends React.Component {
 
     loader() {
         const {waitPanelLabel} = this.state;
-        let label = 'Operacja w toku, proszę czekać.';
+        let label = LocUtils.loc(this.props?.labels, 'Operation_in_progress', 'Operacja w toku, proszę czekać.');
         if (waitPanelLabel !== undefined && waitPanelLabel !== null) {
             label = waitPanelLabel;
         }
@@ -560,6 +560,7 @@ class BaseContainer extends React.Component {
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
                 <BlockUi
+                    labels={this.props?.labels}
                     tag='div'
                     className='block-ui-div'
                     blocking={this.state.blocking || this.state.loading}
@@ -756,7 +757,7 @@ class BaseContainer extends React.Component {
                     fncRedirect();
                 }
                 this.refreshView();   
-                if (UrlUtils.urlParamExsits('grid-view')) this.refreshSubView(true);
+                if (UrlUtils.urlParamExists('grid-view')) this.refreshSubView(true);
                 this.unselectAllDataGrid();
                
             })
@@ -892,7 +893,7 @@ class BaseContainer extends React.Component {
                                         kindView !== undefined &&
                                         kindView !== null &&
                                         kindView.toUpperCase() === 'VIEWSPEC' &&
-                                        UrlUtils.urlParamExsits('grid-view')
+                                        UrlUtils.urlParamExists('grid-view')
                                     ) {
                                         this.refreshSubView(true);
                                     }
@@ -925,7 +926,7 @@ class BaseContainer extends React.Component {
         const idRowKeys = this.state.selectedRowKeys.map((el) => el.ID);
         const listId = recordId ? {listId: [recordId]} : {listId: idRowKeys};
         this.crudService
-            .getDocumentDatasInfo(viewId, id, listId, parentId)
+            .getDocumentDataInfo(viewId, id, listId, parentId)
             .then((res) => {
                 if (res.info.kind === 'GE') {
                     if (res.info.next) {
@@ -1416,7 +1417,6 @@ class BaseContainer extends React.Component {
         const fieldsToCalculate = RequestUtils.createObjectToCalculate(datas.filter(data=>data._STATUS !== "deleted" ));
         this.calculateFormula(viewId, parentId, rowId, fieldsToCalculate);
     }
-    // TODO:  tutaj powinien byc jakis refactoring
     calculateFormula(viewId, parentId, rowId, fieldsToCalculate) {
         if (UrlUtils.isEditSpec()) {
             this.calculateFormulaForEditSpec(viewId, parentId, rowId, fieldsToCalculate);
@@ -1487,7 +1487,6 @@ class BaseContainer extends React.Component {
                 this.unselectAllDataGrid();
             });
     }
-
     calculateFormulaForView(viewId, params, listIds, specListIds) {
         this.blockUi();
         this.crudService

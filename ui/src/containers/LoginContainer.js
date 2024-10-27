@@ -19,18 +19,11 @@ import UserService from '../services/UserService';
 import UserRowComponent from '../components/prolab/UserRowComponent';
 import { CookiesName } from '../model/CookieName';
 
-const element = {
-    appName: 'ProlabRD',
-    deviceID: 'ProlabRD001',
-};
-
 class LoginContainer extends BaseContainer {
     constructor(props) {
         super(props);
         this.localizationService = new LocalizationService(this.getConfigUrl());
         this.handleFormSubmit = this.handleFormSubmit.bind(this);
-        this.showWarningMessage = this.showWarningMessage.bind(this);
-        this.getLocalizationLoginPage = this.getConfigForLoginPage.bind(this);
         this.resetPassword = this.resetPassword.bind(this);
         this.registration = this.registration.bind(this);
         this.userService = new UserService();
@@ -44,13 +37,16 @@ class LoginContainer extends BaseContainer {
             editData: {},
             authValid: true,
             lang: undefined,
-            langs: this.props.appState?.configApp?.langs || [],
             visibleUserComponent: false,
             userInfo: {},
             labels: {},
+            langs: this.props.appState?.configApp?.langs || [],
             defaultLang : this.props.appState?.configApp?.lang ??  "PL",
             renderSignIn:this.props.appState?.configApp?.renderSignIn,
-            renderForgotPassword:this.props?.appState?.configApp?.renderForgotPassword
+            appName:this.props?.appState?.configApp?.appName,
+            deviceName:this.props?.appState?.configApp?.deviceName,
+            appVersion:this.props?.appState?.configApp?.appVersion,
+
         };
         this.authValidValidator = new SimpleReactValidator({
             validators: {
@@ -68,6 +64,11 @@ class LoginContainer extends BaseContainer {
 
     resetPassword(e) {
         e.preventDefault();
+        const element = {
+                appName:this.state.appName,
+                deviceName:this.state?.deviceName,
+                appVersion:this.state?.appVersion, 
+        }
         this.userService
             .resetPassword(element)
             .then((res) => {
@@ -80,6 +81,11 @@ class LoginContainer extends BaseContainer {
 
     registration(e) {
         e.preventDefault();
+        const element = {
+            appName:this.state.appName,
+            deviceName:this.state?.deviceName,
+            appVersion:this.state?.appVersion, 
+        }
         this.userService
             .registration(element)
             .then((res) => {
@@ -142,7 +148,7 @@ class LoginContainer extends BaseContainer {
                 });
             })
             .catch((err) => {
-                ConsoleHelper(`LoginContainer:getLocalizationLoginPage error`, err);
+                ConsoleHelper(`LoginContainer:getConfigForLoginPage error`, err);
                 this.showGlobalErrorMessage(err);
                 this.unblockUi();
             });
@@ -156,7 +162,7 @@ class LoginContainer extends BaseContainer {
         if (this.validator.allValid()) {
             this.blockUi();
             this.authService
-                .login(this.state.username, this.state.password)
+                .login(this.state.username, this.state.password, this.state.appName, this.state.deviceName, this.state.appVersion)
                 .then(() => {
                     if (this.props.onAfterLogin) {
                         this.props.onAfterLogin();
@@ -179,7 +185,6 @@ class LoginContainer extends BaseContainer {
                 });
         } else {
             this.validator.showMessages();
-            // rerender to show messages for the first time
             this.scrollToError = true;
             this.forceUpdate();
         }
@@ -194,6 +199,7 @@ class LoginContainer extends BaseContainer {
                 this._isMounted && (
                     <BlockUi
                         tag='div'
+                        labels={labels}
                         blocking={this.state.blocking || this.state.loading}
                         loader={this.loader}
                         renderBlockUi={true}
@@ -233,18 +239,6 @@ class LoginContainer extends BaseContainer {
             return <Redirect to={this.targetLocation ? this.targetLocation : '/start'} />;
         }
         return <Redirect to={'/start'} />;
-    }
-    showWarningMessage(detail, life = Constants.ERROR_MSG_LIFE, summary = '') {
-        this.messages.show({
-            severity: 'warn',
-            sticky: false,
-            life: Constants.ERROR_MSG_LIFE,
-            content: (
-                <div className='p-flex p-flex-column' style={{flex: '1'}}>
-                    <Message severity={'warn'} content={detail}></Message>
-                </div>
-            ),
-        });
     }
     onKeyDown(e) {
         if (e.key === 'Enter') {

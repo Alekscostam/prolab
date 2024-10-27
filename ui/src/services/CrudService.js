@@ -198,7 +198,7 @@ export default class CrudService extends BaseService {
             });
     }
 
-    getDocumentDatasInfo(viewId, documentId, listId, parentId) {
+    getDocumentDataInfo(viewId, documentId, listId, parentId) {
         return this.fetch(
             `${this.getDomain()}/${this.path}/${viewId}/document/${documentId}${parentId ? `?parentId=${parentId}` : ''}
         `,

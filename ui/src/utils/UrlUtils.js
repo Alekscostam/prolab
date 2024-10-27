@@ -105,7 +105,7 @@ class UrlUtils {
     static getBatchIdParam() {
         return this.getURLParameter('batchId');
     }
-    static urlParamExsits(param) {
+    static urlParamExists(param) {
         return window.location.href.includes(param);
     }
     static isEditRowOpen() {

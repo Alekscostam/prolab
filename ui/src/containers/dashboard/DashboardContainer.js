@@ -183,6 +183,7 @@ class DashboardContainer extends BaseContainer {
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
                 <BlockUi
+                    labels={labels}
                     tag='div'
                     blocking={this.state.blocking || this.state.loading}
                     loader={this.loader}

@@ -92,7 +92,13 @@ $base-color: #0e49eb;
             }
         }
     }
-   
+    .dx-state-hover{
+        .disabled-background{
+            span{
+                color:white!important
+            }
+        }
+    }
 
 }
 .dx-row-focused{
@@ -509,13 +515,16 @@ body .grid-container {
 .infinite-loader-card::-webkit-scrollbar-thumb {
     background-color: silver;
 }
-#popup-add-spec {
+#popup-add-spec {   
+    padding-right: 0px;
+    padding-left: 0px;
     .dx-popup-content,
     .dx-popup-content-scrollable {
         overflow: hidden !important;
     }
 }
 #popup-add-spec_content {
+    height: 100%;
     #grid-selection-panel {
         display: none !important;
     }

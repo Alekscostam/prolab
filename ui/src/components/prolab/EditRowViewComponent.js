@@ -160,6 +160,7 @@ export class EditRowViewComponent extends BaseRowComponent {
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
                 <BlockUi
+                    labels={labels}
                     tag='div'
                     className=''
                     style={{zIndex: '100010'}}

@@ -7,6 +7,7 @@ import {reStateApp} from '../App';
 import {clearState} from '../App';
 import {CookiesName} from '../model/CookieName';
 import {StringUtils} from '../utils/StringUtils';
+import useStore from '../store';
 
 
 export default class AuthService {
@@ -151,21 +152,19 @@ export default class AuthService {
         }
     }
 
-    login(username, password) {
+    login(username, password, appName, deviceName,  appVersion) {
         return this.fetch(`${this.domain}/auth/token`, {
             method: 'POST',
             body: JSON.stringify({
-                username,
-                password,
-                DeviceID: process.env.REACT_APP_NAME_DEVICE_ID,
-                AppName:
-                    process.env.REACT_APP_NAME_PROLAB +
-                    ' ' +
-                    process.env.REACT_APP_VERSION +
-                    '_' +
-                    process.env.REACT_APP_BUILD_NUMBER,
+                Username: username,
+                Password: password,
+                DeviceName: deviceName,
+                AppName:appName,
+                AppVersion:appVersion,
             }),
         }).then((res) => {
+            useStore.getState().setRefreshToken(res.refreshToken)
+            useStore.getState().setAccessToken(res.token)
             this.setToken(res.token, res.expiration, res.user, res.refreshToken, res.sessionTimeoutInMinutes); // Setting the token in localStorage
             return Promise.resolve(res);
         });
@@ -178,18 +177,24 @@ export default class AuthService {
     refresh() {
         const idToken =localStorage.getItem(CookiesName.ID_TOKEN);
         const idRefreshToken =localStorage.getItem(CookiesName.ID_REFRESH_TOKEN);
+        if(StringUtils.isBlank(idToken) ||  StringUtils.isBlank(idRefreshToken)){
+            console.error("TOKENS ARE BLANK. LOOK AT COOKIES ");
+        }
         return this.fetch(
-            `${this.getAndSetDomainIfNeccessery()}/auth/refreshToken`,
-            {
-                method: 'POST',
-                body: JSON.stringify({
-                    accessToken: localStorage.getItem(CookiesName.ID_TOKEN),
-                    refreshToken: localStorage.getItem(CookiesName.ID_REFRESH_TOKEN),
-                }),
-            },
-            null,
-            false
-        )
+                `${this.getAndSetDomainIfNeccessery()}/auth/refreshToken`,
+                {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        accessToken: StringUtils.isBlank(localStorage.getItem(CookiesName.ID_TOKEN)) ? useStore.getState().accessToken : localStorage.getItem(CookiesName.ID_TOKEN),
+                        refreshToken: StringUtils.isBlank(localStorage.getItem(CookiesName.ID_REFRESH_TOKEN)) ? useStore.getState().refreshToken : localStorage.getItem(CookiesName.ID_REFRESH_TOKEN),
+                        AppName: localStorage.getItem(CookiesName.APP_NAME),
+                        AppVersion: localStorage.getItem(CookiesName.APP_VERSION),
+                        DeviceName: localStorage.getItem(CookiesName.DEVICE_NAME),
+                    }),
+                },
+                null,
+                false
+            )
             .then((res) => {
                 this.setRefreshedToken(res.accessToken, res.refreshToken); // Setting the token in localStorage
                 if (reStateApp) {
@@ -208,8 +213,9 @@ export default class AuthService {
                     setTimeout(()=>{
                         window.location.reload();
                     },100)
-                }else{
                 }
+                useStore.getState().setAccessToken(undefined)
+                useStore.getState().setRefreshToken(undefined)
                 return Promise.reject(err);
             });
     }
@@ -288,8 +294,13 @@ export default class AuthService {
                 this.removeLoginCookies();
             }
         }
+        const endWithHash = window.location.href.endsWith('/#/')
         this.removeLoginCookies();
-        window.location.href = AppPrefixUtils.locationHrefUrl('/#/');
+        useStore.getState().setAccessToken(undefined)
+        useStore.getState().setRefreshToken(undefined)
+        if(!endWithHash){
+            window.location.href = AppPrefixUtils.locationHrefUrl('/#/');
+        }
         setTimeout(() => {
             if (clearState) {
                 clearState();

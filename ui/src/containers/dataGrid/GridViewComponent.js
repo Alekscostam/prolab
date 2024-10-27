@@ -236,7 +236,6 @@ class GridViewComponent extends CellEditComponent {
             )
         );
     }
-
     addButtonExist(){
         const opAdd = !!DataGridUtils.getOpButton(this.props.parsedGridView?.operations, OperationType.OP_ADD_BUTTON);
         const opAddFile = !!DataGridUtils.getOpButton(
@@ -249,7 +248,6 @@ class GridViewComponent extends CellEditComponent {
         );
         return !UrlUtils.isBatch() && (opAdd || opAddSpec || opAddFile);
     }
-
     render() {
         const showGroupPanel = this.props.gridFromDashboard
             ? false
@@ -286,7 +284,6 @@ class GridViewComponent extends CellEditComponent {
                     }}
                     onKeyDown={(e) => {
                         this.keyDownClicked.current = true;
-                       
                     }}
                     id={`grid-container`}
                     defaultFocusedRowKey={this.state.focusedRowKey}
@@ -298,6 +295,9 @@ class GridViewComponent extends CellEditComponent {
                         this.props.handleOnDataGrid(ref);
                     }}  
                     onRowClick={(e) => {
+                        if(this.props.handleOnRowClick){
+                            this.props.handleOnRowClick();
+                        }
                         this.currentClickedCell.current = e.data.ID;
                     }}
                     onFocusedRowChanging={(e)=>{
@@ -957,6 +957,7 @@ GridViewComponent.propTypes = {
     packageRows: PropTypes.number,
     handleOnDataGrid: PropTypes.func.isRequired,
     handleOnInitialized: PropTypes.func,
+    handleOnRowClick: PropTypes.func,
     showRenderingViewMode: PropTypes.bool,
     handleShowEditPanel: PropTypes.func,
 

@@ -51,7 +51,8 @@
         "sanitize-html-react": "1.13.0",
         "sass": "^1.61.0",
         "uuid": "^10.0.0",
-        "xlsx": "^0.18.5"
+        "xlsx": "^0.18.5",
+        "zustand": "^5.0.0"
     },
     "scripts": {
         "init-dev-version": "npm version 0.0.0",

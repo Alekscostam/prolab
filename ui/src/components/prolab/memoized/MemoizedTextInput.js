@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import CellValidator from "../../../model/ValidatorPattern";
+import CellValidator from "../../../model/CellValidator";
 import { TextBox, Validator } from "devextreme-react";
 import EditRowUtils from "../../../utils/EditRowUtils";
 import { MemoizedOperations } from "./MemoizedOperations";

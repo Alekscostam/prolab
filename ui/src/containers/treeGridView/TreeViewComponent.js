@@ -36,7 +36,8 @@ import { HtmlUtils } from '../../utils/HtmlUtils';
 import { ViewDataCompUtils } from '../../utils/component/ViewDataCompUtils';
 import EntryResponseHelper from '../../utils/helper/EntryResponseHelper';
 import UrlUtils from '../../utils/UrlUtils';
-import CellValidator from '../../model/ValidatorPattern';
+import CellValidator from '../../model/CellValidator';
+import CellCustomBackground from '../../model/CellCustomBackground';
 
 let clearSelection = false;
 
@@ -181,32 +182,16 @@ class TreeViewComponent extends CellEditComponent {
     }
     isSpecialCell(columnDefinition) {
         const type = columnDefinition?.type;
+        const validationEdit = columnDefinition?.validationEdit;
+        if(!this.props.isAddSpec && !columnDefinition?.edit){
+            return true; 
+        }
         try {
             switch (type) {
                 case ColumnType.H:
                 case ColumnType.C:
-                switch (columnDefinition.fieldName.toUpperCase()) {
-                    case "WART":
-                    case "D_WART":
-                    case "W_NOM":
-                    case "W_NOM_B":
-                    case "W_NOM_C":
-                    case "W_MIN":
-                    case "W_MAX":
-                    case "W_MAX":
-                    case "W_MIN_O":
-                    case "W_MAX_O":
-                    case "W_MIN_B":
-                    case "W_MAX_B":
-                    case "W_MIN_C":
-                    case "W_MIN_C":
-                    case "W_MAX_C":
-                    case "METODA_MIN":
-                    case "METODA_MAX":
-                        return true;
-                    default:
-                        return false;
-                }
+                    const isSpecial = !!validationEdit;
+                    return isSpecial
                 case ColumnType.O:
                 case ColumnType.I:
                 case ColumnType.IM:
@@ -228,7 +213,6 @@ class TreeViewComponent extends CellEditComponent {
         const showColumnHeaders = this.props.showColumnHeaders;
         const showColumnLines = this.props.showColumnLines;
         const showRowLines = this.props.showRowLines;
-        //myk zeby nie pojawiałą sie ramka tabelki przy wczytywaniu
         const showBorders = this.waitForSuccess() ? false : this.props.showBorders;
         const showFilterRow = this.props.showFilterRow;
         const dataTreeHeight = this.props.dataTreeHeight || false;
@@ -318,18 +302,6 @@ class TreeViewComponent extends CellEditComponent {
                     height={dataTreeHeight ? dataTreeHeight + 'px' : '100%'}
                     width={columnAutoWidth ? '100%' : undefined}
                     rowAlternationEnabled={false}
-                    onCellPrepared={(e) => {
-                        if (e.rowType === 'data') {
-                            if(!this.props.isAddSpec){
-                                if(e.columnIndex !==0){
-                                    const columnDefinition = this.matchColumnDefinitionByFieldName(e.column.dataField);
-                                    if (!columnDefinition?.edit && e.column?.id !== "OP_COLUMN") {
-                                        e.cellElement.classList.add('disabled-background');
-                                    }
-                                }
-                            }
-                        }
-                    }}
                     selectedRowKeys={selectedRowKeys}
                     onSelectionChanged={(e) => {
                         this.props.handleSelectedRowKeys(e.selectedRowKeys, this.rerenderColorCheckboxIfPossible());
@@ -835,31 +807,17 @@ class TreeViewComponent extends CellEditComponent {
         }
         return false
     }
-    paintCalculated(cellInfo){
-        if(StringUtils.isNumber(cellInfo?.row?.dataIndex)){
-            const rows =  Array.from(document.querySelectorAll('tr[aria-rowindex="' + Number(cellInfo.row?.dataIndex +1)  + '"]'));
-            const penultimateElement = rows[rows.length - 2]; 
-            if(penultimateElement){
-                if(!StringUtils.isBlank(cellInfo?.column?.headerId)){
-                    const elements = Array.from(penultimateElement.children).filter(child => child.getAttribute('aria-describedby') === cellInfo.column.headerId);
-                    if(elements.length!==0){
-                       const element =  elements[0];
-                        element.classList.add('calculated-cell-bakcground');
-                        element.style.setProperty('background', '#93ffb8', 'important');
-                    }
-                }
-            }
-        }
-    }
+
     isValidField = (cellInfo, columnDefinition) =>{
         return new CellValidator(cellInfo, columnDefinition).isValidField();
     }
-    cellRenderSpecial(cellInfo) {
+    cellRenderSpecial(cellInfo, columnDefinition) {
         try {
             let className = "";
             let _bgColor;
-            if (cellInfo.data?.FORMULA && this.isWart(cellInfo?.column?.dataField)) { 
-                this.paintCalculated(cellInfo)
+            const cellBackground =  new CellCustomBackground(cellInfo, columnDefinition);
+            if (cellBackground.canPaintRow()) { 
+                    cellBackground.paintRow()
             } else {
                 _bgColor = cellInfo.data['_BGCOLOR'];
             }
@@ -1002,7 +960,7 @@ class TreeViewComponent extends CellEditComponent {
                     allowEditing={editable || columnDefinition?.selectionList}
                     cellRender={
                         this.isSpecialCell(columnDefinition)
-                            ? (cellInfo, cd) => this.cellRenderSpecial(cellInfo, editable)
+                            ? (cellInfo, cd) => this.cellRenderSpecial(cellInfo, columnDefinition)
                             : undefined
                     }
                     editCellRender={(cellInfo) =>
@@ -1029,19 +987,19 @@ class TreeViewComponent extends CellEditComponent {
     cColumnTypeRender(cellInfo, fontColorFinal, className){
         const keyExistsInInvalidCellKeys = this.props.keyExistsInInvalidCellKeys ? this.props.keyExistsInInvalidCellKeys(cellInfo.key, cellInfo?.column?.dataField) : false;
          if(!keyExistsInInvalidCellKeys){
-         try {
-             return (
-                 <span
-                     className={this.isWart(cellInfo?.column?.dataField)? 'WART' : className }
-                     style={{
-                         color: fontColorFinal,
-                     }}
-                     dangerouslySetInnerHTML={{__html: cellInfo?.text}}
-                 />
-             );
-         } catch (err) {
-             ConsoleHelper('Error render htmloutput. Exception=', err);
-         }     
+            try {
+                return (
+                    <span
+                        className={this.isWart(cellInfo?.column?.dataField)? 'WART' : className }
+                        style={{
+                            color: fontColorFinal,
+                        }}
+                        dangerouslySetInnerHTML={{__html: cellInfo?.text}}
+                    />
+                );
+            } catch (err) {
+                ConsoleHelper('Error render htmloutput. Exception=', err);
+            }     
          }else{
              try{
                  return  <TextBox

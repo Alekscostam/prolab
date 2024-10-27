@@ -146,7 +146,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
             // przypadek dashboardu
             viewId = this.props.id;
         }
-        if (recordId === parentId && UrlUtils.urlParamExsits('subview')) {
+        if (recordId === parentId && UrlUtils.urlParamExists('subview')) {
             viewId = UrlUtils.getIdFromUrl();
         }
         this.setState({loading: true}, () => {
@@ -340,7 +340,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
         return (
             <Dialog
                 id='attachmentDialog'
-                header={LocUtils.loc(this.props.labels, 'Attachments_header', 'Załączniki')}
+                header={LocUtils.loc(this.props.labels, 'Attachments', 'Załączniki')}
                 visible={true}
                 resizable={true}
                 footer={()=><div></div>}

@@ -1807,6 +1807,10 @@ td[aria-roledescription='Editable'] {
     font-size: 12px;
     border-radius: 0px;
 }
-
+.single-button{
+    .p-confirm-dialog-reject{
+        display: none
+    }
+}
 @import 'edit_spec_field';
 @import 'edit_row';

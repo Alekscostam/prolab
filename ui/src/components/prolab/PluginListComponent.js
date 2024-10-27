@@ -69,7 +69,7 @@ export default class PluginListComponent extends React.Component {
                                         }}
                                         label={LocUtils.loc(
                                             this.props.labels,
-                                            'Confirm_plugin_grid_dialog',
+                                            'Confirm',
                                             'Zatwierdź'
                                         )}
                                     />
@@ -80,7 +80,7 @@ export default class PluginListComponent extends React.Component {
                                     onClick={() => {
                                         this.onHide();
                                     }}
-                                    label={LocUtils.loc(this.props.labels, 'Close_plugin_grid_dialog', 'Zamknij okno')}
+                                    label={LocUtils.loc(this.props.labels, 'Close', 'Zamknij')}
                                 />
                             )}
                         </React.Fragment>

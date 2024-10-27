@@ -400,11 +400,9 @@ export class DashboardGridViewComponent extends BaseContainer {
                             acceptLabel={PluginConfirmDialogUtils.acceptLabel(
                                 this.state.parsedPluginView,
                                 this.props.labels
-                            )}
-                            rejectLabel={PluginConfirmDialogUtils.rejectLabel(
-                                this.state.parsedPluginView,
-                                this.props.labels
-                            )}
+                            )}                        
+                            className='single-button'
+                            rejectLabel={undefined}
                             header={PluginConfirmDialogUtils.header(this.state.parsedPluginView, this.props.labels)}
                             visible={true}
                             onHide={() => this.setState({visibleMessagePluginPanel: false})}
@@ -426,7 +424,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                                 }
                                 this.setState({visibleMessagePluginPanel: false});
                             }}
-                            reject={() => this.setState({visibleMessagePluginPanel: false})}
+                            reject={undefined}
                         />
                     ) : null}
                 </React.Fragment>

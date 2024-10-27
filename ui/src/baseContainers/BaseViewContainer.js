@@ -660,9 +660,10 @@ export class BaseViewContainer extends BaseContainer {
                     <ConfirmDialog
                         closable={false}
                         acceptLabel={PluginConfirmDialogUtils.acceptLabel(parsedPluginView, this.props.labels)}
-                        rejectLabel={PluginConfirmDialogUtils.rejectLabel(parsedPluginView, this.props.labels)}
+                        rejectLabel={undefined}
                         header={PluginConfirmDialogUtils.header(parsedPluginView, this.props.labels)}
                         visible={true}
+                        className='single-button'
                         onHide={() => this.setState({visibleMessagePluginPanel: false})}
                         message={PluginConfirmDialogUtils.message(parsedPluginView, this.props.labels)}
                         icon='pi pi-exclamation-triangle'
@@ -682,7 +683,7 @@ export class BaseViewContainer extends BaseContainer {
                             }
                             this.setState({visibleMessagePluginPanel: false});
                         }}
-                        reject={() => this.setState({visibleMessagePluginPanel: false})}
+                        reject={undefined}
                     />
                 ) : null}
 

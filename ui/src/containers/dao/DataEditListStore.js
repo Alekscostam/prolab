@@ -7,6 +7,7 @@ import EditListUtils from '../../utils/EditListUtils';
 import UrlUtils from '../../utils/UrlUtils';
 import TansformFiltersUtil from '../dao/util/TransformFiltersUtil';
 import { StringUtils } from '../../utils/StringUtils';
+import useStore from '../../store';
 //example
 //api//View/{id}/Edit/{recordId}/list/{fieldId}/data?skip={skip}&take={take}&parentId={parentId}&sort={sort}&filter={filter}
 export default class EditListDataStore extends BaseService {
@@ -14,6 +15,9 @@ export default class EditListDataStore extends BaseService {
         super();
         this.path = 'View';
         this.response = {};
+        this.lastFetchedData = null;
+        this.fetchData = useStore.getState().fetchData;
+
     }
 
     getEditListDataStore(
@@ -31,6 +35,7 @@ export default class EditListDataStore extends BaseService {
         onStart,
         selectedRows
     ) {
+        useStore.getState().setFetchData(true);
         if (!viewIdArg) {
             return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0});
         }
@@ -71,6 +76,22 @@ export default class EditListDataStore extends BaseService {
                         }
                     }
                 });
+                // console.log(this.lastFetchedData?.data);
+                
+                // if(!useStore.getState().fetchData){
+                //     useStore.getState().setFetchData(true);
+                //     // const listOfHintsElements = useStore.getState().listOfHintsElements;
+                //     const lastFetchedData = structuredClone(this.lastFetchedData);
+                //     // this.processData(lastFetchedData.data, listOfHintsElements, setFields);
+                //     this.response = {
+                //         data: lastFetchedData.data,
+                //         totalCount: lastFetchedData.totalCount,
+                //         summary: lastFetchedData.summary || [],
+                //         groupCount: lastFetchedData.groupCount || 0,
+                //     };
+                //     return Promise.resolve(this.response);
+                //     // return Promise.reject('');
+                // }
                 const viewTypeParam = this.createParam(viewTypeArg, 'viewType');
                 const filterIdParam = this.createParam(filterIdArg, 'filter');
                 const parentIdParam = this.createParam(parentIdArg, 'parentId');
@@ -96,33 +117,20 @@ export default class EditListDataStore extends BaseService {
                         body: JSON.stringify(requestBody),
                     })
                         .then((response) => {
-                            let data = response.data;
-                            data.forEach((rowData, index) => {
-                                if (rowData.CALC_CRC === undefined || rowData.CALC_CRC === null) {
-                                    rowData.INDEX = index;
-                                    rowData.CALC_CRC = EditListUtils.calculateCRCBySetFields(rowData, setFields);
-                                    selectedRows.forEach(selectedRow=>{
-                                       const selectedRowName =  selectedRow[0][setFields[0]?.fieldList];
-                                       const responseRowName = rowData[setFields[0]?.fieldList];
-                                       if(selectedRowName === responseRowName && StringUtils.isBlank(selectedRow[0]?.found)){
-                                            selectedRow[0].found=true  
-                                            rowData.INDEX = selectedRow[0].INDEX;
-                                            rowData.CALC_CRC = selectedRow[0].CALC_CRC;
-
-                                       }
-                                    })
-                                }
-                            });
+                            let dataFromResponse = structuredClone(response.data);
+                            this.processData(response.data, selectedRows, setFields);
                             ConsoleHelper('EditListDataStore -> fetch data');
                             if (onSuccess) {
                                 onSuccess();
                             }
                             this.response = {
-                                data: data,
+                                data: response.data,
                                 totalCount: response.totalCount,
                                 summary: response.summary || [],
                                 groupCount: response.groupCount || 0,
                             };
+                            this.lastFetchedData = structuredClone(this.response);
+                            this.lastFetchedData.data = response.data;
                             return this.response;
                         })
                         .catch((err) => {
@@ -138,6 +146,26 @@ export default class EditListDataStore extends BaseService {
                         });
                 }
             },
+        });
+    }
+
+    processData = (data, selectedRows, setFields) => {
+        data.forEach((rowData, index) => {
+            if (rowData.CALC_CRC === undefined || rowData.CALC_CRC === null) {
+                rowData.INDEX = index;
+                rowData.CALC_CRC = EditListUtils.calculateCRCBySetFields(rowData, setFields);
+                selectedRows.forEach(selectedRow=>{
+                   const selectedRowName =  selectedRow[0][setFields[0]?.fieldList];
+                   const responseRowName = rowData[setFields[0]?.fieldList];
+                   const namesEquals = selectedRowName === responseRowName;
+                   const foundIsBlank = StringUtils.isBlank(selectedRow[0]?.found);
+                   if(namesEquals && foundIsBlank){
+                        selectedRow[0].found=true  
+                        rowData.INDEX = selectedRow[0].INDEX;
+                        rowData.CALC_CRC = selectedRow[0].CALC_CRC;
+                   }
+                })
+            }
         });
     }
 

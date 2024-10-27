@@ -41,8 +41,6 @@ export let clearState;
 export let reStateApp;
 export let renderNoRefreshContentFnc;
 export let sessionPrelongFnc = null;
-export let addBtn = null;
-
 class App extends Component {
     constructor() {
         super();
@@ -59,6 +57,9 @@ class App extends Component {
                 renderForgotPassword:false,
                 renderSignIn:false,
                 langs:[],
+                appName: undefined,
+                deviceName: undefined,
+                appVersion: undefined,
             },
             loadedConfiguration: false,
             editData: undefined,
@@ -301,6 +302,9 @@ class App extends Component {
                 const renderForgotPassword = !StringUtils.isBlank(configuration?.FORTOGPASSWORD_VIEWID) ;
                 const renderSignIn = !StringUtils.isBlank(configuration?.SIGNIN_VIEWID);
                 const canRenderAboutVersionDialog =!StringUtils.isBlank(configuration?.SHOW_PREVIEW_DIALOG) ? Boolean(configuration?.SHOW_PREVIEW_DIALOG) : false;
+                const deviceName = configuration.DEVICE_NAME;
+                const appName = configuration.APP_NAME;
+                const appVersion = packageJson.version + "_" + process.env.REACT_APP_BUILD_NUMBER;
                 this.setState({
                     canRenderAboutVersionDialog:canRenderAboutVersionDialog,
                     configApp:{
@@ -308,8 +312,14 @@ class App extends Component {
                         langs,
                         renderForgotPassword,
                         renderSignIn,
+                        appName,
+                        deviceName,
+                        appVersion,
                     }
                 })
+                saveObjToCookieGlobal(CookiesName.APP_VERSION, appVersion);
+                saveObjToCookieGlobal(CookiesName.DEVICE_NAME, deviceName);
+                saveObjToCookieGlobal(CookiesName.APP_NAME, appName);
                 saveObjToCookieGlobal('REACT_APP_BACKEND_URL', configuration.REACT_APP_BACKEND_URL);
                 saveObjToCookieGlobal('REACT_APP_URL_PREFIX', configuration.REACT_APP_URL_PREFIX);
                 saveObjToCookieGlobal('CONFIG_URL', configUrl);
@@ -410,7 +420,7 @@ class App extends Component {
                 // const language = 'ENG';
                 this.getTranslations(configUrl, language);
             } catch (ex) {
-                console.log(ex);
+                console.error(ex);
                 if (localStorage.getItem(CookiesName.LOGGED_USER) === null) {
                     this.authService.logout();
                 }
@@ -447,11 +457,7 @@ class App extends Component {
         });
     }
     canRenderLogin = () => {
-        const isLoggedUser =this.authService.isLoggedUser();
-        if(isLoggedUser){
-            return false;
-        }
-        return true
+        return !this.authService.isLoggedUser()
     }
     
     renderLoginOrStartPage = (props) => {
@@ -539,7 +545,6 @@ class App extends Component {
             if (this.authService.isLoggedUser()) {
                 return true;
             }
-            return false;
         }
         return false;
     }
@@ -563,7 +568,6 @@ class App extends Component {
         const authService = this.authService;
         const {labels} = this.state;
         const loggedIn = authService.isLoggedUser();
-
         return (
             <React.Fragment>
                 {(this.state.renderAboutVersionDialog && this.state.canRenderAboutVersionDialog) && <VersionPreviewDialog onHide={()=>{

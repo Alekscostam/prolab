@@ -1,6 +1,7 @@
 import hash from 'object-hash';
 import ConsoleHelper from './ConsoleHelper';
 import { v4 as uuidv4 } from 'uuid';
+import useStore from '../store';
 
 export class EditListUtils {
     //data structure from API
@@ -35,7 +36,6 @@ export class EditListUtils {
             obj.INDEX = rowData.INDEX
         })
         const calculateCRC = EditListUtils.calculateCRC(objToHash);
-        ConsoleHelper('objToHash = ', JSON.stringify(objToHash) + ' hash = ' + calculateCRC);
         return calculateCRC;
     }
     static addUuidToFields(editData){
@@ -69,6 +69,7 @@ export class EditListUtils {
         const selectedRowsKeys = e.selectedRowKeys;
         let transformedRowsData = [];
         let transformedRowsCRC = [];
+        let selectedRowsToStore = [];
         if (multiSelect) {
             transformedRowsData = prevSelectedRowData;
             transformedRowsCRC = selectedRowsKeys;
@@ -92,18 +93,29 @@ export class EditListUtils {
                 );
             }
         } else {
-            for (let selectedRows in currentSelectedRowsData) {
-                let selectedRow = currentSelectedRowsData[selectedRows];
+            for (let selectedRowData in currentSelectedRowsData) {
+                let selectedRow = currentSelectedRowsData[selectedRowData];
                 let transformedSingleRowData = this.transformBySetFields(selectedRow, setFields);
                 let CALC_CRC = this.calculateCRC(transformedSingleRowData);
+                // const selectedRowToStore = structuredClone(selectedRow); 
+                // selectedRowToStore.CALC_CRC = CALC_CRC;
+                // selectedRowsToStore.push(selectedRowToStore);
                 transformedRowsData.push(transformedSingleRowData);
                 transformedRowsCRC.push(CALC_CRC);
             }
+
         }
+        // debugger
+        // const toStoreElements  = structuredClone(selectedRowsToStore);
+        // toStoreElements.forEach(element => delete element.found);
+        // useStore.getState().setListOfHintsElements([toStoreElements]);
         return {
             rowsData:transformedRowsData,
             rowsCrc:transformedRowsCRC,
         };
+    }
+    static prepareElementToStore(currentSelectedRowsData){
+        const toStoreElements  = structuredClone(currentSelectedRowsData);
     }
 }
 

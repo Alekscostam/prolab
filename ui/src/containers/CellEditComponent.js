@@ -240,7 +240,6 @@ class CellEditComponent extends Component {
     currentEditListRow(recordId) {}
 
     editListVisible = (recordId, fieldId) => {
-        ConsoleHelper('EditableComponent::editListVisible');
         this.props.handleBlockUi();
         this.setState(
             {
@@ -263,6 +262,9 @@ class CellEditComponent extends Component {
                         let countSeparator = 0;
                         setFields.forEach((field) => {
                             EditListUtils.searchField(editData, field.fieldEdit, (foundFields) => {
+                                if(StringUtils.isBlank(foundFields.value) ){
+                                    foundFields.value = "";
+                                }
                                 const fieldValue = ('' + foundFields.value).split(separatorJoin);
                                 if (fieldValue.length > countSeparator) {
                                     countSeparator = fieldValue.length;
@@ -274,6 +276,9 @@ class CellEditComponent extends Component {
                             setFields.forEach((field) => {
                                 EditListUtils.searchField(editData, field.fieldEdit, (foundFields) => {
                                     let fieldTmp = {};
+                                    if(StringUtils.isBlank(foundFields.value) ){
+                                        foundFields.value = "";
+                                    }
                                     const fieldValue = ('' + foundFields.value).split(separatorJoin);
                                     fieldTmp[field.fieldList] = fieldValue[index];
                                     singleSelectedRowDataTmp.push(fieldTmp);
@@ -408,7 +413,6 @@ class CellEditComponent extends Component {
                 );
             case ColumnType.N: //N – Numeryczny/Liczbowy
                 return (
-                    
                     <MemoizedNumericInput
                         field={field}
                         cellInfo={cellInfo}

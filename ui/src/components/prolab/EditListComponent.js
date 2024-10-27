@@ -6,6 +6,7 @@ import {Button} from 'primereact/button';
 import {DataGridUtils} from '../../utils/component/DataGridUtils';
 import LocUtils from '../../utils/LocUtils';
 import {OperationType} from '../../model/OperationType';
+import useStore from '../../store';
 
 export default class EditListComponent extends React.Component {
     constructor(props) {
@@ -85,6 +86,9 @@ export default class EditListComponent extends React.Component {
                         packageRows={this.props.parsedGridView?.info?.dataPackageSize}
                         handleBlockUi={() => {
                             this.props.handleBlockUi();
+                        }}
+                        handleOnRowClick={()=>{
+                            useStore.getState().setFetchData(false);
                         }}
                         getRef={() => {
                             return this.refDataGrid;

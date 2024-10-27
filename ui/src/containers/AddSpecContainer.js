@@ -50,6 +50,7 @@ export class AddSpecContainer extends BaseContainer {
             tabs: 0,
             visibleAddSpec: false,
             blocking: true,
+            renderTreeView: true,
             initializedExpandAll: false,
             isSubView: false,
             arrayToAdd: [],
@@ -138,31 +139,33 @@ export class AddSpecContainer extends BaseContainer {
             <div>
                 <React.Fragment>
                     {this.props.visibleAddSpec && (
-                    <Dialog
-                            id={'popup-add-spec'}
-                            key={`popup-add-spec`}
-                            blockScroll={true}
-                            draggable={false}
-                            onHide={this.props.onHide}
-                            style={{maxWidth: '1500px', height: '800px', overflow: 'none'}}
-                            ariaCloseIconLabel='Zamknij okno dialogowe'
-                            breakpoints={{'960px': '75vw', '640px': '100vw'}}
-                            header={
-                                <div className='mb-4'>
-                                    <div className='row ' style={{flaot: 'right!important'}}>
-                                        <div className='col-lg-6 col-md-12'>{this.renderHeaderLeft()}</div>
-                                        <span className='col-lg-6 col-md-12'>{this.renderHeaderRight()}</span>
-                                    </div>
-                                </div>
-                            }
-                            resizable={false}
-                            visible={true}
-                            footer={()=>{<div></div>}}
-                        >
-                            {this.renderHeadPanel()}
-                            {this.renderContent()}
-                        </Dialog>
-                        
+                            <div className='row'>
+                                <Dialog
+                                    id={'popup-add-spec'}
+                                    key={`popup-add-spec`}
+                                    blockScroll={true}
+                                    draggable={false}
+                                    className='col-8'
+                                    onHide={this.props.onHide}
+                                    style={{height: '800px', overflow: 'none'}}
+                                    ariaCloseIconLabel='Zamknij okno dialogowe'
+                                    breakpoints={{'960px': '75vw', '640px': '100vw'}}
+                                    header={
+                                        <div className='mb-4'>
+                                            <div className='row ' style={{flaot: 'right!important'}}>
+                                                <div className='col-lg-6 col-md-12'>{this.renderHeaderLeft()}</div>
+                                                <span className='col-lg-6 col-md-12'>{this.renderHeaderRight()}</span>
+                                            </div>
+                                        </div>
+                                    }
+                                    resizable={false}
+                                    visible={true}
+                                    footer={()=>{<div></div>}}
+                                >
+                                    {this.renderHeadPanel()}
+                                    {this.renderContent()}
+                                </Dialog>  
+                            </div>
                     )}
                 </React.Fragment>
             </div>
@@ -305,6 +308,19 @@ export class AddSpecContainer extends BaseContainer {
     renderGlobalTop() {
         return <React.Fragment />;
     }
+    rerenderTreeList = () => {
+        this.setState({
+            renderTreeView:false
+        },
+            ()=>{
+                setTimeout(()=>{
+
+                    this.setState({
+                        renderTreeView:true
+                    })
+                }, 750)
+        })
+    }
     //override
     renderHeaderLeft() {
         return (
@@ -327,6 +343,8 @@ export class AddSpecContainer extends BaseContainer {
                                 dataSource={this.state.tabs}
                                 selectedIndex={this.state.selectedIndex}
                                 onItemClick={(event) => {
+                                    this.rerenderTreeList();
+                                   
                                     if (sessionPrelongFnc) {
                                         sessionPrelongFnc();
                                     }
@@ -353,6 +371,7 @@ export class AddSpecContainer extends BaseContainer {
                                     }
                                     if (args.name === 'selectedIndex') {
                                         if (this.state.isSubView) {
+                                            this.rerenderTreeList();
                                             this.setState({
                                                 blocking: true,
                                                 isSubView: false,
@@ -362,7 +381,8 @@ export class AddSpecContainer extends BaseContainer {
                                         if (args.value !== -1 && args.previousValue !== -1) {
                                             if(this.tabClicked.current === false){
                                                 this.tabClicked.current = true
-                                                this.onItemTabClick(args.value);
+                                                this.onItemTabClick(args.value);                                    
+                                                this.rerenderTreeList();
                                             }
                                         }
                                     }
@@ -422,7 +442,7 @@ export class AddSpecContainer extends BaseContainer {
             <div>
                 <div className='ml-4 text-end number-of-copies-header'>
                     <div>
-                        {!!opCount ? (
+                        {!!opCount && (
                             <React.Fragment>
                                 {LocUtils.loc(this.props.labels, 'number_of_copy', opCount.label + ' ')}
                                 <InputNumber
@@ -443,7 +463,7 @@ export class AddSpecContainer extends BaseContainer {
                                     showButtons
                                 />
                             </React.Fragment>
-                        ) : undefined}
+                        )}
                        {opAdd && <ActionButton
                             rendered={!!opAdd}
                             label={opAdd?.label}
@@ -481,7 +501,7 @@ export class AddSpecContainer extends BaseContainer {
     }
 
     isGridViewUrlExist() {
-        return UrlUtils.urlParamExsits('grid-view');
+        return UrlUtils.urlParamExists('grid-view');
     }
 
     createObjectToSave() {
@@ -553,22 +573,6 @@ export class AddSpecContainer extends BaseContainer {
             if (!!callbackAction) callbackAction();
         });
     }
-    shouldComponentUpdate(nextProps, nextState) {
-        const changedElementStates =
-            nextState.elementParentId !== this.state.elementParentId ||
-            nextState.elementRecordId !== this.state.elementRecordId;
-        const changedElementId = nextState.elementId !== this.state.elementId;
-        const changedParsedView = nextState.parsedView !== this.state.parsedView;
-        const changedParsedData = nextState.parsedData !== this.state.parsedData;
-        const changedSelectedRowKeys = nextState.selectedRowKeys !== this.state.selectedRowKeys;
-        const shouldBeRerendered =
-            changedElementStates ||
-            changedElementId ||
-            changedParsedView ||
-            changedParsedData ||
-            changedSelectedRowKeys;
-        return shouldBeRerendered;
-    }
     increaseNumberOfCopies() {
         const inputRef = this.numberOfCopiesRef.current.inputRef.current;
         inputRef.value = (parseInt(inputRef.value) + 1).toString();
@@ -581,7 +585,7 @@ export class AddSpecContainer extends BaseContainer {
                 {!this.state.loading && (
                     <React.Fragment>
                         <div id='spec-edit-dialog' className='spec-edit-dialog '>
-                            <TreeViewComponent
+                          {this.state.renderTreeView && <TreeViewComponent
                                 altAndLeftClickEnabled={true}
                                 ref={this?.refTreeList}
                                 id={this.props.id}
@@ -679,7 +683,7 @@ export class AddSpecContainer extends BaseContainer {
                                 handlePublishRow={(id) => this.publishEntry(id)}
                                 showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                                 labels={this.props.labels}
-                            />
+                            />}  
                             <SelectedElements selectedRowKeys={this.state.selectedRowKeys} totalCounts={this.state.totalCounts} />
                         </div>
                     </React.Fragment>

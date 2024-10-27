@@ -355,6 +355,7 @@ export class ViewContainer extends BaseViewContainer {
             <div>
                 {this.state.attachmentViewInfo ? (
                     <AttachmentViewDialog
+                        labels={this.props.labels}
                         ref={this.viewContainer}
                         recordId={this.state.attachmentViewInfo.recordId}
                         id={this.state.attachmentViewInfo.viewId}

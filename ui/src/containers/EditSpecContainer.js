@@ -659,7 +659,8 @@ export class EditSpecContainer extends BaseContainer {
         });
 
     }
-
+    // TODO: block i unblock ui na treelist
+    // TODO: w dodawaniu parametrow nalezy poprawic refresh componentu  
     down(id) {
         let parsedData = [];
         if(StringUtils.isBlank(id)) parsedData = this.moveFewElements(true); 

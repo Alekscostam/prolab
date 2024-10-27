@@ -11,7 +11,6 @@ export class TreeListUtils extends ViewDataCompUtils {
     static getEditSpecService() {
         return TreeListUtils.editSpecService;
     }
-
     static conditionForTrueValue(value) {
         if (typeof value === 'boolean') {
             return value;

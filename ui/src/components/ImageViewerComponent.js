@@ -29,7 +29,7 @@ export const ImageViewerComponent = (props) => {
                                     onApprove(imageSource);
                                 }
                             }}
-                            label={LocUtils.loc(labels, 'Approve', 'Zatwierdź')}
+                            label={LocUtils.loc(labels, 'Confirm', 'Zatwierdź')}
                         />
                     </React.Fragment>
                 ) :<div></div>

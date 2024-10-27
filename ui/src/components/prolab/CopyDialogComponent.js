@@ -58,7 +58,7 @@ export default class CopyDialogComponent extends React.Component {
                                         this.props.handleCopy(this.state);
                                         this.props.onHide();
                                     }}
-                                    label={LocUtils.loc(this.props.labels, 'Confirm_Label', 'Zatwierdź')}
+                                    label={LocUtils.loc(this.props.labels, 'Confirm', 'Zatwierdź')}
                                 />
                             </div>
                         </React.Fragment>
