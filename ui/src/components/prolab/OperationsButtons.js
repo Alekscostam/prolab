@@ -7,8 +7,8 @@ import ShortcutButton from './ShortcutButton';
 import Constants from '../../utils/Constants';
 import ActionButtonWithMenu from './ActionButtonWithMenu';
 import {sessionPrelongFnc} from '../../App';
-import {OperationType} from '../../model/OperationType';
-import { CookiesName } from '../../model/CookieName';
+import {OperationType} from '../../enum/OperationType';
+import { CookiesName } from '../../enum/CookieName';
 
 export const OperationsButtons = (props) => {
     const renderOperationsButton = (operations) => {

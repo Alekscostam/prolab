@@ -5,7 +5,7 @@ import ConsoleHelper from '../utils/ConsoleHelper';
 import AppPrefixUtils from '../utils/AppPrefixUtils';
 import {reStateApp} from '../App';
 import {clearState} from '../App';
-import {CookiesName} from '../model/CookieName';
+import {CookiesName} from '../enum/CookieName';
 import {StringUtils} from '../utils/StringUtils';
 import useStore from '../store';
 

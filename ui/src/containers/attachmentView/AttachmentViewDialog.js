@@ -7,7 +7,7 @@ import {BaseViewContainer} from '../../baseContainers/BaseViewContainer';
 import {Dialog} from 'primereact/dialog';
 import UrlUtils from '../../utils/UrlUtils';
 import Constants from '../../utils/Constants';
-import {OperationType} from '../../model/OperationType';
+import {OperationType} from '../../enum/OperationType';
 import {ButtonGroup} from 'devextreme-react';
 import CardViewInfiniteComponent from '../cardView/CardViewInfiniteComponent';
 import { StringUtils } from '../../utils/StringUtils';

@@ -1,5 +1,5 @@
 import {Menu} from 'primereact/menu';
-import {OperationType} from '../../model/OperationType';
+import {OperationType} from '../../enum/OperationType';
 import React, { useEffect, useRef, useState } from 'react';
 
 export const MenuWithButtons = (props) => {

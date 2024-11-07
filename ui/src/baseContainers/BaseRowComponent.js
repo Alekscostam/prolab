@@ -24,8 +24,8 @@ import LocUtils from '../utils/LocUtils';
 import CrudService from '../services/CrudService';
 import {DataGridUtils} from '../utils/component/DataGridUtils';
 import {Password} from 'primereact/password';
-import {InputType} from '../model/InputType';
-import {ColumnType} from '../model/ColumnType';
+import {InputType} from '../enum/InputType';
+import {ColumnType} from '../enum/ColumnType';
 import {StringUtils} from '../utils/StringUtils';
 import { RequestUtils } from '../utils/RequestUtils';
 

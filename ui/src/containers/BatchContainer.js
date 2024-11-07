@@ -20,8 +20,9 @@ import EntryResponseHelper from '../utils/helper/EntryResponseHelper';
 import {ResponseUtils} from '../utils/ResponseUtils';
 import ActionButtonWithMenu from '../components/prolab/ActionButtonWithMenu';
 import {ConfirmationEditQuitDialog} from '../components/prolab/ConfirmationEditQuitDialog';
-import {OperationType} from '../model/OperationType';
+import {OperationType} from '../enum/OperationType';
 import { ViewUtils } from '../utils/ViewUtils';
+import { TranslationUtils } from '../utils/TranslationUtils';
 
 export class BatchContainer extends BaseContainer {
     
@@ -232,8 +233,8 @@ export class BatchContainer extends BaseContainer {
     //override
     renderHeaderRight() {
         const operations = this.state?.parsedView?.operations || [];
-        const opSave = DataGridUtils.getOpButton(operations, OperationType.OP_SAVE);
-        const opCancel = DataGridUtils.getOpButton(operations, OperationType.OP_CANCEL);
+        const opSave = TranslationUtils.getOpButton(operations, OperationType.OP_SAVE);
+        const opCancel = TranslationUtils.getOpButton(operations, OperationType.OP_CANCEL);
         return (
             <React.Fragment>
                 <div id='global-top-components'>

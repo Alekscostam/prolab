@@ -41,6 +41,7 @@
         {"code": "Unexpected_Error_Occurred", "caption": "An unexpected error occurred"},
         {"code": "Error", "caption": "Error"},
         {"code": "Information", "caption": "Information"},
+        {"code": "Exists_invalid_cells", "caption": "Exists invalid cells"},
         {
             "code": "Session_Expired",
             "caption": "Sesja wygasła",

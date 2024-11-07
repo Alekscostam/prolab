@@ -24,11 +24,13 @@ import SubGridViewComponent from './dataGrid/SubGridViewComponent';
 import {TreeListUtils} from '../utils/component/TreeListUtils';
 import {ConfirmationEditQuitDialog} from '../components/prolab/ConfirmationEditQuitDialog';
 import EditSpecService from '../services/EditSpecService';
-import {OperationType} from '../model/OperationType';
+import {OperationType} from '../enum/OperationType';
 import {StringUtils} from '../utils/StringUtils';
 import ActionShortcutWithoutMenu from '../components/prolab/ActionShortcutWithoutMenu';
 import SelectedElements from '../components/SelectedElements';
 import { ResponseUtils } from '../utils/ResponseUtils';
+import { TranslationUtils } from '../utils/TranslationUtils';
+import LocUtils from '../utils/LocUtils';
 
 export let operationClicked = false;
 export class EditSpecContainer extends BaseContainer {
@@ -391,8 +393,8 @@ export class EditSpecContainer extends BaseContainer {
     //override
     renderHeaderRight() {
         const operations = this.state?.parsedView?.operations;
-        const opSave = DataGridUtils.getOpButton(operations, OperationType.OP_SAVE);
-        const opCancel = DataGridUtils.getOpButton(operations, OperationType.OP_CANCEL);
+        const opSave = TranslationUtils.getOpButton(operations, OperationType.OP_SAVE);
+        const opCancel = TranslationUtils.getOpButton(operations, OperationType.OP_CANCEL);
         return (
             <React.Fragment>
                 <div id='global-top-components'>
@@ -419,8 +421,9 @@ export class EditSpecContainer extends BaseContainer {
     }
 
     handleSaveAction() {
-        if(this.invalidCellKeys?.current.length!==0){
-            this.showErrorMessage("Komórki o wartościach: " + JSON.stringify(this.invalidCellKeys?.current) + " nie są prawidłowe!", 3000, false);
+        const dxInvalids = Array.from(document.getElementsByClassName("dx-invalid"));
+        if(dxInvalids.length !== 0){
+            this.showErrorMessage(LocUtils.locFromStore('Exists_invalid_cells'), 3000, false);
             return;
         }
         const viewIdArg = this.state.elementId;
@@ -809,12 +812,12 @@ export class EditSpecContainer extends BaseContainer {
         if (!!callbackAction) callbackAction();
     }
     
-    isValidAction(cellValidator){
+    validCellAction(cellValidator){
         if(!StringUtils.isBlank(this.invalidCellKeys?.current) ){
            this.invalidCellKeys.current = this.invalidCellKeys.current.filter(el => !(el.key === cellValidator.key && el.fieldName === cellValidator?.dataField));
         }
        }
-    isInvalidAction(cellValidator,withMessage = true){
+    invalidCellAction(cellValidator,withMessage = true){
         if(withMessage){
             this.showErrorMessage(cellValidator.getMessage(), 2500, true);
         }
@@ -824,9 +827,7 @@ export class EditSpecContainer extends BaseContainer {
                     key : cellValidator.key,
                     fieldName : cellValidator.dataField
                 }
-                if(this.invalidCellKeys.current.length !== 0 && this.invalidCellKeys.current.some(el=>el.key === object.key && el.fieldName === object.fieldName ) ){
-                    this.invalidCellKeys.current = this.invalidCellKeys.current.filter(el => el.key !== object.key && el.fieldName !== object?.dataField);
-                }else{
+                if(!(this.invalidCellKeys.current.length !== 0 && this.invalidCellKeys.current.some(el=>el.key === object.key && el.fieldName === object.fieldName ) )){
                     this.invalidCellKeys.current.push(object);
                 }
            }
@@ -854,8 +855,8 @@ export class EditSpecContainer extends BaseContainer {
                                 altAndLeftClickEnabled={true}
                                 afterFinishEditCell={(cellValidator, value, withMessage)=>{
                                     if(!StringUtils.isBlank(cellValidator)){
-                                    if(!cellValidator.test(value))this.isInvalidAction(cellValidator, withMessage)
-                                    else this.isValidAction(cellValidator);
+                                    if(!cellValidator.test(value))this.invalidCellAction(cellValidator, withMessage)
+                                    else this.validCellAction(cellValidator);
                                 }}}
                                 keyExistsInInvalidCellKeys={(key, fieldName)=>{
                                    return this.keyExistsInInvalidCellKeys(key, fieldName);

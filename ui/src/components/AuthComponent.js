@@ -1,9 +1,7 @@
 import React from 'react';
 import AuthService from "../services/AuthService";
 import * as PropTypes from "prop-types";
-import Address from "./Address";
 import ConsoleHelper from "../utils/ConsoleHelper";
-import { CookiesName } from '../model/CookieName';
 
 
 class AuthComponent extends React.Component {
@@ -59,7 +57,7 @@ class AuthComponent extends React.Component {
     }
 }
 
-Address.defaultProps = {};
+AuthComponent.defaultProps = {};
 
 AuthComponent.propTypes = {
     historyBrowser: PropTypes.any.isRequired, roles: PropTypes.any, handleLogout: PropTypes.func

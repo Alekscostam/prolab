@@ -4,8 +4,9 @@ import {Dialog} from 'primereact/dialog';
 import GridViewComponent from '../../containers/dataGrid/GridViewComponent';
 import {Button} from 'primereact/button';
 import {Toast} from 'primereact/toast';
-import {OperationType} from '../../model/OperationType';
+import {OperationType} from '../../enum/OperationType';
 import {DataGridUtils} from '../../utils/component/DataGridUtils';
+import { TranslationUtils } from '../../utils/TranslationUtils';
 
 export default class HistoryLogDialogComponent extends React.Component {
     constructor(props) {
@@ -37,7 +38,7 @@ export default class HistoryLogDialogComponent extends React.Component {
         const width = parsedHistoryLogView?.info?.windowSize?.width || '50vw';
         const height = parsedHistoryLogView?.info?.windowSize?.height || undefined;
         // OP_CLOSE
-        const opClose = DataGridUtils.getOpButton(this.props.parsedHistoryLogView.operations, OperationType.OP_CLOSE);
+        const opClose = TranslationUtils.getOpButton(this.props.parsedHistoryLogView.operations, OperationType.OP_CLOSE);
         let convertedParsedView = {...parsedHistoryLogView};
         /** Przemapowanie viewOptions na gridOptions */
         if (parsedHistoryLogView?.viewOptions) {

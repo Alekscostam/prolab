@@ -1,7 +1,11 @@
 import { StringUtils } from "../utils/StringUtils";
 
-export default class CellValidator {
+const testOne = [["UWAGI","contains","pró"],"and",[["OPIS","=","Opis dodatkowy 123"],"or",["OPIS","=","Opis dodatkowy"]]];
+const testTwo = [["UWAGI","contains","pró"],"and",["OPIS","=","Opis dodatkowy 123"]];
+const testThree = ["PIERW_TYP","=","N"];
 
+export default class CellValidator {
+ 
      constructor(cellInfo, field) {
         // cellInfo.data.PIERW_TYP = "C";
         this.dataField = cellInfo?.column?.dataField || '';
@@ -77,10 +81,10 @@ export default class CellValidator {
 
     buildCondition = (array) => { 
         try{
-             if (!Array.isArray(array) || array.length === 0) {
+             if (this.isEmptyOrNotArray(array)) {
                  return null;
              }
-             if (array.length === 3 && typeof array[0] === "string" && typeof array[1] === "string") {
+             if (this.hasThreeElementsWithTwoStrings(array)) {
                  const [column, operator, value] = array;
                  return `data["${column}"] ${this.getValidOperator(operator)} "${value}"`;
              }
@@ -88,15 +92,10 @@ export default class CellValidator {
              array.forEach((item) => {
                 if (Array.isArray(item)) {
                     const [column, operator, value] = item;
-                    if(Array.isArray(column) ){
-                        condition += `(${this.buildCondition(item)})`;
-                    }else{
-                        condition += `data["${column}"] ${this.getValidOperator(operator)} "${value}"`;
-                    }
+                    if(Array.isArray(column)) condition += `(${this.buildCondition(item)})`;
+                    else condition += `data["${column}"] ${this.getValidOperator(operator)} "${value}"`;
                 } 
-                else if (typeof item === "string") {
-                    condition += this.getValidOperator(item.toUpperCase());
-                }
+                else if (typeof item === "string") condition += this.getValidOperator(item.toUpperCase());
              });
              return condition;
         }catch(ex){
@@ -105,19 +104,65 @@ export default class CellValidator {
        
     };
 
-     evaluateCondition = (condition, data) => {
+    columnsFromConditions = (array) => {
+        const arrayResult = [];
+        try{
+            if (this.isEmptyOrNotArray(array)) {
+                return [];
+            }
+            if (this.hasThreeElementsWithTwoStrings(array)) {
+                const column = array[0];
+                arrayResult.push(column)
+                return arrayResult;
+            }
+            array.forEach((item) => {
+               if (Array.isArray(item)) {
+                   const column = item[0];
+                   if(Array.isArray(column)) arrayResult.concat(this.columnsFromConditions(item));
+                   else arrayResult.push(column)
+               } 
+            });
+            return arrayResult;
+       }catch(ex){
+           console.error(ex)
+       } 
+    }
+    isEmptyOrNotArray(array){
+        return !Array.isArray(array) || array.length === 0;
+    }
+    hasThreeElementsWithTwoStrings(array){
+        return array.length === 3 && typeof array[0] === "string" && typeof array[1] === "string";
+    }
+
+    evaluateCondition = (condition, data) => {
         try{
             return new Function("data", `return ${condition};`)(data);
         }
         catch(ex){
-            console.error("Bad condition")
+            console.error("Bad condition", ex)
             return false;
         }
-     };
+    };
+     validateMessage = (columns) =>{
+        try{
+            columns.forEach(column=>{
+                const isNotExistsField = StringUtils.isBlank(this.data[column]);
+                if(isNotExistsField){
+                    console.error("Column: ", column ," for data: ", this.data, " not exist")
+                }
+            })
+        }catch(ex){
+            console.error("validation column data error" , ex)
+
+        }
+     }
      expressionSatisfiesCondition(){
         if(this.shouldBeRegexUse()){
+            const columns = this.columnsFromConditions(structuredClone(this.field?.validationEdit?.conditionsRegex?.conditions));
+            this.validateMessage(columns);
             const condition = this.buildCondition(this.field?.validationEdit?.conditionsRegex?.conditions);
-            return this.evaluateCondition(condition, this.data);
+            const evaluationResult =this.evaluateCondition(condition, this.data);
+            return evaluationResult;
         }
         return false;
      }
@@ -139,7 +184,8 @@ export default class CellValidator {
         const regex = this.getRegex();
         if(StringUtils.isBlank(text) || text === "") return true;
         if(StringUtils.isBlank(regex)  || regex==='') return true;
-        return new RegExp(regex).test(text)
+        const regexResult =new RegExp(regex).test(text);
+        return regexResult
      }
 
      getMessage(){
@@ -149,9 +195,6 @@ export default class CellValidator {
      getRegex() {
         if(StringUtils.isBlank(this.field?.validationEdit)) return "" ;
         if(!this.hasCondition()) return this.field?.validationEdit.regex;
-        // const one = [["UWAGI","contains","pró"],"and",[["OPIS","=","Opis dodatkowy 123"],"or",["OPIS","=","Opis dodatkowy"]]];
-        // const two = [["UWAGI","contains","pró"],"and",["OPIS","=","Opis dodatkowy 123"]];
-        // const three = ["UWAGI","contains","pró"];
         const condition = this.buildCondition(this.field?.validationEdit?.conditionsRegex?.conditions);
         const result = this.evaluateCondition(condition, this.data);
         const pattern = result ? this.field.validationEdit?.conditionsRegex?.thenRegex : this.field.validationEdit?.conditionsRegex?.elseRegex;

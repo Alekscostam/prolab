@@ -21,7 +21,7 @@ import UrlUtils from '../../utils/UrlUtils';
 import Avatar from '../../components/prolab/Avatar';
 import ConsoleHelper from '../../utils/ConsoleHelper';
 import AuthService from '../../services/AuthService';
-import {CookiesName} from '../../model/CookieName';
+import {CookiesName} from '../../enum/CookieName';
 
 class Sidebar extends React.Component {
     constructor(props) {

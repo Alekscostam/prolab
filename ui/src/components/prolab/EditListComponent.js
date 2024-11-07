@@ -5,8 +5,9 @@ import GridViewComponent from '../../containers/dataGrid/GridViewComponent';
 import {Button} from 'primereact/button';
 import {DataGridUtils} from '../../utils/component/DataGridUtils';
 import LocUtils from '../../utils/LocUtils';
-import {OperationType} from '../../model/OperationType';
+import {OperationType} from '../../enum/OperationType';
 import useStore from '../../store';
+import { TranslationUtils } from '../../utils/TranslationUtils';
 
 export default class EditListComponent extends React.Component {
     constructor(props) {
@@ -28,7 +29,7 @@ export default class EditListComponent extends React.Component {
         const name = this.props.parsedGridView?.info?.fieldLabel;
         const width = this.props.parsedGridView?.info?.windowSize?.width || '50vw';
         const height = this.props.parsedGridView?.info?.windowSize?.height || '150vw';
-        const opSelect = DataGridUtils.getOpButton(this.props.parsedGridView?.operations, OperationType.OP_SELECT);
+        const opSelect = TranslationUtils.getOpButton(this.props.parsedGridView?.operations, OperationType.OP_SELECT);
         return (
             <React.Fragment>
                 <Dialog

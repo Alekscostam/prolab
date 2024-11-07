@@ -8,7 +8,7 @@ import AuthService from '../../services/AuthService';
 import {Calendar} from 'primereact/calendar';
 import {InputText} from 'primereact/inputtext';
 import moment from 'moment';
-import {CookiesName} from '../../model/CookieName';
+import {CookiesName} from '../../enum/CookieName';
 
 export default class PublishDialogComponent extends React.Component {
     constructor(props) {
@@ -33,15 +33,7 @@ export default class PublishDialogComponent extends React.Component {
                     id='publishDialog'
                     header={LocUtils.loc(this.props.labels, 'Publish_header', 'Publikowanie dokumentów')}
                     footer={
-                        <React.Fragment>
                             <div>
-                                <Button
-                                    type='button'
-                                    onClick={() => {
-                                        this.props.onHide();
-                                    }}
-                                    label={LocUtils.loc(this.props.labels, 'Cancel', 'Anuluj')}
-                                />
                                 <Button
                                     type='button'
                                     onClick={() => {
@@ -55,68 +47,62 @@ export default class PublishDialogComponent extends React.Component {
                                     label={LocUtils.loc(this.props.labels, 'Confirm', 'Zatwierdź')}
                                 />
                             </div>
-                        </React.Fragment>
                     }
                     visible={this.props.visible}
+                    style={{height:"450px"}}
                     resizable={false}
-                    breakpoints={{'860px': '75vw', '640px': '100vw'}}
                     onHide={() => this.props.onHide()}
                 >
-                    <div>
-                        <div className='row'>
-                            <span style={{color: '#000'}}>
+                    <div className='row'>
+                        <div className='col-12'>
+                            <div className='col-12'>
                                 {LocUtils.loc(this.props.labels, 'Publish_user', 'Użytkownik')}
-                            </span>
-                            <InputText
-                                id={`user`}
-                                name={'user'}
-                                style={{width: '100%', color: 'red!important'}}
-                                type='text'
-                                value={this.state.publishOptions.user}
-                                disabled={true}
-                                required={true}
-                            />
-                        </div>
-
-                        <div className='row mt-2'>
-                            <span style={{color: '#000'}}>
+                                <InputText
+                                    id={`user`}
+                                    name={'user'}
+                                    style={{width: '100%', color: 'red!important'}}
+                                    type='text'
+                                    value={this.state.publishOptions.user}
+                                    disabled={true}
+                                    required={true}
+                                />
+                            </div>
+                            <div className='col-12 mt-3'>
                                 {LocUtils.loc(this.props.labels, 'Publish_version', 'Wersja')}
-                            </span>
-                            <InputText
-                                id={`version`}
-                                name={'version'}
-                                style={{width: '100%'}}
-                                type='text'
-                                value={this.state.publishOptions.version}
-                                disabled={true}
-                                required={true}
-                            />
+                                <InputText
+                                    id={`version`}
+                                    name={'version'}
+                                    style={{width: '100%'}}
+                                    type='text'
+                                    value={this.state.publishOptions.version}
+                                    disabled={true}
+                                    required={true}
+                                />
+                            </div>
+                            <div className='col-12 mt-3'>
+                                {LocUtils.loc(this.props.labels, 'Publish_date_header', 'Data publikacji')}
+                                <Calendar
+                                    id={`date`}
+                                    name={'date'}
+                                    style={{width: '100%'}}
+                                    value={this.state.publishOptions.date}
+                                    dateFormat='yy-mm-dd'
+                                    onChange={(e) => {
+                                        this.setState((prevState) => ({
+                                            publishOptions: {
+                                                ...prevState.publishOptions,
+                                                [e.target.id]: moment(e.value).format('YYYY-MM-DD'),
+                                            },
+                                        }));
+                                    }}
+                                    appendTo={document.body}
+                                    required={true}
+                                    showButtonBar
+                                    showIcon
+                                    mask='9999-99-99'
+                                />
+                            </div>
                         </div>
-                    </div>
-                    <div className='row mt-2'>
-                        <span style={{color: '#000'}}>
-                            {LocUtils.loc(this.props.labels, 'Publish_date_header', 'Data publikacji')}
-                        </span>
-                        <Calendar
-                            id={`date`}
-                            name={'date'}
-                            style={{width: '100%'}}
-                            value={this.state.publishOptions.date}
-                            dateFormat='yy-mm-dd'
-                            onChange={(e) => {
-                                this.setState((prevState) => ({
-                                    publishOptions: {
-                                        ...prevState.publishOptions,
-                                        [e.target.id]: moment(e.value).format('YYYY-MM-DD'),
-                                    },
-                                }));
-                            }}
-                            appendTo={document.body}
-                            required={true}
-                            showButtonBar
-                            showIcon
-                            mask='9999-99-99'
-                        ></Calendar>
                     </div>
                 </Dialog>
             </React.Fragment>

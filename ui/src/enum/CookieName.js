@@ -11,4 +11,8 @@ export const CookiesName = {
     DEVICE_NAME: 'device_name',
     APP_VERSION: 'app_version',
     APP_NAME: 'app_name',
+    REACT_APP_BACKEND_URL: 'REACT_APP_BACKEND_URL',
+    REACT_APP_URL_PREFIX: 'REACT_APP_URL_PREFIX',
+    CONFIG_URL: 'CONFIG_URL',
+    REFRESH_SUB_VIEW: 'REFRESH_SUB_VIEW',
 };

@@ -63,13 +63,13 @@ export default class CopyDialogComponent extends React.Component {
                             </div>
                         </React.Fragment>
                     }
+                    style={{height:"390px"}}
                     visible={this.props.visible}
                     resizable={false}
-                    breakpoints={{'860px': '75vw', '640px': '100vw'}}
                     onHide={() => this.onHide()}
                 >
                     <div>
-                        <div className='row col-lg-12'>
+                        <div className='row col-12'>
                             <Checkbox
                                 id='headerCopy'
                                 name='headerCopy'
@@ -124,12 +124,12 @@ export default class CopyDialogComponent extends React.Component {
                         <label style={{color: '#000'}} className='mt-2'>
                             {LocUtils.loc(this.props.labels, 'Number_of_copy', 'Liczba kopii')}
                         </label>
-
+                      
                         <div className='row'>
-                            <InputNumber
+                        <InputNumber
                                 id='numberOfCopy'
                                 name='numberOfCopy'
-                                className='col-lg-6'
+                                className='col-12'
                                 min={1}
                                 value={this.state.copyOptions.numberOfCopy}
                                 onValueChange={(e) => {

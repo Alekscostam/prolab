@@ -2,41 +2,10 @@ import Constants from '../Constants';
 import moment from 'moment';
 import ConsoleHelper from '../ConsoleHelper';
 import LocUtils from '../LocUtils';
-import {ColumnType} from '../../model/ColumnType';
+import {ColumnType} from '../../enum/ColumnType';
 import { StringUtils } from '../StringUtils';
 
 export class ViewDataCompUtils {
-    static getOpButton(operations, type) {
-        for (let button in operations) {
-            if (
-                operations[button] &&
-                operations[button].type &&
-                operations[button].type.toUpperCase() === type.toUpperCase()
-            ) {
-                return operations[button];
-            }
-        }
-        return null;
-    }
-    static getOrCreateOpButton(operations, labels, type, alternativeText) {
-        operations = operations || [];
-        const result = this.getOpButton(operations, type);
-        if (result) {
-            return result;
-        }
-        operations.push({type: type, label: LocUtils.loc(labels, type, alternativeText)});
-        return this.getOpButton(operations, type);
-    }
-    static getOpButtonWithTranslation(operations, labels, type, alternativeText) {
-        operations = operations || [];
-        const result = this.getOpButton(operations, type);
-        if (result) {
-            result.label = LocUtils.loc(labels, type, alternativeText);
-            return result;
-        }
-        return null;
-    }
-
     static getURLParameters(paramName) {
         let sURL = window.document.URL.toString();
         if (sURL.indexOf('?') > 0) {

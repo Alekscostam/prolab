@@ -17,7 +17,6 @@ import ConsoleHelper from '../utils/ConsoleHelper';
 import ActionLink from '../components/ActionLink';
 import UserService from '../services/UserService';
 import UserRowComponent from '../components/prolab/UserRowComponent';
-import { CookiesName } from '../model/CookieName';
 
 class LoginContainer extends BaseContainer {
     constructor(props) {
@@ -41,11 +40,13 @@ class LoginContainer extends BaseContainer {
             userInfo: {},
             labels: {},
             langs: this.props.appState?.configApp?.langs || [],
-            defaultLang : this.props.appState?.configApp?.lang ??  "PL",
+            defaultLang : this.props.appState?.configApp?.lang ?? "PL",
             renderSignIn:this.props.appState?.configApp?.renderSignIn,
             appName:this.props?.appState?.configApp?.appName,
             deviceName:this.props?.appState?.configApp?.deviceName,
             appVersion:this.props?.appState?.configApp?.appVersion,
+            captchaShow:this.props?.appState?.configApp?.captchaShow,
+            captchaKey:this.props?.appState?.configApp?.captchaKey,
 
         };
         this.authValidValidator = new SimpleReactValidator({

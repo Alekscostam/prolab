@@ -29,8 +29,8 @@ import Image from '../../components/Image';
 import {MenuWithButtons} from '../../components/prolab/MenuWithButtons';
 import LocUtils from '../../utils/LocUtils';
 import ActionButton from '../../components/ActionButton';
-import {ColumnType} from '../../model/ColumnType';
-import {OperationType} from '../../model/OperationType';
+import {ColumnType} from '../../enum/ColumnType';
+import {OperationType} from '../../enum/OperationType';
 import {DataGridUtils} from '../../utils/component/DataGridUtils';
 import { HtmlUtils } from '../../utils/HtmlUtils';
 import { ViewDataCompUtils } from '../../utils/component/ViewDataCompUtils';
@@ -38,6 +38,7 @@ import EntryResponseHelper from '../../utils/helper/EntryResponseHelper';
 import UrlUtils from '../../utils/UrlUtils';
 import CellValidator from '../../model/CellValidator';
 import CellCustomBackground from '../../model/CellCustomBackground';
+import { TranslationUtils } from '../../utils/TranslationUtils';
 
 let clearSelection = false;
 
@@ -789,7 +790,7 @@ class TreeViewComponent extends CellEditComponent {
     }
     addButtonExists(){
         const operations = this.state.operations;
-        const opAddFile = !!DataGridUtils.getOpButton(operations, OperationType.OP_ADD_SPEC_BUTTON);
+        const opAddFile = !!TranslationUtils.getOpButton(operations, OperationType.OP_ADD_SPEC_BUTTON);
         return !!opAddFile;
     }
     onHideImageCallBack() {

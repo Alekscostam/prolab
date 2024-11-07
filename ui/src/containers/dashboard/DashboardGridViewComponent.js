@@ -24,11 +24,12 @@ import {AttachmentViewDialog} from '../attachmentView/AttachmentViewDialog';
 import CopyDialogComponent from '../../components/prolab/CopyDialogComponent';
 import PluginListComponent from '../../components/prolab/PluginListComponent';
 import HistoryLogDialogComponent from '../../components/prolab/HistoryLogDialogComponent';
-import {PluginConfirmDialogUtils} from '../../utils/component/PluginUtils';
-import {OperationType} from '../../model/OperationType';
+import {OperationType} from '../../enum/OperationType';
 import ReactDOM from 'react-dom';
 import {StringUtils} from '../../utils/StringUtils';
 import { ResponseUtils } from '../../utils/ResponseUtils';
+import { TranslationUtils } from '../../utils/TranslationUtils';
+import { ConfirmPluginDialogComponent } from '../../components/prolab/ConfirmPluginDialogComponent';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -140,7 +141,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                             });
                         }
                         const viewInfoTypesTmp = [];
-                        const viewButton = DataGridUtils.getOpButton(
+                        const viewButton = TranslationUtils.getOpButton(
                             responseView.operations,
                             OperationType.OP_GRIDVIEW
                         );
@@ -395,20 +396,11 @@ export class DashboardGridViewComponent extends BaseContainer {
                         />
                     ) : null}
                     {this.state.visibleMessagePluginPanel ? (
-                        <ConfirmDialog
-                            closable={false}
-                            acceptLabel={PluginConfirmDialogUtils.acceptLabel(
-                                this.state.parsedPluginView,
-                                this.props.labels
-                            )}                        
-                            className='single-button'
-                            rejectLabel={undefined}
-                            header={PluginConfirmDialogUtils.header(this.state.parsedPluginView, this.props.labels)}
-                            visible={true}
+                        <ConfirmPluginDialogComponent
+                            parsedPluginView={this.state.parsedPluginView}
+                            labels={this.props.labels}
                             onHide={() => this.setState({visibleMessagePluginPanel: false})}
-                            message={PluginConfirmDialogUtils.message(this.state.parsedPluginView, this.props.labels)}
-                            icon='pi pi-exclamation-triangle'
-                            accept={() => {
+                            onAccept={() => {
                                 const refreshAll = this.state.parsedPluginView?.viewOptions?.refreshAll;
                                 if (this.state.isPluginFirstStep) {
                                     const isThereNextStep = this.state.parsedPluginView?.info?.next;
@@ -424,7 +416,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                                 }
                                 this.setState({visibleMessagePluginPanel: false});
                             }}
-                            reject={undefined}
+                            onReject={() => this.setState({visibleMessagePluginPanel: false})}
                         />
                     ) : null}
                 </React.Fragment>
@@ -443,7 +435,7 @@ export class DashboardGridViewComponent extends BaseContainer {
 
     //override
     renderHeaderRight() {
-        const opADD = DataGridUtils.getOpButton(this.state.parsedGridView?.operations, OperationType.OP_ADD);
+        const opADD = TranslationUtils.getOpButton(this.state.parsedGridView?.operations, OperationType.OP_ADD);
         return (
             <React.Fragment>
                 {opADD && <ActionButton rendered={opADD} label={opADD?.label} handleClick={() => {}} />}
@@ -462,12 +454,12 @@ export class DashboardGridViewComponent extends BaseContainer {
 
     leftHeadPanelContent = () => {
         const centerElementStyle = 'mr-1 ';
-        const opBatches = DataGridUtils.getOpButton(this.state.parsedGridView?.operations, OperationType.OP_BATCH);
-        const opDocuments = DataGridUtils.getOpButton(
+        const opBatches = TranslationUtils.getOpButton(this.state.parsedGridView?.operations, OperationType.OP_BATCH);
+        const opDocuments = TranslationUtils.getOpButton(
             this.state.parsedGridView?.operations,
             OperationType.OP_DOCUMENTS
         );
-        const opPlugins = DataGridUtils.getOpButton(this.state.parsedGridView?.operations, OperationType.OP_PLUGINS);
+        const opPlugins = TranslationUtils.getOpButton(this.state.parsedGridView?.operations, OperationType.OP_PLUGINS);
         return (
             <React.Fragment>
                 <ButtonGroup

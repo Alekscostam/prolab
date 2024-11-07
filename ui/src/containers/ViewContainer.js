@@ -10,8 +10,9 @@ import EntryResponseHelper from '../utils/helper/EntryResponseHelper';
 import {DataGridUtils} from '../utils/component/DataGridUtils';
 import {AddSpecContainer} from './AddSpecContainer';
 import UrlUtils from '../utils/UrlUtils';
-import {OperationType} from '../model/OperationType';
+import {OperationType} from '../enum/OperationType';
 import {StringUtils} from '../utils/StringUtils';
+import { TranslationUtils } from '../utils/TranslationUtils';
 
 export class ViewContainer extends BaseViewContainer {
     constructor(props) {
@@ -49,7 +50,7 @@ export class ViewContainer extends BaseViewContainer {
         }  
         const addSpecFunction = () => this.showAddSpecDialog();
         const addFunction = (e) => this.addView(e);
-        DataGridUtils.getOpButton(this.state.parsedGridView?.operations, OperationType.OP_ADD_SPEC_BUTTON)
+        TranslationUtils.getOpButton(this.state.parsedGridView?.operations, OperationType.OP_ADD_SPEC_BUTTON)
             ? addSpecFunction()
             : addFunction(e);
     };

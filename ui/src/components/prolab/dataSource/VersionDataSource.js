@@ -1,3 +1,6 @@
+import { CookiesName } from "../../../enum/CookieName";
+import useStore from "../../../store";
+
 export const tabsPositionsSelectBoxLabel = { 'aria-label': 'Tab position' };
 export const tabsPositions = ['top', 'left', 'right', 'bottom'];
 export const stylingModesSelectBoxLabel = { 'aria-label': 'Styling mode' };
@@ -8,16 +11,25 @@ const features = [
     {
       type: 'VER',
       color: 'blue',
-      description: process.env.REACT_APP_BUILD_NUMBER,
+      description: process.env.REACT_APP_BUILD_NUMBER ,
       date: '',
       text: 'Build number',
     },
     {
+      identifier:"APP_NAME",
       type: 'VER',
       color: 'blue',
-      description: process.env.REACT_APP_NAME,
+      description:  sessionStorage.getItem(CookiesName.APP_NAME),
       date: '',
       text: 'App name',
+    },
+    {
+      identifier:"APP_VERSION",
+      type: 'VER',
+      color: 'blue',
+      description: sessionStorage.getItem(CookiesName.APP_VERSION),
+      date: '',
+      text: 'App version',
     },
   
     {
@@ -27,53 +39,60 @@ const features = [
       date: '',
       text: 'Build time',
     },{
+      
+      identifier:"DEVICE_NAME",
       type: 'VER',
       color: 'blue',
-      description: process.env.REACT_APP_NAME_DEVICE_ID,
+      description: sessionStorage.getItem(CookiesName.DEVICE_NAME),
       date: '',
-      text: 'Device id',
+      text: 'Device name',
     },
     {
 
     type: 'BUG',
     color: 'red',
-    description: '@Roman dodałem _ORDER',
+    description: 'Nalezy przetetsowac na dashboard i w zwyklym widoku',
     date: '',
-    text: 'Nie zapisuje zmiany kolejności parametrów. Gdy strzałkami zmienię kolejność specyfikacji to nie zapisuje się.',
-    link: "https://trello.com/c/DpiJW6n0/415-nie-zapisuje-zmiany-kolejno%C5%9Bci-parametr%C3%B3w-gdy-strza%C5%82kami-zmieni%C4%99-kolejno%C5%9B%C4%87-specyfikacji-to-nie-zapisuje-si%C4%99"
+    text: 'Naprawa błędu związanego z TAK/NIE dla Question po wywolaniu wtyczki.',
+    link: "https://trello.com/c/p4G5qAGv/480-komunikat-po-wykonaniu-wtyczki"
   },
   {
     type: 'BUG',
     color: 'red',
-    description: 'Tutaj niestety musicie przetestowac teraz rozne miejsca zwiazane z przeliczaniem... np. podwidoki widoki itd',
+    description: 'Napraw min max wymaga przetestowania w sumie tylkow  edycji specyfikacji',
     date: '',
-    text: 'Nie przelicza formuł dla sprawdzenia z poziomu przeglądu rejestru głównego.',
-    link: "https://trello.com/c/JSK7ae6m/518-fix-nie-przelicza-formu%C5%82-dla-sprawdzenia-z-poziomu-przegl%C4%85du-rejestru-g%C5%82%C3%B3wnego"
+    text: 'Zadanie z min/max',
+    link: "https://trello.com/c/CeGApx1L/503-walidacja-p%C3%B3l-wart-min-max-nominalna"
   },  
   {
     type: 'BUG',
     color: 'red',
-    description: 'Dodałem ale tutaj tez trzeba byc czujny i przetestowac na kilku casach',
+    description: 'On wyswietlal sie w brzydki sposob + kalendarz byl niebieską plamą',
     date: '',
-    text: 'Tryb edycji pełnoekranowy nie działa podczas dodawania',
-    link: "https://trello.com/c/z54F8UwW/513-fix-tryb-edycji-pe%C5%82noekranowy-nie-dzia%C5%82a-podczas-dodawania"
+    text: 'Poprawa widoku publikacji dokuemntu',
   },
   {
     type: 'BUG',
     color: 'red',
-    description: '@Roman dodałem _ORDER',
+    description: 'On czasami mrugal jak sie robilo gora dol w komponencie z liczbą',
     date: '',
-    text: 'Kolejność parametrów po dodaniu',
-    link: "https://trello.com/c/b95pR9fg/416-fix-kolejno%C5%9B%C4%87-parametr%C3%B3w-po-dodaniu"
-  },
+    text: 'Poprawa widoku copy',
+  },  
   {
-    type: 'BUG',
-    color: 'red',
-    description: 'tutaj ciezko to bedzie przetestowac. Po prostu tzreba byc czujnym',
+    type: 'NEW',
+    color: 'green',
+    description: 'Wymieniłem ten komponent, bo było to rozwiązanie dosyć przestarszale, mogłem go zrobic w dwóch wersjach niebieski i biały ale ten wydawał mi sie lepszy',
     date: '',
-    text: 'Czasem wylogowuje w trakcie pracy. Np. wylogował mnie przy zatwierdzaniu, gdzie nie było żadnej bezczynności.',
-    link: "https://trello.com/c/M6krrsLU/414-czasem-wylogowuje-w-trakcie-pracy-np-wylogowa%C5%82-mnie-przy-zatwierdzaniu-gdzie-nie-by%C5%82o-%C5%BCadnej-bezczynno%C5%9Bci"
+    text: 'Nowy komponent okruszkow',
   },
+  // {
+  //   type: 'BUG',
+  //   color: 'red',
+  //   description: 'tutaj ciezko to bedzie przetestowac. Po prostu tzreba byc czujnym',
+  //   date: '',
+  //   text: 'Czasem wylogowuje w trakcie pracy. Np. wylogował mnie przy zatwierdzaniu, gdzie nie było żadnej bezczynności.',
+  //   link: "https://trello.com/c/M6krrsLU/414-czasem-wylogowuje-w-trakcie-pracy-np-wylogowa%C5%82-mnie-przy-zatwierdzaniu-gdzie-nie-by%C5%82o-%C5%BCadnej-bezczynno%C5%9Bci"
+  // },
   // FIX: dokonczenie fixa na nie wyswietlające sie operationsy w dodawnaiu parametrow, FIx na zle dzialajacy komponent C w edycji naglowka
   // {
   //   type: 'INFO',
@@ -114,5 +133,4 @@ export const dataSource = [
     title: 'Wersja',
     tasks: features.filter((item) => item.type === 'VER'),
   },
-
 ];

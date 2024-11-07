@@ -15,9 +15,10 @@ import CrudService from '../../services/CrudService';
 import BaseRowComponent from '../../baseContainers/BaseRowComponent';
 import UrlUtils from '../../utils/UrlUtils';
 import BlockUi from '../waitPanel/BlockUi';
-import {OperationType} from '../../model/OperationType';
+import {OperationType} from '../../enum/OperationType';
 import EntryResponseHelper from '../../utils/helper/EntryResponseHelper';
 import { StringUtils } from '../../utils/StringUtils';
+import { TranslationUtils } from '../../utils/TranslationUtils';
 
 export class EditRowViewComponent extends BaseRowComponent {
     constructor(props) {
@@ -150,10 +151,10 @@ export class EditRowViewComponent extends BaseRowComponent {
     render() {
         const labels = this.props.labels;
         const operations = this.props?.editData?.operations || [];
-        const opSave = DataGridUtils.getOpButton(operations, OperationType.OP_SAVE);
-        const opFill = DataGridUtils.getOpButton(operations, OperationType.OP_FILL);
-        const opCancel = DataGridUtils.getOpButton(operations, OperationType.OP_CANCEL);
-        const opClose = DataGridUtils.getOpButton(operations, OperationType.OP_CLOSE);
+        const opSave = TranslationUtils.getOpButton(operations, OperationType.OP_SAVE);
+        const opFill = TranslationUtils.getOpButton(operations, OperationType.OP_FILL);
+        const opCancel = TranslationUtils.getOpButton(operations, OperationType.OP_CANCEL);
+        const opClose = TranslationUtils.getOpButton(operations, OperationType.OP_CLOSE);
         const editData = this.props.editData;
         const editListVisible = this.state.editListVisible;
         return (

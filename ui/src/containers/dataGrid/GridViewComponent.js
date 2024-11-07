@@ -33,13 +33,14 @@ import ActionButton from '../../components/ActionButton';
 import LocUtils from '../../utils/LocUtils';
 import {MenuWithButtons} from '../../components/prolab/MenuWithButtons';
 import {saveObjToCookieGlobal} from '../../utils/Cookie';
-import {ColumnType} from '../../model/ColumnType';
-import OperationCell from '../../model/OperationCell';
-import {OperationType} from '../../model/OperationType';
+import {ColumnType} from '../../enum/ColumnType';
+import OperationCell from '../../enum/OperationCell';
+import {OperationType} from '../../enum/OperationType';
 import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils';
 import { HtmlUtils } from '../../utils/HtmlUtils';
 import { ViewDataCompUtils } from '../../utils/component/ViewDataCompUtils';
 import EntryResponseHelper from '../../utils/helper/EntryResponseHelper';
+import { TranslationUtils } from '../../utils/TranslationUtils';
 
 class GridViewComponent extends CellEditComponent {
     constructor(props) {
@@ -237,12 +238,12 @@ class GridViewComponent extends CellEditComponent {
         );
     }
     addButtonExist(){
-        const opAdd = !!DataGridUtils.getOpButton(this.props.parsedGridView?.operations, OperationType.OP_ADD_BUTTON);
-        const opAddFile = !!DataGridUtils.getOpButton(
+        const opAdd = !!TranslationUtils.getOpButton(this.props.parsedGridView?.operations, OperationType.OP_ADD_BUTTON);
+        const opAddFile = !!TranslationUtils.getOpButton(
             this.props.parsedGridView?.operations,
             OperationType.OP_ADD_FILE_BUTTON
         );
-        const opAddSpec = !!DataGridUtils.getOpButton(
+        const opAddSpec = !!TranslationUtils.getOpButton(
             this.props.parsedGridView?.operations,
             OperationType.OP_ADD_SPEC_BUTTON
         );
@@ -305,6 +306,7 @@ class GridViewComponent extends CellEditComponent {
                             this.currentClickedCell.current = e.rows[e.newRowIndex].data.ID;
                         }
                     }}
+                   
                     dataSource={this.props.parsedGridViewData}
                     customizeColumns={this?.postCustomizeColumns}
                     wordWrapEnabled={headerAutoHeight}

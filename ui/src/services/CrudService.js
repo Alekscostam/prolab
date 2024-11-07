@@ -4,9 +4,9 @@ import EditRowUtils from '../utils/EditRowUtils';
 import {saveAs} from 'file-saver';
 import UrlUtils from '../utils/UrlUtils';
 import {renderNoRefreshContentFnc} from '../App';
-import {ColumnType} from '../model/ColumnType';
+import {ColumnType} from '../enum/ColumnType';
 import EditListUtils from '../utils/EditListUtils';
-import { EditFormType } from '../model/EditFormType';
+import { EditFormType } from '../enum/EditFormType';
 /*
 Kontroler do edycji danych.
  */

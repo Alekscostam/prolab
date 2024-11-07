@@ -1,7 +1,7 @@
 import {CheckBox} from 'devextreme-react';
 import React from 'react';
 import CardImage from '../components/CardImage';
-import {ColumnType} from '../model/ColumnType';
+import {ColumnType} from '../enum/ColumnType';
 import { StringUtils } from './StringUtils';
 
 export class CardViewUtils {

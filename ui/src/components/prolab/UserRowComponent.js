@@ -9,7 +9,8 @@ import DivContainer from '../DivContainer';
 import EditRowUtils from '../../utils/EditRowUtils';
 import BaseRowComponent from '../../baseContainers/BaseRowComponent';
 import {DataGridUtils} from '../../utils/component/DataGridUtils';
-import {OperationType} from '../../model/OperationType';
+import {OperationType} from '../../enum/OperationType';
+import { TranslationUtils } from '../../utils/TranslationUtils';
 
 export default class UserRowComponent extends BaseRowComponent {
     constructor(props) {
@@ -25,9 +26,9 @@ export default class UserRowComponent extends BaseRowComponent {
         const {labels} = this.props;
         const editData = this.props.editData;
         const operations = editData.operations;
-        const opSave = DataGridUtils.getOpButtonWithTranslation(operations, labels, OperationType.OP_SAVE, 'Zapisz');
-        const opFill = DataGridUtils.getOpButtonWithTranslation(operations, labels, OperationType.OP_FILL, 'Uzupełnij');
-        const opCancel = DataGridUtils.getOpButtonWithTranslation(
+        const opSave = TranslationUtils.getOpButtonWithTranslation(operations, labels, OperationType.OP_SAVE, 'Zapisz');
+        const opFill = TranslationUtils.getOpButtonWithTranslation(operations, labels, OperationType.OP_FILL, 'Uzupełnij');
+        const opCancel = TranslationUtils.getOpButtonWithTranslation(
             operations,
             labels,
             OperationType.OP_CANCEL,

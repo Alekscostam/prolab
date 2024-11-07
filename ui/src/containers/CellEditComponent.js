@@ -12,7 +12,7 @@ import UrlUtils from '../utils/UrlUtils';
 import {EditorDialog} from '../components/prolab/EditorDialog';
 import {StringUtils} from '../utils/StringUtils';
 import ImageViewerComponent from '../components/ImageViewerComponent';
-import {ColumnType} from '../model/ColumnType';
+import {ColumnType} from '../enum/ColumnType';
 import { MemoizedTextInput } from '../components/prolab/memoized/MemoizedTextInput';
 import { MemoizedNumericInput } from '../components/prolab/memoized/MemoizedNumericInput';
 import { MemoizedBoolInput } from '../components/prolab/memoized/MemoizedBoolInput';

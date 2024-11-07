@@ -32,15 +32,17 @@ import EditRowViewComponent from './components/prolab/EditRowViewComponent';
 import UrlUtils from './utils/UrlUtils';
 import {PageViewUtils} from './utils/parser/PageViewUtils';
 import {ConfirmationEditQuitDialog} from './components/prolab/ConfirmationEditQuitDialog';
-import {OperationType} from './model/OperationType';
-import {CookiesName} from './model/CookieName';
+import {OperationType} from './enum/OperationType';
+import {CookiesName} from './enum/CookieName';
 import { VersionPreviewDialog } from './components/prolab/VersionPreviewDialog';
+import { TranslationUtils } from './utils/TranslationUtils';
+import useStore from './store';
 
-// export const
 export let clearState;
 export let reStateApp;
 export let renderNoRefreshContentFnc;
 export let sessionPrelongFnc = null;
+
 class App extends Component {
     constructor() {
         super();
@@ -60,6 +62,8 @@ class App extends Component {
                 appName: undefined,
                 deviceName: undefined,
                 appVersion: undefined,
+                captchaShow: undefined,
+                captchaKey: undefined,
             },
             loadedConfiguration: false,
             editData: undefined,
@@ -157,8 +161,6 @@ class App extends Component {
           }
         };
     }
-    
- 
     setRestateApp() {
         reStateApp = () => {
             this.forceUpdate();
@@ -301,9 +303,11 @@ class App extends Component {
                 const langs= configuration.LANG_LIST;
                 const renderForgotPassword = !StringUtils.isBlank(configuration?.FORTOGPASSWORD_VIEWID) ;
                 const renderSignIn = !StringUtils.isBlank(configuration?.SIGNIN_VIEWID);
-                const canRenderAboutVersionDialog =!StringUtils.isBlank(configuration?.SHOW_PREVIEW_DIALOG) ? Boolean(configuration?.SHOW_PREVIEW_DIALOG) : false;
+                const canRenderAboutVersionDialog =!StringUtils.isBlank(configuration?.SHOW_INFO_DIALOG) ? Boolean(configuration?.SHOW_INFO_DIALOG) : false;
                 const deviceName = configuration.DEVICE_NAME;
                 const appName = configuration.APP_NAME;
+                const captchaShow = configuration.CAPTCHA_SHOW;
+                const captchaKey = configuration.CAPTCHA_KEY;
                 const appVersion = packageJson.version + "_" + process.env.REACT_APP_BUILD_NUMBER;
                 this.setState({
                     canRenderAboutVersionDialog:canRenderAboutVersionDialog,
@@ -315,14 +319,16 @@ class App extends Component {
                         appName,
                         deviceName,
                         appVersion,
+                        captchaShow,
+                        captchaKey,
                     }
                 })
                 saveObjToCookieGlobal(CookiesName.APP_VERSION, appVersion);
                 saveObjToCookieGlobal(CookiesName.DEVICE_NAME, deviceName);
                 saveObjToCookieGlobal(CookiesName.APP_NAME, appName);
-                saveObjToCookieGlobal('REACT_APP_BACKEND_URL', configuration.REACT_APP_BACKEND_URL);
-                saveObjToCookieGlobal('REACT_APP_URL_PREFIX', configuration.REACT_APP_URL_PREFIX);
-                saveObjToCookieGlobal('CONFIG_URL', configUrl);
+                saveObjToCookieGlobal(CookiesName.REACT_APP_BACKEND_URL, configuration.REACT_APP_BACKEND_URL);
+                saveObjToCookieGlobal(CookiesName.REACT_APP_URL_PREFIX, configuration.REACT_APP_URL_PREFIX);
+                saveObjToCookieGlobal(CookiesName.CONFIG_URL, configUrl);
                 if (afterSaveCookiesFnc) {
                     afterSaveCookiesFnc();
                 }
@@ -454,6 +460,7 @@ class App extends Component {
                 addLocale(shortLang, primeReactTranslation[shortLang]);
                 primeReactLocale(shortLang);
             });
+            useStore.getState().setLabels(labels)
         });
     }
     canRenderLogin = () => {
@@ -516,10 +523,10 @@ class App extends Component {
   
     addButton = () => {
         const {labels} = this.state;
-        const foundedOpADD = DataGridUtils.getOpButton(this.state.operations, OperationType.OP_ADD_BUTTON);
-        const foundedOpADDSpec = DataGridUtils.getOpButton(this.state.operations, OperationType.OP_ADD_SPEC_BUTTON);
+        const foundedOpADD = TranslationUtils.getOpButton(this.state.operations, OperationType.OP_ADD_BUTTON);
+        const foundedOpADDSpec = TranslationUtils.getOpButton(this.state.operations, OperationType.OP_ADD_SPEC_BUTTON);
         if (foundedOpADD || foundedOpADDSpec) {
-            const opADD = DataGridUtils.getOrCreateOpButton(
+            const opADD = TranslationUtils.getOrCreateOpButton(
                 this.state.operations,
                 labels,
                 OperationType.OP_ADD_BUTTON,
@@ -551,10 +558,10 @@ class App extends Component {
 
     getOpButton() {
         const {labels} = this.state;
-        const foundedOpADD = DataGridUtils.getOpButton(this.state.operations, OperationType.OP_ADD_BUTTON);
-        const foundedOpADDSpec = DataGridUtils.getOpButton(this.state.operations, OperationType.OP_ADD_SPEC_BUTTON);
+        const foundedOpADD = TranslationUtils.getOpButton(this.state.operations, OperationType.OP_ADD_BUTTON);
+        const foundedOpADDSpec = TranslationUtils.getOpButton(this.state.operations, OperationType.OP_ADD_SPEC_BUTTON);
         if (foundedOpADD || foundedOpADDSpec) {
-            return DataGridUtils.getOrCreateOpButton(
+            return TranslationUtils.getOrCreateOpButton(
                 this.state.operations,
                 labels,
                 OperationType.OP_ADD,
@@ -691,11 +698,11 @@ class App extends Component {
                                                                 }else{
                                                                     this.viewContainer?.current?.handleRightHeadPanelContent(e);
                                                                 }
-                                                                saveValueToCookieGlobal('refreshSubView', true);
+                                                                saveValueToCookieGlobal(CookiesName.REFRESH_SUB_VIEW, true);
                                                             }}
                                                             handleOnEditClick={(e) => {
                                                                 this.viewContainer?.current?.editSubView(e);
-                                                                saveValueToCookieGlobal('refreshSubView', true);
+                                                                saveValueToCookieGlobal(CookiesName.REFRESH_SUB_VIEW, true);
                                                             }}
                                                         />
                                                     ) : null}

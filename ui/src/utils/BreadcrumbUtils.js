@@ -3,10 +3,10 @@ import AppPrefixUtils from './AppPrefixUtils';
 import UrlUtils from './UrlUtils';
 import ConsoleHelper from './ConsoleHelper';
 import hash from 'object-hash';
-import BreadcrumbButton from '../components/prolab/BreadcrumbButton';
+import BreadcrumbComponent from '../components/prolab/BreadcrumbComponent';
 
-const BREADCRUMB_URL_PARAM_NAME = 'bc';
-const TIMESTAMP_URL_PARAM_NAME = 'ts';
+export const BREADCRUMB_URL_PARAM_NAME = 'bc';
+export const TIMESTAMP_URL_PARAM_NAME = 'ts';
 
 export class Breadcrumb {
     static cutBreadcrumpToURL(breadcrumb, url) {
@@ -158,64 +158,16 @@ export class Breadcrumb {
         ConsoleHelper('Breadcrumb::readFromUrl breadcrumb', []);
         return [];
     }
-
-    static cutBreaadcrumbFor(breadcrumb, url) {
-        const result = [];
-        if (breadcrumb) {
-            let removeMode = false;
-            breadcrumb.forEach((i) => {
-                if (i.path === url) {
-                    removeMode = true;
-                    result.push(i);
-                }
-                if (!removeMode) {
-                    result.push(i);
-                }
-            });
-        }
-        return this.utf8_to_b64(JSON.stringify(result));
+    static shouldShowEditQuitConfirmationDialog ()  {
+        return UrlUtils.isBatch() || UrlUtils.isEditSpec();
     }
-
     static render(labels, afterBreadcrumbItemClick) {
         ConsoleHelper('#$#$#$#$', labels);
-        const breadcrumb = this.cutBreadcrumpToURL(this.readFromUrl(), window.document.URL.toString());
+        const breadcrumb = (this.cutBreadcrumpToURL(this.readFromUrl(), window.document.URL.toString())) ;
         const mainPage = AppPrefixUtils.locationHrefUrl('/#/start');
         return (
             <React.Fragment>
-                <div className='breadcrumb-panel breadcrumb-link'>
-                <BreadcrumbButton name={labels['View_StartPage']} isLast={false} redirectUrl={mainPage} afterClick={afterBreadcrumbItemClick} />
-                    {' > '}
-                    {breadcrumb.map((item, id) => {
-                        const isLast = id === breadcrumb.length - 1; 
-                        if (item.type === 'menu') {
-                            return (
-                                <React.Fragment>
-                                    <span>
-                                        {item.name}
-                                        {' > '}
-                                    </span>
-                                </React.Fragment>
-                            );
-                        } else if (item.type === 'view' || item.type === 'subview') {
-                            let path = UrlUtils.addParameterToURL(
-                                item.path,
-                                BREADCRUMB_URL_PARAM_NAME,
-                                this.cutBreaadcrumbFor(breadcrumb, item.path)
-                            );
-                            //let path = item.path;
-                            const timestamp = Date.now();
-                            path = UrlUtils.addParameterToURL(path, TIMESTAMP_URL_PARAM_NAME, timestamp);
-                            return (
-                                <React.Fragment key={id}>
-                                    <BreadcrumbButton name={item.name} isLast={isLast} redirectUrl={path} afterClick={afterBreadcrumbItemClick} />
-                                    <span>{id + 1 === breadcrumb.length ? '' : ' > '}</span>
-                                </React.Fragment>
-                            );
-                        } else {
-                            return null;
-                        }
-                    })}
-                </div>
+              <div><BreadcrumbComponent labels={labels} initialBreadcrumb={breadcrumb} afterClick={afterBreadcrumbItemClick} initialMainPage={mainPage} /></div>  
             </React.Fragment>
         );
     }

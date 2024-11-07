@@ -32,7 +32,6 @@ export const MemoizedTextInput = React.memo(
                             className={`${validate}`}
                             mode={mode || 'text'}
                             isValid={isValid}
-                            onFocusOut={(e)=>{ afterValidatorExecute(cellValidator, currentVal, false);}}     
                             onDisposing={(e)=>{ 
                                 const value = cellInfo?.value;
                                 afterValidatorExecute(cellValidator, value);

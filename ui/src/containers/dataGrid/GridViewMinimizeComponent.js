@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ConsoleHelper from '../../utils/ConsoleHelper';
-import {ColumnType} from '../../model/ColumnType';
+import {ColumnType} from '../../enum/ColumnType';
 
 class GridViewMinimizeComponent extends React.Component {
     constructor(props) {

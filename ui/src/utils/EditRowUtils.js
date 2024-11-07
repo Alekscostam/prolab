@@ -1,4 +1,4 @@
-import {ColumnType} from '../model/ColumnType';
+import {ColumnType} from '../enum/ColumnType';
 import moment from 'moment';
 
 export class EditRowUtils {

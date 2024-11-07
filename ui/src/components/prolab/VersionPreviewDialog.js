@@ -32,12 +32,13 @@ export const VersionPreviewDialog = (props) => {
            
         </div>
     );
+
     const tabPanelItem = ({ data }) => { 
         const taskItems = data.tasks.map((task, index) => (
             <div className={`ver-item ver-item-color-${task.color}`}>
             <span className="ver-item-text">{task.text}</span>
             <span className="ver-item-info">{`${task.description}`}</span>
-            {!StringUtils.isBlank(task?.link) && <span className="ver-item-text" ><a href={`${task.link}`} >link do zadania</a> </span>} 
+            {!StringUtils.isBlank(task?.link) && <span className="ver-item-text" ><a href={`${task.link}`}>link do zadania</a> </span>} 
           </div>
         ));
         return <div className="tabpanel-item">{taskItems}</div>;

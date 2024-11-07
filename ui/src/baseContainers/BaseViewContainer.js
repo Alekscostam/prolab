@@ -41,8 +41,7 @@ import {StringUtils} from '../utils/StringUtils';
 import {saveObjToCookieGlobal} from '../utils/Cookie';
 import DataHistoryLogStore from '../containers/dao/DataHistoryLogStore';
 import HistoryLogDialogComponent from '../components/prolab/HistoryLogDialogComponent';
-import {PluginConfirmDialogUtils} from '../utils/component/PluginUtils';
-import {OperationType} from '../model/OperationType';
+import {OperationType} from '../enum/OperationType';
 import ReactDOM from 'react-dom';
 import {QrCodesDialogComponent} from '../components/prolab/QrCodesDialogComponent';
 import ActionShortcutWithoutMenu from '../components/prolab/ActionShortcutWithoutMenu';
@@ -51,9 +50,10 @@ import { ResponseUtils } from '../utils/ResponseUtils';
 import { ViewUtils } from '../utils/ViewUtils';
 import { PDFViewerDialogComponent } from '../components/prolab/PDFViewerDialogComponent';
 import { ExcelEditorDialogComponent } from '../components/prolab/ExcelEditorDialogComponent';
-import { FileType } from '../model/FileType';
 import FileTypeUtils from '../utils/FileTypeUtils';
 import { DocxViewerDialogComponent } from '../components/prolab/DocxViewerDialogComponent';
+import { TranslationUtils } from '../utils/TranslationUtils';
+import { ConfirmPluginDialogComponent } from '../components/prolab/ConfirmPluginDialogComponent';
 
 let dataGrid;
 
@@ -324,7 +324,7 @@ export class BaseViewContainer extends BaseContainer {
             const filtersListTmp = ResponseUtils.filtersListCreateAndPass(responseView);
             Breadcrumb.currentBreadcrumbAsUrlParam();
             const viewInfoTypesTmp = [];
-            const cardButton = DataGridUtils.getOpButton(responseView.operations, OperationType.OP_CARDVIEW);
+            const cardButton = TranslationUtils.getOpButton(responseView.operations, OperationType.OP_CARDVIEW);
             if (cardButton) {
                 viewInfoTypesTmp.push({
                     icon: 'mediumiconslayout',
@@ -332,7 +332,7 @@ export class BaseViewContainer extends BaseContainer {
                     hint: cardButton?.label,
                 });
             }
-            const viewButton = DataGridUtils.getOpButton(responseView.operations, OperationType.OP_GRIDVIEW);
+            const viewButton = TranslationUtils.getOpButton(responseView.operations, OperationType.OP_GRIDVIEW);
             if (viewButton) {
                 viewInfoTypesTmp.push({
                     icon: 'contentlayout',
@@ -657,17 +657,10 @@ export class BaseViewContainer extends BaseContainer {
                 ) : null}
 
                 {this.state.visibleMessagePluginPanel ? (
-                    <ConfirmDialog
-                        closable={false}
-                        acceptLabel={PluginConfirmDialogUtils.acceptLabel(parsedPluginView, this.props.labels)}
-                        rejectLabel={undefined}
-                        header={PluginConfirmDialogUtils.header(parsedPluginView, this.props.labels)}
-                        visible={true}
-                        className='single-button'
-                        onHide={() => this.setState({visibleMessagePluginPanel: false})}
-                        message={PluginConfirmDialogUtils.message(parsedPluginView, this.props.labels)}
-                        icon='pi pi-exclamation-triangle'
-                        accept={() => {
+                    <ConfirmPluginDialogComponent
+                        parsedPluginView ={parsedPluginView}
+                        labels ={this.props.labels}
+                        onAccept={() => {
                             const refreshAll = parsedPluginView?.viewOptions?.refreshAll;
                             if (this.state.isPluginFirstStep) {
                                 const isThereNextStep = this.state.parsedPluginView?.info?.next;
@@ -683,7 +676,8 @@ export class BaseViewContainer extends BaseContainer {
                             }
                             this.setState({visibleMessagePluginPanel: false});
                         }}
-                        reject={undefined}
+                        onHide={() => this.setState({visibleMessagePluginPanel: false})}
+                        onReject={() => this.setState({visibleMessagePluginPanel: false})}
                     />
                 ) : null}
 

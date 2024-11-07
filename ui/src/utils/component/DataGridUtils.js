@@ -4,7 +4,7 @@ import Image from '../../components/Image';
 import {StringUtils} from '../StringUtils';
 import {ViewDataCompUtils} from './ViewDataCompUtils';
 import EditRowUtils from '../EditRowUtils';
-import {ColumnType} from '../../model/ColumnType';
+import {ColumnType} from '../../enum/ColumnType';
 
 let _rowIndex = null;
 let _bgColor = null;

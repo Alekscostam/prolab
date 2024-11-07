@@ -20,7 +20,7 @@ import DashboardCardViewComponent from './DashboardCardViewComponent';
 import CrudService from '../../services/CrudService';
 import HistoryLogDialogComponent from '../../components/prolab/HistoryLogDialogComponent';
 import {AttachmentViewDialog} from '../attachmentView/AttachmentViewDialog';
-import {OperationType} from '../../model/OperationType';
+import {OperationType} from '../../enum/OperationType';
 import ReactDOM from 'react-dom';
 import EntryResponseHelper from '../../utils/helper/EntryResponseHelper';
 import ImageViewerComponent from '../../components/ImageViewerComponent';

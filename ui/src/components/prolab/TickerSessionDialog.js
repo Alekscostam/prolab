@@ -4,7 +4,7 @@ import {useCallback, useEffect, useRef, useState} from 'react';
 import PropTypes from 'prop-types';
 import LocUtils from '../../utils/LocUtils';
 import {Button} from 'primereact/button';
-import { CookiesName } from '../../model/CookieName';
+import { CookiesName } from '../../enum/CookieName';
 
 function statusFormat() {
     return ``;

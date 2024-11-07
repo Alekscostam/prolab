@@ -1,6 +1,6 @@
 import {Button} from 'primereact/button';
 import React from "react";
-import OperationCell from "../../../model/OperationCell";
+import OperationCell from "../../../enum/OperationCell";
 
 export const MemoizedOperations = React.memo(({editListVisible, fillDownVisible, onOperationClick}) => {
     return (

@@ -18,12 +18,13 @@ import {InputNumber} from 'primereact/inputnumber';
 import {TreeListUtils} from '../utils/component/TreeListUtils';
 import {sessionPrelongFnc} from '../App';
 import {Dialog} from 'primereact/dialog';
-import {OperationType} from '../model/OperationType';
-import {TabSpecType} from '../model/TabSpecType';
+import {OperationType} from '../enum/OperationType';
+import {TabSpecType} from '../enum/TabSpecType';
 import {StringUtils} from '../utils/StringUtils';
 import SelectedElements from '../components/SelectedElements';
 import AddSpecService from '../services/AddSpecService';
 import { ResponseUtils } from '../utils/ResponseUtils';
+import { TranslationUtils } from '../utils/TranslationUtils';
 
 const autOfRangeIndexTab = 6;
 
@@ -430,11 +431,11 @@ export class AddSpecContainer extends BaseContainer {
     //override
     renderHeaderRight() {
         const operations = this.state.parsedView.operations;
-        const opAdd = DataGridUtils.getOpButton(
+        const opAdd = TranslationUtils.getOpButton(
             operations,
             OperationType.OP_ADDSPEC_ADD,
         );
-        const opCount = DataGridUtils.getOpButton(
+        const opCount = TranslationUtils.getOpButton(
             operations,
             OperationType.OP_ADDSPEC_COUNT,
         );

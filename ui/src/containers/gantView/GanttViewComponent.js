@@ -34,7 +34,7 @@ import ActionButton from '../../components/ActionButton.js';
 import LocUtils from '../../utils/LocUtils.js';
 import {MenuWithButtons} from '../../components/prolab/MenuWithButtons.js';
 import {DataGridUtils} from '../../utils/component/DataGridUtils.js';
-import {ColumnType} from '../../model/ColumnType.js';
+import {ColumnType} from '../../enum/ColumnType.js';
 import moment from 'moment/moment.js';
 import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils.js';
 import { HtmlUtils } from '../../utils/HtmlUtils.js';

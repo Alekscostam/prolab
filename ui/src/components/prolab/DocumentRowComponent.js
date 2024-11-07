@@ -10,7 +10,7 @@ import {Toast} from 'primereact/toast';
 import LocUtils from '../../utils/LocUtils';
 import CrudService from '../../services/CrudService';
 import BaseRowComponent from '../../baseContainers/BaseRowComponent';
-import {ColumnType} from '../../model/ColumnType';
+import {ColumnType} from '../../enum/ColumnType';
 import { StringUtils } from '../../utils/StringUtils';
 
 export class DocumentRowComponent extends BaseRowComponent {

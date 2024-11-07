@@ -1,4 +1,4 @@
-import { FileType } from "../model/FileType";
+import { FileType } from "../enum/FileType";
 import { StringUtils } from "./StringUtils";
 
 class FileTypeUtils {

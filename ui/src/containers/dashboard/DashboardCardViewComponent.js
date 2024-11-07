@@ -11,7 +11,8 @@ import PropTypes from 'prop-types';
 import CrudService from '../../services/CrudService';
 import ConsoleHelper from '../../utils/ConsoleHelper';
 import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils';
-import {OperationType} from '../../model/OperationType';
+import {OperationType} from '../../enum/OperationType';
+import { TranslationUtils } from '../../utils/TranslationUtils';
 
 class DashboardCardViewComponent extends React.Component {
     constructor(props) {
@@ -77,11 +78,11 @@ class DashboardCardViewComponent extends React.Component {
                         });
                         showMenu = menuItems.length > 0;
                     }
-                    const oppEdit = DataGridUtils.getOpButton(
+                    const oppEdit = TranslationUtils.getOpButton(
                         this.props.parsedGridView?.operations,
                         OperationType.OP_EDIT
                     );
-                    const oppSubview = DataGridUtils.getOpButton(
+                    const oppSubview = TranslationUtils.getOpButton(
                         this.props.parsedGridView?.operations,
                         OperationType.OP_SUBVIEWS
                     );

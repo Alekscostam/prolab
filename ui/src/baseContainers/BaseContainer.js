@@ -26,12 +26,13 @@ import DataHistoryLogStore from '../containers/dao/DataHistoryLogStore';
 import BatchService from '../services/BatchService';
 import ResponseHelper from '../utils/helper/ResponseHelper';
 import EditSpecService from '../services/EditSpecService';
-import {OperationType} from '../model/OperationType';
-import {InputType} from '../model/InputType';
+import {OperationType} from '../enum/OperationType';
+import {InputType} from '../enum/InputType';
 import {StringUtils} from '../utils/StringUtils';
 import LocUtils from '../utils/LocUtils';
 import EditListUtils from '../utils/EditListUtils';
 import { RequestUtils } from '../utils/RequestUtils';
+import { CookiesName } from '../enum/CookieName';
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -679,7 +680,7 @@ class BaseContainer extends React.Component {
                 this.downloadSubViewData(forceReStateSubView);
             }
         } else {
-            removeCookieGlobal('refreshSubView');
+            removeCookieGlobal(CookiesName.REFRESH_SUB_VIEW);
         }
     }
 
@@ -815,7 +816,7 @@ class BaseContainer extends React.Component {
     };
     shouldRefreshSubView(kindOperation) {
         const attachmentDialog = document.getElementById('attachmentDialog');
-        return !attachmentDialog && readValueCookieGlobal('refreshSubView') && kindOperation.toUpperCase() !== 'COPY';
+        return !attachmentDialog && readValueCookieGlobal(CookiesName.REFRESH_SUB_VIEW) && kindOperation.toUpperCase() !== 'COPY';
     }
     copyAfterSave = (saveResponse) => {
         let {copyOptions, copyCounter} = this.state.copyData;

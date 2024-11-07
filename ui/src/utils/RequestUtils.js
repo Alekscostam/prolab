@@ -1,5 +1,5 @@
 import moment from "moment/moment";
-import { ColumnType } from "../model/ColumnType";
+import { ColumnType } from "../enum/ColumnType";
 
 export class RequestUtils {
     static createObjectDataToRequest(state) {

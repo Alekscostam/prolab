@@ -19,8 +19,9 @@ import ImageViewerComponent from '../../components/ImageViewerComponent';
 import {MenuWithButtons} from '../../components/prolab/MenuWithButtons';
 import {sessionPrelongFnc} from '../../App';
 import {EditorDialog} from '../../components/prolab/EditorDialog';
-import {OperationType} from '../../model/OperationType';
+import {OperationType} from '../../enum/OperationType';
 import LocUtils from '../../utils/LocUtils';
+import { CookiesName } from '../../enum/CookieName';
 
 class SubGridViewComponent extends React.Component {
     constructor(props) {
@@ -64,7 +65,7 @@ class SubGridViewComponent extends React.Component {
     }
     //very important !!!
     shouldComponentUpdate(nextProps, nextState, nextContext) {
-        const refreshSubView = readValueCookieGlobal('refreshSubView');
+        const refreshSubView = readValueCookieGlobal(CookiesName.REFRESH_SUB_VIEW);
         if (refreshSubView) {
             return true;
         }
@@ -84,11 +85,11 @@ class SubGridViewComponent extends React.Component {
         return true;
     }
     componentDidMount() {
-        saveObjToCookieGlobal('refreshSubView', true);
+        saveObjToCookieGlobal(CookiesName.REFRESH_SUB_VIEW, true);
     }
     componentDidUpdate() {}
     componentWillUnmount() {
-        removeCookieGlobal('refreshSubView');
+        removeCookieGlobal(CookiesName.REFRESH_SUB_VIEW);
     }
     render() {
         const {imageViewer, editorViewer} = this.state;

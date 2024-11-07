@@ -28,6 +28,7 @@
         {"code": "Information", "caption": "Informacja"},
         {"code": "Fill", "caption": "Wypełnij"},
         {"code": "Save", "caption": "Zapisz"},
+        {"code": "Exists_invalid_cells", "caption": "Istnieją nieprawidłowe komórki"},
         {
             "code": "Session_Expired",
             "caption": "Sesja wygasła",
