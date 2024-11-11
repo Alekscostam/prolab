@@ -17,12 +17,16 @@ import {TreeListUtils} from '../../utils/component/TreeListUtils';
 import { StringUtils } from '../../utils/StringUtils';
 import EntryResponseHelper from '../../utils/helper/EntryResponseHelper';
 import ImageViewerComponent from '../../components/ImageViewerComponent';
+import { MenuWithButtons } from '../../components/prolab/MenuWithButtons';
+import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils';
 
 class CardViewInfiniteComponent extends PureComponent {
     constructor(props) {
         super(props);
         this.crudService = new CrudService();
-        this.labels = this.props;
+        this.labels = this.props;        
+        this.menu = React.createRef();                
+        this.clickedPosition = React.createRef();
         this.dataCardStore = new DataCardStore();
         this.state = {
             imageViewer: {
@@ -36,6 +40,8 @@ class CardViewInfiniteComponent extends PureComponent {
             cardSkip: 0,
             cardScrollLoading: false,
             columnCount: 1,
+            selectedRecordId: undefined,
+            selectedRowData: undefined,
         };
         this.cardViewRef = React.createRef();
         ConsoleHelper('CardViewComponent -> constructor');
@@ -46,6 +52,34 @@ class CardViewInfiniteComponent extends PureComponent {
             const windowSizeWidth = window.innerWidth;
             const cardWidth = this.props.parsedCardView?.cardOptions?.width ?? 300;
             this.setState({columnCount: this.calculateColumns(windowSizeWidth, cardWidth)});
+        }
+    }
+    showMenu(e, rowData) {
+        const menu = this.menu.current;
+        ActionButtonWithMenuUtils.hideActionButtonWithMenuPopup();
+        if (menu !== null && !!rowData) {
+            const mouseX = e.clientX;
+            const mouseY = e.clientY;
+            e.stopPropagation();
+            e.preventDefault();
+            menu.show(e);
+            this.setState({selectedRecordId: rowData.ID, selectedRowData:rowData}, () => {
+                const menu = document.getElementById('menu-with-buttons');
+                const menuHeight = menu.clientHeight + 50;
+                const browserHeight = window.innerHeight;
+                let heighY = mouseY;
+                if (browserHeight < menuHeight + mouseY - 50) {
+                    heighY = mouseY - menuHeight + 50;
+                }
+                menu.style.left = mouseX + 'px';
+                menu.style.top = heighY + 'px';
+                this.clickedPosition.current = {
+                    x:mouseX +"px",
+                    y:mouseY + 'px'
+                }
+            });
+        } else if (menu !== null && !!rowData) {
+            menu.hide(e);
         }
     }
     isSelectionEnabled() {
@@ -185,6 +219,8 @@ class CardViewInfiniteComponent extends PureComponent {
             );
     }
     render() {
+        const selectedRecordId =  this.state.selectedRecordId;
+        const selectedRowData =  this.state.selectedRowData;
         const imageViewer = this.state.imageViewer;
         const cardWidth = this.props.parsedCardView?.cardOptions?.width ?? 300;
         const cardHeight = this.props.parsedCardView?.cardOptions?.height ?? 200;
@@ -199,7 +235,7 @@ class CardViewInfiniteComponent extends PureComponent {
                 return (
                     <React.Fragment>
                         {!!rowData ? (
-                            <div id={'row'} className={'tiles'} style={style}>
+                            <div id={'row'}  className={'tiles'} style={style}>
                                 {React.Children.toArray(
                                     Array.from(rowData).map((data) =>
                                         this.renderSingleTile(data, index, cardWidth, cardHeight)
@@ -229,6 +265,32 @@ class CardViewInfiniteComponent extends PureComponent {
                         cardHeight={cardHeight}
                     />
                 </WindowSizeListener>
+                <MenuWithButtons
+                    gridView={this.props.parsedCardView}
+                    clickedPosition={this.clickedPosition}
+                    handleEdit={() => {this.handleEdit(selectedRowData)}}
+                    handleEditSpec={()=> {this.handleEditSpec(selectedRowData)}}
+                    handlePlugins={(e) =>  
+                        this.props.handlePluginRow(e.id, selectedRecordId)
+                    }
+                    handleDocuments={(e) => {
+                        this.props.handleDocumentRow(e.id, selectedRecordId)
+                    }}
+                    handleAdd={() => this.props.addButtonFunction()}
+                    handleAddSpec={()=>this.props.addButtonFunction()}
+                    handleHrefSubview={() => this.handleHrefSubview(selectedRowData)}
+                    handleCopy={() => {this.props.handleCopyRow(selectedRowData)}}
+                    handleArchive={() => this.props.handleArchiveRow(selectedRecordId)}
+                    handleDownload={() => this.props.handleDownloadRow(selectedRecordId)}
+                    handleAttachments={() => this.props.handleAttachmentRow(selectedRecordId)}
+                    handleDelete={() => this.props.handleDeleteRow(selectedRecordId)}
+                    handleFormula={() => this.props.handleFormulaRow(selectedRecordId)}
+                    handleHistory={() => this.props.handleHistoryLogRow(selectedRecordId)}
+                    handleRestore={() => this.props.handleRestoreRow(selectedRecordId)}
+                    handlePublish={() => this.props.handlePublishRow(selectedRecordId)}
+                    operationList={this.props.parsedCardView.operationsPPM}
+                    menu={this.menu}
+                />
                 {imageViewer.imageViewDialogVisible && <ImageViewerComponent
                         editable={false}
                         header={imageViewer.header}
@@ -247,6 +309,127 @@ class CardViewInfiniteComponent extends PureComponent {
             </React.Fragment>
         );
     }
+    handleEdit = (rowData) => {
+        const elementId = this.props.id;
+        const subviewId = elementSubViewId ? elementId : undefined;
+        const recordId = rowData.ID;
+        const elementSubViewId = this.props.elementSubViewId;
+        const elementKindView = this.props.elementKindView;
+        const viewId = DataGridUtils.getRealViewId(elementSubViewId, elementId);
+        const result = this.props.handleBlockUi();
+        if (result) {
+            this.crudService
+                .editEntry(viewId, recordId, subviewId, elementKindView, '')
+                .then((entryResponse) => {
+                    EntryResponseHelper.run(
+                        entryResponse,
+                        () => {
+                            if (!!entryResponse.next) {
+                                this.crudService
+                                    .edit(
+                                        viewId,
+                                        recordId,
+                                        subviewId,
+                                        elementKindView
+                                    )
+                                    .then((editDataResponse) => {
+                                        this.setState(
+                                            {
+                                                editData: editDataResponse,
+                                            },
+                                            () => {
+                                                this.props.handleShowEditPanel(
+                                                    editDataResponse
+                                                );
+                                            }
+                                        );
+                                    })
+                                    .catch((err) => {
+                                        this.props.showErrorMessages(err);
+                                    });
+                            } else {
+                                this.props.handleUnblockUi();
+                            }
+                        },
+                        () => this.props.handleUnblockUi(),
+                        () => this.props.handleUnblockUi()
+                    );
+                })
+                .catch((err) => {
+                    this.props.showErrorMessages(err);
+                });
+        }
+    }
+
+    handleEditSpec =(rowData)=>{
+        const elementSubViewId = this.props.elementSubViewId;
+        const elementId = this.props.id;
+        const parentId = this.props?.elementRecordId;
+        const viewId = DataGridUtils.getRealViewId(elementSubViewId, elementId);
+        const recordId = rowData.ID;
+        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+        const prevUrl = window.location.href;
+        sessionStorage.setItem('prevUrl', prevUrl);
+        TreeListUtils.openEditSpec(
+            viewId,
+            TreeListUtils.isKindViewSpec(this.props.parsedGridView)
+                ? parentId
+                : recordId,
+            TreeListUtils.isKindViewSpec(this.props.parsedGridView)
+                ? [recordId]
+                : [],
+            currentBreadcrumb,
+            () => this.props.handleUnblockUi(),
+            (err) => this.props.showErrorMessages(err)
+        );
+    }
+    handleHrefSubview = (rowData) => {
+        const elementSubViewId = this.props.elementSubViewId;
+        const elementId = this.props.id;
+        const viewId = DataGridUtils.getRealViewId(elementSubViewId, elementId);
+        const recordId = rowData.ID;
+        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+        const newUrl = AppPrefixUtils.locationHrefUrl(
+            `/#/grid-view/${viewId}${
+                !!recordId ? `?recordId=${recordId}` : ``
+            }${!!currentBreadcrumb ? currentBreadcrumb : ``}`
+        );
+        window.location.assign(newUrl);
+    }
+
+    hrefSubview = (rowData) => {
+        const elementSubViewId = this.props.elementSubViewId;
+        const elementId = this.props.id;
+        const viewId = DataGridUtils.getRealViewId(elementSubViewId, elementId);
+        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+        const recordId = rowData.ID;
+        return AppPrefixUtils.locationHrefUrl(
+            `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${
+                !!currentBreadcrumb ? currentBreadcrumb : ``
+            }`)
+    }   
+    
+    hrefSpecView = (rowData) => {
+        const parentId = this.props?.elementRecordId;
+        const elementSubViewId = this.props.elementSubViewId;
+        const elementId = this.props.id;
+        const viewId = DataGridUtils.getRealViewId(elementSubViewId, elementId);
+        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+        const recordId = rowData.ID;
+        return EditSpecUtils.editSpecUrl(
+            viewId,
+            TreeListUtils.isKindViewSpec(this.props.parsedGridView)
+                ? parentId
+                : recordId,
+            compress(
+                TreeListUtils.isKindViewSpec(this.props.parsedGridView)
+                    ? [recordId]
+                    : []
+            ),
+            currentBreadcrumb
+        )
+    }
+
     renderSingleTile(rowData, index, cardWidth, cardHeight) {
         let cardBgColor1 = this.props.parsedCardView?.cardOptions?.bgColor1;
         let cardBgColor2 = this.props.parsedCardView?.cardOptions?.bgColor2;
@@ -265,6 +448,7 @@ class CardViewInfiniteComponent extends PureComponent {
         return (
             <React.Fragment>
                 <div
+                    onContextMenu={(e)=>{this.showMenu(e, rowData)}}
                     key={index}
                     className={`dx-item dx-tile`}
                     onClick={() => {
@@ -317,92 +501,11 @@ class CardViewInfiniteComponent extends PureComponent {
                                             operations={this.props.parsedCardView.operationsRecord}
                                             operationList={this.props.parsedCardView.operationsRecordList}
                                             info={null}
-                                            handleEdit={() => {
-                                                const result = this.props.handleBlockUi();
-                                                if (result) {
-                                                    this.crudService
-                                                        .editEntry(viewId, recordId, subviewId, elementKindView, '')
-                                                        .then((entryResponse) => {
-                                                            EntryResponseHelper.run(
-                                                                entryResponse,
-                                                                () => {
-                                                                    if (!!entryResponse.next) {
-                                                                        this.crudService
-                                                                            .edit(
-                                                                                viewId,
-                                                                                recordId,
-                                                                                subviewId,
-                                                                                elementKindView
-                                                                            )
-                                                                            .then((editDataResponse) => {
-                                                                                this.setState(
-                                                                                    {
-                                                                                        editData: editDataResponse,
-                                                                                    },
-                                                                                    () => {
-                                                                                        this.props.handleShowEditPanel(
-                                                                                            editDataResponse
-                                                                                        );
-                                                                                    }
-                                                                                );
-                                                                            })
-                                                                            .catch((err) => {
-                                                                                this.props.showErrorMessages(err);
-                                                                            });
-                                                                    } else {
-                                                                        this.props.handleUnblockUi();
-                                                                    }
-                                                                },
-                                                                () => this.props.handleUnblockUi(),
-                                                                () => this.props.handleUnblockUi()
-                                                            );
-                                                        })
-                                                        .catch((err) => {
-                                                            this.props.showErrorMessages(err);
-                                                        });
-                                                }
-                                            }}
-                                            handleEditSpec={() => {
-                                                const prevUrl = window.location.href;
-                                                sessionStorage.setItem('prevUrl', prevUrl);
-                                                TreeListUtils.openEditSpec(
-                                                    viewId,
-                                                    TreeListUtils.isKindViewSpec(this.props.parsedGridView)
-                                                        ? parentId
-                                                        : recordId,
-                                                    TreeListUtils.isKindViewSpec(this.props.parsedGridView)
-                                                        ? [recordId]
-                                                        : [],
-                                                    currentBreadcrumb,
-                                                    () => this.props.handleUnblockUi(),
-                                                    (err) => this.props.showErrorMessages(err)
-                                                );
-                                            }}
-                                            hrefSpecView={EditSpecUtils.editSpecUrl(
-                                                viewId,
-                                                TreeListUtils.isKindViewSpec(this.props.parsedGridView)
-                                                    ? parentId
-                                                    : recordId,
-                                                compress(
-                                                    TreeListUtils.isKindViewSpec(this.props.parsedGridView)
-                                                        ? [recordId]
-                                                        : []
-                                                ),
-                                                currentBreadcrumb
-                                            )}
-                                            hrefSubview={AppPrefixUtils.locationHrefUrl(
-                                                `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${
-                                                    !!currentBreadcrumb ? currentBreadcrumb : ``
-                                                }`
-                                            )}
-                                            handleHrefSubview={() => {
-                                                const newUrl = AppPrefixUtils.locationHrefUrl(
-                                                    `/#/grid-view/${viewId}${
-                                                        !!recordId ? `?recordId=${recordId}` : ``
-                                                    }${!!currentBreadcrumb ? currentBreadcrumb : ``}`
-                                                );
-                                                window.location.assign(newUrl);
-                                            }}
+                                            handleEdit={()=>this.handleEdit(rowData)}
+                                            handleEditSpec={()=>this.handleEditSpec(rowData)}
+                                            hrefSpecView={this.hrefSpecView(rowData)}
+                                            hrefSubview={this.hrefSubview(rowData)}
+                                            handleHrefSubview={()=>{this.handleHrefSubview(rowData)}}
                                             handleArchive={() => this.props.handleArchiveRow(recordId)}
                                             handleDownload={() =>  this.props.handleDownloadRow(recordId)}
                                             handleAttachments={() => this.props.handleAttachmentRow(recordId)}
@@ -412,6 +515,8 @@ class CardViewInfiniteComponent extends PureComponent {
                                             handleFormula={() => this.props.handleFormulaRow(recordId)}
                                             handleRestore={() => this.props.handleRestoreRow(recordId)}
                                             handlePublish={() => this.props.handlePublishRow(recordId)}
+                                            handleDocuments={(el) => this.props.handleDocumentRow(el.id,recordId)}
+                                            handlePlugins={(el) => this.props.handlePluginRow(el.id, recordId)}
                                             handleBlockUi={() => this.props.handleBlockUi()}
                                         />
                                     </div>

@@ -1952,20 +1952,20 @@ class BaseContainer extends React.Component {
     isBody(recordId) {
         return !(recordId === '0' || recordId === 0);
     }
-    isChoosenKindView(kindViewSelected) {
+    isChosenKindView(kindViewSelected) {
         return this.state.kindView === kindViewSelected && this.state.elementKindView === kindViewSelected;
     }
     isViewSpecHeader(recordId) {
-        return this.isHeader(recordId) && this.isChoosenKindView('ViewSpec');
+        return this.isHeader(recordId) && this.isChosenKindView('ViewSpec');
     }
     isViewSpecBody(recordId) {
-        return this.isBody(recordId) && this.isChoosenKindView('ViewSpec');
+        return this.isBody(recordId) && this.isChosenKindView('ViewSpec');
     }
     isGridViewHeader(recordId) {
-        return this.isHeader(recordId) && this.isChoosenKindView('View');
+        return this.isHeader(recordId) && this.isChosenKindView('View');
     }
     isGridViewBody(recordId) {
-        return this.isBody(recordId) && this.isChoosenKindView('View');
+        return this.isBody(recordId) && this.isChosenKindView('View');
     }
     returnFromRowEdit() {
         window.location.href = UrlUtils.getUrlWithoutEditRowParams().replace('edit-row-view', 'grid-view');

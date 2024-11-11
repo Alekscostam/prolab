@@ -607,7 +607,6 @@ export class DashboardGridViewComponent extends BaseContainer {
                             gridViewColumns={this.state.gridViewColumns}
                             elementRecordId={this.props.parentId}
                             hoverStateEnabled={true}
-                            focu={true}
                             selectedRowKeys={this.state.selectedRowKeys}
                             handleBlockUi={() => {
                                 return this.blockUi();

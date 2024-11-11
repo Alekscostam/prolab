@@ -29,6 +29,12 @@
         {"code": "Fill", "caption": "Wypełnij"},
         {"code": "Save", "caption": "Zapisz"},
         {"code": "Exists_invalid_cells", "caption": "Istnieją nieprawidłowe komórki"},
+        {"code": "Link_to_task", "caption": "Link do zadania"},
+        {"code": "About_current_version", "caption": "Aktualna wersja aplikacji"},
+        {"code": "Change_log", "caption": "Change log"},
+        {"code": "NEW", "caption": "Nowe"},
+        {"code": "VER", "caption": "Wersja"},
+        {"code": "FIX", "caption": "FIX"},
         {
             "code": "Session_Expired",
             "caption": "Sesja wygasła",

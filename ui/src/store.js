@@ -7,12 +7,11 @@ const useStore = create((set) => ({
   accessToken: undefined, 
   appVersion: undefined, 
   refreshToken: undefined, 
-    setLabels: (ls) => set({ labels: ls}),
+    setLabels: (value) => set({ labels: value}),
     setAppVersion: (value) => set({ appVersion: value }),
     setFetchData: (value) => set({ fetchData: value }),
     setAccessToken: (value) => set({ accessToken: value }),
     setRefreshToken: (value) => set({ refreshToken: value }),
     setListOfHintsElements: (value) => set({ listOfHintsElements: value }),
 }));
-
 export default useStore;

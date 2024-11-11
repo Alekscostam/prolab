@@ -1,5 +1,4 @@
 import { CookiesName } from "../../../enum/CookieName";
-import useStore from "../../../store";
 
 export const tabsPositionsSelectBoxLabel = { 'aria-label': 'Tab position' };
 export const tabsPositions = ['top', 'left', 'right', 'bottom'];
@@ -7,7 +6,7 @@ export const stylingModesSelectBoxLabel = { 'aria-label': 'Styling mode' };
 export const stylingModes = ['secondary', 'primary'];
 export const iconPositionsSelectBoxLabel = { 'aria-label': 'Icon positions' };
 export const iconPositions = ['top', 'start', 'end', 'bottom'];
-const features = [
+export const features = [
     {
       type: 'VER',
       color: 'blue',
@@ -49,41 +48,55 @@ const features = [
     },
     {
 
-    type: 'BUG',
+    type: 'FIX',
     color: 'red',
-    description: 'Nalezy przetetsowac na dashboard i w zwyklym widoku',
+    description: 'Należy przetestowac "czy na pewno chcesz zakonczyc edycji w batch oraz edispec"',
     date: '',
-    text: 'Naprawa błędu związanego z TAK/NIE dla Question po wywolaniu wtyczki.',
-    link: "https://trello.com/c/p4G5qAGv/480-komunikat-po-wykonaniu-wtyczki"
+    text: 'Naprawa dialogu dotyczącego wyjscia z edycji specyfikacji i batch.',
+    link: "https://trello.com/c/uYBlor7O/529-fix-komunikat-czy-na-pewno-chcesz-zamkn%C4%85%C4%87-edycj%C4%99"
   },
   {
-    type: 'BUG',
+    type: 'FIX',
     color: 'red',
-    description: 'Napraw min max wymaga przetestowania w sumie tylkow  edycji specyfikacji',
+    description: '',
     date: '',
-    text: 'Zadanie z min/max',
-    link: "https://trello.com/c/CeGApx1L/503-walidacja-p%C3%B3l-wart-min-max-nominalna"
+    text: 'Zmiana wyświetlania okruszków',
   },  
   {
-    type: 'BUG',
+    type: 'FIX',
     color: 'red',
-    description: 'On wyswietlal sie w brzydki sposob + kalendarz byl niebieską plamą',
+    description: 'Do przetestowania funkcje i dokumenty na liscie kafelek w "trzy kropkach"',
     date: '',
-    text: 'Poprawa widoku publikacji dokuemntu',
+    text: 'Naprawa funkcji i dokumentów z trzech kropek na widoku kafelek',
+    link: "https://trello.com/c/dlZGDZTx/545-obs%C5%82uga-menu-rekordu-w-widoku-kafelek"
+  },  
+  {
+    type: 'FIX',
+    color: 'red',
+    description: '',
+    date: '',
+    text: 'Tłumaczenia dla dialogu "Aktualna wersja aplikacji"',
   },
-  {
-    type: 'BUG',
-    color: 'red',
-    description: 'On czasami mrugal jak sie robilo gora dol w komponencie z liczbą',
-    date: '',
-    text: 'Poprawa widoku copy',
-  },  
   {
     type: 'NEW',
     color: 'green',
-    description: 'Wymieniłem ten komponent, bo było to rozwiązanie dosyć przestarszale, mogłem go zrobic w dwóch wersjach niebieski i biały ale ten wydawał mi sie lepszy',
+    description: 'nalezy kliknąc w przycisk changelog w dialogu wersji',
     date: '',
-    text: 'Nowy komponent okruszkow',
+    text: 'ChangeLog do pobrania w dialogu wersji',
+  }, 
+  {
+    type: 'NEW',
+    color: 'green',
+    description: 'Tego nie ma jak testowac, zmiana funkcjonalna w aplikacji',
+    date: '',
+    text: 'Przekazywanie tłumaczeń do nowego globalnego storage "zustand" w aplikacji',
+  }, 
+  {
+    type: 'NEW',
+    color: 'green',
+    description: 'Do przetestowania prawidłowośc działania wszystkich przycisków PPM w trybie widoku kafelej',
+    date: '',
+    text: 'Przyciski PPM na CardView',
   },
   // {
   //   type: 'BUG',
@@ -119,18 +132,4 @@ const features = [
   //   text: 'Version preview dialog',
   // },
  
-];
-export const dataSource = [
-  {
-    title: 'Fix',
-    tasks: features.filter((item) => item.type === 'BUG'),
-  },
-  {
-     title: 'Nowe',
-     tasks: features.filter((item) => item.type === 'NEW'),
-  },
-  {
-    title: 'Wersja',
-    tasks: features.filter((item) => item.type === 'VER'),
-  },
 ];

@@ -1608,11 +1608,9 @@ export class BaseViewContainer extends BaseContainer {
                             });
                             this.unblockUi();
                         } else {
-                            if (selectionValue) {
-                                this.selectAllDataGrid(selectionValue);
-                            } else {
-                                this.unselectAllDataGrid(selectionValue);
-                            }
+                            if (selectionValue) this.selectAllDataGrid(selectionValue);
+                            else this.unselectAllDataGrid(selectionValue);
+                            
                         }
                     }}
                     handleFormulaRow={(id) => {
@@ -1657,6 +1655,7 @@ export class BaseViewContainer extends BaseContainer {
                         handleShowEditPanel={(editDataResponse) => {
                             this.handleShowEditPanel(editDataResponse);
                         }}
+                        addButtonFunction={this.addButtonFunction}
                         viewHeight={viewHeight}
                         showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                         handleBlockUi={() => {

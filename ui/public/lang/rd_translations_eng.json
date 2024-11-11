@@ -42,6 +42,12 @@
         {"code": "Error", "caption": "Error"},
         {"code": "Information", "caption": "Information"},
         {"code": "Exists_invalid_cells", "caption": "Exists invalid cells"},
+        {"code": "Link_to_task", "caption": "Link to task"},
+        {"code": "About_current_version", "caption": "About current version"},
+        {"code": "Change_log", "caption": "Change log"},
+        {"code": "NEW", "caption": "New"},
+        {"code": "VER", "caption": "Version"},
+        {"code": "FIX", "caption": "FIX"},
         {
             "code": "Session_Expired",
             "caption": "Sesja wygasła",

@@ -9,6 +9,7 @@ export const BreadcrumbComponent = ({initialBreadcrumb, afterClick, initialMainP
     const prepareForMainBreadcrumb = () => {
         const item = {};
         item.url = initialMainPage
+        item.className = "main-breadcrumb"
         item.label = labels['View_StartPage']
         item.command = ()=>{
             if(afterClick && shouldShowEditQuitConfirmationDialog()){

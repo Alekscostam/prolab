@@ -1818,16 +1818,23 @@ td[aria-roledescription='Editable'] {
 .p-breadcrumb{
     display: inline-block;
     padding: 2px;
-    box-shadow: 0px 0px 7px #00000029;
-    // background: white;
-    background: $base-color;
+    border: none;
+    background: white;
     margin-bottom: 3px;
     margin-top: 3px;
+    .p-menuitem-separator{
+        margin: -4px;
+    }
+   .p-breadcrumb-chevron {
+        height: 12px;
+    }
+    .main-breadcrumb{
+        margin-left: -8px;
+    }
     .p-menuitem-text{
         font-size: 12px;
         font-weight: 450;
-        color:white;
-        // color:$base-color;
+        color:$base-color;
     }
     .p-breadcrumb-list{
         margin-bottom: 0px;
@@ -1835,8 +1842,7 @@ td[aria-roledescription='Editable'] {
 
 }
 .p-breadcrumb .p-breadcrumb-list li.p-menuitem-separator{
-    color: white!important;
-    // color: $base-color!important;
+    color: $base-color!important;
 }
 #publishDialog{
     button{

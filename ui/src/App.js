@@ -323,6 +323,7 @@ class App extends Component {
                         captchaKey,
                     }
                 })
+                useStore.getState().setAppVersion(appVersion);
                 saveObjToCookieGlobal(CookiesName.APP_VERSION, appVersion);
                 saveObjToCookieGlobal(CookiesName.DEVICE_NAME, deviceName);
                 saveObjToCookieGlobal(CookiesName.APP_NAME, appName);
@@ -377,6 +378,9 @@ class App extends Component {
                 render: false,
             },
         }),()=>{
+            this.setState({
+                sidebarClickItemReactionEnabled:true
+            })
             if(callBackFnc){
                 callBackFnc();
             }
