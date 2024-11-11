@@ -76,7 +76,7 @@ export const features = [
     description: '',
     date: '',
     text: 'Tłumaczenia dla dialogu "Aktualna wersja aplikacji"',
-  },
+  },  
   {
     type: 'NEW',
     color: 'green',

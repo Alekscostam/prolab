@@ -303,7 +303,7 @@ class App extends Component {
                 const langs= configuration.LANG_LIST;
                 const renderForgotPassword = !StringUtils.isBlank(configuration?.FORTOGPASSWORD_VIEWID) ;
                 const renderSignIn = !StringUtils.isBlank(configuration?.SIGNIN_VIEWID);
-                const canRenderAboutVersionDialog =!StringUtils.isBlank(configuration?.SHOW_INFO_DIALOG) ? Boolean(configuration?.SHOW_INFO_DIALOG) : false;
+                const canRenderAboutVersionDialog = !StringUtils.isBlank(configuration?.SHOW_VERSION_DIALOG) ? Boolean(configuration?.SHOW_VERSION_DIALOG) : false;
                 const deviceName = configuration.DEVICE_NAME;
                 const appName = configuration.APP_NAME;
                 const captchaShow = configuration.CAPTCHA_SHOW;

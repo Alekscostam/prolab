@@ -203,7 +203,8 @@ class CardViewInfiniteComponent extends PureComponent {
         }
         return result;
     };
-    calculateColumns(windowWidth, cardWidth) {
+    calculateColumns(windowWidth) {
+        const cardWidth = this.props.parsedCardView?.cardOptions?.width ?? 300;
         return Math.floor(
             (windowWidth - (windowWidth <= 768 ? 0 : this.props.collapsed ? 70 : 320)) / (cardWidth + 10)
         );
@@ -219,11 +220,10 @@ class CardViewInfiniteComponent extends PureComponent {
             );
     }
     render() {
+        const cardHeight = this.props.parsedCardView?.cardOptions?.height ?? 200;
         const selectedRecordId =  this.state.selectedRecordId;
         const selectedRowData =  this.state.selectedRowData;
         const imageViewer = this.state.imageViewer;
-        const cardWidth = this.props.parsedCardView?.cardOptions?.width ?? 300;
-        const cardHeight = this.props.parsedCardView?.cardOptions?.height ?? 200;
         const isItemLoaded = (index) => !this.state.hasNextPage || index < this.state.items.length;
         const Item = ({index, style}) => {
             let rowData = this.state.items;
@@ -238,7 +238,7 @@ class CardViewInfiniteComponent extends PureComponent {
                             <div id={'row'}  className={'tiles'} style={style}>
                                 {React.Children.toArray(
                                     Array.from(rowData).map((data) =>
-                                        this.renderSingleTile(data, index, cardWidth, cardHeight)
+                                        this.renderSingleTile(data, index)
                                     )
                                 )}
                             </div>
@@ -251,7 +251,7 @@ class CardViewInfiniteComponent extends PureComponent {
             <React.Fragment>
                 <WindowSizeListener
                     onResize={(windowSize) => {
-                        this.setState({columnCount: this.calculateColumns(windowSize.windowWidth, cardWidth)});
+                        this.setState({columnCount: this.calculateColumns(windowSize.windowWidth)});
                     }}
                 >
                     <CardInfiniteLoaderWrapper
@@ -265,32 +265,34 @@ class CardViewInfiniteComponent extends PureComponent {
                         cardHeight={cardHeight}
                     />
                 </WindowSizeListener>
-                <MenuWithButtons
-                    gridView={this.props.parsedCardView}
-                    clickedPosition={this.clickedPosition}
-                    handleEdit={() => {this.handleEdit(selectedRowData)}}
-                    handleEditSpec={()=> {this.handleEditSpec(selectedRowData)}}
-                    handlePlugins={(e) =>  
-                        this.props.handlePluginRow(e.id, selectedRecordId)
-                    }
-                    handleDocuments={(e) => {
-                        this.props.handleDocumentRow(e.id, selectedRecordId)
-                    }}
-                    handleAdd={() => this.props.addButtonFunction()}
-                    handleAddSpec={()=>this.props.addButtonFunction()}
-                    handleHrefSubview={() => this.handleHrefSubview(selectedRowData)}
-                    handleCopy={() => {this.props.handleCopyRow(selectedRowData)}}
-                    handleArchive={() => this.props.handleArchiveRow(selectedRecordId)}
-                    handleDownload={() => this.props.handleDownloadRow(selectedRecordId)}
-                    handleAttachments={() => this.props.handleAttachmentRow(selectedRecordId)}
-                    handleDelete={() => this.props.handleDeleteRow(selectedRecordId)}
-                    handleFormula={() => this.props.handleFormulaRow(selectedRecordId)}
-                    handleHistory={() => this.props.handleHistoryLogRow(selectedRecordId)}
-                    handleRestore={() => this.props.handleRestoreRow(selectedRecordId)}
-                    handlePublish={() => this.props.handlePublishRow(selectedRecordId)}
-                    operationList={this.props.parsedCardView.operationsPPM}
-                    menu={this.menu}
-                />
+                {this.props.parsedCardView?.operationsPPM && this.props.parsedCardView.operationsPPM.length !== 0 && (
+                    <MenuWithButtons
+                        gridView={this.props.parsedCardView}
+                        clickedPosition={this.clickedPosition}
+                        handleEdit={() => {this.handleEdit(selectedRowData)}}
+                        handleEditSpec={()=> {this.handleEditSpec(selectedRowData)}}
+                        handlePlugins={(e) =>  
+                            this.props.handlePluginRow(e.id, selectedRecordId)
+                        }
+                        handleDocuments={(e) => {
+                            this.props.handleDocumentRow(e.id, selectedRecordId)
+                        }}
+                        handleAdd={() => this.props.addButtonFunction()}
+                        handleAddSpec={()=>this.props.addButtonFunction()}
+                        handleHrefSubview={() => this.handleHrefSubview(selectedRowData)}
+                        handleCopy={() => {this.props.handleCopyRow(selectedRowData)}}
+                        handleArchive={() => this.props.handleArchiveRow(selectedRecordId)}
+                        handleDownload={() => this.props.handleDownloadRow(selectedRecordId)}
+                        handleAttachments={() => this.props.handleAttachmentRow(selectedRecordId)}
+                        handleDelete={() => this.props.handleDeleteRow(selectedRecordId)}
+                        handleFormula={() => this.props.handleFormulaRow(selectedRecordId)}
+                        handleHistory={() => this.props.handleHistoryLogRow(selectedRecordId)}
+                        handleRestore={() => this.props.handleRestoreRow(selectedRecordId)}
+                        handlePublish={() => this.props.handlePublishRow(selectedRecordId)}
+                        operationList={this.props.parsedCardView.operationsPPM}
+                        menu={this.menu}
+                    />
+                )}
                 {imageViewer.imageViewDialogVisible && <ImageViewerComponent
                         editable={false}
                         header={imageViewer.header}
@@ -430,21 +432,12 @@ class CardViewInfiniteComponent extends PureComponent {
         )
     }
 
-    renderSingleTile(rowData, index, cardWidth, cardHeight) {
-        let cardBgColor1 = this.props.parsedCardView?.cardOptions?.bgColor1;
-        let cardBgColor2 = this.props.parsedCardView?.cardOptions?.bgColor2;
-        let fontColor = this.props.parsedCardView?.cardOptions?.fontColor;
-        const {cardBody, cardHeader, cardImage, cardFooter} = this.props.parsedCardView;
-        const elementSubViewId = this.props.elementSubViewId;
-        const elementKindView = this.props.elementKindView;
-        const elementId = this.props.id;
-        const parentId = this.props?.elementRecordId;
-        const viewId = DataGridUtils.getRealViewId(elementSubViewId, elementId);
+    renderSingleTile(rowData, index) {
+        const parsedCardView = this.props.parsedCardView;
+        const {cardBody, cardHeader, cardImage, cardFooter, cardOptions = {}} = parsedCardView;
+        const {width = 300, height = 200, bgColor1, bgColor2, fontColor} = cardOptions;
         const recordId = rowData.ID;
-        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
-        const subviewId = elementSubViewId ? elementId : undefined;
         let selectedRowKeys = this.props.selectedRowKeys;
-
         return (
             <React.Fragment>
                 <div
@@ -475,11 +468,11 @@ class CardViewInfiniteComponent extends PureComponent {
                             }`}
                             style={this.styleTile(
                                 rowData,
-                                cardBgColor1,
-                                cardBgColor2,
+                                bgColor1,
+                                bgColor2,
                                 fontColor,
-                                cardWidth,
-                                cardHeight
+                                width,
+                                height
                             )}
                         >
                             <div className='row'>
