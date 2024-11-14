@@ -108,6 +108,7 @@ export class DataGridUtils extends ViewDataCompUtils {
                                 color: fontColorFinal,
                                 borderRadius: info.column.allowWrapping ? '18px' : '25px',
                                 padding: '2px 6px 2px 6px',
+                                float: column.type === ColumnType.N ? "right" : undefined 
                             }}
                             title={StringUtils.textFromHtmlString(info.text)}
                         >

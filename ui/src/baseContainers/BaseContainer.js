@@ -1290,6 +1290,11 @@ class BaseContainer extends React.Component {
                                     this.unblockUi();
                                 })
                                 .catch((err) => {
+                                    if(err?.error.code === "COPY_OK")  {
+                                        this.showSuccessMessage(err.error?.message);
+                                        this.processCopyOk(id,callBack)
+                                        return;
+                                    }
                                     this.showGlobalErrorMessage(err);
                                 });
                             this.setState({
@@ -1307,6 +1312,20 @@ class BaseContainer extends React.Component {
             .catch((err) => {
                 this.showGlobalErrorMessage(err);
             });
+    }
+    processCopyOk(id, callBack){
+        const selectedRowKeys = this.getSelectedRowKeysIds(id);
+        selectedRowKeys.shift();
+        if(selectedRowKeys.length === 0){
+            this.unselectAllDataGrid();
+            return; 
+        }
+        this.setState({
+            selectedRowKeys
+        },()=>{
+            this.copyEntry(id, callBack)
+        })
+
     }
     restore(id) {
         this.blockUi();

@@ -7,96 +7,45 @@ export const stylingModes = ['secondary', 'primary'];
 export const iconPositionsSelectBoxLabel = { 'aria-label': 'Icon positions' };
 export const iconPositions = ['top', 'start', 'end', 'bottom'];
 export const features = [
-    {
-      type: 'VER',
-      color: 'blue',
-      description: process.env.REACT_APP_BUILD_NUMBER ,
-      date: '',
-      text: 'Build number',
-    },
-    {
-      identifier:"APP_NAME",
-      type: 'VER',
-      color: 'blue',
-      description:  sessionStorage.getItem(CookiesName.APP_NAME),
-      date: '',
-      text: 'App name',
-    },
-    {
-      identifier:"APP_VERSION",
-      type: 'VER',
-      color: 'blue',
-      description: sessionStorage.getItem(CookiesName.APP_VERSION),
-      date: '',
-      text: 'App version',
-    },
-  
-    {
-      type: 'VER',
-      color: 'blue',
-      description: process.env.REACT_APP_BUILD_TIME,
-      date: '',
-      text: 'Build time',
-    },{
-      
-      identifier:"DEVICE_NAME",
-      type: 'VER',
-      color: 'blue',
-      description: sessionStorage.getItem(CookiesName.DEVICE_NAME),
-      date: '',
-      text: 'Device name',
-    },
-    {
-
-    type: 'FIX',
-    color: 'red',
-    description: 'Należy przetestowac "czy na pewno chcesz zakonczyc edycji w batch oraz edispec"',
-    date: '',
-    text: 'Naprawa dialogu dotyczącego wyjscia z edycji specyfikacji i batch.',
-    link: "https://trello.com/c/uYBlor7O/529-fix-komunikat-czy-na-pewno-chcesz-zamkn%C4%85%C4%87-edycj%C4%99"
-  },
+    
+  //   {
+  //   type: 'FIX',
+  //   color: 'red',
+  //   description: 'poprawka renderowania',
+  //   date: '',
+  //   text: 'Porpawa wczytywania okna dodawania parametrów',
+  //   link: "https://trello.com/c/TM5wuZB3/546-wczytywanie-okna-dodawania-parametr%C3%B3w"
+  // },
   {
     type: 'FIX',
     color: 'red',
-    description: '',
+    description: 'Do przetestowania w nagłówku',
     date: '',
-    text: 'Zmiana wyświetlania okruszków',
+    text: 'Prawidłowa interpretacja przecinka przez komponent textowy typu liczbowego',
+    link: "https://trello.com/c/WnzRQadG/548-obs%C5%82uga-pola-typu-liczbowego-w-nag%C5%82%C3%B3wku-i-specyfikacji"
   },  
   {
     type: 'FIX',
     color: 'red',
-    description: 'Do przetestowania funkcje i dokumenty na liscie kafelek w "trzy kropkach"',
+    description: 'Zamieniłem typ z number na stringa, do przetestowania na gridzie',
     date: '',
-    text: 'Naprawa funkcji i dokumentów z trzech kropek na widoku kafelek',
-    link: "https://trello.com/c/dlZGDZTx/545-obs%C5%82uga-menu-rekordu-w-widoku-kafelek"
-  },  
-  {
-    type: 'FIX',
-    color: 'red',
-    description: '',
-    date: '',
-    text: 'Tłumaczenia dla dialogu "Aktualna wersja aplikacji"',
+    text: 'Prawidłowa interpretacja przecinka przez komponent datagrid',
+    link: "https://trello.com/c/WnzRQadG/548-obs%C5%82uga-pola-typu-liczbowego-w-nag%C5%82%C3%B3wku-i-specyfikacji"
   },  
   {
     type: 'NEW',
     color: 'green',
-    description: 'nalezy kliknąc w przycisk changelog w dialogu wersji',
+    description: '@Roman bedzie wiedzial gdzie i jak testowac',
     date: '',
-    text: 'ChangeLog do pobrania w dialogu wersji',
+    text: 'Obsługa COPY_OK',
+    link: "https://trello.com/c/86R5PCZ2/217-fix-kopiowanie-z-archiwum"
   }, 
   {
     type: 'NEW',
     color: 'green',
-    description: 'Tego nie ma jak testowac, zmiana funkcjonalna w aplikacji',
+    description: '',
     date: '',
-    text: 'Przekazywanie tłumaczeń do nowego globalnego storage "zustand" w aplikacji',
-  }, 
-  {
-    type: 'NEW',
-    color: 'green',
-    description: 'Do przetestowania prawidłowośc działania wszystkich przycisków PPM w trybie widoku kafelej',
-    date: '',
-    text: 'Przyciski PPM na CardView',
+    text: 'Zmiana wyświetlania komponentu contentu w wersji',
   },
   // {
   //   type: 'BUG',

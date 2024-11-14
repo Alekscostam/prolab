@@ -18,7 +18,7 @@ export const TickerSessionDialog = (props) => {
     let counterStart = true;
     const [seconds, setSeconds] = useState(null);
     const progressBar = useRef();
-    const isMounted = useRef(true);  // Nowa zmienna ref
+    const isMounted = useRef(true); 
 
     const onCounterInit = useCallback(() => {
         if (intervalId.current === undefined) {

@@ -178,7 +178,7 @@ export default class AuthService {
         const idToken =localStorage.getItem(CookiesName.ID_TOKEN);
         const idRefreshToken =localStorage.getItem(CookiesName.ID_REFRESH_TOKEN);
         if(StringUtils.isBlank(idToken) ||  StringUtils.isBlank(idRefreshToken)){
-            console.error("TOKENS ARE BLANK. LOOK AT COOKIES ");
+            console.error("TOKENS ARE BLANK. LOOK AT COOKIES idToken:", idToken," idRefreshToken:",  idRefreshToken);
         }
         return this.fetch(
                 `${this.getAndSetDomainIfNeccessery()}/auth/refreshToken`,
@@ -187,9 +187,9 @@ export default class AuthService {
                     body: JSON.stringify({
                         accessToken: StringUtils.isBlank(localStorage.getItem(CookiesName.ID_TOKEN)) ? useStore.getState().accessToken : localStorage.getItem(CookiesName.ID_TOKEN),
                         refreshToken: StringUtils.isBlank(localStorage.getItem(CookiesName.ID_REFRESH_TOKEN)) ? useStore.getState().refreshToken : localStorage.getItem(CookiesName.ID_REFRESH_TOKEN),
-                        AppName: localStorage.getItem(CookiesName.APP_NAME),
-                        AppVersion: localStorage.getItem(CookiesName.APP_VERSION),
-                        DeviceName: localStorage.getItem(CookiesName.DEVICE_NAME),
+                        AppName: StringUtils.isBlank(localStorage.getItem(CookiesName.APP_NAME)) ? useStore.getState().appName : localStorage.getItem(CookiesName.APP_NAME) ,
+                        AppVersion: StringUtils.isBlank(localStorage.getItem(CookiesName.APP_VERSION)) ? useStore.getState().appVersion : localStorage.getItem(CookiesName.APP_VERSION),
+                        DeviceName: StringUtils.isBlank(localStorage.getItem(CookiesName.DEVICE_NAME)) ? useStore.getState().deviceName : localStorage.getItem(CookiesName.DEVICE_NAME),
                     }),
                 },
                 null,

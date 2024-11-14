@@ -7,9 +7,53 @@ import { tabsPositions,stylingModes, iconPositions, features } from './dataSourc
 import { StringUtils } from '../../utils/StringUtils';
 import ActionButton from '../ActionButton';
 import useStore from '../../store';
-
+import { CookiesName } from '../../enum/CookieName';
 
 export const VersionPreviewDialog = (props) => {
+
+    const version = [
+        {
+            type: 'VER',
+            color: 'blue',
+            description: process.env.REACT_APP_BUILD_NUMBER ,
+            date: '',
+            text: 'Build number',
+          },
+          {
+            identifier:"APP_NAME",
+            type: 'VER',
+            color: 'blue',
+            description:  sessionStorage.getItem(CookiesName.APP_NAME),
+            date: '',
+            text: 'App name',
+          },
+          {
+            identifier:"APP_VERSION",
+            type: 'VER',
+            color: 'blue',
+            description: sessionStorage.getItem(CookiesName.APP_VERSION),
+            date: '',
+            text: 'App version',
+          },
+        
+          {
+            type: 'VER',
+            color: 'blue',
+            description: process.env.REACT_APP_BUILD_TIME,
+            date: '',
+            text: 'Build time',
+          },
+          {
+            
+            identifier:"DEVICE_NAME",
+            type: 'VER',
+            color: 'blue',
+            description: sessionStorage.getItem(CookiesName.DEVICE_NAME),
+            date: '',
+            text: 'Device name',
+          },
+    ]
+
     const dataSource = [
         {
           type:"FIX",
@@ -24,7 +68,7 @@ export const VersionPreviewDialog = (props) => {
         {
           type:"VER",
           title: LocUtils.locFromStore("VER"),
-          tasks: features.filter((item) => item.type === 'VER'),
+          tasks: version,
         },
     ];
     const {onHide} = props;
@@ -49,10 +93,24 @@ export const VersionPreviewDialog = (props) => {
 
     const contentChangeLog = () => {
         const textContent = [];
+        textContent.push("wersja " + useStore.getState().appVersion)
+        textContent.push("--------------------")
         const allTasks = dataSource.filter(item=>item.type!=="VER").flatMap(item => item.tasks);
+        let currentType = undefined; 
+        let counter = 1;
         allTasks.forEach((task, index) => {
-            const text = index + 1 + ". " + task.text
+            if(index === 0){
+                currentType = task.type;
+                textContent.push(currentType);
+            }
+            if(currentType !== task.type){
+                counter = 1;
+                currentType = task.type;
+                textContent.push(currentType);
+            }
+            const text = counter  + ". " + task.text
             textContent.push(text);
+            counter++;
         });
         return textContent.join('\n');
     }

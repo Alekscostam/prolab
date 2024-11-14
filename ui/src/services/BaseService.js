@@ -103,6 +103,7 @@ export default class BaseService {
         if (error.status === 401) {
             if (!isRefreshing) {
                 isRefreshing = true; 
+                console.log("handleErrorCommon")
                 refreshPromise = this.auth.refresh()
                     .then(() => {
                         setTimeout(()=>{

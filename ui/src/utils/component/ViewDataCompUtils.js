@@ -45,7 +45,7 @@ export class ViewDataCompUtils {
                 case ColumnType.C:
                     return 'string';
                 case ColumnType.N:
-                    return 'number';
+                    return 'string';
                 case ColumnType.B:
                     return 'boolean';
                 case ColumnType.L:

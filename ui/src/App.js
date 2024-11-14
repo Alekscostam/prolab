@@ -119,6 +119,7 @@ class App extends Component {
         }
         this.setState({loadedConfiguration:false},()=>{
             setTimeout(()=>{
+                console.log("refreshFromDidMount")
                 this.authService.refresh().then(()=>{
                     window.location.href = UrlUtils.deleteParameterFromURL(window.location.href, "refresh");
                     this.appInitialize();
@@ -324,6 +325,8 @@ class App extends Component {
                     }
                 })
                 useStore.getState().setAppVersion(appVersion);
+                useStore.getState().setAppName(appName);
+                useStore.getState().setDeviceName(deviceName);
                 saveObjToCookieGlobal(CookiesName.APP_VERSION, appVersion);
                 saveObjToCookieGlobal(CookiesName.DEVICE_NAME, deviceName);
                 saveObjToCookieGlobal(CookiesName.APP_NAME, appName);
@@ -593,6 +596,7 @@ class App extends Component {
                             authService={authService}
                             visible={this.state.rednerSessionTimeoutDialog}
                             onProlongSession={() => {
+                                console.log("refreshFromTickerSession")
                                 authService.refresh().then(() => {
                                     this.prelongSessionIfUserExist(true, () => {
                                         this.setState({

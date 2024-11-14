@@ -455,9 +455,7 @@ export class BaseRowComponent extends BaseContainer {
                                         type='text'
                                         value={field.value}
                                         onChange={(e) => {
-                                            
                                             this.handleOnChange(field, e?.target?.value, ()=>{onChange(InputType.TEXT, e, groupUuid, info)})}}
-                                        // onBlur={(e) => this.handleOnBlur(field,e?.target?.value,()=>{onBlur(InputType.TEXT, e, groupUuid, info)})}
                                         disabled={!field.edit}
                                         required={required}
                                     />
@@ -494,7 +492,6 @@ export class BaseRowComponent extends BaseContainer {
                                 type='text'
                                 value={field.value}
                                 onChange={(e) => this.handleOnChange(field,e?.target?.value,() => onChange(InputType.TEXT, e, groupUuid, info))}
-                                // onBlur={(e) => this.handleOnBlur(field,e?.target?.value,() => onBlur(InputType.TEXT, e, groupUuid, info))}
                                 disabled={!field.edit}
                                 required={required}
                                 feedback={false}
@@ -556,26 +553,30 @@ export class BaseRowComponent extends BaseContainer {
                                         className={`${autoFill} ${editable} ${validate}`}
                                         style={{width: '100%'}}
                                         value={field.value}
-                                        type='number'
                                         onChange={(e) => {
-                                            if (
-                                                this.state?.numberFormat?.isValidNumberFormat === false &&
-                                                e.target.value === ''
-                                            ) {
-                                                e.target.value = this.state.numberFormat.prevNumber;
+                                            let value = structuredClone(e.target.value);
+                                            value = value.replace(/,/g, ".")
+                                            const isNumber = !isNaN(parseFloat(value)) && isFinite(value);
+                                            if(isNumber){
+                                                if (
+                                                    this.state?.numberFormat?.isValidNumberFormat === false &&
+                                                    e.target.value === ''
+                                                ) {
+                                                    e.target.value = this.state.numberFormat.prevNumber;
+                                                }
+                                                this.setState({
+                                                    numberFormat: {
+                                                        isValidNumberFormat: true,
+                                                        prevNumber: undefined,
+                                                    },
+                                                });
+    
+                                                if (onChange) {
+                                                    this.handleOnChange(field, e?.target?.value, ()=> onChange(InputType.TEXT, e, groupUuid, info))
+                                                }
                                             }
-                                            this.setState({
-                                                numberFormat: {
-                                                    isValidNumberFormat: true,
-                                                    prevNumber: undefined,
-                                                },
-                                            });
-
-                                            if (onChange) {
-                                                this.handleOnChange(field, e?.target?.value, ()=> onChange(InputType.TEXT, e, groupUuid, info))
-                                            }
+                                          
                                         }}
-                                        // onBlur={(e) => this.handleOnBlur(field,e?.target?.value,() => onBlur(InputType.TEXT, e, groupUuid, info))}
                                         disabled={!field.edit}
                                         required={required}
                                     />
