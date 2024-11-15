@@ -27,7 +27,7 @@ import {Password} from 'primereact/password';
 import {InputType} from '../enum/InputType';
 import {ColumnType} from '../enum/ColumnType';
 import {StringUtils} from '../utils/StringUtils';
-import { RequestUtils } from '../utils/RequestUtils';
+import {RequestUtils} from '../utils/RequestUtils';
 
 let clickCount = 0;
 let timeout;
@@ -108,7 +108,7 @@ export class BaseRowComponent extends BaseContainer {
         const setFields = this.state.parsedGridView.setFields;
         const prevSelectedRowData = this.state.selectedRowData;
         const multiSelect = this.state?.parsedGridView?.gridOptions?.multiSelect;
-        const result =  EditListUtils.selectedRowData(e, setFields, prevSelectedRowData, multiSelect);
+        const result = EditListUtils.selectedRowData(e, setFields, prevSelectedRowData, multiSelect);
         this.setState({selectedRowData: result.rowsData, defaultSelectedRowKeys: result.rowsCrc});
     }
 
@@ -252,7 +252,7 @@ export class BaseRowComponent extends BaseContainer {
                         let defaultSelectedRowKeysTmp = [];
                         const editData = this.props.editData;
                         const setFields = structuredClone(responseView.setFields);
-                        setFields.length = 1
+                        setFields.length = 1;
                         const separatorJoin = responseView.options?.separatorJoin || ',';
                         let countSeparator = 0;
                         setFields.forEach((field) => {
@@ -370,22 +370,22 @@ export class BaseRowComponent extends BaseContainer {
         }
     }
     handleOnChange = (field, value, onChange) => {
-        if(onChange){
+        if (onChange) {
             onChange();
-            if(!StringUtils.isBlank(value) ){
-                field.value = value; 
+            if (!StringUtils.isBlank(value)) {
+                field.value = value;
             }
         }
-    }
-    handleOnBlur = (field, value, onBlur) =>{
-        if(onBlur){
+    };
+    handleOnBlur = (field, value, onBlur) => {
+        if (onBlur) {
             onBlur();
-            if(!StringUtils.isBlank(value) ){
-                field.value = value; 
+            if (!StringUtils.isBlank(value)) {
+                field.value = value;
             }
         }
-    }
-    renderInputComponent(field, fieldIndex, onChange, onBlur, groupUuid, required, validatorMsgs, onClickEditList)  {
+    };
+    renderInputComponent(field, fieldIndex, onChange, onBlur, groupUuid, required, validatorMsgs, onClickEditList) {
         //mock functionality
         const visibleDocumentCriteria = this.props?.visibleDocumentPanel;
         field.edit = MockService.getFieldEnableDisableOrMock(field.edit, 'edit');
@@ -413,7 +413,7 @@ export class BaseRowComponent extends BaseContainer {
         }
         switch (field.type) {
             case ColumnType.C:
-                
+
             default:
                 return (
                     <React.Fragment>
@@ -455,7 +455,10 @@ export class BaseRowComponent extends BaseContainer {
                                         type='text'
                                         value={field.value}
                                         onChange={(e) => {
-                                            this.handleOnChange(field, e?.target?.value, ()=>{onChange(InputType.TEXT, e, groupUuid, info)})}}
+                                            this.handleOnChange(field, e?.target?.value, () => {
+                                                onChange(InputType.TEXT, e, groupUuid, info);
+                                            });
+                                        }}
                                         disabled={!field.edit}
                                         required={required}
                                     />
@@ -491,7 +494,11 @@ export class BaseRowComponent extends BaseContainer {
                                 style={{width: '100%'}}
                                 type='text'
                                 value={field.value}
-                                onChange={(e) => this.handleOnChange(field,e?.target?.value,() => onChange(InputType.TEXT, e, groupUuid, info))}
+                                onChange={(e) =>
+                                    this.handleOnChange(field, e?.target?.value, () =>
+                                        onChange(InputType.TEXT, e, groupUuid, info)
+                                    )
+                                }
                                 disabled={!field.edit}
                                 required={required}
                                 feedback={false}
@@ -555,9 +562,9 @@ export class BaseRowComponent extends BaseContainer {
                                         value={field.value}
                                         onChange={(e) => {
                                             let value = structuredClone(e.target.value);
-                                            value = value.replace(/,/g, ".")
+                                            value = value.replace(/,/g, '.');
                                             const isNumber = !isNaN(parseFloat(value)) && isFinite(value);
-                                            if(isNumber){
+                                            if (isNumber || StringUtils.isBlank(value) || value === '') {
                                                 if (
                                                     this.state?.numberFormat?.isValidNumberFormat === false &&
                                                     e.target.value === ''
@@ -570,12 +577,13 @@ export class BaseRowComponent extends BaseContainer {
                                                         prevNumber: undefined,
                                                     },
                                                 });
-    
+
                                                 if (onChange) {
-                                                    this.handleOnChange(field, e?.target?.value, ()=> onChange(InputType.TEXT, e, groupUuid, info))
+                                                    this.handleOnChange(field, e?.target?.value, () =>
+                                                        onChange(InputType.TEXT, e, groupUuid, info)
+                                                    );
                                                 }
                                             }
-                                          
                                         }}
                                         disabled={!field.edit}
                                         required={required}
