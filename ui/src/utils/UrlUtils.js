@@ -82,7 +82,7 @@ class UrlUtils {
     static parentIdParamExist() {
         const batchId = this.getURLParameter('parentId');
         return batchId !== undefined && batchId !== null;
-    } 
+    }
     static recordIdParamExist() {
         const recordId = this.getURLParameter('recordId');
         return recordId !== undefined && recordId !== null;
@@ -123,20 +123,24 @@ class UrlUtils {
     static notDefinedPrefix(urlPrefix) {
         return urlPrefix === undefined || urlPrefix == null || urlPrefix === '';
     }
+    static getIdFromUrlOrAlternative(alternativeId) {
+        const id = this.getIdFromUrl();
+        if (StringUtils.isBlank(id)) {
+            return alternativeId;
+        }
+        return id;
+    }
     static getIdFromUrl() {
         let splittedUrlByWildcard = window.location.href.split('?')[0];
         let elements = splittedUrlByWildcard.split('/');
         return elements[elements.length - 1];
-    }
-    static isEditRowView() {
-        return window.location.href.includes('edit-row-view');
     }
     static isEditSpec() {
         return window.location.href.includes('edit-spec');
     }
     static isBatch() {
         return window.location.href.includes('batch');
-    } 
+    }
     static isGrid() {
         return window.location.href.includes('grid-view');
     }
@@ -256,8 +260,8 @@ class UrlUtils {
         }
         return newUrl;
     }
-    static cutEverythingFromCurrentUrlAfterWord(word){
-        return window.location.href.split(word)[0]
+    static cutEverythingFromCurrentUrlAfterWord(word) {
+        return window.location.href.split(word)[0];
     }
     static getViewIdFromURL() {
         let url = window.document.URL.toString();

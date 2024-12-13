@@ -1,5 +1,6 @@
-import moment from "moment/moment";
-import { ColumnType } from "../enum/ColumnType";
+import moment from 'moment/moment';
+import {ColumnType} from '../enum/ColumnType';
+import Constants from './Constants';
 
 export class RequestUtils {
     static createObjectDataToRequest(state) {
@@ -48,13 +49,16 @@ export class RequestUtils {
                         field.value = field.value === 'N' || !field.value ? 'N' : 'T';
                         break;
                     case ColumnType.D:
-                        field.value = this.dateFormatAndKeepCorrectness(field.value, 'YYYY-MM-DD');
+                        field.value = this.dateFormatAndKeepCorrectness(field.value, Constants.DATE_FORMAT.YYYY_MM_DD);
                         break;
                     case ColumnType.E:
-                        field.value = this.dateFormatAndKeepCorrectness(field.value, 'YYYY-MM-DD HH:mm');
+                        field.value = this.dateFormatAndKeepCorrectness(
+                            field.value,
+                            Constants.DATE_FORMAT.YYYY_MM_DD_HHmmss
+                        );
                         break;
                     case ColumnType.T:
-                        field.value = this.dateFormatAndKeepCorrectness(field.value, 'HH:mm');
+                        field.value = this.dateFormatAndKeepCorrectness(field.value, Constants.DATE_FORMAT.HHmm);
                         break;
                     default:
                 }

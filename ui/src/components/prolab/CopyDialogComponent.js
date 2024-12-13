@@ -63,7 +63,7 @@ export default class CopyDialogComponent extends React.Component {
                             </div>
                         </React.Fragment>
                     }
-                    style={{height:"390px"}}
+                    style={{height: '390px'}}
                     visible={this.props.visible}
                     resizable={false}
                     onHide={() => this.onHide()}
@@ -103,9 +103,7 @@ export default class CopyDialogComponent extends React.Component {
                                         checked={this.state.copyOptions.specResultsCopy}
                                         onChange={this.handleChangeCopyOptions}
                                     />
-                                    <label style={{color: '#000'}}>
-                                        {LocUtils.loc(this.props.labels, 'Copy_spec_result', 'z wynikami')}
-                                    </label>
+                                    <label style={{color: '#000'}}>{LocUtils.locFromStore('Copy_spec_result')}</label>
                                 </div>
                             </React.Fragment>
                         ) : null}
@@ -117,16 +115,14 @@ export default class CopyDialogComponent extends React.Component {
                                 checked={this.state.copyOptions.copyLastModifiedObject}
                                 onChange={this.handleChangeCopyOptions}
                             />
-                            <label style={{color: '#000'}}>
-                                {LocUtils.loc(this.props.labels, 'Copy_last_modified', 'Kopiuj ostatni zmodyfikowany')}
-                            </label>
+                            <label style={{color: '#000'}}>{LocUtils.locFromStore('Copy_last_modified')}</label>
                         </div>
                         <label style={{color: '#000'}} className='mt-2'>
-                            {LocUtils.loc(this.props.labels, 'Number_of_copy', 'Liczba kopii')}
+                            {LocUtils.locFromStore('Number_of_copy')}
                         </label>
-                      
+
                         <div className='row'>
-                        <InputNumber
+                            <InputNumber
                                 id='numberOfCopy'
                                 name='numberOfCopy'
                                 className='col-12'

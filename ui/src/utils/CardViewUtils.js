@@ -2,7 +2,7 @@ import {CheckBox} from 'devextreme-react';
 import React from 'react';
 import CardImage from '../components/CardImage';
 import {ColumnType} from '../enum/ColumnType';
-import { StringUtils } from './StringUtils';
+import {StringUtils} from './StringUtils';
 
 export class CardViewUtils {
     static cellTemplate(fieldDefinition, rowData, className, type, cardImageClick) {
@@ -20,15 +20,15 @@ export class CardViewUtils {
                         return (
                             <CardImage
                                 alt={alt}
-                                onClick={(e)=>{
-                                    if(cardImageClick){
-                                        e.preventDefault(); 
+                                onClick={(e) => {
+                                    if (cardImageClick) {
+                                        e.preventDefault();
                                         e.stopPropagation();
                                         cardImageClick(rowData[fieldDefinition.fieldName], fieldDefinition.label);
                                     }
                                 }}
                                 style={{
-                                    cursor: "pointer",
+                                    cursor: 'pointer',
                                     backgroundColor: bgColor === undefined ? rowData._BGCOLOR : bgColor,
                                     color: fontColor === undefined ? rowData._FONTCOLOR : fontColor,
                                     display: 'block',
@@ -42,19 +42,19 @@ export class CardViewUtils {
                         return (
                             <CardImage
                                 alt={alt}
-                                onClick={(e)=>{
-                                    if(cardImageClick){
-                                        e.preventDefault(); 
-                                        e.stopPropagation(); 
+                                onClick={(e) => {
+                                    if (cardImageClick) {
+                                        e.preventDefault();
+                                        e.stopPropagation();
                                         cardImageClick(rowData[fieldDefinition.fieldName], fieldDefinition.label);
                                     }
                                 }}
                                 style={{
-                                    cursor: "pointer",
+                                    cursor: 'pointer',
                                     backgroundColor: bgColor === undefined ? rowData._BGCOLOR : bgColor,
                                     color: fontColor === undefined ? rowData._FONTCOLOR : fontColor,
                                     display: 'block',
-                                    maxWidth: type === 'IMG' ? '33%' : type === 'BODY_WITH_IMG' ? '67%' : '100%',
+                                    maxWidth: type === 'IMG' ? '32%' : type === 'BODY_WITH_IMG' ? '67%' : '100%',
                                 }}
                                 className={className}
                                 base64={rowData[fieldDefinition.fieldName]}
@@ -84,8 +84,13 @@ export class CardViewUtils {
                                 maxWidth: type === 'IMG' ? '33%' : type === 'BODY_WITH_IMG' ? '67%' : '100%',
                             }}
                             className={className}
-                            title={rowData[fieldDefinition.fieldName]}
-                            dangerouslySetInnerHTML={{__html: StringUtils.truncateText(StringUtils.textFromHtmlString(rowData[fieldDefinition.fieldName]),300 )  }}
+                            title={StringUtils.textFromHtmlString(rowData[fieldDefinition?.fieldName])}
+                            dangerouslySetInnerHTML={{
+                                __html: StringUtils.truncateText(
+                                    StringUtils.textFromHtmlString(rowData[fieldDefinition.fieldName]),
+                                    300
+                                ),
+                            }}
                         ></span>
                     );
             }
@@ -98,8 +103,7 @@ export class CardViewUtils {
                         maxWidth: type === 'IMG' ? '33%' : type === 'BODY_WITH_IMG' ? '67%' : '100%',
                     }}
                     className={className}
-                    title={rowData[fieldDefinition.fieldName]}
-                    // eslint-disable-next-line
+                    title={StringUtils.textFromHtmlString(rowData[fieldDefinition?.fieldName])}
                     dangerouslySetInnerHTML={{__html: rowData[fieldDefinition.fieldName]}}
                 ></span>
             );

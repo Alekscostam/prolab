@@ -3,7 +3,7 @@ import moment from 'moment';
 import ConsoleHelper from '../ConsoleHelper';
 import LocUtils from '../LocUtils';
 import {ColumnType} from '../../enum/ColumnType';
-import { StringUtils } from '../StringUtils';
+import {StringUtils} from '../StringUtils';
 
 export class ViewDataCompUtils {
     static getURLParameters(paramName) {
@@ -74,7 +74,7 @@ export class ViewDataCompUtils {
                 case ColumnType.E:
                     return Constants.DATE_FORMAT.DATE_TIME_FORMAT;
                 case ColumnType.T:
-                    return Constants.DATE_FORMAT.TIME_FORMAT;
+                    return Constants.DATE_FORMAT.HHmm;
                 default:
                     return undefined;
             }
@@ -120,7 +120,7 @@ export class ViewDataCompUtils {
             // ConsoleHelper('equalNumbers: result=' + true + ' {' + n1 + ', ' + n2 + '}' );
             return true;
         }
-        if(StringUtils.isEmptyString(n1) && StringUtils.isEmptyString(n2)){
+        if (StringUtils.isEmptyString(n1) && StringUtils.isEmptyString(n2)) {
             return true;
         }
         let num1, num2;
@@ -198,25 +198,22 @@ export class ViewDataCompUtils {
             return undefined;
         }
     }
-    static operationsColumnLength(operationsRecord,operationsRecordList, addButtonExists){
-        const result = 10 + (33 * operationsRecord.length + (operationsRecordList?.length > 0 ? 33 : 0)) ;
-        if(addButtonExists){
-            if(result < 80)
-                return 90  
+    static operationsColumnLength(operationsRecord, operationsRecordList, addButtonExists) {
+        const result = 10 + (33 * operationsRecord.length + (operationsRecordList?.length > 0 ? 33 : 0));
+        if (addButtonExists) {
+            if (result < 80) return 90;
+        } else {
+            if (result < 50) return 110;
         }
-        else{
-            if(result < 50)
-                return 110  
-        }
-        return result ;
+        return result;
     }
-    
+
     static formatDateFilterExpression(type, value) {
         const dateMoment = moment(value);
         if (type === ColumnType.D) {
-            return dateMoment.format(Constants.DATE_FORMAT.DATE_FORMAT_MOMENT);
+            return dateMoment.format(Constants.DATE_FORMAT.YYYY_MM_DD);
         } else if (type === ColumnType.E) {
-            return dateMoment.format(Constants.DATE_FORMAT.DATE_TIME_FORMAT_MOMENT);
+            return dateMoment.format(Constants.DATE_FORMAT.YYYY_MM_DD_HHmm);
         } else {
             throw new Error('BAD_TYPE');
         }

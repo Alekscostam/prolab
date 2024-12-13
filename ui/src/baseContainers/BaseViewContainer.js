@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import BaseContainer from '../baseContainers/BaseContainer';
 import ActionButtonWithMenu from '../components/prolab/ActionButtonWithMenu';
-import EditRowComponent from '../components/prolab/EditRowComponent';
+import FullScreenDialogComponent from '../components/prolab/FullScreenDialogComponent';
 import HeadPanel from '../components/prolab/HeadPanel';
 import ShortcutsButton from '../components/prolab/ShortcutsButton';
 import CrudService from '../services/CrudService';
@@ -46,14 +46,18 @@ import ReactDOM from 'react-dom';
 import {QrCodesDialogComponent} from '../components/prolab/QrCodesDialogComponent';
 import ActionShortcutWithoutMenu from '../components/prolab/ActionShortcutWithoutMenu';
 import SelectedElements from '../components/SelectedElements';
-import { ResponseUtils } from '../utils/ResponseUtils';
-import { ViewUtils } from '../utils/ViewUtils';
-import { PDFViewerDialogComponent } from '../components/prolab/PDFViewerDialogComponent';
-import { ExcelEditorDialogComponent } from '../components/prolab/ExcelEditorDialogComponent';
+import {ResponseUtils} from '../utils/ResponseUtils';
+import {ViewUtils} from '../utils/ViewUtils';
+import {PDFViewerDialogComponent} from '../components/prolab/PDFViewerDialogComponent';
 import FileTypeUtils from '../utils/FileTypeUtils';
-import { DocxViewerDialogComponent } from '../components/prolab/DocxViewerDialogComponent';
-import { TranslationUtils } from '../utils/TranslationUtils';
-import { ConfirmPluginDialogComponent } from '../components/prolab/ConfirmPluginDialogComponent';
+import {TranslationUtils} from '../utils/TranslationUtils';
+import {ConfirmPluginDialogComponent} from '../components/prolab/ConfirmPluginDialogComponent';
+import {EditFormType} from '../enum/EditFormType';
+import EditRowComponent from '../components/prolab/EditRowComponent';
+import CodeService from '../services/CodeService';
+import {ArrayUtils} from '../utils/ArrayUtils';
+import {CodeOperationType} from '../enum/CodeOperationType';
+import {handleEdit, handleEditSpec} from '../utils/handler/EditHandler';
 
 let dataGrid;
 
@@ -69,6 +73,7 @@ export class BaseViewContainer extends BaseContainer {
         this.crudService = new CrudService();
         this.dataGridStore = new DataGridStore();
         this.dataCardStore = new DataCardStore();
+        this.codeService = new CodeService();
         this.dataGanttStore = new DataGanttStore();
         this.dataPluginStore = new DataPluginStore();
         this.dataHistoryLogStore = new DataHistoryLogStore();
@@ -81,8 +86,8 @@ export class BaseViewContainer extends BaseContainer {
         this.isAttachement = false;
         this.state = {
             loading: true,
-            fileViewer:{
-                dialogEnabled:false,
+            fileViewer: {
+                dialogEnabled: false,
                 file: undefined,
                 name: undefined,
                 type: '',
@@ -154,7 +159,6 @@ export class BaseViewContainer extends BaseContainer {
     }
 
     componentDidMount() {
-        
         this._isMounted = true;
         const subViewId = UrlUtils.getSubViewId();
         const recordId = this.props.recordId || UrlUtils.getRecordId();
@@ -209,7 +213,7 @@ export class BaseViewContainer extends BaseContainer {
             });
         }
     }
-// czasami tutaj leci w nieskonczonosc update
+
     componentDidUpdate(prevProps, prevState, snapshot) {
         let id = UrlUtils.getIdFromUrl();
         if (id === undefined) {
@@ -270,19 +274,21 @@ export class BaseViewContainer extends BaseContainer {
     }
 
     registerKeydownEvent() {
-        window.addEventListener('keydown',this.keyDownFunction);
+        window.addEventListener('keydown', this.keyDownFunction);
     }
     unregisterKeydownEvent() {
         window.removeEventListener('keydown', this.keyDownFunction);
     }
-
+    // KODZIK TESTOWY
     keyDownFunction = (event) => {
-        if (event.ctrlKey && event.key === 'k') {
-            event.preventDefault();
-            this.setState({qrCodesDialog: true});
+        const findKey = this.state?.parsedGridView?.options?.findKey;
+        if (!StringUtils.isBlank(findKey)) {
+            if (event.ctrlKey && event.key === 'k') {
+                event.preventDefault();
+                this.setState({qrCodesDialog: true});
+            }
         }
     };
-
     componentWillUnmount() {
         super.componentWillUnmount();
         if (window?.dataGrid) {
@@ -421,68 +427,130 @@ export class BaseViewContainer extends BaseContainer {
                 return null;
         }
     }
+    handleQrCodeResponse = (result) => {
+        const viewId = UrlUtils.getIdFromUrlOrAlternative(this.props.id);
+        const kindView = UrlUtils.getKindView();
+        const parentId = UrlUtils.getParentId();
+        switch (result.operation) {
+            case CodeOperationType.EDIT:
+                this.blockUi();
+                handleEdit(
+                    this.crudService,
+                    viewId,
+                    result.listId[0],
+                    parentId,
+                    kindView,
+                    (res) => this.handleShowEditPanel(res),
+                    () => this.handleUnBlockUi(),
+                    (err) => this.showErrorMessage(err)
+                );
+                this.setState({
+                    qrCodesDialog: false,
+                });
+                break;
+            case CodeOperationType.EDIT_SPEC:
+                this.blockUi();
+                handleEditSpec(
+                    viewId,
+                    parentId,
+                    result.listId[0],
+                    Breadcrumb.currentBreadcrumbAsUrlParam(),
+                    this.state.parsedGridView,
+                    () => this.handleUnBlockUi(),
+                    (err) => this.showErrorMessage(err)
+                );
+                break;
+            default:
+                break;
+        }
+    };
+    onHideEditPanel = (e, viewId, recordId, parentId) => {
+        if (!!this.state.modifyEditData) {
+            const confirmDialogWrapper = document.createElement('div');
+            confirmDialogWrapper.className = 'confirm-dialog';
+            document.body.appendChild(confirmDialogWrapper);
+            ReactDOM.render(
+                <ConfirmDialog
+                    closable={false}
+                    visible={true}
+                    message={LocUtils.loc(
+                        this.props.labels,
+                        'Question_Close_Edit',
+                        'Czy na pewno chcesz zamknąć edycję?'
+                    )}
+                    header={LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie')}
+                    icon='pi pi-exclamation-triangle'
+                    acceptLabel={localeOptions('accept')}
+                    rejectLabel={localeOptions('reject')}
+                    accept={() => {
+                        this.handleCancelRowChange(viewId, recordId, parentId);
+                        this.setState({visibleEditPanel: false});
+                        document.body.removeChild(confirmDialogWrapper);
+                    }}
+                    reject={() => {
+                        document.body.removeChild(confirmDialogWrapper);
+                    }}
+                />,
+                confirmDialogWrapper
+            );
+        } else {
+            this.setState({visibleEditPanel: e}, () => {
+                this.handleCancelRowChange(viewId, recordId, parentId);
+            });
+        }
+    };
 
     renderGlobalTop() {
         const {parsedPluginView} = this.state;
+        const formType = this.state.editData?.editInfo?.editFormType;
         return (
             <React.Fragment>
                 {this.state.visibleEditPanel ? (
-                    <EditRowComponent
-                        visibleEditPanel={this.state.visibleEditPanel}
-                        editData={this.state.editData}
-                        kindView={this.state.elementKindView}
-                        onChange={this.handleEditRowChange}
-                        onBlur={this.handleEditRowBlur}
-                        onSave={this.handleEditRowSave}
-                        onAutoFill={this.handleAutoFillRowChange}
-                        onEditList={this.handleEditListRowChange}
-                        onCancel={this.handleCancelRowChange}
-                        validator={this.validator}
-                        copyData={this.state.copyData}
-                        onCloseCustom={() => {
-                            this.setState({
-                                visibleEditPanel: false,
-                            });
-                        }}
-                        onHide={(e, viewId, recordId, parentId) => {
-                            if (!!this.state.modifyEditData) {
-                                const confirmDialogWrapper = document.createElement('div');
-                                confirmDialogWrapper.className="confirm-dialog";
-                                document.body.appendChild(confirmDialogWrapper);
-                                ReactDOM.render(
-                                    <ConfirmDialog
-                                        closable={false}
-                                        visible={true}
-                                        message={LocUtils.loc(
-                                            this.props.labels,
-                                            'Question_Close_Edit',
-                                            'Czy na pewno chcesz zamknąć edycję?'
-                                        )}
-                                        header={LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie')}
-                                        icon='pi pi-exclamation-triangle'
-                                        acceptLabel={localeOptions('accept')}
-                                        rejectLabel={localeOptions('reject')}
-                                        accept={() => {
-                                            this.handleCancelRowChange(viewId, recordId, parentId);
-                                            this.setState({visibleEditPanel: false});
-                                            document.body.removeChild(confirmDialogWrapper);
-                                        }}
-                                        reject={() => {
-                                            document.body.removeChild(confirmDialogWrapper);
-                                        }}
-                                    />,
-                                    confirmDialogWrapper
-                                );
-                            } else {
-                                this.setState({visibleEditPanel: e}, () => {
-                                    this.handleCancelRowChange(viewId, recordId, parentId);
+                    !StringUtils.isBlank(formType) && formType.toUpperCase() === EditFormType.FULLSCREEN ? (
+                        <FullScreenDialogComponent
+                            visibleEditPanel={this.state.visibleEditPanel}
+                            editData={this.state.editData}
+                            kindView={this.state.elementKindView}
+                            onChange={this.handleEditRowChange}
+                            onBlur={this.handleEditRowBlur}
+                            onSave={this.handleEditRowSave}
+                            onAutoFill={this.handleAutoFillRowChange}
+                            onEditList={this.handleEditListRowChange}
+                            onCancel={this.handleCancelRowChange}
+                            validator={this.validator}
+                            onHide={(e, viewId, recordId, parentId) => {
+                                this.onHideEditPanel(e, viewId, recordId, parentId);
+                            }}
+                            onError={(e) => this.showErrorMessage(e)}
+                            labels={this.props.labels}
+                            showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
+                        />
+                    ) : (
+                        <EditRowComponent
+                            visibleEditPanel={this.state.visibleEditPanel}
+                            editData={this.state.editData}
+                            kindView={this.state.elementKindView}
+                            onChange={this.handleEditRowChange}
+                            onBlur={this.handleEditRowBlur}
+                            onSave={this.handleEditRowSave}
+                            onAutoFill={this.handleAutoFillRowChange}
+                            onEditList={this.handleEditListRowChange}
+                            onCancel={this.handleCancelRowChange}
+                            validator={this.validator}
+                            copyData={this.state.copyData}
+                            onCloseCustom={() => {
+                                this.setState({
+                                    visibleEditPanel: false,
                                 });
-                            }
-                        }}
-                        onError={(e) => this.showErrorMessage(e)}
-                        labels={this.props.labels}
-                        showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
-                    />
+                            }}
+                            onHide={(e, viewId, recordId, parentId) => {
+                                this.onHideEditPanel(e, viewId, recordId, parentId);
+                            }}
+                            onError={(e) => this.showErrorMessage(e)}
+                            labels={this.props.labels}
+                            showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
+                        />
+                    )
                 ) : null}
                 {this.state.visibleDocumentPanel ? (
                     <DocumentRowComponent
@@ -658,8 +726,8 @@ export class BaseViewContainer extends BaseContainer {
 
                 {this.state.visibleMessagePluginPanel ? (
                     <ConfirmPluginDialogComponent
-                        parsedPluginView ={parsedPluginView}
-                        labels ={this.props.labels}
+                        parsedPluginView={parsedPluginView}
+                        labels={this.props.labels}
                         onAccept={() => {
                             const refreshAll = parsedPluginView?.viewOptions?.refreshAll;
                             if (this.state.isPluginFirstStep) {
@@ -690,21 +758,21 @@ export class BaseViewContainer extends BaseContainer {
     }
     async executeDocument(data, viewId, elementId, parentId, recordId) {
         const idRowKeys = this.state.selectedRowKeys.map((el) => el.ID);
-        const requestBody = recordId ? {listId: [recordId],  data:data} : {
-            // listId: StringUtils.isBlank(data) && idRowKeys.length === 0 ? [elementId] : idRowKeys,
-            listId: idRowKeys.length === 0 ? [elementId] : idRowKeys,
-            data: data,
-        };
+        const requestBody = recordId
+            ? {listId: [recordId], data: data}
+            : {
+                  listId: idRowKeys.length === 0 ? [elementId] : idRowKeys,
+                  data: data,
+              };
         let info = undefined;
         this.blockUi();
         await this.crudService
             .executeDocument(requestBody, viewId, elementId, parentId)
             .then((res) => {
                 if (!res?.info?.fileId) {
-                    this.showGlobalErrorMessage(res?.message?.text, undefined, res?.message?.title);
+                    this.showSuccessMessage(res?.message?.text, undefined, res?.message?.title);
                 }
                 info = res?.info;
-
             })
             .catch((ex) => {
                 this.showGlobalErrorMessage(ex);
@@ -712,37 +780,40 @@ export class BaseViewContainer extends BaseContainer {
             });
         const fileId = info?.fileId;
         const fileName = info?.fileName;
-        const isDownload =  StringUtils.isBlank(info?.isDownload) ? false : info.isDownload;
+        const isDownload = StringUtils.isBlank(info?.isDownload) ? false : info.isDownload;
         if (isDownload) {
             this.crudService.downloadDocument(viewId, elementId, fileId, fileName);
             this.setState({
                 visibleDocumentPanel: false,
             });
         }
-        const isPreview =  StringUtils.isBlank(info?.isPreview) ? false : info.isPreview;
-        if(isPreview){
-            this.showDocumentViewer(viewId, elementId, fileId, fileName)
+        const isPreview = StringUtils.isBlank(info?.isPreview) ? false : info.isPreview;
+        if (isPreview) {
+            this.showDocumentViewer(viewId, elementId, fileId, fileName);
         }
         this.unblockUi();
     }
-    showDocumentViewer = (viewId, elementId, fileId, fileName) =>{
-        this.crudService.getStreamResponseBodyFromDownload(viewId, elementId, fileId, fileName).then(res=>{
-            const realName =   (fileName ? fileName : '');
-            const name =   (fileName ? fileName : '').toUpperCase();
-            const type =  FileTypeUtils.getFileType(name) 
-            this.setState({
-                fileViewer:{
-                    dialogEnabled:true,
-                    file: res.body,
-                    name: realName,
-                    type:type
-                },
+    showDocumentViewer = (viewId, elementId, fileId, fileName) => {
+        this.crudService
+            .getStreamResponseBodyFromDownload(viewId, elementId, fileId, fileName)
+            .then((res) => {
+                const realName = fileName ? fileName : '';
+                const name = (fileName ? fileName : '').toUpperCase();
+                const type = FileTypeUtils.getFileType(name);
+                this.setState({
+                    fileViewer: {
+                        dialogEnabled: true,
+                        file: res.body,
+                        name: realName,
+                        type: type,
+                    },
+                });
             })
-        }).catch(error=>{
-            this.showGlobalErrorMessage(error)
-        });
-    }
- 
+            .catch((error) => {
+                this.showGlobalErrorMessage(error);
+            });
+    };
+
     //override
     renderHeaderRight() {
         return <React.Fragment />;
@@ -1100,27 +1171,31 @@ export class BaseViewContainer extends BaseContainer {
         const canViewHeaderPanel = ViewUtils.canViewHeaderPanel(this.state?.parsedGridView);
         return (
             <React.Fragment>
-            {canViewHeaderPanel ? <HeadPanel
-                    elementId={this.state.elementId}
-                    elementRecordId={this.state.elementRecordId}
-                    elementSubViewId={this.state.elementSubViewId}
-                    elementKindView={this.state.elementKindView}
-                    labels={this.props.labels}
-                    selectedRowKeys={this.state.selectedRowKeys}
-                    operations={operations}
-                    leftContent={this.leftHeadPanelContent()}
-                    rightContent={this.rightHeadPanelContent()}
-                    handleFormula={() =>this.prepareCalculateFormula()}
-                    handleDelete={() => this.delete()}
-                    handleRestore={() => this.restore()}
-                    handleCopy={() => this.showCopyView()}
-                    handleDownload={() => this.downloadAttachment()}
-                    handleArchive={() => this.archive()}
-                    handlePublish={() => this.publishEntry()}
-                    handleUnblockUi={() => this.unblockUi()}
-                    showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
-                    handleBlockUi={() => this.blockUi()}
-                /> : <div className='mb-2'></div>}        
+                {canViewHeaderPanel ? (
+                    <HeadPanel
+                        elementId={this.state.elementId}
+                        elementRecordId={this.state.elementRecordId}
+                        elementSubViewId={this.state.elementSubViewId}
+                        elementKindView={this.state.elementKindView}
+                        labels={this.props.labels}
+                        selectedRowKeys={this.state.selectedRowKeys}
+                        operations={operations}
+                        leftContent={this.leftHeadPanelContent()}
+                        rightContent={this.rightHeadPanelContent()}
+                        handleFormula={() => this.prepareCalculateFormula()}
+                        handleDelete={() => this.delete()}
+                        handleRestore={() => this.restore()}
+                        handleCopy={() => this.showCopyView()}
+                        handleDownload={() => this.downloadAttachment()}
+                        handleArchive={() => this.archive()}
+                        handlePublish={() => this.publishEntry()}
+                        handleUnblockUi={() => this.unblockUi()}
+                        showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
+                        handleBlockUi={() => this.blockUi()}
+                    />
+                ) : (
+                    <div className='mb-2'></div>
+                )}
             </React.Fragment>
         );
     };
@@ -1148,12 +1223,10 @@ export class BaseViewContainer extends BaseContainer {
                             undefined,
                             undefined,
                             undefined,
-                            (totalCounts)=>{
-                                this.setState(
-                                    {
-                                        totalCounts: totalCounts,
-                                    }
-                                );
+                            (totalCounts) => {
+                                this.setState({
+                                    totalCounts: totalCounts,
+                                });
                             }
                         )
                         .then((result) => {
@@ -1328,7 +1401,7 @@ export class BaseViewContainer extends BaseContainer {
                         }
                     },
                     () => this.unblockUi(),
-                    () => this.unblockUi(),
+                    () => this.unblockUi()
                 );
             })
             .catch((err) => {
@@ -1369,7 +1442,7 @@ export class BaseViewContainer extends BaseContainer {
                                 }
                             },
                             () => this.unblockUi(),
-                            () => this.unblockUi(),
+                            () => this.unblockUi()
                         );
                     })
                     .catch((err) => {
@@ -1388,34 +1461,37 @@ export class BaseViewContainer extends BaseContainer {
         this.blockUi();
         const parentId = e.parentId || this.state.elementRecordId;
         const kindView = this.state.elementKindView;
-        this.crudService.editEntry(e.viewId, e.recordId, parentId, kindView).then((entryResponse) => {
-            EntryResponseHelper.run(
-                entryResponse,
-                () => {
-                    if (!!entryResponse.next) {
-                        this.crudService
-                            .edit(e.viewId, e.recordId, parentId, kindView)
-                            .then((editDataResponse) => {
-                                this.setState({
-                                    visibleEditPanel: true,
-                                    editData: editDataResponse,
+        this.crudService
+            .editEntry(e.viewId, e.recordId, parentId, kindView)
+            .then((entryResponse) => {
+                EntryResponseHelper.run(
+                    entryResponse,
+                    () => {
+                        if (!!entryResponse.next) {
+                            this.crudService
+                                .edit(e.viewId, e.recordId, parentId, kindView)
+                                .then((editDataResponse) => {
+                                    this.setState({
+                                        visibleEditPanel: true,
+                                        editData: editDataResponse,
+                                    });
+                                    this.unblockUi();
+                                })
+                                .catch((err) => {
+                                    this.showGlobalErrorMessage(err);
                                 });
-                                this.unblockUi();
-                            })
-                            .catch((err) => {
-                                this.showGlobalErrorMessage(err);
-                            });
-                    } else {
-                        this.unblockUi();
-                    }
-                },
-                () => this.unblockUi(),
-                () => this.unblockUi()
-            );
-        }).catch((err)=>{
+                        } else {
+                            this.unblockUi();
+                        }
+                    },
+                    () => this.unblockUi(),
+                    () => this.unblockUi()
+                );
+            })
+            .catch((err) => {
                 this.showGlobalErrorMessage(err);
                 this.unblockUi();
-        });
+            });
     }
 
     refreshGanttData = () => {
@@ -1428,7 +1504,7 @@ export class BaseViewContainer extends BaseContainer {
             return c.sortIndex === 1;
         })[0];
         this.loadGanttData(viewIdArg, parentIdArg, filterIdArg, kindViewArg, loadSortOptions);
-    }
+    };
 
     loadGanttData(viewIdArg, parentIdArg, filterIdArg, kindViewArg, loadSortOptions) {
         this.setState({loading: true}, () => {
@@ -1450,12 +1526,10 @@ export class BaseViewContainer extends BaseContainer {
                 parentIdArg,
                 filterIdArg,
                 kindViewArg,
-                (totalCounts)=>{
-                    this.setState(
-                        {
-                            totalCounts: totalCounts,
-                        }
-                    );
+                (totalCounts) => {
+                    this.setState({
+                        totalCounts: totalCounts,
+                    });
                 }
             );
             if (!!res) {
@@ -1467,22 +1541,26 @@ export class BaseViewContainer extends BaseContainer {
             this.unblockUi();
         });
     }
-    renderFileViewer = () =>{
-        const onHide = ()=>{ this.setState({
-            fileViewer:{
-                dialogEnabled: false,
-                file:undefined,
-                name:undefined,
-                type:''
-            }  
-        })};
-        return  <PDFViewerDialogComponent
-        onHide={onHide}
-        name={this.state.fileViewer.name}
-        file={this.state.fileViewer.file}
-        labels={this.props.labels}
-    />
-    }
+    renderFileViewer = () => {
+        const onHide = () => {
+            this.setState({
+                fileViewer: {
+                    dialogEnabled: false,
+                    file: undefined,
+                    name: undefined,
+                    type: '',
+                },
+            });
+        };
+        return (
+            <PDFViewerDialogComponent
+                onHide={onHide}
+                name={this.state.fileViewer.name}
+                file={this.state.fileViewer.file}
+                labels={this.props.labels}
+            />
+        );
+    };
     //override
     renderContent = () => {
         return (
@@ -1498,7 +1576,15 @@ export class BaseViewContainer extends BaseContainer {
                             : this.isDashboard()
                             ? this.renderDashboardViewComponent()
                             : null}
-                     {!this.isDashboard() && <SelectedElements selectedRowKeys={this.state.selectedRowKeys} totalCounts={this.state.totalCounts} /> }   
+                        {!this.isDashboard() && (
+                            <SelectedElements
+                                selectedRowKeys={this.state.selectedRowKeys}
+                                totalCounts={this.state.totalCounts}
+                            />
+                        )}
+                        {/* pusty - 0000614/19 */}
+                        {/* edit  - 0000612/19 */}
+                        {/* edit spec  - 0000607/19 */}
                         {this.state.qrCodesDialog && (
                             <QrCodesDialogComponent
                                 onHide={() =>
@@ -1506,20 +1592,53 @@ export class BaseViewContainer extends BaseContainer {
                                         qrCodesDialog: false,
                                     })
                                 }
+                                findCode={(code) => {
+                                    const viewId = UrlUtils.getIdFromUrlOrAlternative(this.props.id);
+                                    const kindView = UrlUtils.getKindView();
+                                    const parentId = UrlUtils.getParentId();
+                                    const filterId = UrlUtils.getFilterId();
+                                    const body = {
+                                        filter: null,
+                                        filterId: StringUtils.isBlank(filterId) ? 0 : filterId,
+                                        barCode: code,
+                                        value: '',
+                                    };
+                                    this.blockUi();
+                                    this.codeService
+                                        .find(viewId, parentId, kindView, body)
+                                        .then((result) => {
+                                            if (ArrayUtils.isEmpty(result.listId) || result.operation === '') {
+                                                this.showErrorMessage(
+                                                    result.message?.text,
+                                                    undefined,
+                                                    false,
+                                                    result.message?.title
+                                                );
+                                                this.unblockUi();
+                                                return;
+                                            }
+                                            this.handleQrCodeResponse(result);
+                                        })
+                                        .catch((ex) => {
+                                            this.unblockUi();
+                                            this.showGlobalErrorMessage(ex);
+                                        });
+                                }}
                                 labels={this.props.labels}
                             />
                         )}
-                       {this.state.fileViewer?.dialogEnabled && this.renderFileViewer()}
+                        {this.state.fileViewer?.dialogEnabled && this.renderFileViewer()}
                     </React.Fragment>
                 )}
             </React.Fragment>
         );
     };
+
     renderDashboardViewComponent = () => {
         const {labels} = this.props;
         return (
             <React.Fragment>
-                <div className='col-12 ' >{Breadcrumb.render(labels)}   </div>
+                <div className='col-12 '>{Breadcrumb.render(labels)} </div>
                 <DashboardContainer
                     key={'Dashboard'}
                     dashboard={this.state.subView}
@@ -1530,7 +1649,24 @@ export class BaseViewContainer extends BaseContainer {
                 />
             </React.Fragment>
         );
-    }
+    };
+    handleSelectRow = (rowDataKeys, callBack) => {
+        const prevDataGridGlobalReference = this.state?.prevDataGridGlobalReference;
+        if (prevDataGridGlobalReference) {
+            window.dataGrid = prevDataGridGlobalReference;
+            dataGrid = prevDataGridGlobalReference;
+        }
+        this.setState(
+            {
+                selectedRowKeys: rowDataKeys,
+                prevDataGridGlobalReference: null,
+            },
+            () => {
+                if (callBack) callBack();
+            }
+        );
+    };
+
     renderGridViewComponent = () => {
         const parentIdArg = this.state.subView == null ? UrlUtils.getParentId() : this.state.elementRecordId;
         return (
@@ -1558,6 +1694,9 @@ export class BaseViewContainer extends BaseContainer {
                         this.blockUi();
                         return true;
                     }}
+                    handleSelectSingleRow={(rowId, callBack) => {
+                        this.handleSelectRow([{ID: String(rowId)}], callBack);
+                    }}
                     handleUnselectAll={() => {
                         this.setState({
                             selectedRowKeys: [],
@@ -1570,16 +1709,8 @@ export class BaseViewContainer extends BaseContainer {
                     handleShowEditPanel={(editDataResponse) => {
                         this.handleShowEditPanel(editDataResponse);
                     }}
-                    handleSelectRows={(rowData) => {
-                        const prevDataGridGlobalReference = this.state?.prevDataGridGlobalReference;
-                        if (prevDataGridGlobalReference) {
-                            window.dataGrid = prevDataGridGlobalReference;
-                            dataGrid = prevDataGridGlobalReference;
-                        }
-                        this.setState({
-                            selectedRowKeys: rowData,
-                            prevDataGridGlobalReference: null,
-                        });
+                    handleSelectRows={(rowData, callback) => {
+                        this.handleSelectRow(rowData, callback);
                     }}
                     handleSelectAll={(selectionValue) => {
                         this.blockUi();
@@ -1610,7 +1741,6 @@ export class BaseViewContainer extends BaseContainer {
                         } else {
                             if (selectionValue) this.selectAllDataGrid(selectionValue);
                             else this.unselectAllDataGrid(selectionValue);
-                            
                         }
                     }}
                     handleFormulaRow={(id) => {
@@ -1628,7 +1758,7 @@ export class BaseViewContainer extends BaseContainer {
                     handleCopyRow={(id) => this.showCopyView(id)}
                     handleArchiveRow={(id) => this.archive(id)}
                     handlePublishRow={(id) => this.publishEntry(id)}
-                />                 
+                />
             </React.Fragment>
         );
     };
@@ -1646,6 +1776,11 @@ export class BaseViewContainer extends BaseContainer {
                     <CardViewInfiniteComponent
                         id={parseInt(viewIdArg)}
                         ref={this.refCardGrid}
+                        handleTotalCounts={(totalCounts) => {
+                            this.setState({
+                                totalCounts: totalCounts,
+                            });
+                        }}
                         gridViewType={this.state.gridViewType}
                         elementSubViewId={this.state.elementSubViewId}
                         elementKindView={this.state.elementKindView}
@@ -1667,7 +1802,13 @@ export class BaseViewContainer extends BaseContainer {
                             return true;
                         }}
                         selectedRowKeys={this.state.selectedRowKeys}
-                        handleSelectedRowKeys={(e) => this.setState({selectedRowKeys: e})}
+                        handleSelectedRowKeys={(e, callBack) =>
+                            this.setState({selectedRowKeys: e}, () => {
+                                if (callBack) {
+                                    callBack();
+                                }
+                            })
+                        }
                         collapsed={this.props.collapsed}
                         kindView={kindViewArg}
                         parentId={parentIdArg}
@@ -1676,8 +1817,8 @@ export class BaseViewContainer extends BaseContainer {
                             this.prepareCalculateFormula(id);
                         }}
                         handleHistoryLogRow={(id) => this.historyLog(id)}
-                        handlePluginRow={(id,recordId) => this.plugin(id,recordId)}
-                        handleDocumentRow={(id,recordId) => this.generate(id,recordId)}
+                        handlePluginRow={(id, recordId) => this.plugin(id, recordId)}
+                        handleDocumentRow={(id, recordId) => this.generate(id, recordId)}
                         handleDeleteRow={(id) => this.delete(id)}
                         handleAttachmentRow={(id) => this.attachment(id)}
                         handleDownloadRow={(id) => this.downloadAttachment(id)}
@@ -1690,6 +1831,7 @@ export class BaseViewContainer extends BaseContainer {
             </React.Fragment>
         );
     };
+    // TODO: pokazuje biale tlo po wykonaniu operacji na akrcie i dopeiro potem wyswietla te karty
     renderGanttViewComponent = () => {
         return (
             <React.Fragment>
@@ -1700,6 +1842,7 @@ export class BaseViewContainer extends BaseContainer {
                             selectedRowKeys: [],
                         });
                     }}
+                    labels={this.props.labels}
                     collapsed={this.props.collapsed}
                     elementSubViewId={this.state.elementSubViewId}
                     elementKindView={this.state.elementKindView}
@@ -1740,14 +1883,18 @@ export class BaseViewContainer extends BaseContainer {
                     handleShowEditPanel={(editDataResponse) => {
                         this.handleShowEditPanel(editDataResponse);
                     }}
-                    handleSelectedRowKeys={(e) => {
-                        this.setState({selectedRowKeys: e});
+                    handleSelectedRowKeys={(e, callBack) => {
+                        this.setState({selectedRowKeys: e}, () => {
+                            if (callBack) {
+                                callBack();
+                            }
+                        });
                     }}
                     addButtonFunction={this.addButtonFunction}
                     dataGridStoreSuccess={this.state.dataGridStoreSuccess}
                     selectionDeferred={true}
-                    handlePluginRow={(id,recordId) => this.plugin(id,recordId)}
-                    handleDocumentRow={(id,recordId) => this.generate(id,recordId)}
+                    handlePluginRow={(id, recordId) => this.plugin(id, recordId)}
+                    handleDocumentRow={(id, recordId) => this.generate(id, recordId)}
                     handleDeleteRow={(id) => this.delete(id)}
                     handleDownloadRow={(id) => this.downloadAttachment(id)}
                     handleAttachmentRow={(id) => this.attachment(id)}

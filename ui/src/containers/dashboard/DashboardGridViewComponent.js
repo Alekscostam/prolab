@@ -27,9 +27,11 @@ import HistoryLogDialogComponent from '../../components/prolab/HistoryLogDialogC
 import {OperationType} from '../../enum/OperationType';
 import ReactDOM from 'react-dom';
 import {StringUtils} from '../../utils/StringUtils';
-import { ResponseUtils } from '../../utils/ResponseUtils';
-import { TranslationUtils } from '../../utils/TranslationUtils';
-import { ConfirmPluginDialogComponent } from '../../components/prolab/ConfirmPluginDialogComponent';
+import {ResponseUtils} from '../../utils/ResponseUtils';
+import {TranslationUtils} from '../../utils/TranslationUtils';
+import {ConfirmPluginDialogComponent} from '../../components/prolab/ConfirmPluginDialogComponent';
+import {EditFormType} from '../../enum/EditFormType';
+import FullScreenDialogComponent from '../../components/prolab/FullScreenDialogComponent';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -223,67 +225,94 @@ export class DashboardGridViewComponent extends BaseContainer {
         });
     }
 
+    onHideEditPanel = (e, viewId, recordId, parentId) => {
+        if (!!this.state.modifyEditData) {
+            const confirmDialogWrapper = document.createElement('div');
+            confirmDialogWrapper.className = 'confirm-dialog';
+            document.body.appendChild(confirmDialogWrapper);
+            ReactDOM.render(
+                <ConfirmDialog
+                    visible={true}
+                    closable={false}
+                    message={LocUtils.loc(
+                        this.props.labels,
+                        'Question_Close_Edit',
+                        'Czy na pewno chcesz zamknąć edycję?'
+                    )}
+                    header={LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie')}
+                    icon='pi pi-exclamation-triangle'
+                    acceptLabel={localeOptions('accept')}
+                    rejectLabel={localeOptions('reject')}
+                    accept={() => {
+                        this.handleCancelRowChange(viewId, recordId, parentId);
+                        this.setState({visibleEditPanel: e});
+                        document.body.removeChild(confirmDialogWrapper);
+                    }}
+                    reject={() => {
+                        document.body.removeChild(confirmDialogWrapper);
+                    }}
+                />,
+                confirmDialogWrapper
+            );
+        } else {
+            this.setState({visibleEditPanel: e}, () => {
+                this.handleCancelRowChange(viewId, recordId, parentId);
+            });
+        }
+    };
+
     //override
     renderGlobalTop() {
+        const formType = this.state.editData?.editInfo?.editFormType;
         return (
             <React.Fragment>
                 <React.Fragment>
                     {this.state.visibleEditPanel ? (
-                        <EditRowComponent
-                            visibleEditPanel={this.state.visibleEditPanel}
-                            editData={this.state.editData}
-                            onChange={this.handleEditRowChange}
-                            onBlur={this.handleEditRowBlur}
-                            onSave={this.handleEditRowSave}
-                            onAutoFill={this.handleAutoFillRowChange}
-                            onEditList={this.handleEditListRowChange}
-                            onCancel={this.handleCancelRowChange}
-                            onCloseCustom={() => {
-                                this.setState({
-                                    visibleEditPanel: false,
-                                });
-                            }}
-                            validator={this.validator}
-                            onHide={(e, viewId, recordId, parentId) => {
-                                if (!!this.state.modifyEditData) {
-                                    const confirmDialogWrapper = document.createElement('div');
-                                    confirmDialogWrapper.className="confirm-dialog";
-                                    document.body.appendChild(confirmDialogWrapper);
-                                    ReactDOM.render(
-                                        <ConfirmDialog
-                                            visible={true}
-                                            closable={false}
-                                            message={LocUtils.loc(
-                                                this.props.labels,
-                                                'Question_Close_Edit',
-                                                'Czy na pewno chcesz zamknąć edycję?'
-                                            )}
-                                            header={LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie')}
-                                            icon='pi pi-exclamation-triangle'
-                                            acceptLabel={localeOptions('accept')}
-                                            rejectLabel={localeOptions('reject')}
-                                            accept={() => {
-                                                this.handleCancelRowChange(viewId, recordId, parentId);
-                                                this.setState({visibleEditPanel: e});
-                                                document.body.removeChild(confirmDialogWrapper);
-                                            }}
-                                            reject={() => {
-                                                document.body.removeChild(confirmDialogWrapper);
-                                            }}
-                                        />,
-                                        confirmDialogWrapper
-                                    );
-                                } else {
-                                    this.setState({visibleEditPanel: e}, () => {
-                                        this.handleCancelRowChange(viewId, recordId, parentId);
+                        !StringUtils.isBlank(formType) && formType.toUpperCase() === EditFormType.FULLSCREEN ? (
+                            <FullScreenDialogComponent
+                                visibleEditPanel={this.state.visibleEditPanel}
+                                editData={this.state.editData}
+                                kindView={this.state.elementKindView}
+                                onChange={this.handleEditRowChange}
+                                onBlur={this.handleEditRowBlur}
+                                onSave={this.handleEditRowSave}
+                                onAutoFill={this.handleAutoFillRowChange}
+                                onEditList={this.handleEditListRowChange}
+                                onCancel={this.handleCancelRowChange}
+                                validator={this.validator}
+                                onHide={(e, viewId, recordId, parentId) => {
+                                    this.onHideEditPanel(e, viewId, recordId, parentId);
+                                }}
+                                onError={(e) => this.showErrorMessage(e)}
+                                labels={this.props.labels}
+                                showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
+                            />
+                        ) : (
+                            <EditRowComponent
+                                visibleEditPanel={this.state.visibleEditPanel}
+                                editData={this.state.editData}
+                                onChange={this.handleEditRowChange}
+                                onBlur={this.handleEditRowBlur}
+                                onSave={this.handleEditRowSave}
+                                onAutoFill={this.handleAutoFillRowChange}
+                                onEditList={this.handleEditListRowChange}
+                                onCancel={this.handleCancelRowChange}
+                                onCloseCustom={() => {
+                                    this.setState({
+                                        visibleEditPanel: false,
                                     });
-                                }
-                            }}
-                            onError={(e) => this.showErrorMessage(e)}
-                            labels={this.props.labels}
-                            showErrorMessages={(err) => this.customShowErrorMessages(err)}
-                        />
+                                }}
+                                validator={this.validator}
+                                onHide={(e, viewId, recordId, parentId) => {
+                                    this.onHideEditPanel(e, viewId, recordId, parentId);
+                                }}
+                                onError={(e) => this.showErrorMessage(e)}
+                                labels={this.props.labels}
+                                showErrorMessages={(err) => this.customShowErrorMessages(err)}
+                            />
+                        )
                     ) : null}
+
                     {this.state.visibleCopyDialog ? (
                         <CopyDialogComponent
                             visible={this.state.visibleCopyDialog}
@@ -327,17 +356,19 @@ export class DashboardGridViewComponent extends BaseContainer {
                                 });
                                 this.showGlobalErrorMessage(err);
                             }}
-                            handleShowErrorMessages={(err) =>  this.customShowErrorMessages(err)}
-                            handleShowEditPanel={(editDataResponse) =>  this.handleShowEditPanel(editDataResponse)}
+                            handleShowErrorMessages={(err) => this.customShowErrorMessages(err)}
+                            handleShowEditPanel={(editDataResponse) => this.handleShowEditPanel(editDataResponse)}
                             onHide={() => {
                                 this.setState({
                                     attachmentViewInfo: undefined,
                                 });
                             }}
-                            handleViewInfoName={(viewInfoName) =>  this.setState({viewInfoName: viewInfoName})}
+                            handleViewInfoName={(viewInfoName) => this.setState({viewInfoName: viewInfoName})}
                             handleSubView={(subView) => this.setState({subView: subView})}
-                            handleOperations={(operations) =>  this.setState({operations: operations})}
-                            handleShortcutButtons={(shortcutButtons) =>  this.setState({shortcutButtons: shortcutButtons})}
+                            handleOperations={(operations) => this.setState({operations: operations})}
+                            handleShortcutButtons={(shortcutButtons) =>
+                                this.setState({shortcutButtons: shortcutButtons})
+                            }
                             collapsed={this.state.collapsed}
                         />
                     ) : null}
@@ -646,8 +677,8 @@ export class DashboardGridViewComponent extends BaseContainer {
                             }}
                             handleHistoryLogRow={(id) => this.historyLog(id)}
                             handleRestoreRow={(id) => this.restore(id)}
-                            handlePluginRow={(id,recordId) => this.plugin(id,recordId)}
-                            handleDocumentRow={(id,recordId) => this.generate(id,recordId)}
+                            handlePluginRow={(id, recordId) => this.plugin(id, recordId)}
+                            handleDocumentRow={(id, recordId) => this.generate(id, recordId)}
                             handleCopyRow={(id) => this.showCopyView(id)}
                             handleArchiveRow={(id) => this.archive(id)}
                             handleDownloadRow={(id) => this.downloadAttachment(id)}

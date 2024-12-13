@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 export const CardImage = (props) => {
-    const {alt, base64, rendered, style, className,  onClick} = props;
+    const {alt, base64, rendered, style, className} = props;
     let base64Tmp;
     let indexOfComa = base64?.indexOf('data:image');
     if (indexOfComa === 0) {
@@ -11,11 +11,19 @@ export const CardImage = (props) => {
         base64Tmp = `data:image/jpeg;base64,${base64}`;
     }
     if (rendered) {
-        return <img onClick={(e)=>{
-            if(props.onClick){
-                props.onClick(e)
-            }
-        }} style={style} className={className} alt={alt} src={base64Tmp} />;
+        return (
+            <img
+                onClick={(e) => {
+                    if (props.onClick) {
+                        props.onClick(e);
+                    }
+                }}
+                style={style}
+                className={className}
+                alt={alt}
+                src={base64Tmp}
+            />
+        );
     } else {
         return null;
     }

@@ -11,7 +11,7 @@ import LocUtils from '../../utils/LocUtils';
 import CrudService from '../../services/CrudService';
 import BaseRowComponent from '../../baseContainers/BaseRowComponent';
 import {ColumnType} from '../../enum/ColumnType';
-import { StringUtils } from '../../utils/StringUtils';
+import {StringUtils} from '../../utils/StringUtils';
 
 export class DocumentRowComponent extends BaseRowComponent {
     constructor(props) {
@@ -26,8 +26,8 @@ export class DocumentRowComponent extends BaseRowComponent {
         this.handleCancel = this.handleCancel.bind(this);
     }
 
-    componentWillUnmount(){
-        super.componentWillUnmount()
+    componentWillUnmount() {
+        super.componentWillUnmount();
     }
     componentDidUpdate(prevProps, prevState, snapshot) {
         const visibleDocumentPanelPrevious = prevProps.visibleDocumentPanel;
@@ -44,13 +44,19 @@ export class DocumentRowComponent extends BaseRowComponent {
         super.componentDidUpdate();
     }
     createObjectToApprove(rowArray) {
-        const booleanShouldBeZero = (row) =>{
-            return StringUtils.isBlank(row.value) || row?.value === false || row?.value === "false" || row?.value === 0 || row?.value === "0"; 
-        }
+        const booleanShouldBeZero = (row) => {
+            return (
+                StringUtils.isBlank(row.value) ||
+                row?.value === false ||
+                row?.value === 'false' ||
+                row?.value === 0 ||
+                row?.value === '0'
+            );
+        };
         const arrayTmp = [];
         for (let row of rowArray) {
             if (row.type === ColumnType.B) {
-                row.value = booleanShouldBeZero(row) ? "0" : "1";
+                row.value = booleanShouldBeZero(row) ? '0' : '1';
             }
             arrayTmp.push({fieldName: row.fieldName, value: row.value});
         }
@@ -76,7 +82,7 @@ export class DocumentRowComponent extends BaseRowComponent {
                     icons={() => (
                         <React.Fragment>
                             <div id='label' className='label' style={{flex: 'auto'}}>
-                                {LocUtils.loc(this.props.labels, '', 'Zatwierdzanie kryteriów')}
+                                {LocUtils.loc(this.props.labels, 'Confirm_criteria', 'Zatwierdzanie kryteriów')}
                             </div>
                             <div id='buttons' style={{textAlign: 'right'}}>
                                 <ShortcutButton
@@ -103,7 +109,7 @@ export class DocumentRowComponent extends BaseRowComponent {
                                 </div>
                             ) : null}
                             {inputDataFields?.map((field, index) => {
-                                return <div key={index}>{this.renderField(field, index, undefined)}</div> ;
+                                return <div key={index}>{this.renderField(field, index, undefined)}</div>;
                             })}
                         </div>
                     </form>

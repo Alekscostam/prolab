@@ -11,7 +11,6 @@ import BaseContainer from '../baseContainers/BaseContainer';
 import ActionButton from '../components/ActionButton';
 import SimpleReactValidator from '../components/validator';
 import LocalizationService from '../services/LocalizationService';
-import Constants from '../utils/Constants';
 import BlockUi from './../components/waitPanel/BlockUi';
 import ConsoleHelper from '../utils/ConsoleHelper';
 import ActionLink from '../components/ActionLink';
@@ -40,14 +39,13 @@ class LoginContainer extends BaseContainer {
             userInfo: {},
             labels: {},
             langs: this.props.appState?.configApp?.langs || [],
-            defaultLang : this.props.appState?.configApp?.lang ?? "PL",
-            renderSignIn:this.props.appState?.configApp?.renderSignIn,
-            appName:this.props?.appState?.configApp?.appName,
-            deviceName:this.props?.appState?.configApp?.deviceName,
-            appVersion:this.props?.appState?.configApp?.appVersion,
-            captchaShow:this.props?.appState?.configApp?.captchaShow,
-            captchaKey:this.props?.appState?.configApp?.captchaKey,
-
+            defaultLang: this.props.appState?.configApp?.lang ?? 'PL',
+            renderSignIn: this.props.appState?.configApp?.renderSignIn,
+            appName: this.props?.appState?.configApp?.appName,
+            deviceName: this.props?.appState?.configApp?.deviceName,
+            appVersion: this.props?.appState?.configApp?.appVersion,
+            captchaShow: this.props?.appState?.configApp?.captchaShow,
+            captchaKey: this.props?.appState?.configApp?.captchaKey,
         };
         this.authValidValidator = new SimpleReactValidator({
             validators: {
@@ -66,10 +64,10 @@ class LoginContainer extends BaseContainer {
     resetPassword(e) {
         e.preventDefault();
         const element = {
-                appName:this.state.appName,
-                deviceName:this.state?.deviceName,
-                appVersion:this.state?.appVersion, 
-        }
+            appName: this.state.appName,
+            deviceName: this.state?.deviceName,
+            appVersion: this.state?.appVersion,
+        };
         this.userService
             .resetPassword(element)
             .then((res) => {
@@ -83,10 +81,10 @@ class LoginContainer extends BaseContainer {
     registration(e) {
         e.preventDefault();
         const element = {
-            appName:this.state.appName,
-            deviceName:this.state?.deviceName,
-            appVersion:this.state?.appVersion, 
-        }
+            appName: this.state.appName,
+            deviceName: this.state?.deviceName,
+            appVersion: this.state?.appVersion,
+        };
         this.userService
             .registration(element)
             .then((res) => {
@@ -122,17 +120,17 @@ class LoginContainer extends BaseContainer {
         this.targetLocation = values.location;
         this.getConfigForLoginPage();
     }
-    componentDidUpdate(){
+    componentDidUpdate() {
         super.componentDidUpdate();
     }
     removeElementsAfterLogOut = () => {
-     const dialogs =  Array.from(document.getElementsByClassName("confirm-dialog"));   
-     if(dialogs.length !== 0 ){
-        dialogs.forEach(d=>{
-            document.body.removeChild(d);
-        })
-     }
-    }
+        const dialogs = Array.from(document.getElementsByClassName('confirm-dialog'));
+        if (dialogs.length !== 0) {
+            dialogs.forEach((d) => {
+                document.body.removeChild(d);
+            });
+        }
+    };
     getConfigForLoginPage = () => {
         const lang = this.state.lang ? this.state.lang : this.state?.defaultLang;
         this.localizationService
@@ -153,7 +151,7 @@ class LoginContainer extends BaseContainer {
                 this.showGlobalErrorMessage(err);
                 this.unblockUi();
             });
-    }
+    };
 
     handleFormSubmit(e) {
         const {labels} = this.state;
@@ -163,7 +161,13 @@ class LoginContainer extends BaseContainer {
         if (this.validator.allValid()) {
             this.blockUi();
             this.authService
-                .login(this.state.username, this.state.password, this.state.appName, this.state.deviceName, this.state.appVersion)
+                .login(
+                    this.state.username,
+                    this.state.password,
+                    this.state.appName,
+                    this.state.deviceName,
+                    this.state.appVersion
+                )
                 .then(() => {
                     if (this.props.onAfterLogin) {
                         this.props.onAfterLogin();
@@ -338,38 +342,42 @@ class LoginContainer extends BaseContainer {
                                                                     validators='not_required'
                                                                 />
                                                             </div>
-                                                            {this.state.renderForgotPassword &&  <div>
-                                                                <p className='text-right'>
-                                                                    <ActionLink
-                                                                        handleClick={this.resetPassword}
-                                                                        label={labels['Login_ResetPassword']}
-                                                                    />
-                                                                </p>
-                                                            </div>}
-                                                           
+                                                            {this.state.renderForgotPassword && (
+                                                                <div>
+                                                                    <p className='text-right'>
+                                                                        <ActionLink
+                                                                            handleClick={this.resetPassword}
+                                                                            label={labels['Login_ResetPassword']}
+                                                                        />
+                                                                    </p>
+                                                                </div>
+                                                            )}
+
                                                             {/* <ReCAPTCHA
                                                                     ref={this.recaptchaRef}
                                                                     sitekey='TWOJ_SITE_KEY'
                                                                     onChange={() => {
                                                                     }}
                                                                 /> */}
-                                                        <div>
-                                                            <ActionButton
+                                                            <div>
+                                                                <ActionButton
                                                                     label={labels['Login_Signin']}
                                                                     className='mt-4'
                                                                     variant='login-button'
                                                                     handleClick={this.handleFormSubmit}
                                                                 />
-                                                             {this.state.renderSignIn &&    <div className='mt-4'>
-                                                                    <p className='font-normal text-center'>
-                                                                        {labels['Login_Signup_Info']}&nbsp;
-                                                                        <ActionLink
-                                                                            handleClick={this.registration}
-                                                                            label={labels['Login_Signup']}
-                                                                        />
-                                                                    </p>
-                                                                </div>}
-                                                         </div>
+                                                                {this.state.renderSignIn && (
+                                                                    <div className='mt-4'>
+                                                                        <p className='font-normal text-center'>
+                                                                            {labels['Login_Signup_Info']}&nbsp;
+                                                                            <ActionLink
+                                                                                handleClick={this.registration}
+                                                                                label={labels['Login_Signup']}
+                                                                            />
+                                                                        </p>
+                                                                    </div>
+                                                                )}
+                                                            </div>
                                                         </form>
                                                     </div>
                                                 </div>

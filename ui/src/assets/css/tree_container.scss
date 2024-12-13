@@ -31,6 +31,9 @@ $base-color: #0e49eb;
     font-weight: 500;
 }
 #spec-edit {
+    .dx-show-invalid-badge.dx-textbox.dx-texteditor.dx-editor-filled.dx-widget.dx-validator.dx-visibility-change-handler{
+        width: 100%;
+    }
     .line-treelist {
         content: '';
         position: absolute;

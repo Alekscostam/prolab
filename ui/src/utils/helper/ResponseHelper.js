@@ -3,6 +3,7 @@ import {localeOptions} from 'primereact/api';
 import ReactDOM from 'react-dom';
 import React from 'react';
 import {useEffect} from 'react';
+import {ResponseStatus} from '../../enum/ResponseStatus';
 
 function ResponseHelper() {
     useEffect(() => {
@@ -19,7 +20,7 @@ function ResponseHelper() {
 }
 ResponseHelper.run = (response, nokAcceptFnc, okAcceptFnc, resErrorMessage, onAfterOkClick) => {
     switch (response.status) {
-        case 'OK':
+        case ResponseStatus.OK:
             if (!!response.message) {
                 renderConfirmDialog(response.message.text, response.message.title, 'pi pi-info-circle', okAcceptFnc);
             } else if (!!response.error) {
@@ -28,7 +29,7 @@ ResponseHelper.run = (response, nokAcceptFnc, okAcceptFnc, resErrorMessage, onAf
                 okAcceptFnc();
             }
             break;
-        case 'NOK':
+        case ResponseStatus.NOK:
             if (!!response.question) {
                 renderConfirmDialog(
                     response.question.text,

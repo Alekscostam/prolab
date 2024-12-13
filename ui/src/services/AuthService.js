@@ -8,7 +8,7 @@ import {clearState} from '../App';
 import {CookiesName} from '../enum/CookieName';
 import {StringUtils} from '../utils/StringUtils';
 import useStore from '../store';
-
+import LocUtils from '../utils/LocUtils';
 
 export default class AuthService {
     // Initializing important variables
@@ -102,7 +102,10 @@ export default class AuthService {
                         (error.message.includes('NetworkError when attempting to fetch resource') ||
                             error.message.includes('Failed to fetch'))
                     ) {
-                        error.message = 'komunikacji z serwerem podczas pobierania danych.';
+                        error.message = LocUtils.locFromStoreWithDefault(
+                            'Communication_error',
+                            'komunikacji z serwerem podczas pobierania danych.'
+                        );
                     }
                     reject(error);
                 });
@@ -152,19 +155,19 @@ export default class AuthService {
         }
     }
 
-    login(username, password, appName, deviceName,  appVersion) {
+    login(username, password, appName, deviceName, appVersion) {
         return this.fetch(`${this.domain}/auth/token`, {
             method: 'POST',
             body: JSON.stringify({
                 Username: username,
                 Password: password,
                 DeviceName: deviceName,
-                AppName:appName,
-                AppVersion:appVersion,
+                AppName: appName,
+                AppVersion: appVersion,
             }),
         }).then((res) => {
-            useStore.getState().setRefreshToken(res.refreshToken)
-            useStore.getState().setAccessToken(res.token)
+            useStore.getState().setRefreshToken(res.refreshToken);
+            useStore.getState().setAccessToken(res.token);
             this.setToken(res.token, res.expiration, res.user, res.refreshToken, res.sessionTimeoutInMinutes); // Setting the token in localStorage
             return Promise.resolve(res);
         });
@@ -173,28 +176,38 @@ export default class AuthService {
     isAlreadyTokenNotExist() {
         return StringUtils.isBlank(localStorage.getItem(CookiesName.ID_TOKEN));
     }
-   
+
     refresh() {
-        const idToken =localStorage.getItem(CookiesName.ID_TOKEN);
-        const idRefreshToken =localStorage.getItem(CookiesName.ID_REFRESH_TOKEN);
-        if(StringUtils.isBlank(idToken) ||  StringUtils.isBlank(idRefreshToken)){
-            console.error("TOKENS ARE BLANK. LOOK AT COOKIES idToken:", idToken," idRefreshToken:",  idRefreshToken);
+        const idToken = localStorage.getItem(CookiesName.ID_TOKEN);
+        const idRefreshToken = localStorage.getItem(CookiesName.ID_REFRESH_TOKEN);
+        if (StringUtils.isBlank(idToken) || StringUtils.isBlank(idRefreshToken)) {
+            console.error('TOKENS ARE BLANK. LOOK AT COOKIES idToken:', idToken, ' idRefreshToken:', idRefreshToken);
         }
         return this.fetch(
-                `${this.getAndSetDomainIfNeccessery()}/auth/refreshToken`,
-                {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        accessToken: StringUtils.isBlank(localStorage.getItem(CookiesName.ID_TOKEN)) ? useStore.getState().accessToken : localStorage.getItem(CookiesName.ID_TOKEN),
-                        refreshToken: StringUtils.isBlank(localStorage.getItem(CookiesName.ID_REFRESH_TOKEN)) ? useStore.getState().refreshToken : localStorage.getItem(CookiesName.ID_REFRESH_TOKEN),
-                        AppName: StringUtils.isBlank(localStorage.getItem(CookiesName.APP_NAME)) ? useStore.getState().appName : localStorage.getItem(CookiesName.APP_NAME) ,
-                        AppVersion: StringUtils.isBlank(localStorage.getItem(CookiesName.APP_VERSION)) ? useStore.getState().appVersion : localStorage.getItem(CookiesName.APP_VERSION),
-                        DeviceName: StringUtils.isBlank(localStorage.getItem(CookiesName.DEVICE_NAME)) ? useStore.getState().deviceName : localStorage.getItem(CookiesName.DEVICE_NAME),
-                    }),
-                },
-                null,
-                false
-            )
+            `${this.getAndSetDomainIfNeccessery()}/auth/refreshToken`,
+            {
+                method: 'POST',
+                body: JSON.stringify({
+                    accessToken: StringUtils.isBlank(localStorage.getItem(CookiesName.ID_TOKEN))
+                        ? useStore.getState().accessToken
+                        : localStorage.getItem(CookiesName.ID_TOKEN),
+                    refreshToken: StringUtils.isBlank(localStorage.getItem(CookiesName.ID_REFRESH_TOKEN))
+                        ? useStore.getState().refreshToken
+                        : localStorage.getItem(CookiesName.ID_REFRESH_TOKEN),
+                    AppName: StringUtils.isBlank(localStorage.getItem(CookiesName.APP_NAME))
+                        ? useStore.getState().appName
+                        : localStorage.getItem(CookiesName.APP_NAME),
+                    AppVersion: StringUtils.isBlank(localStorage.getItem(CookiesName.APP_VERSION))
+                        ? useStore.getState().appVersion
+                        : localStorage.getItem(CookiesName.APP_VERSION),
+                    DeviceName: StringUtils.isBlank(localStorage.getItem(CookiesName.DEVICE_NAME))
+                        ? useStore.getState().deviceName
+                        : localStorage.getItem(CookiesName.DEVICE_NAME),
+                }),
+            },
+            null,
+            false
+        )
             .then((res) => {
                 this.setRefreshedToken(res.accessToken, res.refreshToken); // Setting the token in localStorage
                 if (reStateApp) {
@@ -210,12 +223,12 @@ export default class AuthService {
                     err.idToken = idToken;
                     err.idRefreshToken = idRefreshToken;
                     localStorage.setItem(CookiesName.ERROR_AFTER_REFRESH, JSON.stringify(err));
-                    setTimeout(()=>{
+                    setTimeout(() => {
                         window.location.reload();
-                    },100)
+                    }, 100);
                 }
-                useStore.getState().setAccessToken(undefined)
-                useStore.getState().setRefreshToken(undefined)
+                useStore.getState().setAccessToken(undefined);
+                useStore.getState().setRefreshToken(undefined);
                 return Promise.reject(err);
             });
     }
@@ -238,9 +251,9 @@ export default class AuthService {
     }
 
     setToken(idToken, expirationToken, loggedUser, idRefreshToken, sessionTimeoutInMinutes) {
-        if(!canFitInCookie(loggedUser?.avatar)){
+        if (!canFitInCookie(loggedUser?.avatar)) {
             loggedUser.avatar = '';
-            console.log("Avatar have to much size")
+            console.log('Avatar have to much size');
         }
         loggedUser = JSON.stringify(loggedUser);
         localStorage.setItem(CookiesName.ID_TOKEN, idToken);
@@ -294,11 +307,11 @@ export default class AuthService {
                 this.removeLoginCookies();
             }
         }
-        const endWithHash = window.location.href.endsWith('/#/')
+        const endWithHash = window.location.href.endsWith('/#/');
         this.removeLoginCookies();
-        useStore.getState().setAccessToken(undefined)
-        useStore.getState().setRefreshToken(undefined)
-        if(!endWithHash){
+        useStore.getState().setAccessToken(undefined);
+        useStore.getState().setRefreshToken(undefined);
+        if (!endWithHash) {
             window.location.href = AppPrefixUtils.locationHrefUrl('/#/');
         }
         setTimeout(() => {
@@ -316,21 +329,21 @@ export default class AuthService {
         localStorage.removeItem(CookiesName.ID_REFRESH_TOKEN);
         localStorage.removeItem(CookiesName.MENU);
         localStorage.removeItem(CookiesName.VERSION_API);
-    }
+    };
 
     getProfile() {
         try {
             return localStorage.getItem(CookiesName.LOGGED_USER);
         } catch (err) {
             return {
-                id:'',
-                login:'',
-                name:'',
-                lang:'',
-                sub:'',
-                name:'',
-                avatar:'',
-            }
+                id: '',
+                login: '',
+                name: '',
+                lang: '',
+                sub: '',
+                name: '',
+                avatar: '',
+            };
         }
     }
 

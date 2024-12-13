@@ -3,7 +3,7 @@ import AuthService from './AuthService';
 import {readObjFromCookieGlobal} from '../utils/Cookie';
 
 let lastRefreshTime = null;
-let isRefreshing = false; 
+let isRefreshing = false;
 let refreshPromise = null;
 
 export default class BaseService {
@@ -23,9 +23,27 @@ export default class BaseService {
         };
         this.counter = 0;
     }
-
-    clearRefreshCache(){
-        isRefreshing = false; 
+    log(error, url, options, headers, method) {
+        const type = error?.title;
+        let errorMessages = '';
+        if (error?.errors) {
+            errorMessages = error?.errors['']?.join(', ') || 'No error messages';
+        }
+        const text = `${errorMessages} | URL: ${url}, Options: ${JSON.stringify(options)}, Headers: ${JSON.stringify(
+            headers
+        )}, Method: ${method}`;
+        return this.fetch(`${this.domain}/log`, {
+            method: 'POST',
+            body: JSON.stringify({
+                type: type,
+                text: text,
+            }),
+        }).catch((err) => {
+            throw err;
+        });
+    }
+    clearRefreshCache() {
+        isRefreshing = false;
         refreshPromise = null;
     }
 
@@ -47,7 +65,6 @@ export default class BaseService {
 
     fetch(url, options, headers, token) {
         const method = options !== undefined ? options.method : undefined;
-
         if (headers === null || headers === undefined) {
             headers = {
                 Accept: 'application/json',
@@ -92,7 +109,6 @@ export default class BaseService {
                     } else {
                         throw response.json;
                     }
-                    
                 })
                 .catch((error) => {
                     this.handleErrorCommon(error, url, options, headers, token, resolve, reject, method, this.fetch);
@@ -102,16 +118,16 @@ export default class BaseService {
     handleErrorCommon(error, url, options, headers, token, resolve, reject, method, fetchMethod) {
         if (error.status === 401) {
             if (!isRefreshing) {
-                isRefreshing = true; 
-                console.log("handleErrorCommon")
-                refreshPromise = this.auth.refresh()
+                isRefreshing = true;
+                refreshPromise = this.auth
+                    .refresh()
                     .then(() => {
-                        setTimeout(()=>{
+                        setTimeout(() => {
                             this.clearRefreshCache();
-                        },5000);
+                        }, 5000);
                         return fetchMethod(url, options, headers, token).then(resolve).catch(reject);
                     })
-                    .catch((refreshError) => {    
+                    .catch((refreshError) => {
                         this.clearRefreshCache();
                         this.auth.logout();
                         reject(refreshError);
@@ -124,6 +140,9 @@ export default class BaseService {
                     .catch(reject);
             }
         } else {
+            if (error.status === 400) {
+                this.log(error, url, options, headers, method);
+            }
             if (method === 'POST' || method === 'PUT') {
                 this.counter -= 1;
                 if (this.counter <= 0 && this.unblockUi !== undefined) {
@@ -136,7 +155,8 @@ export default class BaseService {
                 error.message !== undefined &&
                 error.message !== null &&
                 (error.message.includes('NetworkError when attempting to fetch resource') ||
-                    error.message.includes('Failed to fetch') || error.message.includes('NetworkError') )
+                    error.message.includes('Failed to fetch') ||
+                    error.message.includes('NetworkError'))
             ) {
                 error.message = 'komunikacji z serwerem podczas pobierania danych.';
             }
@@ -161,23 +181,31 @@ export default class BaseService {
                 ...options,
             })
                 .then((response) => {
-                    if(response?.ok === false){
+                    if (response?.ok === false) {
                         headers.accept = 'application/json';
-                        response.json().then(
-                            (json) => {
-                              return  reject({
-                                    status: response.status,
-                                    ok: response.ok,
-                                    error:json.error,
-                                });
-                            }
-                        );
-                    }else{
+                        response.json().then((json) => {
+                            return reject({
+                                status: response.status,
+                                ok: response.ok,
+                                error: json.error,
+                            });
+                        });
+                    } else {
                         return resolve(response);
                     }
                 })
                 .catch((error) => {
-                    this.handleErrorCommon(error, url, options, headers, null, resolve, reject, null, this.fetchFileResponse);
+                    this.handleErrorCommon(
+                        error,
+                        url,
+                        options,
+                        headers,
+                        null,
+                        resolve,
+                        reject,
+                        null,
+                        this.fetchFileResponse
+                    );
                 });
         });
     }
@@ -267,20 +295,4 @@ export default class BaseService {
         }
         return correctUrl;
     }
-    
-    setAndGetNextRefreshDelay(){
-        const now = new Date();
-        if(lastRefreshTime === null){
-            lastRefreshTime = now;
-            return 100;
-        }
-        const random = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-        const differenceInMs = Math.abs(lastRefreshTime - now);
-        if(differenceInMs < 500){
-            return random(250, 450);;    
-        }   
-        lastRefreshTime = now;
-        return 100;
-    }
-
 }

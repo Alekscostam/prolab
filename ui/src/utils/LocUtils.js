@@ -1,34 +1,26 @@
-import useStore from "../store";
+import useStore from '../store';
 
 class LocUtils {
-
-    static loc(locale, translationKey, notFoundValue) {
+    static getTranslation(locale, translationKey, notFoundValue) {
         try {
             const foundValue = locale[translationKey.trim()];
-            if (foundValue === undefined || foundValue === null || foundValue === '') {
-                return notFoundValue;
-            } else {
-                return foundValue;
-            }
+            return foundValue === undefined || foundValue === null || foundValue === '' ? notFoundValue : foundValue;
         } catch (ex) {
+            console.error(ex);
             return notFoundValue;
         }
     }
-
+    static loc(locale, translationKey, notFoundValue) {
+        return this.getTranslation(locale, translationKey, notFoundValue);
+    }
     static locFromStore(translationKey) {
-        try {
-            const locale = useStore.getState().labels;
-            const foundValue = locale[translationKey.trim()];
-            if (foundValue === undefined || foundValue === null || foundValue === '') {
-                return "###"+ translationKey + "###";
-            } else {
-                return foundValue;
-            }
-        } catch (ex) {
-            console.error(ex)
-            return "###"+ translationKey + "###";
-        }
-    }  
+        const locale = useStore.getState().labels;
+        return this.getTranslation(locale, translationKey, `###${translationKey}###`);
+    }
+    static locFromStoreWithDefault(translationKey, defaultValue) {
+        const locale = useStore.getState().labels;
+        return this.getTranslation(locale, translationKey, defaultValue);
+    }
 }
 
 export default LocUtils;

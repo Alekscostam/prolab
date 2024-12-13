@@ -1,11 +1,13 @@
 export const Constants = {
     DATE_FORMAT: {
-        DATE_FORMAT_MOMENT: 'YYYY-MM-DD',
-        DATE_TIME_FORMAT_MOMENT: 'YYYY-MM-DD HH:mm',
+        YYYY_MM_DD: 'YYYY-MM-DD',
+        YYYY_MM_DD_HHmmss: 'YYYY-MM-DD HH:mm:ss',
+        YYYY_MM_DD_HHmm: 'YYYY-MM-DD HH:mm',
         DATE_FORMAT: 'yyyy-MM-dd',
         DATE_TIME_FORMAT: 'yyyy-MM-dd HH:mm',
-        TIME_FORMAT: 'HH:mm',
+        HHmm: 'HH:mm',
         MONTH_FORMAT: 'yyyy-MM',
+        HH_mm_ss: 'HH:mm:ss',
     },
     BOOLEAN: {
         BOOLEAN_OPTIONS: [

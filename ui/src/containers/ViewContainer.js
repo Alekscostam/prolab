@@ -12,7 +12,7 @@ import {AddSpecContainer} from './AddSpecContainer';
 import UrlUtils from '../utils/UrlUtils';
 import {OperationType} from '../enum/OperationType';
 import {StringUtils} from '../utils/StringUtils';
-import { TranslationUtils } from '../utils/TranslationUtils';
+import {TranslationUtils} from '../utils/TranslationUtils';
 
 export class ViewContainer extends BaseViewContainer {
     constructor(props) {
@@ -26,7 +26,7 @@ export class ViewContainer extends BaseViewContainer {
         this.handleAddElements = this.handleAddElements.bind(this);
         this.state = {
             prevDataGridGlobalReference: null,
-            totalCounts:undefined
+            totalCounts: undefined,
         };
         this.getGridViewType = () => {
             return this.state.gridViewType;
@@ -43,11 +43,11 @@ export class ViewContainer extends BaseViewContainer {
     }
 
     addButtonFunction = (e) => {
-        const isAddFilesAddFrom =   !!this.state?.parsedGridView?.options?.addFilesAddForm;
-        if(isAddFilesAddFrom){
-            this.setState({visibleUploadFile: true})
+        const isAddFilesAddFrom = !!this.state?.parsedGridView?.options?.addFilesAddForm;
+        if (isAddFilesAddFrom) {
+            this.setState({visibleUploadFile: true});
             return;
-        }  
+        }
         const addSpecFunction = () => this.showAddSpecDialog();
         const addFunction = (e) => this.addView(e);
         TranslationUtils.getOpButton(this.state.parsedGridView?.operations, OperationType.OP_ADD_SPEC_BUTTON)
@@ -57,7 +57,7 @@ export class ViewContainer extends BaseViewContainer {
 
     //override
     createObjectToSave(rowArray) {
-        rowArray.forEach(el=>el._STATUS = "inserted" )
+        rowArray.forEach((el) => (el._STATUS = 'inserted'));
         const arrayTmp = [];
         for (let row of rowArray) {
             const rowArray = [];
@@ -227,7 +227,7 @@ export class ViewContainer extends BaseViewContainer {
     }
 
     notProccessed() {
-        const loading =  this.state.loading
+        const loading = this.state.loading;
         return loading === false || loading === null || loading === undefined;
     }
 
@@ -293,7 +293,9 @@ export class ViewContainer extends BaseViewContainer {
                     filterIdArg,
                     kindViewArg,
                     () => {
-                        this.blockUi();
+                        if (!window.dataGrid) {
+                            this.blockUi();
+                        }
                         return {
                             select: this.state.select,
                             selectAll: this.state.selectAll,
@@ -337,13 +339,13 @@ export class ViewContainer extends BaseViewContainer {
             });
         }
     }
-    getColumnsWithRemovedGroupingIfNecessary(group){
-        let gridViewColumns = this.state.gridViewColumns
-        if(group){
-            gridViewColumns = this.state.gridViewColumns.map(columnDefinition=>{
-               const foundedEl = !!group.find((el)=> el.selector === columnDefinition.fieldName);
-                if(!!columnDefinition.groupIndex && columnDefinition.groupIndex > 0 && foundedEl){
-                   delete columnDefinition.groupIndex;
+    getColumnsWithRemovedGroupingIfNecessary(group) {
+        let gridViewColumns = this.state.gridViewColumns;
+        if (group) {
+            gridViewColumns = this.state.gridViewColumns.map((columnDefinition) => {
+                const foundedEl = !!group.find((el) => el.selector === columnDefinition.fieldName);
+                if (!!columnDefinition.groupIndex && columnDefinition.groupIndex > 0 && foundedEl) {
+                    delete columnDefinition.groupIndex;
                 }
                 return columnDefinition;
             });
@@ -360,7 +362,9 @@ export class ViewContainer extends BaseViewContainer {
                         ref={this.viewContainer}
                         recordId={this.state.attachmentViewInfo.recordId}
                         id={this.state.attachmentViewInfo.viewId}
-                        handleRenderNoRefreshContent={(renderNoRefreshContent) => this.setState({renderNoRefreshContent: renderNoRefreshContent})}
+                        handleRenderNoRefreshContent={(renderNoRefreshContent) =>
+                            this.setState({renderNoRefreshContent: renderNoRefreshContent})
+                        }
                         isKindViewSpec={this.state?.attachmentViewInfo?.isKindViewSpec}
                         prevDataGridGlobalReference={this.state.prevDataGridGlobalReference}
                         setPrevDataGridGlobalReference={() => {
@@ -391,8 +395,8 @@ export class ViewContainer extends BaseViewContainer {
                         }}
                         handleViewInfoName={(viewInfoName) => this.setState({viewInfoName: viewInfoName})}
                         handleSubView={(subView) => this.setState({subView: subView})}
-                        handleOperations={(operations) =>  this.setState({operations: operations})}
-                        handleShortcutButtons={(shortcutButtons) =>  this.setState({shortcutButtons: shortcutButtons})}
+                        handleOperations={(operations) => this.setState({operations: operations})}
+                        handleShortcutButtons={(shortcutButtons) => this.setState({shortcutButtons: shortcutButtons})}
                         collapsed={this.state.collapsed}
                     />
                 ) : null}
@@ -414,12 +418,12 @@ export class ViewContainer extends BaseViewContainer {
             </div>
         );
     }
-  
+
     handleAddElements(elements) {
         ConsoleHelper(`handleAddElements: element to save = ${JSON.stringify(elements)}`);
         const viewIdArg = this.state.elementSubViewId;
         const parentIdArg = this.state.elementRecordId;
-        const results = this.createObjectToSave(elements)
+        const results = this.createObjectToSave(elements);
         this.specSave(viewIdArg, parentIdArg, results, false);
     }
 
@@ -427,7 +431,6 @@ export class ViewContainer extends BaseViewContainer {
     render() {
         return <React.Fragment>{super.render()}</React.Fragment>;
     }
-    // Określamy kontekst dla komponentu klasowego
 }
 
 ViewContainer.defaultProps = {

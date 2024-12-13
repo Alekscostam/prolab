@@ -1,23 +1,23 @@
-/* eslint-disable no-script-url */
-/* eslint-disable jsx-a11y/anchor-is-valid */
-/* eslint-disable react/jsx-max-props-per-line */
-import React from 'react';
+import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 import ShortcutButton from './ShortcutButton';
 import Constants from '../../utils/Constants';
 import ActionButtonWithMenu from './ActionButtonWithMenu';
 import {sessionPrelongFnc} from '../../App';
 import {OperationType} from '../../enum/OperationType';
-import { CookiesName } from '../../enum/CookieName';
+import {ConfirmDialog} from 'primereact/confirmdialog';
 
 export const OperationsButtons = (props) => {
+    const [confirmationVisible, setConfirmationVisible] = useState();
+    const [accept, setAccept] = useState(() => {});
+    const [hide, setHide] = useState(() => {});
+
     const renderOperationsButton = (operations) => {
         const info = props.info;
         const margin = props.margin;
         const inverseColor = props.inverseColor;
         const buttonShadow = props.buttonShadow;
         const atLeastOneSelected = props.atLeastOneSelected;
-
         if (operations && !!operations.type) {
             switch (operations.type?.toUpperCase()) {
                 case OperationType.OP_EDIT:
@@ -33,7 +33,9 @@ export const OperationsButtons = (props) => {
                                     iconColor={`${inverseColor ? `white` : `blue`}`}
                                     buttonShadow={buttonShadow}
                                     title={operations.label}
-                                    handleClick={(e) => afterClickOperation(props.handleEdit(e))}
+                                    handleClick={(e) =>
+                                        afterClickOperation(() => props.handleEdit(Object.assign(e, operations)))
+                                    }
                                 />
                             </React.Fragment>
                         );
@@ -55,7 +57,9 @@ export const OperationsButtons = (props) => {
                                     handleClick={(e) => {
                                         e.selectAll = !atLeastOneSelected && !!operations.showAlways;
 
-                                        return afterClickOperation(props.handleEditSpec(e));
+                                        return afterClickOperation(() =>
+                                            props.handleEditSpec(Object.assign(e, operations))
+                                        );
                                     }}
                                 />
                             </React.Fragment>
@@ -77,7 +81,9 @@ export const OperationsButtons = (props) => {
                                     title={operations.label}
                                     handleClick={(e) => {
                                         e.selectAll = !atLeastOneSelected && !!operations.showAlways;
-                                        return afterClickOperation(props.handleAddSpecSpec(e));
+                                        return afterClickOperation(() =>
+                                            props.handleAddSpecSpec(Object.assign(e, operations))
+                                        );
                                     }}
                                 />
                             </React.Fragment>
@@ -98,7 +104,8 @@ export const OperationsButtons = (props) => {
                                     buttonShadow={buttonShadow}
                                     title={operations.label}
                                     handleClick={() => {
-                                        afterClickOperation(props.handleBlockUi())}}
+                                        afterClickOperation(() => props.handleBlockUi());
+                                    }}
                                     href={props.hrefSubview}
                                 />
                             </React.Fragment>
@@ -110,7 +117,9 @@ export const OperationsButtons = (props) => {
                             <React.Fragment>
                                 <ShortcutButton
                                     className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
-                                    handleClick={(e) => afterClickOperation(props.handleDelete(e))}
+                                    handleClick={(e) =>
+                                        afterClickOperation(() => props.handleDelete(Object.assign(e, operations)))
+                                    }
                                     iconName={operations?.iconCode || 'mdi-delete'}
                                     iconColor={`${inverseColor ? `white` : `blue`}`}
                                     buttonShadow={buttonShadow}
@@ -126,7 +135,9 @@ export const OperationsButtons = (props) => {
                             <React.Fragment>
                                 <ShortcutButton
                                     className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
-                                    handleClick={(e) => afterClickOperation(props.handleDownload(e))}
+                                    handleClick={(e) =>
+                                        afterClickOperation(() => props.handleDownload(Object.assign(e, operations)))
+                                    }
                                     iconName={operations?.iconCode || 'mdi-help-circle'}
                                     iconColor={`${inverseColor ? `white` : `blue`}`}
                                     buttonShadow={buttonShadow}
@@ -142,7 +153,9 @@ export const OperationsButtons = (props) => {
                             <React.Fragment>
                                 <ShortcutButton
                                     className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
-                                    handleClick={(e) => afterClickOperation(props.handleRestore(e))}
+                                    handleClick={(e) =>
+                                        afterClickOperation(() => props.handleRestore(Object.assign(e, operations)))
+                                    }
                                     iconName={operations?.iconCode || 'mdi-restore'}
                                     iconColor={`${inverseColor ? `white` : `blue`}`}
                                     buttonShadow={buttonShadow}
@@ -159,7 +172,9 @@ export const OperationsButtons = (props) => {
                             <React.Fragment>
                                 <ShortcutButton
                                     className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
-                                    handleClick={(e) => afterClickOperation(props.handleCopy(e))}
+                                    handleClick={(e) =>
+                                        afterClickOperation(() => props.handleCopy(Object.assign(e, operations)))
+                                    }
                                     iconName={operations?.iconCode || 'mdi-content-copy'}
                                     iconColor={`${inverseColor ? `white` : `blue`}`}
                                     buttonShadow={buttonShadow}
@@ -175,7 +190,9 @@ export const OperationsButtons = (props) => {
                             <React.Fragment>
                                 <ShortcutButton
                                     className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
-                                    handleClick={(e) => afterClickOperation(props.handleArchive(e))}
+                                    handleClick={(e) =>
+                                        afterClickOperation(() => props.handleArchive(Object.assign(e, operations)))
+                                    }
                                     iconName={operations?.iconCode || 'mdi-archive'}
                                     iconColor={`${inverseColor ? `white` : `blue`}`}
                                     buttonShadow={buttonShadow}
@@ -191,7 +208,9 @@ export const OperationsButtons = (props) => {
                             <React.Fragment>
                                 <ShortcutButton
                                     className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
-                                    handleClick={(e) => afterClickOperation(props.handlePublish(e))}
+                                    handleClick={(e) =>
+                                        afterClickOperation(() => props.handlePublish(Object.assign(e, operations)))
+                                    }
                                     iconName={operations?.iconCode || 'mdi-publish'}
                                     iconColor={`${inverseColor ? `white` : `blue`}`}
                                     buttonShadow={buttonShadow}
@@ -208,7 +227,7 @@ export const OperationsButtons = (props) => {
                                 <ShortcutButton
                                     className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
                                     handleClick={(e) => {
-                                        afterClickOperation(props.handleFormula(e));
+                                        afterClickOperation(() => props.handleFormula(Object.assign(e, operations)));
                                     }}
                                     iconName={operations?.iconCode || 'mdi-help-circle'}
                                     iconColor={`${inverseColor ? `white` : `blue`}`}
@@ -225,7 +244,9 @@ export const OperationsButtons = (props) => {
                             <React.Fragment>
                                 <ShortcutButton
                                     className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
-                                    handleClick={(e) => afterClickOperation(props.handleHistory(e))}
+                                    handleClick={(e) =>
+                                        afterClickOperation(() => props.handleHistory(Object.assign(e, operations)))
+                                    }
                                     iconName={operations?.iconCode || 'mdi-help-circle'}
                                     iconColor={`${inverseColor ? `white` : `blue`}`}
                                     buttonShadow={buttonShadow}
@@ -241,7 +262,9 @@ export const OperationsButtons = (props) => {
                             <React.Fragment>
                                 <ShortcutButton
                                     className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
-                                    handleClick={(e) => afterClickOperation(props.handleAttachments(e))}
+                                    handleClick={(e) =>
+                                        afterClickOperation(() => props.handleAttachments(Object.assign(e, operations)))
+                                    }
                                     iconName={operations?.iconCode || 'mdi-help-circle'}
                                     iconColor={`${inverseColor ? `white` : `blue`}`}
                                     buttonShadow={buttonShadow}
@@ -257,7 +280,9 @@ export const OperationsButtons = (props) => {
                             <React.Fragment>
                                 <ShortcutButton
                                     className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
-                                    handleClick={(e) => afterClickOperation(props.handleAddLevel(e))}
+                                    handleClick={(e) =>
+                                        afterClickOperation(() => props.handleAddLevel(Object.assign(e, operations)))
+                                    }
                                     iconName={operations?.iconCode || 'mdi-plus-box-multiple-outline'}
                                     iconColor={`${inverseColor ? `white` : `blue`}`}
                                     buttonShadow={buttonShadow}
@@ -273,7 +298,9 @@ export const OperationsButtons = (props) => {
                             <React.Fragment>
                                 <ShortcutButton
                                     className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
-                                    handleClick={(e) => afterClickOperation(props.handleUp(e))}
+                                    handleClick={(e) =>
+                                        afterClickOperation(() => props.handleUp(Object.assign(e, operations)))
+                                    }
                                     iconName={operations?.iconCode || 'mdi-arrow-up-thin'}
                                     iconColor={`${inverseColor ? `white` : `blue`}`}
                                     buttonShadow={buttonShadow}
@@ -289,7 +316,9 @@ export const OperationsButtons = (props) => {
                             <React.Fragment>
                                 <ShortcutButton
                                     className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
-                                    handleClick={(e) => afterClickOperation(props.handleDown(e))}
+                                    handleClick={(e) =>
+                                        afterClickOperation(() => props.handleDown(Object.assign(e, operations)))
+                                    }
                                     iconName={operations?.iconCode || 'mdi-arrow-down-thin'}
                                     iconColor={`${inverseColor ? `white` : `blue`}`}
                                     buttonShadow={buttonShadow}
@@ -305,7 +334,9 @@ export const OperationsButtons = (props) => {
                             <React.Fragment>
                                 <ShortcutButton
                                     className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
-                                    handleClick={(e) => afterClickOperation(props.handleFill(e))}
+                                    handleClick={(e) =>
+                                        afterClickOperation(() => props.handleFill(Object.assign(e, operations)))
+                                    }
                                     iconName={operations?.iconCode || 'mdi-arrow-down-thin'}
                                     iconColor={`${inverseColor ? `white` : `blue`}`}
                                     buttonShadow={buttonShadow}
@@ -321,7 +352,9 @@ export const OperationsButtons = (props) => {
                             <React.Fragment>
                                 <ShortcutButton
                                     className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
-                                    handleClick={(e) => afterClickOperation(props.handleExpand(e))}
+                                    handleClick={(e) =>
+                                        afterClickOperation(() => props.handleExpand(Object.assign(e, operations)))
+                                    }
                                     iconName={operations?.iconCode || 'mdi-arrow-down-thin'}
                                     iconColor={`${inverseColor ? `white` : `blue`}`}
                                     buttonShadow={buttonShadow}
@@ -337,7 +370,9 @@ export const OperationsButtons = (props) => {
                             <React.Fragment>
                                 <ShortcutButton
                                     className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
-                                    handleClick={(e) => afterClickOperation(props.handleCollapse(e))}
+                                    handleClick={(e) =>
+                                        afterClickOperation(() => props.handleCollapse(Object.assign(e, operations)))
+                                    }
                                     iconName={operations?.iconCode || 'mdi-arrow-down-thin'}
                                     iconColor={`${inverseColor ? `white` : `blue`}`}
                                     buttonShadow={buttonShadow}
@@ -353,7 +388,9 @@ export const OperationsButtons = (props) => {
                             <React.Fragment>
                                 <ShortcutButton
                                     className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
-                                    handleClick={(e) => afterClickOperation(props.handleCheck(e))}
+                                    handleClick={(e) =>
+                                        afterClickOperation(() => props.handleCheck(Object.assign(e, operations)))
+                                    }
                                     iconName={operations?.iconCode || 'mdi-arrow-down-thin'}
                                     iconColor={`${inverseColor ? `white` : `blue`}`}
                                     buttonShadow={buttonShadow}
@@ -369,7 +406,9 @@ export const OperationsButtons = (props) => {
                             <React.Fragment>
                                 <ShortcutButton
                                     className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
-                                    handleClick={(e) => afterClickOperation(props.handleUncheck(e))}
+                                    handleClick={(e) =>
+                                        afterClickOperation(() => props.handleUncheck(Object.assign(e, operations)))
+                                    }
                                     iconName={operations?.iconCode || 'mdi-arrow-down-thin'}
                                     iconColor={`${inverseColor ? `white` : `blue`}`}
                                     buttonShadow={buttonShadow}
@@ -392,6 +431,7 @@ export const OperationsButtons = (props) => {
         if (typeof operationSelectedFnc === 'function') {
             operationSelectedFnc();
         }
+        // setConfirmationVisible(true);
     };
     const shouldShowOpFormula = (operations) => {
         const atLeastOneSelected = props.atLeastOneSelected;
@@ -423,54 +463,54 @@ export const OperationsButtons = (props) => {
             command: () => {
                 switch (i.type?.toUpperCase()) {
                     case OperationType.OP_EDIT:
-                        return props.handleEdit();
+                        return props.handleEdit(i);
                     case OperationType.OP_EDIT_SPEC:
-                        return props.handleEditSpec();
+                        return props.handleEditSpec(i);
                     case OperationType.OP_ADDSPEC_SPEC:
-                        return props.handleAddSpecSpec();
+                        return props.handleAddSpecSpec(i);
                     case OperationType.OP_SUBVIEWS:
-                        return props.handleHrefSubview();
+                        return props.handleHrefSubview(i);
                     case OperationType.OP_DELETE:
-                        return props.handleDelete();
+                        return props.handleDelete(i);
                     case OperationType.OP_RESTORE:
-                        return props.handleRestore();
+                        return props.handleRestore(i);
                     case OperationType.OP_COPY:
-                        return props.handleCopy();
+                        return props.handleCopy(i);
                     case OperationType.SK_DOCUMENT:
                         return props.handleDocuments(i);
                     case OperationType.SK_PLUGIN:
                         return props.handlePlugins(i);
                     case OperationType.OP_ARCHIVE:
-                        return props.handleArchive();
+                        return props.handleArchive(i);
                     case OperationType.OP_PUBLISH:
-                        return props.handlePublish();
+                        return props.handlePublish(i);
                     case OperationType.OP_FORMULA:
                         return props.handleFormula(i);
                     case OperationType.OP_DOWNLOAD:
-                        return props.handleDownload();
+                        return props.handleDownload(i);
                     case OperationType.OP_HISTORY:
-                        return props.handleHistory();
+                        return props.handleHistory(i);
                     case OperationType.OP_ATTACHMENTS:
-                        return props.handleAttachments();
+                        return props.handleAttachments(i);
                     case OperationType.OP_BATCH:
                     case OperationType.SK_BATCH:
                         return props.handleBatch(i);
                     case OperationType.OP_ADD_LEVEL:
-                        return props.handleAddLevel();
+                        return props.handleAddLevel(i);
                     case OperationType.OP_UP:
-                        return props.handleUp();
+                        return props.handleUp(i);
                     case OperationType.OP_DOWN:
-                        return props.handleDown();
+                        return props.handleDown(i);
                     case OperationType.OP_FILL:
-                        return props.handleFill();
+                        return props.handleFill(i);
                     case OperationType.OP_TREE_EXPAND:
-                        return props.handleExpand();
+                        return props.handleExpand(i);
                     case OperationType.OP_TREE_COLLAPSE:
-                        return props.handleCollapse();
+                        return props.handleCollapse(i);
                     case OperationType.OP_TREE_CHECK:
-                        return props.handleCheck();
+                        return props.handleCheck(i);
                     case OperationType.OP_TREE_UNCHECK:
-                        return props.handleUncheck();
+                        return props.handleUncheck(i);
                     default:
                         return null;
                 }
@@ -481,6 +521,17 @@ export const OperationsButtons = (props) => {
     const showOperationList = props.operationList?.length > 0;
     return (
         <React.Fragment>
+            {confirmationVisible && (
+                <ConfirmDialog
+                    visible={true}
+                    message={'Do you want to delete this record?'}
+                    position='Top'
+                    onAccept={accept}
+                    onHide={hide}
+                    header={'Delete confirmation'}
+                    icon='pi pi-info'
+                />
+            )}
             {!!props.operations &&
                 props.operations?.map((operation, index) => {
                     return <div key={index}>{renderOperationsButton(operation)}</div>;

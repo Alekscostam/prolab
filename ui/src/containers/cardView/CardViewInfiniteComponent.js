@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, {PureComponent} from 'react';
 import {DataGridUtils} from '../../utils/component/DataGridUtils';
 import {Breadcrumb} from '../../utils/BreadcrumbUtils';
 import $ from 'jquery';
@@ -14,18 +14,19 @@ import OperationsButtons from '../../components/prolab/OperationsButtons';
 import {EditSpecUtils} from '../../utils/EditSpecUtils';
 import {compress} from 'int-compress-string';
 import {TreeListUtils} from '../../utils/component/TreeListUtils';
-import { StringUtils } from '../../utils/StringUtils';
+import {StringUtils} from '../../utils/StringUtils';
 import EntryResponseHelper from '../../utils/helper/EntryResponseHelper';
 import ImageViewerComponent from '../../components/ImageViewerComponent';
-import { MenuWithButtons } from '../../components/prolab/MenuWithButtons';
+import {MenuWithButtons} from '../../components/prolab/MenuWithButtons';
 import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils';
+import {SelectedRowKeysUtils} from '../../utils/SelectedRowKeysUtils';
 
 class CardViewInfiniteComponent extends PureComponent {
     constructor(props) {
         super(props);
         this.crudService = new CrudService();
-        this.labels = this.props;        
-        this.menu = React.createRef();                
+        this.labels = this.props;
+        this.menu = React.createRef();
         this.clickedPosition = React.createRef();
         this.dataCardStore = new DataCardStore();
         this.state = {
@@ -54,6 +55,7 @@ class CardViewInfiniteComponent extends PureComponent {
             this.setState({columnCount: this.calculateColumns(windowSizeWidth, cardWidth)});
         }
     }
+
     showMenu(e, rowData) {
         const menu = this.menu.current;
         ActionButtonWithMenuUtils.hideActionButtonWithMenuPopup();
@@ -63,7 +65,10 @@ class CardViewInfiniteComponent extends PureComponent {
             e.stopPropagation();
             e.preventDefault();
             menu.show(e);
-            this.setState({selectedRecordId: rowData.ID, selectedRowData:rowData}, () => {
+            if (this.isSelectionEnabled()) {
+                this.selectRowKeys(this.props.selectedRowKeys, rowData.ID);
+            }
+            this.setState({selectedRecordId: rowData.ID, selectedRowData: rowData}, () => {
                 const menu = document.getElementById('menu-with-buttons');
                 const menuHeight = menu.clientHeight + 50;
                 const browserHeight = window.innerHeight;
@@ -74,14 +79,22 @@ class CardViewInfiniteComponent extends PureComponent {
                 menu.style.left = mouseX + 'px';
                 menu.style.top = heighY + 'px';
                 this.clickedPosition.current = {
-                    x:mouseX +"px",
-                    y:mouseY + 'px'
-                }
+                    x: mouseX + 'px',
+                    y: mouseY + 'px',
+                };
             });
         } else if (menu !== null && !!rowData) {
             menu.hide(e);
         }
     }
+    selectRowKeys = (currentSelectedRowKeys, recordId, callback) => {
+        const selectedRowKeys = SelectedRowKeysUtils.mergeKeysWithRecordId(recordId, currentSelectedRowKeys, false);
+        this.props.handleSelectedRowKeys(selectedRowKeys, () => {
+            if (callback) {
+                callback();
+            }
+        });
+    };
     isSelectionEnabled() {
         return !!this.props.handleSelectedRowKeys && !!this.props.selectedRowKeys;
     }
@@ -178,8 +191,10 @@ class CardViewInfiniteComponent extends PureComponent {
                                     hasNextPage: state.items.length < res.totalCount,
                                     isNextPageLoading: false,
                                     items: items,
+                                    totalCount: res.totalCount,
                                 }),
                                 () => {
+                                    this.props.handleTotalCounts(res.totalCount);
                                     this.props.handleUnblockUi();
                                 }
                             );
@@ -210,19 +225,122 @@ class CardViewInfiniteComponent extends PureComponent {
         );
     }
     onHideImageViewer = () => {
-            this.setState(
-                {
-                    imageViewer: {
-                        imageViewDialogVisible: false,
-                        imageBase64: '',
-                    },
-                }
-            );
-    }
+        this.setState({
+            imageViewer: {
+                imageViewDialogVisible: false,
+                imageBase64: '',
+            },
+        });
+    };
+
+    handleEdit = (rowData) => {
+        const elementId = this.props.id;
+        const subviewId = elementSubViewId ? elementId : undefined;
+        const recordId = rowData.ID;
+        const elementSubViewId = this.props.elementSubViewId;
+        const elementKindView = this.props.elementKindView;
+        const viewId = DataGridUtils.getRealViewId(elementSubViewId, elementId);
+        const result = this.props.handleBlockUi();
+        if (result) {
+            this.crudService
+                .editEntry(viewId, recordId, subviewId, elementKindView, '')
+                .then((entryResponse) => {
+                    EntryResponseHelper.run(
+                        entryResponse,
+                        () => {
+                            if (!!entryResponse.next) {
+                                this.crudService
+                                    .edit(viewId, recordId, subviewId, elementKindView)
+                                    .then((editDataResponse) => {
+                                        this.setState(
+                                            {
+                                                editData: editDataResponse,
+                                            },
+                                            () => {
+                                                this.props.handleShowEditPanel(editDataResponse);
+                                            }
+                                        );
+                                    })
+                                    .catch((err) => {
+                                        this.props.showErrorMessages(err);
+                                    });
+                            } else {
+                                this.props.handleUnblockUi();
+                            }
+                        },
+                        () => this.props.handleUnblockUi(),
+                        () => this.props.handleUnblockUi()
+                    );
+                })
+                .catch((err) => {
+                    this.props.showErrorMessages(err);
+                });
+        }
+    };
+
+    handleEditSpec = (rowData) => {
+        const elementSubViewId = this.props.elementSubViewId;
+        const elementId = this.props.id;
+        const parentId = this.props?.elementRecordId;
+        const viewId = DataGridUtils.getRealViewId(elementSubViewId, elementId);
+        const recordId = rowData.ID;
+        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+        const prevUrl = window.location.href;
+        sessionStorage.setItem('prevUrl', prevUrl);
+        TreeListUtils.openEditSpec(
+            viewId,
+            TreeListUtils.isKindViewSpec(this.props.parsedGridView) ? parentId : recordId,
+            TreeListUtils.isKindViewSpec(this.props.parsedGridView) ? [recordId] : [],
+            currentBreadcrumb,
+            () => this.props.handleUnblockUi(),
+            (err) => this.props.showErrorMessages(err)
+        );
+    };
+    handleHrefSubview = (rowData) => {
+        const elementSubViewId = this.props.elementSubViewId;
+        const elementId = this.props.id;
+        const viewId = DataGridUtils.getRealViewId(elementSubViewId, elementId);
+        const recordId = rowData.ID;
+        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+        const newUrl = AppPrefixUtils.locationHrefUrl(
+            `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${
+                !!currentBreadcrumb ? currentBreadcrumb : ``
+            }`
+        );
+        window.location.assign(newUrl);
+    };
+
+    hrefSubview = (rowData) => {
+        const elementSubViewId = this.props.elementSubViewId;
+        const elementId = this.props.id;
+        const viewId = DataGridUtils.getRealViewId(elementSubViewId, elementId);
+        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+        const recordId = rowData.ID;
+        return AppPrefixUtils.locationHrefUrl(
+            `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${
+                !!currentBreadcrumb ? currentBreadcrumb : ``
+            }`
+        );
+    };
+
+    hrefSpecView = (rowData) => {
+        const parentId = this.props?.elementRecordId;
+        const elementSubViewId = this.props.elementSubViewId;
+        const elementId = this.props.id;
+        const viewId = DataGridUtils.getRealViewId(elementSubViewId, elementId);
+        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+        const recordId = rowData.ID;
+        return EditSpecUtils.editSpecUrl(
+            viewId,
+            TreeListUtils.isKindViewSpec(this.props.parsedGridView) ? parentId : recordId,
+            compress(TreeListUtils.isKindViewSpec(this.props.parsedGridView) ? [recordId] : []),
+            currentBreadcrumb
+        );
+    };
     render() {
         const cardHeight = this.props.parsedCardView?.cardOptions?.height ?? 200;
-        const selectedRecordId =  this.state.selectedRecordId;
-        const selectedRowData =  this.state.selectedRowData;
+        const selectedRecordId = this.state.selectedRecordId;
+        const selectedRowData = this.state.selectedRowData;
         const imageViewer = this.state.imageViewer;
         const isItemLoaded = (index) => !this.state.hasNextPage || index < this.state.items.length;
         const Item = ({index, style}) => {
@@ -235,11 +353,9 @@ class CardViewInfiniteComponent extends PureComponent {
                 return (
                     <React.Fragment>
                         {!!rowData ? (
-                            <div id={'row'}  className={'tiles'} style={style}>
+                            <div id={'row'} className={'tiles'} style={style}>
                                 {React.Children.toArray(
-                                    Array.from(rowData).map((data) =>
-                                        this.renderSingleTile(data, index)
-                                    )
+                                    Array.from(rowData).map((data) => this.renderSingleTile(data, index))
                                 )}
                             </div>
                         ) : null}
@@ -269,31 +385,36 @@ class CardViewInfiniteComponent extends PureComponent {
                     <MenuWithButtons
                         gridView={this.props.parsedCardView}
                         clickedPosition={this.clickedPosition}
-                        handleEdit={() => {this.handleEdit(selectedRowData)}}
-                        handleEditSpec={()=> {this.handleEditSpec(selectedRowData)}}
-                        handlePlugins={(e) =>  
-                            this.props.handlePluginRow(e.id, selectedRecordId)
-                        }
+                        handleEdit={(e) => {
+                            this.preOperationAction(e, () => this.handleEdit(selectedRowData));
+                        }}
+                        handleEditSpec={(e) => {
+                            this.preOperationAction(e, () => this.handleEditSpec(selectedRowData));
+                        }}
+                        handlePlugins={(e) => this.preOperationAction(e, () => this.props.handlePluginRow(e.id))}
                         handleDocuments={(e) => {
-                            this.props.handleDocumentRow(e.id, selectedRecordId)
+                            this.preOperationAction(e, () => this.props.handleDocumentRow(e.id));
                         }}
                         handleAdd={() => this.props.addButtonFunction()}
-                        handleAddSpec={()=>this.props.addButtonFunction()}
+                        handleAddSpec={() => this.props.addButtonFunction()}
                         handleHrefSubview={() => this.handleHrefSubview(selectedRowData)}
-                        handleCopy={() => {this.props.handleCopyRow(selectedRowData)}}
-                        handleArchive={() => this.props.handleArchiveRow(selectedRecordId)}
-                        handleDownload={() => this.props.handleDownloadRow(selectedRecordId)}
-                        handleAttachments={() => this.props.handleAttachmentRow(selectedRecordId)}
-                        handleDelete={() => this.props.handleDeleteRow(selectedRecordId)}
-                        handleFormula={() => this.props.handleFormulaRow(selectedRecordId)}
-                        handleHistory={() => this.props.handleHistoryLogRow(selectedRecordId)}
-                        handleRestore={() => this.props.handleRestoreRow(selectedRecordId)}
-                        handlePublish={() => this.props.handlePublishRow(selectedRecordId)}
+                        handleCopy={(e) => {
+                            this.preOperationAction(e, () => this.props.handleCopyRow());
+                        }}
+                        handleArchive={(e) => this.preOperationAction(e, () => this.props.handleArchiveRow())}
+                        handleDownload={(e) => this.preOperationAction(e, () => this.props.handleDownloadRow())}
+                        handleAttachments={(e) => this.preOperationAction(e, () => this.props.handleAttachmentRow())}
+                        handleDelete={(e) => this.preOperationAction(e, () => this.props.handleDeleteRow())}
+                        handleFormula={(e) => this.preOperationAction(e, () => this.props.handleFormulaRow())}
+                        handleHistory={(e) => this.preOperationAction(e, () => this.props.handleHistoryLogRow())}
+                        handleRestore={(e) => this.preOperationAction(e, () => this.props.handleRestoreRow())}
+                        handlePublish={(e) => this.preOperationAction(e, () => this.props.handlePublishRow())}
                         operationList={this.props.parsedCardView.operationsPPM}
                         menu={this.menu}
                     />
                 )}
-                {imageViewer.imageViewDialogVisible && <ImageViewerComponent
+                {imageViewer.imageViewDialogVisible && (
+                    <ImageViewerComponent
                         editable={false}
                         header={imageViewer.header}
                         onHide={() => {
@@ -307,131 +428,21 @@ class CardViewInfiniteComponent extends PureComponent {
                         viewBase64={imageViewer.imageBase64}
                         labels={this.labels}
                         visible
-                    /> }
+                    />
+                )}
             </React.Fragment>
         );
     }
-    handleEdit = (rowData) => {
-        const elementId = this.props.id;
-        const subviewId = elementSubViewId ? elementId : undefined;
-        const recordId = rowData.ID;
-        const elementSubViewId = this.props.elementSubViewId;
-        const elementKindView = this.props.elementKindView;
-        const viewId = DataGridUtils.getRealViewId(elementSubViewId, elementId);
-        const result = this.props.handleBlockUi();
-        if (result) {
-            this.crudService
-                .editEntry(viewId, recordId, subviewId, elementKindView, '')
-                .then((entryResponse) => {
-                    EntryResponseHelper.run(
-                        entryResponse,
-                        () => {
-                            if (!!entryResponse.next) {
-                                this.crudService
-                                    .edit(
-                                        viewId,
-                                        recordId,
-                                        subviewId,
-                                        elementKindView
-                                    )
-                                    .then((editDataResponse) => {
-                                        this.setState(
-                                            {
-                                                editData: editDataResponse,
-                                            },
-                                            () => {
-                                                this.props.handleShowEditPanel(
-                                                    editDataResponse
-                                                );
-                                            }
-                                        );
-                                    })
-                                    .catch((err) => {
-                                        this.props.showErrorMessages(err);
-                                    });
-                            } else {
-                                this.props.handleUnblockUi();
-                            }
-                        },
-                        () => this.props.handleUnblockUi(),
-                        () => this.props.handleUnblockUi()
-                    );
-                })
-                .catch((err) => {
-                    this.props.showErrorMessages(err);
-                });
+    preOperationAction = (operation, callback, recordId = this.state.selectedRecordId) => {
+        if (this.isSelectionEnabled()) {
+            const onlyOneRecord = operation?.onlyOneRecord;
+            if (onlyOneRecord) {
+                this.selectRowKeys([], recordId, () => callback());
+                return;
+            }
         }
-    }
-
-    handleEditSpec =(rowData)=>{
-        const elementSubViewId = this.props.elementSubViewId;
-        const elementId = this.props.id;
-        const parentId = this.props?.elementRecordId;
-        const viewId = DataGridUtils.getRealViewId(elementSubViewId, elementId);
-        const recordId = rowData.ID;
-        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
-        const prevUrl = window.location.href;
-        sessionStorage.setItem('prevUrl', prevUrl);
-        TreeListUtils.openEditSpec(
-            viewId,
-            TreeListUtils.isKindViewSpec(this.props.parsedGridView)
-                ? parentId
-                : recordId,
-            TreeListUtils.isKindViewSpec(this.props.parsedGridView)
-                ? [recordId]
-                : [],
-            currentBreadcrumb,
-            () => this.props.handleUnblockUi(),
-            (err) => this.props.showErrorMessages(err)
-        );
-    }
-    handleHrefSubview = (rowData) => {
-        const elementSubViewId = this.props.elementSubViewId;
-        const elementId = this.props.id;
-        const viewId = DataGridUtils.getRealViewId(elementSubViewId, elementId);
-        const recordId = rowData.ID;
-        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
-        const newUrl = AppPrefixUtils.locationHrefUrl(
-            `/#/grid-view/${viewId}${
-                !!recordId ? `?recordId=${recordId}` : ``
-            }${!!currentBreadcrumb ? currentBreadcrumb : ``}`
-        );
-        window.location.assign(newUrl);
-    }
-
-    hrefSubview = (rowData) => {
-        const elementSubViewId = this.props.elementSubViewId;
-        const elementId = this.props.id;
-        const viewId = DataGridUtils.getRealViewId(elementSubViewId, elementId);
-        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
-        const recordId = rowData.ID;
-        return AppPrefixUtils.locationHrefUrl(
-            `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${
-                !!currentBreadcrumb ? currentBreadcrumb : ``
-            }`)
-    }   
-    
-    hrefSpecView = (rowData) => {
-        const parentId = this.props?.elementRecordId;
-        const elementSubViewId = this.props.elementSubViewId;
-        const elementId = this.props.id;
-        const viewId = DataGridUtils.getRealViewId(elementSubViewId, elementId);
-        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
-        const recordId = rowData.ID;
-        return EditSpecUtils.editSpecUrl(
-            viewId,
-            TreeListUtils.isKindViewSpec(this.props.parsedGridView)
-                ? parentId
-                : recordId,
-            compress(
-                TreeListUtils.isKindViewSpec(this.props.parsedGridView)
-                    ? [recordId]
-                    : []
-            ),
-            currentBreadcrumb
-        )
-    }
-
+        callback();
+    };
     renderSingleTile(rowData, index) {
         const parsedCardView = this.props.parsedCardView;
         const {cardBody, cardHeader, cardImage, cardFooter, cardOptions = {}} = parsedCardView;
@@ -441,7 +452,9 @@ class CardViewInfiniteComponent extends PureComponent {
         return (
             <React.Fragment>
                 <div
-                    onContextMenu={(e)=>{this.showMenu(e, rowData)}}
+                    onContextMenu={(e) => {
+                        this.showMenu(e, rowData);
+                    }}
                     key={index}
                     className={`dx-item dx-tile`}
                     onClick={() => {
@@ -466,14 +479,7 @@ class CardViewInfiniteComponent extends PureComponent {
                                         : ''
                                     : ''
                             }`}
-                            style={this.styleTile(
-                                rowData,
-                                bgColor1,
-                                bgColor2,
-                                fontColor,
-                                width,
-                                height
-                            )}
+                            style={this.styleTile(rowData, bgColor1, bgColor2, fontColor, width, height)}
                         >
                             <div className='row'>
                                 <div className='card-grid-header'>
@@ -494,37 +500,113 @@ class CardViewInfiniteComponent extends PureComponent {
                                             operations={this.props.parsedCardView.operationsRecord}
                                             operationList={this.props.parsedCardView.operationsRecordList}
                                             info={null}
-                                            handleEdit={()=>this.handleEdit(rowData)}
-                                            handleEditSpec={()=>this.handleEditSpec(rowData)}
+                                            handleEdit={(e) =>
+                                                this.preOperationAction(e, () => this.handleEdit(rowData), recordId)
+                                            }
+                                            handleEditSpec={() => this.handleEditSpec(rowData)}
                                             hrefSpecView={this.hrefSpecView(rowData)}
                                             hrefSubview={this.hrefSubview(rowData)}
-                                            handleHrefSubview={()=>{this.handleHrefSubview(rowData)}}
-                                            handleArchive={() => this.props.handleArchiveRow(recordId)}
-                                            handleDownload={() =>  this.props.handleDownloadRow(recordId)}
-                                            handleAttachments={() => this.props.handleAttachmentRow(recordId)}
-                                            handleCopy={() => this.props.handleCopyRow(recordId)}
-                                            handleDelete={() =>  this.props.handleDeleteRow(recordId)}
-                                            handleHistory={() => this.props.handleHistoryLogRow(recordId)}
-                                            handleFormula={() => this.props.handleFormulaRow(recordId)}
-                                            handleRestore={() => this.props.handleRestoreRow(recordId)}
-                                            handlePublish={() => this.props.handlePublishRow(recordId)}
-                                            handleDocuments={(el) => this.props.handleDocumentRow(el.id,recordId)}
-                                            handlePlugins={(el) => this.props.handlePluginRow(el.id, recordId)}
+                                            handleHrefSubview={() => {
+                                                this.handleHrefSubview(rowData);
+                                            }}
+                                            handleArchive={(e) =>
+                                                this.preOperationAction(
+                                                    e,
+                                                    () => this.props.handleArchiveRow(recordId),
+                                                    recordId
+                                                )
+                                            }
+                                            handleDownload={(e) =>
+                                                this.preOperationAction(
+                                                    e,
+                                                    () => this.props.handleDownloadRow(recordId),
+                                                    recordId
+                                                )
+                                            }
+                                            handleAttachments={(e) =>
+                                                this.preOperationAction(
+                                                    e,
+                                                    () => this.props.handleAttachmentRow(recordId),
+                                                    recordId
+                                                )
+                                            }
+                                            handleCopy={(e) =>
+                                                this.preOperationAction(
+                                                    e,
+                                                    () => this.props.handleCopyRow(recordId),
+                                                    recordId
+                                                )
+                                            }
+                                            handleDelete={(e) =>
+                                                this.preOperationAction(
+                                                    e,
+                                                    () => this.props.handleDeleteRow(recordId),
+                                                    recordId
+                                                )
+                                            }
+                                            handleHistory={(e) =>
+                                                this.preOperationAction(
+                                                    e,
+                                                    () => this.props.handleHistoryLogRow(recordId),
+                                                    recordId
+                                                )
+                                            }
+                                            handleFormula={(e) =>
+                                                this.preOperationAction(
+                                                    e,
+                                                    () => this.props.handleFormulaRow(recordId),
+                                                    recordId
+                                                )
+                                            }
+                                            handleRestore={(e) =>
+                                                this.preOperationAction(
+                                                    e,
+                                                    () => this.props.handleRestoreRow(recordId),
+                                                    recordId
+                                                )
+                                            }
+                                            handlePublish={(e) =>
+                                                this.preOperationAction(
+                                                    e,
+                                                    () => this.props.handlePublishRow(recordId),
+                                                    recordId
+                                                )
+                                            }
+                                            handleDocuments={(e) =>
+                                                this.preOperationAction(
+                                                    e,
+                                                    () => this.props.handleDocumentRow(e.id, recordId),
+                                                    recordId
+                                                )
+                                            }
+                                            handlePlugins={(e) =>
+                                                this.preOperationAction(
+                                                    e,
+                                                    () => this.props.handlePluginRow(e.id, recordId),
+                                                    recordId
+                                                )
+                                            }
                                             handleBlockUi={() => this.props.handleBlockUi()}
                                         />
                                     </div>
                                 </div>
                                 <div className='card-grid-body'>
                                     {cardImage?.visible && cardImage?.fieldName && rowData[cardImage?.fieldName]
-                                        ? CardViewUtils.cellTemplate(cardImage, rowData, 'card-grid-body-image', 'IMG', (rowData, title)=>{
-                                                this.setState({
-                                                    imageViewer: {
-                                                        imageViewDialogVisible: true,
-                                                        imageBase64: "data:image/jpeg;base64,"+rowData,
-                                                        header: title,
-                                                    },
-                                                })
-                                        })
+                                        ? CardViewUtils.cellTemplate(
+                                              cardImage,
+                                              rowData,
+                                              'card-grid-body-image',
+                                              'IMG',
+                                              (rowData, title) => {
+                                                  this.setState({
+                                                      imageViewer: {
+                                                          imageViewDialogVisible: true,
+                                                          imageBase64: 'data:image/jpeg;base64,' + rowData,
+                                                          header: title,
+                                                      },
+                                                  });
+                                              }
+                                          )
                                         : null}
                                     {cardBody?.visible
                                         ? CardViewUtils.cellTemplate(

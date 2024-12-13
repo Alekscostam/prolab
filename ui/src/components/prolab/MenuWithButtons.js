@@ -1,155 +1,155 @@
 import {Menu} from 'primereact/menu';
 import {OperationType} from '../../enum/OperationType';
-import React, { useEffect, useRef, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 
 export const MenuWithButtons = (props) => {
-    
     const menuExtended = useRef(null);
     const [itemsExtended, setItemsExtended] = useState([]);
     const [items, setItems] = useState([]);
 
-    const handleExtendedItems = (event, list, type) =>{
+    const handleExtendedItems = (event, list, type) => {
         props.menu.current.hide(event.originalEvent);
         menuExtended.current.show(event.originalEvent);
-        setTimeout(()=>{
-            setItemsExtended(menuItemsExtended(list,type))
+        setTimeout(() => {
+            setItemsExtended(menuItemsExtended(list, type));
             const clickedPosition = props.clickedPosition.current;
             const menuWithButtons = document.getElementById('menu-with-buttons-extended');
             menuWithButtons.style.left = clickedPosition.x;
             menuWithButtons.style.top = clickedPosition.y;
-        },10);
-    }
+        }, 10);
+    };
 
     useEffect(() => {
         setItems(menuItems());
         return () => {};
     }, [props]);
 
-
-    const menuItemsExtended = (items, type)=> {
-      return items.map((i, index)=>{
-        return {
-            key: 'menu-items-extended' + index,
-            label: i.label,
-            command: () => {
-                switch (type?.toUpperCase()) {
-                    case OperationType.OP_DOCUMENTS:
-                        props.handleDocuments(i);
-                    return;
-                    case OperationType.OP_PLUGINS:
-                        props.handlePlugins(i);
-                    return;
-                    case OperationType.OP_BATCH:
-                        props.handleBatch(i);
-                    return;
-                }
-            }
-        }
-      }) 
-    } 
-
-    const menuItems = () =>{
-       return props?.operationList ? props.operationList.map((i, index) => {
-            let url = undefined;
-            switch (i.type?.toUpperCase()) {
-                case OperationType.OP_EDIT_SPEC:
-                    url = props.hrefSpecView;
-                    break;
-                case OperationType.OP_SUBVIEWS:
-                    url = props.hrefSubview;
-                    break;
-                default:
-                    url = undefined;
-                    break;
-            }
+    const menuItemsExtended = (items, type) => {
+        return items.map((i, index) => {
             return {
-                key: 'menu-' + index,
-                className: i.className,
+                key: 'menu-items-extended' + index,
                 label: i.label,
-                icon: `mdi ${i.iconCode}`,
-                url: url,
-                command: (e) => {
-                    switch (i.type?.toUpperCase()) {
-                        case OperationType.OP_EDIT:
-                            return props.handleEdit();
-                        case OperationType.OP_EDIT_SPEC:
-                            return props.handleEditSpec();
-                        case OperationType.OP_ADDSPEC_SPEC:
-                            return props.handleAddSpecSpec();
-                        case OperationType.OP_ADD_SPEC:
-                            return props.handleAddSpec();
-                        case OperationType.OP_SUBVIEWS:
-                              return props.handleHrefSubview();
-                        case OperationType.OP_DELETE:
-                            return props.handleDelete();
-                        case OperationType.OP_RESTORE:
-                            return props.handleRestore();
-                        case OperationType.OP_COPY:
-                            return props.handleCopy();
-                        case OperationType.SK_DOCUMENT:
-                            return props.handleDocuments(i);
+                command: () => {
+                    switch (type?.toUpperCase()) {
                         case OperationType.OP_DOCUMENTS:
-                            if(props?.gridView)
-                              handleExtendedItems(e, props.gridView.documentsList, OperationType.OP_DOCUMENTS);
-                            return ()=>{};
-                        case OperationType.SK_PLUGIN:
-                            return props.handlePlugins(i);
+                            props.handleDocuments(i);
+                            return;
                         case OperationType.OP_PLUGINS:
-                            if(props?.gridView)
-                              handleExtendedItems(e, props.gridView.pluginsList, OperationType.OP_PLUGINS);
-                            return ()=>{};
-                        case OperationType.OP_ARCHIVE:
-                            return props.handleArchive();
-                        case OperationType.OP_PUBLISH:
-                            return props.handlePublish();
-                        case OperationType.OP_FORMULA:
-                            return props.handleFormula(i);
-                        case OperationType.OP_DOWNLOAD:
-                            return props.handleDownload();
-                        case OperationType.OP_HISTORY:
-                            return props.handleHistory();
-                        case OperationType.OP_ATTACHMENTS:
-                            return props.handleAttachments();
+                            props.handlePlugins(i);
+                            return;
                         case OperationType.OP_BATCH:
-                          if(props?.gridView)
-                              handleExtendedItems(e, props.gridView.batchesList, OperationType.OP_BATCH);
-                            return ()=>{};
-                        case OperationType.SK_BATCH:
-                            return props.handleBatch(i);
-                        case OperationType.OP_ADD_LEVEL:
-                            return props.handleAddLevel();
-                        case OperationType.OP_UP:
-                            return props.handleUp();
-                        case OperationType.OP_DOWN:
-                            return props.handleDown();
-                        case OperationType.OP_FILL:
-                            return props.handleFill();
-                        case OperationType.OP_SELECT:
-                            return props.handleSelect();
-                        case OperationType.OP_TREE_CHECK:
-                            return props.handleCheck();
-                        case OperationType.OP_TREE_UNCHECK:
-                            return props.handleUncheck();
-                        case OperationType.OP_ADDSPEC_ADD:
-                            return props.handleExecSpec();
-                        case OperationType.OP_ADD:
-                            return props.handleAdd();
-                        case OperationType.OP_ADDSPEC_COUNT:
-                            return props.handleAddSpecCount();
-                        case OperationType.OP_SAVE:
-                            return props.handleSaveAction();
-                        case OperationType.OP_TREE_EXPAND:
-                            return props.handleExpand();
-                        case OperationType.OP_TREE_COLLAPSE:
-                            return props.handleCollapse();
-                        default:
-                            console.log('error not found type: ' + i.type?.toUpperCase());
-                            return null;
+                            props.handleBatch(i);
+                            return;
                     }
                 },
             };
-        }) : [];
-    }
+        });
+    };
+
+    const menuItems = () => {
+        return props?.operationList
+            ? props.operationList.map((i, index) => {
+                  let url = undefined;
+                  switch (i.type?.toUpperCase()) {
+                      case OperationType.OP_EDIT_SPEC:
+                          url = props.hrefSpecView;
+                          break;
+                      case OperationType.OP_SUBVIEWS:
+                          url = props.hrefSubview;
+                          break;
+                      default:
+                          url = undefined;
+                          break;
+                  }
+                  return {
+                      key: 'menu-' + index,
+                      className: i.className,
+                      label: i.label,
+                      icon: `mdi ${i.iconCode}`,
+                      url: url,
+                      command: (e) => {
+                          switch (i.type?.toUpperCase()) {
+                              case OperationType.OP_EDIT:
+                                  return props.handleEdit(i);
+                              case OperationType.OP_EDIT_SPEC:
+                                  return props.handleEditSpec(i);
+                              case OperationType.OP_ADDSPEC_SPEC:
+                                  return props.handleAddSpecSpec(i);
+                              case OperationType.OP_ADD_SPEC:
+                                  return props.handleAddSpec(i);
+                              case OperationType.OP_SUBVIEWS:
+                                  return props.handleHrefSubview(i);
+                              case OperationType.OP_DELETE:
+                                  return props.handleDelete(i);
+                              case OperationType.OP_RESTORE:
+                                  return props.handleRestore(i);
+                              case OperationType.OP_COPY:
+                                  return props.handleCopy();
+                              case OperationType.SK_DOCUMENT:
+                                  return props.handleDocuments(i);
+                              case OperationType.OP_DOCUMENTS:
+                                  if (props?.gridView)
+                                      handleExtendedItems(e, props.gridView.documentsList, OperationType.OP_DOCUMENTS);
+                                  return () => {};
+                              case OperationType.SK_PLUGIN:
+                                  return props.handlePlugins(i);
+                              case OperationType.OP_PLUGINS:
+                                  if (props?.gridView)
+                                      handleExtendedItems(e, props.gridView.pluginsList, OperationType.OP_PLUGINS);
+                                  return () => {};
+                              case OperationType.OP_ARCHIVE:
+                                  return props.handleArchive(i);
+                              case OperationType.OP_PUBLISH:
+                                  return props.handlePublish(i);
+                              case OperationType.OP_FORMULA:
+                                  return props.handleFormula(i);
+                              case OperationType.OP_DOWNLOAD:
+                                  return props.handleDownload(i);
+                              case OperationType.OP_HISTORY:
+                                  return props.handleHistory(i);
+                              case OperationType.OP_ATTACHMENTS:
+                                  return props.handleAttachments(i);
+                              case OperationType.OP_BATCH:
+                                  if (props?.gridView)
+                                      handleExtendedItems(e, props.gridView.batchesList, OperationType.OP_BATCH);
+                                  return () => {};
+                              case OperationType.SK_BATCH:
+                                  return props.handleBatch(i);
+                              case OperationType.OP_ADD_LEVEL:
+                                  return props.handleAddLevel(i);
+                              case OperationType.OP_UP:
+                                  return props.handleUp(i);
+                              case OperationType.OP_DOWN:
+                                  return props.handleDown(i);
+                              case OperationType.OP_FILL:
+                                  return props.handleFill(i);
+                              case OperationType.OP_SELECT:
+                                  return props.handleSelect(i);
+                              case OperationType.OP_TREE_CHECK:
+                                  return props.handleCheck(i);
+                              case OperationType.OP_TREE_UNCHECK:
+                                  return props.handleUncheck(i);
+                              case OperationType.OP_ADDSPEC_ADD:
+                                  return props.handleExecSpec(i);
+                              case OperationType.OP_ADD:
+                                  return props.handleAdd(i);
+                              case OperationType.OP_ADDSPEC_COUNT:
+                                  return props.handleAddSpecCount(i);
+                              case OperationType.OP_SAVE:
+                                  return props.handleSaveAction(i);
+                              case OperationType.OP_TREE_EXPAND:
+                                  return props.handleExpand(i);
+                              case OperationType.OP_TREE_COLLAPSE:
+                                  return props.handleCollapse(i);
+                              default:
+                                  console.log('error not found type: ' + i.type?.toUpperCase());
+                                  return null;
+                          }
+                      },
+                  };
+              })
+            : [];
+    };
 
     return (
         <React.Fragment>
@@ -171,15 +171,15 @@ export const MenuWithButtons = (props) => {
                             return;
                         }
                     }
-                    setTimeout(()=>{
+                    setTimeout(() => {
                         props.menu.current.hide(e);
-                    },0)
+                    }, 0);
                 }}
                 model={items}
                 popup
                 ref={props.menu}
             />
-              <Menu
+            <Menu
                 id='menu-with-buttons-extended'
                 appendTo={document.body}
                 baseZIndex={props?.zIndex}
@@ -196,9 +196,9 @@ export const MenuWithButtons = (props) => {
                             return;
                         }
                     }
-                    setTimeout(()=>{
+                    setTimeout(() => {
                         menuExtended.current.hide(e);
-                    }, 0)
+                    }, 0);
                 }}
                 model={itemsExtended}
                 popup

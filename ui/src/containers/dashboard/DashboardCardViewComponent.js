@@ -12,8 +12,10 @@ import CrudService from '../../services/CrudService';
 import ConsoleHelper from '../../utils/ConsoleHelper';
 import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils';
 import {OperationType} from '../../enum/OperationType';
-import { TranslationUtils } from '../../utils/TranslationUtils';
+import {TranslationUtils} from '../../utils/TranslationUtils';
+import {CardBody} from '../../components/prolab/card/CardBody';
 
+// TODO: zrobic CardFooter i CardHeader
 class DashboardCardViewComponent extends React.Component {
     constructor(props) {
         super(props);
@@ -198,23 +200,14 @@ class DashboardCardViewComponent extends React.Component {
                                     ) : null}
                                 </div>
                                 <div className='card-grid-body'>
-                                    {cardImage?.visible && cardImage?.fieldName && rowData[cardImage?.fieldName]
-                                        ? CardViewUtils.cellTemplate(cardImage, rowData, 'card-grid-body-image', 'IMG', (rowData, title)=>{
-                                             this.props.onImageClick(rowData, title)
-                                         })
-                                        : null}
-                                    {cardBody?.visible
-                                        ? CardViewUtils.cellTemplate(
-                                              cardBody,
-                                              rowData,
-                                              'card-grid-body-content',
-                                              cardImage?.visible &&
-                                                  cardImage?.fieldName &&
-                                                  rowData[cardImage?.fieldName]
-                                                  ? 'BODY_WITH_IMG'
-                                                  : 'BODY'
-                                          )
-                                        : null}
+                                    <CardBody
+                                        image={cardImage}
+                                        body={cardBody}
+                                        imageClick={(rowData, title) => {
+                                            this.props.onImageClick(rowData, title);
+                                        }}
+                                        rowData={rowData}
+                                    />
                                 </div>
                                 <div className='card-grid-footer'>
                                     {cardFooter?.visible

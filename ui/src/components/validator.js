@@ -2,7 +2,8 @@
 /* eslint-disable max-len */
 import React from 'react';
 import moment from 'moment';
-import ConsoleHelper from "../utils/ConsoleHelper";
+import ConsoleHelper from '../utils/ConsoleHelper';
+import Constants from '../utils/Constants';
 
 class SimpleReactValidator {
     constructor(options = {}) {
@@ -17,24 +18,40 @@ class SimpleReactValidator {
             },
             after: {
                 message: 'Pole :attribute musi być datą późniejszą niż :date.',
-                rule: (val, params) => this.helpers.momentInstalled() && moment.isMoment(moment(val)) && moment(val).isAfter(params[0], 'day'),
+                rule: (val, params) =>
+                    this.helpers.momentInstalled() &&
+                    moment.isMoment(moment(val)) &&
+                    moment(val).isAfter(params[0], 'day'),
                 messageReplace: (message, params) => message.replace(':date', moment(params[0]).format(params[1])),
             },
             after_or_equal: {
                 message: 'Pole :attribute musi być datą nie wcześniejszą niż :date.',
-                rule: (val, params) => this.helpers.momentInstalled() && moment.isMoment(moment(val)) && moment(val).isSameOrAfter(params[0], 'day'),
+                rule: (val, params) =>
+                    this.helpers.momentInstalled() &&
+                    moment.isMoment(moment(val)) &&
+                    moment(val).isSameOrAfter(params[0], 'day'),
                 messageReplace: (message, params) => message.replace(':date', moment(params[0]).format(params[1])),
             },
             after_or_equal_time: {
                 message: 'Pole :attribute musi być godziną nie wcześniejszą niż :date.',
                 rule: (val, params) =>
-                    this.helpers.momentInstalled() && moment.isMoment(moment(val, "HH:mm:ss")) && new Date(val).getTime() >= new Date(`${moment(new Date()).format('YYYY-MM-DD').toString()}T${params[0]}`),
+                    this.helpers.momentInstalled() &&
+                    moment.isMoment(moment(val, 'HH:mm:ss')) &&
+                    new Date(val).getTime() >=
+                        new Date(
+                            `${moment(new Date()).format(Constants.DATE_FORMAT.YYYY_MM_DD).toString()}T${params[0]}`
+                        ),
                 messageReplace: (message, params) => message.replace(':date', params[0]),
             },
             before_or_equal_time: {
                 message: 'Pole :attribute musi być godziną nie późniejszą niż :date.',
                 rule: (val, params) =>
-                    this.helpers.momentInstalled() && moment.isMoment(moment(val, "HH:mm:ss")) && new Date(val).getTime() <= new Date(`${moment(new Date()).format('YYYY-MM-DD').toString()}T${params[0]}`),
+                    this.helpers.momentInstalled() &&
+                    moment.isMoment(moment(val, 'HH:mm:ss')) &&
+                    new Date(val).getTime() <=
+                        new Date(
+                            `${moment(new Date()).format(Constants.DATE_FORMAT.YYYY_MM_DD).toString()}T${params[0]}`
+                        ),
                 messageReplace: (message, params) => message.replace(':date', params[0]),
             },
             alpha: {
@@ -72,18 +89,30 @@ class SimpleReactValidator {
             },
             before: {
                 message: 'Pole :attribute musi być datą wcześniejszą niż :date.',
-                rule: (val, params) => this.helpers.momentInstalled() && moment.isMoment(moment(val)) && moment(val).isBefore(params[0], 'day'),
+                rule: (val, params) =>
+                    this.helpers.momentInstalled() &&
+                    moment.isMoment(moment(val)) &&
+                    moment(val).isBefore(params[0], 'day'),
                 messageReplace: (message, params) => message.replace(':date', moment(params[0]).format(params[1])),
             },
             before_or_equal: {
                 message: 'Pole :attribute musi być datą nie późniejszą niż :date.',
-                rule: (val, params) => this.helpers.momentInstalled() && moment.isMoment(moment(val)) && moment(val).isSameOrBefore(params[0], 'day'),
+                rule: (val, params) =>
+                    this.helpers.momentInstalled() &&
+                    moment.isMoment(moment(val)) &&
+                    moment(val).isSameOrBefore(params[0], 'day'),
                 messageReplace: (message, params) => message.replace(':date', moment(params[0]).format(params[1])),
             },
             between: {
                 message: 'Pole :attribute musi mieć wartość pomiędzy :min a :max:type.',
-                rule: (val, params) => this.helpers.size(val, params[2]) >= parseFloat(params[0]) && this.helpers.size(val, params[2]) <= parseFloat(params[1]),
-                messageReplace: (message, params) => message.replace(':min', params[0]).replace(':max', params[1]).replace(':type', this.helpers.sizeText(params[2])),
+                rule: (val, params) =>
+                    this.helpers.size(val, params[2]) >= parseFloat(params[0]) &&
+                    this.helpers.size(val, params[2]) <= parseFloat(params[1]),
+                messageReplace: (message, params) =>
+                    message
+                        .replace(':min', params[0])
+                        .replace(':max', params[1])
+                        .replace(':type', this.helpers.sizeText(params[2])),
             },
             boolean: {
                 message: 'Pole :attribute must be a boolean.',
@@ -107,12 +136,18 @@ class SimpleReactValidator {
             },
             date_format: {
                 message: 'Pole :attribute musi być datą w formacie :dateFormat.',
-                rule: (val, params) => this.helpers.momentInstalled() && moment(val, params[0], true).isValid() && moment.isMoment(moment(val)),
+                rule: (val, params) =>
+                    this.helpers.momentInstalled() &&
+                    moment(val, params[0], true).isValid() &&
+                    moment.isMoment(moment(val)),
                 messageReplace: (message, params) => message.replace(':dateFormat', params[1]),
             },
             date_equals: {
                 message: 'Pole :attribute must be on :date.',
-                rule: (val, params) => this.helpers.momentInstalled() && moment.isMoment(moment(val)) && moment(val).isSame(params[0], 'day'),
+                rule: (val, params) =>
+                    this.helpers.momentInstalled() &&
+                    moment.isMoment(moment(val)) &&
+                    moment(val).isSame(params[0], 'day'),
                 messageReplace: (message, params) => message.replace(':date', moment(params[0]).format(params[1])),
             },
             email: {
@@ -136,12 +171,14 @@ class SimpleReactValidator {
             max: {
                 message: 'Pole :attribute maksymalna długość :max:type.',
                 rule: (val, params) => this.helpers.size(val, params[1]) <= parseFloat(params[0]),
-                messageReplace: (message, params) => message.replace(':max', params[0]).replace(':type', this.helpers.sizeText(params[1])),
+                messageReplace: (message, params) =>
+                    message.replace(':max', params[0]).replace(':type', this.helpers.sizeText(params[1])),
             },
             min: {
                 message: 'Pole :attribute minimalna długość :min:type.',
                 rule: (val, params) => this.helpers.size(val, params[1]) >= parseFloat(params[0]),
-                messageReplace: (message, params) => message.replace(':min', params[0]).replace(':type', this.helpers.sizeText(params[1])),
+                messageReplace: (message, params) =>
+                    message.replace(':min', params[0]).replace(':type', this.helpers.sizeText(params[1])),
             },
             nip: {
                 message: 'Pole :attribute musi być poprawnym numerem NIP.',
@@ -154,7 +191,11 @@ class SimpleReactValidator {
             },
             not_regex: {
                 message: 'Pole :attribute nie może pasować do wzorca.',
-                rule: (val, params) => !this.helpers.testRegex(val, typeof params[0] === 'string' || params[0] instanceof String ? new RegExp(params[0]) : params[0]),
+                rule: (val, params) =>
+                    !this.helpers.testRegex(
+                        val,
+                        typeof params[0] === 'string' || params[0] instanceof String ? new RegExp(params[0]) : params[0]
+                    ),
             },
             numeric: {
                 message: 'Pole :attribute musi być liczbą.',
@@ -173,13 +214,24 @@ class SimpleReactValidator {
                 rule: (val) => this.helpers.testRegex(val, /^\+[0-9]{2}[0-9]{9}$/),
             },
             password: {
-                message: 'Pole :attribute musi się składać z minimum :min znaków, zawierać co najmniej jedną małą i dużą literę, cyfrę oraz znak specjalny spośród !@#$%^&*(){}[]|:";\'<>?,./',
-                rule: (val, params) => this.helpers.testRegex(val, new RegExp(`^(?=.*\\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(){}[\\\]|:";'<>?,.\\\/])[a-zA-ZĄĆĘŁŃÓŚŹŻąćęłńóśźż0-9!@#$%^&*(){}[\\\]|:";'<>?,.\\\/]{${params[0]},}$`)),
+                message:
+                    'Pole :attribute musi się składać z minimum :min znaków, zawierać co najmniej jedną małą i dużą literę, cyfrę oraz znak specjalny spośród !@#$%^&*(){}[]|:";\'<>?,./',
+                rule: (val, params) =>
+                    this.helpers.testRegex(
+                        val,
+                        new RegExp(
+                            `^(?=.*\\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(){}[\\\]|:";'<>?,.\\\/])[a-zA-ZĄĆĘŁŃÓŚŹŻąćęłńóśźż0-9!@#$%^&*(){}[\\\]|:";'<>?,.\\\/]{${params[0]},}$`
+                        )
+                    ),
                 messageReplace: (message, params) => message.replace(':min', params[0]),
             },
             regex: {
                 message: 'Pole :attribute musi pasować do wzorca.',
-                rule: (val, params) => this.helpers.testRegex(val, typeof params[0] === 'string' || params[0] instanceof String ? new RegExp(params[0]) : params[0]),
+                rule: (val, params) =>
+                    this.helpers.testRegex(
+                        val,
+                        typeof params[0] === 'string' || params[0] instanceof String ? new RegExp(params[0]) : params[0]
+                    ),
             },
             regon: {
                 message: 'Pole :attribute musi być poprawnym numerem REGON.',
@@ -202,7 +254,8 @@ class SimpleReactValidator {
             size: {
                 message: 'Pole :attribute musi być mniejsze niż :size:type.',
                 rule: (val, params) => this.helpers.size(val, params[1]) === parseFloat(params[0]),
-                messageReplace: (message, params) => message.replace(':size', params[0]).replace(':type', this.helpers.sizeText(params[1])),
+                messageReplace: (message, params) =>
+                    message.replace(':size', params[0]).replace(':type', this.helpers.sizeText(params[1])),
             },
             time: {
                 message: 'Pole :attribute musi być w formacie GG:MM',
@@ -261,10 +314,15 @@ class SimpleReactValidator {
         } else if (typeof navigator === 'object' && navigator.product === 'ReactNative') {
             this.element = (message) => message;
         } else {
-            this.element = (message, className, id) => React.createElement('div', {
-                className: className || this.className || 'srv-validation-message',
-                id: `${id}-error`
-            }, message);
+            this.element = (message, className, id) =>
+                React.createElement(
+                    'div',
+                    {
+                        className: className || this.className || 'srv-validation-message',
+                        id: `${id}-error`,
+                    },
+                    message
+                );
         }
         this.helpers = {
             parent: this,
@@ -328,7 +386,11 @@ class SimpleReactValidator {
                         switch (params[0]) {
                             case 'password':
                                 const validationParams = params[1].split(',');
-                                if (validationParams !== undefined && validationParams !== null && validationParams.length >= 1) {
+                                if (
+                                    validationParams !== undefined &&
+                                    validationParams !== null &&
+                                    validationParams.length >= 1
+                                ) {
                                     return validationParams;
                                 } else {
                                     return [9];
@@ -355,7 +417,9 @@ class SimpleReactValidator {
                             case 'regex':
                                 return [params[1]];
                             case 'equals':
-                                const validationParamsEquals = params[1].replace(/,(?=([^~]*~[^~]*~)*[^~]*$)/g, '`').split('`');
+                                const validationParamsEquals = params[1]
+                                    .replace(/,(?=([^~]*~[^~]*~)*[^~]*$)/g, '`')
+                                    .split('`');
                                 if (validationParamsEquals[0]) {
                                     return [validationParamsEquals[0].replace(/~/g, ''), validationParamsEquals[1]];
                                 } else {
@@ -375,7 +439,11 @@ class SimpleReactValidator {
             },
 
             toSentence(arr) {
-                return arr.slice(0, -2).join(', ') + (arr.slice(0, -2).length ? ', ' : '') + arr.slice(-2).join(arr.length > 2 ? ', or ' : ' or ');
+                return (
+                    arr.slice(0, -2).join(', ') +
+                    (arr.slice(0, -2).length ? ', ' : '') +
+                    arr.slice(-2).join(arr.length > 2 ? ', or ' : ' or ')
+                );
             },
 
             testRegex(value, regex) {
@@ -491,7 +559,12 @@ class SimpleReactValidator {
 
             message(rule, field, options, rules) {
                 options.messages = options.messages || {};
-                const message = options.messages[rule] || options.messages.default || this.parent.messages[rule] || this.parent.messages.default || rules[rule].message;
+                const message =
+                    options.messages[rule] ||
+                    options.messages.default ||
+                    this.parent.messages[rule] ||
+                    this.parent.messages.default ||
+                    rules[rule].message;
                 return message.replace(':attribute', field);
             },
 

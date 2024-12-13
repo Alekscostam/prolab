@@ -28,6 +28,7 @@ import {InputType} from '../enum/InputType';
 import {ColumnType} from '../enum/ColumnType';
 import {StringUtils} from '../utils/StringUtils';
 import {RequestUtils} from '../utils/RequestUtils';
+import Constants from '../utils/Constants';
 
 let clickCount = 0;
 let timeout;
@@ -60,6 +61,7 @@ export class BaseRowComponent extends BaseContainer {
             'Times New Roman',
             'Verdana',
         ];
+        this.refsTextAreaArray = [];
         this.headerValues = [false, 1, 2, 3, 4, 5];
         this.messages = React.createRef();
         this.calendarDateTimeRef = React.createRef();
@@ -785,6 +787,7 @@ export class BaseRowComponent extends BaseContainer {
                             {required ? '*' : ''}
                         </label>
                         <HtmlEditor
+                            ref={(el) => (this.refsTextAreaArray[fieldIndex] = el)}
                             id={`editor_${fieldIndex}`}
                             onContentReady={(e) => {
                                 e.element.className = `editor ${editable} dx-show-invalid-badge dx-htmleditor dx-htmleditor-custom-underlined dx-widget`;
@@ -792,11 +795,15 @@ export class BaseRowComponent extends BaseContainer {
                             className={`editor ${autoFill} ${editable} ${validate}`}
                             defaultValue={field.value}
                             onValueChange={(e) => {
-                                let event = {
+                                const event = {
                                     name: field.fieldName,
-                                    value: e,
+                                    value: StringUtils.normalizeText(e),
                                 };
                                 onChange(InputType.EDITOR, event, groupUuid, info);
+                            }}
+                            onValueChanged={(e) => {
+                                const newValue = StringUtils.normalizeText(e.value);
+                                e.component.option('value', newValue);
                             }}
                             onFocusOut={(e) => (onBlur ? onBlur(InputType.EDITOR, e, groupUuid, info) : null)}
                             validationMessageMode='always'
@@ -975,13 +982,15 @@ export class BaseRowComponent extends BaseContainer {
     fieldTypeTransform(field) {
         switch (field.type) {
             case ColumnType.D: //D – Data
-                field.value = !!field.value ? moment(field.value, 'YYYY-MM-DD').toDate() : null;
+                field.value = !!field.value ? moment(field.value, Constants.DATE_FORMAT.YYYY_MM_DD).toDate() : null;
                 break;
             case ColumnType.E: //E – Data + czas
-                field.value = !!field.value ? moment(field.value, 'YYYY-MM-DD HH:mm:ss').toDate() : null;
+                field.value = !!field.value
+                    ? moment(field.value, Constants.DATE_FORMAT.YYYY_MM_DD_HHmmss).toDate()
+                    : null;
                 break;
             case ColumnType.T: //T – Czas
-                field.value = !!field.value ? moment(field.value, 'HH:mm:ss').toDate() : null;
+                field.value = !!field.value ? moment(field.value, Constants.DATE_FORMAT.HH_mm_ss).toDate() : null;
                 break;
             default:
                 break;

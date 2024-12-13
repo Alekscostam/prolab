@@ -1,5 +1,7 @@
 import {ColumnType} from '../enum/ColumnType';
 import moment from 'moment';
+import Constants from './Constants';
+import {ArrayUtils} from './ArrayUtils';
 
 export class EditRowUtils {
     static searchField(editData, searchFieldName, callback) {
@@ -35,6 +37,23 @@ export class EditRowUtils {
         });
     }
 
+    static isVisibleField = (field) => {
+        const hidden = !!field.hidden;
+        const visible = !!field.visible;
+        if (hidden && visible) {
+            return false;
+        }
+        if (hidden === false && visible === false) {
+            return false;
+        }
+        if (hidden === false && visible) {
+            return true;
+        } else return false;
+    };
+    static hasAnyVisibleField(group) {
+        const visibleFields = group?.fields.filter((f) => this.isVisibleField(f));
+        return !ArrayUtils.isEmpty(visibleFields);
+    }
     static getType(type) {
         switch (type) {
             case ColumnType.C: //C – Znakowy
@@ -72,13 +91,13 @@ export class EditRowUtils {
                     for (let field of group.fields) {
                         switch (field.type) {
                             case ColumnType.D:
-                                field.value = new Date(moment(field.value, 'YYYY-MM-DD'));
+                                field.value = new Date(moment(field.value, Constants.DATE_FORMAT.YYYY_MM_DD));
                                 break;
                             case ColumnType.E:
-                                field.value = new Date(moment(field.value, 'YYYY-MM-DD HH:mm'));
+                                field.value = new Date(moment(field.value, Constants.DATE_FORMAT.YYYY_MM_DD_HHmm));
                                 break;
                             case ColumnType.T:
-                                field.value = new Date(moment(field.value, 'HH:mm'));
+                                field.value = new Date(moment(field.value, Constants.DATE_FORMAT.HHmm));
                                 break;
                             default:
                         }

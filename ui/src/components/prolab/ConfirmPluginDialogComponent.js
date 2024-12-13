@@ -1,77 +1,82 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import LocUtils from '../../utils/LocUtils';
-import { ConfirmDialog } from 'primereact/confirmdialog';
+import {ConfirmDialog} from 'primereact/confirmdialog';
 
-export const ConfirmPluginDialogComponent = ({parsedPluginView, labels, onHide, onAccept, onReject}) =>  {
-    const acceptLabel =()=> {
-        if(isQuestion()){
+export const ConfirmPluginDialogComponent = ({parsedPluginView, labels, onHide, onAccept, onReject}) => {
+    const acceptLabel = () => {
+        if (isQuestion()) {
             return LocUtils.loc(labels, 'Yes', 'Tak');
         }
         return LocUtils.loc(labels, 'Ok', 'OK');
-    }
+    };
     const rejectLabel = () => {
-        if(isQuestion()){
+        if (isQuestion()) {
             return LocUtils.loc(labels, 'No', 'Nie');
         }
         return LocUtils.loc(labels, 'Close', 'Zamknij');
-    }
+    };
     const isMessage = () => {
-        return parsedPluginView.info.kind === "MESSAGE";
-    }
+        return parsedPluginView.info.kind === 'MESSAGE';
+    };
     const isQuestion = () => {
-        return parsedPluginView.info.kind === "QUESTION";
-    }
+        return parsedPluginView.info.kind === 'QUESTION';
+    };
     const message = () => {
-        if(isQuestion()){
-            return LocUtils.loc(labels, '', parsedPluginView.info.question?.text)
+        if (isQuestion()) {
+            return LocUtils.loc(labels, '', parsedPluginView.info.question?.text);
         }
-        return LocUtils.loc(labels, '', parsedPluginView.info.message?.text); 
-        
-    }
+        return LocUtils.loc(labels, '', parsedPluginView.info.message?.text);
+    };
     const headerLabel = () => {
         let header = LocUtils.loc(labels, '', parsedPluginView.info?.name);
-        if(isMessage()){
-            return LocUtils.loc(labels, '', parsedPluginView.info.message?.title)
+        if (isMessage()) {
+            if (!parsedPluginView.info?.message?.title) {
+                return '';
+            }
+            return LocUtils.loc(labels, '', parsedPluginView.info?.message?.title);
         }
-        if(isQuestion()){
-            return LocUtils.loc(labels, '', parsedPluginView.info.question?.title)
+        if (isQuestion()) {
+            if (!parsedPluginView.info.question?.title) {
+                return '';
+            }
+            return LocUtils.loc(labels, '', parsedPluginView.info?.question?.title);
         }
         return header;
-    }
+    };
     const accept = () => {
         onAccept();
-    }
+    };
     const reject = () => {
-        if(isQuestion()){
+        if (isQuestion()) {
             onReject();
         }
         return undefined;
-    }
+    };
 
     return (
         <ConfirmDialog
             closable={false}
             visible={true}
-            acceptLabel={acceptLabel()}                        
+            acceptLabel={acceptLabel()}
             rejectLabel={rejectLabel()}
             header={headerLabel()}
-            onHide={()=>onHide()}
+            onHide={() => onHide()}
             message={message()}
             className={isMessage() ? 'single-button' : ''}
             icon='pi pi-exclamation-triangle'
-            accept={()=>accept()}
-            reject={()=>reject()}
+            accept={() => accept()}
+            reject={() => reject()}
         />
     );
-}
+};
 
 ConfirmPluginDialogComponent.defaultProps = {
-    parsedPluginView:undefined, 
-    labels: [], 
-    onHide: ()=>{}, 
-    onAccept:()=>{}, 
-    onReject: ()=>{}
+    parsedPluginView: undefined,
+    labels: [],
+    onHide: () => {},
+    onAccept: () => {},
+    onReject: () => {},
 };
 
 ConfirmPluginDialogComponent.defaultProps = {

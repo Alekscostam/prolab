@@ -13,7 +13,7 @@ import TreeViewComponent from './treeGridView/TreeViewComponent';
 import ActionButton from '../components/ActionButton';
 import DivContainer from '../components/DivContainer';
 import LocUtils from '../utils/LocUtils';
-import { Tabs} from 'devextreme-react';
+import {Tabs} from 'devextreme-react';
 import {InputNumber} from 'primereact/inputnumber';
 import {TreeListUtils} from '../utils/component/TreeListUtils';
 import {sessionPrelongFnc} from '../App';
@@ -23,21 +23,20 @@ import {TabSpecType} from '../enum/TabSpecType';
 import {StringUtils} from '../utils/StringUtils';
 import SelectedElements from '../components/SelectedElements';
 import AddSpecService from '../services/AddSpecService';
-import { ResponseUtils } from '../utils/ResponseUtils';
-import { TranslationUtils } from '../utils/TranslationUtils';
+import {ResponseUtils} from '../utils/ResponseUtils';
+import {TranslationUtils} from '../utils/TranslationUtils';
 
 const autOfRangeIndexTab = 6;
 
 export class AddSpecContainer extends BaseContainer {
     _isMounted = false;
     constructor(props) {
-        
         ConsoleHelper('AddSpecContainer -> constructor');
         super(props);
         this.viewService = new ViewService();
         this.crudService = new CrudService();
         this.crudService = new CrudService();
-        this.addSpecService =  new AddSpecService();
+        this.addSpecService = new AddSpecService();
         this.dataTreeStore = new DataTreeStore();
         this.refTreeList = React.createRef();
         this.numberOfCopiesRef = React.createRef();
@@ -53,7 +52,6 @@ export class AddSpecContainer extends BaseContainer {
             blocking: true,
             renderTreeView: true,
             initializedExpandAll: false,
-            isSubView: false,
             arrayToAdd: [],
             elementParentId: null,
             elementRecordId: null,
@@ -67,8 +65,7 @@ export class AddSpecContainer extends BaseContainer {
     }
 
     componentDidMount() {
-        this.tabClicked.current= false;
-        this.numberOfCopies.current =1;
+        this.numberOfCopies.current = 1;
         this._isMounted = true;
         let id = UrlUtils.getViewIdFromURL();
         if (id === undefined) {
@@ -140,33 +137,35 @@ export class AddSpecContainer extends BaseContainer {
             <div>
                 <React.Fragment>
                     {this.props.visibleAddSpec && (
-                            <div className='row'>
-                                <Dialog
-                                    id={'popup-add-spec'}
-                                    key={`popup-add-spec`}
-                                    blockScroll={true}
-                                    draggable={false}
-                                    className='col-8'
-                                    onHide={this.props.onHide}
-                                    style={{height: '800px', overflow: 'none'}}
-                                    ariaCloseIconLabel='Zamknij okno dialogowe'
-                                    breakpoints={{'960px': '75vw', '640px': '100vw'}}
-                                    header={
-                                        <div className='mb-4'>
-                                            <div className='row ' style={{flaot: 'right!important'}}>
-                                                <div className='col-lg-6 col-md-12'>{this.renderHeaderLeft()}</div>
-                                                <span className='col-lg-6 col-md-12'>{this.renderHeaderRight()}</span>
-                                            </div>
+                        <div className='row'>
+                            <Dialog
+                                id={'popup-add-spec'}
+                                key={`popup-add-spec`}
+                                blockScroll={true}
+                                draggable={false}
+                                className='col-8'
+                                onHide={this.props.onHide}
+                                style={{height: '800px', overflow: 'none'}}
+                                ariaCloseIconLabel='Zamknij okno dialogowe'
+                                breakpoints={{'960px': '75vw', '640px': '100vw'}}
+                                header={
+                                    <div className='mb-4'>
+                                        <div className='row ' style={{flaot: 'right!important'}}>
+                                            <div className='col-lg-6 col-md-12'>{this.renderHeaderLeft()}</div>
+                                            <span className='col-lg-6 col-md-12'>{this.renderHeaderRight()}</span>
                                         </div>
-                                    }
-                                    resizable={false}
-                                    visible={true}
-                                    footer={()=>{<div></div>}}
-                                >
-                                    {this.renderHeadPanel()}
-                                    {this.renderContent()}
-                                </Dialog>  
-                            </div>
+                                    </div>
+                                }
+                                resizable={false}
+                                visible={true}
+                                footer={() => {
+                                    <div></div>;
+                                }}
+                            >
+                                {this.renderHeadPanel()}
+                                {this.renderContent()}
+                            </Dialog>
+                        </div>
                     )}
                 </React.Fragment>
             </div>
@@ -220,7 +219,15 @@ export class AddSpecContainer extends BaseContainer {
                 this.unblockUi();
             });
     }
-
+    // TODO: moze to dopiero po fetchu danych
+    afterViewLoad = (ms = 1000) => {
+        setTimeout(() => {
+            const treeList = this.refTreeList;
+            treeList?.current?.reInitilizedExpandAll();
+            treeList?.instance?.endCustomLoading();
+            treeList?.instance?.refresh();
+        }, ms);
+    };
     processingViewResponse(responseView, parentId, recordId) {
         if (this._isMounted) {
             ViewValidatorUtils.validation(responseView);
@@ -282,7 +289,7 @@ export class AddSpecContainer extends BaseContainer {
                                         loading: false,
                                         blocking: false,
                                         parsedData: res.data,
-                                        totalCounts: res.totalCount
+                                        totalCounts: res.totalCount,
                                     });
                                 }
                             );
@@ -310,18 +317,19 @@ export class AddSpecContainer extends BaseContainer {
         return <React.Fragment />;
     }
     rerenderTreeList = () => {
-        this.setState({
-            renderTreeView:false
-        },
-            ()=>{
-                setTimeout(()=>{
-
+        this.setState(
+            {
+                renderTreeView: false,
+            },
+            () => {
+                setTimeout(() => {
                     this.setState({
-                        renderTreeView:true
-                    })
-                }, 750)
-        })
-    }
+                        renderTreeView: true,
+                    });
+                }, 750);
+            }
+        );
+    };
     //override
     renderHeaderLeft() {
         return (
@@ -345,13 +353,10 @@ export class AddSpecContainer extends BaseContainer {
                                 selectedIndex={this.state.selectedIndex}
                                 onItemClick={(event) => {
                                     this.rerenderTreeList();
-                                   
                                     if (sessionPrelongFnc) {
                                         sessionPrelongFnc();
                                     }
-                                    if (this.state.selectedIndex === autOfRangeIndexTab) {
-                                        this.onItemTabClick(event.itemIndex);
-                                    }
+                                    this.onItemTabClick(event.itemIndex);
                                 }}
                                 onOptionChanged={(args, e, b, d) => {
                                     const element = args?.element;
@@ -370,23 +375,6 @@ export class AddSpecContainer extends BaseContainer {
                                             });
                                         }
                                     }
-                                    if (args.name === 'selectedIndex') {
-                                        if (this.state.isSubView) {
-                                            this.rerenderTreeList();
-                                            this.setState({
-                                                blocking: true,
-                                                isSubView: false,
-                                                selectedIndex: autOfRangeIndexTab,
-                                            });
-                                        }
-                                        if (args.value !== -1 && args.previousValue !== -1) {
-                                            if(this.tabClicked.current === false){
-                                                this.tabClicked.current = true
-                                                this.onItemTabClick(args.value);                                    
-                                                this.rerenderTreeList();
-                                            }
-                                        }
-                                    }
                                 }}
                                 scrollByContent={true}
                                 showNavButtons={true}
@@ -399,7 +387,6 @@ export class AddSpecContainer extends BaseContainer {
     }
     onItemTabClick(index) {
         if (index !== autOfRangeIndexTab) {
-            this.refTreeList?.instance?.beginCustomLoading();
             let id = UrlUtils.getViewIdFromURL();
             if (id === undefined) {
                 id = this.props.id;
@@ -414,43 +401,35 @@ export class AddSpecContainer extends BaseContainer {
                 header = true;
             }
             this.getViewAddSpec(elementId, elementParentId, elementRecordId, tab.type, header, headerId);
-            this.setState({
-                selectedIndex: index,
-                initializedExpandAll: false,
-            });
-            // TODO: paramatery sie psuja troszke 
+            this.setState(
+                {
+                    selectedIndex: index,
+                    initializedExpandAll: false,
+                },
+                () => {
+                    this.afterViewLoad();
+                }
+            );
             this.unselectAllDataGrid();
-            setTimeout(() => {
-                this?.refTreeList?.current.reInitilizedExpandAll();
-                this.refTreeList?.instance?.endCustomLoading();
-                this.tabClicked.current = false
-            }, 1000);
         }
     }
     // TODO: naprwic komponent up and down bo sie zacina nalezy uzyc metody onValueChabnge
     //override
     renderHeaderRight() {
         const operations = this.state.parsedView.operations;
-        const opAdd = TranslationUtils.getOpButton(
-            operations,
-            OperationType.OP_ADDSPEC_ADD,
-        );
-        const opCount = TranslationUtils.getOpButton(
-            operations,
-            OperationType.OP_ADDSPEC_COUNT,
-        );
+        const opAdd = TranslationUtils.getOpButton(operations, OperationType.OP_ADDSPEC_ADD);
+        const opCount = TranslationUtils.getOpButton(operations, OperationType.OP_ADDSPEC_COUNT);
         return (
             <div>
                 <div className='ml-4 text-end number-of-copies-header'>
                     <div>
                         {!!opCount && (
                             <React.Fragment>
-                                {LocUtils.loc(this.props.labels, 'number_of_copy', opCount.label + ' ')}
+                                {LocUtils.locFromStore('Number_of_copy')}
                                 <InputNumber
                                     ref={this.numberOfCopiesRef}
                                     id='numberOsfCopy'
                                     name='numberOfCopy'
-                                    onDragStart={(e)=>{console.log("DRAG" + e)}}
                                     onChange={(e) => {
                                         if (sessionPrelongFnc) {
                                             sessionPrelongFnc();
@@ -465,15 +444,17 @@ export class AddSpecContainer extends BaseContainer {
                                 />
                             </React.Fragment>
                         )}
-                       {opAdd && <ActionButton
-                            rendered={!!opAdd}
-                            label={opAdd?.label}
-                            disabled={this.state.selectedRowKeys.length === 0}
-                            className=''
-                            handleClick={() => {
-                                this.handleExecSpec();
-                            }}
-                        />} 
+                        {opAdd && (
+                            <ActionButton
+                                rendered={!!opAdd}
+                                label={opAdd?.label}
+                                disabled={this.state.selectedRowKeys.length === 0}
+                                className=''
+                                handleClick={() => {
+                                    this.handleExecSpec();
+                                }}
+                            />
+                        )}
                     </div>
                 </div>
             </div>
@@ -526,13 +507,13 @@ export class AddSpecContainer extends BaseContainer {
                 headerId,
                 header,
                 this.state.selectedRowKeys,
-                this.createObjectToSave(this.props?.parsedGridViewData),
+                this.createObjectToSave(),
                 numberOfCopies
             )
             .then((saveResponse) => {
-                const minNextId =  this.props.lastId;
-                const levelId =  this.props.levelId;
-                let result = []; 
+                const minNextId = this.props.lastId;
+                const levelId = this.props.levelId;
+                let result = [];
                 if (minNextId === undefined && levelId === undefined) result = saveResponse.data;
                 else result = this.createValidOrder(this.createValidIdAndParentId(saveResponse.data));
                 this.props.handleAddElements(result);
@@ -544,17 +525,17 @@ export class AddSpecContainer extends BaseContainer {
             });
     };
     createValidIdAndParentId(array) {
-        const minNextId =  this.props.lastId;
-        const levelId =  this.props.levelId;
+        const minNextId = this.props.lastId;
+        const levelId = this.props.levelId;
         array.forEach((el) => {
-            el._ID = el._ID +  minNextId
-            if(!StringUtils.isBlank(levelId)) el._ID_PARENT = levelId;
-            else if(el._ID_PARENT !== 0) el._ID_PARENT = el._ID_PARENT + minNextId
+            el._ID = el._ID + minNextId;
+            if (!StringUtils.isBlank(levelId)) el._ID_PARENT = levelId;
+            else if (el._ID_PARENT !== 0) el._ID_PARENT = el._ID_PARENT + minNextId;
             el._STATUS = 'inserted';
         });
         return array;
     }
-    createValidOrder(array){
+    createValidOrder(array) {
         const lastOrder = this.props.lastOrder;
         array.forEach((el, index) => {
             el._ORDER = index + 1 + lastOrder;
@@ -586,106 +567,109 @@ export class AddSpecContainer extends BaseContainer {
                 {!this.state.loading && (
                     <React.Fragment>
                         <div id='spec-edit-dialog' className='spec-edit-dialog '>
-                          {this.state.renderTreeView && <TreeViewComponent
-                                altAndLeftClickEnabled={true}
-                                ref={this?.refTreeList}
-                                id={this.props.id}
-                                viewInfo={this.state.viewInfo}
-                                initializedExpandAll={this.state.initializedExpandAll}
-                                allowOperations={false}
-                                elementParentId={this.state.elementParentId}
-                                isAddSpec={true}
-                                preloadEnabled={false}
-                                focusedRowEnabled={true}
-                                hoverStateEnabled={true}
-                                handleExecSpec={() => this.handleExecSpec()}
-                                handleAddSpecCount={() => this.increaseNumberOfCopies()}
-                                elementRecordId={this.state.elementRecordId}
-                                handleOnTreeList={(ref) => (this.refTreeList = ref)}
-                                parsedGridView={this.state.parsedView}
-                                parsedGridViewData={parsedData}
-                                gridViewColumns={this.state.columns}
-                                handleAddSpecSpec={(id) => {
-                                    const viewId = this.state.elementId;
-                                    const parentId = this.state.elementParentId;
-                                    const recordId = this.state.elementRecordId;
-                                    const parsedView = this.state.parsedView;
-                                    const type = parsedView.info?.type;
-                                    let header = parsedView.info?.header;
-                                    if (type === TabSpecType.METHODS || type === TabSpecType.TEMPLATES) {
-                                        header = false;
-                                        this.setState({
-                                            isSubView: true,
-                                        });
+                            {this.state.renderTreeView && (
+                                <TreeViewComponent
+                                    altAndLeftClickEnabled={true}
+                                    ref={this.refTreeList}
+                                    id={this.props.id}
+                                    viewInfo={this.state.viewInfo}
+                                    initializedExpandAll={this.state.initializedExpandAll}
+                                    allowOperations={false}
+                                    elementParentId={this.state.elementParentId}
+                                    isAddSpec={true}
+                                    preloadEnabled={false}
+                                    focusedRowEnabled={true}
+                                    hoverStateEnabled={true}
+                                    handleExecSpec={() => {
+                                        this.handleExecSpec();
+                                    }}
+                                    handleAddSpecCount={() => this.increaseNumberOfCopies()}
+                                    elementRecordId={this.state.elementRecordId}
+                                    handleOnTreeList={(ref) => (this.refTreeList = ref)}
+                                    parsedGridView={this.state.parsedView}
+                                    parsedGridViewData={parsedData}
+                                    gridViewColumns={this.state.columns}
+                                    handleAddSpecSpec={(id) => {
+                                        const viewId = this.state.elementId;
+                                        const parentId = this.state.elementParentId;
+                                        const recordId = this.state.elementRecordId;
+                                        const parsedView = this.state.parsedView;
+                                        const type = parsedView.info?.type;
+                                        let header = parsedView.info?.header;
+                                        if (type === TabSpecType.METHODS || type === TabSpecType.TEMPLATES) {
+                                            header = false;
+                                        }
+                                        this.unselectAllDataGrid();
+                                        this.getViewAddSpec(viewId, parentId, recordId, type, header, id);
+                                        this.afterViewLoad(1200);
+                                    }}
+                                    selectedRowKeys={this.state.selectedRowKeys}
+                                    onChange={(type, e, rowId, info) => this.handleEditRowChange(type, e, rowId, info)}
+                                    handleBlockUi={() => {
+                                        this.blockUi();
+                                        return true;
+                                    }}
+                                    handleUnselectAll={() => {
+                                        this.unselectAllDataGrid();
+                                    }}
+                                    handleUnblockUi={() => {
+                                        this.unblockUi();
+                                    }}
+                                    handleShowEditPanel={(editDataResponse) =>
+                                        this.handleShowEditPanel(editDataResponse)
                                     }
-                                    this.unselectAllDataGrid();
-                                    this.getViewAddSpec(viewId, parentId, recordId, type, header, id);
-                                    setTimeout(() => {
-                                        this.refTreeList?.current.reInitilizedExpandAll();
-                                        this.refTreeList?.instance?.endCustomLoading();
-                                    }, 1200);
-                                }}
-                                selectedRowKeys={this.state.selectedRowKeys}
-                                onChange={(type, e, rowId, info) => this.handleEditRowChange(type, e, rowId, info)}
-                                handleBlockUi={() => {
-                                    this.blockUi();
-                                    return true;
-                                }}
-                                handleUnselectAll={() => {
-                                    this.unselectAllDataGrid();
-                                }}
-                                handleUnblockUi={() => {
-                                    this.unblockUi();
-                                }}
-                                handleShowEditPanel={(editDataResponse) => this.handleShowEditPanel(editDataResponse)}
-                                handleSelectedRowKeys={(e, rerenderColorAfterClickCheckbox) => {
-                                    this.setState(
-                                        (prevState) => {
-                                            return {
-                                                ...prevState,
-                                                selectedRowKeys: e,
-                                            };
-                                        },
-                                        () => {
-                                            if (rerenderColorAfterClickCheckbox) {
-                                                rerenderColorAfterClickCheckbox();
+                                    handleSelectedRowKeys={(e, callback) => {
+                                        this.setState(
+                                            (prevState) => {
+                                                return {
+                                                    ...prevState,
+                                                    selectedRowKeys: e,
+                                                };
+                                            },
+                                            () => {
+                                                if (callback) {
+                                                    callback();
+                                                }
                                             }
-                                        }
-                                    );
-                                }}
-                                modifyParsedGridViewData={(newCopyRow) => {
-                                    parsedData.forEach((el) => {
-                                        if (el._ID === newCopyRow._ID) {
-                                            el = newCopyRow;
-                                        }
-                                    });
-                                    this.setState({
-                                        parsedData,
-                                    });
-                                }}
-                                handleDeleteRow={(id) => this.delete(id)}
-                                handleForumlaRow={(id) => this.prepareCalculateFormula(id)}
-                                handleDownload={(id) => {
-                                    this.props.handleDownloadRow(id);
-                                }}
-                                handleAttachments={(id) => {
-                                    this.props.handleAttachmentRow(id);
-                                }}
-                                handleAddLevel={(id) => alert(id)}
-                                handleUp={(id) => this.up(id)}
-                                handleDown={(id) => this.down(id)}
-                                handleRestoreRow={(id) => this.restore(id)}
-                                handleCopyRow={(id) => this.copyEntry(id)}
-                                handleDocumentsRow={(id) => this.generate(id)}
-                                handlePluginsRow={(id) => this.plugin(id)}
-                                handleDownloadRow={(id) => this.downloadAttachment(id)}
-                                handleAttachmentRow={(id) => this.attachment(id)}
-                                handleArchiveRow={(id) => this.archive(id)}
-                                handlePublishRow={(id) => this.publishEntry(id)}
-                                showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
-                                labels={this.props.labels}
-                            />}  
-                            <SelectedElements selectedRowKeys={this.state.selectedRowKeys} totalCounts={this.state.totalCounts} />
+                                        );
+                                    }}
+                                    modifyParsedGridViewData={(newCopyRow) => {
+                                        parsedData.forEach((el) => {
+                                            if (el._ID === newCopyRow._ID) {
+                                                el = newCopyRow;
+                                            }
+                                        });
+                                        this.setState({
+                                            parsedData,
+                                        });
+                                    }}
+                                    handleDeleteRow={(id) => this.delete(id)}
+                                    handleForumlaRow={(id) => this.prepareCalculateFormula(id)}
+                                    handleDownload={(id) => {
+                                        this.props.handleDownloadRow(id);
+                                    }}
+                                    handleAttachments={(id) => {
+                                        this.props.handleAttachmentRow(id);
+                                    }}
+                                    handleAddLevel={(id) => alert(id)}
+                                    handleUp={(id) => this.up(id)}
+                                    handleDown={(id) => this.down(id)}
+                                    handleRestoreRow={(id) => this.restore(id)}
+                                    handleCopyRow={(id) => this.copyEntry(id)}
+                                    handleDocumentRow={(id) => this.generate(id)}
+                                    handlePluginRow={(id) => this.plugin(id)}
+                                    handleDownloadRow={(id) => this.downloadAttachment(id)}
+                                    handleAttachmentRow={(id) => this.attachment(id)}
+                                    handleArchiveRow={(id) => this.archive(id)}
+                                    handlePublishRow={(id) => this.publishEntry(id)}
+                                    showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
+                                    labels={this.props.labels}
+                                />
+                            )}
+                            <SelectedElements
+                                selectedRowKeys={this.state.selectedRowKeys}
+                                totalCounts={this.state.totalCounts}
+                            />
                         </div>
                     </React.Fragment>
                 )}

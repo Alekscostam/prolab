@@ -3,10 +3,7 @@ import moment from 'moment';
 import EditRowUtils from '../utils/EditRowUtils';
 import {saveAs} from 'file-saver';
 import UrlUtils from '../utils/UrlUtils';
-import {renderNoRefreshContentFnc} from '../App';
-import {ColumnType} from '../enum/ColumnType';
 import EditListUtils from '../utils/EditListUtils';
-import { EditFormType } from '../enum/EditFormType';
 /*
 Kontroler do edycji danych.
  */
@@ -54,12 +51,6 @@ export default class CrudService extends BaseService {
             method: 'POST',
         })
             .then((addDataResponse) => {
-                if (addDataResponse?.editInfo?.editFormType.toUpperCase() === EditFormType.FULLSCREEN) {
-                    window.location.href = window.location.href.replace('grid-view', 'edit-row-view');
-                    if (renderNoRefreshContentFnc) {
-                        renderNoRefreshContentFnc();
-                    }
-                }
                 EditListUtils.addUuidToFields(addDataResponse);
                 return Promise.resolve(EditRowUtils.convertEditResponse(addDataResponse));
             })
@@ -74,7 +65,8 @@ export default class CrudService extends BaseService {
             }`,
             {
                 method: 'POST',
-            })
+            }
+        )
             .then((editDataEntryResponse) => {
                 window.location.href = UrlUtils.getUrlWithEditRowParams(recordId, parentId, viewId, kindView);
                 return Promise.resolve(editDataEntryResponse);
@@ -89,21 +81,15 @@ export default class CrudService extends BaseService {
             `${this.getDomain()}/${this.path}/${viewId}/Edit/${recordId}${parentId ? `?parentId=${parentId}` : ''}`,
             {
                 method: 'GET',
-            })
-        .then((editDataResponse) => {
-            // if (editDataResponse.editInfo.editFormType.toUpperCase() === 'SIDEPANEL') {
-            if (editDataResponse?.editInfo?.editFormType?.toUpperCase() === EditFormType.FULLSCREEN) {
-                window.location.href = window.location.href.replace('grid-view', 'edit-row-view');
-                if (renderNoRefreshContentFnc) {
-                    renderNoRefreshContentFnc();
-                }
             }
-            EditListUtils.addUuidToFields(editDataResponse);
-            return Promise.resolve(EditRowUtils.convertEditResponse(editDataResponse));
-        })
-        .catch((err) => {
-            throw err;
-        });
+        )
+            .then((editDataResponse) => {
+                EditListUtils.addUuidToFields(editDataResponse);
+                return Promise.resolve(EditRowUtils.convertEditResponse(editDataResponse));
+            })
+            .catch((err) => {
+                throw err;
+            });
     }
 
     editAutoFill(viewId, recordId, parentId, kindView, element) {
@@ -310,17 +296,16 @@ export default class CrudService extends BaseService {
                 throw err;
             });
     }
-    getStreamResponseBodyFromDownload(viewId, documentId, fileId, fileName){
+    getStreamResponseBodyFromDownload(viewId, documentId, fileId, fileName) {
         const url = new URL(
             `${this.domain}/${this.path}/${viewId}/document/${documentId}/download${fileId ? `?fileId=${fileId}` : ''}`
         );
 
         return this.fetchFileResponse(url, {
             method: 'GET',
-        })
-            .catch((err) => {
-                throw err;
-            });
+        }).catch((err) => {
+            throw err;
+        });
     }
     refreshFieldVisibility(viewId, recordId, parentId, kindView, element) {
         return this.fetch(
@@ -384,12 +369,12 @@ export default class CrudService extends BaseService {
                 listId: selectedIds,
             }),
         })
-        .then((deleteResponse) => {
-            return Promise.resolve(deleteResponse);
-        })
-        .catch((err) => {
-            throw err;
-        });
+            .then((deleteResponse) => {
+                return Promise.resolve(deleteResponse);
+            })
+            .catch((err) => {
+                throw err;
+            });
     }
 
     delete(viewId, parentId, kindView, selectedIds) {
@@ -422,7 +407,7 @@ export default class CrudService extends BaseService {
             throw err;
         });
     }
-    
+
     calculateFormula(viewId, parentId, recordId, fieldsToCalculate) {
         let url = `${this.getDomain()}/${this.path}/${viewId}/editspec/${parentId}/calculate`;
         if (recordId) {
@@ -562,7 +547,6 @@ export default class CrudService extends BaseService {
             `${this.getDomain()}/${this.path}/${viewId}/Publish/${recordId}/Entry?${queryStringTmp.join('&')}`,
             {
                 method: 'POST',
-
             }
         ).catch((err) => {
             throw err;
@@ -594,5 +578,4 @@ export default class CrudService extends BaseService {
             throw err;
         });
     }
-  
 }

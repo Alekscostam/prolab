@@ -10,7 +10,7 @@ import Constants from '../../utils/Constants';
 import {OperationType} from '../../enum/OperationType';
 import {ButtonGroup} from 'devextreme-react';
 import CardViewInfiniteComponent from '../cardView/CardViewInfiniteComponent';
-import { StringUtils } from '../../utils/StringUtils';
+import {StringUtils} from '../../utils/StringUtils';
 
 export class AttachmentViewDialog extends BaseViewContainer {
     constructor(props) {
@@ -194,7 +194,6 @@ export class AttachmentViewDialog extends BaseViewContainer {
                     return {
                         select: this.state.select,
                         selectAll: this.state.selectAll,
-                       
                     };
                 },
                 (group, totalCounts) => {
@@ -202,7 +201,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
                         {
                             select: false,
                             selectAll: false,
-                            dataGridStoreSuccess: true, 
+                            dataGridStoreSuccess: true,
                             totalCounts: totalCounts,
                         },
                         () => {
@@ -292,6 +291,11 @@ export class AttachmentViewDialog extends BaseViewContainer {
                 <CardViewInfiniteComponent
                     id={viewInfo.id}
                     ref={this.refCardGrid}
+                    handleTotalCounts={(totalCounts) => {
+                        this.setState({
+                            totalCounts: totalCounts,
+                        });
+                    }}
                     gridViewType={this.state.currentViewType}
                     elementSubViewId={this.state.elementSubViewId}
                     elementKindView={this.state.elementKindView}
@@ -323,8 +327,8 @@ export class AttachmentViewDialog extends BaseViewContainer {
                         this.prepareCalculateFormula(id);
                     }}
                     handleHistoryLogRow={(id) => this.historyLog(id)}
-                    handlePluginRow={(id,recordId) => this.plugin(id,recordId)}
-                    handleDocumentRow={(id,recordId) => this.generate(id,recordId)}
+                    handlePluginRow={(id, recordId) => this.plugin(id, recordId)}
+                    handleDocumentRow={(id, recordId) => this.generate(id, recordId)}
                     handleDeleteRow={(id) => this.delete(id)}
                     handleAttachmentRow={(id) => this.attachment(id)}
                     handleDownloadRow={(id) => this.downloadAttachment(id)}
@@ -343,7 +347,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
                 header={LocUtils.loc(this.props.labels, 'Attachments', 'Załączniki')}
                 visible={true}
                 resizable={true}
-                footer={()=><div></div>}
+                footer={() => <div></div>}
                 breakpoints={{'960px': '75vw'}}
                 style={{width: '90vw'}}
                 onHide={() => this.props.onHide()}

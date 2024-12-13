@@ -17,7 +17,8 @@ import CrudService from '../../services/CrudService';
 import BaseRowComponent from '../../baseContainers/BaseRowComponent';
 import LocUtils from '../../utils/LocUtils';
 import {OperationType} from '../../enum/OperationType';
-import { TranslationUtils } from '../../utils/TranslationUtils';
+import {TranslationUtils} from '../../utils/TranslationUtils';
+import EditRowUtils from '../../utils/EditRowUtils';
 
 let copyDataGlobalTop = null;
 
@@ -111,7 +112,7 @@ export class EditRowComponent extends BaseRowComponent {
         return (
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
-             
+
                 <EditListComponent
                     visible={editListVisible}
                     field={this.state.editListField}
@@ -287,23 +288,26 @@ export class EditRowComponent extends BaseRowComponent {
     }
 
     renderGroup(group, groupIndex) {
-        return (
-            <React.Fragment>
-                <Panel
-                    key={`key_group_${groupIndex}`}
-                    id={`group_${groupIndex}`}
-                    className={'mb-6'}
-                    header={group.groupName}
-                    toggleable={group.isExpanded}
-                >
-                    <DivContainer>
-                        {group.fields?.map((field, index) => {
-                            return this.renderField(field, index, group.uuid);
-                        })}
-                    </DivContainer>
-                </Panel>
-            </React.Fragment>
-        );
+        if (EditRowUtils.hasAnyVisibleField(group)) {
+            return (
+                <React.Fragment>
+                    <Panel
+                        key={`key_group_${groupIndex}`}
+                        id={`group_${groupIndex}`}
+                        className={'mb-6'}
+                        header={group.groupName}
+                        toggleable={group.isExpanded}
+                    >
+                        <DivContainer>
+                            {group.fields?.map((field, index) => {
+                                return this.renderField(field, index, group.uuid);
+                            })}
+                        </DivContainer>
+                    </Panel>
+                </React.Fragment>
+            );
+        }
+        return <React.Fragment></React.Fragment>;
     }
 }
 

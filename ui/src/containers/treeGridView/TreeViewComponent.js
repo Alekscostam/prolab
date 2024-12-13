@@ -31,14 +31,14 @@ import LocUtils from '../../utils/LocUtils';
 import ActionButton from '../../components/ActionButton';
 import {ColumnType} from '../../enum/ColumnType';
 import {OperationType} from '../../enum/OperationType';
-import {DataGridUtils} from '../../utils/component/DataGridUtils';
-import { HtmlUtils } from '../../utils/HtmlUtils';
-import { ViewDataCompUtils } from '../../utils/component/ViewDataCompUtils';
-import EntryResponseHelper from '../../utils/helper/EntryResponseHelper';
+import {HtmlUtils} from '../../utils/HtmlUtils';
+import {ViewDataCompUtils} from '../../utils/component/ViewDataCompUtils';
 import UrlUtils from '../../utils/UrlUtils';
 import CellValidator from '../../model/CellValidator';
 import CellCustomBackground from '../../model/CellCustomBackground';
-import { TranslationUtils } from '../../utils/TranslationUtils';
+import {TranslationUtils} from '../../utils/TranslationUtils';
+import {SelectedRowKeysUtils} from '../../utils/SelectedRowKeysUtils';
+import {handleEdit} from '../../utils/handler/EditHandler';
 
 let clearSelection = false;
 
@@ -50,16 +50,16 @@ class TreeViewComponent extends CellEditComponent {
         this.selectionClicked = React.createRef(false);
         this.selectionCheckboxClicked = React.createRef(false);
         this.ref = React.createRef();
-        this.refDateTime = React.createRef();              
+        this.refDateTime = React.createRef();
         this.clickedPosition = React.createRef();
         this.menu = React.createRef();
         this.modelRef = React.createRef([]);
         this.selectedRecordIdRef = React.createRef();
         this.editListDataStore = new EditListDataStore();
         this.sort = {
-            field: "_ORDER",
-            order: "asc",
-        }
+            field: '_ORDER',
+            order: 'asc',
+        };
         this.viewInfo = {
             headerId: undefined,
             type: undefined,
@@ -77,15 +77,15 @@ class TreeViewComponent extends CellEditComponent {
             operations: this.props.parsedGridView.operations || [],
             parsedGridViewData: {},
             // rowRenderingMode: this.props.parsedGridView?.gridOptions?.groupExpandAll ? 'standard' : 'virtual',
-            rowRenderingMode : "standard",
+            rowRenderingMode: 'standard',
             gridViewColumns: [],
             selectedRowData: [],
             defaultSelectedRowKeys: [],
             preInitializedColumns: [],
         };
-        this.getSort = ()=> {
+        this.getSort = () => {
             return this.sort;
-        }
+        };
         this.reInitilizedExpandAll = () => {
             this.setState(
                 {
@@ -97,8 +97,8 @@ class TreeViewComponent extends CellEditComponent {
     }
     componentDidMount() {
         super.componentDidMount();
-        this.unregisterKeydownEvent();
-        this.registerKeydownEvent();
+        this.manageKeydownEvent('remove');
+        this.manageKeydownEvent('add');
     }
     componentDidUpdate(prevProps, prevState, snapshot) {
         console.log('update --> treelist');
@@ -111,6 +111,7 @@ class TreeViewComponent extends CellEditComponent {
         }
         return true;
     }
+
     showMenu(e) {
         const menu = this.menu.current;
         if (menu !== null && e?.row?.rowType === 'data' && !!e?.row?.data?._ID) {
@@ -120,54 +121,57 @@ class TreeViewComponent extends CellEditComponent {
             e.event.preventDefault();
             this.selectedRecordIdRef.current = e.row.data._ID;
             menu.show(e.event);
+            if (this.props.showSelection) {
+                this.mergeKeysWithRecordId(e.row.data._ID);
+            }
             const menuWithButtons = document.getElementById('menu-with-buttons');
             if (menuWithButtons) {
                 menuWithButtons.style.left = mouseX + 'px';
                 menuWithButtons.style.top = mouseY + 'px';
                 this.clickedPosition.current = {
-                    x:mouseX + "px",
-                    y:mouseY + 'px'
-                }
+                    x: mouseX + 'px',
+                    y: mouseY + 'px',
+                };
             }
         } else if (menu !== null && e?.row?.rowType === 'data') {
             menu.hide(e.event);
         }
     }
-    registerKeydownEvent() {
-       const specEdit = document.getElementById("spec-edit");
-       const allSpecEdit = document.querySelectorAll('#spec-edit');
-       if(specEdit){
-            if(this.props.isAddSpec){
-                if(allSpecEdit.length === 3)
-                    allSpecEdit[2].addEventListener('mousedown', this.handleAltAndLeftClickFunction);
-                else if(UrlUtils.isGrid() && allSpecEdit === 1)
-                    allSpecEdit[0].addEventListener('mousedown', this.handleAltAndLeftClickFunction);
-            }else
-                specEdit.addEventListener('mousedown', this.handleAltAndLeftClickFunction);
-             
-       }
-    }
-    unregisterKeydownEvent() {
-       const specEdit = document.getElementById("spec-edit");       
-       const allSpecEdit = document.querySelectorAll('#spec-edit');
-       if(specEdit){
-            if(this.props.isAddSpec){
-                if(allSpecEdit.length === 3)
-                    allSpecEdit[2].removeEventListener('mousedown', this.handleAltAndLeftClickFunction);
-                else if(UrlUtils.isGrid() && allSpecEdit.length  === 1)
-                    allSpecEdit[0].addEventListener('mousedown', this.handleAltAndLeftClickFunction);
-            }else
-                specEdit.removeEventListener('mousedown', this.handleAltAndLeftClickFunction);
-            
+
+    mergeKeysWithRecordId = (id) => {
+        const selectedRowsKeys = SelectedRowKeysUtils.mergeKeysWithRecordId(
+            id,
+            this.ref.instance.getSelectedRowsData(),
+            false,
+            '_ID'
+        );
+        this.ref.instance.selectRows(selectedRowsKeys.map((el) => el._ID));
+    };
+
+    manageKeydownEvent(action) {
+        const specEdit = document.getElementById('spec-edit');
+        const allSpecEdit = document.querySelectorAll('#spec-edit');
+        if (specEdit) {
+            const method = action === 'add' ? 'addEventListener' : 'removeEventListener';
+            if (this.props.isAddSpec) {
+                if (allSpecEdit.length === 3) {
+                    allSpecEdit[2][method]('mousedown', this.handleAltAndLeftClickFunction);
+                } else if (UrlUtils.isGrid() && allSpecEdit.length === 1) {
+                    allSpecEdit[0][method]('mousedown', this.handleAltAndLeftClickFunction);
+                }
+            } else {
+                specEdit[method]('mousedown', this.handleAltAndLeftClickFunction);
+            }
         }
     }
+
     componentWillUnmount() {
         clearSelection = false;
         this.viewInfo = {
             headerId: undefined,
             type: undefined,
         };
-        this.unregisterKeydownEvent();
+        this.manageKeydownEvent('remove');
     }
     findRowDataById(recordId) {
         let editData = this.props.parsedGridViewData.filter((item) => {
@@ -184,15 +188,15 @@ class TreeViewComponent extends CellEditComponent {
     isSpecialCell(columnDefinition) {
         const type = columnDefinition?.type;
         const validationEdit = columnDefinition?.validationEdit;
-        if(!this.props.isAddSpec && !columnDefinition?.edit){
-            return true; 
+        if (!this.props.isAddSpec && !columnDefinition?.edit) {
+            return true;
         }
         try {
             switch (type) {
                 case ColumnType.H:
                 case ColumnType.C:
                     const isSpecial = !!validationEdit;
-                    return isSpecial
+                    return isSpecial;
                 case ColumnType.O:
                 case ColumnType.I:
                 case ColumnType.IM:
@@ -203,7 +207,7 @@ class TreeViewComponent extends CellEditComponent {
         } catch (ex) {}
         return false;
     }
-    // TODO: naprawic w liscie podpwoiedzi klik jak jestsmy na dole  
+    // TODO: naprawic w liscie podpwoiedzi klik jak jestsmy na dole
     render() {
         const columnAutoWidth = this.props.parsedGridView?.gridOptions?.columnAutoWidth || true;
         const rowAutoHeight = this.props.parsedGridView?.gridOptions?.rowAutoHeight || false;
@@ -260,20 +264,20 @@ class TreeViewComponent extends CellEditComponent {
                                 clearSelection = true;
                             }
                         }
-                        if(e.fullName.includes("sortOrder") && e.name === 'columns'){
-                            const colNumber = e.fullName.replace(/\D/g, '');  
+                        if (e.fullName.includes('sortOrder') && e.name === 'columns') {
+                            const colNumber = e.fullName.replace(/\D/g, '');
                             const column = this.props.gridViewColumns[colNumber];
                             this.sort = {
-                                field:column.fieldName,
-                                order:e.value,
-                            }
+                                field: column.fieldName,
+                                order: e.value,
+                            };
                         }
                     }}
                     onRowClick={(e) => {
                         this.currentClickedCell.current = e.data.ID;
                     }}
-                    onFocusedRowChanging={(e)=>{
-                        if(e.rows[e.newRowIndex]?.data){
+                    onFocusedRowChanging={(e) => {
+                        if (e.rows[e.newRowIndex]?.data) {
                             this.currentClickedCell.current = e.rows[e.newRowIndex].data._ID;
                         }
                     }}
@@ -369,43 +373,49 @@ class TreeViewComponent extends CellEditComponent {
                     <MenuWithButtons
                         gridView={this.props.parsedGridView}
                         clickedPosition={this.clickedPosition}
-                        handlePlugins={(e) => this.props.handlePluginRow(e.id, this.selectedRecordIdRef.current)}
-                        handleDocuments={(e) => this.props.handleDocumentRow(e.id, this.selectedRecordIdRef.current)}
-                        handleSaveAction={() => this.props.handleSaveAction()}
-                        handleAddSpecCount={() => this.props.handleAddSpecCount()}
-                        handleAddSpecSpec={() => this.props.handleAddSpecSpec(this.selectedRecordIdRef.current)}
-                        handleExecSpec={() => this.props.handleExecSpec()}
+                        handlePlugins={(e) => this.preOperationAction(e, () => this.props.handlePluginRow(e.id))}
+                        handleDocuments={(e) => this.preOperationAction(e, () => this.props.handleDocumentRow(e.id))}
+                        handleSaveAction={(e) => this.preOperationAction(e, () => this.props.handleSaveAction())}
+                        handleAddSpecCount={(e) => this.props.handleAddSpecCount()}
+                        handleAddSpecSpec={(e) => this.props.handleAddSpecSpec(this.selectedRecordIdRef.current)}
+                        handleExecSpec={(e) => this.preOperationAction(e, () => this.props.handleExecSpec())}
                         handleAddSpec={() => this.props.addButtonFunction()}
-                        handleHrefSubview={() => this.handleHrefSubview(viewId, this.selectedRecordIdRef.current, currentBreadcrumb)}
-                        handleEdit={() =>
-                            this.handleEdit(viewId, parentId, kindView, this.selectedRecordIdRef.current, currentBreadcrumb)
+                        handleHrefSubview={() =>
+                            this.handleHrefSubview(viewId, this.selectedRecordIdRef.current, currentBreadcrumb)
+                        }
+                        handleEdit={(e) =>
+                            this.preOperationAction(e, () =>
+                                this.handleEdit(
+                                    viewId,
+                                    parentId,
+                                    kindView,
+                                    this.selectedRecordIdRef.current,
+                                    currentBreadcrumb
+                                )
+                            )
                         }
                         handleEditSpec={() =>
                             this.handleEditSpec(viewId, parentId, this.selectedRecordIdRef.current, currentBreadcrumb)
                         }
-                        handleCopy={() => this.props.handleCopyRow(this.selectedRecordIdRef.current)}
-                        handleArchive={() => this.props.handleArchiveRow(this.selectedRecordIdRef.current)}
-                        handlePublish={() => this.props.handlePublishRow(this.selectedRecordIdRef.current)}
-                        handleDownload={() => this.props.handleDownloadRow(this.selectedRecordIdRef.current)}
-                        handleAttachments={() => this.props.handleAttachmentRow(this.selectedRecordIdRef.current)}
-                        handleDelete={() => this.props.handleDeleteRow(this.selectedRecordIdRef.current)}
-                        handleRestore={() => this.props.handleRestoreRow(this.selectedRecordIdRef.current)}
-                        handleFormula={() => this.props.handleFormulaRow(this.selectedRecordIdRef.current)}
-                        handleHistory={() => this.props.handleHistoryLogRow(this.selectedRecordIdRef.current)}
-                        handleFill={() => this.props.handleFillRow(this.selectedRecordIdRef.current)}
-                        handleExpand={() => this.handleExpand()}
-                        handleCollapse={() => this.handleCollapse()}
-                        handleCheck={() => this.handleCheck()}
-                        handleUncheck={() => this.handleUncheck()}
-                        handleUp={() => {
-                            this.forceUpdate();
-                            this.props.handleUp(selectedRecordId);
-                        }}
-                        handleDown={() => {
-                            this.forceUpdate();
-                            this.props.handleDown(selectedRecordId);
-                        }}
-                        handleAddLevel={() => this.props.handleAddLevel(selectedRecordId)}
+                        handleCopy={(e) => this.preOperationAction(e, () => this.props.handleCopyRow())}
+                        handleArchive={(e) => this.preOperationAction(e, () => this.props.handleArchiveRow())}
+                        handlePublish={(e) => this.preOperationAction(e, () => this.props.handlePublishRow())}
+                        handleDownload={(e) => this.preOperationAction(e, () => this.props.handleDownloadRow())}
+                        handleAttachments={(e) => this.preOperationAction(e, () => this.props.handleAttachmentRow())}
+                        handleDelete={(e) => this.preOperationAction(e, () => this.props.handleDeleteRow())}
+                        handleRestore={(e) => this.preOperationAction(e, () => this.props.handleRestoreRow())}
+                        handleFormula={(e) => this.preOperationAction(e, () => this.props.handleFormulaRow())}
+                        handleHistory={(e) => this.preOperationAction(e, () => this.props.handleHistoryLogRow())}
+                        handleFill={(e) => this.preOperationAction(e, () => this.props.handleFillRow())}
+                        handleExpand={(e) => this.preOperationAction(e, () => this.handleExpand())}
+                        handleCollapse={(e) => this.preOperationAction(e, () => this.handleCollapse())}
+                        handleCheck={(e) => this.preOperationAction(e, () => this.handleCheck())}
+                        handleUncheck={(e) => this.preOperationAction(e, () => this.handleUncheck())}
+                        handleUp={(e) => this.preOperationAction(e, () => this.props.handleUp())}
+                        handleDown={(e) => this.preOperationAction(e, () => this.props.handleDown())}
+                        handleAddLevel={(e) =>
+                            this.preOperationAction(e, () => this.props.handleAddLevel(selectedRecordId))
+                        }
                         operationList={this.props.parsedGridView.operationsPPM}
                         menu={this.menu}
                     />
@@ -413,6 +423,20 @@ class TreeViewComponent extends CellEditComponent {
             </React.Fragment>
         );
     }
+
+    preOperationAction = (operation, callback, recordId = this.selectedRecordIdRef.current) => {
+        const onlyOneRecord = operation?.onlyOneRecord;
+        if (onlyOneRecord) {
+            if (this.props.handleSelectedRowKeys) {
+                this.props.handleSelectedRowKeys([recordId], () => {
+                    if (callback) {
+                        callback();
+                    }
+                });
+            }
+        } else callback();
+    };
+
     handleExpand(recordId) {
         const parentId = recordId === undefined ? this.selectedRecordIdRef.current : recordId;
         const rowKeysToExpand = TreeListUtils.findAllDescendants(this.props.parsedGridViewData, parentId).map(
@@ -453,23 +477,25 @@ class TreeViewComponent extends CellEditComponent {
             );
         }
     };
-    handleAltAndLeftClickFunction = (event) => {        
+    handleAltAndLeftClickFunction = (event) => {
         if (this.props.altAndLeftClickEnabled && event.button === 0 && event.altKey) {
-            setTimeout(()=>{
+            setTimeout(() => {
                 if (this.currentClickedCell.current) {
-                    if(HtmlUtils.clickedInsideComponent(event, "spec-edit")){
-                        if(this.ref){
+                    if (HtmlUtils.clickedInsideComponent(event, 'spec-edit')) {
+                        if (this.ref) {
                             const clickedCell = parseInt(this.currentClickedCell.current);
-                            const treeRef =this.ref.instance;
-                            let selectedRows = this.ref.instance.getSelectedRowsData().map(selectedRow => {return{ID: parseInt(selectedRow.ID)}});
-                            if (selectedRows.find((row) => row.ID  === clickedCell)) selectedRows = selectedRows.filter((selectedRow) => selectedRow.ID !== clickedCell);
-                            else selectedRows.push({ID:clickedCell});
-                            treeRef.selectRows(selectedRows.map(el=>el.ID))
+                            const treeRef = this.ref.instance;
+                            let selectedRows = this.ref.instance.getSelectedRowsData().map((selectedRow) => {
+                                return {ID: parseInt(selectedRow.ID)};
+                            });
+                            if (selectedRows.find((row) => row.ID === clickedCell))
+                                selectedRows = selectedRows.filter((selectedRow) => selectedRow.ID !== clickedCell);
+                            else selectedRows.push({ID: clickedCell});
+                            treeRef.selectRows(selectedRows.map((el) => el.ID));
                         }
-                 
                     }
                 }
-            },0)
+            }, 0);
         }
     };
 
@@ -528,39 +554,19 @@ class TreeViewComponent extends CellEditComponent {
         } else {
             let result = this.props.handleBlockUi();
             if (result) {
-                this.crudService
-                    .editEntry(viewId, recordId, parentId, kindView, '')
-                    .then((entryResponse) => {
-                        EntryResponseHelper.run(
-                            entryResponse,
-                            () => {
-                                if (!!entryResponse.next) {
-                                    this.crudService
-                                        .edit(viewId, recordId, parentId, kindView)
-                                        .then((editDataResponse) => {
-                                            this.setState(
-                                                {
-                                                    editData: editDataResponse,
-                                                },
-                                                () => {
-                                                    this.props.handleShowEditPanel(editDataResponse);
-                                                }
-                                            );
-                                        })
-                                        .catch((err) => {
-                                            this.props.showErrorMessages(err);
-                                        });
-                                } else {
-                                    this.props.handleUnblockUi();
-                                }
-                            },
-                            () => this.props.handleUnblockUi(),
-                            () => this.props.handleUnblockUi()
-                        );
-                    })
-                    .catch((err) => {
-                        this.props.showErrorMessages(err);
-                    });
+                handleEdit(
+                    this.crudService,
+                    viewId,
+                    recordId,
+                    parentId,
+                    kindView,
+                    (editDataResponse) =>
+                        this.setState({editData: editDataResponse}, () =>
+                            this.props.handleShowEditPanel(editDataResponse)
+                        ),
+                    this.props.handleUnblockUi,
+                    this.props.showErrorMessages
+                );
             }
         }
     }
@@ -599,25 +605,22 @@ class TreeViewComponent extends CellEditComponent {
         }
     };
 
-   // ovverated
-   afterValidatorExecute(cellValidator,value, withMessage){
-      if(this.props.afterFinishEditCell){
-          this.props.afterFinishEditCell(cellValidator, value, withMessage)
-      }
+    // ovverated
+    afterValidatorExecute(cellValidator, value, withMessage) {
+        if (this.props.afterFinishEditCell) {
+            this.props.afterFinishEditCell(cellValidator, value, withMessage);
+        }
     }
 
     postCustomizeColumns = (columns) => {
         let INDEX_COLUMN = 0;
         if (columns?.length > 0) {
-            //when viewData respond a lot of data
             columns
-                .filter((column) => column.visible === true || column?.name === "_ORDER")
+                .filter((column) => column.visible === true || column?.name === '_ORDER')
                 ?.forEach((column) => {
                     if (column.name === '_ROWNUMBER') {
-                        //rule -> hide row with autonumber
                         column.visible = false;
                     } else {
-                        //match column by field name from view and viewData service
                         const columnDefinition = this.matchColumnDefinitionByFieldName(column.dataField);
                         if (columnDefinition) {
                             column.visible = columnDefinition?.visible;
@@ -671,19 +674,25 @@ class TreeViewComponent extends CellEditComponent {
                     (operationsRecord.length > 0 || operationsRecordList.length > 0)
                 ) {
                     columns?.push({
-                        id:"OP_COLUMN",
+                        id: 'OP_COLUMN',
                         caption: '',
                         fixed: true,
                         headerCellTemplate: (element) => {
-                            element.offsetParent.style.alignItems= "center";
-                            element.offsetParent.style.justifyContent= "center";
-                            element.offsetParent.style.display= "flex";
+                            element.offsetParent.style.alignItems = 'center';
+                            element.offsetParent.style.justifyContent = 'center';
+                            element.offsetParent.style.display = 'flex';
                             if (this.props?.addButtonFunction) {
                                 ReactDOM.render(this.addButton(), element);
                             }
                             return;
                         },
-                        width: this.props.isAddSpec ? 43 :  ViewDataCompUtils.operationsColumnLength(operationsRecord, operationsRecordList, this.addButtonExists()) ,
+                        width: this.props.isAddSpec
+                            ? 43
+                            : ViewDataCompUtils.operationsColumnLength(
+                                  operationsRecord,
+                                  operationsRecordList,
+                                  this.addButtonExists()
+                              ),
                         fixedPosition: 'right',
                         cellTemplate: (element, info) => {
                             let el = document.createElement('div');
@@ -703,8 +712,19 @@ class TreeViewComponent extends CellEditComponent {
                                         operations={operationsRecord}
                                         operationList={operationsRecordList}
                                         info={info}
-                                        handleEdit={() => {
-                                            this.handleEdit(viewId, parentId, recordId, currentBreadcrumb, kindView);
+                                        handleEdit={(e) => {
+                                            this.preOperationAction(
+                                                e,
+                                                () =>
+                                                    this.handleEdit(
+                                                        viewId,
+                                                        parentId,
+                                                        recordId,
+                                                        currentBreadcrumb,
+                                                        kindView
+                                                    ),
+                                                recordId
+                                            );
                                         }}
                                         handleEditSpec={() => {
                                             this.handleEditSpec(viewId, parentId, recordId, currentBreadcrumb);
@@ -720,27 +740,113 @@ class TreeViewComponent extends CellEditComponent {
                                             compress([recordId]),
                                             currentBreadcrumb
                                         )}
-                                        handleHrefSubview={() => this.handleHrefSubview(viewId, recordId, currentBreadcrumb) }
-                                        handleAddSpecSpec={() =>  this.props.handleAddSpecSpec(recordId)}
-                                        handleArchive={() => this.props.handleArchiveRow(recordId)}
-                                        handlePublish={() => this.props.handlePublish(recordId)}
-                                        handleDownload={() => this.props.handleDownloadRow(recordId)}
-                                        handleAttachments={() => this.props.handleAttachmentRow(recordId)}
-                                        handleCopy={() => this.props.handleCopyRow(recordId)}
-                                        handleDelete={() => this.props.handleDeleteRow(recordId)}
-                                        handleRestore={() => this.props.handleRestoreRow(recordId)}
-                                        handleDocuments={(el) => this.props.handleDocumentRow(el.id, recordId)}
-                                        handlePlugins={(el) => this.props.handlePluginRow(el.id, recordId)}
-                                        handleFormula={() => this.props.handleFormulaRow(recordId)}
-                                        handleHistory={() => alert('TODO')}
-                                        handleBlockUi={() => this.props.handleBlockUi()}
-                                        handleUp={() => this.props.handleUp(recordId)}
-                                        handleDown={() => this.props.handleDown(recordId)}
-                                        handleAddLevel={() => this.props.handleAddLevel(recordId)}
-                                        handleExpand={() => this.handleExpand(recordId)}
-                                        handleCollapse={() => this.handleCollapse(recordId)}
-                                        handleCheck={() => this.handleCheck(recordId)}
-                                        handleUncheck={() => this.handleUncheck(recordId)}
+                                        handleHrefSubview={(e) =>
+                                            this.handleHrefSubview(viewId, recordId, currentBreadcrumb)
+                                        }
+                                        handleAddSpecSpec={(e) => this.props.handleAddSpecSpec(recordId)}
+                                        handleArchive={(e) =>
+                                            this.preOperationAction(
+                                                e,
+                                                () => this.props.handleArchiveRow(recordId),
+                                                recordId
+                                            )
+                                        }
+                                        handlePublish={(e) =>
+                                            this.preOperationAction(
+                                                e,
+                                                () => this.props.handlePublish(recordId),
+                                                recordId
+                                            )
+                                        }
+                                        handleDownload={(e) =>
+                                            this.preOperationAction(
+                                                e,
+                                                () => this.props.handleDownloadRow(recordId),
+                                                recordId
+                                            )
+                                        }
+                                        handleAttachments={(e) =>
+                                            this.preOperationAction(
+                                                e,
+                                                () => this.props.handleAttachmentRow(recordId),
+                                                recordId
+                                            )
+                                        }
+                                        handleCopy={(e) =>
+                                            this.preOperationAction(
+                                                e,
+                                                () => this.props.handleCopyRow(recordId),
+                                                recordId
+                                            )
+                                        }
+                                        handleDelete={(e) =>
+                                            this.preOperationAction(
+                                                e,
+                                                () => this.props.handleDeleteRow(recordId),
+                                                recordId
+                                            )
+                                        }
+                                        handleRestore={(e) =>
+                                            this.preOperationAction(
+                                                e,
+                                                () => this.props.handleRestoreRow(recordId),
+                                                recordId
+                                            )
+                                        }
+                                        handleDocuments={(e) =>
+                                            this.preOperationAction(
+                                                e,
+                                                () => this.props.handleDocumentRow(e.id, recordId),
+                                                recordId
+                                            )
+                                        }
+                                        handlePlugins={(e) =>
+                                            this.preOperationAction(
+                                                e,
+                                                () => this.props.handlePluginRow(e.id, recordId),
+                                                recordId
+                                            )
+                                        }
+                                        handleFormula={(e) =>
+                                            this.preOperationAction(
+                                                e,
+                                                () => this.props.handleFormulaRow(recordId),
+                                                recordId
+                                            )
+                                        }
+                                        handleHistory={(e) =>
+                                            this.preOperationAction(
+                                                e,
+                                                () => this.props.handleHistoryLogRow(recordId),
+                                                recordId
+                                            )
+                                        }
+                                        handleUp={(e) =>
+                                            this.preOperationAction(e, () => this.props.handleUp(recordId), recordId)
+                                        }
+                                        handleDown={(e) =>
+                                            this.preOperationAction(e, () => this.props.handleDown(recordId), recordId)
+                                        }
+                                        handleAddLevel={(e) =>
+                                            this.preOperationAction(
+                                                e,
+                                                () => this.props.handleAddLevel(recordId),
+                                                recordId
+                                            )
+                                        }
+                                        handleExpand={(e) =>
+                                            this.preOperationAction(e, () => this.handleExpand(recordId), recordId)
+                                        }
+                                        handleCollapse={(e) =>
+                                            this.preOperationAction(e, () => this.handleCollapse(recordId), recordId)
+                                        }
+                                        handleCheck={(e) =>
+                                            this.preOperationAction(e, () => this.handleCheck(recordId), recordId)
+                                        }
+                                        handleUncheck={(e) =>
+                                            this.preOperationAction(e, () => this.handleUncheck(recordId), recordId)
+                                        }
+                                        handleBlockUi={(e) => this.props.handleBlockUi()}
                                     />
                                 </div>,
                                 element
@@ -767,13 +873,13 @@ class TreeViewComponent extends CellEditComponent {
         }
     };
 
-    fillOrderColumn = (column, columnDefinition)=>{
-        if (column?.name === "_ORDER") {
+    fillOrderColumn = (column, columnDefinition) => {
+        if (column?.name === '_ORDER') {
             column.sortOrder = columnDefinition.sortOrder;
-            column.sortIndex = columnDefinition.sortIndex; 
+            column.sortIndex = columnDefinition.sortIndex;
             column.visible = columnDefinition.visible;
         }
-    }
+    };
 
     addButton() {
         return (
@@ -788,7 +894,7 @@ class TreeViewComponent extends CellEditComponent {
             )
         );
     }
-    addButtonExists(){
+    addButtonExists() {
         const operations = this.state.operations;
         const opAddFile = !!TranslationUtils.getOpButton(operations, OperationType.OP_ADD_SPEC_BUTTON);
         return !!opAddFile;
@@ -802,23 +908,23 @@ class TreeViewComponent extends CellEditComponent {
             this.props.onHideEditorCallback();
         }
     }
-    isWart(dataField){
-        if(dataField){
-           return dataField.toUpperCase() === 'WART'; 
+    isWart(dataField) {
+        if (dataField) {
+            return dataField.toUpperCase() === 'WART';
         }
-        return false
+        return false;
     }
 
-    isValidField = (cellInfo, columnDefinition) =>{
+    isValidField = (cellInfo, columnDefinition) => {
         return new CellValidator(cellInfo, columnDefinition).isValidField();
-    }
+    };
     cellRenderSpecial(cellInfo, columnDefinition) {
         try {
-            let className = "";
+            let className = '';
             let _bgColor;
-            const cellBackground =  new CellCustomBackground(cellInfo, columnDefinition);
-            if (cellBackground.canPaintRow()) { 
-                    cellBackground.paintRow()
+            const cellBackground = new CellCustomBackground(cellInfo, columnDefinition);
+            if (cellBackground.canPaintRow()) {
+                cellBackground.paintRow();
             } else {
                 _bgColor = cellInfo.data['_BGCOLOR'];
             }
@@ -874,7 +980,6 @@ class TreeViewComponent extends CellEditComponent {
                                 {StringUtils.textFromHtmlString(cellInfo?.text)}{' '}
                             </span>
                         );
-                        
                     } catch (err) {
                         ConsoleHelper('Error render htmloutput. Exception=', err);
                     }
@@ -899,7 +1004,12 @@ class TreeViewComponent extends CellEditComponent {
                 case ColumnType.IM:
                     try {
                         return !!cellInfo?.text ? (
-                            <img alt={''} height={100} src={`data:image/jpeg;base64,${cellInfo?.text}`} className={className}/>
+                            <img
+                                alt={''}
+                                height={100}
+                                src={`data:image/jpeg;base64,${cellInfo?.text}`}
+                                className={className}
+                            />
                         ) : (
                             <div />
                         );
@@ -985,13 +1095,15 @@ class TreeViewComponent extends CellEditComponent {
         return columns;
     }
 
-    cColumnTypeRender(cellInfo, fontColorFinal, className){
-        const keyExistsInInvalidCellKeys = this.props.keyExistsInInvalidCellKeys ? this.props.keyExistsInInvalidCellKeys(cellInfo.key, cellInfo?.column?.dataField) : false;
-         if(!keyExistsInInvalidCellKeys){
+    cColumnTypeRender(cellInfo, fontColorFinal, className) {
+        const keyExistsInInvalidCellKeys = this.props.keyExistsInInvalidCellKeys
+            ? this.props.keyExistsInInvalidCellKeys(cellInfo.key, cellInfo?.column?.dataField)
+            : false;
+        if (!keyExistsInInvalidCellKeys) {
             try {
                 return (
                     <span
-                        className={this.isWart(cellInfo?.column?.dataField)? 'WART' : className }
+                        className={this.isWart(cellInfo?.column?.dataField) ? 'WART' : className}
                         style={{
                             color: fontColorFinal,
                         }}
@@ -1000,25 +1112,24 @@ class TreeViewComponent extends CellEditComponent {
                 );
             } catch (err) {
                 ConsoleHelper('Error render htmloutput. Exception=', err);
-            }     
-         }else{
-             try{
-                 return  <TextBox
-                 className='tex-box-view-field-invalid'
-                 mode={ 'text'}
-                 isValid={false}
-                 validationMessagePosition="left"
-                 defaultValue={cellInfo?.text}
-                 stylingMode={'filled'}
-                 valueChangeEvent={'keyup'}
-               
-             >
-             </TextBox>
-             }catch(err){
-                 ConsoleHelper('Error render htmloutput. Exception=', err);
-             }
-         }
-        
+            }
+        } else {
+            try {
+                return (
+                    <TextBox
+                        className='tex-box-view-field-invalid'
+                        mode={'text'}
+                        isValid={false}
+                        validationMessagePosition='left'
+                        defaultValue={cellInfo?.text}
+                        stylingMode={'filled'}
+                        valueChangeEvent={'keyup'}
+                    ></TextBox>
+                );
+            } catch (err) {
+                ConsoleHelper('Error render htmloutput. Exception=', err);
+            }
+        }
     }
 
     waitForSuccess() {

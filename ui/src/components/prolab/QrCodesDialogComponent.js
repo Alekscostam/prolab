@@ -5,24 +5,36 @@ import {useEffect, useRef, useState} from 'react';
 import PropTypes from 'prop-types';
 import ShortcutButton from './ShortcutButton';
 import LocUtils from '../../utils/LocUtils';
-
 export const QrCodesDialogComponent = (props) => {
-    const {onHide, editable, labels} = props;
+    const {onHide, editable, labels, findCode} = props;
     const qrCodeRef = useRef(undefined);
     const [visible, setVisible] = useState(props.visible);
     const [value, setValue] = useState(props.value);
 
     useEffect(() => {
-        return () => {};
-    }, [props, value]);
+        const handleGlobalKeyDown = (event) => {
+            if (event.key === 'Enter') {
+                const value = document.getElementById('qrCode-textbox')?.firstChild?.firstChild?.firstChild?.value;
+                if (value && value.trim() !== '') {
+                    findCode(value);
+                }
+            }
+        };
+        window.addEventListener('keydown', handleGlobalKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleGlobalKeyDown);
+        };
+    }, []);
 
     const hideDialog = () => {
         onHide();
         setVisible(false);
     };
+
     const dialogHeader = () => {
         return <div> {LocUtils.loc(labels, 'Search', 'Szukaj')}</div>;
     };
+
     const dialogFooter = editable ? (
         <div>
             <ShortcutButton
@@ -36,11 +48,17 @@ export const QrCodesDialogComponent = (props) => {
             <ShortcutButton
                 id={'opConfirm'}
                 className={`grid-button-panel-big inverse mt-1 mb-1 mr-1`}
-                handleClick={() => {}}
+                handleClick={() => {
+                    const value = qrCodeRef.current.instance.option('value');
+                    findCode(value);
+                }}
                 label={LocUtils.loc(labels, 'Confirm', 'Zatwierdź')}
             />
         </div>
-    ):<div></div>;
+    ) : (
+        <div></div>
+    );
+
     const fullNameLabel = {'aria-label': 'Full Name'};
     return (
         <div>

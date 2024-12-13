@@ -297,7 +297,29 @@ $base-color: #0e49eb;
         text-overflow: ellipsis;
     }
 }
-
+.no-margin-left-right{
+    margin-left: 0!important;
+    margin-right: 0!important;
+}
+#fullscreen-dialog{
+    .p-dialog-header{
+        display: none;
+    }
+}
+.card-body-component{
+    .image-component{
+        aspect-ratio: 1 / 1;
+        border-radius: 50%;
+    }
+    .body-component{
+        border-radius: 5px;
+        padding: 3px;
+        word-break: normal;
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
 .card-grid-body {
     display: inline-flex;
     align-items: flex-start;

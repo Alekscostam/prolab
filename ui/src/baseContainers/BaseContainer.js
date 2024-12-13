@@ -6,7 +6,7 @@ import ActionButton from '../components/ActionButton';
 import DivContainer from '../components/DivContainer';
 import SimpleReactValidator from '../components/validator';
 import AuthService from '../services/AuthService';
-import $, { error } from 'jquery';
+import $, {error} from 'jquery';
 import Constants from '../utils/Constants';
 import BlockUi from '../components/waitPanel/BlockUi';
 import {Toast} from 'primereact/toast';
@@ -29,10 +29,12 @@ import EditSpecService from '../services/EditSpecService';
 import {OperationType} from '../enum/OperationType';
 import {InputType} from '../enum/InputType';
 import {StringUtils} from '../utils/StringUtils';
-import LocUtils from '../utils/LocUtils';
 import EditListUtils from '../utils/EditListUtils';
-import { RequestUtils } from '../utils/RequestUtils';
-import { CookiesName } from '../enum/CookieName';
+import {RequestUtils} from '../utils/RequestUtils';
+import {CookiesName} from '../enum/CookieName';
+import {ResponseStatus} from '../enum/ResponseStatus';
+import useStore from '../store';
+import LocUtils from '../utils/LocUtils';
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -109,12 +111,12 @@ class BaseContainer extends React.Component {
         return this.fetch(`${readObjFromCookieGlobal('CONFIG_URL')}/lang/${frameworkType}_translations_${lang}.json`, {
             method: 'GET',
         })
-        .then((arr) => {
-            return Promise.resolve(arr.labels.find((el) => el.code.toLowerCase() === param.toLowerCase()));
-        })
-        .catch((err) => {
-            throw err;
-        });
+            .then((arr) => {
+                return Promise.resolve(arr.labels.find((el) => el.code.toLowerCase() === param.toLowerCase()));
+            })
+            .catch((err) => {
+                throw err;
+            });
     }
     componentDidUpdate() {
         if (this.scrollToError) {
@@ -127,7 +129,11 @@ class BaseContainer extends React.Component {
         this._isMounted = false;
     }
 
-    showInfoMessage(detail, life = Constants.SUCCESS_MSG_LIFE, summary = LocUtils.loc(this.props?.labels, 'Information', 'Informacja')) {
+    showInfoMessage(
+        detail,
+        life = Constants.SUCCESS_MSG_LIFE,
+        summary = LocUtils.loc(this.props?.labels, 'Information', 'Informacja')
+    ) {
         this.getMessages()?.show({
             severity: 'info',
             life: Constants.SUCCESS_MSG_LIFE,
@@ -169,7 +175,7 @@ class BaseContainer extends React.Component {
         if (!!errorResponse?.error) {
             message = errorResponse.error?.message;
         } else {
-            message = LocUtils.loc(this.props?.labels, "Unexpected_Error_Occurred", "Wystąpił nieoczekiwany błąd") ;
+            message = LocUtils.loc(this.props?.labels, 'Unexpected_Error_Occurred', 'Wystąpił nieoczekiwany błąd');
         }
         this.getMessages()?.show({
             severity: 'error',
@@ -191,14 +197,19 @@ class BaseContainer extends React.Component {
         }
     }
 
-    showErrorMessage(errMsg, life = Constants.ERROR_MSG_LIFE, closable = true,  summary =  LocUtils.loc(this.props?.labels, 'Error', 'Błąd')) {
+    showErrorMessage(
+        errMsg,
+        life = Constants.ERROR_MSG_LIFE,
+        closable = true,
+        summary = LocUtils.loc(this.props?.labels, 'Error', 'Błąd')
+    ) {
         this.getMessages()?.show({
             severity: 'error',
             sticky: false,
             life: life,
             summary: summary,
             detail: errMsg,
-            closable
+            closable,
         });
         this.unblockUi();
     }
@@ -220,7 +231,7 @@ class BaseContainer extends React.Component {
         return configUrl;
     }
 
-    showErrorMessages(err) {
+    showErrorMessages = (err) => {
         let message;
         let title;
         let messages = [];
@@ -252,13 +263,13 @@ class BaseContainer extends React.Component {
             }
         }
         if (!message && messages.length === 0) {
-            message = LocUtils.loc(this.props?.labels, "Unexpected_Error_Occurred", "Wystąpił nieoczekiwany błąd");
+            message = LocUtils.loc(this.props?.labels, 'Unexpected_Error_Occurred', 'Wystąpił nieoczekiwany błąd');
         }
         if (messages.length === 0) {
             messages.push(message);
         }
         if (title) {
-            title = LocUtils.loc(this.props?.labels, 'Error', 'Błąd') `: ${title}`;
+            title = LocUtils.loc(this.props?.labels, 'Error', 'Błąd')`: ${title}`;
         } else {
             title = LocUtils.loc(this.props?.labels, 'Error', 'Błąd');
         }
@@ -283,7 +294,7 @@ class BaseContainer extends React.Component {
             closable: true,
         });
         this.unblockUi();
-    }
+    };
 
     showMessage(severity, summary, detail, life = Constants.ERROR_MSG_LIFE, closable = true, errMsg) {
         if (this.messages !== undefined && this.messages !== null) {
@@ -518,7 +529,12 @@ class BaseContainer extends React.Component {
 
     loader() {
         const {waitPanelLabel} = this.state;
-        let label = LocUtils.loc(this.props?.labels, 'Operation_in_progress', 'Operacja w toku, proszę czekać.');
+        const labels = this.props?.labels
+            ? this.props?.labels
+            : useStore.getState().labels
+            ? useStore.getState().labels
+            : [];
+        let label = LocUtils.loc(labels, 'Operation_in_progress', 'Operacja w toku, proszę czekać.');
         if (waitPanelLabel !== undefined && waitPanelLabel !== null) {
             label = waitPanelLabel;
         }
@@ -616,9 +632,7 @@ class BaseContainer extends React.Component {
 
     handleEditRowSave(viewId, recordId, parentId, token) {
         ConsoleHelper(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`);
-        const saveElement = RequestUtils.createObjectDataToRequest(
-            UrlUtils.isEditRowView() ? this.props : this.state
-        );
+        const saveElement = RequestUtils.createObjectDataToRequest(this.state);
         ConsoleHelper(`handleEditRowSave: element to save = ${JSON.stringify(saveElement)}`);
         this.rowSave(viewId, recordId, parentId, saveElement, false, token);
         if (this.shloudUnselectOnEditRowSave()) {
@@ -626,7 +640,7 @@ class BaseContainer extends React.Component {
         }
     }
     shloudUnselectOnEditRowSave() {
-        return !this.state?.copyData && !UrlUtils.isEditRowView();
+        return !this.state?.copyData;
     }
 
     refreshView() {
@@ -636,7 +650,9 @@ class BaseContainer extends React.Component {
             }
         } else if (this.isGanttView()) {
             if (!!this.getRefGanttView()) {
-                this.getRefGanttView().current.refresh();
+                if (this.getRefGanttView()?.current) {
+                    this.getRefGanttView().current.refresh();
+                }
             }
         } else if (this.isGridView()) {
             if (!!this.getRefGridView()) {
@@ -695,7 +711,7 @@ class BaseContainer extends React.Component {
             this.state.elementViewType,
             forceReStateSubView
         );
-    }
+    };
 
     reloadOnlyDataGrid() {
         if (this.isGridView()) {
@@ -720,7 +736,7 @@ class BaseContainer extends React.Component {
                     () => {},
                     (res) => {
                         this.showGlobalErrorMessage(res);
-                    },
+                    }
                 );
                 if (fncRedirect) {
                     fncRedirect();
@@ -742,25 +758,27 @@ class BaseContainer extends React.Component {
                 ResponseHelper.run(
                     saveResponse,
                     () => {
-                        this.specSave(viewId, parentId, saveElement, true)},
-                    () => {
+                        this.specSave(viewId, parentId, saveElement, true);
                     },
+                    () => {},
                     (res) => {
                         this.showGlobalErrorMessage(res);
                     },
-                    ()=>{
+                    () => {
                         if (fncRedirect) {
                             fncRedirect();
-                        }            
+                        }
                     }
                 );
-                if((StringUtils.isBlank(saveResponse?.status) || saveResponse?.status !== "NOK") && fncRedirect){
+                if (
+                    (StringUtils.isBlank(saveResponse?.status) || saveResponse?.status !== ResponseStatus.NOK) &&
+                    fncRedirect
+                ) {
                     fncRedirect();
                 }
-                this.refreshView();   
+                this.refreshView();
                 if (UrlUtils.urlParamExists('grid-view')) this.refreshSubView(true);
                 this.unselectAllDataGrid();
-               
             })
             .catch((err) => {
                 this.showGlobalErrorMessage(err);
@@ -768,9 +786,6 @@ class BaseContainer extends React.Component {
             });
     };
     kindOperationForRow() {
-        if (UrlUtils.isEditRowView()) {
-            return 'Edit';
-        }
         return this.state.editData.editInfo?.kindOperation ? this.state.editData.editInfo?.kindOperation : undefined;
     }
     rowSave = (viewId, recordId, parentId, saveElement, confirmSave, token) => {
@@ -785,7 +800,7 @@ class BaseContainer extends React.Component {
                     () => () => this.rowSave(viewId, recordId, parentId, saveElement, true),
                     () => {
                         this.setState({visibleEditPanel: false});
-                        this.returnFromRowEdit();
+                        window.location.href = UrlUtils.getUrlWithoutEditRowParams();
                     },
                     (res) => {
                         this.showGlobalErrorMessage(res);
@@ -793,7 +808,7 @@ class BaseContainer extends React.Component {
                 );
                 let refresh = true;
                 if (kindOperation.toUpperCase() === 'COPY') {
-                    if (saveResponse?.status !== 'NOK') {
+                    if (saveResponse?.status !== ResponseStatus.NOK) {
                         this.copyAfterSave(saveResponse);
                     } else {
                         refresh = false;
@@ -802,7 +817,7 @@ class BaseContainer extends React.Component {
                 if (this.state?.attachmentFiles?.length) {
                     this.uploadAttachemnt(this.state.parsedGridView, this.state.attachmentFiles[0]);
                 }
-                if (refresh && saveResponse.status !== 'NOK') {
+                if (refresh && saveResponse.status !== ResponseStatus.NOK) {
                     if (this.shouldRefreshSubView(kindOperation)) {
                         this.refreshSubView();
                     }
@@ -816,7 +831,11 @@ class BaseContainer extends React.Component {
     };
     shouldRefreshSubView(kindOperation) {
         const attachmentDialog = document.getElementById('attachmentDialog');
-        return !attachmentDialog && readValueCookieGlobal(CookiesName.REFRESH_SUB_VIEW) && kindOperation.toUpperCase() !== 'COPY';
+        return (
+            !attachmentDialog &&
+            readValueCookieGlobal(CookiesName.REFRESH_SUB_VIEW) &&
+            kindOperation.toUpperCase() !== 'COPY'
+        );
     }
     copyAfterSave = (saveResponse) => {
         let {copyOptions, copyCounter} = this.state.copyData;
@@ -864,9 +883,9 @@ class BaseContainer extends React.Component {
         this.crudService
             .cancel(viewId, recordId, parentId, kindView, kindOperation, saveElement)
             .then(() => {
+                window.location.href = UrlUtils.getUrlWithoutEditRowParams();
                 this.unselectAllDataGrid();
                 this.unblockUi();
-                this.returnFromRowEdit();
             })
             .catch((err) => {
                 this.showGlobalErrorMessage(err);
@@ -996,7 +1015,6 @@ class BaseContainer extends React.Component {
                         renderNextStep = false;
                     } else visibleMessagePluginPanel = true;
                 }
-
                 if (renderNextStep) {
                     this.setState({
                         pluginId: pluginId,
@@ -1020,7 +1038,7 @@ class BaseContainer extends React.Component {
         const viewId = this.getRealViewId();
         const parentId = this.state.elementRecordId;
         const idRowKeys = this.state.selectedRowKeys.map((el) => el.ID);
-        const listId = recordId ? {listId:[recordId]} : {listId: idRowKeys};
+        const listId = recordId ? {listId: [recordId]} : {listId: idRowKeys};
         let visiblePluginPanel = false;
         let visibleMessagePluginPanel = false;
         this.crudService
@@ -1064,7 +1082,7 @@ class BaseContainer extends React.Component {
             .catch((err) => {
                 this.showGlobalErrorMessage(err);
             });
-    } 
+    }
     historyLog(recordId) {
         const viewId = this.realViewSelector(recordId);
         const recordIsZero = recordId === 0 || recordId === '0';
@@ -1178,7 +1196,7 @@ class BaseContainer extends React.Component {
                 EntryResponseHelper.run(
                     uploadResponse,
                     () => {
-                        if (uploadResponse?.status === 'OK') {
+                        if (uploadResponse?.status === ResponseStatus.OK) {
                             this.crudService
                                 .edit(viewId, uploadResponse.recordId, parentId, 'View')
                                 .then((editDataResponse) => {
@@ -1221,7 +1239,7 @@ class BaseContainer extends React.Component {
                         }
                     },
                     () => this.unblockUi(),
-                    () => this.unblockUi(),
+                    () => this.unblockUi()
                 );
             })
             .catch((err) => {
@@ -1268,7 +1286,7 @@ class BaseContainer extends React.Component {
                             let copyOptions = {copyOptions: copyData.copyOptions};
                             this.crudService
                                 .copy(viewId, parentId, kindView, selectedRowKeys[0], copyOptions)
-                                .then((copyResponse) => {    
+                                .then((copyResponse) => {
                                     EditListUtils.addUuidToFields(copyResponse);
                                     const msg = copyResponse.message;
                                     if (!!msg) {
@@ -1290,9 +1308,9 @@ class BaseContainer extends React.Component {
                                     this.unblockUi();
                                 })
                                 .catch((err) => {
-                                    if(err?.error.code === "COPY_OK")  {
+                                    if (err?.error.code === ResponseStatus.COPY_OK) {
                                         this.showSuccessMessage(err.error?.message);
-                                        this.processCopyOk(id,callBack)
+                                        this.processCopyOk(id, callBack);
                                         return;
                                     }
                                     this.showGlobalErrorMessage(err);
@@ -1305,27 +1323,29 @@ class BaseContainer extends React.Component {
                             this.unblockUi();
                         }
                     },
-                    () => this.unblockUi(),  
-                    () => this.unblockUi()  
+                    () => this.unblockUi(),
+                    () => this.unblockUi()
                 );
             })
             .catch((err) => {
                 this.showGlobalErrorMessage(err);
             });
     }
-    processCopyOk(id, callBack){
+    processCopyOk(id, callBack) {
         const selectedRowKeys = this.getSelectedRowKeysIds(id);
         selectedRowKeys.shift();
-        if(selectedRowKeys.length === 0){
+        if (selectedRowKeys.length === 0) {
             this.unselectAllDataGrid();
-            return; 
+            return;
         }
-        this.setState({
-            selectedRowKeys
-        },()=>{
-            this.copyEntry(id, callBack)
-        })
-
+        this.setState(
+            {
+                selectedRowKeys,
+            },
+            () => {
+                this.copyEntry(id, callBack);
+            }
+        );
     }
     restore(id) {
         this.blockUi();
@@ -1434,7 +1454,9 @@ class BaseContainer extends React.Component {
                 datas = this.state.parsedData;
             }
         }
-        const fieldsToCalculate = RequestUtils.createObjectToCalculate(datas.filter(data=>data._STATUS !== "deleted" ));
+        const fieldsToCalculate = RequestUtils.createObjectToCalculate(
+            datas.filter((data) => data._STATUS !== 'deleted')
+        );
         this.calculateFormula(viewId, parentId, rowId, fieldsToCalculate);
     }
     calculateFormula(viewId, parentId, rowId, fieldsToCalculate) {
@@ -1445,18 +1467,18 @@ class BaseContainer extends React.Component {
         } else if (this.state.elementKindView && this.state.elementKindView.toUpperCase() === 'VIEWSPEC') {
             parentId = UrlUtils.getRecordId();
             let listIds = [];
-            let specListIds = this.getListIds(rowId);;
+            let specListIds = this.getListIds(rowId);
             let params = '';
-            if(!StringUtils.isBlank(parentId)){
+            if (!StringUtils.isBlank(parentId)) {
                 listIds.push(parentId);
-                params = `?recordId=${parentId}`  
+                params = `?recordId=${parentId}`;
             }
             this.calculateFormulaForView(viewId, params, listIds, specListIds);
         } else {
             let params = '';
             let listIds = this.getListIds(rowId);
-            if(!StringUtils.isBlank(parentId)){
-                params = `?parentId=${parentId}`;  
+            if (!StringUtils.isBlank(parentId)) {
+                params = `?parentId=${parentId}`;
             }
             this.calculateFormulaForView(viewId, params, listIds, []);
         }
@@ -1466,11 +1488,11 @@ class BaseContainer extends React.Component {
             oldFormula.WART = calcultedFormula[1].value;
         }
     }
-    getListIds(rowId){
+    getListIds(rowId) {
         const selectedRowKeys = this.state.selectedRowKeys;
         let listIds = [];
         if (!!rowId) listIds.push(rowId);
-        else listIds = selectedRowKeys.map(row => row.ID);
+        else listIds = selectedRowKeys.map((row) => row.ID);
         return listIds;
     }
     calculateFormulaForEditSpec(viewId, parentId, id, fieldsToCalculate) {
@@ -1516,8 +1538,8 @@ class BaseContainer extends React.Component {
                 this.refreshView();
                 this.refreshSubView(true);
             })
-            .catch((err)=>{
-               this.showGlobalErrorMessage(err) 
+            .catch((err) => {
+                this.showGlobalErrorMessage(err);
             })
             .finally(() => {
                 this.unblockUi();
@@ -1668,7 +1690,7 @@ class BaseContainer extends React.Component {
                         }
                     },
                     () => this.unblockUi(),
-                    () => this.unblockUi(),
+                    () => this.unblockUi()
                 );
             })
             .catch((err) => {
@@ -1677,7 +1699,9 @@ class BaseContainer extends React.Component {
     }
 
     unselectAllDataGrid() {
-        this.refTreeList?.instance.deselectAll();
+        if (this.refTreeList?.instance) {
+            this.refTreeList?.instance.deselectAll();
+        }
         this.setState({
             selectAll: false,
             select: false,
@@ -1690,7 +1714,7 @@ class BaseContainer extends React.Component {
         ConsoleHelper(`handleEditListRowChange = `, JSON.stringify(editListData));
         try {
             this.blockUi();
-            const editData = UrlUtils.isEditRowView() ? this.props.editData : this.state.editData;
+            const editData = this.state.editData;
             editListData.forEach((element) => {
                 EditRowUtils.searchAndAutoFill(editData, element.fieldEdit, element.fieldValue);
             });
@@ -1707,14 +1731,12 @@ class BaseContainer extends React.Component {
 
     handleAutoFillRowChange(viewId, recordId, parentId, kindView) {
         this.blockUi();
-        const autofillBodyRequest = RequestUtils.createObjectDataToRequest(
-            UrlUtils.isEditRowView() ? this.props : this.state
-        );
+        const autofillBodyRequest = RequestUtils.createObjectDataToRequest(this.state);
         this.crudService
             .editAutoFill(viewId, recordId, parentId, kindView, autofillBodyRequest)
             .then((editAutoFillResponse) => {
                 const arrayTmp = editAutoFillResponse?.data;
-                const editData = UrlUtils.isEditRowView() ? this.props.editData : this.state.editData;
+                const editData = this.state.editData;
                 arrayTmp.forEach((element) => {
                     EditRowUtils.searchAndAutoFill(editData, element.fieldName, element.value);
                 });
@@ -1728,14 +1750,11 @@ class BaseContainer extends React.Component {
 
     handleCancelRowChange(viewId, recordId, parentId) {
         ConsoleHelper(`handleCancelRowChange: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`);
-        const cancelElement = RequestUtils.createObjectDataToRequest(
-            UrlUtils.isEditRowView() ? this.props : this.state
-        );
+        const cancelElement = RequestUtils.createObjectDataToRequest(this.state);
         ConsoleHelper(`handleCancelRowChange: element to cancel = ${JSON.stringify(cancelElement)}`);
         this.rowCancel(viewId, recordId, parentId, cancelElement, false);
     }
 
-    /** Dla gantta ID_PARENT nie moze byc '' */
     replaceEmptyValuesFromParent(editData) {
         editData.editFields?.filter((editField) => {
             return editField?.panels?.filter((panel) => {
@@ -1762,12 +1781,12 @@ class BaseContainer extends React.Component {
                 (field) => field.fieldName.toUpperCase() === varName.toUpperCase()
             );
             fieldArr.value = varValue;
-            this.setState({documentdInfo: documentInfo, modifyEditData: true}); // TODO: documentInfo?
+            this.setState({modifyEditData: true}); // TODO: documentInfo?
         }
     }
     handleEditRowChange(inputType, event, groupUuid, info) {
         ConsoleHelper(`handleEditRowChange inputType=${inputType} groupUuid=${groupUuid}`);
-        const editData = UrlUtils.isEditRowView() ? this.props.editData : this.state.editData;
+        const editData = this.state.editData;
         const groupData = [];
         outerLoop: for (let editField of editData?.editFields) {
             for (let panel of editField.panels) {
@@ -1803,11 +1822,7 @@ class BaseContainer extends React.Component {
         }
     }
     setEditData(editData) {
-        if (UrlUtils.isEditRowView()) {
-            this.props.editDataChange(editData);
-        } else {
-            this.setState({editData:editData, modifyEditData: true});
-        }
+        this.setState({editData: editData, modifyEditData: true});
     }
     setVariableFromEvent(inputType, event) {
         let varName;
@@ -1895,22 +1910,17 @@ class BaseContainer extends React.Component {
 
     refreshFieldVisibility(info) {
         this.blockUi();
-        const isEditRowView = UrlUtils.isEditRowView();
-        const refreshObject = RequestUtils.createObjectDataToRequest(isEditRowView ? this.props : this.state);
+        const refreshObject = RequestUtils.createObjectDataToRequest(this.state);
         const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
         this.crudService
             .refreshFieldVisibility(info.viewId, info.recordId, info.parentId, kindView, refreshObject)
             .then((editRefreshResponse) => {
                 const arrayTmp = editRefreshResponse?.data;
-                const editData = isEditRowView ? this.props.editData : this.state.editData;
+                const editData = this.state.editData;
                 arrayTmp.forEach((element) => {
                     EditRowUtils.searchAndRefreshVisibility(editData, element.fieldName, element.hidden);
                 });
-                if (isEditRowView) {
-                    this.props.editDataChange(editData);
-                } else {
-                    this.setState({editData: editData});
-                }
+                this.setState({editData: editData});
             })
             .catch((err) => {
                 this.showGlobalErrorMessage(err);
@@ -1985,9 +1995,6 @@ class BaseContainer extends React.Component {
     }
     isGridViewBody(recordId) {
         return this.isBody(recordId) && this.isChosenKindView('View');
-    }
-    returnFromRowEdit() {
-        window.location.href = UrlUtils.getUrlWithoutEditRowParams().replace('edit-row-view', 'grid-view');
     }
 }
 

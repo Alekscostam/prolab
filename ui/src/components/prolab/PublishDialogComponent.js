@@ -9,6 +9,7 @@ import {Calendar} from 'primereact/calendar';
 import {InputText} from 'primereact/inputtext';
 import moment from 'moment';
 import {CookiesName} from '../../enum/CookieName';
+import Constants from '../../utils/Constants';
 
 export default class PublishDialogComponent extends React.Component {
     constructor(props) {
@@ -33,30 +34,30 @@ export default class PublishDialogComponent extends React.Component {
                     id='publishDialog'
                     header={LocUtils.loc(this.props.labels, 'Publish_header', 'Publikowanie dokumentów')}
                     footer={
-                            <div>
-                                <Button
-                                    type='button'
-                                    onClick={() => {
-                                        let publishOptions = this.state.publishOptions;
-                                        publishOptions.date = moment(this.state.publishOptions.date).format(
-                                            'YYYY-MM-DD'
-                                        );
-                                        this.props.handlePublish(publishOptions);
-                                        this.props.close();
-                                    }}
-                                    label={LocUtils.loc(this.props.labels, 'Confirm', 'Zatwierdź')}
-                                />
-                            </div>
+                        <div>
+                            <Button
+                                type='button'
+                                onClick={() => {
+                                    let publishOptions = this.state.publishOptions;
+                                    publishOptions.date = moment(this.state.publishOptions.date).format(
+                                        Constants.DATE_FORMAT.YYYY_MM_DD
+                                    );
+                                    this.props.handlePublish(publishOptions);
+                                    this.props.close();
+                                }}
+                                label={LocUtils.loc(this.props.labels, 'Confirm', 'Zatwierdź')}
+                            />
+                        </div>
                     }
                     visible={this.props.visible}
-                    style={{height:"450px"}}
+                    style={{height: '450px'}}
                     resizable={false}
                     onHide={() => this.props.onHide()}
                 >
                     <div className='row'>
                         <div className='col-12'>
                             <div className='col-12'>
-                                {LocUtils.loc(this.props.labels, 'Publish_user', 'Użytkownik')}
+                                {LocUtils.loc(this.props.labels, 'User', 'Użytkownik')}
                                 <InputText
                                     id={`user`}
                                     name={'user'}
@@ -68,7 +69,7 @@ export default class PublishDialogComponent extends React.Component {
                                 />
                             </div>
                             <div className='col-12 mt-3'>
-                                {LocUtils.loc(this.props.labels, 'Publish_version', 'Wersja')}
+                                {LocUtils.loc(this.props.labels, 'Version', 'Wersja')}
                                 <InputText
                                     id={`version`}
                                     name={'version'}
@@ -80,7 +81,7 @@ export default class PublishDialogComponent extends React.Component {
                                 />
                             </div>
                             <div className='col-12 mt-3'>
-                                {LocUtils.loc(this.props.labels, 'Publish_date_header', 'Data publikacji')}
+                                {LocUtils.loc(this.props.labels, 'Publish_date', 'Data publikacji')}
                                 <Calendar
                                     id={`date`}
                                     name={'date'}
@@ -91,7 +92,7 @@ export default class PublishDialogComponent extends React.Component {
                                         this.setState((prevState) => ({
                                             publishOptions: {
                                                 ...prevState.publishOptions,
-                                                [e.target.id]: moment(e.value).format('YYYY-MM-DD'),
+                                                [e.target.id]: moment(e.value).format(Constants.DATE_FORMAT.YYYY_MM_DD),
                                             },
                                         }));
                                     }}
