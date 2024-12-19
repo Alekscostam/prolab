@@ -211,7 +211,6 @@ class DashboardContainer extends BaseContainer {
             </React.Fragment>
         );
     }
-    // FIXX: na anuluj w sidepanel w dashbaord, odblokowanie ehader w listach podpowiedzi w fullscreen, elementy nachodzą na siebie, dodaj na gancie wyswietla sie tylko wtedy idzie odpowiedni response z BE, fix na złą ilocsc wysweitlanych countsow w momencie mieszania klikniec PPM z kliknieciami na checkbox, view po wywolaniu wtyczki refreshuje sie tylko raz
     onHideEditPanel = (e, viewId, recordId, parentId) => {
         if (!!this.state.modifyEditData) {
             const confirmDialogWrapper = document.createElement('div');
