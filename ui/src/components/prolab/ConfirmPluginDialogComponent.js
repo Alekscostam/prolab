@@ -6,15 +6,15 @@ import {ConfirmDialog} from 'primereact/confirmdialog';
 export const ConfirmPluginDialogComponent = ({parsedPluginView, labels, onHide, onAccept, onReject}) => {
     const acceptLabel = () => {
         if (isQuestion()) {
-            return LocUtils.loc(labels, 'Yes', 'Tak');
+            return LocUtils.locFromStoreWithDefault('Yes', 'Tak');
         }
-        return LocUtils.loc(labels, 'Ok', 'OK');
+        return LocUtils.locFromStoreWithDefault('Ok', 'OK');
     };
     const rejectLabel = () => {
         if (isQuestion()) {
-            return LocUtils.loc(labels, 'No', 'Nie');
+            return LocUtils.locFromStoreWithDefault('No', 'Nie');
         }
-        return LocUtils.loc(labels, 'Close', 'Zamknij');
+        return LocUtils.locFromStoreWithDefault('Close', 'Zamknij');
     };
     const isMessage = () => {
         return parsedPluginView.info.kind === 'MESSAGE';
@@ -24,23 +24,23 @@ export const ConfirmPluginDialogComponent = ({parsedPluginView, labels, onHide, 
     };
     const message = () => {
         if (isQuestion()) {
-            return LocUtils.loc(labels, '', parsedPluginView.info.question?.text);
+            return parsedPluginView.info.question?.text;
         }
-        return LocUtils.loc(labels, '', parsedPluginView.info.message?.text);
+        return parsedPluginView.info.message?.text;
     };
     const headerLabel = () => {
-        let header = LocUtils.loc(labels, '', parsedPluginView.info?.name);
+        let header = LocUtils.locFromStoreWithDefault('', parsedPluginView.info?.name);
         if (isMessage()) {
             if (!parsedPluginView.info?.message?.title) {
                 return '';
             }
-            return LocUtils.loc(labels, '', parsedPluginView.info?.message?.title);
+            return parsedPluginView.info?.message?.title;
         }
         if (isQuestion()) {
             if (!parsedPluginView.info.question?.title) {
                 return '';
             }
-            return LocUtils.loc(labels, '', parsedPluginView.info?.question?.title);
+            return parsedPluginView.info?.question?.title;
         }
         return header;
     };

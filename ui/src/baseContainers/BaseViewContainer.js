@@ -444,9 +444,6 @@ export class BaseViewContainer extends BaseContainer {
                     () => this.handleUnBlockUi(),
                     (err) => this.showErrorMessage(err)
                 );
-                this.setState({
-                    qrCodesDialog: false,
-                });
                 break;
             case CodeOperationType.EDIT_SPEC:
                 this.blockUi();
@@ -459,6 +456,12 @@ export class BaseViewContainer extends BaseContainer {
                     () => this.handleUnBlockUi(),
                     (err) => this.showErrorMessage(err)
                 );
+                break;
+            case CodeOperationType.FIND:
+                const datagridInstance = this.getRefGridView()?.instance;
+                if (datagridInstance) {
+                    datagridInstance.filter(['ID', 'contains', result.listId[0]]);
+                }
                 break;
             default:
                 break;
@@ -738,10 +741,7 @@ export class BaseViewContainer extends BaseContainer {
                                 if (isThereNextStep) this.executePlugin(pluginId, listId, refreshAll);
                                 else this.setState({visibleMessagePluginPanel: false});
                             }
-                            if (refreshAll) {
-                                this.refreshView();
-                                this.unselectAllDataGrid(false);
-                            }
+                            this.unselectAllDataGrid(false);
                             this.setState({visibleMessagePluginPanel: false});
                         }}
                         onHide={() => this.setState({visibleMessagePluginPanel: false})}
@@ -1583,6 +1583,7 @@ export class BaseViewContainer extends BaseContainer {
                             />
                         )}
                         {/* pusty - 0000614/19 */}
+                        {/* FIND - 0000608/19 */}
                         {/* edit  - 0000612/19 */}
                         {/* edit spec  - 0000607/19 */}
                         {this.state.qrCodesDialog && (
@@ -1607,21 +1608,18 @@ export class BaseViewContainer extends BaseContainer {
                                     this.codeService
                                         .find(viewId, parentId, kindView, body)
                                         .then((result) => {
-                                            if (ArrayUtils.isEmpty(result.listId) || result.operation === '') {
-                                                this.showErrorMessage(
-                                                    result.message?.text,
-                                                    undefined,
-                                                    false,
-                                                    result.message?.title
-                                                );
-                                                this.unblockUi();
-                                                return;
-                                            }
-                                            this.handleQrCodeResponse(result);
+                                            if (result.operation === '') {
+                                                this.refreshView();
+                                            } else this.handleQrCodeResponse(result);
                                         })
                                         .catch((ex) => {
-                                            this.unblockUi();
                                             this.showGlobalErrorMessage(ex);
+                                        })
+                                        .finally(() => {
+                                            this.setState({
+                                                qrCodesDialog: false,
+                                            });
+                                            this.unblockUi();
                                         });
                                 }}
                                 labels={this.props.labels}
@@ -1656,6 +1654,8 @@ export class BaseViewContainer extends BaseContainer {
             window.dataGrid = prevDataGridGlobalReference;
             dataGrid = prevDataGridGlobalReference;
         }
+        // TODO napraw PPM z select row
+        // dataGrid.selectRows();
         this.setState(
             {
                 selectedRowKeys: rowDataKeys,
@@ -1725,6 +1725,9 @@ export class BaseViewContainer extends BaseContainer {
                                 select: true,
                             });
                             dataGrid.getSelectedRowsData().then((rowData) => {
+                                // const uniqueRowData = rowData.filter(
+                                //     (value, index, self) => index === self.findIndex((t) => t.ID === value.ID)
+                                // );
                                 this.setState(
                                     {
                                         selectedRowKeys: rowData,

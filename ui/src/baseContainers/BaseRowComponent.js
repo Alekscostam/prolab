@@ -585,6 +585,15 @@ export class BaseRowComponent extends BaseContainer {
                                                         onChange(InputType.TEXT, e, groupUuid, info)
                                                     );
                                                 }
+                                            } else {
+                                                e.target.value = e.target.value
+                                                    .replace(/[^0-9,]/g, '')
+                                                    .replace(/(,.*)[,]/g, '$1');
+                                                if (onChange) {
+                                                    this.handleOnChange(field, e?.target?.value, () =>
+                                                        onChange(InputType.TEXT, e, groupUuid, info)
+                                                    );
+                                                }
                                             }
                                         }}
                                         disabled={!field.edit}

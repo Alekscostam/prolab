@@ -19,7 +19,6 @@ export default class DataGridStore extends BaseService {
             data: [],
         };
     }
-
     clearCache() {
         this.cachedFromSelectAll = {
             selectAll: false,
@@ -222,7 +221,6 @@ export default class DataGridStore extends BaseService {
                 const selectAllParam = !!addSelectAllParam ? `&selection=true` : '';
                 const recordParentViewIdParam = !!recordParentViewIdArg ? `&parentViewId=${recordParentViewIdArg}` : '';
                 const viewSpec = isKindViewSpec ? `&parentKindView=viewSpec` : '';
-
                 let url = `${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${recordParentIdParam}${recordParentViewIdParam}${kindViewParam}${viewSpec}${selectAllParam}`;
                 url = this.commonCorrectUrl(url);
                 const requestBody = {

@@ -16,6 +16,7 @@
         {"code": "View_StartPage", "caption": "Strona startowa"},
         {"code": "Session_expiration_time", "caption": "Czas do wygaśnięcia sesji: "},
         {"code": "Confirm", "caption": "Zatwierdź"},
+        {"code": "Barcode", "caption": "Kod kreskowy"},
         {"code": "Cancel", "caption": "Anuluj"},
         {"code": "Close", "caption": "Zamknij"},
         {"code": "Choose", "caption": "Wybierz"},

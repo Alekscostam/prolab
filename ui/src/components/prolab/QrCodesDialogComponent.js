@@ -32,7 +32,7 @@ export const QrCodesDialogComponent = (props) => {
     };
 
     const dialogHeader = () => {
-        return <div> {LocUtils.loc(labels, 'Search', 'Szukaj')}</div>;
+        return <div> {LocUtils.locFromStoreWithDefault('Search', 'Szukaj')}</div>;
     };
 
     const dialogFooter = editable ? (
@@ -43,7 +43,7 @@ export const QrCodesDialogComponent = (props) => {
                 handleClick={() => {
                     hideDialog();
                 }}
-                label={LocUtils.loc(labels, 'Cancel', 'Anuluj')}
+                label={LocUtils.locFromStoreWithDefault('Cancel', 'Anuluj')}
             />
             <ShortcutButton
                 id={'opConfirm'}
@@ -52,7 +52,7 @@ export const QrCodesDialogComponent = (props) => {
                     const value = qrCodeRef.current.instance.option('value');
                     findCode(value);
                 }}
-                label={LocUtils.loc(labels, 'Confirm', 'Zatwierdź')}
+                label={LocUtils.locFromStoreWithDefault('Confirm', 'Zatwierdź')}
             />
         </div>
     ) : (
@@ -74,7 +74,7 @@ export const QrCodesDialogComponent = (props) => {
                 <div className='p-2'>
                     <div className='dx-field'>
                         <div className='dx-field-label' style={{fontSize: '15px'}}>
-                            <b>{LocUtils.loc(labels, 'Qrcode', 'Kod kreskowy')}</b>
+                            <b>{LocUtils.locFromStoreWithDefault('Barcode', 'Kod kreskowy')}</b>
                         </div>
                         <div className='dx-field-value'>
                             <TextBox

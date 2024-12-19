@@ -492,6 +492,7 @@ class App extends Component {
         return (
             <Login
                 {...props}
+                labels={this.state.labels}
                 appState={this.state}
                 onAfterLogin={() => {
                     const configUrl = UrlUtils.makeConfigUrl('');

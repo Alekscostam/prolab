@@ -115,7 +115,7 @@ export class DashboardGridViewComponent extends BaseContainer {
     getViewById(viewId, recordId, viewType) {
         this.setState({loading: true}, () => {
             this.viewService
-                .getView(viewId, viewType)
+                .getView(viewId, viewType, this.state.subView == null ? recordId : this.state.elementRecordId)
                 .then((responseView) => {
                     if (this._isMounted) {
                         ViewValidatorUtils.validation(responseView);

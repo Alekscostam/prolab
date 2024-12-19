@@ -41,6 +41,9 @@ import {HtmlUtils} from '../../utils/HtmlUtils.js';
 import {ViewDataCompUtils} from '../../utils/component/ViewDataCompUtils.js';
 import {CheckBox} from 'devextreme-react';
 import {handleEdit} from '../../utils/handler/EditHandler.js';
+import {TranslationUtils} from '../../utils/TranslationUtils.js';
+import UrlUtils from '../../utils/UrlUtils.js';
+import {OperationType} from '../../enum/OperationType.js';
 
 const UNCOLLAPSED_CUT_SIZE = 314;
 const COLLAPSED_CUT_SIZE = 125;
@@ -489,17 +492,29 @@ class GanttViewComponent extends React.Component {
 
     addButton() {
         return (
-            <ActionButton
-                rendered={true}
-                className={'justify-content-center'}
-                label={LocUtils.loc(this.props.labels, 'Add_button', 'Dodaj')}
-                handleClick={(e) => {
-                    this.props.addButtonFunction(e);
-                }}
-            />
+            this.addButtonExist() && (
+                <ActionButton
+                    rendered={true}
+                    className={'justify-content-center'}
+                    label={LocUtils.locFromStoreWithDefault('Add_button', 'Dodaj')}
+                    handleClick={(e) => {
+                        this.props.addButtonFunction(e);
+                    }}
+                />
+            )
         );
     }
-
+    addButtonExist() {
+        const opAdd = !!TranslationUtils.getOpButton(
+            this.props.parsedGanttView?.operations,
+            OperationType.OP_ADD_BUTTON
+        );
+        const opAddFile = !!TranslationUtils.getOpButton(
+            this.props.parsedGanttView?.operations,
+            OperationType.OP_ADD_FILE_BUTTON
+        );
+        return opAdd || opAddFile;
+    }
     renderCustomSelection(columns) {
         return this.isSelectionEnabled()
             ? columns.push(

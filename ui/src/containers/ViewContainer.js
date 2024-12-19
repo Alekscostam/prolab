@@ -209,6 +209,9 @@ export class ViewContainer extends BaseViewContainer {
 
     // overide
     getViewById(viewId, recordId, filterId, parentId, viewType, isSubView) {
+        // if (viewId === '18019' || viewId === 18019) {
+        //     debugger;
+        // }
         if (this.notProccessed()) {
             this.setState({loading: true}, () => {
                 this.viewService

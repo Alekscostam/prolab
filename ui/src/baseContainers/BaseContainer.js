@@ -269,9 +269,9 @@ class BaseContainer extends React.Component {
             messages.push(message);
         }
         if (title) {
-            title = LocUtils.loc(this.props?.labels, 'Error', 'Błąd')`: ${title}`;
+            title = LocUtils.locFromStoreWithDefault('Error', 'Błąd')`: ${title}`;
         } else {
-            title = LocUtils.loc(this.props?.labels, 'Error', 'Błąd');
+            title = LocUtils.locFromStoreWithDefault('Error', 'Błąd');
         }
         this.getMessages()?.clear();
         this.getMessages()?.show({
@@ -978,13 +978,9 @@ class BaseContainer extends React.Component {
     isDashboardView() {
         return this.state.subView === null && this.state?.gridViewType === 'dashboard';
     }
-    executePlugin(pluginId, requestBody, refreshAll) {
+    executePlugin(pluginId, requestBody) {
         const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
-        const parentIdArg = this.isDashboardView()
-            ? this.state.elementRecordId
-            : this.state.subView == null
-            ? UrlUtils.getParentId()
-            : this.state.elementRecordId;
+        const parentIdArg = this.getParentIdForView();
         let visiblePluginPanel = false;
         let visibleMessagePluginPanel = false;
         this.crudService
@@ -1036,7 +1032,7 @@ class BaseContainer extends React.Component {
     }
     plugin(id, recordId) {
         const viewId = this.getRealViewId();
-        const parentId = this.state.elementRecordId;
+        const parentId = this.getParentIdForView();
         const idRowKeys = this.state.selectedRowKeys.map((el) => el.ID);
         const listId = recordId ? {listId: [recordId]} : {listId: idRowKeys};
         let visiblePluginPanel = false;
@@ -1068,7 +1064,10 @@ class BaseContainer extends React.Component {
                     );
                     parsedPluginViewData = datas;
                 } else {
-                    visibleMessagePluginPanel = true;
+                    if (res.info.message === null && res.info.question == null) {
+                        this.afterNoMessageFromPlugin(res, listId, id);
+                        return;
+                    } else visibleMessagePluginPanel = true;
                 }
                 this.setState({
                     parsedPluginView: res,
@@ -1083,6 +1082,17 @@ class BaseContainer extends React.Component {
                 this.showGlobalErrorMessage(err);
             });
     }
+    getParentIdForView = () => {
+        return this.isDashboardView()
+            ? this.state.elementRecordId
+            : this.state.subView == null
+            ? UrlUtils.getParentId()
+            : this.state.elementRecordId;
+    };
+    afterNoMessageFromPlugin = (response, listId, pluginId) => {
+        const isThereNextStep = response?.info?.next;
+        if (isThereNextStep) this.executePlugin(pluginId, listId);
+    };
     historyLog(recordId) {
         const viewId = this.realViewSelector(recordId);
         const recordIsZero = recordId === 0 || recordId === '0';

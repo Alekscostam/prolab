@@ -16,6 +16,7 @@ import ConsoleHelper from '../utils/ConsoleHelper';
 import ActionLink from '../components/ActionLink';
 import UserService from '../services/UserService';
 import UserRowComponent from '../components/prolab/UserRowComponent';
+import useStore from '../store';
 
 class LoginContainer extends BaseContainer {
     constructor(props) {
@@ -145,6 +146,7 @@ class LoginContainer extends BaseContainer {
                     this.unblockUi();
                     this._isMounted = true;
                 });
+                useStore.getState().setLabels(labels);
             })
             .catch((err) => {
                 ConsoleHelper(`LoginContainer:getConfigForLoginPage error`, err);
@@ -181,7 +183,7 @@ class LoginContainer extends BaseContainer {
                         }));
                         this.validator.showMessages();
                         this.forceUpdate();
-                        this.showErrorMessages(labels['Login_SigninError'], 10000, true, 'Błąd ' + err.status);
+                        this.showErrorMessages(labels['Login_SigninError'], 10000, true, labels['Error'] + err.status);
                         this.unblockUi();
                         return;
                     }
