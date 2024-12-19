@@ -11,13 +11,4 @@ export class HtmlUtils {
         }
         return false;
     }
-    static isValidHtml(text) {
-        try {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(text, 'text/html');
-            return doc.body.innerHTML !== '';
-        } catch (e) {
-            return false;
-        }
-    }
 }
