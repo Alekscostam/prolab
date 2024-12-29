@@ -10,7 +10,7 @@ import EditRowUtils from '../../utils/EditRowUtils';
 import BaseRowComponent from '../../baseContainers/BaseRowComponent';
 import {DataGridUtils} from '../../utils/component/DataGridUtils';
 import {OperationType} from '../../enum/OperationType';
-import { TranslationUtils } from '../../utils/TranslationUtils';
+import {TranslationUtils} from '../../utils/TranslationUtils';
 
 export default class UserRowComponent extends BaseRowComponent {
     constructor(props) {
@@ -27,7 +27,12 @@ export default class UserRowComponent extends BaseRowComponent {
         const editData = this.props.editData;
         const operations = editData.operations;
         const opSave = TranslationUtils.getOpButtonWithTranslation(operations, labels, OperationType.OP_SAVE, 'Zapisz');
-        const opFill = TranslationUtils.getOpButtonWithTranslation(operations, labels, OperationType.OP_FILL, 'Uzupełnij');
+        const opFill = TranslationUtils.getOpButtonWithTranslation(
+            operations,
+            labels,
+            OperationType.OP_FILL,
+            'Uzupełnij'
+        );
         const opCancel = TranslationUtils.getOpButtonWithTranslation(
             operations,
             labels,
@@ -84,7 +89,7 @@ export default class UserRowComponent extends BaseRowComponent {
                             </div>
                         </React.Fragment>
                     }
-                    footer={()=><div></div>}
+                    footer={() => <div></div>}
                     visible={this.props.visible}
                     resizable={false}
                     breakpoints={{'860px': '75vw', '640px': '100vw'}}
@@ -92,12 +97,6 @@ export default class UserRowComponent extends BaseRowComponent {
                 >
                     <form onSubmit={this.handleFormSubmit} noValidate>
                         <div id='row-edit' className='row-edit-container'>
-                            {this.state.preventSave ? (
-                                <div id='validation-panel' className='validation-panel'>
-                                    {this.fieldsMandatoryLabel}
-                                </div>
-                            ) : null}
-
                             {this.renderFields(editData)}
                         </div>
                     </form>

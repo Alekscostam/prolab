@@ -18,12 +18,18 @@ export class DataGridUtils extends ViewDataCompUtils {
         _bgColor = null;
         _fontcolor = null;
     }
+
+    static isWart(dataField) {
+        if (dataField) {
+            return dataField.toUpperCase() === 'WART';
+        }
+        return false;
+    }
     static cellTemplate(column, isEditableCell, onImageClick, onEditorClick) {
         return function (element, info) {
             const className = info?.data?.SKASOWANY === 1 ? 'deleted-row' : '';
             let bgColorFinal = undefined;
             let rowSelected = null;
-
             if (_rowIndex !== info.row.dataIndex) {
                 rowSelected =
                     info?.row?.cells?.filter((c) => c.column?.type === 'selection' && c.value === true).length > 0;
@@ -50,6 +56,7 @@ export class DataGridUtils extends ViewDataCompUtils {
 
             let fontColorFinal = 'black';
             const specialFontColor = info.data['_FONTCOLOR_' + info.column?.dataField];
+
             if (!!specialFontColor) {
                 fontColorFinal = specialFontColor;
             } else {

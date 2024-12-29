@@ -19,6 +19,10 @@ export class StringUtils {
     static isEmptyString(value) {
         return typeof value === 'string' && value === '';
     }
+    static isBlankOrEmpty(value) {
+        return value === undefined || value === null || value === '';
+    }
+
     static isNumber(value) {
         return !isNaN(parseFloat(value)) && isFinite(value);
     }

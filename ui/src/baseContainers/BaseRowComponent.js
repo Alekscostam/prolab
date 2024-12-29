@@ -804,15 +804,24 @@ export class BaseRowComponent extends BaseContainer {
                             className={`editor ${autoFill} ${editable} ${validate}`}
                             defaultValue={field.value}
                             onValueChange={(e) => {
+                                const afterNormalize = StringUtils.normalizeText(e);
+                                const currentValue = field.value;
+                                if (currentValue === afterNormalize) {
+                                    return;
+                                }
                                 const event = {
                                     name: field.fieldName,
-                                    value: StringUtils.normalizeText(e),
+                                    value: afterNormalize,
                                 };
                                 onChange(InputType.EDITOR, event, groupUuid, info);
                             }}
                             onValueChanged={(e) => {
-                                const newValue = StringUtils.normalizeText(e.value);
-                                e.component.option('value', newValue);
+                                const afterNormalize = StringUtils.normalizeText(e.value);
+                                const currentValue = field.value;
+                                if (currentValue === afterNormalize) {
+                                    return;
+                                }
+                                e.component.option('value', afterNormalize);
                             }}
                             onFocusOut={(e) => (onBlur ? onBlur(InputType.EDITOR, e, groupUuid, info) : null)}
                             validationMessageMode='always'

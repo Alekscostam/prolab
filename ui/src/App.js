@@ -515,15 +515,18 @@ class App extends Component {
             />
         );
     }
+
     handleCollapseChange(collapsed) {
         this.setState({collapsed: collapsed});
     }
+
     canBeSubViewRender() {
         const {subView} = this.state;
         const parentIdExists = UrlUtils.parentIdParamExist();
         const recordIdExists = UrlUtils.recordIdParamExist();
         return !!subView && !StringUtils.isBlank(subView.headerColumns) && parentIdExists && recordIdExists;
     }
+
     enabledTopComponents() {
         const authService = this.authService;
         const isNotLogged = !authService.isLoggedUser();

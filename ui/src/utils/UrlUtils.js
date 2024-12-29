@@ -123,6 +123,11 @@ class UrlUtils {
     static notDefinedPrefix(urlPrefix) {
         return urlPrefix === undefined || urlPrefix == null || urlPrefix === '';
     }
+    static subViewParamExists() {
+        const parentIdExists = UrlUtils.parentIdParamExist();
+        const recordIdExists = UrlUtils.recordIdParamExist();
+        return parentIdExists && recordIdExists;
+    }
     static getIdFromUrlOrAlternative(alternativeId) {
         const id = this.getIdFromUrl();
         if (StringUtils.isBlank(id)) {

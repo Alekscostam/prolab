@@ -732,13 +732,12 @@ export class BaseViewContainer extends BaseContainer {
                         parsedPluginView={parsedPluginView}
                         labels={this.props.labels}
                         onAccept={() => {
-                            const refreshAll = parsedPluginView?.viewOptions?.refreshAll;
                             if (this.state.isPluginFirstStep) {
                                 const isThereNextStep = this.state.parsedPluginView?.info?.next;
                                 const idRowKeys = this.state.selectedRowKeys.map((el) => el.ID);
                                 const listId = {listId: idRowKeys};
                                 const pluginId = this.state.pluginId;
-                                if (isThereNextStep) this.executePlugin(pluginId, listId, refreshAll);
+                                if (isThereNextStep) this.executePlugin(pluginId, listId);
                                 else this.setState({visibleMessagePluginPanel: false});
                             }
                             this.unselectAllDataGrid(false);
@@ -872,6 +871,7 @@ export class BaseViewContainer extends BaseContainer {
                                             const filterId = parseInt(e.value);
                                             const subViewId = UrlUtils.getSubViewId() || this.state.elementSubViewId;
                                             const recordId = UrlUtils.getRecordId() || this.state.elementRecordId;
+                                            const parentId = UrlUtils.getParentId() || this.state.elementParentId;
                                             const subviewMode = !!recordId && !!this.state.elementId;
                                             const breadCrumbs = UrlUtils.getBc();
                                             const viewType = UrlUtils.getViewType() || this.state.gridViewType;
@@ -879,23 +879,33 @@ export class BaseViewContainer extends BaseContainer {
                                             if (canNotBeRefresh) {
                                                 return;
                                             }
+                                            const params = new URLSearchParams();
+                                            if (parentId) {
+                                                params.append('parentId', parentId);
+                                            }
                                             if (subviewMode) {
+                                                params.append('recordId', recordId);
+                                                params.append('subview', subViewId);
                                                 ConsoleHelper(
-                                                    `Redirect -> Id =  ${this.state.elementId} SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId}`
-                                                );
-                                                window.location.href = AppPrefixUtils.locationHrefUrl(
-                                                    `/#/grid-view/${this.state.elementId}?recordId=${recordId}&subview=${subViewId}&filterId=${filterId}&viewType=${viewType}${currentBreadcrumb}`
+                                                    `Redirect -> Id = ${
+                                                        this.state.elementId
+                                                    } SubViewId = ${subViewId} RecordId = ${recordId} FilterId = ${filterId} ParentId = ${
+                                                        parentId || 'N/A'
+                                                    }`
                                                 );
                                             } else {
                                                 ConsoleHelper(
-                                                    `Redirect -> Id =  ${this.state.elementId} RecordId = ${recordId} FilterId = ${filterId}`
+                                                    `Redirect -> Id = ${
+                                                        this.state.elementId
+                                                    } FilterId = ${filterId} ParentId = ${parentId || 'N/A'}`
                                                 );
-                                                if (filterId) {
-                                                    window.location.href = AppPrefixUtils.locationHrefUrl(
-                                                        `/#/grid-view/${this.state.elementId}?filterId=${filterId}&viewType=${viewType}${currentBreadcrumb}`
-                                                    );
-                                                }
                                             }
+                                            params.append('filterId', filterId);
+                                            params.append('viewType', viewType);
+                                            const basePath = `/#/grid-view/${this.state.elementId}`;
+                                            window.location.href = AppPrefixUtils.locationHrefUrl(
+                                                `${basePath}?${params.toString()}${currentBreadcrumb}`
+                                            );
                                         }
                                     }}
                                     stylingMode='underlined'

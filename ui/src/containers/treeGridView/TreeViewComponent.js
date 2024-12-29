@@ -928,6 +928,7 @@ class TreeViewComponent extends CellEditComponent {
             } else {
                 _bgColor = cellInfo.data['_BGCOLOR'];
             }
+            // let bgColorFinal = undefined;
             let bgColorFinal = 'white';
             const specialBgColor = cellInfo.data['_BGCOLOR_' + cellInfo.column?.dataField];
             if (!!specialBgColor) {
@@ -947,6 +948,7 @@ class TreeViewComponent extends CellEditComponent {
                     fontColorFinal = _fontcolor;
                 }
             }
+            // TODO: bgColor tylko w CellCustomBackground
             switch (cellInfo.column.ownType) {
                 case ColumnType.H:
                     try {
@@ -974,6 +976,7 @@ class TreeViewComponent extends CellEditComponent {
                             <span
                                 style={{
                                     color: fontColorFinal,
+                                    // background: bgColorFinal,
                                 }}
                                 className={className}
                             >
@@ -985,13 +988,14 @@ class TreeViewComponent extends CellEditComponent {
                     }
                     break;
                 case ColumnType.C:
-                    return this.cColumnTypeRender(cellInfo, fontColorFinal);
+                    return this.cColumnTypeRender(cellInfo, fontColorFinal, bgColorFinal);
                 case ColumnType.N:
                     try {
                         return (
                             <span
                                 style={{
                                     color: fontColorFinal,
+                                    // background: bgColorFinal,
                                 }}
                                 className={className}
                                 dangerouslySetInnerHTML={{__html: cellInfo?.text}}
@@ -1095,7 +1099,7 @@ class TreeViewComponent extends CellEditComponent {
         return columns;
     }
 
-    cColumnTypeRender(cellInfo, fontColorFinal, className) {
+    cColumnTypeRender(cellInfo, fontColorFinal, bgColorFinal, className) {
         const keyExistsInInvalidCellKeys = this.props.keyExistsInInvalidCellKeys
             ? this.props.keyExistsInInvalidCellKeys(cellInfo.key, cellInfo?.column?.dataField)
             : false;
@@ -1106,6 +1110,7 @@ class TreeViewComponent extends CellEditComponent {
                         className={this.isWart(cellInfo?.column?.dataField) ? 'WART' : className}
                         style={{
                             color: fontColorFinal,
+                            // background: bgColorFinal,
                         }}
                         dangerouslySetInnerHTML={{__html: cellInfo?.text}}
                     />

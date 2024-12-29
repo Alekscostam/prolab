@@ -4,6 +4,7 @@ import UrlUtils from './UrlUtils';
 import ConsoleHelper from './ConsoleHelper';
 import hash from 'object-hash';
 import BreadcrumbComponent from '../components/prolab/BreadcrumbComponent';
+import {StringUtils} from './StringUtils';
 
 export const BREADCRUMB_URL_PARAM_NAME = 'bc';
 export const TIMESTAMP_URL_PARAM_NAME = 'ts';
@@ -51,15 +52,15 @@ export class Breadcrumb {
         let breadcrumb = this.readFromUrl();
         let currentUrl = window.document.URL.toString();
         breadcrumb = this.cutBreadcrumpToURL(breadcrumb, currentUrl);
-        if (viewInfo) {                
-            if (viewInfo.menu) {                
+        if (viewInfo) {
+            if (viewInfo.menu) {
                 breadcrumb = [];
                 breadcrumb.push({name: viewInfo.menu.name, id: viewInfo.menu.id, type: 'menu'});
                 if (viewInfo.menu?.sub) {
                     this.pushSubView(viewInfo.menu?.sub, breadcrumb);
                 }
             }
-            if ( breadcrumb?.filter((i) => i.id === viewInfo.id && i.type === 'view').length === 0) {
+            if (breadcrumb?.filter((i) => i.id === viewInfo.id && i.type === 'view').length === 0) {
                 const last = breadcrumb.length > 0 ? breadcrumb[breadcrumb.length - 1] : null;
                 if (last && last.type === 'view') {
                     breadcrumb.pop();
@@ -71,7 +72,7 @@ export class Breadcrumb {
                 path = UrlUtils.deleteParameterFromURL(path, BREADCRUMB_URL_PARAM_NAME);
                 breadcrumb.push({name: viewInfo.name, id: viewInfo.id, type: 'view', path});
             }
-            if(UrlUtils.isBatch()){
+            if (UrlUtils.isBatch()) {
                 let path = window.document.URL.toString();
                 const id = path.indexOf('/#');
                 path = AppPrefixUtils.locationHrefUrl(path.substring(id > 0 ? id : 0));
@@ -88,19 +89,17 @@ export class Breadcrumb {
         ConsoleHelper('Breadcrumb::updateView, newUrl', newUrl);
         window.history.replaceState('', '', newUrl);
     }
-    static pushForBatch(viewInfo, breadcrumb){
+    static pushForBatch(viewInfo, breadcrumb) {
         breadcrumb = breadcrumb ?? [];
         let path = window.document.URL.toString();
         const id = path.indexOf('/#');
         path = AppPrefixUtils.locationHrefUrl(path.substring(id > 0 ? id : 0));
-        const currentObj ={name: viewInfo.name, id: viewInfo.id, type: 'view', path};
-       const foundedElement =  breadcrumb.find(b=>hash(b) === hash(currentObj));
-       if(!foundedElement){
-           breadcrumb.push(currentObj);
-       }
-
+        const currentObj = {name: viewInfo.name, id: viewInfo.id, type: 'view', path};
+        const foundedElement = breadcrumb.find((b) => hash(b) === hash(currentObj));
+        if (!foundedElement) {
+            breadcrumb.push(currentObj);
+        }
     }
-
     static updateSubView(subViewResponse, subViewId) {
         const sidebar = window.sidebarRef;
         if (sidebar) {
@@ -110,6 +109,7 @@ export class Breadcrumb {
         let breadcrumb = this.readFromUrl();
         if (subViewResponse && subViewResponse.viewInfo) {
             if (breadcrumb?.filter((i) => i.id === subViewResponse.viewInfo.id && i.type === 'subview').length === 0) {
+                debugger;
                 const breadcrumbFieldName = subViewResponse.viewInfo.breadcrumbFieldName
                     ? subViewResponse.viewInfo.breadcrumbFieldName
                     : 'ID';
@@ -124,10 +124,12 @@ export class Breadcrumb {
                 if (!name) {
                     name = '' + subViewId;
                 }
-
+                const idParam = StringUtils.isBlank(subViewResponse?.viewInfo?.parentId)
+                    ? ''
+                    : '&parentId=' + subViewResponse?.viewInfo?.parentId;
                 let path = AppPrefixUtils.locationHrefUrl(
-                    `/#/grid-view/${subViewResponse.viewInfo.id}?recordId=${subViewId}`
-                ); 
+                    `/#/grid-view/${subViewResponse.viewInfo.id}?recordId=${subViewId}${idParam}`
+                );
                 if (!isNaN(name)) {
                     path = window.location.href;
                 }
@@ -158,16 +160,23 @@ export class Breadcrumb {
         ConsoleHelper('Breadcrumb::readFromUrl breadcrumb', []);
         return [];
     }
-    static shouldShowEditQuitConfirmationDialog ()  {
+    static shouldShowEditQuitConfirmationDialog() {
         return UrlUtils.isBatch() || UrlUtils.isEditSpec();
     }
     static render(labels, afterBreadcrumbItemClick) {
         ConsoleHelper('#$#$#$#$', labels);
-        const breadcrumb = (this.cutBreadcrumpToURL(this.readFromUrl(), window.document.URL.toString())) ;
+        const breadcrumb = this.cutBreadcrumpToURL(this.readFromUrl(), window.document.URL.toString());
         const mainPage = AppPrefixUtils.locationHrefUrl('/#/start');
         return (
             <React.Fragment>
-              <div><BreadcrumbComponent labels={labels} initialBreadcrumb={breadcrumb} afterClick={afterBreadcrumbItemClick} initialMainPage={mainPage} /></div>  
+                <div>
+                    <BreadcrumbComponent
+                        labels={labels}
+                        initialBreadcrumb={breadcrumb}
+                        afterClick={afterBreadcrumbItemClick}
+                        initialMainPage={mainPage}
+                    />
+                </div>
             </React.Fragment>
         );
     }
@@ -178,7 +187,7 @@ export class Breadcrumb {
     static currentBreadcrumbAsUrlParam() {
         const currentBredcrump = UrlUtils.getURLParameter(BREADCRUMB_URL_PARAM_NAME);
         if (currentBredcrump) {
-            if(this.shouldHaveBreadCrumb()){
+            if (this.shouldHaveBreadCrumb()) {
                 return `&${BREADCRUMB_URL_PARAM_NAME}=${currentBredcrump}`;
             }
         }

@@ -5,10 +5,13 @@ import Constants from '../../utils/Constants';
 import ActionButtonWithMenu from './ActionButtonWithMenu';
 import {sessionPrelongFnc} from '../../App';
 import {OperationType} from '../../enum/OperationType';
-import {ConfirmDialog} from 'primereact/confirmdialog';
+import {ConfirmationOperationDialog} from './ConfirmOperationDialog';
 
 export const OperationsButtons = (props) => {
-    const [confirmationVisible, setConfirmationVisible] = useState();
+    const [confirmationInformation, setConfirmationInformation] = useState({
+        visible: false,
+        fnc: undefined,
+    });
     const [accept, setAccept] = useState(() => {});
     const [hide, setHide] = useState(() => {});
 
@@ -118,7 +121,10 @@ export const OperationsButtons = (props) => {
                                 <ShortcutButton
                                     className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
                                     handleClick={(e) =>
-                                        afterClickOperation(() => props.handleDelete(Object.assign(e, operations)))
+                                        afterClickOperation(
+                                            () => props.handleDelete(Object.assign(e, operations)),
+                                            operations.type
+                                        )
                                     }
                                     iconName={operations?.iconCode || 'mdi-delete'}
                                     iconColor={`${inverseColor ? `white` : `blue`}`}
@@ -424,15 +430,23 @@ export const OperationsButtons = (props) => {
         }
     };
 
-    const afterClickOperation = (operationSelectedFnc) => {
+    const afterClickOperation = (operationSelectedFnc, operationTypeForConfirmation) => {
         if (sessionPrelongFnc) {
             sessionPrelongFnc();
         }
         if (typeof operationSelectedFnc === 'function') {
+            if (operationTypeForConfirmation) {
+                setConfirmationInformation({
+                    visible: true,
+                    fnc: () => operationSelectedFnc(),
+                    operationType: operationTypeForConfirmation,
+                });
+                return;
+            }
             operationSelectedFnc();
         }
-        // setConfirmationVisible(true);
     };
+
     const shouldShowOpFormula = (operations) => {
         const atLeastOneSelected = props.atLeastOneSelected;
         const isFromHeader = props.isFromHeader;
@@ -441,6 +455,18 @@ export const OperationsButtons = (props) => {
             showOperation = !operations.showAlways;
         }
         return showOperation;
+    };
+
+    const handleFromMenuItems = (operationSelectedFnc, operationTypeForConfirmation) => {
+        if (operationTypeForConfirmation) {
+            setConfirmationInformation({
+                visible: true,
+                fnc: () => operationSelectedFnc(),
+                operationType: operationTypeForConfirmation,
+            });
+            return;
+        }
+        operationSelectedFnc();
     };
 
     const menuItems = props.operationList.map((i) => {
@@ -521,15 +547,17 @@ export const OperationsButtons = (props) => {
     const showOperationList = props.operationList?.length > 0;
     return (
         <React.Fragment>
-            {confirmationVisible && (
-                <ConfirmDialog
-                    visible={true}
-                    message={'Do you want to delete this record?'}
-                    position='Top'
-                    onAccept={accept}
-                    onHide={hide}
-                    header={'Delete confirmation'}
-                    icon='pi pi-info'
+            {confirmationInformation?.visible && (
+                <ConfirmationOperationDialog
+                    onAccept={() => {
+                        confirmationInformation.fnc();
+                        setConfirmationInformation({visible: false, fnc: undefined, operationType: undefined});
+                    }}
+                    onHide={() => {
+                        setConfirmationInformation({visible: false, fnc: undefined, operationType: undefined});
+                    }}
+                    operationType={confirmationInformation.operationType}
+                    visible={confirmationInformation?.visible}
                 />
             )}
             {!!props.operations &&

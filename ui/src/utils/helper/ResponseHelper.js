@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import React from 'react';
 import {useEffect} from 'react';
 import {ResponseStatus} from '../../enum/ResponseStatus';
+import {HtmlUtils} from '../HtmlUtils';
 
 function ResponseHelper() {
     useEffect(() => {
@@ -58,8 +59,8 @@ function renderConfirmDialog(message, header, icon, onAccept, isQuestionDialog =
         <ConfirmDialog
             closable={false}
             visible={true}
-            message={message}
-            header={header}
+            message={HtmlUtils.createHtmlFromString(message)}
+            header={HtmlUtils.createHtmlFromString(header)}
             icon={icon}
             acceptLabel={isQuestionDialog ? localeOptions('accept') : 'OK'}
             rejectLabel={isQuestionDialog ? localeOptions('reject') : undefined}
@@ -78,7 +79,7 @@ function renderConfirmDialog(message, header, icon, onAccept, isQuestionDialog =
                     ? () => document.body.removeChild(confirmDialogWrapper)
                     : () => document.body.removeChild(confirmDialogWrapper)
             }
-            rejectClassName={`${isQuestionDialog ? `` : 'p-hidden'} `} // Ukryj przycisk reject
+            rejectClassName={`${isQuestionDialog ? `p-button-text` : 'p-hidden'} `}
         />,
         confirmDialogWrapper
     );

@@ -103,11 +103,6 @@ export class DocumentRowComponent extends BaseRowComponent {
                 >
                     <form onSubmit={this.handleFormSubmit} noValidate>
                         <div id='row-edit' className='row-edit-container'>
-                            {this.state.preventSave ? (
-                                <div id='validation-panel' className='validation-panel'>
-                                    {this.fieldsMandatoryLabel}
-                                </div>
-                            ) : null}
                             {inputDataFields?.map((field, index) => {
                                 return <div key={index}>{this.renderField(field, index, undefined)}</div>;
                             })}

@@ -91,7 +91,16 @@ export class ViewContainer extends BaseViewContainer {
             });
         }
     }
-
+    // AKOWALSKI
+    // $?9:vq&v/T'rqq1u,7
+    updateBreadCrumb = (subViewResponse, viewId, recordId) => {
+        const kindView = subViewResponse?.viewInfo?.kindView;
+        //TODO:
+        if (kindView && kindView.toUpperCase() === 'VIEW') {
+            // Breadcrumb.updateView(subViewResponse, viewId, recordId);
+        } else {
+        }
+    };
     getDataFromSubview(viewId, recordId, parentId, subviewId, filterId, viewType, forceReStateSubView) {
         this.setState({loading: true}, () => {
             this.viewService
@@ -104,6 +113,7 @@ export class ViewContainer extends BaseViewContainer {
                                 this.viewService
                                     .getSubView(viewId, recordId, parentId)
                                     .then((subViewResponse) => {
+                                        // TODO: porpawic
                                         Breadcrumb.updateSubView(subViewResponse, recordId);
                                         if (subViewResponse.viewInfo?.type === 'dashboard') {
                                             const kindView = subViewResponse.viewInfo.kindView;
@@ -207,11 +217,14 @@ export class ViewContainer extends BaseViewContainer {
         });
     }
 
+    isCalledFromMoveTo(recordId, parentId) {
+        return this.isDashboard() && StringUtils.isBlank(recordId) && !StringUtils.isBlank(parentId);
+    }
     // overide
     getViewById(viewId, recordId, filterId, parentId, viewType, isSubView) {
-        // if (viewId === '18019' || viewId === 18019) {
-        //     debugger;
-        // }
+        if (this.isCalledFromMoveTo(recordId, parentId)) {
+            recordId = parentId;
+        }
         if (this.notProccessed()) {
             this.setState({loading: true}, () => {
                 this.viewService

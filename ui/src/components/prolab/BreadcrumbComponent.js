@@ -1,28 +1,27 @@
 import React from 'react';
 import UrlUtils from '../../utils/UrlUtils';
 import PropTypes from 'prop-types';
-import { Breadcrumb, BREADCRUMB_URL_PARAM_NAME, TIMESTAMP_URL_PARAM_NAME } from '../../utils/BreadcrumbUtils';
-import { StringUtils } from '../../utils/StringUtils';
-import { BreadCrumb } from 'primereact/breadcrumb';
+import {Breadcrumb, BREADCRUMB_URL_PARAM_NAME, TIMESTAMP_URL_PARAM_NAME} from '../../utils/BreadcrumbUtils';
+import {StringUtils} from '../../utils/StringUtils';
+import {BreadCrumb} from 'primereact/breadcrumb';
 
 export const BreadcrumbComponent = ({initialBreadcrumb, afterClick, initialMainPage, labels}) => {
     const prepareForMainBreadcrumb = () => {
         const item = {};
-        item.url = initialMainPage
-        item.className = "main-breadcrumb"
-        item.label = labels['View_StartPage']
-        item.command = ()=>{
-            if(afterClick && shouldShowEditQuitConfirmationDialog()){
-                afterClick(()=>{
+        item.url = initialMainPage;
+        item.className = 'main-breadcrumb';
+        item.label = labels['View_StartPage'];
+        item.command = () => {
+            if (afterClick && shouldShowEditQuitConfirmationDialog()) {
+                afterClick(() => {
                     window.location.href = item.url;
-                })
-            }
-            else{
+                });
+            } else {
                 window.location.href = item.url;
             }
-        }
+        };
         return item;
-    }
+    };
     const cutBreadcrumbFor = (breadcrumb, url) => {
         const result = [];
         if (breadcrumb) {
@@ -38,13 +37,13 @@ export const BreadcrumbComponent = ({initialBreadcrumb, afterClick, initialMainP
             });
         }
         return Breadcrumb.utf8_to_b64(JSON.stringify(result));
-    }
+    };
     const prepareForBreadcrumb = (breadcrumb) => {
         breadcrumb.forEach((item, index) => {
-            const isLast = index === breadcrumb.length - 1; 
-            item.label = item.name
-            item.url = item.path
-            if (item.type === 'view' || item.type === 'subview'){
+            const isLast = index === breadcrumb.length - 1;
+            item.label = item.name;
+            item.url = item.path;
+            if (item.type === 'view' || item.type === 'subview') {
                 let path = UrlUtils.addParameterToURL(
                     item.path,
                     BREADCRUMB_URL_PARAM_NAME,
@@ -52,37 +51,38 @@ export const BreadcrumbComponent = ({initialBreadcrumb, afterClick, initialMainP
                 );
                 const timestamp = Date.now();
                 path = UrlUtils.addParameterToURL(path, TIMESTAMP_URL_PARAM_NAME, timestamp);
-                item.url = path
+                item.url = path;
             }
             item.command = () => {
-                if(StringUtils.isBlank(item.url) ){
-                    return; 
+                if (StringUtils.isBlank(item.url)) {
+                    return;
                 }
-                if(afterClick && shouldShowEditQuitConfirmationDialog() && !isLast){
-                    afterClick(()=>{
+                if (afterClick && shouldShowEditQuitConfirmationDialog() && !isLast) {
+                    afterClick(() => {
                         window.location.href = item.url;
-                    })
-                }
-                else{
+                    });
+                } else {
                     window.location.href = item.url;
                 }
-            }
-        }); 
+            };
+        });
         return breadcrumb;
-    }
+    };
     const shouldShowEditQuitConfirmationDialog = () => {
         return UrlUtils.isBatch() || UrlUtils.isEditSpec();
-    }
+    };
     return (
         <React.Fragment>
-            <BreadCrumb 
-                model={prepareForBreadcrumb(initialBreadcrumb)} 
-                home={prepareForMainBreadcrumb(initialMainPage)} 
-                onClick={(e)=>{e.stopPropagation(); e.preventDefault()}}
+            <BreadCrumb
+                model={prepareForBreadcrumb(initialBreadcrumb)}
+                home={prepareForMainBreadcrumb(initialMainPage)}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                }}
             />
         </React.Fragment>
     );
-
 };
 BreadcrumbComponent.defaultProps = {
     labels: [],
@@ -99,4 +99,3 @@ BreadcrumbComponent.propTypes = {
 };
 
 export default BreadcrumbComponent;
-

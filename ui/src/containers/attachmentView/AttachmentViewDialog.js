@@ -149,6 +149,9 @@ export class AttachmentViewDialog extends BaseViewContainer {
         if (recordId === parentId && UrlUtils.urlParamExists('subview')) {
             viewId = UrlUtils.getIdFromUrl();
         }
+        if (!UrlUtils.recordIdParamExist() && UrlUtils.parentIdParamExist()) {
+            parentId = UrlUtils.getParentId();
+        }
         this.setState({loading: true}, () => {
             this.viewService
                 .getAttachemntView(viewId, recordId, parentId, this.getKindView(viewType))

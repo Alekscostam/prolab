@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import LocUtils from '../../utils/LocUtils';
 import {ConfirmDialog} from 'primereact/confirmdialog';
+import {HtmlUtils} from '../../utils/HtmlUtils';
 
 export const ConfirmPluginDialogComponent = ({parsedPluginView, labels, onHide, onAccept, onReject}) => {
     const acceptLabel = () => {
@@ -24,9 +25,9 @@ export const ConfirmPluginDialogComponent = ({parsedPluginView, labels, onHide, 
     };
     const message = () => {
         if (isQuestion()) {
-            return parsedPluginView.info.question?.text;
+            return HtmlUtils.createHtmlFromString(parsedPluginView.info.question?.text);
         }
-        return parsedPluginView.info.message?.text;
+        return HtmlUtils.createHtmlFromString(parsedPluginView.info.message?.text);
     };
     const headerLabel = () => {
         let header = LocUtils.locFromStoreWithDefault('', parsedPluginView.info?.name);
@@ -34,13 +35,13 @@ export const ConfirmPluginDialogComponent = ({parsedPluginView, labels, onHide, 
             if (!parsedPluginView.info?.message?.title) {
                 return '';
             }
-            return parsedPluginView.info?.message?.title;
+            return HtmlUtils.createHtmlFromString(parsedPluginView.info?.message?.title);
         }
         if (isQuestion()) {
             if (!parsedPluginView.info.question?.title) {
                 return '';
             }
-            return parsedPluginView.info?.question?.title;
+            return HtmlUtils.createHtmlFromString(parsedPluginView.info?.question?.title);
         }
         return header;
     };

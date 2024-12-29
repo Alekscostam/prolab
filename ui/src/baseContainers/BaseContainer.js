@@ -35,6 +35,7 @@ import {CookiesName} from '../enum/CookieName';
 import {ResponseStatus} from '../enum/ResponseStatus';
 import useStore from '../store';
 import LocUtils from '../utils/LocUtils';
+import {ViewUtils} from '../utils/ViewUtils';
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -797,7 +798,7 @@ class BaseContainer extends React.Component {
             .then((saveResponse) => {
                 ResponseHelper.run(
                     saveResponse,
-                    () => () => this.rowSave(viewId, recordId, parentId, saveElement, true),
+                    () => this.rowSave(viewId, recordId, parentId, saveElement, true),
                     () => {
                         this.setState({visibleEditPanel: false});
                         window.location.href = UrlUtils.getUrlWithoutEditRowParams();
@@ -894,7 +895,7 @@ class BaseContainer extends React.Component {
     delete(id) {
         this.blockUi();
         const viewId = this.getRealViewId();
-        const parentId = this.state.elementRecordId;
+        const parentId = this.getParentIdForView();
         const selectedRowKeysIds = this.getSelectedRowKeysIds(id);
         const kindView = this.state.elementKindView;
         this.crudService
@@ -942,7 +943,7 @@ class BaseContainer extends React.Component {
     }
     generate(id, recordId) {
         const viewId = this.getRealViewId();
-        const parentId = this.state.elementRecordId;
+        const parentId = this.getParentIdForView();
         const idRowKeys = this.state.selectedRowKeys.map((el) => el.ID);
         const listId = recordId ? {listId: [recordId]} : {listId: idRowKeys};
         this.crudService
@@ -978,8 +979,11 @@ class BaseContainer extends React.Component {
     isDashboardView() {
         return this.state.subView === null && this.state?.gridViewType === 'dashboard';
     }
+    // TODO: plugin z dasha nie dziala. wiesz ktory ten z PPM
     executePlugin(pluginId, requestBody) {
-        const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
+        const viewIdArg = ViewUtils.canBeSubViewRender(this.state.subView)
+            ? this.state.elementSubViewId
+            : this.state.elementId;
         const parentIdArg = this.getParentIdForView();
         let visiblePluginPanel = false;
         let visibleMessagePluginPanel = false;
@@ -1083,11 +1087,13 @@ class BaseContainer extends React.Component {
             });
     }
     getParentIdForView = () => {
-        return this.isDashboardView()
-            ? this.state.elementRecordId
-            : this.state.subView == null
-            ? UrlUtils.getParentId()
-            : this.state.elementRecordId;
+        if (this.isDashboardView()) {
+            return this.state.elementRecordId;
+        }
+        if (UrlUtils.subViewParamExists()) {
+            return this.state.elementRecordId;
+        }
+        return UrlUtils.getParentId();
     };
     afterNoMessageFromPlugin = (response, listId, pluginId) => {
         const isThereNextStep = response?.info?.next;
@@ -1096,7 +1102,7 @@ class BaseContainer extends React.Component {
     historyLog(recordId) {
         const viewId = this.realViewSelector(recordId);
         const recordIsZero = recordId === 0 || recordId === '0';
-        const parentId = recordIsZero ? recordId : this.state.elementRecordId;
+        const parentId = recordIsZero ? recordId : this.getParentIdForView();
         const kindView = recordIsZero ? 'view' : this.state.kindView;
         recordId = recordIsZero ? UrlUtils.getRecordId() : recordId;
         let visibleHistoryLogPanel = false;
@@ -1282,7 +1288,7 @@ class BaseContainer extends React.Component {
     copyEntry(id, callBack) {
         this.blockUi();
         const viewId = this.getRealViewId();
-        const parentId = this.state.elementRecordId;
+        const parentId = this.getParentIdForView();
         const selectedRowKeys = this.getSelectedRowKeysIds(id);
         const kindView = this.state.elementKindView;
         this.crudService
@@ -1360,7 +1366,7 @@ class BaseContainer extends React.Component {
     restore(id) {
         this.blockUi();
         const viewId = this.getRealViewId();
-        const parentId = this.state.elementRecordId;
+        const parentId = this.getParentIdForView();
         const selectedRowKeysIds = this.getSelectedRowKeysIds(id);
         const kindView = this.state.elementKindView;
         this.crudService
@@ -1409,6 +1415,8 @@ class BaseContainer extends React.Component {
             const recordId = UrlUtils.getRecordId();
             if (recordId !== undefined && recordId !== null) {
                 parentIdParam = '?parentId=' + recordId;
+            } else if (UrlUtils.parentIdParamExist() && !UrlUtils.recordIdParamExist()) {
+                parentIdParam = '?parentId=' + UrlUtils.getParentId();
             }
         }
         const isKindViewSpec = this.isKindViewSpec(recordId);
@@ -1568,7 +1576,7 @@ class BaseContainer extends React.Component {
         ConsoleHelper('handleArchive');
         this.blockUi();
         const viewId = this.getRealViewId();
-        const parentId = this.state.elementRecordId;
+        const parentId = this.getParentIdForView();
         const selectedRowKeysIds = this.getSelectedRowKeysIds(id);
         const kindView = this.state.elementKindView;
         this.crudService
@@ -1610,7 +1618,7 @@ class BaseContainer extends React.Component {
         ConsoleHelper('publish');
         this.blockUi();
         const viewId = this.getRealViewId();
-        const parentId = this.state.elementRecordId;
+        const parentId = this.getParentIdForView();
         const selectedRowKeysIds = this.getSelectedRowKeysIds(id);
         const kindView = this.state.elementKindView;
         const publishOptions = {publishOptions: body};
@@ -1657,7 +1665,7 @@ class BaseContainer extends React.Component {
         ConsoleHelper('publishEntry');
         this.blockUi();
         const viewId = this.getRealViewId();
-        const parentId = this.state.elementRecordId;
+        const parentId = this.getParentIdForView();
         const selectedRowKeysIds = this.getSelectedRowKeysIds(id);
         const kindView = this.state.elementKindView;
         this.crudService

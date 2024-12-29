@@ -432,18 +432,13 @@ export class DashboardGridViewComponent extends BaseContainer {
                             labels={this.props.labels}
                             onHide={() => this.setState({visibleMessagePluginPanel: false})}
                             onAccept={() => {
-                                const refreshAll = this.state.parsedPluginView?.viewOptions?.refreshAll;
                                 if (this.state.isPluginFirstStep) {
                                     const isThereNextStep = this.state.parsedPluginView?.info?.next;
                                     const idRowKeys = this.state.selectedRowKeys.map((el) => el.ID);
                                     const listId = {listId: idRowKeys};
                                     const pluginId = this.state.pluginId;
-                                    if (isThereNextStep) this.executePlugin(pluginId, listId, refreshAll);
+                                    if (isThereNextStep) this.executePlugin(pluginId, listId);
                                     else this.setState({visibleMessagePluginPanel: false});
-                                }
-                                if (refreshAll) {
-                                    this.refreshView();
-                                    this.unselectAllDataGrid(false);
                                 }
                                 this.setState({visibleMessagePluginPanel: false});
                             }}

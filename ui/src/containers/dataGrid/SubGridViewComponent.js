@@ -20,8 +20,7 @@ import {MenuWithButtons} from '../../components/prolab/MenuWithButtons';
 import {sessionPrelongFnc} from '../../App';
 import {EditorDialog} from '../../components/prolab/EditorDialog';
 import {OperationType} from '../../enum/OperationType';
-import LocUtils from '../../utils/LocUtils';
-import { CookiesName } from '../../enum/CookieName';
+import {CookiesName} from '../../enum/CookieName';
 
 class SubGridViewComponent extends React.Component {
     constructor(props) {
@@ -113,8 +112,7 @@ class SubGridViewComponent extends React.Component {
         let widthTmp = 0;
         if (showMenu && showEditButton) {
             widthTmp = 76;
-        }
-        else if (showMenu || showEditButton) {
+        } else if (showMenu || showEditButton) {
             widthTmp = 50;
         }
         const rowAutoHeight = false;
@@ -189,7 +187,9 @@ class SubGridViewComponent extends React.Component {
                                 }}
                             />
                         ) : (
-                            <div className={`maximalized-sub-view ${this.props?.className ? this.props.className : ''}`}>
+                            <div
+                                className={`maximalized-sub-view ${this.props?.className ? this.props.className : ''}`}
+                            >
                                 <DataGrid
                                     onContextMenuPreparing={(e) => this.showMenu(e)}
                                     id='selection-data-grid'
@@ -272,13 +272,14 @@ class SubGridViewComponent extends React.Component {
                                                             items={ActionButtonWithMenuUtils.createItemsWithCommand(
                                                                 menuItems,
                                                                 undefined,
-                                                                (e) =>{ 
-                                                                 if(e.type === OperationType.OP_EDIT){
-                                                                    e.viewId = viewId;
-                                                                    e.recordId = recordId;
-                                                                    e.parentId = UrlUtils.getParentId();
-                                                                }
-                                                                this.props.handleRightHeadPanelContent(e)},
+                                                                (e) => {
+                                                                    if (e.type === OperationType.OP_EDIT) {
+                                                                        e.viewId = viewId;
+                                                                        e.recordId = recordId;
+                                                                        e.parentId = UrlUtils.getParentId();
+                                                                    }
+                                                                    this.props.handleRightHeadPanelContent(e);
+                                                                },
                                                                 undefined,
                                                                 true
                                                             )}

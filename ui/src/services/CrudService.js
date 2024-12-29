@@ -268,6 +268,7 @@ export default class CrudService extends BaseService {
         })
             .then((response) => {
                 fileName = response.headers.get('content-disposition').split('filename=')[1].split(';')[0];
+                fileName = fileName ? fileName.replace(/^"|"$/g, '') : undefined;
                 return response.blob();
             })
             .then((blob) => {

@@ -316,8 +316,9 @@ class CardViewInfiniteComponent extends PureComponent {
         const viewId = DataGridUtils.getRealViewId(elementSubViewId, elementId);
         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
         const recordId = rowData.ID;
+        const parentId = StringUtils.isBlank(this.props.elementRecordId) ? 0 : this.props.elementRecordId;
         return AppPrefixUtils.locationHrefUrl(
-            `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${
+            `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}&parentId=${parentId}${
                 !!currentBreadcrumb ? currentBreadcrumb : ``
             }`
         );

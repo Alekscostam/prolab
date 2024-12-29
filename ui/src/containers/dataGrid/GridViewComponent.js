@@ -555,6 +555,8 @@ class GridViewComponent extends CellEditComponent {
                                 column.width = columnDefinition?.width || 100;
                                 column.name = columnDefinition?.fieldName;
                                 column.caption = columnDefinition?.label;
+                                // if()
+                                // TODO: to fix group when i click
                                 if (columnDefinition.type === 'B' || columnDefinition.type === 'L') {
                                     column.showEditorAlways = false;
                                 }
@@ -659,9 +661,9 @@ class GridViewComponent extends CellEditComponent {
                                             currentBreadcrumb
                                         );
                                     }}
-                                    handleHrefSubview={() =>
-                                        this.handleHrefSubview(viewId, recordId, currentBreadcrumb)
-                                    }
+                                    handleHrefSubview={() => {
+                                        this.handleHrefSubview(viewId, recordId, currentBreadcrumb);
+                                    }}
                                     handleArchive={(e) =>
                                         this.preOperationAction(
                                             e,
@@ -694,7 +696,11 @@ class GridViewComponent extends CellEditComponent {
                                         )
                                     }
                                     handleDownload={(e) =>
-                                        this.preOperationAction(e, () => this.props.handleDownloadRow(recordId))
+                                        this.preOperationAction(
+                                            e,
+                                            () => this.props.handleDownloadRow(recordId),
+                                            recordId
+                                        )
                                     }
                                     handleBatch={(e) =>
                                         this.preOperationAction(

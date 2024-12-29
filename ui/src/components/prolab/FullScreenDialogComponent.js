@@ -248,16 +248,7 @@ export class FullScreenDialogComponent extends BaseRowComponent {
                                     {this.props.editData?.editInfo?.viewName}
                                 </div>
                             </div>
-                            <div className='col-4'>
-                                {this.state.preventSave ? (
-                                    <div
-                                        id='validation-panel'
-                                        className='validation-panel justify-content-center d-flex'
-                                    >
-                                        {this.fieldsMandatoryLabel}
-                                    </div>
-                                ) : null}
-                            </div>
+                            <div className='col-4'></div>
                             <div className='col-lg-4 col-md-12 text-right'>
                                 {opSave && (
                                     <ShortcutButton

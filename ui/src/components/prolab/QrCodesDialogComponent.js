@@ -9,7 +9,6 @@ export const QrCodesDialogComponent = (props) => {
     const {onHide, editable, labels, findCode} = props;
     const qrCodeRef = useRef(undefined);
     const [visible, setVisible] = useState(props.visible);
-    const [value, setValue] = useState(props.value);
 
     useEffect(() => {
         const handleGlobalKeyDown = (event) => {
