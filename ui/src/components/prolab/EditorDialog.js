@@ -3,7 +3,7 @@ import {Dialog} from 'primereact/dialog';
 import {useEffect, useRef, useState} from 'react';
 
 import PropTypes from 'prop-types';
-import HtmlEditor, {Item, MediaResizing, Toolbar} from 'devextreme-react/html-editor';
+import HtmlEditor, {Item, MediaResizing, TableResizing, Toolbar} from 'devextreme-react/html-editor';
 
 export const EditorDialog = (props) => {
     const {onSave, onHide, header, editable} = props;
@@ -44,8 +44,10 @@ export const EditorDialog = (props) => {
                     hideDialog();
                 }}
             />
-        </div> 
-    ): <div></div>;
+        </div>
+    ) : (
+        <div></div>
+    );
 
     return (
         <div>
@@ -77,7 +79,7 @@ export const EditorDialog = (props) => {
                         validationMessageMode='always'
                     >
                         <MediaResizing enabled={true} />
-
+                        <TableResizing enabled={true} />
                         <Toolbar multiline={true}>
                             <Item locateInMenu='auto' name='undo' />
                             <Item locateInMenu='auto' name='redo' />
@@ -112,6 +114,11 @@ export const EditorDialog = (props) => {
                             <Item locateInMenu='auto' name='insertColumnLeft' />
                             <Item locateInMenu='auto' name='insertColumnRight' />
                             <Item locateInMenu='auto' name='deleteColumn' />
+                            <Item locateInMenu='auto' name='blockquote' />
+                            <Item locateInMenu='auto' name='codeBlock' />
+                            <Item locateInMenu='auto' name='image' />
+                            <Item locateInMenu='auto' name='link' />
+                            <Item locateInMenu='auto' name='clear' />
                         </Toolbar>
                     </HtmlEditor>
                 </div>

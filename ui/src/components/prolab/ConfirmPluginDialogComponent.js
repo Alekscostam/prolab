@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import LocUtils from '../../utils/LocUtils';
 import {ConfirmDialog} from 'primereact/confirmdialog';
 import {HtmlUtils} from '../../utils/HtmlUtils';
+import {StringUtils} from '../../utils/StringUtils';
 
-export const ConfirmPluginDialogComponent = ({parsedPluginView, labels, onHide, onAccept, onReject}) => {
+export const ConfirmPluginDialogComponent = ({parsedPluginView, onHide, onAccept, onReject}) => {
     const acceptLabel = () => {
         if (isQuestion()) {
             return LocUtils.locFromStoreWithDefault('Yes', 'Tak');
@@ -54,7 +55,17 @@ export const ConfirmPluginDialogComponent = ({parsedPluginView, labels, onHide, 
         }
         return undefined;
     };
-
+    const getIcon = () => {
+        const info = parsedPluginView?.info;
+        if ('icon' in info) {
+            if (StringUtils.isBlank(info.icon)) {
+                return '';
+            }
+            return info.icon;
+        } else {
+            return 'pi pi-exclamation-triangle';
+        }
+    };
     return (
         <ConfirmDialog
             closable={false}
@@ -64,8 +75,8 @@ export const ConfirmPluginDialogComponent = ({parsedPluginView, labels, onHide, 
             header={headerLabel()}
             onHide={() => onHide()}
             message={message()}
-            className={isMessage() ? 'single-button' : ''}
-            icon='pi pi-exclamation-triangle'
+            className={isMessage() ? 'single-button confirm-plugin' : ''}
+            icon={getIcon()}
             accept={() => accept()}
             reject={() => reject()}
         />

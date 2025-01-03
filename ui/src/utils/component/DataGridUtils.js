@@ -27,7 +27,7 @@ export class DataGridUtils extends ViewDataCompUtils {
     }
     static cellTemplate(column, isEditableCell, onImageClick, onEditorClick) {
         return function (element, info) {
-            const className = info?.data?.SKASOWANY === 1 ? 'deleted-row' : '';
+            let className = info?.data?.SKASOWANY === 1 ? 'deleted-row' : '';
             let bgColorFinal = undefined;
             let rowSelected = null;
             if (_rowIndex !== info.row.dataIndex) {
@@ -59,6 +59,7 @@ export class DataGridUtils extends ViewDataCompUtils {
 
             if (!!specialFontColor) {
                 fontColorFinal = specialFontColor;
+                className = className + ' importance-color';
             } else {
                 if (!info.data[_FONTCOLOR]) {
                     _fontcolor = '#00000';

@@ -48,8 +48,8 @@ class DashboardCardViewComponent extends React.Component {
     }
     render() {
         const padding = 2;
-        const cardWidth = this.props.parsedGridView?.cardOptions?.width ?? 300;
-        const cardHeight = this.props.parsedGridView?.cardOptions?.height ?? 200;
+        const cardWidth = parseInt(this.props.parsedGridView?.cardOptions?.width ?? 300) - 8;
+        const cardHeight = parseInt(this.props.parsedGridView?.cardOptions?.height ?? 200) - 12;
         const cardBgColor1 = this.props.parsedGridView?.cardOptions?.bgColor1;
         const cardBgColor2 = this.props.parsedGridView?.cardOptions?.bgColor2;
         const fontColor = this.props.parsedGridView?.cardOptions?.fontColor;

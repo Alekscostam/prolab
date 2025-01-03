@@ -109,7 +109,6 @@ export class Breadcrumb {
         let breadcrumb = this.readFromUrl();
         if (subViewResponse && subViewResponse.viewInfo) {
             if (breadcrumb?.filter((i) => i.id === subViewResponse.viewInfo.id && i.type === 'subview').length === 0) {
-                debugger;
                 const breadcrumbFieldName = subViewResponse.viewInfo.breadcrumbFieldName
                     ? subViewResponse.viewInfo.breadcrumbFieldName
                     : 'ID';

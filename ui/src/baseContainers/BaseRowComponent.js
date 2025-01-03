@@ -9,7 +9,7 @@ import BaseContainer from '../baseContainers/BaseContainer';
 import {Dropdown} from 'primereact/dropdown';
 import {Calendar} from 'primereact/calendar';
 import SimpleReactValidator from '../components/validator';
-import HtmlEditor, {Item, MediaResizing, Toolbar} from 'devextreme-react/html-editor';
+import HtmlEditor, {Item, MediaResizing, TableResizing, Toolbar} from 'devextreme-react/html-editor';
 import {Validator} from 'devextreme-react';
 import {Button} from 'primereact/button';
 import {RequiredRule} from 'devextreme-react/validator';
@@ -803,8 +803,9 @@ export class BaseRowComponent extends BaseContainer {
                             }}
                             className={`editor ${autoFill} ${editable} ${validate}`}
                             defaultValue={field.value}
+                            value={field.value}
                             onValueChange={(e) => {
-                                const afterNormalize = StringUtils.normalizeText(e);
+                                const afterNormalize = e;
                                 const currentValue = field.value;
                                 if (currentValue === afterNormalize) {
                                     return;
@@ -816,7 +817,7 @@ export class BaseRowComponent extends BaseContainer {
                                 onChange(InputType.EDITOR, event, groupUuid, info);
                             }}
                             onValueChanged={(e) => {
-                                const afterNormalize = StringUtils.normalizeText(e.value);
+                                const afterNormalize = e.value;
                                 const currentValue = field.value;
                                 if (currentValue === afterNormalize) {
                                     return;
@@ -834,6 +835,7 @@ export class BaseRowComponent extends BaseContainer {
                                     <RequiredRule message={`Pole jest wymagane`} />
                                 </Validator>
                             ) : null}
+                            <TableResizing enabled={true} />
                             <MediaResizing enabled={true} />
                             <Toolbar multiline={false}>
                                 <Item name='undo' />
@@ -869,6 +871,11 @@ export class BaseRowComponent extends BaseContainer {
                                 <Item name='insertColumnLeft' />
                                 <Item name='insertColumnRight' />
                                 <Item name='deleteColumn' />
+                                <Item name='blockquote' />
+                                <Item name='codeBlock' />
+                                <Item name='image' />
+                                <Item name='link' />
+                                <Item name='clear' />
                             </Toolbar>
                         </HtmlEditor>
                     </React.Fragment>

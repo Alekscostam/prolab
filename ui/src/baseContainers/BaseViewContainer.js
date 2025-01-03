@@ -241,7 +241,6 @@ export class BaseViewContainer extends BaseContainer {
             !DataGridUtils.equalNumbers(this.state.elementId, id) ||
             (!firstSubViewMode && !DataGridUtils.equalNumbers(this.state.elementSubViewId, subViewId)) ||
             fromSubviewToFirstSubView ||
-            !DataGridUtils.equalNumbers(this.state.elementFilterId, filterId) ||
             !DataGridUtils.equalNumbers(this.state.elementRecordId, recordId);
 
         if (updatePage || this.state?.attachmentCloseWindow) {
@@ -252,7 +251,7 @@ export class BaseViewContainer extends BaseContainer {
                     elementId: id,
                     elementSubViewId: subViewId,
                     elementRecordId: recordId,
-                    elementFilterId: filterId, //z dashboardu
+                    elementFilterId: filterId,
                     elementParentId: parentId,
                     elementKindView: kindView,
                     elementViewType: viewType,
@@ -906,6 +905,18 @@ export class BaseViewContainer extends BaseContainer {
                                             window.location.href = AppPrefixUtils.locationHrefUrl(
                                                 `${basePath}?${params.toString()}${currentBreadcrumb}`
                                             );
+                                            this.setState(
+                                                {
+                                                    elementFilterId: filterId,
+                                                },
+                                                () => {
+                                                    this.getDataByViewResponse(
+                                                        this.state.parsedGridView,
+                                                        parentId,
+                                                        filterId
+                                                    );
+                                                }
+                                            );
                                         }
                                     }}
                                     stylingMode='underlined'
@@ -1290,7 +1301,7 @@ export class BaseViewContainer extends BaseContainer {
                     selectedRowKeys: [],
                 },
                 () => {
-                    this.getRefGanttView().current.uncheckAllData();
+                    this.getRefGanttView()?.current?.uncheckAllData();
                     this.unblockUi();
                 }
             );

@@ -1,3 +1,5 @@
+import {TableResizing} from 'devextreme-react/cjs/html-editor';
+
 const sizeValues = ['8pt', '10pt', '12pt', '14pt', '18pt', '24pt', '36pt'];
 const fontValues = [
     'Arial',
@@ -44,6 +46,7 @@ export const MemoizedDescriptionInput = React.memo(({field, cellInfo, inputValue
                         </Validator>
                     ) : null}
                     <MediaResizing enabled={true} />
+                    <TableResizing enabled={true} />
                     <Toolbar multiline={false}>
                         <Item name='undo' />
                         <Item name='redo' />
@@ -103,6 +106,11 @@ export const MemoizedDescriptionInput = React.memo(({field, cellInfo, inputValue
                         <Item name='insertColumnLeft' />
                         <Item name='insertColumnRight' />
                         <Item name='deleteColumn' />
+                        <Item name='blockquote' />
+                        <Item name='codeBlock' />
+                        <Item name='image' />
+                        <Item name='link' />
+                        <Item name='clear' />
                     </Toolbar>
                 </HtmlEditor>
             </div>

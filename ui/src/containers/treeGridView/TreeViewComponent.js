@@ -921,34 +921,11 @@ class TreeViewComponent extends CellEditComponent {
     cellRenderSpecial(cellInfo, columnDefinition) {
         try {
             let className = '';
-            let _bgColor;
             const cellBackground = new CellCustomBackground(cellInfo, columnDefinition);
-            if (cellBackground.canPaintRow()) {
-                cellBackground.paintRow();
-            } else {
-                _bgColor = cellInfo.data['_BGCOLOR'];
-            }
-            // let bgColorFinal = undefined;
-            let bgColorFinal = 'white';
-            const specialBgColor = cellInfo.data['_BGCOLOR_' + cellInfo.column?.dataField];
-            if (!!specialBgColor) {
-                bgColorFinal = specialBgColor;
-            } else {
-                if (!!_bgColor) {
-                    bgColorFinal = _bgColor;
-                }
-            }
-            const _fontcolor = cellInfo.data['_FONTCOLOR'];
-            let fontColorFinal = 'black';
-            const specialFontColor = cellInfo.data['_FONTCOLOR_' + cellInfo.column?.dataField];
-            if (!!specialFontColor) {
-                fontColorFinal = specialFontColor;
-            } else {
-                if (!!_fontcolor) {
-                    fontColorFinal = _fontcolor;
-                }
-            }
-            // TODO: bgColor tylko w CellCustomBackground
+            cellBackground.paintRowExecute();
+            const bgColorFinal = cellBackground.getSpecialBgColor();
+            const fontColorFinal = cellBackground.getFontColor();
+        
             switch (cellInfo.column.ownType) {
                 case ColumnType.H:
                     try {
@@ -976,7 +953,7 @@ class TreeViewComponent extends CellEditComponent {
                             <span
                                 style={{
                                     color: fontColorFinal,
-                                    // background: bgColorFinal,
+                                    background: bgColorFinal,
                                 }}
                                 className={className}
                             >
@@ -995,7 +972,7 @@ class TreeViewComponent extends CellEditComponent {
                             <span
                                 style={{
                                     color: fontColorFinal,
-                                    // background: bgColorFinal,
+                                    background: bgColorFinal,
                                 }}
                                 className={className}
                                 dangerouslySetInnerHTML={{__html: cellInfo?.text}}
@@ -1106,11 +1083,11 @@ class TreeViewComponent extends CellEditComponent {
         if (!keyExistsInInvalidCellKeys) {
             try {
                 return (
-                    <span
+                    <div
                         className={this.isWart(cellInfo?.column?.dataField) ? 'WART' : className}
                         style={{
                             color: fontColorFinal,
-                            // background: bgColorFinal,
+                            background: bgColorFinal,
                         }}
                         dangerouslySetInnerHTML={{__html: cellInfo?.text}}
                     />

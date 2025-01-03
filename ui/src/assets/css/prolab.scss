@@ -330,9 +330,9 @@ label {
         margin-bottom: 0rem;
     }
     .font-label,
-label{
-    color: rgb(22, 22, 22)!important;
-}
+    label{
+        color: rgb(22, 22, 22);
+    }
 }
 .p-button {
     border-radius: 4px;
@@ -731,11 +731,21 @@ div#toast-messages .p-toast-message-error {
 .p-icon.p-toast-message-icon {
     display: none;
 }
-
+.dx-treelist-filter-row{
+    border-bottom: 2px solid #d8d8d8;
+}
 .p-confirm-dialog-message {
     white-space: pre-line;
 }
-
+.confirm-plugin{
+    max-width:80%;
+    max-height: 80%;
+    .p-confirm-dialog-message {
+        max-height: 750px;
+        white-space: pre-line;
+        margin-bottom: 20px;
+    }
+}
 .dx-empty-message {
     margin-left: 16px;
 }

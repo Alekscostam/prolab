@@ -74,7 +74,7 @@ $base-color: #0e49eb;
 }
 #spec-edit {
     .dx-treelist-rowsview .dx-row-focused.dx-data-row .dx-command-edit .dx-link, .dx-treelist-rowsview .dx-row-focused.dx-data-row>td:not(.dx-cell-modified):not(.disabled-background):not(.dx-treelist-invalid){
-        background-color: transparent!important;;
+        background: transparent ; 
     }
      .dx-treelist-rowsview .dx-row-focused.dx-data-row>td.disabled-background:not(.dx-cell-modified):not(.dx-treelist-invalid){
         background-color:  #f5f5f5!important;;
@@ -90,7 +90,7 @@ $base-color: #0e49eb;
     }
     .dx-treelist-rowsview .dx-state-hover{
         td{
-            .WART{
+            span, div {
                 color:white!important
             }
         }
@@ -134,7 +134,6 @@ $base-color: #0e49eb;
 .dx-treelist-rowsview .dx-row-focused:hover > td,
 .dx-treelist-rowsview .dx-row-focused > tr > td,
 .dx-treelist-rowsview .dx-row-focused:hover > tr > td {
-    background-color: $base-color !important;
 
     .trash-icon-treeview {
         color: white !important;
@@ -316,7 +315,6 @@ $base-color: #0e49eb;
 .dx-treelist-rowsview .dx-row-focused:hover > td,
 .dx-treelist-rowsview .dx-row-focused > tr > td,
 .dx-treelist-rowsview .dx-row-focused:hover > tr > td {
-    background-color: #dde6ff !important;
     color: black;
 }
 

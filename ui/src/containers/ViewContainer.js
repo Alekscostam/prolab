@@ -248,11 +248,15 @@ export class ViewContainer extends BaseViewContainer {
     }
 
     // overide
-    getDataByViewResponse(responseView, parentId) {
+    getDataByViewResponse(responseView, parentId, filterId) {
         const initFilterId = responseView?.viewInfo?.filterdId;
         const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
         const parentIdArg = this.state.subView == null ? parentId : this.state.elementRecordId;
-        const filterIdArg = !!this.state.elementFilterId ? this.state.elementFilterId : initFilterId;
+        const filterIdArg = StringUtils.isBlank(filterId)
+            ? !!this.state.elementFilterId
+                ? this.state.elementFilterId
+                : initFilterId
+            : filterId;
         const kindViewArg = this.state?.gridViewType?.toUpperCase() === 'CARDVIEW' ? 'cardView' : this.state.kindView;
         const dataPackageSize = this.state.parsedGridView?.viewInfo?.dataPackageSize;
         const packageCount =
@@ -318,10 +322,8 @@ export class ViewContainer extends BaseViewContainer {
                         };
                     },
                     (group, totalCounts) => {
-                        const gridViewColumns = this.getColumnsWithRemovedGroupingIfNecessary(group);
                         this.setState(
                             {
-                                gridViewColumns,
                                 select: false,
                                 selectAll: false,
                                 dataGridStoreSuccess: true,
@@ -354,19 +356,6 @@ export class ViewContainer extends BaseViewContainer {
                 this.unblockUi();
             });
         }
-    }
-    getColumnsWithRemovedGroupingIfNecessary(group) {
-        let gridViewColumns = this.state.gridViewColumns;
-        if (group) {
-            gridViewColumns = this.state.gridViewColumns.map((columnDefinition) => {
-                const foundedEl = !!group.find((el) => el.selector === columnDefinition.fieldName);
-                if (!!columnDefinition.groupIndex && columnDefinition.groupIndex > 0 && foundedEl) {
-                    delete columnDefinition.groupIndex;
-                }
-                return columnDefinition;
-            });
-        }
-        return gridViewColumns;
     }
     //override
     additionalTopComponents() {

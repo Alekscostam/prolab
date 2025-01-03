@@ -12,8 +12,6 @@ export const OperationsButtons = (props) => {
         visible: false,
         fnc: undefined,
     });
-    const [accept, setAccept] = useState(() => {});
-    const [hide, setHide] = useState(() => {});
 
     const renderOperationsButton = (operations) => {
         const info = props.info;

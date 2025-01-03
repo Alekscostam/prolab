@@ -340,7 +340,6 @@ class CardViewInfiniteComponent extends PureComponent {
     };
     render() {
         const cardHeight = this.props.parsedCardView?.cardOptions?.height ?? 200;
-        const selectedRecordId = this.state.selectedRecordId;
         const selectedRowData = this.state.selectedRowData;
         const imageViewer = this.state.imageViewer;
         const isItemLoaded = (index) => !this.state.hasNextPage || index < this.state.items.length;

@@ -11,6 +11,7 @@ import Gantt, {
     StripLine,
     HeaderFilter,
     ContextMenu,
+    FilterRow,
 } from 'devextreme-react/gantt';
 
 import 'devextreme/dist/css/dx.light.css';
@@ -190,6 +191,7 @@ class GanttViewComponent extends React.Component {
                     height={'100%'}
                     rootValue={-1}
                 >
+                    <FilterRow visible={true}></FilterRow>
                     <Tasks
                         keyExpr={KEY}
                         dataSource={this.state.tasks}

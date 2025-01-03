@@ -528,7 +528,7 @@ $base-color: #0e49eb;
         background-color: $base-color !important;
         td {
             background-color: $base-color !important;
-            div {
+            div:not(.importance-color) {
                 color: white !important;
             }
             .deleted-row {
