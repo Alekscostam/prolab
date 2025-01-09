@@ -4,6 +4,7 @@ import {useEffect, useRef, useState} from 'react';
 
 import PropTypes from 'prop-types';
 import HtmlEditor, {Item, MediaResizing, TableResizing, Toolbar} from 'devextreme-react/html-editor';
+import LocUtils from '../../utils/LocUtils';
 
 export const EditorDialog = (props) => {
     const {onSave, onHide, header, editable} = props;
@@ -36,7 +37,7 @@ export const EditorDialog = (props) => {
         <div>
             <Button
                 id='save-editor-button'
-                text='Zapisz'
+                text={LocUtils.locFromStoreWithDefault('Save', 'Zapisz')}
                 onClick={() => {
                     if (onSave) {
                         onSave(editor.current?.instance?.option('value'));

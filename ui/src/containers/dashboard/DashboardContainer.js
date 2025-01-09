@@ -528,6 +528,7 @@ class DashboardContainer extends BaseContainer {
                     showRowLines={true}
                     showBorders={false}
                     showColumnHeaders={false}
+                    showAddButton={false}
                     showFilterRow={false}
                     showSelection={false}
                     handleBlockUi={() => {

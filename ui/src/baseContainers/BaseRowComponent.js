@@ -29,9 +29,11 @@ import {ColumnType} from '../enum/ColumnType';
 import {StringUtils} from '../utils/StringUtils';
 import {RequestUtils} from '../utils/RequestUtils';
 import Constants from '../utils/Constants';
+import {InputTextarea} from 'primereact/inputtextarea';
 
 let clickCount = 0;
 let timeout;
+
 // TODO: brak block ui na tryb sidepanel po wejsciu w liste podpowiedzi
 export class BaseRowComponent extends BaseContainer {
     constructor(props) {
@@ -69,6 +71,7 @@ export class BaseRowComponent extends BaseContainer {
         this.handleCancel = this.handleCancel.bind(this);
         this.validateDate = this.validateDate.bind(this);
         this.editListVisible = this.editListVisible.bind(this);
+        // this.tagBoxStore = new DataTagBoxStore();
         this.fieldsMandatoryLabel = LocUtils.loc(
             this.props.labels,
             'Fields_Mandatory_Label',
@@ -275,7 +278,6 @@ export class BaseRowComponent extends BaseContainer {
                                     if (this.canPushRowData(foundFields.value)) {
                                         const fieldValue = ('' + foundFields.value).split(separatorJoin);
                                         fieldTmp[field.fieldList] = fieldValue[index];
-                                        fieldTmp.INDEX = index.toString();
                                         singleSelectedRowDataTmp.push(fieldTmp);
                                     }
                                 });
@@ -293,7 +295,6 @@ export class BaseRowComponent extends BaseContainer {
                             JSON.stringify(defaultSelectedRowKeysTmp)
                         );
                         let filtersListTmp = [];
-
                         this.setState(
                             () => ({
                                 gridViewType: responseView?.viewInfo?.type,
@@ -387,6 +388,38 @@ export class BaseRowComponent extends BaseContainer {
             }
         }
     };
+
+    // ddss = (field) => {
+    //     const editInfo = this.props.editData?.editInfo;
+    //     const kindView = this.props.kindView;
+    //     debugger;
+    //     const editListObject = RequestUtils.createObjectDataToRequest(this.props);
+    //     this.service
+    //         .editList(editInfo.viewId, editInfo.recordId, editInfo.parentId, field.id, kindView, editListObject)
+    //         .then((responseView) => {
+    //             const res = this.tagBoxStore.getDataStore(
+    //                 editInfo.viewId,
+    //                 'gridView',
+    //                 editInfo.recordId,
+    //                 field.id,
+    //                 editInfo.parentId,
+    //                 null,
+    //                 kindView,
+    //                 editListObject,
+    //                 (err) => {
+    //                     this.props.showErrorMessages(err);
+    //                 },
+    //                 () => {
+    //                     return {selectAll: this.state.selectAll};
+    //                 },
+    //                 'TAG_NAME'
+    //             );
+    //             debugger;
+    //             return res;
+    //         })
+    //         .catch((ex) => {});
+    // };
+
     renderInputComponent(field, fieldIndex, onChange, onBlur, groupUuid, required, validatorMsgs, onClickEditList) {
         //mock functionality
         const visibleDocumentCriteria = this.props?.visibleDocumentPanel;
@@ -413,9 +446,23 @@ export class BaseRowComponent extends BaseContainer {
         if (visibleDocumentCriteria && selectionListValues) {
             selectionListValues = this.selectionListValuesToJson(selectionListValues);
         }
+        // if (field.fieldName === 'LABELS') {
+        //     return (
+        //         <TagBox
+        //             key={'TAG_NAME'}
+        //             displayExpr='TAG_NAME'
+        //             valueExpr='TAG_NAME'
+        //             onInitialized={(e) => e.component.option('dataSource', this.ddss(field))}
+        //             // dataSource={this.ddss(field)}
+        //             placeholder='Wybierz elementy...'
+        //             showSelectionControls={true}
+        //             selectA
+        //             searchEnabled={true}
+        //         />
+        //     );
+        // }
         switch (field.type) {
             case ColumnType.C:
-
             default:
                 return (
                     <React.Fragment>
@@ -773,18 +820,55 @@ export class BaseRowComponent extends BaseContainer {
                             name={field.fieldName}
                             className={`${autoFill} ${editable} ${validate}`}
                             style={{width: '100%'}}
-                            value={this.validateDate(field)}
                             appendTo={document.body}
-                            onChange={(e) => (onChange ? onChange(InputType.TIME, e, groupUuid, info) : null)}
+                            onChange={(e) => {
+                                if (onChange) {
+                                    if (e.originalEvent.currentTarget.value.includes('_')) {
+                                        return;
+                                    }
+                                    onChange(InputType.TIME, e, groupUuid, info);
+                                }
+                            }}
                             disabled={!field.edit}
                             required={required}
                             showButtonBar
                             showIcon
-                            mask='99:99'
+                            value={this.validateDate(field)}
+                            mask={'99:99'}
                         ></Calendar>
                     </React.Fragment>
                 );
-            case ColumnType.O: //O – Opisowe
+            case ColumnType.O:
+                return (
+                    <React.Fragment>
+                        <label
+                            style={{color: labelColor}}
+                            htmlFor={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
+                            title={MockService.printField(field)}
+                        >
+                            {field.label}
+                            {required ? '*' : ''}
+                        </label>
+                        <InputTextarea
+                            name={field.fieldName}
+                            disabled={!field.edit}
+                            required={required}
+                            autoResize
+                            style={{resize: 'none'}}
+                            value={field.value}
+                            rows={1}
+                            className={`col-12 ${autoFill} ${editable} ${validate}`}
+                            onChange={(e) => {
+                                if (onChange) {
+                                    onChange(InputType.AREA, e, groupUuid, info);
+                                }
+                            }}
+                            onBlur={(e) => (onBlur ? onBlur(InputType.AREA, e, groupUuid, info) : null)}
+                        />
+                    </React.Fragment>
+                );
+            case ColumnType.OH:
+            case ColumnType.CH:
                 return (
                     <React.Fragment>
                         <label
@@ -835,48 +919,50 @@ export class BaseRowComponent extends BaseContainer {
                                     <RequiredRule message={`Pole jest wymagane`} />
                                 </Validator>
                             ) : null}
-                            <TableResizing enabled={true} />
-                            <MediaResizing enabled={true} />
-                            <Toolbar multiline={false}>
-                                <Item name='undo' />
-                                <Item name='redo' />
-                                <Item name='separator' />
-                                <Item name='size' acceptedValues={this.sizeValues} />
-                                <Item name='font' acceptedValues={this.fontValues} />
-                                <Item name='header' acceptedValues={this.headerValues} />
-                                <Item name='separator' />
-                                <Item name='bold' />
-                                <Item name='italic' />
-                                <Item name='strike' />
-                                <Item name='underline' />
-                                <Item name='subscript' />
-                                <Item name='superscript' />
-                                <Item name='separator' />
-                                <Item name='alignLeft' />
-                                <Item name='alignCenter' />
-                                <Item name='alignRight' />
-                                <Item name='alignJustify' />
-                                <Item name='separator' />
-                                <Item name='orderedList' />
-                                <Item name='bulletList' />
-                                <Item name='separator' />
-                                <Item name='color' />
-                                <Item name='background' />
-                                <Item name='separator' />
-                                <Item name='insertTable' />
-                                <Item name='deleteTable' />
-                                <Item name='insertRowAbove' />
-                                <Item name='insertRowBelow' />
-                                <Item name='deleteRow' />
-                                <Item name='insertColumnLeft' />
-                                <Item name='insertColumnRight' />
-                                <Item name='deleteColumn' />
-                                <Item name='blockquote' />
-                                <Item name='codeBlock' />
-                                <Item name='image' />
-                                <Item name='link' />
-                                <Item name='clear' />
-                            </Toolbar>
+                            {field.type === ColumnType.OH && <TableResizing enabled={true} />}
+                            {field.type === ColumnType.OH && <MediaResizing enabled={true} />}
+                            {field.type === ColumnType.OH && (
+                                <Toolbar multiline={false}>
+                                    <Item name='undo' />
+                                    <Item name='redo' />
+                                    <Item name='separator' />
+                                    <Item name='size' acceptedValues={this.sizeValues} />
+                                    <Item name='font' acceptedValues={this.fontValues} />
+                                    <Item name='header' acceptedValues={this.headerValues} />
+                                    <Item name='separator' />
+                                    <Item name='bold' />
+                                    <Item name='italic' />
+                                    <Item name='strike' />
+                                    <Item name='underline' />
+                                    <Item name='subscript' />
+                                    <Item name='superscript' />
+                                    <Item name='separator' />
+                                    <Item name='alignLeft' />
+                                    <Item name='alignCenter' />
+                                    <Item name='alignRight' />
+                                    <Item name='alignJustify' />
+                                    <Item name='separator' />
+                                    <Item name='orderedList' />
+                                    <Item name='bulletList' />
+                                    <Item name='separator' />
+                                    <Item name='color' />
+                                    <Item name='background' />
+                                    <Item name='separator' />
+                                    <Item name='insertTable' />
+                                    <Item name='deleteTable' />
+                                    <Item name='insertRowAbove' />
+                                    <Item name='insertRowBelow' />
+                                    <Item name='deleteRow' />
+                                    <Item name='insertColumnLeft' />
+                                    <Item name='insertColumnRight' />
+                                    <Item name='deleteColumn' />
+                                    <Item name='blockquote' />
+                                    <Item name='codeBlock' />
+                                    <Item name='image' />
+                                    <Item name='link' />
+                                    <Item name='clear' />
+                                </Toolbar>
+                            )}
                         </HtmlEditor>
                     </React.Fragment>
                 );

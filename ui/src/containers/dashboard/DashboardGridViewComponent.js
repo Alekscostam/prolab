@@ -154,6 +154,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                                 hint: viewButton?.label,
                             });
                         }
+                        // TODO: OPTIONS -> showheaders
                         this.setState(
                             () => ({
                                 loading: false,
@@ -166,6 +167,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                                 documentsList: documentsListTmp,
                                 batchesList: batchesListTmp,
                                 filtersList: filtersListTmp,
+                                // options: responseView?.options,
                                 selectedRowKeys: [],
                                 viewInfoTypes: viewInfoTypesTmp,
                                 packageRows: responseView?.viewInfo?.dataPackageSize,
@@ -646,6 +648,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                             showErrorMessages={(err) => {
                                 return this.customShowErrorMessages(err);
                             }}
+                            showAddButton={false}
                             packageRows={this.state.packageRows}
                             handleShowEditPanel={(editDataResponse) => {
                                 this.setState({

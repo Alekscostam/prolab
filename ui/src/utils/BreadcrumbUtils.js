@@ -62,7 +62,7 @@ export class Breadcrumb {
             }
             if (breadcrumb?.filter((i) => i.id === viewInfo.id && i.type === 'view').length === 0) {
                 const last = breadcrumb.length > 0 ? breadcrumb[breadcrumb.length - 1] : null;
-                if (last && last.type === 'view') {
+                if (last && last.type === 'view' && last.id === viewInfo.id && last.name === viewInfo.name) {
                     breadcrumb.pop();
                 }
                 let path = window.document.URL.toString();

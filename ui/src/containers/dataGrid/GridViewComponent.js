@@ -74,6 +74,7 @@ class GridViewComponent extends CellEditComponent {
                 editable: false,
                 value: undefined,
                 header: undefined,
+                type: undefined,
             },
             selectedRecordId: undefined,
         };
@@ -321,9 +322,6 @@ class GridViewComponent extends CellEditComponent {
                         this.props.handleOnDataGrid(ref);
                     }}
                     onRowClick={(e) => {
-                        if (this.props.handleOnRowClick) {
-                            this.props.handleOnRowClick();
-                        }
                         this.currentClickedCell.current = e.data.ID;
                     }}
                     onFocusedRowChanging={(e) => {
@@ -600,8 +598,10 @@ class GridViewComponent extends CellEditComponent {
                     caption: '',
                     fixed: true,
                     headerCellTemplate: (element) => {
-                        element.parentNode.classList.add('header-button');
-                        ReactDOM.render(this.addButton(), element);
+                        if (this.props.showAddButton) {
+                            element.parentNode.classList.add('header-button');
+                            ReactDOM.render(this.addButton(), element);
+                        }
                     },
                     width: ViewDataCompUtils.operationsColumnLength(
                         operationsRecord,
@@ -784,7 +784,7 @@ class GridViewComponent extends CellEditComponent {
                     },
                 });
             },
-            (value, header) => {
+            (value, header, type) => {
                 if (UrlUtils.isBatch()) {
                     return;
                 }
@@ -794,6 +794,7 @@ class GridViewComponent extends CellEditComponent {
                         editable: false,
                         value: value,
                         header: header,
+                        type: type,
                     },
                 });
             }
@@ -1041,6 +1042,7 @@ GridViewComponent.defaultProps = {
     gridFromDashboard: false,
     showSelection: true,
     dataGridStoreSuccess: true,
+    showAddButton: true,
     altAndLeftClickEnabled: false,
     focusedRowEnabled: false,
     hoverStateEnabled: false,
@@ -1060,7 +1062,6 @@ GridViewComponent.propTypes = {
     packageRows: PropTypes.number,
     handleOnDataGrid: PropTypes.func.isRequired,
     handleOnInitialized: PropTypes.func,
-    handleOnRowClick: PropTypes.func,
     showRenderingViewMode: PropTypes.bool,
     handleShowEditPanel: PropTypes.func,
 
@@ -1091,6 +1092,7 @@ GridViewComponent.propTypes = {
     showErrorMessages: PropTypes.func.isRequired,
     showColumnHeaders: PropTypes.bool,
     showColumnLines: PropTypes.bool,
+    showAddButton: PropTypes.bool,
     showRowLines: PropTypes.bool,
     showBorders: PropTypes.bool,
     showFilterRow: PropTypes.bool,

@@ -50,10 +50,22 @@ export class EditRowUtils {
             return true;
         } else return false;
     };
+
     static hasAnyVisibleField(group) {
         const visibleFields = group?.fields.filter((f) => this.isVisibleField(f));
         return !ArrayUtils.isEmpty(visibleFields);
     }
+
+    static hasAnyToFillField(editData) {
+        return editData?.editFields
+            .flatMap((editField) => editField.panels)
+            ?.some((panel) =>
+                panel?.groups?.some((group) =>
+                    group?.fields?.some((field) => field.autoFill && this.isVisibleField(field))
+                )
+            );
+    }
+
     static getType(type) {
         switch (type) {
             case ColumnType.C: //C – Znakowy

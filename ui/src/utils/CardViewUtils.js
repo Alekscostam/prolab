@@ -88,7 +88,7 @@ export class CardViewUtils {
                             dangerouslySetInnerHTML={{
                                 __html: StringUtils.truncateText(
                                     StringUtils.textFromHtmlString(rowData[fieldDefinition.fieldName]),
-                                    300
+                                    275
                                 ),
                             }}
                         ></span>

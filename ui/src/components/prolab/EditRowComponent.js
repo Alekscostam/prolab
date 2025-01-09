@@ -109,6 +109,7 @@ export class EditRowComponent extends BaseRowComponent {
         if (this.props?.copyData) {
             copyDataGlobalTop = this.props.copyData;
         }
+
         return (
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
@@ -178,7 +179,7 @@ export class EditRowComponent extends BaseRowComponent {
                                                 rendered={opSave}
                                             />
                                         )}
-                                        {opFill && (
+                                        {opFill && EditRowUtils.hasAnyToFillField(editData) && (
                                             <ShortcutButton
                                                 id={'opFill'}
                                                 className={`grid-button-panel inverse mt-1 mb-1 mr-1`}

@@ -185,6 +185,9 @@ class TreeViewComponent extends CellEditComponent {
         });
         return currentEditListRow;
     }
+    refreshComponent() {
+        this.ref.instance.refresh();
+    }
     isSpecialCell(columnDefinition) {
         const type = columnDefinition?.type;
         const validationEdit = columnDefinition?.validationEdit;
@@ -915,9 +918,6 @@ class TreeViewComponent extends CellEditComponent {
         return false;
     }
 
-    isValidField = (cellInfo, columnDefinition) => {
-        return new CellValidator(cellInfo, columnDefinition).isValidField();
-    };
     cellRenderSpecial(cellInfo, columnDefinition) {
         try {
             let className = '';
@@ -925,7 +925,6 @@ class TreeViewComponent extends CellEditComponent {
             cellBackground.paintRowExecute();
             const bgColorFinal = cellBackground.getSpecialBgColor();
             const fontColorFinal = cellBackground.getFontColor();
-        
             switch (cellInfo.column.ownType) {
                 case ColumnType.H:
                     try {

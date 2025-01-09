@@ -6,8 +6,7 @@ import {Button} from 'primereact/button';
 import {DataGridUtils} from '../../utils/component/DataGridUtils';
 import LocUtils from '../../utils/LocUtils';
 import {OperationType} from '../../enum/OperationType';
-import useStore from '../../store';
-import { TranslationUtils } from '../../utils/TranslationUtils';
+import {TranslationUtils} from '../../utils/TranslationUtils';
 
 export default class EditListComponent extends React.Component {
     constructor(props) {
@@ -34,40 +33,46 @@ export default class EditListComponent extends React.Component {
             <React.Fragment>
                 <Dialog
                     id='editListDialog'
-                    header={<div>{LocUtils.loc(this.props.labels, 'Selection_List_Label', 'Lista podpowiedzi')} - {name}</div> }
+                    header={
+                        <div>
+                            {LocUtils.loc(this.props.labels, 'Selection_List_Label', 'Lista podpowiedzi')} - {name}
+                        </div>
+                    }
                     footer={
-                        (opSelect) ? (
+                        opSelect ? (
                             <Button
                                 type='button'
                                 onClick={() => {
                                     const setFields = this.props.parsedGridView?.setFields || [];
                                     const separatorJoin = this.props.parsedGridView?.options?.separatorJoin || ',';
                                     let selectedRowData = this.props.selectedRowData || [];
-                                            setFields.forEach((field) => {
-                                                const fieldKey = field.fieldList;
-                                                let values = [];
-                                                selectedRowData.forEach((row) => {
-                                                    for (const item in row) {
-                                                        const object = row[item];
-                                                        const firstObjKey = Object.keys(object)[0];
-                                                        if (firstObjKey === fieldKey) {
-                                                            const foundValue = object[firstObjKey];
-                                                            values.push(foundValue === 'null' ? '' : '' + foundValue);
-                                                            break;
-                                                        }
-                                                    }
-                                                });
-                                                field.fieldValue =
-                                                    values.join(separatorJoin) === undefined || null
-                                                        ? ''
-                                                        : values.join(separatorJoin);
-                                            });
-                                            this.props.handleOnChosen(setFields, this.props.field);
+                                    setFields.forEach((field) => {
+                                        const fieldKey = field.fieldList;
+                                        let values = [];
+                                        selectedRowData.forEach((row) => {
+                                            for (const item in row) {
+                                                const object = row[item];
+                                                const firstObjKey = Object.keys(object)[0];
+                                                if (firstObjKey === fieldKey) {
+                                                    const foundValue = object[firstObjKey];
+                                                    values.push(foundValue === 'null' ? '' : '' + foundValue);
+                                                    break;
+                                                }
+                                            }
+                                        });
+                                        field.fieldValue =
+                                            values.join(separatorJoin) === undefined || null
+                                                ? ''
+                                                : values.join(separatorJoin);
+                                    });
+                                    this.props.handleOnChosen(setFields, this.props.field);
                                     this.props.onHide();
                                 }}
                                 label={opSelect?.label}
                             />
-                        ) : <div></div>
+                        ) : (
+                            <div></div>
+                        )
                     }
                     visible={this.props.visible}
                     resizable={false}
@@ -88,9 +93,6 @@ export default class EditListComponent extends React.Component {
                         handleBlockUi={() => {
                             this.props.handleBlockUi();
                         }}
-                        handleOnRowClick={()=>{
-                            useStore.getState().setFetchData(false);
-                        }}
                         getRef={() => {
                             return this.refDataGrid;
                         }}
@@ -104,7 +106,9 @@ export default class EditListComponent extends React.Component {
                             }
                         }}
                         defaultSelectedRowKeys={this.props.defaultSelectedRowKeys}
-                        handleSelectedRowKeys={(e) => this.props.handleSelectedRowData(e)}
+                        handleSelectedRowKeys={(e) => {
+                            this.props.handleSelectedRowData(e);
+                        }}
                         showFilterRow={true}
                         showErrorMessages={(err) => this.props.showErrorMessages(err)}
                         dataGridStoreSuccess={this.props.dataGridStoreSuccess}

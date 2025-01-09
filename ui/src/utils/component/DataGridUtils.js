@@ -70,6 +70,7 @@ export class DataGridUtils extends ViewDataCompUtils {
             }
             switch (column?.type) {
                 case ColumnType.O:
+                case ColumnType.OH:
                     return ReactDOM.render(
                         <div
                             className={className}
@@ -78,7 +79,7 @@ export class DataGridUtils extends ViewDataCompUtils {
                                     return;
                                 }
                                 if (onEditorClick) {
-                                    onEditorClick(info.text, info.column?.caption);
+                                    onEditorClick(info.text, info.column?.caption, column?.type);
                                 }
                             }}
                             style={{
@@ -123,6 +124,26 @@ export class DataGridUtils extends ViewDataCompUtils {
                         >
                             {DataGridUtils.getText(info)}
                         </div>,
+                        element
+                    );
+                case ColumnType.CH:
+                    return ReactDOM.render(
+                        <div
+                            className={className}
+                            style={{
+                                whiteSpace: info.column.allowWrapping ? 'wrap' : 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                minHeight: '18px',
+                                backgroundColor: bgColorFinal,
+                                color: fontColorFinal,
+                                borderRadius: info.column.allowWrapping ? '18px' : '25px',
+                                padding: '2px 6px 2px 6px',
+                                float: column.type === ColumnType.N ? 'right' : undefined,
+                            }}
+                            title={StringUtils.textFromHtmlString(info.text)}
+                            dangerouslySetInnerHTML={{__html: info.text}}
+                        ></div>,
                         element
                     );
                 case ColumnType.H:

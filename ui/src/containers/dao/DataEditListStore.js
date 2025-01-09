@@ -6,7 +6,7 @@ import ConsoleHelper from '../../utils/ConsoleHelper';
 import EditListUtils from '../../utils/EditListUtils';
 import UrlUtils from '../../utils/UrlUtils';
 import TansformFiltersUtil from '../dao/util/TransformFiltersUtil';
-import { StringUtils } from '../../utils/StringUtils';
+import {StringUtils} from '../../utils/StringUtils';
 import useStore from '../../store';
 //example
 //api//View/{id}/Edit/{recordId}/list/{fieldId}/data?skip={skip}&take={take}&parentId={parentId}&sort={sort}&filter={filter}
@@ -17,7 +17,6 @@ export default class EditListDataStore extends BaseService {
         this.response = {};
         this.lastFetchedData = null;
         this.fetchData = useStore.getState().fetchData;
-
     }
 
     getEditListDataStore(
@@ -76,22 +75,6 @@ export default class EditListDataStore extends BaseService {
                         }
                     }
                 });
-                // console.log(this.lastFetchedData?.data);
-                
-                // if(!useStore.getState().fetchData){
-                //     useStore.getState().setFetchData(true);
-                //     // const listOfHintsElements = useStore.getState().listOfHintsElements;
-                //     const lastFetchedData = structuredClone(this.lastFetchedData);
-                //     // this.processData(lastFetchedData.data, listOfHintsElements, setFields);
-                //     this.response = {
-                //         data: lastFetchedData.data,
-                //         totalCount: lastFetchedData.totalCount,
-                //         summary: lastFetchedData.summary || [],
-                //         groupCount: lastFetchedData.groupCount || 0,
-                //     };
-                //     return Promise.resolve(this.response);
-                //     // return Promise.reject('');
-                // }
                 const viewTypeParam = this.createParam(viewTypeArg, 'viewType');
                 const filterIdParam = this.createParam(filterIdArg, 'filter');
                 const parentIdParam = this.createParam(parentIdArg, 'parentId');
@@ -152,22 +135,20 @@ export default class EditListDataStore extends BaseService {
     processData = (data, selectedRows, setFields) => {
         data.forEach((rowData, index) => {
             if (rowData.CALC_CRC === undefined || rowData.CALC_CRC === null) {
-                rowData.INDEX = index;
                 rowData.CALC_CRC = EditListUtils.calculateCRCBySetFields(rowData, setFields);
-                selectedRows.forEach(selectedRow=>{
-                   const selectedRowName =  selectedRow[0][setFields[0]?.fieldList];
-                   const responseRowName = rowData[setFields[0]?.fieldList];
-                   const namesEquals = selectedRowName === responseRowName;
-                   const foundIsBlank = StringUtils.isBlank(selectedRow[0]?.found);
-                   if(namesEquals && foundIsBlank){
-                        selectedRow[0].found=true  
-                        rowData.INDEX = selectedRow[0].INDEX;
+                selectedRows.forEach((selectedRow) => {
+                    const selectedRowName = selectedRow[0][setFields[0]?.fieldList];
+                    const responseRowName = rowData[setFields[0]?.fieldList];
+                    const namesEquals = selectedRowName === responseRowName;
+                    const foundIsBlank = StringUtils.isBlank(selectedRow[0]?.found);
+                    if (namesEquals && foundIsBlank) {
+                        selectedRow[0].found = true;
                         rowData.CALC_CRC = selectedRow[0].CALC_CRC;
-                   }
-                })
+                    }
+                });
             }
         });
-    }
+    };
 
     createParam(param, paramName) {
         return this.shouldBeParamEmpty(param) ? '' : `&${paramName}=${param}`;

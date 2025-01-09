@@ -42,6 +42,7 @@ class SubGridViewComponent extends React.Component {
                 editable: false,
                 value: undefined,
                 header: undefined,
+                type: undefined,
             },
         };
     }
@@ -152,6 +153,7 @@ class SubGridViewComponent extends React.Component {
                         editable={editorViewer.editable}
                         value={editorViewer.value}
                         visible={editorViewer?.visible}
+                        type={editorViewer?.type}
                         onHide={() => {
                             this.setState({
                                 editorViewer: {
@@ -159,6 +161,7 @@ class SubGridViewComponent extends React.Component {
                                     editable: false,
                                     value: undefined,
                                     header: undefined,
+                                    type: undefined,
                                 },
                             });
                         }}
@@ -224,13 +227,14 @@ class SubGridViewComponent extends React.Component {
                                                                 },
                                                             });
                                                         },
-                                                        (value, header) => {
+                                                        (value, header, type) => {
                                                             this.setState({
                                                                 editorViewer: {
                                                                     visible: true,
                                                                     editable: false,
                                                                     value: value,
                                                                     header: header,
+                                                                    type: type,
                                                                 },
                                                             });
                                                         }

@@ -13,13 +13,14 @@ import {EditorDialog} from '../components/prolab/EditorDialog';
 import {StringUtils} from '../utils/StringUtils';
 import ImageViewerComponent from '../components/ImageViewerComponent';
 import {ColumnType} from '../enum/ColumnType';
-import { MemoizedTextInput } from '../components/prolab/memoized/MemoizedTextInput';
-import { MemoizedNumericInput } from '../components/prolab/memoized/MemoizedNumericInput';
-import { MemoizedBoolInput } from '../components/prolab/memoized/MemoizedBoolInput';
-import { MemoizedLogicInput } from '../components/prolab/memoized/MemoizedLogicInput';
-import { MemoizedDateInput } from '../components/prolab/memoized/MemoizedDateInput';
-import { MemoizedDateTimeInput } from '../components/prolab/memoized/MemoizedDateTimeInput';
-import { MemoizedTimeInput } from '../components/prolab/memoized/MemoizedTimeInput';
+import {MemoizedTextInput} from '../components/prolab/memoized/MemoizedTextInput';
+import {MemoizedNumericInput} from '../components/prolab/memoized/MemoizedNumericInput';
+import {MemoizedBoolInput} from '../components/prolab/memoized/MemoizedBoolInput';
+import {MemoizedLogicInput} from '../components/prolab/memoized/MemoizedLogicInput';
+import {MemoizedDateInput} from '../components/prolab/memoized/MemoizedDateInput';
+import {MemoizedDateTimeInput} from '../components/prolab/memoized/MemoizedDateTimeInput';
+import {MemoizedTimeInput} from '../components/prolab/memoized/MemoizedTimeInput';
+import {EditorTextAreaDialog} from '../components/prolab/EditorTextAreaDialog';
 
 class CellEditComponent extends Component {
     constructor(props) {
@@ -52,6 +53,7 @@ class CellEditComponent extends Component {
                 editable: false,
                 value: undefined,
                 header: undefined,
+                type: undefined,
             },
         };
         ConsoleHelper('CellEditComponent -> constructor');
@@ -77,6 +79,7 @@ class CellEditComponent extends Component {
                 editable: false,
                 value: undefined,
                 header: undefined,
+                type: undefined,
             },
         });
         this.onHideEditorCallback();
@@ -95,35 +98,56 @@ class CellEditComponent extends Component {
 
     editorComponent = (editable, eViewier) => {
         const {editorViewer} = this.state;
-        if(!editorViewer?.visible){
+        if (!editorViewer?.visible) {
             return;
         }
         const cellInfoValue = eViewier?.value ? eViewier.value : this.state.cellInfo.value;
         const cellInfoHeader = eViewier?.header ? eViewier.header : this.state.cellInfo.value;
-        return (
-            editorViewer?.visible && (
-                <EditorDialog
-                    header={cellInfoHeader}
-                    editable={editable}
-                    value={cellInfoValue}
-                    visible={editorViewer?.visible}
-                    onHide={() => {
-                        this.onHideEditor();
-                    }}
-                    onSave={(el) => {
-                        let cellInfo = this.state.cellInfo;
-                        cellInfo.setValue(el);
-                        setTimeout(function () {
-                            const elements = Array.from(
-                                document.querySelectorAll(`td[aria-describedby=${cellInfo.column.headerId}]`)
-                            ).filter((el) => !el.classList.contains('dx-editor-cell'));
-                            elements[cellInfo.rowIndex].children[0].innerText = StringUtils.textFromHtmlString(el);
-                        }, 0);
-                        this.onHideEditor();
-                    }}
-                />
-            )
-        );
+        if (editorViewer?.visible) {
+            if (editorViewer?.type === ColumnType.OH) {
+                return (
+                    <EditorDialog
+                        header={cellInfoHeader}
+                        editable={editable}
+                        value={cellInfoValue}
+                        visible={editorViewer?.visible}
+                        type={editorViewer?.type}
+                        onHide={() => {
+                            this.onHideEditor();
+                        }}
+                        onSave={(el) => {
+                            let cellInfo = this.state.cellInfo;
+                            cellInfo.setValue(el);
+                            setTimeout(function () {
+                                const elements = Array.from(
+                                    document.querySelectorAll(`td[aria-describedby=${cellInfo.column.headerId}]`)
+                                ).filter((el) => !el.classList.contains('dx-editor-cell'));
+                                elements[cellInfo.rowIndex].children[0].innerText = StringUtils.textFromHtmlString(el);
+                            }, 0);
+                            this.onHideEditor();
+                        }}
+                    />
+                );
+            } else {
+                return (
+                    <EditorTextAreaDialog
+                        header={cellInfoHeader}
+                        editable={editable}
+                        value={cellInfoValue}
+                        visible={editorViewer?.visible}
+                        type={editorViewer?.type}
+                        onHide={() => {
+                            this.onHideEditor();
+                        }}
+                        onSave={(el) => {
+                            let cellInfo = this.state.cellInfo;
+                            cellInfo.setValue(el);
+                            this.onHideEditor();
+                        }}
+                    />
+                );
+            }
+        }
     };
 
     onHideImageViewer() {
@@ -229,7 +253,7 @@ class CellEditComponent extends Component {
         const setFields = this.state.parsedEditListView.setFields;
         const prevSelectedRowData = this.state.selectedRowData;
         const multiSelect = this.state?.parsedGridView?.gridOptions?.multiSelect;
-        const result =  EditListUtils.selectedRowData(e, setFields, prevSelectedRowData, multiSelect);
+        const result = EditListUtils.selectedRowData(e, setFields, prevSelectedRowData, multiSelect);
         this.setState({selectedRowDataEditList: result.rowsData, defaultSelectedRowKeys: result.rowsCrc});
     }
 
@@ -262,8 +286,8 @@ class CellEditComponent extends Component {
                         let countSeparator = 0;
                         setFields.forEach((field) => {
                             EditListUtils.searchField(editData, field.fieldEdit, (foundFields) => {
-                                if(StringUtils.isBlank(foundFields.value) ){
-                                    foundFields.value = "";
+                                if (StringUtils.isBlank(foundFields.value)) {
+                                    foundFields.value = '';
                                 }
                                 const fieldValue = ('' + foundFields.value).split(separatorJoin);
                                 if (fieldValue.length > countSeparator) {
@@ -276,8 +300,8 @@ class CellEditComponent extends Component {
                             setFields.forEach((field) => {
                                 EditListUtils.searchField(editData, field.fieldEdit, (foundFields) => {
                                     let fieldTmp = {};
-                                    if(StringUtils.isBlank(foundFields.value) ){
-                                        foundFields.value = "";
+                                    if (StringUtils.isBlank(foundFields.value)) {
+                                        foundFields.value = '';
                                     }
                                     const fieldValue = ('' + foundFields.value).split(separatorJoin);
                                     fieldTmp[field.fieldList] = fieldValue[index];
@@ -352,7 +376,8 @@ class CellEditComponent extends Component {
     };
 
     // ovveride
-    afterValidatorExecute(cellValidator, value, withMessage){}
+    afterValidatorExecute(cellValidator, value, withMessage) {}
+    refreshComponent() {}
 
     editCellRender = (cellInfo, columnDefinition, onOperationClick) => {
         const field = columnDefinition;
@@ -386,8 +411,11 @@ class CellEditComponent extends Component {
                         autoFill={autoFill}
                         required={required}
                         validate={validate}
-                        afterValidatorExecute={(cellValidator, value, withMessage)=>{
+                        afterValidatorExecute={(cellValidator, value, withMessage) => {
                             this.afterValidatorExecute(cellValidator, value, withMessage);
+                        }}
+                        refreshComponent={() => {
+                            this.refreshComponent();
                         }}
                         selectionList={selectionList}
                         onOperationClick={onOperationClick}
@@ -496,12 +524,14 @@ class CellEditComponent extends Component {
                         validate={validate}
                     />
                 );
-            case ColumnType.O: //O – Opisowe
+            case ColumnType.O:
+            case ColumnType.OH:
                 if (!this.state?.editorViewer?.visible) {
                     this.setState({
                         editorViewer: {
                             visible: true,
                             header: cellInfo.column?.caption,
+                            type: field?.type,
                         },
                         cellInfo,
                     });

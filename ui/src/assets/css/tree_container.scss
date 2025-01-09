@@ -91,6 +91,9 @@ $base-color: #0e49eb;
     .dx-treelist-rowsview .dx-state-hover{
         td{
             span, div {
+                i{
+                    color:$base-color!important;;  
+                }
                 color:white!important
             }
         }

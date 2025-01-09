@@ -1028,7 +1028,7 @@ class BaseContainer extends React.Component {
                 if (res.viewOptions?.refreshAll) {
                     this.unselectAllDataGrid(false);
                     this.refreshView();
-                    this.downloadSubViewData(true);
+                    if (ViewUtils.haveSubView()) this.downloadSubViewData(true);
                 }
             })
             .catch((ex) => {

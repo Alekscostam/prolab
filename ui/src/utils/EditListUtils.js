@@ -1,6 +1,6 @@
 import hash from 'object-hash';
 import ConsoleHelper from './ConsoleHelper';
-import { v4 as uuidv4 } from 'uuid';
+import {v4 as uuidv4} from 'uuid';
 import useStore from '../store';
 
 export class EditListUtils {
@@ -19,7 +19,7 @@ export class EditListUtils {
                     break;
                 }
             }
-            
+
             defaultSelectedRowKeysTmp.push(newObject);
         }
         return defaultSelectedRowKeysTmp;
@@ -32,13 +32,10 @@ export class EditListUtils {
     //data structure from API
     static calculateCRCBySetFields(rowData, setFields) {
         const objToHash = EditListUtils.transformBySetFields(rowData, setFields);
-        objToHash.forEach(obj=>{
-            obj.INDEX = rowData.INDEX
-        })
         const calculateCRC = EditListUtils.calculateCRC(objToHash);
         return calculateCRC;
     }
-    static addUuidToFields(editData){
+    static addUuidToFields(editData) {
         editData.editFields?.forEach((editField) => {
             editField?.panels?.forEach((panel) => {
                 panel?.groups?.forEach((group) => {
@@ -78,9 +75,6 @@ export class EditListUtils {
                     (el) => el.CALC_CRC === e.currentSelectedRowKeys[0]
                 );
                 const transformedSingleRowData = this.transformBySetFields(foundedElementToAdd, setFields);
-                transformedSingleRowData.forEach(obj=>{
-                    obj.INDEX = foundedElementToAdd.INDEX
-                })
                 const CALC_CRC = this.calculateCRC(transformedSingleRowData);
                 transformedSingleRowData[0].CALC_CRC = CALC_CRC;
                 transformedRowsData.push(transformedSingleRowData);
@@ -97,25 +91,23 @@ export class EditListUtils {
                 let selectedRow = currentSelectedRowsData[selectedRowData];
                 let transformedSingleRowData = this.transformBySetFields(selectedRow, setFields);
                 let CALC_CRC = this.calculateCRC(transformedSingleRowData);
-                // const selectedRowToStore = structuredClone(selectedRow); 
+                // const selectedRowToStore = structuredClone(selectedRow);
                 // selectedRowToStore.CALC_CRC = CALC_CRC;
                 // selectedRowsToStore.push(selectedRowToStore);
                 transformedRowsData.push(transformedSingleRowData);
                 transformedRowsCRC.push(CALC_CRC);
             }
-
         }
-        // debugger
-        // const toStoreElements  = structuredClone(selectedRowsToStore);
-        // toStoreElements.forEach(element => delete element.found);
+        // const toStoreElements = structuredClone(selectedRowsToStore);
+        // toStoreElements.forEach((element) => delete element.found);
         // useStore.getState().setListOfHintsElements([toStoreElements]);
         return {
-            rowsData:transformedRowsData,
-            rowsCrc:transformedRowsCRC,
+            rowsData: transformedRowsData,
+            rowsCrc: transformedRowsCRC,
         };
     }
-    static prepareElementToStore(currentSelectedRowsData){
-        const toStoreElements  = structuredClone(currentSelectedRowsData);
+    static prepareElementToStore(currentSelectedRowsData) {
+        const toStoreElements = structuredClone(currentSelectedRowsData);
     }
 }
 

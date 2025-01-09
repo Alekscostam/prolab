@@ -95,10 +95,11 @@ export class ViewContainer extends BaseViewContainer {
     // $?9:vq&v/T'rqq1u,7
     updateBreadCrumb = (subViewResponse, viewId, recordId) => {
         const kindView = subViewResponse?.viewInfo?.kindView;
-        //TODO:
-        if (kindView && kindView.toUpperCase() === 'VIEW') {
-            // Breadcrumb.updateView(subViewResponse, viewId, recordId);
+        const type = subViewResponse?.viewInfo?.type;
+        if (kindView && kindView.toUpperCase() === 'VIEW' && type && type.toUpperCase() !== 'DASHBOARD') {
+            Breadcrumb.updateView(subViewResponse.viewInfo, viewId, recordId);
         } else {
+            Breadcrumb.updateSubView(subViewResponse, recordId);
         }
     };
     getDataFromSubview(viewId, recordId, parentId, subviewId, filterId, viewType, forceReStateSubView) {
@@ -113,8 +114,7 @@ export class ViewContainer extends BaseViewContainer {
                                 this.viewService
                                     .getSubView(viewId, recordId, parentId)
                                     .then((subViewResponse) => {
-                                        // TODO: porpawic
-                                        Breadcrumb.updateSubView(subViewResponse, recordId);
+                                        this.updateBreadCrumb(subViewResponse, viewId, recordId);
                                         if (subViewResponse.viewInfo?.type === 'dashboard') {
                                             const kindView = subViewResponse.viewInfo.kindView;
                                             ConsoleHelper(

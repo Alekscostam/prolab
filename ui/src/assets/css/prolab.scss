@@ -739,11 +739,15 @@ div#toast-messages .p-toast-message-error {
 }
 .confirm-plugin{
     max-width:80%;
-    max-height: 80%;
     .p-confirm-dialog-message {
-        max-height: 750px;
         white-space: pre-line;
         margin-bottom: 20px;
+    }
+    
+}
+.override-align-items-stretch{
+    .p-dialog-content{
+        align-items: stretch!important;
     }
 }
 .dx-empty-message {

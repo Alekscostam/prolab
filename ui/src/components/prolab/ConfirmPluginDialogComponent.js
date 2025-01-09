@@ -66,6 +66,20 @@ export const ConfirmPluginDialogComponent = ({parsedPluginView, onHide, onAccept
             return 'pi pi-exclamation-triangle';
         }
     };
+
+    const classNameGenerate = () => {
+        let className = 'confirm-plugin';
+        if (isMessage()) {
+            className = className + ' single-button';
+            if (HtmlUtils.isValidHtml(parsedPluginView.info?.message?.text)) {
+                className = className + ' override-align-items-stretch';
+            }
+        }
+        if (HtmlUtils.isValidHtml(parsedPluginView.info?.question?.text)) {
+            className = className + ' override-align-items-stretch';
+        }
+        return className;
+    };
     return (
         <ConfirmDialog
             closable={false}
@@ -75,7 +89,7 @@ export const ConfirmPluginDialogComponent = ({parsedPluginView, onHide, onAccept
             header={headerLabel()}
             onHide={() => onHide()}
             message={message()}
-            className={isMessage() ? 'single-button confirm-plugin' : ''}
+            className={classNameGenerate()}
             icon={getIcon()}
             accept={() => accept()}
             reject={() => reject()}

@@ -1,9 +1,10 @@
-import React, { useState } from "react";
-import CellValidator from "../../../model/CellValidator";
-import { TextBox, Validator } from "devextreme-react";
-import EditRowUtils from "../../../utils/EditRowUtils";
-import { MemoizedOperations } from "./MemoizedOperations";
+import React, {useState} from 'react';
+import CellValidator from '../../../model/CellValidator';
+import {TextBox, Validator} from 'devextreme-react';
+import EditRowUtils from '../../../utils/EditRowUtils';
+import {MemoizedOperations} from './MemoizedOperations';
 import {PatternRule, RequiredRule} from 'devextreme-react/validator';
+import {StringUtils} from '../../../utils/StringUtils';
 
 export const MemoizedTextInput = React.memo(
     ({
@@ -18,32 +19,43 @@ export const MemoizedTextInput = React.memo(
         onOperationClick,
         downFill,
         onFillDownClick,
-        afterValidatorExecute
+        afterValidatorExecute,
+        refreshComponent,
     }) => {
-      const cellValidator = new CellValidator(cellInfo, field);
-      const [isValid, setIsValid] = useState(cellValidator.isValidField(inputValue));  
-      let currentVal = inputValue;
+        const cellValidator = new CellValidator(cellInfo, field);
+        const [isValid, setIsValid] = useState(cellValidator.isValidField(inputValue));
+        let currentVal = inputValue;
         return (
             <React.Fragment>
                 <div className={`row`}>
-                    <div className={ `${selectionList} col-12`}>
-                    <TextBox
+                    <div className={`${selectionList} col-12`}>
+                        <TextBox
                             id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                             className={`${validate}`}
                             mode={mode || 'text'}
                             isValid={isValid}
-                            onDisposing={(e)=>{ 
+                            onDisposing={(e) => {
                                 const value = cellInfo?.value;
                                 afterValidatorExecute(cellValidator, value);
+                                if (field.fieldName === 'FORMULA') {
+                                    if (
+                                        (StringUtils.isBlankOrEmpty(cellInfo.displayValue) &&
+                                            !StringUtils.isBlankOrEmpty(value)) ||
+                                        (!StringUtils.isBlankOrEmpty(cellInfo.displayValue) &&
+                                            StringUtils.isBlankOrEmpty(value))
+                                    ) {
+                                        refreshComponent();
+                                    }
+                                }
                             }}
-                            validationMessagePosition="left"
+                            validationMessagePosition='left'
                             defaultValue={inputValue}
                             stylingMode={'filled'}
                             disabled={!field.edit}
                             valueChangeEvent={'keyup'}
                             onValueChanged={(e) => {
                                 const isValid = cellValidator.isValidField(e.value);
-                                setIsValid(isValid)
+                                setIsValid(isValid);
                                 switch (required) {
                                     case true:
                                         if (e.value !== '') {
@@ -51,22 +63,19 @@ export const MemoizedTextInput = React.memo(
                                             cellInfo.setValue(e.value);
                                         }
                                         break;
-                                        default:
-                                            currentVal = e.value;
-                                            cellInfo.setValue(e.value);
-                                            break;
-                                    }
-                            
+                                    default:
+                                        currentVal = e.value;
+                                        cellInfo.setValue(e.value);
+                                        break;
                                 }
-                            }
+                            }}
                         >
-                                <Validator>
-                                    {cellValidator.expressionSatisfiesCondition() && <PatternRule
-                                        pattern={cellValidator.getRegex()}
-                                        message={""}
-                                    />}
-                                {required && <RequiredRule />}  
-                                </Validator>
+                            <Validator>
+                                {cellValidator.expressionSatisfiesCondition() && (
+                                    <PatternRule pattern={cellValidator.getRegex()} message={''} />
+                                )}
+                                {required && <RequiredRule />}
+                            </Validator>
                         </TextBox>
                         <MemoizedOperations
                             editListVisible={!!selectionList}
@@ -80,4 +89,3 @@ export const MemoizedTextInput = React.memo(
         );
     }
 );
-

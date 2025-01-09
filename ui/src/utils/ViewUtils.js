@@ -30,4 +30,9 @@ export class ViewUtils {
         const recordIdExists = UrlUtils.recordIdParamExist();
         return !!subView && !StringUtils.isBlank(subView.headerColumns) && parentIdExists && recordIdExists;
     }
+    static haveSubView() {
+        const parentIdExists = UrlUtils.parentIdParamExist();
+        const recordIdExists = UrlUtils.recordIdParamExist();
+        return parentIdExists && recordIdExists;
+    }
 }

@@ -167,7 +167,6 @@ class GanttViewComponent extends React.Component {
                     focusedRowEnabled={false}
                     hoverStateEnabled={false}
                     ref={this.ganttRef}
-                    scaleType={scaleType}
                     activeStateEnabled={false}
                     taskListWidth={taskListWidth}
                     taskTitlePosition={taskTitlePosition}
@@ -347,7 +346,7 @@ class GanttViewComponent extends React.Component {
                     data: value,
                 });
                 this.datasInitialization(value);
-                this.refreshRef();
+                this.initGantt();
                 this.generateColumns();
             });
         } else if (Array.isArray(this.props.parsedGanttViewData) && this.props.parsedGanttViewData?.length === 0) {
@@ -356,6 +355,13 @@ class GanttViewComponent extends React.Component {
         this.unregisterKeydownEvent();
         this.registerKeydownEvent();
     }
+
+    initGantt = () => {
+        if (this?.ganttRef?.current) {
+            this.ganttRef.current.instance.option('scaleType', 'weeks');
+            this.ganttRef.current.instance.refresh();
+        }
+    };
     componentWillUnmount() {
         this.unregisterKeydownEvent();
     }

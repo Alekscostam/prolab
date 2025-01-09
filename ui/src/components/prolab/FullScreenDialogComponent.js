@@ -202,8 +202,6 @@ export class FullScreenDialogComponent extends BaseRowComponent {
         const opCancel = TranslationUtils.getOpButton(operations, OperationType.OP_CANCEL);
         const opClose = TranslationUtils.getOpButton(operations, OperationType.OP_CLOSE);
         const editData = this.props.editData;
-        let editListVisible = this.state.editListVisible;
-
         return (
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
@@ -215,7 +213,7 @@ export class FullScreenDialogComponent extends BaseRowComponent {
                     visible={true}
                 >
                     <EditListComponent
-                        visible={editListVisible}
+                        visible={this.state.editListVisible}
                         field={this.state.editListField}
                         parsedGridView={this.state.parsedGridView}
                         parsedGridViewData={this.state.parsedGridViewData}
@@ -260,7 +258,7 @@ export class FullScreenDialogComponent extends BaseRowComponent {
                                         rendered={opSave}
                                     />
                                 )}
-                                {opFill && (
+                                {opFill && EditRowUtils.hasAnyToFillField(editData) && (
                                     <ShortcutButton
                                         id={'opFill'}
                                         className={`grid-button-panel-big inverse mt-1 mb-1 mr-1 `}
@@ -280,7 +278,6 @@ export class FullScreenDialogComponent extends BaseRowComponent {
                                         rendered={opCancel}
                                     />
                                 )}
-
                                 {opClose && (
                                     <ShortcutButton
                                         id={'opClose'}
