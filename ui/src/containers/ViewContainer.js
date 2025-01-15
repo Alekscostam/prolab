@@ -96,7 +96,12 @@ export class ViewContainer extends BaseViewContainer {
     updateBreadCrumb = (subViewResponse, viewId, recordId) => {
         const kindView = subViewResponse?.viewInfo?.kindView;
         const type = subViewResponse?.viewInfo?.type;
-        if (kindView && kindView.toUpperCase() === 'VIEW' && type && type.toUpperCase() !== 'DASHBOARD') {
+        if (
+            kindView &&
+            kindView.toUpperCase() === 'VIEW' &&
+            !StringUtils.isBlank(type) &&
+            type.toUpperCase() !== 'DASHBOARD'
+        ) {
             Breadcrumb.updateView(subViewResponse.viewInfo, viewId, recordId);
         } else {
             Breadcrumb.updateSubView(subViewResponse, recordId);

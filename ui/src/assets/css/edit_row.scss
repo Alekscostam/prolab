@@ -33,9 +33,7 @@ $edit-padding-bottom: 11px;
     margin-bottom: 0.6rem;
 }
 
-#row-edit .editor {
-    margin-bottom: 0.6rem;
-}
+
 
 #row-edit .p-float-label input:focus ~ label,
 #row-edit .p-float-label input.p-filled ~ label,
@@ -329,6 +327,9 @@ $edit-padding-bottom: 11px;
     }
 }
 
+#row-edit .no-border-p-inputgroup{
+    border: none;
+}
 
 #row-edit .p-inputgroup > .p-inputtext {
     border: none;

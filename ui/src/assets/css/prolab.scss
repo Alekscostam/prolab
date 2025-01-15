@@ -972,13 +972,9 @@ td[aria-roledescription='Editable'] {
         overflow-x: hidden;
     }
 }
-
-.ql-disabled {
-    .dx-htmleditor-content {
-        background: #f3f3f3;
-    }
+#editor-dialog.dx-state-disabled.dx-widget{
+    opacity: 1!important;
 }
-
 .p-menuitem-content {
     background-color: white;
 }

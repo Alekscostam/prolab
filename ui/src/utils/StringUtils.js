@@ -5,9 +5,9 @@ export class StringUtils {
         if (this.isBlank(stringHtml)) {
             return stringHtml;
         }
-        var div = document.createElement('div');
+        const div = document.createElement('div');
         div.innerHTML = stringHtml;
-        var text = div.textContent || div.innerText || '';
+        const text = div.textContent || div.innerText || '';
         return text;
     }
     static isBlank(value) {

@@ -194,6 +194,7 @@ export class FullScreenDialogComponent extends BaseRowComponent {
             );
         });
     }
+    //TODO: Stylowanie komponentów OH i CH
     render() {
         const labels = this.props?.labels;
         const operations = this.props?.editData?.operations || [];
@@ -207,7 +208,7 @@ export class FullScreenDialogComponent extends BaseRowComponent {
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
                 <Dialog
                     id='fullscreen-dialog'
-                    header={undefined}
+                    header={<div></div>}
                     closable={false}
                     style={{width: '100%', height: '100%', maxHeight: '100%'}}
                     visible={true}

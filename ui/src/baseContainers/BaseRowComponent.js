@@ -389,37 +389,6 @@ export class BaseRowComponent extends BaseContainer {
         }
     };
 
-    // ddss = (field) => {
-    //     const editInfo = this.props.editData?.editInfo;
-    //     const kindView = this.props.kindView;
-    //     debugger;
-    //     const editListObject = RequestUtils.createObjectDataToRequest(this.props);
-    //     this.service
-    //         .editList(editInfo.viewId, editInfo.recordId, editInfo.parentId, field.id, kindView, editListObject)
-    //         .then((responseView) => {
-    //             const res = this.tagBoxStore.getDataStore(
-    //                 editInfo.viewId,
-    //                 'gridView',
-    //                 editInfo.recordId,
-    //                 field.id,
-    //                 editInfo.parentId,
-    //                 null,
-    //                 kindView,
-    //                 editListObject,
-    //                 (err) => {
-    //                     this.props.showErrorMessages(err);
-    //                 },
-    //                 () => {
-    //                     return {selectAll: this.state.selectAll};
-    //                 },
-    //                 'TAG_NAME'
-    //             );
-    //             debugger;
-    //             return res;
-    //         })
-    //         .catch((ex) => {});
-    // };
-
     renderInputComponent(field, fieldIndex, onChange, onBlur, groupUuid, required, validatorMsgs, onClickEditList) {
         //mock functionality
         const visibleDocumentCriteria = this.props?.visibleDocumentPanel;
@@ -441,26 +410,14 @@ export class BaseRowComponent extends BaseContainer {
         const validateCheckbox = !!validatorMsgs ? 'p-invalid-checkbox' : '';
         const labelColor = !!field.labelColor ? field.labelColor : '';
         const selectionList = field?.selectionList ? 'p-inputgroup' : null;
+        const noBorderInSelectionList =
+            field?.selectionList && ColumnType.CH === field.type ? ' ' : 'no-border-p-inputgroup';
         const info = this.props.editData?.editInfo;
         let selectionListValues = field?.selectionListValues;
         if (visibleDocumentCriteria && selectionListValues) {
             selectionListValues = this.selectionListValuesToJson(selectionListValues);
         }
-        // if (field.fieldName === 'LABELS') {
-        //     return (
-        //         <TagBox
-        //             key={'TAG_NAME'}
-        //             displayExpr='TAG_NAME'
-        //             valueExpr='TAG_NAME'
-        //             onInitialized={(e) => e.component.option('dataSource', this.ddss(field))}
-        //             // dataSource={this.ddss(field)}
-        //             placeholder='Wybierz elementy...'
-        //             showSelectionControls={true}
-        //             selectA
-        //             searchEnabled={true}
-        //         />
-        //     );
-        // }
+
         switch (field.type) {
             case ColumnType.C:
             default:
@@ -867,8 +824,41 @@ export class BaseRowComponent extends BaseContainer {
                         />
                     </React.Fragment>
                 );
-            case ColumnType.OH:
             case ColumnType.CH:
+                return (
+                    <div>
+                        <label
+                            style={{color: labelColor}}
+                            htmlFor={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
+                            title={MockService.printField(field)}
+                        >
+                            {field.label}
+                            {required ? '*' : ''}
+                        </label>
+                        <div className={`${selectionList} ${noBorderInSelectionList}`}>
+                            <div
+                                style={{
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    width: '100%',
+                                    minHeight: !!selectionList ? '40px' : '18px',
+                                    padding: '2px 6px 2px 6px',
+                                }}
+                                title={StringUtils.textFromHtmlString(field.value)}
+                                dangerouslySetInnerHTML={{__html: field.value}}
+                            ></div>
+                            {!!selectionList ? (
+                                <Button
+                                    type='button'
+                                    onClick={onClickEditList}
+                                    icon='mdi mdi-format-list-bulleted'
+                                    className='p-button-secondary'
+                                />
+                            ) : null}
+                        </div>
+                    </div>
+                );
+            case ColumnType.OH:
                 return (
                     <React.Fragment>
                         <label
@@ -879,49 +869,50 @@ export class BaseRowComponent extends BaseContainer {
                             {field.label}
                             {required ? '*' : ''}
                         </label>
-                        <HtmlEditor
-                            ref={(el) => (this.refsTextAreaArray[fieldIndex] = el)}
-                            id={`editor_${fieldIndex}`}
-                            onContentReady={(e) => {
-                                e.element.className = `editor ${editable} dx-show-invalid-badge dx-htmleditor dx-htmleditor-custom-underlined dx-widget`;
-                            }}
-                            className={`editor ${autoFill} ${editable} ${validate}`}
-                            defaultValue={field.value}
-                            value={field.value}
-                            onValueChange={(e) => {
-                                const afterNormalize = e;
-                                const currentValue = field.value;
-                                if (currentValue === afterNormalize) {
-                                    return;
-                                }
-                                const event = {
-                                    name: field.fieldName,
-                                    value: afterNormalize,
-                                };
-                                onChange(InputType.EDITOR, event, groupUuid, info);
-                            }}
-                            onValueChanged={(e) => {
-                                const afterNormalize = e.value;
-                                const currentValue = field.value;
-                                if (currentValue === afterNormalize) {
-                                    return;
-                                }
-                                e.component.option('value', afterNormalize);
-                            }}
-                            onFocusOut={(e) => (onBlur ? onBlur(InputType.EDITOR, e, groupUuid, info) : null)}
-                            validationMessageMode='always'
-                            disabled={!field.edit}
-                            required={required}
-                        >
-                            {' '}
-                            {required ? (
-                                <Validator>
-                                    <RequiredRule message={`Pole jest wymagane`} />
-                                </Validator>
-                            ) : null}
-                            {field.type === ColumnType.OH && <TableResizing enabled={true} />}
-                            {field.type === ColumnType.OH && <MediaResizing enabled={true} />}
-                            {field.type === ColumnType.OH && (
+                        <div>
+                            <HtmlEditor
+                                ref={(el) => (this.refsTextAreaArray[fieldIndex] = el)}
+                                id={`editor_${fieldIndex}`}
+                                onContentReady={(e) => {
+                                    e.element.className = `editor dx-show-invalid-badge dx-htmleditor dx-htmleditor-custom-underlined dx-widget`;
+                                }}
+                                style={{width: '100%'}}
+                                className={`editor ${autoFill} ${validate}`}
+                                defaultValue={field.value}
+                                value={field.value}
+                                onValueChange={(e) => {
+                                    const afterNormalize = e;
+                                    const currentValue = field.value;
+                                    if (currentValue === afterNormalize) {
+                                        return;
+                                    }
+                                    const event = {
+                                        name: field.fieldName,
+                                        value: afterNormalize,
+                                    };
+                                    onChange(InputType.EDITOR, event, groupUuid, info);
+                                }}
+                                onValueChanged={(e) => {
+                                    const afterNormalize = e.value;
+                                    const currentValue = field.value;
+                                    if (currentValue === afterNormalize) {
+                                        return;
+                                    }
+                                    e.component.option('value', afterNormalize);
+                                }}
+                                onFocusOut={(e) => (onBlur ? onBlur(InputType.EDITOR, e, groupUuid, info) : null)}
+                                validationMessageMode='always'
+                                disabled={!field.edit}
+                                required={required}
+                            >
+                                {' '}
+                                {required ? (
+                                    <Validator>
+                                        <RequiredRule message={`Pole jest wymagane`} />
+                                    </Validator>
+                                ) : null}
+                                <TableResizing enabled={true} />
+                                <MediaResizing enabled={true} />
                                 <Toolbar multiline={false}>
                                     <Item name='undo' />
                                     <Item name='redo' />
@@ -961,9 +952,12 @@ export class BaseRowComponent extends BaseContainer {
                                     <Item name='image' />
                                     <Item name='link' />
                                     <Item name='clear' />
+                                    <Item name='insertHeaderRow' />
+                                    <Item name='cellProperties' />
+                                    <Item name='tableProperties' />
                                 </Toolbar>
-                            )}
-                        </HtmlEditor>
+                            </HtmlEditor>
+                        </div>
                     </React.Fragment>
                 );
             case ColumnType.I: //I – Obrazek

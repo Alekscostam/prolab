@@ -83,6 +83,9 @@ export const DocxViewerComponent = ({labels, file}) => {
                     <Item name='image' />
                     <Item name='link' />
                     <Item name='clear' />
+                    <Item name='insertHeaderRow' />
+                    <Item name='cellProperties' />
+                    <Item name='tableProperties' />
                 </Toolbar>
             </HtmlEditor>
         </div>

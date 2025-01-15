@@ -30,10 +30,14 @@ export default class PluginListComponent extends React.Component {
         });
         this.props.onHide();
     }
-
+    unselectAllDataGrid() {
+        this.setState({
+            selectedRowKeys: [],
+        });
+    }
     render() {
         let width = this.props.parsedPluginView?.info?.windowSize?.width ?? '50vw';
-        
+
         let height = this.props.parsedPluginView?.info?.windowSize?.height || undefined;
         const parsedPluginView = this.props.parsedPluginView;
         let convertedParsedView = {...parsedPluginView};
@@ -67,11 +71,7 @@ export default class PluginListComponent extends React.Component {
                                             this.props.executePlugin(pluginId, requestBody, refreshAll);
                                             this.onHide();
                                         }}
-                                        label={LocUtils.loc(
-                                            this.props.labels,
-                                            'Confirm',
-                                            'Zatwierdź'
-                                        )}
+                                        label={LocUtils.loc(this.props.labels, 'Confirm', 'Zatwierdź')}
                                     />
                                 </div>
                             ) : (

@@ -889,7 +889,7 @@ class TreeViewComponent extends CellEditComponent {
             this.addButtonExists() && (
                 <ActionButton
                     rendered={true}
-                    label={LocUtils.loc(this.props.labels, 'Add_button', 'Dodaj')}
+                    label={LocUtils.locFromStoreWithDefault('Add_button', 'Dodaj')}
                     handleClick={(e) => {
                         this.props.addButtonFunction();
                     }}

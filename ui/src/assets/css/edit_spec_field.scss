@@ -113,13 +113,15 @@
 .dx-htmleditor.dx-htmleditor-custom-underlined {
     border: 1px solid darkgray !important;
 }
+
+.dx-htmleditor.dx-htmleditor-custom-underlined.no-border-p-inputgroup:not(.dx-state-focused) {
+    border: 1px solid white !important;padding: 0;
+}
+.dx-htmleditor.dx-htmleditor-custom-underlined.dx-state-focused {
+    border: 1px solid #3F51B5 !important;
+}
 .dx-quill-container {
     border: 2px solid white;
-}
-.dx-quill-container:hover:not(.ql-disabled),
-.dx-quill-container:focus:not(.ql-disabled),
-.dx-quill-container:active:not(.ql-disabled) {
-    border: 2px solid $base-color;
 }
 #spec-edit-dialog {
     height: 83%;

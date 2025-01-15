@@ -21,7 +21,6 @@ export default class DataHistoryLogStore extends BaseService {
             key: _key,
             keyExpr: 'ID',
             load: (loadOptions) => {
-                TransformFiltersUtil.filterValidTransform(loadOptions);
                 const filter = loadOptions?.filter;
                 const sort = loadOptions?.sort;
                 const group = loadOptions?.group;

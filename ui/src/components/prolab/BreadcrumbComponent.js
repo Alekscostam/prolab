@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import {Breadcrumb, BREADCRUMB_URL_PARAM_NAME, TIMESTAMP_URL_PARAM_NAME} from '../../utils/BreadcrumbUtils';
 import {StringUtils} from '../../utils/StringUtils';
 import {BreadCrumb} from 'primereact/breadcrumb';
+import {HtmlUtils} from '../../utils/HtmlUtils';
 
 export const BreadcrumbComponent = ({initialBreadcrumb, afterClick, initialMainPage, labels}) => {
     const prepareForMainBreadcrumb = () => {
@@ -41,7 +42,7 @@ export const BreadcrumbComponent = ({initialBreadcrumb, afterClick, initialMainP
     const prepareForBreadcrumb = (breadcrumb) => {
         breadcrumb.forEach((item, index) => {
             const isLast = index === breadcrumb.length - 1;
-            item.label = item.name;
+            item.label = HtmlUtils.textFromHtmlString(item.name);
             item.url = item.path;
             if (item.type === 'view' || item.type === 'subview') {
                 let path = UrlUtils.addParameterToURL(

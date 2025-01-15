@@ -33,4 +33,14 @@ export class HtmlUtils {
         }
         return htmlContent;
     }
+
+    static textFromHtmlString(stringHtml) {
+        if (this.isValidHtml(stringHtml)) {
+            const div = document.createElement('div');
+            div.innerHTML = stringHtml;
+            const text = div.textContent || div.innerText || '';
+            return text;
+        }
+        return stringHtml;
+    }
 }

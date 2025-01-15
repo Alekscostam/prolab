@@ -347,7 +347,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
         return (
             <Dialog
                 id='attachmentDialog'
-                header={LocUtils.loc(this.props.labels, 'Attachments', 'Załączniki')}
+                header={LocUtils.locFromStoreWithDefault('Attachments', 'Załączniki')}
                 visible={true}
                 resizable={true}
                 footer={() => <div></div>}

@@ -75,7 +75,7 @@ export const EditorDialog = (props) => {
                                 setValue(value);
                             }
                         }}
-                        className={`border-around-editor editor editor-dialog ${editable ? '' : 'disabled'}`}
+                        className={`editor editor-dialog ${editable ? '' : 'disabled'} `}
                         defaultValue={value}
                         validationMessageMode='always'
                     >
@@ -120,6 +120,9 @@ export const EditorDialog = (props) => {
                             <Item locateInMenu='auto' name='image' />
                             <Item locateInMenu='auto' name='link' />
                             <Item locateInMenu='auto' name='clear' />
+                            <Item name='insertHeaderRow' />
+                            <Item name='cellProperties' />
+                            <Item name='tableProperties' />
                         </Toolbar>
                     </HtmlEditor>
                 </div>
