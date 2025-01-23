@@ -42,6 +42,7 @@ class DashboardContainer extends BaseContainer {
                 imageBase64: undefined,
                 header: undefined,
             },
+            editableCardInfo: {},
             loading: true,
             copyData: null,
             cardView: undefined,
@@ -59,8 +60,9 @@ class DashboardContainer extends BaseContainer {
     }
 
     refreshDashboard(savedElement) {
+        // debugger;
         if (savedElement) {
-            this.downloadDashboardData();
+            this.downloadDashboardData(savedElement);
             return;
         }
         this.restateDashboard();
@@ -81,7 +83,8 @@ class DashboardContainer extends BaseContainer {
     }
 
     downloadDashboardData = () => {
-        UrlUtils.isStartPage() ? this.initializeDashboard() : this.getSubViewEntry();
+        // debugger;
+        UrlUtils.isStartPage() ? this.initializeDashboard() : this.getSubViewEntry(savedElement);
     };
 
     getSubViewEntry() {
@@ -97,9 +100,11 @@ class DashboardContainer extends BaseContainer {
                         entryResponse,
                         () => {
                             if (!!entryResponse.next) {
+                                // debugger;
                                 this.viewService
                                     .getSubView(id, recordId, parentId)
                                     .then((subViewResponse) => {
+                                        // debugger;
                                         if (subViewResponse.viewInfo?.type === 'dashboard') {
                                             this.setState(
                                                 {
@@ -548,7 +553,7 @@ class DashboardContainer extends BaseContainer {
                         rendered={true}
                         buttonShadow={false}
                     />
-                    <ShortcutButton
+                    {/* <ShortcutButton
                         key={`${item.id}_shortcut`}
                         id={`_menu_button`}
                         className={`action-button-with-menu`}
@@ -560,7 +565,7 @@ class DashboardContainer extends BaseContainer {
                         title={LocUtils.locFromStoreWithDefault('Add', 'Dodaj')}
                         rendered={true}
                         buttonShadow={false}
-                    />
+                    /> */}
                 </div>
                 <DashboardGridViewComponent
                     id={item.id}
