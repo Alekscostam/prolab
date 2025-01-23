@@ -84,7 +84,7 @@ class DashboardContainer extends BaseContainer {
 
     downloadDashboardData = () => {
         // debugger;
-        UrlUtils.isStartPage() ? this.initializeDashboard() : this.getSubViewEntry(savedElement);
+        UrlUtils.isStartPage() ? this.initializeDashboard() : this.getSubViewEntry();
     };
 
     getSubViewEntry() {
