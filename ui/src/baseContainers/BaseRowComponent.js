@@ -825,6 +825,9 @@ export class BaseRowComponent extends BaseContainer {
                     </React.Fragment>
                 );
             case ColumnType.CH:
+                const listOfHintsNotExists = !!!selectionList;
+                const manualEditingDisabled = !field?.edit;
+                const customClass = listOfHintsNotExists && manualEditingDisabled ? 'no-border-p-inputgroup' : editable;
                 return (
                     <div>
                         <label
@@ -835,7 +838,7 @@ export class BaseRowComponent extends BaseContainer {
                             {field.label}
                             {required ? '*' : ''}
                         </label>
-                        <div className={`${selectionList} ${noBorderInSelectionList}`}>
+                        <div className={`${selectionList} ${customClass} `}>
                             <div
                                 style={{
                                     overflow: 'hidden',
@@ -874,7 +877,8 @@ export class BaseRowComponent extends BaseContainer {
                                 ref={(el) => (this.refsTextAreaArray[fieldIndex] = el)}
                                 id={`editor_${fieldIndex}`}
                                 onContentReady={(e) => {
-                                    e.element.className = `editor dx-show-invalid-badge dx-htmleditor dx-htmleditor-custom-underlined dx-widget`;
+                                    const editable = field?.edit ? '' : 'not-editable';
+                                    e.element.className = `editor ${editable} dx-show-invalid-badge dx-htmleditor dx-htmleditor-custom-underlined dx-widget`;
                                 }}
                                 style={{width: '100%'}}
                                 className={`editor ${autoFill} ${validate}`}

@@ -75,6 +75,19 @@ export class CardViewUtils {
                             <CheckBox readOnly={true} value={parseInt(rowData[fieldDefinition.fieldName]) === 1} />
                         </div>
                     );
+                case ColumnType.CH:
+                    return (
+                        <div
+                            style={{
+                                backgroundColor: bgColor === undefined ? rowData._BGCOLOR : bgColor,
+                                color: fontColor === undefined ? rowData._FONTCOLOR : fontColor,
+                                maxWidth: type === 'IMG' ? '33%' : type === 'BODY_WITH_IMG' ? '67%' : '100%',
+                            }}
+                            className={className}
+                            title={rowData[fieldDefinition.fieldName]}
+                            dangerouslySetInnerHTML={{__html: rowData[fieldDefinition.fieldName]}}
+                        ></div>
+                    );
                 default:
                     return (
                         <span

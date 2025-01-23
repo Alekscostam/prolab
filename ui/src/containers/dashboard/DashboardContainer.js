@@ -494,6 +494,42 @@ class DashboardContainer extends BaseContainer {
         );
     }
 
+    addData = (viewId, parentId) => {
+        this.blockUi();
+        this.crudService
+            .addEntry(viewId, parentId)
+            .then((entryResponse) => {
+                EntryResponseHelper.run(
+                    entryResponse,
+                    () => {
+                        if (!!entryResponse.next) {
+                            this.crudService
+                                .add(viewId, parentId)
+                                .then((editDataResponse) => {
+                                    this.setState({
+                                        visibleEditPanel: true,
+                                        editData: editDataResponse,
+                                    });
+                                })
+                                .catch((err) => {
+                                    this.showGlobalErrorMessage(err);
+                                })
+                                .finally(() => {
+                                    this.unblockUi();
+                                });
+                        } else {
+                            this.unblockUi();
+                        }
+                    },
+                    () => this.unblockUi(),
+                    () => this.unblockUi()
+                );
+            })
+            .catch((err) => {
+                this.showGlobalErrorMessage(err);
+            });
+    };
+
     renderGridView(item, cardViewId, currentBreadcrumb, _cardHeight, recordId) {
         return (
             <div key={`${item.id}_${cardViewId}_grid-view`} className='panel-dashboard'>
@@ -508,7 +544,20 @@ class DashboardContainer extends BaseContainer {
                             `/#/grid-view/${item.id}?parentId=${cardViewId}${currentBreadcrumb}`
                         )}
                         label={''}
-                        title={LocUtils.loc(this.props.labels, 'Move_To', 'Przenieś do')}
+                        title={LocUtils.locFromStoreWithDefault('Move_To', 'Przenieś do')}
+                        rendered={true}
+                        buttonShadow={false}
+                    />
+                    <ShortcutButton
+                        key={`${item.id}_shortcut`}
+                        id={`_menu_button`}
+                        className={`action-button-with-menu`}
+                        iconName={'mdi-plus'}
+                        handleClick={() => {
+                            this.addData(item.id, cardViewId);
+                        }}
+                        label={''}
+                        title={LocUtils.locFromStoreWithDefault('Add', 'Dodaj')}
                         rendered={true}
                         buttonShadow={false}
                     />

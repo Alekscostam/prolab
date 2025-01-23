@@ -5,6 +5,7 @@ import ConsoleHelper from './ConsoleHelper';
 import hash from 'object-hash';
 import BreadcrumbComponent from '../components/prolab/BreadcrumbComponent';
 import {StringUtils} from './StringUtils';
+import useStore from '../store';
 
 export const BREADCRUMB_URL_PARAM_NAME = 'bc';
 export const TIMESTAMP_URL_PARAM_NAME = 'ts';
@@ -48,6 +49,7 @@ export class Breadcrumb {
         if (sidebar && typeof sidebar.current?.props?.onCustomClose === 'function') {
             sidebar.current?.props?.onCustomClose();
         }
+
         ConsoleHelper(`*Breadcrumb::updateView, viewId=${viewId}, recordId=${recordId}, viewInfo`, viewInfo);
         let breadcrumb = this.readFromUrl();
         let currentUrl = window.document.URL.toString();
@@ -62,7 +64,7 @@ export class Breadcrumb {
             }
             if (breadcrumb?.filter((i) => i.id === viewInfo.id && i.type === 'view').length === 0) {
                 const last = breadcrumb.length > 0 ? breadcrumb[breadcrumb.length - 1] : null;
-                if (last && last.type === 'view' && last.id === viewInfo.id && last.name === viewInfo.name) {
+                if (last && last.type === 'view') {
                     breadcrumb.pop();
                 }
                 let path = window.document.URL.toString();
@@ -107,6 +109,11 @@ export class Breadcrumb {
         }
         ConsoleHelper('Breadcrumb::updateSubView, subViewId=' + subViewId + ', subViewResponse', subViewResponse);
         let breadcrumb = this.readFromUrl();
+        this.putView(subViewResponse, breadcrumb, subViewId);
+        this.putHeader(subViewResponse, breadcrumb, subViewId);
+    }
+
+    static putHeader(subViewResponse, breadcrumb, subViewId) {
         if (subViewResponse && subViewResponse.viewInfo) {
             if (breadcrumb?.filter((i) => i.id === subViewResponse.viewInfo.id && i.type === 'subview').length === 0) {
                 const breadcrumbFieldName = subViewResponse.viewInfo.breadcrumbFieldName
@@ -142,6 +149,44 @@ export class Breadcrumb {
             this.utf8_to_b64(JSON.stringify(breadcrumb))
         );
         ConsoleHelper('Breadcrumb::updateSubView, newUrl', newUrl);
+        window.history.replaceState('', '', newUrl);
+    }
+    static putView(subViewResponse, breadcrumb) {
+        const viewInfo = subViewResponse.viewInfo;
+        if (viewInfo.type === 'dashboard') {
+            return;
+        }
+        if (viewInfo) {
+            if (viewInfo.menu) {
+                breadcrumb = [];
+                breadcrumb.push({name: viewInfo.menu.name, id: viewInfo.menu.id, type: 'menu'});
+                if (viewInfo.menu?.sub) {
+                    this.pushSubView(viewInfo.menu?.sub, breadcrumb);
+                }
+            }
+            if (breadcrumb?.filter((i) => i.id === viewInfo.id && i.type === 'view').length === 0) {
+                let path = window.document.URL.toString();
+                const id = path.indexOf('/#');
+                path = AppPrefixUtils.locationHrefUrl(path.substring(id > 0 ? id : 0));
+                path = UrlUtils.deleteParameterFromURL(path, TIMESTAMP_URL_PARAM_NAME);
+                path = UrlUtils.deleteParameterFromURL(path, BREADCRUMB_URL_PARAM_NAME);
+                breadcrumb.push({name: viewInfo.name, id: viewInfo.id, type: 'view', path});
+            }
+            if (UrlUtils.isBatch()) {
+                let path = window.document.URL.toString();
+                const id = path.indexOf('/#');
+                path = AppPrefixUtils.locationHrefUrl(path.substring(id > 0 ? id : 0));
+                breadcrumb.push({name: viewInfo.name, id: viewInfo.id, type: 'view', path});
+            }
+        }
+        ConsoleHelper('Breadcrumb::updateView, breadcrumb', breadcrumb);
+        const newUrl = UrlUtils.addParameterToURL(
+            window.document.URL.toString(),
+            BREADCRUMB_URL_PARAM_NAME,
+            this.utf8_to_b64(JSON.stringify(breadcrumb))
+        );
+
+        ConsoleHelper('Breadcrumb::updateView, newUrl', newUrl);
         window.history.replaceState('', '', newUrl);
     }
 

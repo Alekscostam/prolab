@@ -12,6 +12,8 @@ import Gantt, {
     HeaderFilter,
     ContextMenu,
     FilterRow,
+    Toolbar,
+    Item,
 } from 'devextreme-react/gantt';
 
 import 'devextreme/dist/css/dx.light.css';
@@ -190,6 +192,12 @@ class GanttViewComponent extends React.Component {
                     height={'100%'}
                     rootValue={-1}
                 >
+                    <Toolbar>
+                        <Item name='collapseAll' />
+                        <Item name='expandAll' />
+                        <Item name='zoomIn' />
+                        <Item name='zoomOut' />
+                    </Toolbar>
                     <FilterRow visible={true}></FilterRow>
                     <Tasks
                         keyExpr={KEY}
@@ -919,6 +927,7 @@ class GanttViewComponent extends React.Component {
                         element
                     );
                 case ColumnType.O:
+                case ColumnType.OH:
                     return ReactDOM.render(
                         <div
                             style={{
@@ -935,6 +944,25 @@ class GanttViewComponent extends React.Component {
                         >
                             {StringUtils.textFromHtmlString(info.text)}
                         </div>,
+                        element
+                    );
+                case ColumnType.CH:
+                    return ReactDOM.render(
+                        <div
+                            style={{
+                                whiteSpace: info.column.allowWrapping ? 'wrap' : 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                minHeight: '18px',
+                                backgroundColor: bgColorFinal,
+                                color: fontColorFinal,
+                                borderRadius: info.column.allowWrapping ? '18px' : '25px',
+                                padding: '2px 6px 2px 6px',
+                                float: column.type === ColumnType.N ? 'right' : undefined,
+                            }}
+                            title={StringUtils.textFromHtmlString(info.text)}
+                            dangerouslySetInnerHTML={{__html: info.text}}
+                        ></div>,
                         element
                     );
                 case ColumnType.B:

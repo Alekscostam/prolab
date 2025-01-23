@@ -106,7 +106,6 @@ export const OperationsButtons = (props) => {
                                     buttonShadow={buttonShadow}
                                     title={operations.label}
                                     handleClick={() => {
-                                        // useStore.getState().setPopLastBreadcrumb(false);
                                         afterClickOperation(() => props.handleBlockUi());
                                     }}
                                     href={props.hrefSubview}
@@ -495,7 +494,6 @@ export const OperationsButtons = (props) => {
                     case OperationType.OP_ADDSPEC_SPEC:
                         return props.handleAddSpecSpec(i);
                     case OperationType.OP_SUBVIEWS:
-                        // useStore.getState().setPopLastBreadcrumb(false);
                         return props.handleHrefSubview(i);
                     case OperationType.OP_DELETE:
                         return props.handleDelete(i);

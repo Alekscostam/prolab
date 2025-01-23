@@ -2,7 +2,6 @@ import {create} from 'zustand';
 
 const useStore = create((set) => ({
     fetchData: true,
-    popLastBreadcrumb: true,
     listOfHintsElements: true,
     labels: [],
     accessToken: undefined,
@@ -18,6 +17,5 @@ const useStore = create((set) => ({
     setAccessToken: (value) => set({accessToken: value}),
     setRefreshToken: (value) => set({refreshToken: value}),
     setListOfHintsElements: (value) => set({listOfHintsElements: value}),
-    setPopLastBreadcrumb: (value) => set({popLastBreadcrumb: value}),
 }));
 export default useStore;

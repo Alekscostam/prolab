@@ -89,6 +89,7 @@ class App extends Component {
             timer: null,
             sessionTimeOut: null,
         };
+        this._isMounted = false;
         this.handleLogoutBySideBar = this.handleLogoutBySideBar.bind(this);
         this.getTranslations = this.getTranslations.bind(this);
         PrimeReact.ripple = true;
@@ -112,29 +113,32 @@ class App extends Component {
         localStorage.setItem(CookiesName.SESSION_TIMEOUT_IN_MINUTES, 1);
     }
     componentDidMount() {
-        if (this.state.sessionMock) {
-            this.setFakeSessionTimeout();
+        if (!this._isMounted) {
+            if (this.state.sessionMock) {
+                this.setFakeSessionTimeout();
+            }
+            this.setState({loadedConfiguration: false}, () => {
+                setTimeout(() => {
+                    console.log('refreshFromDidMount');
+                    this.authService
+                        .refresh()
+                        .then(() => {
+                            window.location.href = UrlUtils.deleteParameterFromURL(window.location.href, 'refresh');
+                            this.appInitialize();
+                        })
+                        .catch(() => {
+                            const err = {
+                                msg: 'Bład przy inicjalizacji apliakcji',
+                            };
+                            localStorage.setItem(CookiesName.ERROR_AFTER_REFRESH, err);
+                            window.location.href = UrlUtils.deleteParameterFromURL(window.location.href, 'refresh');
+                            this.authService.logout();
+                        });
+                }, 1000);
+            });
+            this.appInitialize();
+            this._isMounted = true;
         }
-        this.setState({loadedConfiguration: false}, () => {
-            setTimeout(() => {
-                console.log('refreshFromDidMount');
-                this.authService
-                    .refresh()
-                    .then(() => {
-                        window.location.href = UrlUtils.deleteParameterFromURL(window.location.href, 'refresh');
-                        this.appInitialize();
-                    })
-                    .catch(() => {
-                        const err = {
-                            msg: 'Bład przy inicjalizacji apliakcji',
-                        };
-                        localStorage.setItem(CookiesName.ERROR_AFTER_REFRESH, err);
-                        window.location.href = UrlUtils.deleteParameterFromURL(window.location.href, 'refresh');
-                        this.authService.logout();
-                    });
-            }, 1000);
-        });
-        this.appInitialize();
     }
     appInitialize = () => {
         const urlPrefixCookie = readObjFromCookieGlobal('REACT_APP_URL_PREFIX');
@@ -280,6 +284,7 @@ class App extends Component {
         this.unregisteredEventForSession();
         clearTimeout(this.timer);
         this.timer = undefined;
+        this._isMounted = false;
         this.authService.removeLoginCookies();
     }
     unregisteredEventForSession() {
