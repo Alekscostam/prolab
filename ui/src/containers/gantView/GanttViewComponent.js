@@ -45,8 +45,11 @@ import {ViewDataCompUtils} from '../../utils/component/ViewDataCompUtils.js';
 import {CheckBox} from 'devextreme-react';
 import {handleEdit} from '../../utils/handler/EditHandler.js';
 import {TranslationUtils} from '../../utils/TranslationUtils.js';
-import UrlUtils from '../../utils/UrlUtils.js';
 import {OperationType} from '../../enum/OperationType.js';
+import {jsPDF} from 'jspdf';
+import {exportGantt as exportGanttToPdf} from 'devextreme/pdf_exporter';
+import 'jspdf-autotable';
+import {cellTemplate} from './GanttTemplate.js';
 
 const UNCOLLAPSED_CUT_SIZE = 314;
 const COLLAPSED_CUT_SIZE = 125;
@@ -54,6 +57,9 @@ const COLLAPSED_CUT_SIZE = 125;
 let _rowIndex = null;
 let _bgcolor = null;
 let _fontcolor = null;
+const formats = ['A0', 'A1', 'A2', 'A3', 'A4', 'Auto'];
+const exportModes = ['All', 'Chart', 'TreeList'];
+const dateRanges = ['All', 'Visible', 'Custom'];
 
 class GanttViewComponent extends React.Component {
     constructor(props) {
@@ -69,9 +75,13 @@ class GanttViewComponent extends React.Component {
         this.menu = React.createRef();
         this.state = {
             data: {},
+            formatBoxValue: formats[0],
+            exportModeBoxValue: exportModes[0],
             rowElementsStorage: new Map(),
             allElementsSelector: false,
             columns: [],
+            dateRangeBoxValue: dateRanges[1],
+            landscapeCheckBoxValue: true,
             selectionColumnWidth: undefined,
             selectedRowKeys: [],
             selectedRecordId: undefined,
@@ -197,6 +207,15 @@ class GanttViewComponent extends React.Component {
                         <Item name='expandAll' />
                         <Item name='zoomIn' />
                         <Item name='zoomOut' />
+                        <Item
+                            widget='dxButton'
+                            options={{
+                                icon: 'export',
+                                hint: LocUtils.locFromStoreWithDefault('Export_to_pdf', 'Export to PDF'),
+                                stylingMode: 'text',
+                                onClick: () => this.exportButtonClick(),
+                            }}
+                        />
                     </Toolbar>
                     <FilterRow visible={true}></FilterRow>
                     <Tasks
@@ -267,7 +286,22 @@ class GanttViewComponent extends React.Component {
             </React.Fragment>
         );
     }
+    exportButtonClick = (e) => {
+        const format = this.state.formatBoxValue.toLowerCase();
+        const isLandscape = this.state.landscapeCheckBoxValue;
+        const exportMode = this.state.exportModeBoxValue.toLowerCase();
+        const dataRangeMode = this.state.dateRangeBoxValue.toLowerCase();
 
+        const gantt = this.ganttRef.current.instance;
+        exportGanttToPdf({
+            component: gantt,
+            createDocumentMethod: (args) => new jsPDF(args),
+            format: format,
+            isLandscape,
+            exportMode: exportMode,
+            dateRange: dataRangeMode,
+        }).then((doc) => doc.save('gantt.pdf'));
+    };
     showMenu(e) {
         const menu = this.menu.current;
         ActionButtonWithMenuUtils.hideActionButtonWithMenuPopup();
@@ -696,7 +730,7 @@ class GanttViewComponent extends React.Component {
                         name={columnDefinition?.fieldName}
                         dataType={GanttUtils.specifyColumnType(columnDefinition?.type)}
                         format={GanttUtils.specifyColumnFormat(columnDefinition?.type)}
-                        cellTemplate={this.cellTemplate(columnDefinition)}
+                        cellTemplate={cellTemplate(columnDefinition)}
                     />
                 );
             });
@@ -869,195 +903,6 @@ class GanttViewComponent extends React.Component {
         _rowIndex = null;
         _bgcolor = null;
         _fontcolor = null;
-    }
-
-    cellTemplate(column) {
-        return function (element, info) {
-            if (_rowIndex !== info.row.dataIndex) {
-                _rowIndex = info.row.dataIndex;
-                _bgcolor = info.data['_BGCOLOR'];
-                _fontcolor = info.data['_FONTCOLOR'];
-            }
-            if (_bgcolor) element.style.setProperty('background-color', _bgcolor, 'important');
-
-            let fontColorFinal = 'black';
-            let bgColorFinal = '';
-
-            if (!!_fontcolor) {
-                fontColorFinal = _fontcolor;
-            }
-            if (!!_bgcolor) {
-                bgColorFinal = _bgcolor;
-            }
-            switch (column?.type) {
-                case ColumnType.C:
-                case ColumnType.N:
-                    return ReactDOM.render(
-                        <div
-                            style={{
-                                display: 'inline',
-                                color: fontColorFinal,
-                                backgroundColor: bgColorFinal,
-                                borderRadius: '25px',
-                                padding: '2px 6px 2px 6px',
-                            }}
-                            title={info.text}
-                        >
-                            {info.text}
-                        </div>,
-                        element
-                    );
-                case ColumnType.D:
-                case ColumnType.E:
-                case ColumnType.T:
-                case ColumnType.H:
-                    return ReactDOM.render(
-                        <div
-                            style={{
-                                display: 'inline',
-                                color: fontColorFinal,
-                                backgroundColor: bgColorFinal,
-                                borderRadius: '25px',
-                                padding: '2px 6px 2px 6px',
-                            }}
-                            title={info.text}
-                        >
-                            {info.text}
-                        </div>,
-                        element
-                    );
-                case ColumnType.O:
-                case ColumnType.OH:
-                    return ReactDOM.render(
-                        <div
-                            style={{
-                                whiteSpace: 'nowrap',
-                                maxWidth: column.width + 'px',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                backgroundColor: bgColorFinal,
-                                color: fontColorFinal,
-                                borderRadius: '25px',
-                                padding: '2px 6px 2px 6px',
-                            }}
-                            title={StringUtils.textFromHtmlString(info.text)}
-                        >
-                            {StringUtils.textFromHtmlString(info.text)}
-                        </div>,
-                        element
-                    );
-                case ColumnType.CH:
-                    return ReactDOM.render(
-                        <div
-                            style={{
-                                whiteSpace: info.column.allowWrapping ? 'wrap' : 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                minHeight: '18px',
-                                backgroundColor: bgColorFinal,
-                                color: fontColorFinal,
-                                borderRadius: info.column.allowWrapping ? '18px' : '25px',
-                                padding: '2px 6px 2px 6px',
-                                float: column.type === ColumnType.N ? 'right' : undefined,
-                            }}
-                            title={StringUtils.textFromHtmlString(info.text)}
-                            dangerouslySetInnerHTML={{__html: info.text}}
-                        ></div>,
-                        element
-                    );
-                case ColumnType.B:
-                    return ReactDOM.render(
-                        <div
-                            style={{
-                                display: 'inline',
-                                color: fontColorFinal,
-                                backgroundColor: bgColorFinal,
-                                borderRadius: '25px',
-                                padding: '2px 6px 2px 6px',
-                            }}
-                            title={info.text}
-                        >
-                            <input
-                                type='checkbox'
-                                readOnly={true}
-                                checked={GanttUtils.conditionForTrueValueForBoolType(info.text)}
-                            />
-                        </div>,
-                        element
-                    );
-                case ColumnType.L:
-                    return ReactDOM.render(
-                        <div
-                            style={{
-                                display: 'inline',
-                                color: fontColorFinal,
-                                backgroundColor: bgColorFinal,
-                                borderRadius: '25px',
-                                padding: '2px 6px 2px 6px',
-                            }}
-                            title={info.text}
-                        >
-                            <input
-                                type='checkbox'
-                                readOnly={true}
-                                checked={GanttUtils.conditionForTrueValueForLogicType(info.text)}
-                            />
-                        </div>,
-                        element
-                    );
-                case ColumnType.I:
-                case ColumnType.IM:
-                    if (Array.isArray(info.text) && info.text?.length > 0) {
-                        return ReactDOM.render(
-                            <div
-                                style={{
-                                    display: 'inline',
-                                    color: fontColorFinal,
-                                    backgroundColor: bgColorFinal,
-                                    borderRadius: '25px',
-                                    padding: '2px 0px 2px 0px',
-                                }}
-                            >
-                                {info.text?.map((i, index) => {
-                                    return <Image style={{maxWidth: '100%'}} key={index} base64={info.text} />;
-                                })}
-                            </div>,
-                            element
-                        );
-                    } else {
-                        return ReactDOM.render(
-                            <div
-                                style={{
-                                    display: 'inline',
-                                    color: fontColorFinal,
-                                    backgroundColor: bgColorFinal,
-                                    borderRadius: '25px',
-                                    padding: '2px 0px 2px 0px',
-                                }}
-                            >
-                                <Image style={{maxHeight: '26px'}} base64={info.text} />
-                            </div>,
-                            element
-                        );
-                    }
-                default:
-                    return ReactDOM.render(
-                        <div
-                            style={{
-                                display: 'inline',
-                                color: fontColorFinal,
-                                backgroundColor: bgColorFinal,
-                                borderRadius: '25px',
-                                padding: '2px 6px 2px 6px',
-                            }}
-                            title={info.text}
-                        >
-                            {info.text}
-                        </div>,
-                        element
-                    );
-            }
-        };
     }
 }
 

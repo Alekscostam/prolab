@@ -32,6 +32,7 @@ import {TranslationUtils} from '../../utils/TranslationUtils';
 import {ConfirmPluginDialogComponent} from '../../components/prolab/ConfirmPluginDialogComponent';
 import {EditFormType} from '../../enum/EditFormType';
 import FullScreenDialogComponent from '../../components/prolab/FullScreenDialogComponent';
+import {ConfirmationOperationDialog} from '../../components/prolab/ConfirmOperationDialog';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -66,6 +67,11 @@ export class DashboardGridViewComponent extends BaseContainer {
             modifyEditData: false,
             editData: null,
             kindView: 'View',
+            confirmationOperation: {
+                visible: false,
+                fncAfterClickYes: () => {},
+                operationType: undefined,
+            },
         };
         this.viewTypeChange = this.viewTypeChange.bind(this);
         this.getViewById = this.getViewById.bind(this);
@@ -96,7 +102,24 @@ export class DashboardGridViewComponent extends BaseContainer {
             }
         );
     }
-
+    onShowConfirmationOperationDialog(type, fncAfterClickYes) {
+        this.setState({
+            confirmationOperation: {
+                visible: true,
+                fncAfterClickYes: fncAfterClickYes,
+                operationType: type,
+            },
+        });
+    }
+    onHideConfirmationOperationDialog() {
+        this.setState({
+            confirmationOperation: {
+                visible: false,
+                fncAfterClickYes: () => {},
+                operationType: undefined,
+            },
+        });
+    }
     //@override
     componentDidUpdate(prevProps, prevState, snapshot) {}
 
@@ -153,6 +176,9 @@ export class DashboardGridViewComponent extends BaseContainer {
                                 type: 'gridView',
                                 hint: viewButton?.label,
                             });
+                        }
+                        if (this.props.onOperationLoaded) {
+                            this.props.onOperationLoaded(responseView.operations, responseView.viewInfo);
                         }
                         // TODO: OPTIONS -> showheaders
                         this.setState(
@@ -278,6 +304,9 @@ export class DashboardGridViewComponent extends BaseContainer {
                                 onChange={this.handleEditRowChange}
                                 onBlur={this.handleEditRowBlur}
                                 onSave={this.handleEditRowSave}
+                                onAttachment={(id) => {
+                                    this.attachment(id);
+                                }}
                                 onAutoFill={this.handleAutoFillRowChange}
                                 onEditList={this.handleEditListRowChange}
                                 onCancel={this.handleCancelRowChange}
@@ -295,6 +324,9 @@ export class DashboardGridViewComponent extends BaseContainer {
                                 editData={this.state.editData}
                                 onChange={this.handleEditRowChange}
                                 onBlur={this.handleEditRowBlur}
+                                onAttachment={(id) => {
+                                    this.attachment(id);
+                                }}
                                 onSave={this.handleEditRowSave}
                                 onAutoFill={this.handleAutoFillRowChange}
                                 onEditList={this.handleEditListRowChange}
@@ -447,6 +479,19 @@ export class DashboardGridViewComponent extends BaseContainer {
                             onReject={() => this.setState({visibleMessagePluginPanel: false})}
                         />
                     ) : null}
+                    {this.state.confirmationOperation?.visible && (
+                        <ConfirmationOperationDialog
+                            onAccept={() => {
+                                this.state.confirmationOperation.fncAfterClickYes();
+                                this.onHideConfirmationOperationDialog();
+                            }}
+                            onHide={() => {
+                                this.onHideConfirmationOperationDialog();
+                            }}
+                            operationType={this.state.confirmationOperation.operationType}
+                            visible={this.state.confirmationOperation?.visible}
+                        />
+                    )}
                 </React.Fragment>
             </React.Fragment>
         );
@@ -541,7 +586,9 @@ export class DashboardGridViewComponent extends BaseContainer {
                     operations={operations}
                     leftContent={this.leftHeadPanelContent()}
                     rightContent={this.rightHeadPanelContent()}
-                    handleDelete={() => this.delete()}
+                    handleDelete={() =>
+                        this.onShowConfirmationOperationDialog(OperationType.OP_DELETE, () => this.delete())
+                    }
                     handleFormula={() => {
                         this.prepareCalculateFormula();
                     }}
@@ -666,7 +713,9 @@ export class DashboardGridViewComponent extends BaseContainer {
                             showFilterRow={this.props.showFilterRow}
                             showSelection={this.props.showSelection}
                             dataGridHeight={this.props.dataGridHeight}
-                            handleDeleteRow={(id) => this.delete(id)}
+                            handleDeleteRow={(id) =>
+                                this.onShowConfirmationOperationDialog(OperationType.OP_DELETE, () => this.delete(id))
+                            }
                             handleFormulaRow={(id) => {
                                 this.prepareCalculateFormula(id);
                             }}

@@ -2,6 +2,9 @@ import React, {useState, useEffect} from 'react';
 import {readableStreamToArrayBuffer} from '../../utils/Buffer';
 import HtmlEditor, {Toolbar, Item, TableResizing} from 'devextreme-react/html-editor';
 import Mammoth from 'mammoth';
+import LocUtils from '../../utils/LocUtils';
+import MarkupDialogComponent from './MarkupDialogComponent';
+import useStore from '../../store';
 
 export const DocxViewerComponent = ({labels, file}) => {
     const [editorContent, setEditorContent] = useState('');
@@ -34,6 +37,7 @@ export const DocxViewerComponent = ({labels, file}) => {
         loadDocx();
     }, [file]);
 
+    const showMarkupOnHtmlEditor = useStore.getState().showMarkupOnHtmlEditor;
     return (
         <div>
             <HtmlEditor
@@ -86,6 +90,25 @@ export const DocxViewerComponent = ({labels, file}) => {
                     <Item name='insertHeaderRow' />
                     <Item name='cellProperties' />
                     <Item name='tableProperties' />
+                    {showMarkupOnHtmlEditor && (
+                        <Item
+                            widget='dxButton'
+                            showText='inMenu'
+                            options={{
+                                icon: 'variable',
+                                hint: LocUtils.locFromStoreWithDefault('Show_markup', 'Show markup'),
+                                text: LocUtils.locFromStoreWithDefault('Show_markup', 'Show markup'),
+                                onClick: () => {
+                                    MarkupDialogComponent.render({
+                                        onAccept: (value) => {
+                                            setEditorContent(value);
+                                        },
+                                        initValue: editorContent,
+                                    });
+                                },
+                            }}
+                        />
+                    )}
                 </Toolbar>
             </HtmlEditor>
         </div>

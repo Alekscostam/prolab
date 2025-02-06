@@ -79,6 +79,7 @@ class BaseContainer extends React.Component {
         this.handleChangeCriteria = this.handleChangeCriteria.bind(this);
         this.getConfigUrl = this.getConfigUrl.bind(this);
         this.refreshSubView = this.refreshSubView.bind(this);
+        this.refreshView = this.refreshView.bind(this);
         this.prepareCalculateFormula = this.prepareCalculateFormula.bind(this);
         this.validator = new SimpleReactValidator();
         this.localizationService = new LocalizationService();
@@ -535,7 +536,7 @@ class BaseContainer extends React.Component {
             : useStore.getState().labels
             ? useStore.getState().labels
             : [];
-        let label = LocUtils.loc(labels, 'Operation_in_progress', 'Operacja w toku, proszę czekać.');
+        let label = '';
         if (waitPanelLabel !== undefined && waitPanelLabel !== null) {
             label = waitPanelLabel;
         }
@@ -822,7 +823,7 @@ class BaseContainer extends React.Component {
                     if (this.shouldRefreshSubView(kindOperation)) {
                         this.refreshSubView();
                     }
-                    this.refreshView(saveElement);
+                    this.refreshView(saveElement, viewId);
                 }
                 this.unblockUi();
             })
@@ -1405,7 +1406,6 @@ class BaseContainer extends React.Component {
             });
     }
     attachment(id, isAttachmentFromHeader) {
-        this.blockUi();
         const viewId = isAttachmentFromHeader ? this.props.id : this.getRealViewId();
         let recordId = this.getSelectedRowKeysIds(id);
         if (Array.isArray(recordId)) {

@@ -102,6 +102,7 @@ export class EditRowComponent extends BaseRowComponent {
         const opFill = TranslationUtils.getOpButton(operations, OperationType.OP_FILL);
         const opCancel = TranslationUtils.getOpButton(operations, OperationType.OP_CANCEL);
         const opClose = TranslationUtils.getOpButton(operations, OperationType.OP_CLOSE);
+        const opAttachment = TranslationUtils.getOpButton(operations, OperationType.OP_ATTACHMENTS);
 
         const visibleEditPanel = this.props.visibleEditPanel;
         const editData = this.props.editData;
@@ -208,7 +209,7 @@ export class EditRowComponent extends BaseRowComponent {
                                                 label={opCancel?.label}
                                                 rendered={opCancel}
                                             />
-                                        )}{' '}
+                                        )}
                                         {opClose && (
                                             <ShortcutButton
                                                 id={'opClose'}
@@ -227,6 +228,16 @@ export class EditRowComponent extends BaseRowComponent {
                                                 title={opClose?.label}
                                                 label={opClose?.label}
                                                 rendered={opClose}
+                                            />
+                                        )}
+                                        {opAttachment && (
+                                            <ShortcutButton
+                                                id={'opAttachment'}
+                                                className={`grid-button-panel normal mt-1 mb-1 mr-1 col-lg-12`}
+                                                handleClick={this.handleAttachment}
+                                                title={opAttachment?.label}
+                                                label={opAttachment?.label}
+                                                rendered={opAttachment}
                                             />
                                         )}
                                     </div>
@@ -281,7 +292,12 @@ export class EditRowComponent extends BaseRowComponent {
         const editInfo = this.props.editData?.editInfo;
         this.props.onCancel(editInfo.viewId, editInfo.recordId, editInfo.parentId);
     }
-
+    handleAttachment = () => {
+        const editInfo = this.props.editData?.editInfo;
+        if (this.props.onAttachment) {
+            this.props.onAttachment(editInfo.recordId);
+        }
+    };
     renderGroup(group, groupIndex) {
         if (EditRowUtils.hasAnyVisibleField(group)) {
             return (

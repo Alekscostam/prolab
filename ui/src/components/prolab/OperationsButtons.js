@@ -9,11 +9,6 @@ import {ConfirmationOperationDialog} from './ConfirmOperationDialog';
 import useStore from '../../store';
 
 export const OperationsButtons = (props) => {
-    const [confirmationInformation, setConfirmationInformation] = useState({
-        visible: false,
-        fnc: undefined,
-    });
-
     const renderOperationsButton = (operations) => {
         const info = props.info;
         const margin = props.margin;
@@ -433,17 +428,7 @@ export const OperationsButtons = (props) => {
         if (sessionPrelongFnc) {
             sessionPrelongFnc();
         }
-        if (typeof operationSelectedFnc === 'function') {
-            if (operationTypeForConfirmation) {
-                setConfirmationInformation({
-                    visible: true,
-                    fnc: () => operationSelectedFnc(),
-                    operationType: operationTypeForConfirmation,
-                });
-                return;
-            }
-            operationSelectedFnc();
-        }
+        operationSelectedFnc();
     };
 
     const shouldShowOpFormula = (operations) => {
@@ -454,18 +439,6 @@ export const OperationsButtons = (props) => {
             showOperation = !operations.showAlways;
         }
         return showOperation;
-    };
-
-    const handleFromMenuItems = (operationSelectedFnc, operationTypeForConfirmation) => {
-        if (operationTypeForConfirmation) {
-            setConfirmationInformation({
-                visible: true,
-                fnc: () => operationSelectedFnc(),
-                operationType: operationTypeForConfirmation,
-            });
-            return;
-        }
-        operationSelectedFnc();
     };
 
     const menuItems = props.operationList.map((i) => {
@@ -546,19 +519,6 @@ export const OperationsButtons = (props) => {
     const showOperationList = props.operationList?.length > 0;
     return (
         <React.Fragment>
-            {confirmationInformation?.visible && (
-                <ConfirmationOperationDialog
-                    onAccept={() => {
-                        confirmationInformation.fnc();
-                        setConfirmationInformation({visible: false, fnc: undefined, operationType: undefined});
-                    }}
-                    onHide={() => {
-                        setConfirmationInformation({visible: false, fnc: undefined, operationType: undefined});
-                    }}
-                    operationType={confirmationInformation.operationType}
-                    visible={confirmationInformation?.visible}
-                />
-            )}
             {!!props.operations &&
                 props.operations?.map((operation, index) => {
                     return <div key={index}>{renderOperationsButton(operation)}</div>;

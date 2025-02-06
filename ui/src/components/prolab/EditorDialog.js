@@ -5,6 +5,8 @@ import {useEffect, useRef, useState} from 'react';
 import PropTypes from 'prop-types';
 import HtmlEditor, {Item, MediaResizing, TableResizing, Toolbar} from 'devextreme-react/html-editor';
 import LocUtils from '../../utils/LocUtils';
+import MarkupDialogComponent from './MarkupDialogComponent';
+import useStore from '../../store';
 
 export const EditorDialog = (props) => {
     const {onSave, onHide, header, editable} = props;
@@ -49,6 +51,8 @@ export const EditorDialog = (props) => {
     ) : (
         <div></div>
     );
+
+    const showMarkupOnHtmlEditor = useStore.getState().showMarkupOnHtmlEditor;
 
     return (
         <div>
@@ -123,6 +127,26 @@ export const EditorDialog = (props) => {
                             <Item name='insertHeaderRow' />
                             <Item name='cellProperties' />
                             <Item name='tableProperties' />
+                            {showMarkupOnHtmlEditor && (
+                                <Item
+                                    widget='dxButton'
+                                    showText='inMenu'
+                                    options={{
+                                        icon: 'variable',
+                                        hint: LocUtils.locFromStoreWithDefault('Show_markup', 'Show markup'),
+                                        text: LocUtils.locFromStoreWithDefault('Show_markup', 'Show markup'),
+                                        onClick: () => {
+                                            MarkupDialogComponent.render({
+                                                onAccept: (value) => {
+                                                    setValue(value);
+                                                    editor.current?.instance?.option('value', value);
+                                                },
+                                                initValue: value,
+                                            });
+                                        },
+                                    }}
+                                />
+                            )}
                         </Toolbar>
                     </HtmlEditor>
                 </div>

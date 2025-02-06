@@ -1,4 +1,7 @@
 import {TableResizing} from 'devextreme-react/cjs/html-editor';
+import LocUtils from '../../../utils/LocUtils';
+import MarkupDialogComponent from '../MarkupDialogComponent';
+import useStore from '../../../store';
 
 const sizeValues = ['8pt', '10pt', '12pt', '14pt', '18pt', '24pt', '36pt'];
 const fontValues = [
@@ -14,6 +17,7 @@ const fontValues = [
 const headerValues = [false, 1, 2, 3, 4, 5];
 //O – Opisowe
 export const MemoizedDescriptionInput = React.memo(({field, cellInfo, inputValue, fieldIndex, required, validate}) => {
+    const showMarkupOnHtmlEditor = useStore.getState().showMarkupOnHtmlEditor;
     return (
         <React.Fragment>
             <div aria-live='assertive'>
@@ -114,6 +118,25 @@ export const MemoizedDescriptionInput = React.memo(({field, cellInfo, inputValue
                         <Item name='insertHeaderRow' />
                         <Item name='cellProperties' />
                         <Item name='tableProperties' />
+                        {showMarkupOnHtmlEditor && (
+                            <Item
+                                widget='dxButton'
+                                showText='inMenu'
+                                options={{
+                                    icon: 'variable',
+                                    hint: LocUtils.locFromStoreWithDefault('Show_markup', 'Show markup'),
+                                    text: LocUtils.locFromStoreWithDefault('Show_markup', 'Show markup'),
+                                    onClick: () => {
+                                        MarkupDialogComponent.render({
+                                            onAccept: (value) => {
+                                                cellInfo.setValue(value);
+                                            },
+                                            initValue: inputValue,
+                                        });
+                                    },
+                                }}
+                            />
+                        )}
                     </Toolbar>
                 </HtmlEditor>
             </div>

@@ -7,6 +7,7 @@ import DataGrid, {
     Grouping,
     GroupPanel,
     HeaderFilter,
+    KeyboardNavigation,
     LoadPanel,
     Paging,
     RemoteOperations,
@@ -402,7 +403,13 @@ class GridViewComponent extends CellEditComponent {
                             groupPaging={true}
                         />
                     )}
-
+                    {UrlUtils.isBatch() && (
+                        <KeyboardNavigation
+                            editOnKeyPress={true}
+                            enterKeyAction={'moveFocus'}
+                            enterKeyDirection={'column'}
+                        />
+                    )}
                     <FilterRow visible={showFilterRow} applyFilter={true} />
                     <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'} />
                     <Grouping autoExpandAll={groupExpandAll} allowCollapsing={true} contextMenuEnabled={true} />
@@ -426,7 +433,7 @@ class GridViewComponent extends CellEditComponent {
                         enabled={true}
                         showIndicator={true}
                         shadingColor='rgba(0,0,0,0.4)'
-                        showPane={true}
+                        showPane={false}
                         position='absolute'
                     />
                     {this.preGenerateColumnsDefinition()}

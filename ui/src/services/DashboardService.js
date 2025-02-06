@@ -12,12 +12,11 @@ export default class DashboardService extends BaseService {
         this.getDashboard = this.getDashboard.bind(this);
     }
 
-    getDashboard() { 
+    getDashboard() {
         return this.fetch(`${this.domain}/${this.path}`, {
             method: 'GET',
         }).catch((err) => {
             throw err;
         });
     }
-
 }

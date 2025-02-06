@@ -1,6 +1,3 @@
-/* eslint-disable no-script-url */
-/* eslint-disable jsx-a11y/anchor-is-valid */
-/* eslint-disable react/jsx-max-props-per-line */
 import React from 'react';
 import PropTypes from 'prop-types';
 import DivContainer from '../components/DivContainer';
@@ -30,10 +27,11 @@ import {StringUtils} from '../utils/StringUtils';
 import {RequestUtils} from '../utils/RequestUtils';
 import Constants from '../utils/Constants';
 import {InputTextarea} from 'primereact/inputtextarea';
+import MarkupDialogComponent from '../components/prolab/MarkupDialogComponent';
+import useStore from '../store';
 
 let clickCount = 0;
 let timeout;
-
 // TODO: brak block ui na tryb sidepanel po wejsciu w liste podpowiedzi
 export class BaseRowComponent extends BaseContainer {
     constructor(props) {
@@ -71,6 +69,7 @@ export class BaseRowComponent extends BaseContainer {
         this.handleCancel = this.handleCancel.bind(this);
         this.validateDate = this.validateDate.bind(this);
         this.editListVisible = this.editListVisible.bind(this);
+
         // this.tagBoxStore = new DataTagBoxStore();
         this.fieldsMandatoryLabel = LocUtils.loc(
             this.props.labels,
@@ -78,6 +77,7 @@ export class BaseRowComponent extends BaseContainer {
             'Wypełnij wszystkie wymagane pola'
         );
     }
+
     canRegisterKeyDownEvent() {
         const kindOperation = this.props.editData?.editInfo?.kindOperation;
         if (kindOperation) {
@@ -238,6 +238,29 @@ export class BaseRowComponent extends BaseContainer {
         }
         return true;
     }
+    addMarkupItem(field, currentToolbarItems, onChange, e, groupUuid, info) {
+        const markup = {
+            name: 'markup',
+            widget: 'dxButton',
+            showText: 'inMenu',
+            options: {
+                icon: 'variable',
+                hint: LocUtils.locFromStoreWithDefault('Show_markup', 'Show markup'),
+                text: LocUtils.locFromStoreWithDefault('Show_markup', 'Show markup'),
+                onClick: (e) => {
+                    MarkupDialogComponent.render({
+                        onAccept: (value) => {
+                            const event = {name: field.fieldName, value: value};
+                            onChange('EDITOR', event, groupUuid, info);
+                            e.component.option('value', value);
+                        },
+                        initValue: field.value,
+                    });
+                },
+            },
+        };
+        e.component.option('toolbar.items', [...currentToolbarItems, markup]);
+    }
     editListVisible(field) {
         this.blockUi();
         ConsoleHelper('EditRowComponent::editListVisible');
@@ -257,7 +280,6 @@ export class BaseRowComponent extends BaseContainer {
                         let defaultSelectedRowKeysTmp = [];
                         const editData = this.props.editData;
                         const setFields = structuredClone(responseView.setFields);
-                        setFields.length = 1;
                         const separatorJoin = responseView.options?.separatorJoin || ',';
                         let countSeparator = 0;
                         setFields.forEach((field) => {
@@ -283,7 +305,7 @@ export class BaseRowComponent extends BaseContainer {
                                 });
                             });
                             if (singleSelectedRowDataTmp.length !== 0) {
-                                let CALC_CRC = EditListUtils.calculateCRC(singleSelectedRowDataTmp);
+                                let CALC_CRC = EditListUtils.calculateCRC([singleSelectedRowDataTmp[0]]);
                                 singleSelectedRowDataTmp[0].CALC_CRC = CALC_CRC;
                                 selectedRowDataTmp.push(singleSelectedRowDataTmp);
                                 defaultSelectedRowKeysTmp.push(CALC_CRC);
@@ -861,6 +883,7 @@ export class BaseRowComponent extends BaseContainer {
                         </div>
                     </div>
                 );
+
             case ColumnType.OH:
                 return (
                     <React.Fragment>
@@ -874,9 +897,25 @@ export class BaseRowComponent extends BaseContainer {
                         </label>
                         <div>
                             <HtmlEditor
+                                key={`html-editor_${fieldIndex}`}
                                 ref={(el) => (this.refsTextAreaArray[fieldIndex] = el)}
                                 id={`editor_${fieldIndex}`}
                                 onContentReady={(e) => {
+                                    const showMarkupOnHtmlEditor = useStore.getState().showMarkupOnHtmlEditor;
+                                    if (showMarkupOnHtmlEditor) {
+                                        const currentToolbarItems = e.component.option('toolbar.items');
+                                        const itemExists = currentToolbarItems.some((item) => item.name === 'markup');
+                                        if (!itemExists) {
+                                            this.addMarkupItem(
+                                                field,
+                                                currentToolbarItems,
+                                                onChange,
+                                                e,
+                                                groupUuid,
+                                                info
+                                            );
+                                        }
+                                    }
                                     const editable = field?.edit ? '' : 'not-editable';
                                     e.element.className = `editor ${editable} dx-show-invalid-badge dx-htmleditor dx-htmleditor-custom-underlined dx-widget`;
                                 }}
@@ -904,7 +943,11 @@ export class BaseRowComponent extends BaseContainer {
                                     }
                                     e.component.option('value', afterNormalize);
                                 }}
-                                onFocusOut={(e) => (onBlur ? onBlur(InputType.EDITOR, e, groupUuid, info) : null)}
+                                onFocusOut={(e) => {
+                                    if (onBlur) {
+                                        onBlur(InputType.EDITOR, e, groupUuid, info);
+                                    }
+                                }}
                                 validationMessageMode='always'
                                 disabled={!field.edit}
                                 required={required}

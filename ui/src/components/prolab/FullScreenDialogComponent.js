@@ -194,7 +194,6 @@ export class FullScreenDialogComponent extends BaseRowComponent {
             );
         });
     }
-    //TODO: Stylowanie komponentów OH i CH
     render() {
         const labels = this.props?.labels;
         const operations = this.props?.editData?.operations || [];
@@ -202,6 +201,7 @@ export class FullScreenDialogComponent extends BaseRowComponent {
         const opFill = TranslationUtils.getOpButton(operations, OperationType.OP_FILL);
         const opCancel = TranslationUtils.getOpButton(operations, OperationType.OP_CANCEL);
         const opClose = TranslationUtils.getOpButton(operations, OperationType.OP_CLOSE);
+        const opAttachment = TranslationUtils.getOpButton(operations, OperationType.OP_ATTACHMENTS);
         const editData = this.props.editData;
         return (
             <React.Fragment>
@@ -246,6 +246,16 @@ export class FullScreenDialogComponent extends BaseRowComponent {
                                 <div id='label' className='label'>
                                     {this.props.editData?.editInfo?.viewName}
                                 </div>
+                                {opAttachment && (
+                                    <ShortcutButton
+                                        id={'opAttachment'}
+                                        className={`grid-button-panel-big normal mt-1 mb-1 mr-1`}
+                                        handleClick={this.handleAttachment}
+                                        title={opAttachment?.label}
+                                        label={opAttachment?.label}
+                                        rendered={opAttachment}
+                                    />
+                                )}
                             </div>
                             <div className='col-4'></div>
                             <div className='col-lg-4 col-md-12 text-right'>
@@ -282,7 +292,7 @@ export class FullScreenDialogComponent extends BaseRowComponent {
                                 {opClose && (
                                     <ShortcutButton
                                         id={'opClose'}
-                                        className={`grid-button-panel normal mt-1 mb-1 mr-1 col-lg-12`}
+                                        className={`grid-button-panel-big normal mt-1 mb-1 mr-1`}
                                         handleClick={this.handleCancel}
                                         title={opClose?.label}
                                         label={opClose?.label}
@@ -334,8 +344,15 @@ export class FullScreenDialogComponent extends BaseRowComponent {
 
     handleCancel() {
         const editInfo = this.props.editData?.editInfo;
+
         this.props.onHide(false, editInfo.viewId, editInfo.recordId, editInfo.parentId);
     }
+    handleAttachment = () => {
+        const editInfo = this.props.editData?.editInfo;
+        if (this.props.onAttachment) {
+            this.props.onAttachment(editInfo.recordId);
+        }
+    };
     renderGroup(group, groupIndex) {
         return (
             EditRowUtils.hasAnyVisibleField(group) && (

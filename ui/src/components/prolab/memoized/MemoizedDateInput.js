@@ -10,7 +10,6 @@ export const MemoizedDateInput = React.memo(({field, cellInfo, inputValue, field
             <DateBox
                 id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                 name={field.fieldName}
-                // ${autoFill} ${editable}
                 className={`${validate}`}
                 onValueChanged={(e) => {
                     cellInfo.setValue(e.component.option('text'));
@@ -21,7 +20,7 @@ export const MemoizedDateInput = React.memo(({field, cellInfo, inputValue, field
                 required={required}
                 type='date'
                 useMaskBehavior={true}
-                displayFormat={Constants.DATE_FORMAT.YYYY_MM_DD}
+                displayFormat={'yyyy-MM-dd'}
             ></DateBox>
         </React.Fragment>
     );

@@ -102,7 +102,11 @@ class CellEditComponent extends Component {
             return;
         }
         const cellInfoValue = eViewier?.value ? eViewier.value : this.state.cellInfo.value;
-        const cellInfoHeader = eViewier?.header ? eViewier.header : this.state.cellInfo.value;
+        const cellInfoHeader = eViewier?.header
+            ? eViewier.header
+            : editorViewer.header
+            ? editorViewer.header
+            : this.state.cellInfo.value;
         if (editorViewer?.visible) {
             if (editorViewer?.type === ColumnType.OH) {
                 return (

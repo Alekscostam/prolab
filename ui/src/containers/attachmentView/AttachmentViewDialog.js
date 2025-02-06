@@ -332,7 +332,9 @@ export class AttachmentViewDialog extends BaseViewContainer {
                     handleHistoryLogRow={(id) => this.historyLog(id)}
                     handlePluginRow={(id, recordId) => this.plugin(id, recordId)}
                     handleDocumentRow={(id, recordId) => this.generate(id, recordId)}
-                    handleDeleteRow={(id) => this.delete(id)}
+                    handleDeleteRow={(id) =>
+                        this.onShowConfirmationOperationDialog(OperationType.OP_DELETE, () => this.delete(id))
+                    }
                     handleAttachmentRow={(id) => this.attachment(id)}
                     handleDownloadRow={(id) => this.downloadAttachment(id)}
                     handleRestoreRow={(id) => this.restore(id)}

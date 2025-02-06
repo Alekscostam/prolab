@@ -58,6 +58,7 @@ import CodeService from '../services/CodeService';
 import {ArrayUtils} from '../utils/ArrayUtils';
 import {CodeOperationType} from '../enum/CodeOperationType';
 import {handleEdit, handleEditSpec} from '../utils/handler/EditHandler';
+import {ConfirmationOperationDialog} from '../components/prolab/ConfirmOperationDialog';
 
 let dataGrid;
 
@@ -146,6 +147,11 @@ export class BaseViewContainer extends BaseContainer {
             isPluginFirstStep: true,
             dataGridStoreSuccess: false,
             dataPluginStoreSuccess: false,
+            confirmationOperation: {
+                visible: false,
+                fncAfterClickYes: () => {},
+                operationType: undefined,
+            },
         };
         this.onInitialize = this.onInitialize.bind(this);
         this.getDataByViewResponse = this.getDataByViewResponse.bind(this);
@@ -175,7 +181,7 @@ export class BaseViewContainer extends BaseContainer {
         );
         const newUrl = UrlUtils.deleteParameterFromURL(window.document.URL.toString(), 'force');
         window.history.replaceState('', '', newUrl);
-        this.openEditRowIfPossible();
+        if (!this.isAttachement) this.openEditRowIfPossible();
         this.registerKeydownEvent();
         this.setState(
             {
@@ -294,6 +300,25 @@ export class BaseViewContainer extends BaseContainer {
             delete window?.dataGrid;
         }
         this.unregisterKeydownEvent();
+    }
+
+    onShowConfirmationOperationDialog(type, fncAfterClickYes) {
+        this.setState({
+            confirmationOperation: {
+                visible: true,
+                fncAfterClickYes: fncAfterClickYes,
+                operationType: type,
+            },
+        });
+    }
+    onHideConfirmationOperationDialog() {
+        this.setState({
+            confirmationOperation: {
+                visible: false,
+                fncAfterClickYes: () => {},
+                operationType: undefined,
+            },
+        });
     }
 
     showAddSpecDialog(recordId) {
@@ -515,6 +540,9 @@ export class BaseViewContainer extends BaseContainer {
                             kindView={this.state.elementKindView}
                             onChange={this.handleEditRowChange}
                             onBlur={this.handleEditRowBlur}
+                            onAttachment={(id) => {
+                                this.attachment(id);
+                            }}
                             onSave={this.handleEditRowSave}
                             onAutoFill={this.handleAutoFillRowChange}
                             onEditList={this.handleEditListRowChange}
@@ -539,6 +567,9 @@ export class BaseViewContainer extends BaseContainer {
                             onEditList={this.handleEditListRowChange}
                             onCancel={this.handleCancelRowChange}
                             validator={this.validator}
+                            onAttachment={(id) => {
+                                this.attachment(id);
+                            }}
                             copyData={this.state.copyData}
                             onCloseCustom={() => {
                                 this.setState({
@@ -1204,7 +1235,9 @@ export class BaseViewContainer extends BaseContainer {
                         leftContent={this.leftHeadPanelContent()}
                         rightContent={this.rightHeadPanelContent()}
                         handleFormula={() => this.prepareCalculateFormula()}
-                        handleDelete={() => this.delete()}
+                        handleDelete={() =>
+                            this.onShowConfirmationOperationDialog(OperationType.OP_DELETE, () => this.delete())
+                        }
                         handleRestore={() => this.restore()}
                         handleCopy={() => this.showCopyView()}
                         handleDownload={() => this.downloadAttachment()}
@@ -1603,10 +1636,6 @@ export class BaseViewContainer extends BaseContainer {
                                 totalCounts={this.state.totalCounts}
                             />
                         )}
-                        {/* pusty - 0000614/19 */}
-                        {/* FIND - 0000608/19 */}
-                        {/* edit  - 0000612/19 */}
-                        {/* edit spec  - 0000607/19 */}
                         {this.state.qrCodesDialog && (
                             <QrCodesDialogComponent
                                 onHide={() =>
@@ -1644,6 +1673,20 @@ export class BaseViewContainer extends BaseContainer {
                                         });
                                 }}
                                 labels={this.props.labels}
+                            />
+                        )}
+                        {this.state.confirmationOperation?.visible && (
+                            <ConfirmationOperationDialog
+                                onAccept={() => {
+                                    this.state.confirmationOperation.fncAfterClickYes();
+                                    this.onHideConfirmationOperationDialog();
+                                }}
+                                onHide={() => {
+                                    this.onHideConfirmationOperationDialog();
+                                    this.unselectAllDataGrid();
+                                }}
+                                operationType={this.state.confirmationOperation.operationType}
+                                visible={this.state.confirmationOperation?.visible}
                             />
                         )}
                         {this.state.fileViewer?.dialogEnabled && this.renderFileViewer()}
@@ -1774,7 +1817,9 @@ export class BaseViewContainer extends BaseContainer {
                     selectionDeferred={true}
                     handlePluginRow={(id, recordId) => this.plugin(id, recordId)}
                     handleDocumentRow={(id, recordId) => this.generate(id, recordId)}
-                    handleDeleteRow={(id) => this.delete(id)}
+                    handleDeleteRow={(id) =>
+                        this.onShowConfirmationOperationDialog(OperationType.OP_DELETE, () => this.delete(id))
+                    }
                     handleRestoreRow={(id) => this.restore(id)}
                     handleDownloadRow={(id) => this.downloadAttachment(id)}
                     handleAttachmentRow={(id) => this.attachment(id)}
@@ -1843,7 +1888,9 @@ export class BaseViewContainer extends BaseContainer {
                         handleHistoryLogRow={(id) => this.historyLog(id)}
                         handlePluginRow={(id, recordId) => this.plugin(id, recordId)}
                         handleDocumentRow={(id, recordId) => this.generate(id, recordId)}
-                        handleDeleteRow={(id) => this.delete(id)}
+                        handleDeleteRow={(id) =>
+                            this.onShowConfirmationOperationDialog(OperationType.OP_DELETE, () => this.delete(id))
+                        }
                         handleAttachmentRow={(id) => this.attachment(id)}
                         handleDownloadRow={(id) => this.downloadAttachment(id)}
                         handleRestoreRow={(id) => this.restore(id)}
@@ -1919,7 +1966,9 @@ export class BaseViewContainer extends BaseContainer {
                     selectionDeferred={true}
                     handlePluginRow={(id, recordId) => this.plugin(id, recordId)}
                     handleDocumentRow={(id, recordId) => this.generate(id, recordId)}
-                    handleDeleteRow={(id) => this.delete(id)}
+                    handleDeleteRow={(id) =>
+                        this.onShowConfirmationOperationDialog(OperationType.OP_DELETE, () => this.delete(id))
+                    }
                     handleDownloadRow={(id) => this.downloadAttachment(id)}
                     handleAttachmentRow={(id) => this.attachment(id)}
                     handleRestoreRow={(id) => this.restore(id)}

@@ -978,7 +978,11 @@ td[aria-roledescription='Editable'] {
 .p-menuitem-content {
     background-color: white;
 }
-
+#editListDialog, #pluginListDialog{
+    .dx-row > td{
+        height: 40px;
+    }
+}
 .p-menu-list.p-reset {
     margin-bottom: 0px;
 }
@@ -988,7 +992,12 @@ td[aria-roledescription='Editable'] {
         display: none;
     }
 }
-
+#spec-edit{
+#editor-dialog{
+    border: 1px solid $base-color;
+    border-radius: 7px;
+}
+}
 .qrcode {
 
     .dx-texteditor-input,

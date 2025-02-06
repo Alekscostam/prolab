@@ -35,7 +35,7 @@ export default class EditListComponent extends React.Component {
                     id='editListDialog'
                     header={
                         <div>
-                            {LocUtils.loc(this.props.labels, 'Selection_List_Label', 'Lista podpowiedzi')} - {name}
+                            {LocUtils.locFromStoreWithDefault('Selection_List_Label', 'Lista podpowiedzi')} - {name}
                         </div>
                     }
                     footer={

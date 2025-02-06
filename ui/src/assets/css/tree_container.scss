@@ -442,7 +442,35 @@ body .grid-container {
         margin-top: 7px;
     }
 }
-
+.tree-view-text-box{
+    .dx-texteditor.dx-editor-filled::after{
+        border: none;
+    }
+    .dx-show-invalid-badge.dx-textbox.dx-texteditor.dx-editor-filled.dx-widget{
+        background: none;
+        border: 0px;
+        
+    }
+    .p-button-secondary.p-button.p-component.p-button-icon-only{
+        max-height: 34px!important;
+        .p-button-icon.p-c.mdi{
+            margin-top: 1px ;
+        }
+    }
+    .dx-texteditor-input-container{
+        margin-left: -5px;
+    }
+    .dx-texteditor-input{
+        font-size: 13px;
+    }
+}
+.dx-row.dx-data-row.dx-row-lines.dx-column-lines.dx-state-hover{
+    .tree-view-text-box{
+        .dx-texteditor-input{
+            color: white;
+        }
+    }  
+}
 .dx-htmleditor-content {
     background: white;
 }

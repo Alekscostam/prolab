@@ -8,6 +8,7 @@ import {
     Editing,
     FilterRow,
     HeaderFilter,
+    KeyboardNavigation,
     LoadPanel,
     Paging,
     Scrolling,
@@ -34,11 +35,11 @@ import {OperationType} from '../../enum/OperationType';
 import {HtmlUtils} from '../../utils/HtmlUtils';
 import {ViewDataCompUtils} from '../../utils/component/ViewDataCompUtils';
 import UrlUtils from '../../utils/UrlUtils';
-import CellValidator from '../../model/CellValidator';
-import CellCustomBackground from '../../model/CellCustomBackground';
 import {TranslationUtils} from '../../utils/TranslationUtils';
 import {SelectedRowKeysUtils} from '../../utils/SelectedRowKeysUtils';
 import {handleEdit} from '../../utils/handler/EditHandler';
+import {cellRenderSpecial} from './TreeViewTemplate';
+import useStore from '../../store';
 
 let clearSelection = false;
 
@@ -198,6 +199,9 @@ class TreeViewComponent extends CellEditComponent {
             switch (type) {
                 case ColumnType.H:
                 case ColumnType.C:
+                    if (this.showHintListButtons()) {
+                        return true;
+                    }
                     const isSpecial = !!validationEdit;
                     return isSpecial;
                 case ColumnType.O:
@@ -210,6 +214,10 @@ class TreeViewComponent extends CellEditComponent {
         } catch (ex) {}
         return false;
     }
+    showHintListButtons = () => {
+        const showHintListButtons = useStore.getState().showHintListButtons;
+        return showHintListButtons;
+    };
     // TODO: naprawic w liscie podpwoiedzi klik jak jestsmy na dole
     render() {
         const columnAutoWidth = this.props.parsedGridView?.gridOptions?.columnAutoWidth || true;
@@ -327,6 +335,11 @@ class TreeViewComponent extends CellEditComponent {
                         }
                     }}
                 >
+                    <KeyboardNavigation
+                        editOnKeyPress={true}
+                        enterKeyAction={'moveFocus'}
+                        enterKeyDirection={'column'}
+                    />
                     <Editing allowUpdating={this.props.allowUpdating} mode={this.state.mode} />
                     <RemoteOperations
                         filtering={false}
@@ -367,7 +380,7 @@ class TreeViewComponent extends CellEditComponent {
                         enabled={this.props.isAddSpec ? true : false}
                         showIndicator={this.props.isAddSpec ? true : false}
                         shadingColor='rgba(0,0,0,0.4)'
-                        showPane={this.props.isAddSpec ? true : false}
+                        showPane={false}
                         position='absolute'
                     />
                     {this.preGenerateColumnsDefinition()}
@@ -918,121 +931,6 @@ class TreeViewComponent extends CellEditComponent {
         return false;
     }
 
-    cellRenderSpecial(cellInfo, columnDefinition) {
-        try {
-            let className = '';
-            const cellBackground = new CellCustomBackground(cellInfo, columnDefinition);
-            cellBackground.paintRowExecute();
-            const bgColorFinal = cellBackground.getSpecialBgColor();
-            const fontColorFinal = cellBackground.getFontColor();
-            switch (cellInfo.column.ownType) {
-                case ColumnType.H:
-                    try {
-                        return (
-                            <a
-                                style={{
-                                    display: 'contents',
-                                    color: fontColorFinal,
-                                    background: bgColorFinal,
-                                }}
-                                href={cellInfo?.text}
-                                target='_blank'
-                                rel='noopener noreferrer'
-                            >
-                                {cellInfo?.text}
-                            </a>
-                        );
-                    } catch (err) {
-                        ConsoleHelper('Error render hyperlink. Exception=', err);
-                    }
-                    break;
-                case ColumnType.O:
-                    try {
-                        return (
-                            <span
-                                style={{
-                                    color: fontColorFinal,
-                                    background: bgColorFinal,
-                                }}
-                                className={className}
-                            >
-                                {StringUtils.textFromHtmlString(cellInfo?.text)}{' '}
-                            </span>
-                        );
-                    } catch (err) {
-                        ConsoleHelper('Error render htmloutput. Exception=', err);
-                    }
-                    break;
-                case ColumnType.C:
-                    return this.cColumnTypeRender(cellInfo, fontColorFinal, bgColorFinal);
-                case ColumnType.N:
-                    try {
-                        return (
-                            <span
-                                style={{
-                                    color: fontColorFinal,
-                                    background: bgColorFinal,
-                                }}
-                                className={className}
-                                dangerouslySetInnerHTML={{__html: cellInfo?.text}}
-                            />
-                        );
-                    } catch (err) {
-                        ConsoleHelper('Error render htmloutput. Exception=', err);
-                    }
-                    break;
-                case ColumnType.IM:
-                    try {
-                        return !!cellInfo?.text ? (
-                            <img
-                                alt={''}
-                                height={100}
-                                src={`data:image/jpeg;base64,${cellInfo?.text}`}
-                                className={className}
-                            />
-                        ) : (
-                            <div />
-                        );
-                    } catch (err) {
-                        ConsoleHelper('Error render single-image. Exception=', err);
-                    }
-                    break;
-                case ColumnType.I:
-                    try {
-                        return !!cellInfo?.text ? (
-                            cellInfo?.text?.split(',').map(() => {
-                                return (
-                                    <div>
-                                        <Image
-                                            onRemove={(e) => {
-                                                this.trashClicked.current = true;
-                                                setTimeout(function () {
-                                                    document.getElementById('trash-button').click();
-                                                    setTimeout(function () {
-                                                        document.getElementById('grid-selection-panel').click();
-                                                    }, 0);
-                                                }, 0);
-                                            }}
-                                            canRemove={cellInfo?.text.length > 0}
-                                            base64={cellInfo?.text}
-                                        ></Image>
-                                    </div>
-                                );
-                            })
-                        ) : (
-                            <div />
-                        );
-                    } catch (err) {
-                        ConsoleHelper('Error render multi-image. Exception=', err);
-                    }
-                    break;
-                default:
-                    return undefined;
-            }
-        } catch (err) {
-            ConsoleHelper('Error global cell render. Exception=', err);
-        }
-    }
     preGenerateColumnsDefinition() {
         let columns = [];
         this.props.gridViewColumns?.forEach((columnDefinition, INDEX_COLUMN) => {
@@ -1051,22 +949,18 @@ class TreeViewComponent extends CellEditComponent {
                     allowEditing={editable || columnDefinition?.selectionList}
                     cellRender={
                         this.isSpecialCell(columnDefinition)
-                            ? (cellInfo, cd) => this.cellRenderSpecial(cellInfo, columnDefinition)
+                            ? (cellInfo, cd) =>
+                                  cellRenderSpecial(
+                                      cellInfo,
+                                      columnDefinition,
+                                      this.props.keyExistsInInvalidCellKeys,
+                                      () => this.onOperationCellClick(cellInfo, columnDefinition)
+                                  )
                             : undefined
                     }
                     editCellRender={(cellInfo) =>
                         this.editCellRender(cellInfo, columnDefinition, () => {
-                            switch (columnDefinition.type) {
-                                case ColumnType.C:
-                                    this.editListVisible(cellInfo.row?.data?._ID, columnDefinition.id);
-                                    break;
-                                case ColumnType.L:
-                                case ColumnType.B:
-                                    this.forceUpdate();
-                                    break;
-                                default:
-                                    break;
-                            }
+                            this.onOperationCellClick(cellInfo, columnDefinition);
                         })
                     }
                 />
@@ -1074,6 +968,20 @@ class TreeViewComponent extends CellEditComponent {
         });
         return columns;
     }
+
+    onOperationCellClick = (cellInfo, columnDefinition) => {
+        switch (columnDefinition.type) {
+            case ColumnType.C:
+                this.editListVisible(cellInfo.row?.data?._ID, columnDefinition.id);
+                break;
+            case ColumnType.L:
+            case ColumnType.B:
+                this.forceUpdate();
+                break;
+            default:
+                break;
+        }
+    };
 
     cColumnTypeRender(cellInfo, fontColorFinal, bgColorFinal, className) {
         const keyExistsInInvalidCellKeys = this.props.keyExistsInInvalidCellKeys

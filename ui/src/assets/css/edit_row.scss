@@ -237,8 +237,8 @@ $edit-padding-bottom: 11px;
     color: transparent;
 }
 #row-edit .not-editable {
+    cursor:default;
     background-color: $disabled-background;
-    // background-color: rgba(0, 0, 0, 0.12) !important;
     .p-inputtext {
         background-color: $disabled-background;
     }

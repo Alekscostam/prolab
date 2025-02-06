@@ -27,6 +27,9 @@ import ImageViewerComponent from '../../components/ImageViewerComponent';
 import {StringUtils} from '../../utils/StringUtils';
 import {EditFormType} from '../../enum/EditFormType';
 import FullScreenDialogComponent from '../../components/prolab/FullScreenDialogComponent';
+import NumberUtil from '../../utils/NumberUtil';
+import {TranslationUtils} from '../../utils/TranslationUtils';
+import useStore from '../../store';
 
 class DashboardContainer extends BaseContainer {
     constructor(props) {
@@ -42,11 +45,11 @@ class DashboardContainer extends BaseContainer {
                 imageBase64: undefined,
                 header: undefined,
             },
-            editableCardInfo: {},
             loading: true,
             copyData: null,
             cardView: undefined,
         };
+        this.dashboardGridRefs = [];
     }
 
     componentDidMount() {
@@ -59,10 +62,9 @@ class DashboardContainer extends BaseContainer {
         }
     }
 
-    refreshDashboard(savedElement) {
-        // debugger;
+    refreshDashboard(savedElement, viewId) {
         if (savedElement) {
-            this.downloadDashboardData(savedElement);
+            this.downloadDashboardData(viewId);
             return;
         }
         this.restateDashboard();
@@ -82,12 +84,11 @@ class DashboardContainer extends BaseContainer {
         );
     }
 
-    downloadDashboardData = () => {
-        // debugger;
-        UrlUtils.isStartPage() ? this.initializeDashboard() : this.getSubViewEntry();
+    downloadDashboardData = (viewId) => {
+        UrlUtils.isStartPage() ? this.initializeDashboard() : this.getSubViewEntry(viewId);
     };
 
-    getSubViewEntry() {
+    getSubViewEntry(viewId) {
         const {dashboard} = this.props;
         const id = dashboard?.viewInfo?.id;
         const recordId = UrlUtils.getRecordId();
@@ -100,19 +101,18 @@ class DashboardContainer extends BaseContainer {
                         entryResponse,
                         () => {
                             if (!!entryResponse.next) {
-                                // debugger;
                                 this.viewService
                                     .getSubView(id, recordId, parentId)
                                     .then((subViewResponse) => {
-                                        // debugger;
                                         if (subViewResponse.viewInfo?.type === 'dashboard') {
+                                            this.addOperationsFromExistingViewsToResponse(subViewResponse);
                                             this.setState(
                                                 {
                                                     dashboard: subViewResponse,
                                                     loading: false,
                                                 },
                                                 () => {
-                                                    this.prepareCardView();
+                                                    this.prepareCardView(viewId);
                                                     this.unblockUi();
                                                 }
                                             );
@@ -161,7 +161,7 @@ class DashboardContainer extends BaseContainer {
             });
     };
 
-    prepareCardView = () => {
+    prepareCardView = (viewId) => {
         try {
             const cardOptions = this.state.dashboard.headerOptions;
             const cardView = {
@@ -178,12 +178,29 @@ class DashboardContainer extends BaseContainer {
                 batchesList: [],
                 filtersList: [],
             };
-            this.setState({cardView: cardView});
+            this.setState({cardView: cardView}, () => {
+                if (viewId) {
+                    const dashboardGridRef = this.dashboardGridRefs[viewId];
+                    if (dashboardGridRef && dashboardGridRef?.refreshView) {
+                        dashboardGridRef.refreshView();
+                    }
+                }
+            });
         } catch (e) {
             return null;
         }
     };
-
+    addOperationsFromExistingViewsToResponse = (subViewResponse) => {
+        const views = this.state.dashboard?.views;
+        if (views) {
+            subViewResponse?.views?.forEach((newView) => {
+                const foundedView = views.find((prevView) => {
+                    return NumberUtil.toInt(prevView.id) === NumberUtil.toInt(newView.id);
+                });
+                newView.operations = foundedView.operations;
+            });
+        }
+    };
     render() {
         const {labels} = this.props;
         return (
@@ -265,6 +282,9 @@ class DashboardContainer extends BaseContainer {
                             onChange={this.handleEditRowChange}
                             onBlur={this.handleEditRowBlur}
                             onSave={this.handleEditRowSave}
+                            onAttachment={(id) => {
+                                this.attachment(id);
+                            }}
                             onAutoFill={this.handleAutoFillRowChange}
                             onEditList={this.handleEditListRowChange}
                             onCancel={this.handleCancelRowChange}
@@ -283,6 +303,9 @@ class DashboardContainer extends BaseContainer {
                             onChange={this.handleEditRowChange}
                             onBlur={this.handleEditRowBlur}
                             onSave={this.handleEditRowSave}
+                            onAttachment={(id) => {
+                                this.attachment(id);
+                            }}
                             onEditList={this.handleEditListRowChange}
                             onAutoFill={this.handleAutoFillRowChange}
                             onCancel={this.handleCancelRowChange}
@@ -382,8 +405,8 @@ class DashboardContainer extends BaseContainer {
     }
 
     //override
-    refreshView(saveElement) {
-        this.refreshDashboard(saveElement);
+    refreshView(saveElement, viewId) {
+        this.refreshDashboard(saveElement, viewId);
     }
 
     handleOperation = (operation) => {
@@ -536,6 +559,9 @@ class DashboardContainer extends BaseContainer {
     };
 
     renderGridView(item, cardViewId, currentBreadcrumb, _cardHeight, recordId) {
+        const showAddFromDashboard = useStore.getState().showAddFromDashboard;
+
+        const opADD = TranslationUtils.getOpButton(item?.operations, OperationType.OP_ADD);
         return (
             <div key={`${item.id}_${cardViewId}_grid-view`} className='panel-dashboard'>
                 <span className='title-dashboard'>{item.label}</span>
@@ -553,19 +579,21 @@ class DashboardContainer extends BaseContainer {
                         rendered={true}
                         buttonShadow={false}
                     />
-                    {/* <ShortcutButton
-                        key={`${item.id}_shortcut`}
-                        id={`_menu_button`}
-                        className={`action-button-with-menu`}
-                        iconName={'mdi-plus'}
-                        handleClick={() => {
-                            this.addData(item.id, cardViewId);
-                        }}
-                        label={''}
-                        title={LocUtils.locFromStoreWithDefault('Add', 'Dodaj')}
-                        rendered={true}
-                        buttonShadow={false}
-                    /> */}
+                    {opADD && showAddFromDashboard && (
+                        <ShortcutButton
+                            key={`${item.id}_shortcut`}
+                            id={`_menu_button`}
+                            className={`action-button-with-menu`}
+                            iconName={opADD?.iconCode ? opADD?.iconCode : 'mdi-plus'}
+                            handleClick={() => {
+                                this.addData(item.id, cardViewId);
+                            }}
+                            label={''}
+                            title={LocUtils.locFromStoreWithDefault('Add', 'Dodaj')}
+                            rendered={true}
+                            buttonShadow={false}
+                        />
+                    )}
                 </div>
                 <DashboardGridViewComponent
                     id={item.id}
@@ -575,6 +603,18 @@ class DashboardContainer extends BaseContainer {
                     recordId={recordId}
                     copyDataForDashboard={(copyData) => {
                         this.setState({copyData});
+                    }}
+                    ref={(el) => (this.dashboardGridRefs[item.id] = el)}
+                    onOperationLoaded={(operations, viewInfo) => {
+                        const dashboard = this.state.dashboard;
+                        dashboard?.views?.forEach((singleView) => {
+                            if (NumberUtil.toInt(singleView.id) === NumberUtil.toInt(viewInfo.id)) {
+                                singleView.operations = operations;
+                            }
+                        });
+                        this.setState({
+                            dashboard,
+                        });
                     }}
                     filterId={undefined}
                     viewType={'dashboard'}

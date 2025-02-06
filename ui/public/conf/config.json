@@ -9,6 +9,9 @@
     "DEVICE_NAME": "DeviceTest",
     "APP_NAME": "ProlabRD",
     "CAPTCHA_ENABLE":false,
+    "SHOW_HINT_LIST_BUTTONS":false,
+    "SHOW_MARKUP_ON_HTML_EDITOR":false,
+    "SHOW_ADD_FROM_DASHBOARD":false,
     "CAPTCHA_KEY":""
 
 }

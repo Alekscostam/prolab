@@ -4,7 +4,7 @@ import {useCallback, useEffect, useRef, useState} from 'react';
 import PropTypes from 'prop-types';
 import LocUtils from '../../utils/LocUtils';
 import {Button} from 'primereact/button';
-import { CookiesName } from '../../enum/CookieName';
+import {CookiesName} from '../../enum/CookieName';
 
 function statusFormat() {
     return ``;
@@ -18,7 +18,7 @@ export const TickerSessionDialog = (props) => {
     let counterStart = true;
     const [seconds, setSeconds] = useState(null);
     const progressBar = useRef();
-    const isMounted = useRef(true); 
+    const isMounted = useRef(true);
 
     const onCounterInit = useCallback(() => {
         if (intervalId.current === undefined) {
@@ -26,7 +26,7 @@ export const TickerSessionDialog = (props) => {
                 const sessionTimeout = Date.parse(localStorage.getItem(CookiesName.SESSION_TIMEOUT));
                 const tickerPopupDate = new Date();
                 tickerPopupDate.setSeconds(tickerPopupDate.getSeconds() + 45);
-                if (sessionTimeout >= tickerPopupDate){
+                if (sessionTimeout >= tickerPopupDate) {
                     clearInterval(intervalId.current);
                     onProlongSession();
                 }
@@ -45,22 +45,20 @@ export const TickerSessionDialog = (props) => {
 
     useEffect(() => {
         if (counterStart) {
-            if(isMounted.current ===false){
+            if (isMounted.current === false) {
                 onCounterInit();
                 isMounted.current = true;
             }
-            ; 
         }
         return () => {
-            clearInterval(intervalId);           
+            clearInterval(intervalId);
             isMounted.current = false;
-
         };
     }, [props, counterStart, intervalId, onCounterInit]);
 
     return (
         <div>
-            {secondsToPopup != null && secondsToPopup !== undefined && secondsToPopup !== 0 && (
+            {secondsToPopup != null && secondsToPopup !== undefined && secondsToPopup > 0 && (
                 <Dialog
                     id='sessionTimeoutDialog'
                     header={LocUtils.loc(props.labels, 'Session_expired', 'Sesja wygasa')}

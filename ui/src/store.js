@@ -5,6 +5,9 @@ const useStore = create((set) => ({
     listOfHintsElements: true,
     labels: [],
     accessToken: undefined,
+    showHintListButtons: undefined,
+    showMarkupOnHtmlEditor: undefined,
+    showAddFromDashboard: undefined,
     appName: undefined,
     appVersion: undefined,
     deviceName: undefined,
@@ -16,6 +19,9 @@ const useStore = create((set) => ({
     setFetchData: (value) => set({fetchData: value}),
     setAccessToken: (value) => set({accessToken: value}),
     setRefreshToken: (value) => set({refreshToken: value}),
+    setShowHintListButtons: (value) => set({showHintListButtons: value}),
     setListOfHintsElements: (value) => set({listOfHintsElements: value}),
+    setShowMarkupOnHtmlEditor: (value) => set({showMarkupOnHtmlEditor: value}),
+    setShowAddFromDashboard: (value) => set({showAddFromDashboard: value}),
 }));
 export default useStore;

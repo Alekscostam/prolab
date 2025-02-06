@@ -40,6 +40,8 @@ export let clearState;
 export let reStateApp;
 export let renderNoRefreshContentFnc;
 export let sessionPrelongFnc = null;
+// TODO: załącnziki w gantt
+// http://localhost:3000/#/grid-view/18941?filterId=3036&viewType=gantt&bc=W3sibmFtZSI6IldhbGlkYWNqYSIsImlkIjo2MDc5LCJ0eXBlIjoibWVudSJ9LHsibmFtZSI6IkdhbnR0IHRlc3QiLCJpZCI6MTg5NDEsInR5cGUiOiJ2aWV3IiwicGF0aCI6Ii8jL2dyaWQtdmlldy8xODk0MSJ9XQ
 
 class App extends Component {
     constructor() {
@@ -118,25 +120,8 @@ class App extends Component {
                 this.setFakeSessionTimeout();
             }
             this.setState({loadedConfiguration: false}, () => {
-                setTimeout(() => {
-                    console.log('refreshFromDidMount');
-                    this.authService
-                        .refresh()
-                        .then(() => {
-                            window.location.href = UrlUtils.deleteParameterFromURL(window.location.href, 'refresh');
-                            this.appInitialize();
-                        })
-                        .catch(() => {
-                            const err = {
-                                msg: 'Bład przy inicjalizacji apliakcji',
-                            };
-                            localStorage.setItem(CookiesName.ERROR_AFTER_REFRESH, err);
-                            window.location.href = UrlUtils.deleteParameterFromURL(window.location.href, 'refresh');
-                            this.authService.logout();
-                        });
-                }, 1000);
+                this.appInitialize();
             });
-            this.appInitialize();
             this._isMounted = true;
         }
     }
@@ -317,6 +302,9 @@ class App extends Component {
             const deviceName = configuration.DEVICE_NAME;
             const appName = configuration.APP_NAME;
             const captchaShow = configuration.CAPTCHA_SHOW;
+            const showHintListButtons = configuration.SHOW_HINT_LIST_BUTTONS;
+            const showMarkupOnHtmlEditor = configuration.SHOW_MARKUP_ON_HTML_EDITOR;
+            const showAddFromDashboard = configuration.SHOW_ADD_FROM_DASHBOARD;
             const captchaKey = configuration.CAPTCHA_KEY;
             const appVersion = packageJson.version + '_' + process.env.REACT_APP_BUILD_NUMBER;
             this.setState({
@@ -333,9 +321,12 @@ class App extends Component {
                     captchaKey,
                 },
             });
+            useStore.getState().setShowHintListButtons(showHintListButtons);
+            useStore.getState().setShowAddFromDashboard(showAddFromDashboard);
             useStore.getState().setAppVersion(appVersion);
             useStore.getState().setAppName(appName);
             useStore.getState().setDeviceName(deviceName);
+            useStore.getState().setShowMarkupOnHtmlEditor(showMarkupOnHtmlEditor);
             saveObjToCookieGlobal(CookiesName.APP_VERSION, appVersion);
             saveObjToCookieGlobal(CookiesName.DEVICE_NAME, deviceName);
             saveObjToCookieGlobal(CookiesName.APP_NAME, appName);

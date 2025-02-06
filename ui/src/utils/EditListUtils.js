@@ -1,10 +1,7 @@
 import hash from 'object-hash';
-import ConsoleHelper from './ConsoleHelper';
 import {v4 as uuidv4} from 'uuid';
-import useStore from '../store';
 
 export class EditListUtils {
-    //data structure from API
     static transformBySetFields(rowData, setFields) {
         let fieldKeys = setFields.map((item) => {
             return item.fieldList;
@@ -14,7 +11,6 @@ export class EditListUtils {
             let newObject = {};
             for (let keyRow in rowData) {
                 if (fieldKeys[keyField] === keyRow) {
-                    //cast all to string
                     newObject[keyRow] = '' + rowData[keyRow];
                     break;
                 }
@@ -26,10 +22,24 @@ export class EditListUtils {
     }
 
     static calculateCRC(objToHash) {
-        const calculateCRC = hash(objToHash);
-        return calculateCRC;
+        if (objToHash) {
+            if (Array.isArray(objToHash)) {
+                if (objToHash.length > 1) {
+                    const result = objToHash[0];
+                    const calculatedCRC = hash([result]);
+                    return calculatedCRC;
+                }
+                const calculatedCRC = hash(objToHash);
+                return calculatedCRC;
+            } else {
+                const calculatedCRC = hash([objToHash]);
+                return calculatedCRC;
+            }
+        }
+        const calculatedCRC = hash(objToHash);
+        return calculatedCRC;
     }
-    //data structure from API
+
     static calculateCRCBySetFields(rowData, setFields) {
         const objToHash = EditListUtils.transformBySetFields(rowData, setFields);
         const calculateCRC = EditListUtils.calculateCRC(objToHash);
@@ -75,7 +85,7 @@ export class EditListUtils {
                     (el) => el.CALC_CRC === e.currentSelectedRowKeys[0]
                 );
                 const transformedSingleRowData = this.transformBySetFields(foundedElementToAdd, setFields);
-                const CALC_CRC = this.calculateCRC(transformedSingleRowData);
+                const CALC_CRC = this.calculateCRC(transformedSingleRowData[0]);
                 transformedSingleRowData[0].CALC_CRC = CALC_CRC;
                 transformedRowsData.push(transformedSingleRowData);
             } else {
