@@ -32,8 +32,11 @@ $edit-padding-bottom: 11px;
 #row-edit .field {
     margin-bottom: 0.6rem;
 }
-
-
+#row-edit{
+    .p-password-input{
+        border: 0px
+    }
+}
 
 #row-edit .p-float-label input:focus ~ label,
 #row-edit .p-float-label input.p-filled ~ label,

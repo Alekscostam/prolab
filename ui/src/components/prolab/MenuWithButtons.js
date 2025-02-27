@@ -1,49 +1,52 @@
 import {Menu} from 'primereact/menu';
 import {OperationType} from '../../enum/OperationType';
 import React, {useEffect, useRef, useState} from 'react';
+import {ContextMenu} from 'devextreme-react';
 
 export const MenuWithButtons = (props) => {
-    const menuExtended = useRef(null);
-    const [itemsExtended, setItemsExtended] = useState([]);
-    const [items, setItems] = useState([]);
-
-    const handleExtendedItems = (event, list, type) => {
-        props.menu.current.hide(event.originalEvent);
-        menuExtended.current.show(event.originalEvent);
-        setTimeout(() => {
-            setItemsExtended(menuItemsExtended(list, type));
-            const clickedPosition = props.clickedPosition.current;
-            const menuWithButtons = document.getElementById('menu-with-buttons-extended');
-            menuWithButtons.style.left = clickedPosition.x;
-            menuWithButtons.style.top = clickedPosition.y;
-        }, 10);
-    };
+    const itemTemplate = (itemData) => (
+        <div className='item-template-container'>
+            {itemData.icon && <span className={`${itemData.icon} dx-icon`}></span>}
+            <span className='dx-menu-item-text'>{itemData.text}</span>
+            {itemData.items && <span className='dx-icon-spinright dx-icon'></span>}
+        </div>
+    );
 
     useEffect(() => {
-        setItems(menuItems());
         return () => {};
     }, [props]);
 
-    const menuItemsExtended = (items, type) => {
-        return items.map((i, index) => {
-            return {
-                key: 'menu-items-extended' + index,
-                label: i.label,
-                command: () => {
-                    switch (type?.toUpperCase()) {
-                        case OperationType.OP_DOCUMENTS:
-                            props.handleDocuments(i);
-                            return;
-                        case OperationType.OP_PLUGINS:
-                            props.handlePlugins(i);
-                            return;
-                        case OperationType.OP_BATCH:
-                            props.handleBatch(i);
-                            return;
-                    }
-                },
-            };
-        });
+    const menuExtendedItems = (i) => {
+        if (!props?.gridView) {
+            return undefined;
+        }
+        let items = undefined;
+        switch (i.type?.toUpperCase()) {
+            case OperationType.OP_DOCUMENTS:
+                items = props.gridView.documentsList.map((i, index) => {
+                    return menuExtendedItem(i, () => props.handleDocuments(i), index + '-document');
+                });
+                return items;
+            case OperationType.OP_PLUGINS:
+                items = props.gridView.pluginsList.map((i, index) => {
+                    return menuExtendedItem(i, () => props.handlePlugins(i), index + '-plugin');
+                });
+                return items;
+            case OperationType.OP_BATCH:
+                items = props.gridView.batchesList.map((i, index) => {
+                    return menuExtendedItem(i, () => props.handleBatch(i), index + '-batch');
+                });
+                return items;
+        }
+    };
+
+    const menuExtendedItem = (i, command, index) => {
+        return {
+            key: 'menu-' + index,
+            className: i.className,
+            text: i.label,
+            command: command,
+        };
     };
 
     const menuItems = () => {
@@ -61,12 +64,14 @@ export const MenuWithButtons = (props) => {
                           url = undefined;
                           break;
                   }
+                  const extendedItems = menuExtendedItems(i);
                   return {
                       key: 'menu-' + index,
                       className: i.className,
-                      label: i.label,
+                      text: i.label,
                       icon: `mdi ${i.iconCode}`,
                       url: url,
+                      items: extendedItems,
                       command: (e) => {
                           switch (i.type?.toUpperCase()) {
                               case OperationType.OP_EDIT:
@@ -87,16 +92,8 @@ export const MenuWithButtons = (props) => {
                                   return props.handleCopy();
                               case OperationType.SK_DOCUMENT:
                                   return props.handleDocuments(i);
-                              case OperationType.OP_DOCUMENTS:
-                                  if (props?.gridView)
-                                      handleExtendedItems(e, props.gridView.documentsList, OperationType.OP_DOCUMENTS);
-                                  return () => {};
                               case OperationType.SK_PLUGIN:
                                   return props.handlePlugins(i);
-                              case OperationType.OP_PLUGINS:
-                                  if (props?.gridView)
-                                      handleExtendedItems(e, props.gridView.pluginsList, OperationType.OP_PLUGINS);
-                                  return () => {};
                               case OperationType.OP_ARCHIVE:
                                   return props.handleArchive(i);
                               case OperationType.OP_PUBLISH:
@@ -109,10 +106,6 @@ export const MenuWithButtons = (props) => {
                                   return props.handleHistory(i);
                               case OperationType.OP_ATTACHMENTS:
                                   return props.handleAttachments(i);
-                              case OperationType.OP_BATCH:
-                                  if (props?.gridView)
-                                      handleExtendedItems(e, props.gridView.batchesList, OperationType.OP_BATCH);
-                                  return () => {};
                               case OperationType.SK_BATCH:
                                   return props.handleBatch(i);
                               case OperationType.OP_ADD_LEVEL:
@@ -150,59 +143,23 @@ export const MenuWithButtons = (props) => {
               })
             : [];
     };
-
     return (
         <React.Fragment>
             <span id='action-button-with-menu-contant' className='action-button-with-menu-contant'></span>
-            <Menu
+            <ContextMenu
                 id='menu-with-buttons'
-                appendTo={document.body}
-                baseZIndex={props?.zIndex}
-                className='menu-component'
-                style={{
-                    position: 'absolute',
-                }}
-                onBlur={(e) => {
-                    if (props?.componentInducedTime) {
-                        const componentInducedTime = props?.componentInducedTime;
-                        const now = Date.now();
-                        const differenceInMilisonds = now - componentInducedTime < 200;
-                        if (differenceInMilisonds) {
-                            return;
-                        }
+                ref={props.menuRef}
+                width={100}
+                style={{zIndex: props.zIndex}}
+                dataSource={menuItems()}
+                itemRender={itemTemplate}
+                target={props.target}
+                onItemClick={(e) => {
+                    if (e.itemData.command) {
+                        props.menuRef.current.instance.hide();
+                        e.itemData.command();
                     }
-                    setTimeout(() => {
-                        props.menu.current.hide(e);
-                    }, 0);
                 }}
-                model={items}
-                popup
-                ref={props.menu}
-            />
-            <Menu
-                id='menu-with-buttons-extended'
-                appendTo={document.body}
-                baseZIndex={props?.zIndex}
-                className='menu-component'
-                style={{
-                    position: 'absolute',
-                }}
-                onBlur={(e) => {
-                    if (props?.componentInducedTime) {
-                        const componentInducedTime = props?.componentInducedTime;
-                        const now = Date.now();
-                        const differenceInMilisonds = now - componentInducedTime < 200;
-                        if (differenceInMilisonds) {
-                            return;
-                        }
-                    }
-                    setTimeout(() => {
-                        menuExtended.current.hide(e);
-                    }, 0);
-                }}
-                model={itemsExtended}
-                popup
-                ref={menuExtended}
             />
         </React.Fragment>
     );

@@ -26,7 +26,6 @@ class SubGridViewComponent extends React.Component {
     constructor(props) {
         super(props);
         ConsoleHelper('subGridViewComponent::constructor');
-
         this.menuSubGrid = React.createRef();
         let minimizeCache = readObjFromCookieGlobal('SUB_GRID_VIEW_MINIMIZE');
         this.state = {
@@ -46,24 +45,6 @@ class SubGridViewComponent extends React.Component {
             },
         };
     }
-    showMenu(e) {
-        const menu = this.menuSubGrid.current;
-        if (menu !== null && e?.row?.rowType === 'data' && !!e?.row?.data?.ID) {
-            const mouseX = e.event.clientX;
-            const mouseY = e.event.clientY;
-            e.event.stopPropagation();
-            e.event.preventDefault();
-            menu.show(e.event);
-            this.setState({selectedRecordId: e.row.data.ID}, () => {
-                const menu = document.getElementById('menu-with-buttons');
-                menu.style.left = mouseX + 'px';
-                menu.style.top = mouseY + 'px';
-            });
-        } else if (menu !== null && e?.row?.rowType === 'data') {
-            menu.hide(e.event);
-        }
-    }
-    //very important !!!
     shouldComponentUpdate(nextProps, nextState, nextContext) {
         const refreshSubView = readValueCookieGlobal(CookiesName.REFRESH_SUB_VIEW);
         if (refreshSubView) {
@@ -194,7 +175,9 @@ class SubGridViewComponent extends React.Component {
                                 className={`maximalized-sub-view ${this.props?.className ? this.props.className : ''}`}
                             >
                                 <DataGrid
-                                    onContextMenuPreparing={(e) => this.showMenu(e)}
+                                    onContextMenuPreparing={(e) => {
+                                        this.setState({selectedRecordId: e.row.data.ID});
+                                    }}
                                     id='selection-data-grid'
                                     // handleOnDataGrid={(ref) => (this.refDataGrid = ref)}
                                     ref={(ref) => this.props.handleOnInitialized(ref)}
@@ -297,8 +280,10 @@ class SubGridViewComponent extends React.Component {
                                         />
                                     ) : null}
                                 </DataGrid>
-                                {this.props.subView?.headerOperationsPPM && (
+                                {this.props.subView?.headerOperationsPPM && !UrlUtils.isEditSpec() && (
                                     <MenuWithButtons
+                                        target='.dx-row.dx-data-row.dx-row-lines'
+                                        menuRef={this.menuSubGrid}
                                         handleEdit={() =>
                                             this.props.handleOnEditClick({
                                                 viewId: viewId,
@@ -317,7 +302,6 @@ class SubGridViewComponent extends React.Component {
                                             )
                                         }
                                         operationList={this.props.subView?.headerOperationsPPM || []}
-                                        menu={this.menuSubGrid}
                                     />
                                 )}
 

@@ -79,7 +79,7 @@ export const EditorDialog = (props) => {
                                 setValue(value);
                             }
                         }}
-                        className={`editor editor-dialog ${editable ? '' : 'disabled'} `}
+                        className={`editor editor-dialog ${editable ? 'editable' : 'disabled'} `}
                         defaultValue={value}
                         validationMessageMode='always'
                     >
@@ -141,7 +141,7 @@ export const EditorDialog = (props) => {
                                                     setValue(value);
                                                     editor.current?.instance?.option('value', value);
                                                 },
-                                                initValue: value,
+                                                initValue: editor.current?.instance?.option('value'),
                                             });
                                         },
                                     }}

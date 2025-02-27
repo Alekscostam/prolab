@@ -51,9 +51,9 @@ class TreeViewComponent extends CellEditComponent {
         this.selectionClicked = React.createRef(false);
         this.selectionCheckboxClicked = React.createRef(false);
         this.ref = React.createRef();
+        this.menuRef = React.createRef();
         this.refDateTime = React.createRef();
         this.clickedPosition = React.createRef();
-        this.menu = React.createRef();
         this.modelRef = React.createRef([]);
         this.selectedRecordIdRef = React.createRef();
         this.editListDataStore = new EditListDataStore();
@@ -66,7 +66,6 @@ class TreeViewComponent extends CellEditComponent {
             type: undefined,
         };
         this.state = {
-            initializedExpandAll: this.props?.initializedExpandAll,
             editListVisible: false,
             editorDialogVisisble: false,
             groupExpandAll: this.props.parsedGridView?.gridOptions?.groupExpandAll || false,
@@ -77,7 +76,6 @@ class TreeViewComponent extends CellEditComponent {
             operationsPPM: this.props.parsedGridView.operationsPPM || [],
             operations: this.props.parsedGridView.operations || [],
             parsedGridViewData: {},
-            // rowRenderingMode: this.props.parsedGridView?.gridOptions?.groupExpandAll ? 'standard' : 'virtual',
             rowRenderingMode: 'standard',
             gridViewColumns: [],
             selectedRowData: [],
@@ -88,18 +86,14 @@ class TreeViewComponent extends CellEditComponent {
             return this.sort;
         };
         this.reInitilizedExpandAll = () => {
-            this.setState(
-                {
-                    initializedExpandAll: false,
-                },
-                () => this.expandRows()
-            );
+            this.expandRows();
         };
     }
     componentDidMount() {
         super.componentDidMount();
         this.manageKeydownEvent('remove');
         this.manageKeydownEvent('add');
+        this.expandRows();
     }
     componentDidUpdate(prevProps, prevState, snapshot) {
         console.log('update --> treelist');
@@ -111,32 +105,6 @@ class TreeViewComponent extends CellEditComponent {
             return false;
         }
         return true;
-    }
-
-    showMenu(e) {
-        const menu = this.menu.current;
-        if (menu !== null && e?.row?.rowType === 'data' && !!e?.row?.data?._ID) {
-            const mouseX = e.event.clientX;
-            const mouseY = e.event.clientY;
-            e.event.stopPropagation();
-            e.event.preventDefault();
-            this.selectedRecordIdRef.current = e.row.data._ID;
-            menu.show(e.event);
-            if (this.props.showSelection) {
-                this.mergeKeysWithRecordId(e.row.data._ID);
-            }
-            const menuWithButtons = document.getElementById('menu-with-buttons');
-            if (menuWithButtons) {
-                menuWithButtons.style.left = mouseX + 'px';
-                menuWithButtons.style.top = mouseY + 'px';
-                this.clickedPosition.current = {
-                    x: mouseX + 'px',
-                    y: mouseY + 'px',
-                };
-            }
-        } else if (menu !== null && e?.row?.rowType === 'data') {
-            menu.hide(e.event);
-        }
     }
 
     mergeKeysWithRecordId = (id) => {
@@ -214,9 +182,12 @@ class TreeViewComponent extends CellEditComponent {
         } catch (ex) {}
         return false;
     }
-    showHintListButtons = () => {
-        const showHintListButtons = useStore.getState().showHintListButtons;
-        return showHintListButtons;
+
+    onKeyDown = (e) => {
+        if (e.event.key === 'ArrowUp' || e.event.key === 'ArrowDown') {
+            e.component.closeEditCell();
+            e.component.cancelEditData();
+        }
     };
     // TODO: naprawic w liscie podpwoiedzi klik jak jestsmy na dole
     render() {
@@ -237,7 +208,6 @@ class TreeViewComponent extends CellEditComponent {
         const selectedRowKeys = this.props.selectedRowKeys;
         const kindView = this.props.elementKindView;
         const parentId = this.props.elementRecordId;
-        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
         const subViewId = this.props.elementSubViewId;
         const viewId = TreeListUtils.getRealViewId(subViewId, this.props.id);
         const selectedRecordId = this.selectedRecordIdRef.current;
@@ -249,13 +219,19 @@ class TreeViewComponent extends CellEditComponent {
                 <TreeList
                     id='spec-edit'
                     onContextMenuPreparing={(e) => {
-                        this.showMenu(e);
+                        if (this.props.showSelection && e?.row?.data?._ID) {
+                            this.mergeKeysWithRecordId(e.row.data._ID);
+                        }
+                        this.selectedRecordIdRef.current = e?.row?.data?._ID;
                     }}
                     keyExpr='_ID'
                     className={`tree-container${headerAutoHeight ? ' tree-header-auto-height' : ''}`}
                     ref={(ref) => {
                         this.ref = ref;
                         this.props.handleOnTreeList(this.ref);
+                    }}
+                    onKeyDown={(e) => {
+                        this.onKeyDown(e);
                     }}
                     onExpandedRowKeysChange={(e) => this.setState({expandedRowKeys: e})}
                     expandedRowKeys={this.state.expandedRowKeys}
@@ -294,7 +270,6 @@ class TreeViewComponent extends CellEditComponent {
                     }}
                     onContentReady={(e) => {
                         const editListDialog = document.getElementById('editListDialog');
-                        this.expandRows();
                         if (!editListDialog) {
                             this.rerenderRows(e);
                             return;
@@ -387,8 +362,9 @@ class TreeViewComponent extends CellEditComponent {
                 </TreeList>
                 {this.props.parsedGridView?.operationsPPM && this.props.parsedGridView.operationsPPM.length !== 0 && (
                     <MenuWithButtons
+                        target='.dx-row.dx-data-row.dx-row-lines.dx-column-lines'
+                        menuRef={this.menuRef}
                         gridView={this.props.parsedGridView}
-                        clickedPosition={this.clickedPosition}
                         handlePlugins={(e) => this.preOperationAction(e, () => this.props.handlePluginRow(e.id))}
                         handleDocuments={(e) => this.preOperationAction(e, () => this.props.handleDocumentRow(e.id))}
                         handleSaveAction={(e) => this.preOperationAction(e, () => this.props.handleSaveAction())}
@@ -396,23 +372,18 @@ class TreeViewComponent extends CellEditComponent {
                         handleAddSpecSpec={(e) => this.props.handleAddSpecSpec(this.selectedRecordIdRef.current)}
                         handleExecSpec={(e) => this.preOperationAction(e, () => this.props.handleExecSpec())}
                         handleAddSpec={() => this.props.addButtonFunction()}
-                        handleHrefSubview={() =>
-                            this.handleHrefSubview(viewId, this.selectedRecordIdRef.current, currentBreadcrumb)
-                        }
+                        handleHrefSubview={() => this.handleHrefSubview(viewId, this.selectedRecordIdRef.current)}
                         handleEdit={(e) =>
                             this.preOperationAction(e, () =>
-                                this.handleEdit(
-                                    viewId,
-                                    parentId,
-                                    kindView,
-                                    this.selectedRecordIdRef.current,
-                                    currentBreadcrumb
-                                )
+                                this.handleEdit(viewId, parentId, kindView, this.selectedRecordIdRef.current)
                             )
                         }
-                        handleEditSpec={() =>
-                            this.handleEditSpec(viewId, parentId, this.selectedRecordIdRef.current, currentBreadcrumb)
+                        handlePreview={(e) =>
+                            this.preOperationAction(e, () =>
+                                this.handlePreview(viewId, parentId, kindView, this.selectedRecordIdRef.current)
+                            )
                         }
+                        handleEditSpec={() => this.handleEditSpec(viewId, parentId, this.selectedRecordIdRef.current)}
                         handleCopy={(e) => this.preOperationAction(e, () => this.props.handleCopyRow())}
                         handleArchive={(e) => this.preOperationAction(e, () => this.props.handleArchiveRow())}
                         handlePublish={(e) => this.preOperationAction(e, () => this.props.handlePublishRow())}
@@ -433,7 +404,6 @@ class TreeViewComponent extends CellEditComponent {
                             this.preOperationAction(e, () => this.props.handleAddLevel(selectedRecordId))
                         }
                         operationList={this.props.parsedGridView.operationsPPM}
-                        menu={this.menu}
                     />
                 )}
             </React.Fragment>
@@ -476,16 +446,11 @@ class TreeViewComponent extends CellEditComponent {
         });
     }
     expandRows = () => {
-        if (
-            this.state.groupExpandAll &&
-            !this.state.initializedExpandAll &&
-            this.props.parsedGridViewData.length !== 0
-        ) {
+        if (this.state.groupExpandAll) {
             const expandedRowKeys = this.props.parsedGridViewData.map((el) => el._ID);
             this.setState(
                 {
                     expandedRowKeys: expandedRowKeys,
-                    initializedExpandAll: true,
                 },
                 () => {
                     this.rerenderColorCheckboxIfPossible();
@@ -546,8 +511,9 @@ class TreeViewComponent extends CellEditComponent {
         }
         this.ref.instance.selectRows(selectedRowsData.map((el) => el._ID));
     }
-    handleHrefSubview(viewId, recordId, currentBreadcrumb) {
-        let result = this.props.handleBlockUi();
+    handleHrefSubview(viewId, recordId) {
+        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+        const result = this.props.handleBlockUi();
         if (result) {
             let newUrl = AppPrefixUtils.locationHrefUrl(
                 `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${
@@ -557,13 +523,15 @@ class TreeViewComponent extends CellEditComponent {
             window.location.assign(newUrl);
         }
     }
-    handleEdit(viewId, parentId, recordId, currentBreadcrumb, kindView) {
+    handlePreview(viewId, parentId, kindView, recordId) {
+        handleEdit(viewId, parentId, kindView, recordId, true);
+    }
+    handleEdit(viewId, parentId, recordId, kindView, readOnly = false) {
         if (TreeListUtils.isKindViewSpec(this.props.parsedGridView)) {
             TreeListUtils.openEditSpec(
                 viewId,
                 parentId,
                 [recordId],
-                currentBreadcrumb,
                 () => this.props.handleUnblockUi(),
                 (err) => this.props.showErrorMessages(err)
             );
@@ -581,19 +549,19 @@ class TreeViewComponent extends CellEditComponent {
                             this.props.handleShowEditPanel(editDataResponse)
                         ),
                     this.props.handleUnblockUi,
-                    this.props.showErrorMessages
+                    this.props.showErrorMessages,
+                    readOnly
                 );
             }
         }
     }
-    handleEditSpec(viewId, parentId, recordId, currentBreadcrumb) {
+    handleEditSpec(viewId, parentId, recordId) {
         const prevUrl = window.location.href;
         sessionStorage.setItem('prevUrl', prevUrl);
         TreeListUtils.openEditSpec(
             viewId,
             parentId,
             [recordId],
-            currentBreadcrumb,
             () => this.props.handleUnblockUi(),
             (err) => this.props.showErrorMessages(err)
         );
@@ -653,7 +621,7 @@ class TreeViewComponent extends CellEditComponent {
                             this.fillOrderColumn(column, columnDefinition);
                             column.headerId =
                                 'column_' + INDEX_COLUMN + '_' + columnDefinition?.fieldName?.toLowerCase();
-                            column.width = columnDefinition?.width || 100;
+                            column.width = this.getColumnWidth(columnDefinition);
                             column.name = columnDefinition?.fieldName;
                             column.caption = columnDefinition?.label;
                             column.dataType = TreeListUtils.specifyColumnType(columnDefinition?.type);
@@ -731,34 +699,27 @@ class TreeViewComponent extends CellEditComponent {
                                         handleEdit={(e) => {
                                             this.preOperationAction(
                                                 e,
-                                                () =>
-                                                    this.handleEdit(
-                                                        viewId,
-                                                        parentId,
-                                                        recordId,
-                                                        currentBreadcrumb,
-                                                        kindView
-                                                    ),
+                                                () => this.handleEdit(viewId, parentId, recordId, kindView),
+                                                recordId
+                                            );
+                                        }}
+                                        handlePreview={(e) => {
+                                            this.preOperationAction(
+                                                e,
+                                                () => this.handlePreview(viewId, parentId, recordId, kindView),
                                                 recordId
                                             );
                                         }}
                                         handleEditSpec={() => {
-                                            this.handleEditSpec(viewId, parentId, recordId, currentBreadcrumb);
+                                            this.handleEditSpec(viewId, parentId, recordId);
                                         }}
                                         hrefSubview={AppPrefixUtils.locationHrefUrl(
                                             `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${
                                                 !!currentBreadcrumb ? currentBreadcrumb : ``
                                             }`
                                         )}
-                                        hrefSpecView={EditSpecUtils.editSpecUrl(
-                                            viewId,
-                                            parentId,
-                                            compress([recordId]),
-                                            currentBreadcrumb
-                                        )}
-                                        handleHrefSubview={(e) =>
-                                            this.handleHrefSubview(viewId, recordId, currentBreadcrumb)
-                                        }
+                                        hrefSpecView={EditSpecUtils.editSpecUrl(viewId, parentId, compress([recordId]))}
+                                        handleHrefSubview={(e) => this.handleHrefSubview(viewId, recordId)}
                                         handleAddSpecSpec={(e) => this.props.handleAddSpecSpec(recordId)}
                                         handleArchive={(e) =>
                                             this.preOperationAction(
@@ -897,6 +858,15 @@ class TreeViewComponent extends CellEditComponent {
         }
     };
 
+    getColumnWidth = (columnDefinition) => {
+        const downFill = columnDefinition?.downFill ? 45 : 0;
+        const selectionList = columnDefinition?.selectionList ? 45 : 0;
+        let width = columnDefinition?.width || 100;
+        if (this.showHintListButtons()) {
+            width = parseInt(width) + downFill + selectionList;
+        }
+        return width;
+    };
     addButton() {
         return (
             this.addButtonExists() && (
@@ -1073,7 +1043,6 @@ TreeViewComponent.defaultProps = {
     showBorders: true,
     showColumnHeaders: true,
     focusedRowEnabled: false,
-    initializedExpandAll: false,
     rowRenderingMode: 'standard',
     hoverStateEnabled: false,
     preloadEnabled: true,
@@ -1122,7 +1091,6 @@ TreeViewComponent.propTypes = {
     showColumnLines: PropTypes.bool,
     showRowLines: PropTypes.bool,
     preloadEnabled: PropTypes.bool,
-    initializedExpandAll: PropTypes.bool,
     rowRenderingMode: PropTypes.string,
     showBorders: PropTypes.bool,
     showFilterRow: PropTypes.bool,

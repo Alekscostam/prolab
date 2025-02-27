@@ -37,6 +37,26 @@ export const OperationsButtons = (props) => {
                             </React.Fragment>
                         );
                     break;
+                case OperationType.OP_PREVIEW:
+                    if (!!atLeastOneSelected)
+                        return (
+                            <React.Fragment>
+                                <ShortcutButton
+                                    id={`${info?.column.headerId}_menu_button`}
+                                    className={`action-button-with-menu ${
+                                        inverseColor ? `inverse` : `normal`
+                                    } ${margin}`}
+                                    iconName={operations?.iconCode || 'mdi-pencil'}
+                                    iconColor={`${inverseColor ? `white` : `blue`}`}
+                                    buttonShadow={buttonShadow}
+                                    title={operations.label}
+                                    handleClick={(e) =>
+                                        afterClickOperation(() => props.handlePreview(Object.assign(e, operations)))
+                                    }
+                                />
+                            </React.Fragment>
+                        );
+                    break;
                 case OperationType.OP_EDIT_SPEC:
                     if (!!atLeastOneSelected || (!atLeastOneSelected && !!operations.showAlways)) {
                         return (
@@ -50,7 +70,6 @@ export const OperationsButtons = (props) => {
                                     iconColor={`${inverseColor ? `white` : `blue`}`}
                                     buttonShadow={buttonShadow}
                                     title={operations.label}
-                                    hrefSpecView={props.hrefSpecView}
                                     handleClick={(e) => {
                                         e.selectAll = !atLeastOneSelected && !!operations.showAlways;
 
@@ -451,7 +470,7 @@ export const OperationsButtons = (props) => {
                 url = props.hrefSubview;
                 break;
             default:
-                url = undefined;
+                url = () => {};
                 break;
         }
         return {
@@ -462,12 +481,14 @@ export const OperationsButtons = (props) => {
                 switch (i.type?.toUpperCase()) {
                     case OperationType.OP_EDIT:
                         return props.handleEdit(i);
+                    case OperationType.OP_PREVIEW:
+                        return props.handlePreview(i);
                     case OperationType.OP_EDIT_SPEC:
-                        return props.handleEditSpec(i);
+                        return () => {};
                     case OperationType.OP_ADDSPEC_SPEC:
                         return props.handleAddSpecSpec(i);
                     case OperationType.OP_SUBVIEWS:
-                        return props.handleHrefSubview(i);
+                        return () => {};
                     case OperationType.OP_DELETE:
                         return props.handleDelete(i);
                     case OperationType.OP_RESTORE:
@@ -542,6 +563,7 @@ OperationsButtons.defaultProps = {
     info: null,
     handleHrefSubview: () => {},
     handleEdit: () => {},
+    handlePreview: () => {},
     handleEditSpec: () => {},
     handleAddSpecSpec: () => {},
     handleDelete: () => {},
@@ -574,6 +596,7 @@ OperationsButtons.propTypes = {
     handleEditSpec: PropTypes.func,
     hrefSubview: PropTypes.string,
     handleHrefSubview: PropTypes.func,
+    handlePreview: PropTypes.func,
     handleAddSpecSpec: PropTypes.func,
     handleDelete: PropTypes.func,
     handleRestore: PropTypes.func,

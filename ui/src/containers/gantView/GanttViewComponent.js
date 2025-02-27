@@ -49,11 +49,10 @@ import {OperationType} from '../../enum/OperationType.js';
 import {jsPDF} from 'jspdf';
 import {exportGantt as exportGanttToPdf} from 'devextreme/pdf_exporter';
 import 'jspdf-autotable';
-import {cellTemplate} from './GanttTemplate.js';
+import {cellTemplate, contextMenuItems} from './GanttTemplate.js';
 
 const UNCOLLAPSED_CUT_SIZE = 314;
 const COLLAPSED_CUT_SIZE = 125;
-
 let _rowIndex = null;
 let _bgcolor = null;
 let _fontcolor = null;
@@ -72,7 +71,7 @@ class GanttViewComponent extends React.Component {
         this.currentClickedCell = React.createRef();
         this.clickedPosition = React.createRef();
         this.labels = this.props;
-        this.menu = React.createRef();
+        this.menuContextRef = React.createRef();
         this.state = {
             data: {},
             formatBoxValue: formats[0],
@@ -126,6 +125,11 @@ class GanttViewComponent extends React.Component {
         ];
         return stripLines;
     }
+
+    existsOperationsPPM = () => {
+        return this.props.parsedGanttView.operationsPPM && this.props.parsedGanttView.operationsPPM?.length !== 0;
+    };
+
     render() {
         const showRowLines = this.props.showRowLines;
         const showColumnHeaders = this.props.showColumnHeaders;
@@ -135,7 +139,6 @@ class GanttViewComponent extends React.Component {
         const endDateRange = this.getRangeDate(this.props?.parsedGanttView?.ganttOptions?.endDateRange);
         const startDateRange = this.getRangeDate(this.props?.parsedGanttView?.ganttOptions?.startDateRange);
         const isDependencies = this.props?.parsedGanttView?.ganttOptions?.isDependencies;
-        const scaleType = this.props?.parsedGanttView?.ganttOptions?.scaleType;
         const isResources = this.props?.parsedGanttView?.ganttOptions?.isResources;
         const isEditing = !!this.props?.parsedGanttView?.ganttOptions?.isEditing;
         const taskListWidth = this.props?.parsedGanttView?.ganttOptions?.taskListWidth;
@@ -160,21 +163,22 @@ class GanttViewComponent extends React.Component {
         const resourceIdResourceAssigment = this.props.parsedGanttView?.resourceAssignmentFields?.resourceId;
         const taskIdResourceAssigment = this.props.parsedGanttView?.resourceAssignmentFields?.taskId;
 
-        const kindView = this.props.elementKindView;
-        const subViewId = this.props.elementSubViewId;
-        const selectedRecordId = this.state.selectedRecordId;
-        const parentId = this.props.elementRecordId;
-        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
-        const viewId = DataGridUtils.getRealViewId(subViewId, this.props.id);
         return (
             <React.Fragment>
                 <Gantt
                     onContextMenuPreparing={(e) => {
-                        e.cancel = true;
-                        this.showMenu(e);
+                        if (!this.existsOperationsPPM()) {
+                            e.cancel = true;
+                        }
+                        this.setState({selectedRecordId: e.data.ID});
+                        const checkboxToSelect = this.refsCheckboxArray[e.data.ID].instance;
+                        checkboxToSelect.option('value', true);
                     }}
                     stripLines={this.getStripLines()}
                     id='gantt-container'
+                    onCustomCommand={(e) => {
+                        this.onCustomCommandClick(e);
+                    }}
                     keyExpr={KEY}
                     focusedRowEnabled={false}
                     hoverStateEnabled={false}
@@ -187,8 +191,6 @@ class GanttViewComponent extends React.Component {
                     rowAlternationEnabled={false}
                     width={width}
                     onTaskClick={(e) => {
-                        const menu = this.menu.current;
-                        menu.hide(e.event);
                         if (e?.data?.ID) {
                             this.currentClickedCell.current = e.data.ID;
                         }
@@ -253,36 +255,14 @@ class GanttViewComponent extends React.Component {
                     {this.state.columns}
                     <Editing enabled={isEditing} />
                     <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'} />
+                    {this.existsOperationsPPM() && (
+                        <ContextMenu
+                            closeMenuOnClick={true}
+                            ref={this.menuContextRef}
+                            items={contextMenuItems(this.props.parsedGanttView.operationsPPM)}
+                        />
+                    )}
                 </Gantt>
-                <MenuWithButtons
-                    gridView={this.props.parsedGanttView}
-                    clickedPosition={this.clickedPosition}
-                    handlePlugins={(e) => this.preOperationAction(e, () => this.props.handlePluginRow(e.id))}
-                    handleDocuments={(e) => this.preOperationAction(e, () => this.props.handleDocumentRow(e.id))}
-                    componentInducedTime={this.state.menuWithButtonInducedTime}
-                    zIndex={1000001}
-                    handleSaveAction={() => this.props.handleSaveAction()}
-                    handleHrefSubview={() => this.handleHrefSubview(viewId, selectedRecordId, currentBreadcrumb)}
-                    handleEdit={(e) =>
-                        this.preOperationAction(e, () =>
-                            this.handleEdit(viewId, parentId, selectedRecordId, currentBreadcrumb, kindView)
-                        )
-                    }
-                    handleEditSpec={() => this.handleEditSpec(viewId, parentId, selectedRecordId, currentBreadcrumb)}
-                    handleAdd={() => this.props.addButtonFunction()}
-                    handleCopy={(e) => this.preOperationAction(e, () => this.props.handleCopyRow())}
-                    handleArchive={(e) => this.preOperationAction(e, () => this.props.handleArchiveRow())}
-                    handlePublish={(e) => this.preOperationAction(e, () => this.props.handlePublishRow())}
-                    handleDownload={(e) => this.preOperationAction(e, () => this.props.handleDownloadRow())}
-                    handleAttachments={(e) => this.preOperationAction(e, () => this.props.handleAttachmentRow())}
-                    handleDelete={(e) => this.preOperationAction(e, () => this.props.handleDeleteRow())}
-                    handleRestore={(e) => this.preOperationAction(e, () => this.props.handleRestoreRow())}
-                    handleFormula={(e) => this.preOperationAction(e, () => this.props.handleFormulaRow())}
-                    handleHistory={(e) => this.preOperationAction(e, () => this.props.handleHistoryLogRow())}
-                    handleFill={(e) => this.preOperationAction(e, () => this.props.handleFillRow())}
-                    operationList={this.props.parsedGanttView.operationsPPM}
-                    menu={this.menu}
-                />
             </React.Fragment>
         );
     }
@@ -291,7 +271,6 @@ class GanttViewComponent extends React.Component {
         const isLandscape = this.state.landscapeCheckBoxValue;
         const exportMode = this.state.exportModeBoxValue.toLowerCase();
         const dataRangeMode = this.state.dateRangeBoxValue.toLowerCase();
-
         const gantt = this.ganttRef.current.instance;
         exportGanttToPdf({
             component: gantt,
@@ -302,36 +281,7 @@ class GanttViewComponent extends React.Component {
             dateRange: dataRangeMode,
         }).then((doc) => doc.save('gantt.pdf'));
     };
-    showMenu(e) {
-        const menu = this.menu.current;
-        ActionButtonWithMenuUtils.hideActionButtonWithMenuPopup();
-        if (menu !== null && e.targetType === 'task' && !!e?.data?.ID) {
-            const mouseX = e.event.clientX;
-            const mouseY = e.event.clientY;
-            e.event.stopPropagation();
-            e.event.preventDefault();
-            menu.show(e.event);
-            const checkboxToSelect = this.refsCheckboxArray[e.data.ID].instance;
-            checkboxToSelect.option('value', true);
-            this.setState({selectedRecordId: e.data.ID, menuWithButtonInducedTime: new Date()}, () => {
-                const menu = document.getElementById('menu-with-buttons');
-                const menuHeight = menu.clientHeight + 50;
-                let heighY = mouseY;
-                const browserHeight = window.innerHeight;
-                if (browserHeight < menuHeight + mouseY - 50) {
-                    heighY = mouseY - menuHeight + 50;
-                }
-                menu.style.left = mouseX + 'px';
-                menu.style.top = heighY + 'px';
-                this.clickedPosition.current = {
-                    x: mouseX + 'px',
-                    y: mouseY + 'px',
-                };
-            });
-        } else if (menu !== null && e.targetType === 'task') {
-            menu.hide(e.event);
-        }
-    }
+
     setSelectionWidth(data) {
         const allDatas = data.map((el) => new ParentModel(el.ID, el.ID_PARENT));
         const parents = allDatas.filter((el) => el.idParent === null);
@@ -485,13 +435,17 @@ class GanttViewComponent extends React.Component {
         }
         callback();
     };
-    handleEdit(viewId, parentId, recordId, currentBreadcrumb, kindView) {
+
+    handlePreview(viewId, parentId, kindView, recordId) {
+        handleEdit(viewId, parentId, kindView, recordId, true);
+    }
+
+    handleEdit(viewId, parentId, recordId, kindView, readOnly = false) {
         if (TreeListUtils.isKindViewSpec(this.props.parsedGanttView)) {
             TreeListUtils.openEditSpec(
                 viewId,
                 parentId,
                 [recordId],
-                currentBreadcrumb,
                 () => this.props.handleUnblockUi(),
                 (err) => this.props.showErrorMessages(err)
             );
@@ -509,27 +463,28 @@ class GanttViewComponent extends React.Component {
                             this.props.handleShowEditPanel(editDataResponse)
                         ),
                     this.props.handleUnblockUi,
-                    this.props.showErrorMessages
+                    this.props.showErrorMessages,
+                    readOnly
                 );
             }
         }
     }
 
-    handleEditSpec(viewId, parentId, recordId, currentBreadcrumb) {
+    handleEditSpec(viewId, parentId, recordId) {
         let prevUrl = window.location.href;
         sessionStorage.setItem('prevUrl', prevUrl);
         TreeListUtils.openEditSpec(
             viewId,
             parentId,
             [recordId],
-            currentBreadcrumb,
             () => this.props.handleUnblockUi(),
             (err) => this.props.showErrorMessages(err)
         );
     }
 
-    handleHrefSubview(viewId, recordId, currentBreadcrumb) {
+    handleHrefSubview(viewId, recordId) {
         const result = this.props.handleBlockUi();
+        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
         if (result) {
             const newUrl = AppPrefixUtils.locationHrefUrl(
                 `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${
@@ -769,34 +724,27 @@ class GanttViewComponent extends React.Component {
                                         handleEdit={(e) => {
                                             this.preOperationAction(
                                                 e,
-                                                () =>
-                                                    this.handleEdit(
-                                                        viewId,
-                                                        parentId,
-                                                        recordId,
-                                                        currentBreadcrumb,
-                                                        kindView
-                                                    ),
+                                                () => this.handleEdit(viewId, parentId, recordId, kindView),
+                                                recordId
+                                            );
+                                        }}
+                                        handlePreview={(e) => {
+                                            this.preOperationAction(
+                                                e,
+                                                () => this.handlePreview(viewId, parentId, recordId, kindView),
                                                 recordId
                                             );
                                         }}
                                         handleEditSpec={() => {
-                                            this.handleEditSpec(viewId, parentId, recordId, currentBreadcrumb);
+                                            this.handleEditSpec(viewId, parentId, recordId);
                                         }}
                                         hrefSubview={AppPrefixUtils.locationHrefUrl(
                                             `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${
                                                 !!currentBreadcrumb ? currentBreadcrumb : ``
                                             }`
                                         )}
-                                        hrefSpecView={EditSpecUtils.editSpecUrl(
-                                            viewId,
-                                            parentId,
-                                            compress([recordId]),
-                                            currentBreadcrumb
-                                        )}
-                                        handleHrefSubview={() =>
-                                            this.handleHrefSubview(viewId, recordId, currentBreadcrumb)
-                                        }
+                                        hrefSpecView={EditSpecUtils.editSpecUrl(viewId, parentId, compress([recordId]))}
+                                        handleHrefSubview={() => this.handleHrefSubview(viewId, recordId)}
                                         handleDocuments={(e) =>
                                             this.preOperationAction(
                                                 e,
@@ -893,17 +841,83 @@ class GanttViewComponent extends React.Component {
                 );
             });
         }
-
         this.setState({
             columns: columns,
         });
     }
-
     clearProperties() {
         _rowIndex = null;
         _bgcolor = null;
         _fontcolor = null;
     }
+
+    onCustomCommandClick = (e) => {
+        const kindView = this.props.elementKindView;
+        const subViewId = this.props.elementSubViewId;
+        const selectedRecordId = this.state.selectedRecordId;
+        const parentId = this.props.elementRecordId;
+        const viewId = DataGridUtils.getRealViewId(subViewId, this.props.id);
+        if (this.existsOperationsPPM()) {
+            setTimeout(() => {
+                switch (e.name?.toUpperCase()) {
+                    case OperationType.OP_EDIT:
+                        this.preOperationAction(e, () => this.handleEdit(viewId, parentId, selectedRecordId, kindView));
+                        break;
+                    case OperationType.OP_EDIT_SPEC:
+                        this.handleEditSpec(viewId, parentId, selectedRecordId);
+                        break;
+                    case OperationType.OP_SUBVIEWS:
+                        this.handleHrefSubview(viewId, selectedRecordId);
+                        break;
+                    case OperationType.OP_DELETE:
+                        this.preOperationAction(e, () => this.props.handleDeleteRow());
+                        break;
+                    case OperationType.OP_RESTORE:
+                        this.preOperationAction(e, () => this.props.handleRestoreRow());
+                        break;
+                    case OperationType.OP_COPY:
+                        this.preOperationAction(e, () => this.props.handleCopyRow());
+                        break;
+                    case OperationType.SK_DOCUMENT:
+                        this.preOperationAction(e, () => this.props.handleDocumentRow(e.id));
+                        break;
+                    case OperationType.SK_PLUGIN:
+                        this.preOperationAction(e, () => this.props.handlePluginRow(e.id));
+                        break;
+                    case OperationType.OP_ARCHIVE:
+                        this.preOperationAction(e, () => this.props.handleArchiveRow());
+                        break;
+                    case OperationType.OP_PUBLISH:
+                        this.preOperationAction(e, () => this.props.handlePublishRow());
+                        break;
+                    case OperationType.OP_FORMULA:
+                        this.preOperationAction(e, () => this.props.handleFormulaRow());
+                        break;
+                    case OperationType.OP_DOWNLOAD:
+                        this.preOperationAction(e, () => this.props.handleDownloadRow());
+                        break;
+                    case OperationType.OP_HISTORY:
+                        this.preOperationAction(e, () => this.props.handleHistoryLogRow());
+                        break;
+                    case OperationType.OP_ATTACHMENTS:
+                        this.preOperationAction(e, () => this.props.handleAttachmentRow());
+                        break;
+                    case OperationType.OP_FILL:
+                        this.preOperationAction(e, () => this.props.handleFillRow());
+                        break;
+                    case OperationType.OP_ADD:
+                        this.props.addButtonFunction();
+                        break;
+                    case OperationType.OP_SAVE:
+                        this.props.handleSaveAction();
+                        break;
+                    default:
+                        console.log('error not found type: ' + e.name?.toUpperCase());
+                        return null;
+                }
+            });
+        }
+    };
 }
 
 GanttViewComponent.defaultProps = {

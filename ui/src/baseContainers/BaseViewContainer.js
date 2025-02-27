@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import BaseContainer from '../baseContainers/BaseContainer';
 import ActionButtonWithMenu from '../components/prolab/ActionButtonWithMenu';
-import FullScreenDialogComponent from '../components/prolab/FullScreenDialogComponent';
+import EditHeaderDialogComponent from '../components/prolab/EditHeaderDialogComponent';
 import HeadPanel from '../components/prolab/HeadPanel';
 import ShortcutsButton from '../components/prolab/ShortcutsButton';
 import CrudService from '../services/CrudService';
@@ -53,7 +53,7 @@ import FileTypeUtils from '../utils/FileTypeUtils';
 import {TranslationUtils} from '../utils/TranslationUtils';
 import {ConfirmPluginDialogComponent} from '../components/prolab/ConfirmPluginDialogComponent';
 import {EditFormType} from '../enum/EditFormType';
-import EditRowComponent from '../components/prolab/EditRowComponent';
+import EditHeaderComponent from '../components/prolab/EditHeaderComponent';
 import CodeService from '../services/CodeService';
 import {ArrayUtils} from '../utils/ArrayUtils';
 import {CodeOperationType} from '../enum/CodeOperationType';
@@ -475,7 +475,6 @@ export class BaseViewContainer extends BaseContainer {
                     viewId,
                     parentId,
                     result.listId[0],
-                    Breadcrumb.currentBreadcrumbAsUrlParam(),
                     this.state.parsedGridView,
                     () => this.handleUnBlockUi(),
                     (err) => this.showErrorMessage(err)
@@ -534,7 +533,7 @@ export class BaseViewContainer extends BaseContainer {
             <React.Fragment>
                 {this.state.visibleEditPanel ? (
                     !StringUtils.isBlank(formType) && formType.toUpperCase() === EditFormType.FULLSCREEN ? (
-                        <FullScreenDialogComponent
+                        <EditHeaderDialogComponent
                             visibleEditPanel={this.state.visibleEditPanel}
                             editData={this.state.editData}
                             kindView={this.state.elementKindView}
@@ -556,7 +555,7 @@ export class BaseViewContainer extends BaseContainer {
                             showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                         />
                     ) : (
-                        <EditRowComponent
+                        <EditHeaderComponent
                             visibleEditPanel={this.state.visibleEditPanel}
                             editData={this.state.editData}
                             kindView={this.state.elementKindView}
@@ -1462,6 +1461,7 @@ export class BaseViewContainer extends BaseContainer {
                 this.showGlobalErrorMessage(err);
             });
     }
+
     openEditRowIfPossible() {
         if (UrlUtils.isEditRowOpen()) {
             setTimeout(() => {
@@ -1469,39 +1469,17 @@ export class BaseViewContainer extends BaseContainer {
                 const editParentId = UrlUtils.getEditParentId();
                 const editRecordId = UrlUtils.getEditRecordId();
                 const editKindView = UrlUtils.getEditKindView();
-                this.crudService
-                    .editEntry(editViewId, editRecordId, editParentId, editKindView)
-                    .then((entryResponse) => {
-                        EntryResponseHelper.run(
-                            entryResponse,
-                            () => {
-                                if (!!entryResponse.next) {
-                                    this.crudService
-                                        .edit(editViewId, editRecordId, editParentId, editKindView)
-                                        .then((editDataResponse) => {
-                                            this.setState(
-                                                {
-                                                    editData: editDataResponse,
-                                                },
-                                                () => {
-                                                    this.handleShowEditPanel(editDataResponse);
-                                                }
-                                            );
-                                        })
-                                        .catch((res) => {
-                                            this.showGlobalErrorMessage(res);
-                                        });
-                                } else {
-                                    this.unblockUi();
-                                }
-                            },
-                            () => this.unblockUi(),
-                            () => this.unblockUi()
-                        );
-                    })
-                    .catch((err) => {
-                        this.props.showErrorMessages(err);
-                    });
+                handleEdit(
+                    this.crudService,
+                    editViewId,
+                    editRecordId,
+                    editParentId,
+                    editKindView,
+                    (editDataResponse) =>
+                        this.setState({editData: editDataResponse}, () => this.handleShowEditPanel(editDataResponse)),
+                    () => this.unblockUi(),
+                    (err) => this.showGlobalErrorMessage(err)
+                );
             }, 1000);
         }
     }
@@ -1511,6 +1489,7 @@ export class BaseViewContainer extends BaseContainer {
             copyId: id,
         });
     }
+    // TODO: zeby korzystalo z handleEdit jesli mozliwe
     editSubView(e) {
         this.blockUi();
         const parentId = e.parentId || this.state.elementRecordId;
@@ -1718,8 +1697,7 @@ export class BaseViewContainer extends BaseContainer {
             window.dataGrid = prevDataGridGlobalReference;
             dataGrid = prevDataGridGlobalReference;
         }
-        // TODO napraw PPM z select row
-        // dataGrid.selectRows();
+        // dataGrid.selectRows(rowDataKeys.map((r) => r.ID));
         this.setState(
             {
                 selectedRowKeys: rowDataKeys,
@@ -1789,6 +1767,7 @@ export class BaseViewContainer extends BaseContainer {
                                 select: true,
                             });
                             dataGrid.getSelectedRowsData().then((rowData) => {
+                                // const selectedRowKeys = this.state.selectedRowKeys;
                                 // const uniqueRowData = rowData.filter(
                                 //     (value, index, self) => index === self.findIndex((t) => t.ID === value.ID)
                                 // );

@@ -5,7 +5,7 @@ import {Panel} from 'primereact/panel';
 import ShortcutButton from './ShortcutButton';
 import SimpleReactValidator from '../validator';
 import ConsoleHelper from '../../utils/ConsoleHelper';
-import EditListComponent from './EditListComponent';
+import ListOfHintsDialogComponent from './ListOfHintsDialogComponent';
 import {Toast} from 'primereact/toast';
 import CrudService from '../../services/CrudService';
 import BaseRowComponent from '../../baseContainers/BaseRowComponent';
@@ -14,8 +14,9 @@ import {TranslationUtils} from '../../utils/TranslationUtils';
 import {Dialog} from 'primereact/dialog';
 import EditListDataStore from '../../containers/dao/DataEditListStore';
 import EditRowUtils from '../../utils/EditRowUtils';
+import {RequestUtils} from '../../utils/RequestUtils';
 
-export class FullScreenDialogComponent extends BaseRowComponent {
+export class EditHeaderDialogComponent extends BaseRowComponent {
     constructor(props) {
         super(props);
         this.service = new CrudService();
@@ -203,6 +204,8 @@ export class FullScreenDialogComponent extends BaseRowComponent {
         const opClose = TranslationUtils.getOpButton(operations, OperationType.OP_CLOSE);
         const opAttachment = TranslationUtils.getOpButton(operations, OperationType.OP_ATTACHMENTS);
         const editData = this.props.editData;
+        const editInfo = this.props.editData?.editInfo;
+
         return (
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
@@ -213,33 +216,38 @@ export class FullScreenDialogComponent extends BaseRowComponent {
                     style={{width: '100%', height: '100%', maxHeight: '100%'}}
                     visible={true}
                 >
-                    <EditListComponent
-                        visible={this.state.editListVisible}
-                        field={this.state.editListField}
-                        parsedGridView={this.state.parsedGridView}
-                        parsedGridViewData={this.state.parsedGridViewData}
-                        gridViewColumns={this.state.gridViewColumns}
-                        onHide={() => {
-                            this.setState({editListVisible: false});
-                        }}
-                        handleBlockUi={() => {
-                            this.blockUi();
-                            return true;
-                        }}
-                        handleUnblockUi={() => this.unblockUi}
-                        handleOnChosen={(editListData, field) => {
-                            ConsoleHelper('EditRowComponent::handleOnChosen = ', JSON.stringify(editListData));
-                            let editInfo = this.props.editData?.editInfo;
-                            editInfo.field = field;
-                            this.props.onEditList(editInfo, editListData);
-                        }}
-                        showErrorMessages={(err) => this.props.showErrorMessages(err)}
-                        dataGridStoreSuccess={this.state.dataGridStoreSuccess}
-                        selectedRowData={this.state.selectedRowData}
-                        defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
-                        handleSelectedRowData={(e) => this.handleSelectedRowData(e)}
-                        labels={labels}
-                    />
+                    {this.state.editListVisible && (
+                        <ListOfHintsDialogComponent
+                            field={this.state.editListField}
+                            viewId={editInfo?.viewId}
+                            recordId={editInfo?.recordId}
+                            parentId={editInfo?.parentId}
+                            editListBody={RequestUtils.createObjectDataToRequest(this.props)}
+                            visible={this.state.editListVisible}
+                            parsedGridView={this.state.parsedGridView}
+                            parsedGridViewData={this.state.parsedGridViewData}
+                            gridViewColumns={this.state.gridViewColumns}
+                            onHide={() => {
+                                this.setState({editListVisible: false});
+                            }}
+                            handleBlockUi={() => {
+                                this.blockUi();
+                                return true;
+                            }}
+                            handleUnblockUi={() => this.unblockUi}
+                            handleOnChosen={(editListData, field) => {
+                                ConsoleHelper('EditHeaderComponent::handleOnChosen = ', JSON.stringify(editListData));
+                                let editInfo = this.props.editData?.editInfo;
+                                editInfo.field = field;
+                                this.props.onEditList(editInfo, editListData);
+                            }}
+                            showErrorMessages={(err) => this.props.showErrorMessages(err)}
+                            dataGridStoreSuccess={this.state.dataGridStoreSuccess}
+                            selectedRowData={this.state.selectedRowData}
+                            defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
+                            labels={labels}
+                        />
+                    )}
                     <form onSubmit={this.handleFormSubmit} noValidate>
                         <div className='row no-gutters'>
                             <div id='view-name' className='col-lg-4 col-md-12'>
@@ -248,6 +256,7 @@ export class FullScreenDialogComponent extends BaseRowComponent {
                                 </div>
                                 {opAttachment && (
                                     <ShortcutButton
+                                        disabled={this.isReadOnly()}
                                         id={'opAttachment'}
                                         className={`grid-button-panel-big normal mt-1 mb-1 mr-1`}
                                         handleClick={this.handleAttachment}
@@ -259,7 +268,7 @@ export class FullScreenDialogComponent extends BaseRowComponent {
                             </div>
                             <div className='col-4'></div>
                             <div className='col-lg-4 col-md-12 text-right'>
-                                {opSave && (
+                                {opSave && !this.isReadOnly() && (
                                     <ShortcutButton
                                         id={'opSave'}
                                         className={`grid-button-panel-big inverse mt-1 mb-1 mr-1 `}
@@ -269,7 +278,7 @@ export class FullScreenDialogComponent extends BaseRowComponent {
                                         rendered={opSave}
                                     />
                                 )}
-                                {opFill && EditRowUtils.hasAnyToFillField(editData) && (
+                                {opFill && !this.isReadOnly() && EditRowUtils.hasAnyToFillField(editData) && (
                                     <ShortcutButton
                                         id={'opFill'}
                                         className={`grid-button-panel-big inverse mt-1 mb-1 mr-1 `}
@@ -370,6 +379,7 @@ export class FullScreenDialogComponent extends BaseRowComponent {
                         >
                             <DivContainer>
                                 {group.fields?.map((field, index) => {
+                                    field.readOnly = this.isReadOnly();
                                     return (
                                         <span key={`field_col_` + index}>
                                             {this.renderField(field, index, group.uuid)}
@@ -385,9 +395,9 @@ export class FullScreenDialogComponent extends BaseRowComponent {
     }
 }
 
-FullScreenDialogComponent.defaultProps = {};
+EditHeaderDialogComponent.defaultProps = {};
 
-FullScreenDialogComponent.propTypes = {
+EditHeaderDialogComponent.propTypes = {
     visibleEditPanel: PropTypes.bool.isRequired,
     editData: PropTypes.object.isRequired,
     kindView: PropTypes.string,
@@ -404,4 +414,4 @@ FullScreenDialogComponent.propTypes = {
     labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
 };
 
-export default FullScreenDialogComponent;
+export default EditHeaderDialogComponent;

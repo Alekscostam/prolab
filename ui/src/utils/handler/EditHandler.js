@@ -9,7 +9,8 @@ export const handleEdit = (
     kindView,
     handleShowEditPanel,
     handleUnblockUi,
-    showErrorMessages
+    showErrorMessages,
+    readOnly
 ) => {
     crudService
         .editEntry(viewId, recordId, parentId, kindView, '')
@@ -21,6 +22,7 @@ export const handleEdit = (
                         crudService
                             .edit(viewId, recordId, parentId, kindView)
                             .then((editDataResponse) => {
+                                editDataResponse.editInfo.readOnly = readOnly;
                                 handleShowEditPanel(editDataResponse);
                             })
                             .catch((err) => {
@@ -39,22 +41,13 @@ export const handleEdit = (
         });
 };
 
-export const handleEditSpec = (
-    viewId,
-    parentId,
-    recordId,
-    currentBreadcrumb,
-    parsedGridView,
-    handleUnblockUi,
-    showErrorMessages
-) => {
+export const handleEditSpec = (viewId, parentId, recordId, parsedGridView, handleUnblockUi, showErrorMessages) => {
     const prevUrl = window.location.href;
     sessionStorage.setItem('prevUrl', prevUrl);
     TreeListUtils.openEditSpec(
         viewId,
         TreeListUtils.isKindViewSpec(parsedGridView) ? parentId : recordId,
         TreeListUtils.isKindViewSpec(parsedGridView) ? [recordId] : [],
-        currentBreadcrumb,
         handleUnblockUi,
         showErrorMessages
     );

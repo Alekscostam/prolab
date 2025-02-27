@@ -26,8 +26,10 @@ class CardViewInfiniteComponent extends PureComponent {
         super(props);
         this.crudService = new CrudService();
         this.labels = this.props;
-        this.menu = React.createRef();
         this.clickedPosition = React.createRef();
+        this.menuRef = React.createRef();
+        this.selectedRecordIdRef = React.createRef();
+        this.selectedRowDataRef = React.createRef();
         this.dataCardStore = new DataCardStore();
         this.state = {
             imageViewer: {
@@ -41,8 +43,6 @@ class CardViewInfiniteComponent extends PureComponent {
             cardSkip: 0,
             cardScrollLoading: false,
             columnCount: 1,
-            selectedRecordId: undefined,
-            selectedRowData: undefined,
         };
         this.cardViewRef = React.createRef();
         ConsoleHelper('CardViewComponent -> constructor');
@@ -53,38 +53,6 @@ class CardViewInfiniteComponent extends PureComponent {
             const windowSizeWidth = window.innerWidth;
             const cardWidth = this.props.parsedCardView?.cardOptions?.width ?? 300;
             this.setState({columnCount: this.calculateColumns(windowSizeWidth, cardWidth)});
-        }
-    }
-
-    showMenu(e, rowData) {
-        const menu = this.menu.current;
-        ActionButtonWithMenuUtils.hideActionButtonWithMenuPopup();
-        if (menu !== null && !!rowData) {
-            const mouseX = e.clientX;
-            const mouseY = e.clientY;
-            e.stopPropagation();
-            e.preventDefault();
-            menu.show(e);
-            if (this.isSelectionEnabled()) {
-                this.selectRowKeys(this.props.selectedRowKeys, rowData.ID);
-            }
-            this.setState({selectedRecordId: rowData.ID, selectedRowData: rowData}, () => {
-                const menu = document.getElementById('menu-with-buttons');
-                const menuHeight = menu.clientHeight + 50;
-                const browserHeight = window.innerHeight;
-                let heighY = mouseY;
-                if (browserHeight < menuHeight + mouseY - 50) {
-                    heighY = mouseY - menuHeight + 50;
-                }
-                menu.style.left = mouseX + 'px';
-                menu.style.top = heighY + 'px';
-                this.clickedPosition.current = {
-                    x: mouseX + 'px',
-                    y: mouseY + 'px',
-                };
-            });
-        } else if (menu !== null && !!rowData) {
-            menu.hide(e);
         }
     }
     selectRowKeys = (currentSelectedRowKeys, recordId, callback) => {
@@ -243,7 +211,7 @@ class CardViewInfiniteComponent extends PureComponent {
         const result = this.props.handleBlockUi();
         if (result) {
             this.crudService
-                .editEntry(viewId, recordId, subviewId, elementKindView, '')
+                .editEntry(viewId, recordId, subviewId, elementKindView)
                 .then((entryResponse) => {
                     EntryResponseHelper.run(
                         entryResponse,
@@ -340,7 +308,7 @@ class CardViewInfiniteComponent extends PureComponent {
     };
     render() {
         const cardHeight = this.props.parsedCardView?.cardOptions?.height ?? 200;
-        const selectedRowData = this.state.selectedRowData;
+        const selectedRowData = this.selectedRowDataRef.current;
         const imageViewer = this.state.imageViewer;
         const isItemLoaded = (index) => !this.state.hasNextPage || index < this.state.items.length;
         const Item = ({index, style}) => {
@@ -383,8 +351,9 @@ class CardViewInfiniteComponent extends PureComponent {
                 </WindowSizeListener>
                 {this.props.parsedCardView?.operationsPPM && this.props.parsedCardView.operationsPPM.length !== 0 && (
                     <MenuWithButtons
+                        target='div.dx-item.dx-tile'
+                        menuRef={this.menuRef}
                         gridView={this.props.parsedCardView}
-                        clickedPosition={this.clickedPosition}
                         handleEdit={(e) => {
                             this.preOperationAction(e, () => this.handleEdit(selectedRowData));
                         }}
@@ -410,7 +379,6 @@ class CardViewInfiniteComponent extends PureComponent {
                         handleRestore={(e) => this.preOperationAction(e, () => this.props.handleRestoreRow())}
                         handlePublish={(e) => this.preOperationAction(e, () => this.props.handlePublishRow())}
                         operationList={this.props.parsedCardView.operationsPPM}
-                        menu={this.menu}
                     />
                 )}
                 {imageViewer.imageViewDialogVisible && (
@@ -433,7 +401,7 @@ class CardViewInfiniteComponent extends PureComponent {
             </React.Fragment>
         );
     }
-    preOperationAction = (operation, callback, recordId = this.state.selectedRecordId) => {
+    preOperationAction = (operation, callback, recordId = this.selectedRecordIdRef.current) => {
         if (this.isSelectionEnabled()) {
             const onlyOneRecord = operation?.onlyOneRecord;
             if (onlyOneRecord) {
@@ -453,9 +421,10 @@ class CardViewInfiniteComponent extends PureComponent {
             <React.Fragment>
                 <div
                     onContextMenu={(e) => {
-                        this.showMenu(e, rowData);
+                        this.selectedRecordIdRef.current = rowData.ID;
+                        this.selectedRowDataRef.current = rowData;
                     }}
-                    key={index}
+                    key={'tile-' + index}
                     className={`dx-item dx-tile`}
                     onClick={() => {
                         if (this.isSelectionEnabled()) {

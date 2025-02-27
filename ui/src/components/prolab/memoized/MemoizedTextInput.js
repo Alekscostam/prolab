@@ -36,7 +36,9 @@ export const MemoizedTextInput = React.memo(
                             isValid={isValid}
                             onDisposing={(e) => {
                                 const value = cellInfo?.value;
-                                afterValidatorExecute(cellValidator, value);
+                                if (afterValidatorExecute) {
+                                    afterValidatorExecute(cellValidator, value);
+                                }
                                 if (field.fieldName === 'FORMULA') {
                                     if (
                                         (StringUtils.isBlankOrEmpty(cellInfo.displayValue) &&

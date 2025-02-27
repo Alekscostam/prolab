@@ -50,6 +50,7 @@ const renderHyperlink = (cellInfo, fontColorFinal, bgColorFinal) => {
             <a
                 style={{display: 'contents', color: fontColorFinal, background: bgColorFinal}}
                 href={cellInfo?.text}
+                title={StringUtils.textFromHtmlString(cellInfo.text)}
                 target='_blank'
                 rel='noopener noreferrer'
             >
@@ -64,7 +65,10 @@ const renderHyperlink = (cellInfo, fontColorFinal, bgColorFinal) => {
 const renderHtmlOutput = (cellInfo, fontColorFinal, bgColorFinal) => {
     try {
         return (
-            <span style={{color: fontColorFinal, background: bgColorFinal}}>
+            <span
+                style={{color: fontColorFinal, background: bgColorFinal}}
+                title={StringUtils.textFromHtmlString(cellInfo.text)}
+            >
                 {StringUtils.textFromHtmlString(cellInfo?.text)}{' '}
             </span>
         );
@@ -184,6 +188,7 @@ const renderCharacter = (
                 </div>
             ) : (
                 <div
+                    title={StringUtils.textFromHtmlString(cellInfo.text)}
                     className={isWart(cellInfo?.column?.dataField) ? 'WART' : ''}
                     style={{color: fontColorFinal, background: bgColorFinal}}
                     dangerouslySetInnerHTML={{__html: cellInfo?.text}}

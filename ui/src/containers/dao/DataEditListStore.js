@@ -15,8 +15,93 @@ export default class EditListDataStore extends BaseService {
         super();
         this.path = 'View';
         this.response = {};
+        // this.cachedLoadOptions = null;
         this.lastFetchedData = null;
         this.fetchData = useStore.getState().fetchData;
+    }
+    // https://rdprolab.inform-tech.pl:444/PPA/api/viewdata/18932?viewType=gridView&selection=true
+    // https://rdprolab.inform-tech.pl:444/PPA/api/View/18932/edit/20/list/51232/data?&parentId=0&selection=true&viewType=gridView
+    // https://rdprolab.inform-tech.pl:444/PPA/api/View/18932/edit/20/list/51232/data?requireTotalCount=true&skip=0&take=60&&parentId=0&viewType=gridView
+    getAllEditListDataStore(
+        viewIdArg,
+        viewTypeArg,
+        parentIdArg,
+        filterIdArg,
+        recordIdArg,
+        kindViewArg,
+        fieldIdArg,
+        filters,
+        onSuccessCallback
+    ) {
+        let params = '?';
+        let filter = undefined;
+        let sort = undefined;
+        let group = undefined;
+        [
+            !!filters && filters.length > 0 ? 'filter' : undefined,
+            'group',
+            'groupSummary',
+            'parentIds',
+            'requireGroupCount',
+            'requireTotalCount',
+            'searchExpr',
+            'searchOperation',
+            'searchValue',
+            'select',
+            'sort',
+            'totalSummary',
+            // 'userData',
+        ].forEach((i) => {
+            if (i in this.cachedLoadOptions && this.isNotEmpty(this.cachedLoadOptions[i])) {
+                if (TansformFiltersUtil.notExcludedForFilter(i)) {
+                    params += `${i}=${JSON.stringify(filters)}&`;
+                }
+                switch (i) {
+                    case 'filter':
+                        this.cachedLoadOptions[i] = filters;
+                        filter = filters;
+                        break;
+                    case 'group':
+                        group = this.cachedLoadOptions[i];
+                        break;
+                    case 'sort':
+                        sort = this.cachedLoadOptions[i];
+                        break;
+                    default:
+                    // nothing
+                }
+            }
+        });
+        recordIdArg = UrlUtils.batchIdParamExist() ? UrlUtils.getBatchIdParam() : recordIdArg;
+        const point = UrlUtils.batchIdParamExist() ? 'batch' : 'edit';
+        const kindViewParam = !!kindViewArg && !!parentIdParam ? `&kindView=${kindViewArg}` : '';
+        const viewTypeParam = this.createParam(viewTypeArg, 'viewType');
+        const filterIdParam = this.createParam(filterIdArg, 'filter');
+        const parentIdParam = this.createParam(parentIdArg, 'parentId');
+        const selectAllParam = `&selection=true`;
+        const requestBody = {
+            filter: filter,
+            sort: sort,
+            group: group,
+        };
+        let url = `${this.domain}/${this.path}/${viewIdArg}/${point}/${recordIdArg}/list/${fieldIdArg}/data${params}${parentIdParam}${filterIdParam}${selectAllParam}${viewTypeParam}${kindViewParam}`;
+        url = this.commonCorrectUrl(url);
+        return this.fetch(url, {
+            method: 'POST',
+            body: JSON.stringify(requestBody),
+        }).then((res) => {
+            if (onSuccessCallback) {
+                onSuccessCallback(res.totalCount);
+            }
+            this.cachedFromSelectAll = {
+                selectAll: res.totalCount === res.data.length,
+                data: res.data,
+                skip: res.skip,
+                take: res.take,
+                totalCount: res.totalCount,
+            };
+            return Promise.resolve(res);
+        });
     }
 
     getEditListDataStore(
@@ -47,6 +132,7 @@ export default class EditListDataStore extends BaseService {
                     let result = onStart();
                     selectAll = result?.selectAll;
                 }
+                // this.cachedLoadOptions = loadOptions;
                 const filter = loadOptions?.filter;
                 const sort = loadOptions?.sort;
                 const group = loadOptions?.group;

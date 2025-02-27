@@ -10,7 +10,7 @@ import {DataGridUtils} from '../../utils/component/DataGridUtils';
 import SimpleReactValidator from '../validator';
 import {Sidebar} from 'primereact/sidebar';
 import ConsoleHelper from '../../utils/ConsoleHelper';
-import EditListComponent from './EditListComponent';
+import ListOfHintsDialogComponent from './ListOfHintsDialogComponent';
 import {Toast} from 'primereact/toast';
 import EditListDataStore from '../../containers/dao/DataEditListStore';
 import CrudService from '../../services/CrudService';
@@ -19,10 +19,11 @@ import LocUtils from '../../utils/LocUtils';
 import {OperationType} from '../../enum/OperationType';
 import {TranslationUtils} from '../../utils/TranslationUtils';
 import EditRowUtils from '../../utils/EditRowUtils';
+import {RequestUtils} from '../../utils/RequestUtils';
 
 let copyDataGlobalTop = null;
 
-export class EditRowComponent extends BaseRowComponent {
+export class EditHeaderComponent extends BaseRowComponent {
     constructor(props) {
         super(props);
         this.service = new CrudService();
@@ -35,7 +36,6 @@ export class EditRowComponent extends BaseRowComponent {
             gridViewColumns: [],
             gridViewTypes: [],
             gridViewType: null,
-            dataGridStoreSuccess: false,
             selectedRowData: [],
             defaultSelectedRowKeys: [],
             preventSave: false,
@@ -91,56 +91,59 @@ export class EditRowComponent extends BaseRowComponent {
             return {left: 'ccol-80', right: 'ccol-20'};
         }
     }
+
     render() {
         const labels = this.props?.labels;
         const operations = this.props?.editData?.operations || [];
         const kindOperation = this.props.editData?.editInfo?.kindOperation;
         const leftColSize = this.getColSize().left;
         const rightColSize = this.getColSize().right;
-
+        const editInfo = this.props.editData?.editInfo;
         const opSave = TranslationUtils.getOpButton(operations, OperationType.OP_SAVE);
         const opFill = TranslationUtils.getOpButton(operations, OperationType.OP_FILL);
         const opCancel = TranslationUtils.getOpButton(operations, OperationType.OP_CANCEL);
         const opClose = TranslationUtils.getOpButton(operations, OperationType.OP_CLOSE);
         const opAttachment = TranslationUtils.getOpButton(operations, OperationType.OP_ATTACHMENTS);
-
         const visibleEditPanel = this.props.visibleEditPanel;
         const editData = this.props.editData;
         let editListVisible = this.state.editListVisible;
         if (this.props?.copyData) {
             copyDataGlobalTop = this.props.copyData;
         }
-
         return (
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
-                <EditListComponent
-                    visible={editListVisible}
-                    field={this.state.editListField}
-                    parsedGridView={this.state.parsedGridView}
-                    parsedGridViewData={this.state.parsedGridViewData}
-                    gridViewColumns={this.state.gridViewColumns}
-                    onHide={() => {
-                        this.setState({editListVisible: false});
-                    }}
-                    handleBlockUi={() => {
-                        this.blockUi();
-                        return true;
-                    }}
-                    handleUnblockUi={() => this.unblockUi}
-                    handleOnChosen={(editListData, field) => {
-                        ConsoleHelper('EditRowComponent::handleOnChosen = ', JSON.stringify(editListData));
-                        let editInfo = this.props.editData?.editInfo;
-                        editInfo.field = field;
-                        this.props.onEditList(editInfo, editListData);
-                    }}
-                    showErrorMessages={(err) => this.props.showErrorMessages(err)}
-                    dataGridStoreSuccess={this.state.dataGridStoreSuccess}
-                    selectedRowData={this.state.selectedRowData}
-                    defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
-                    handleSelectedRowData={(e) => this.handleSelectedRowData(e)}
-                    labels={labels}
-                />
+                {editListVisible && (
+                    <ListOfHintsDialogComponent
+                        field={this.state.editListField}
+                        viewId={editInfo?.viewId}
+                        recordId={editInfo?.recordId}
+                        parentId={editInfo?.parentId}
+                        editListBody={RequestUtils.createObjectDataToRequest(this.props)}
+                        visible={editListVisible}
+                        parsedGridView={this.state.parsedGridView}
+                        parsedGridViewData={this.state.parsedGridViewData}
+                        gridViewColumns={this.state.gridViewColumns}
+                        onHide={() => {
+                            this.setState({editListVisible: false});
+                        }}
+                        handleBlockUi={() => {
+                            this.blockUi();
+                            return true;
+                        }}
+                        handleUnblockUi={() => this.unblockUi}
+                        handleOnChosen={(editListData, field) => {
+                            ConsoleHelper('EditHeaderComponent::handleOnChosen = ', JSON.stringify(editListData));
+                            let editInfo = this.props.editData?.editInfo;
+                            editInfo.field = field;
+                            this.props.onEditList(editInfo, editListData);
+                        }}
+                        showErrorMessages={(err) => this.props.showErrorMessages(err)}
+                        selectedRowData={this.state.selectedRowData}
+                        defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
+                        labels={labels}
+                    />
+                )}
                 <Sidebar
                     ref={this.sidebarRef}
                     id='right-sidebar'
@@ -170,7 +173,7 @@ export class EditRowComponent extends BaseRowComponent {
                                 </div>
                                 <div className={rightColSize} style={{paddingLeft: '0px'}}>
                                     <div id='buttons' style={{textAlign: 'right'}}>
-                                        {opSave && (
+                                        {opSave && !this.isReadOnly() && (
                                             <ShortcutButton
                                                 id={'opSave'}
                                                 className={`grid-button-panel inverse mt-1 mb-1 mr-1`}
@@ -180,7 +183,7 @@ export class EditRowComponent extends BaseRowComponent {
                                                 rendered={opSave}
                                             />
                                         )}
-                                        {opFill && EditRowUtils.hasAnyToFillField(editData) && (
+                                        {opFill && !this.isReadOnly() && EditRowUtils.hasAnyToFillField(editData) && (
                                             <ShortcutButton
                                                 id={'opFill'}
                                                 className={`grid-button-panel inverse mt-1 mb-1 mr-1`}
@@ -232,6 +235,7 @@ export class EditRowComponent extends BaseRowComponent {
                                         )}
                                         {opAttachment && (
                                             <ShortcutButton
+                                                disabled={this.isReadOnly()}
                                                 id={'opAttachment'}
                                                 className={`grid-button-panel normal mt-1 mb-1 mr-1 col-lg-12`}
                                                 handleClick={this.handleAttachment}
@@ -311,6 +315,7 @@ export class EditRowComponent extends BaseRowComponent {
                     >
                         <DivContainer>
                             {group.fields?.map((field, index) => {
+                                field.readOnly = this.isReadOnly();
                                 return this.renderField(field, index, group.uuid);
                             })}
                         </DivContainer>
@@ -322,9 +327,9 @@ export class EditRowComponent extends BaseRowComponent {
     }
 }
 
-EditRowComponent.defaultProps = {};
+EditHeaderComponent.defaultProps = {};
 
-EditRowComponent.propTypes = {
+EditHeaderComponent.propTypes = {
     visibleEditPanel: PropTypes.bool.isRequired,
     editData: PropTypes.object.isRequired,
     kindView: PropTypes.string,
@@ -341,4 +346,4 @@ EditRowComponent.propTypes = {
     labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
 };
 
-export default EditRowComponent;
+export default EditHeaderComponent;

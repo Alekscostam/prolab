@@ -8,7 +8,7 @@ import ViewService from '../../services/ViewService';
 import DataGridStore from '../dao/DataGridStore';
 import {DashboardGridViewComponent} from './DashboardGridViewComponent';
 import {Breadcrumb} from '../../utils/BreadcrumbUtils';
-import EditRowComponent from '../../components/prolab/EditRowComponent';
+import EditHeaderComponent from '../../components/prolab/EditHeaderComponent';
 import {ConfirmDialog} from 'primereact/confirmdialog';
 import {localeOptions} from 'primereact/api';
 import PropTypes from 'prop-types';
@@ -26,7 +26,7 @@ import EntryResponseHelper from '../../utils/helper/EntryResponseHelper';
 import ImageViewerComponent from '../../components/ImageViewerComponent';
 import {StringUtils} from '../../utils/StringUtils';
 import {EditFormType} from '../../enum/EditFormType';
-import FullScreenDialogComponent from '../../components/prolab/FullScreenDialogComponent';
+import EditHeaderDialogComponent from '../../components/prolab/EditHeaderDialogComponent';
 import NumberUtil from '../../utils/NumberUtil';
 import {TranslationUtils} from '../../utils/TranslationUtils';
 import useStore from '../../store';
@@ -275,7 +275,7 @@ class DashboardContainer extends BaseContainer {
             <React.Fragment>
                 {this.state.visibleEditPanel ? (
                     !StringUtils.isBlank(formType) && formType.toUpperCase() === EditFormType.FULLSCREEN ? (
-                        <FullScreenDialogComponent
+                        <EditHeaderDialogComponent
                             visibleEditPanel={this.state.visibleEditPanel}
                             editData={this.state.editData}
                             kindView={this.state.elementKindView}
@@ -297,7 +297,7 @@ class DashboardContainer extends BaseContainer {
                             showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                         />
                     ) : (
-                        <EditRowComponent
+                        <EditHeaderComponent
                             visibleEditPanel={this.state.visibleEditPanel}
                             editData={this.state.editData}
                             onChange={this.handleEditRowChange}
@@ -560,8 +560,9 @@ class DashboardContainer extends BaseContainer {
 
     renderGridView(item, cardViewId, currentBreadcrumb, _cardHeight, recordId) {
         const showAddFromDashboard = useStore.getState().showAddFromDashboard;
-
         const opADD = TranslationUtils.getOpButton(item?.operations, OperationType.OP_ADD);
+        const opADDButton = TranslationUtils.getOpButton(item?.operations, OperationType.OP_ADD_BUTTON);
+
         return (
             <div key={`${item.id}_${cardViewId}_grid-view`} className='panel-dashboard'>
                 <span className='title-dashboard'>{item.label}</span>
@@ -579,7 +580,7 @@ class DashboardContainer extends BaseContainer {
                         rendered={true}
                         buttonShadow={false}
                     />
-                    {opADD && showAddFromDashboard && (
+                    {(opADD || opADDButton) && showAddFromDashboard && (
                         <ShortcutButton
                             key={`${item.id}_shortcut`}
                             id={`_menu_button`}
@@ -621,7 +622,7 @@ class DashboardContainer extends BaseContainer {
                     showColumnLines={false}
                     showRowLines={true}
                     showBorders={false}
-                    showColumnHeaders={false}
+                    showColumnHeaders={useStore.getState().showDashboardHeaders}
                     showAddButton={false}
                     showFilterRow={false}
                     showSelection={false}

@@ -3,6 +3,7 @@ import {GanttUtils} from '../../utils/component/GanttUtils';
 import {StringUtils} from '../../utils/StringUtils';
 import Image from '../../components/Image';
 import ReactDOM from 'react-dom';
+import {OperationType} from '../../enum/OperationType';
 
 let _rowIndex = null;
 let _bgcolor = null;
@@ -186,4 +187,47 @@ const renderImageCell = (element, text, fontColor, bgColor) => {
         </div>,
         element
     );
+};
+const menuExtendedItems = (i, documentsList, batchesList, pluginsList) => {
+    let items = undefined;
+    switch (i.type?.toUpperCase()) {
+        case OperationType.OP_DOCUMENTS:
+            items = documentsList.map((i, index) => {
+                return menuExtendedItem(i, index + '-document');
+            });
+            return items;
+        case OperationType.OP_PLUGINS:
+            items = pluginsList.map((i, index) => {
+                return menuExtendedItem(i, index + '-plugin');
+            });
+            return items;
+        case OperationType.OP_BATCH:
+            items = batchesList.map((i, index) => {
+                return menuExtendedItem(i, index + '-batch');
+            });
+            return items;
+    }
+};
+const menuExtendedItem = (i, index) => {
+    return {
+        key: 'menu-' + index,
+        className: i.className,
+        text: i.label,
+    };
+};
+export const contextMenuItems = (operations, documentsList, batchesList, pluginsList) => {
+    return operations
+        ? operations.map((i, index) => {
+              const extendedItems = menuExtendedItems(i, documentsList, batchesList, pluginsList);
+              return {
+                  key: 'menu-' + index,
+                  className: i.className,
+                  text: i.label,
+                  name: i.type,
+                  closeMenuOnClick: true,
+                  icon: `mdi ${i.iconCode}`,
+                  items: extendedItems,
+              };
+          })
+        : [];
 };

@@ -50,8 +50,7 @@ export class AddSpecContainer extends BaseContainer {
             tabs: 0,
             visibleAddSpec: false,
             blocking: true,
-            renderTreeView: true,
-            initializedExpandAll: false,
+            renderTreeView: false,
             arrayToAdd: [],
             elementParentId: null,
             elementRecordId: null,
@@ -142,7 +141,7 @@ export class AddSpecContainer extends BaseContainer {
                                 id={'popup-add-spec'}
                                 key={`popup-add-spec`}
                                 blockScroll={true}
-                                draggable={false}
+                                draggable={true}
                                 className='col-8'
                                 onHide={this.props.onHide}
                                 style={{height: '800px', overflow: 'none'}}
@@ -213,21 +212,14 @@ export class AddSpecContainer extends BaseContainer {
                 console.error('Error getViewSpec in EditSpec. Exception = ', err);
                 this.setState({loading: false}, () => {
                     this.showGlobalErrorMessage(err); //'Nie udało się pobrać danych strony o id: ' + viewId);
+                    this.showTreeView();
                 });
             })
             .finally(() => {
                 this.unblockUi();
             });
     }
-    // TODO: moze to dopiero po fetchu danych
-    afterViewLoad = (ms = 1000) => {
-        setTimeout(() => {
-            const treeList = this.refTreeList;
-            treeList?.current?.reInitilizedExpandAll();
-            treeList?.instance?.endCustomLoading();
-            treeList?.instance?.refresh();
-        }, ms);
-    };
+
     processingViewResponse(responseView, parentId, recordId) {
         if (this._isMounted) {
             ViewValidatorUtils.validation(responseView);
@@ -285,23 +277,30 @@ export class AddSpecContainer extends BaseContainer {
                                     tabs: this.createValidTabs(responseView.tabs),
                                 },
                                 () => {
-                                    this.setState({
-                                        loading: false,
-                                        blocking: false,
-                                        parsedData: res.data,
-                                        totalCounts: res.totalCount,
-                                    });
+                                    this.setState(
+                                        {
+                                            loading: false,
+                                            blocking: false,
+                                            parsedData: res.data,
+                                            totalCounts: res.totalCount,
+                                        },
+                                        () => {
+                                            this.showTreeView();
+                                        }
+                                    );
                                 }
                             );
                         })
                         .catch((ex) => {
                             this.showGlobalErrorMessage(ex);
                             this.unblockUi();
+                            this.showTreeView();
                         });
                 }
             );
         }
     }
+
     createValidTabs(tabs) {
         const res = tabs?.map((el) => {
             return {
@@ -316,20 +315,18 @@ export class AddSpecContainer extends BaseContainer {
     renderGlobalTop() {
         return <React.Fragment />;
     }
-    rerenderTreeList = () => {
-        this.setState(
-            {
-                renderTreeView: false,
-            },
-            () => {
-                setTimeout(() => {
-                    this.setState({
-                        renderTreeView: true,
-                    });
-                }, 750);
-            }
-        );
+
+    showTreeView = () => {
+        this.setState({
+            renderTreeView: true,
+        });
     };
+    hideTreeView = () => {
+        this.setState({
+            renderTreeView: false,
+        });
+    };
+
     //override
     renderHeaderLeft() {
         return (
@@ -352,10 +349,10 @@ export class AddSpecContainer extends BaseContainer {
                                 dataSource={this.state.tabs}
                                 selectedIndex={this.state.selectedIndex}
                                 onItemClick={(event) => {
-                                    this.rerenderTreeList();
                                     if (sessionPrelongFnc) {
                                         sessionPrelongFnc();
                                     }
+                                    this.hideTreeView();
                                     this.onItemTabClick(event.itemIndex);
                                 }}
                                 onOptionChanged={(args, e, b, d) => {
@@ -387,30 +384,26 @@ export class AddSpecContainer extends BaseContainer {
     }
     onItemTabClick(index) {
         if (index !== autOfRangeIndexTab) {
-            let id = UrlUtils.getViewIdFromURL();
-            if (id === undefined) {
-                id = this.props.id;
-            }
-            const elementId = this.state.elementId;
-            const elementParentId = this.state.elementParentId;
-            const elementRecordId = this.state.elementRecordId;
-            const headerId = this.state.parsedView?.info?.headerId;
-            const tab = this.state.tabs[index];
-            let header = tab.header;
-            if (tab.type === TabSpecType.METHODS || tab.type === TabSpecType.TEMPLATES) {
-                header = true;
-            }
-            this.getViewAddSpec(elementId, elementParentId, elementRecordId, tab.type, header, headerId);
-            this.setState(
-                {
-                    selectedIndex: index,
-                    initializedExpandAll: false,
-                },
-                () => {
-                    this.afterViewLoad();
+            this.setState({renderTreeView: false}, () => {
+                let id = UrlUtils.getViewIdFromURL();
+                if (id === undefined) {
+                    id = this.props.id;
                 }
-            );
-            this.unselectAllDataGrid();
+                const elementId = this.state.elementId;
+                const elementParentId = this.state.elementParentId;
+                const elementRecordId = this.state.elementRecordId;
+                const headerId = this.state.parsedView?.info?.headerId;
+                const tab = this.state.tabs[index];
+                let header = tab.header;
+                if (tab.type === TabSpecType.METHODS || tab.type === TabSpecType.TEMPLATES) {
+                    header = true;
+                }
+                this.getViewAddSpec(elementId, elementParentId, elementRecordId, tab.type, header, headerId);
+                this.setState({
+                    selectedIndex: index,
+                });
+                this.unselectAllDataGrid();
+            });
         }
     }
     // TODO: naprwic komponent up and down bo sie zacina nalezy uzyc metody onValueChabnge
@@ -573,7 +566,6 @@ export class AddSpecContainer extends BaseContainer {
                                     ref={this.refTreeList}
                                     id={this.props.id}
                                     viewInfo={this.state.viewInfo}
-                                    initializedExpandAll={this.state.initializedExpandAll}
                                     allowOperations={false}
                                     elementParentId={this.state.elementParentId}
                                     isAddSpec={true}
@@ -590,6 +582,7 @@ export class AddSpecContainer extends BaseContainer {
                                     parsedGridViewData={parsedData}
                                     gridViewColumns={this.state.columns}
                                     handleAddSpecSpec={(id) => {
+                                        this.hideTreeView();
                                         const viewId = this.state.elementId;
                                         const parentId = this.state.elementParentId;
                                         const recordId = this.state.elementRecordId;
@@ -601,7 +594,6 @@ export class AddSpecContainer extends BaseContainer {
                                         }
                                         this.unselectAllDataGrid();
                                         this.getViewAddSpec(viewId, parentId, recordId, type, header, id);
-                                        this.afterViewLoad(1200);
                                     }}
                                     selectedRowKeys={this.state.selectedRowKeys}
                                     onChange={(type, e, rowId, info) => this.handleEditRowChange(type, e, rowId, info)}

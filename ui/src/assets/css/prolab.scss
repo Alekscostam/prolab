@@ -978,11 +978,11 @@ td[aria-roledescription='Editable'] {
 .p-menuitem-content {
     background-color: white;
 }
-#editListDialog, #pluginListDialog{
-    .dx-row > td{
-        height: 40px;
-    }
+
+.dx-row:not(.dx-freespace-row) > td{
+        height: 33px;
 }
+
 .p-menu-list.p-reset {
     margin-bottom: 0px;
 }
@@ -992,12 +992,47 @@ td[aria-roledescription='Editable'] {
         display: none;
     }
 }
-#spec-edit{
-#editor-dialog{
+#editor-dialog.editable 
+{
+
     border: 1px solid $base-color;
     border-radius: 7px;
 }
+.dx-context-menu *{
+    background-color: white!important;
 }
+
+.dx-context-menu{
+    .mdi{
+        margin-right: 10px;
+    } 
+    .dx-submenu{
+        .dx-menu-item-text:hover {
+            cursor: pointer; 
+            user-select: text; 
+            text-decoration: underline; 
+        }
+        padding-top: 8px;
+        padding-left: 8px;
+        padding-right: 8px;
+        padding-bottom: 8px;
+        border-radius: 5px;
+        .item-template-container, .dx-item{
+            color:$base-color;
+            padding: 1px;
+            .dx-menu-item-text{
+                font-size: 14px;
+                font-weight: 900;
+            }
+        }
+       
+    }
+}
+.dx-context-menu .dx-menu-item .dx-menu-item-content .dx-menu-item-popout-container .dx-menu-item-popout::before {
+    content: "\f04e";
+    color:$base-color;
+}
+
 .qrcode {
 
     .dx-texteditor-input,

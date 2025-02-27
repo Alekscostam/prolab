@@ -19,6 +19,9 @@ export class StringUtils {
     static isEmptyString(value) {
         return typeof value === 'string' && value === '';
     }
+    static isString(value) {
+        return typeof value === 'string';
+    }
     static isBlankOrEmpty(value) {
         return value === undefined || value === null || value === '';
     }

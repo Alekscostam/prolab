@@ -144,7 +144,7 @@ export default class CrudService extends BaseService {
                 throw err;
             });
     }
-    getHistoryLogColumnsDefnitions(viewId, recordId, parentId, kindView) {
+    getHistoryLogColumnsDefinitions(viewId, recordId, parentId, kindView) {
         const queryStringTmp = [];
         if (!!parentId) {
             queryStringTmp.push(`parentId=${parentId}`);

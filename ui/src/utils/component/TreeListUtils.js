@@ -3,7 +3,7 @@ import {compress} from 'int-compress-string/src';
 import {EditSpecUtils} from '../EditSpecUtils';
 import EditSpecService from '../../services/EditSpecService';
 import EntryResponseHelper from '../helper/EntryResponseHelper';
-import { v4 as uuidv4 } from 'uuid';
+import {v4 as uuidv4} from 'uuid';
 
 export class TreeListUtils extends ViewDataCompUtils {
     static editSpecService = new EditSpecService();
@@ -68,7 +68,7 @@ export class TreeListUtils extends ViewDataCompUtils {
         return descendants;
     }
     static removeLineColorGradient(array) {
-        array.forEach(element => {
+        array.forEach((element) => {
             delete element._LINE_COLOR_GRADIENT;
             if (Array.isArray(element.children)) {
                 this.removeLineColorGradient(element.children);
@@ -94,14 +94,7 @@ export class TreeListUtils extends ViewDataCompUtils {
         });
     };
 
-    static openEditSpec = (
-        viewId,
-        parentId,
-        recordIds,
-        currentBreadcrumb,
-        handleUnblockUiCallback,
-        showErrorMessagesCallback
-    ) => {
+    static openEditSpec = (viewId, parentId, recordIds, handleUnblockUiCallback, showErrorMessagesCallback) => {
         TreeListUtils.getEditSpecService()
             .getViewEntry(viewId, parentId, recordIds, null)
             .then((entryResponse) => {
@@ -110,7 +103,7 @@ export class TreeListUtils extends ViewDataCompUtils {
                     () => {
                         if (!!entryResponse.next) {
                             const compressedRecordId = compress(recordIds);
-                            EditSpecUtils.navToEditSpec(viewId, parentId, compressedRecordId, currentBreadcrumb);
+                            EditSpecUtils.navToEditSpec(viewId, parentId, compressedRecordId);
                         } else {
                             handleUnblockUiCallback();
                         }
@@ -150,13 +143,13 @@ export class TreeListUtils extends ViewDataCompUtils {
 
     static sortTreeByParameter(items, parentId = 0, order = 'asc', field = '_ORDER', result = []) {
         const children = items
-            .filter(item => item._ID_PARENT === parentId)
+            .filter((item) => item._ID_PARENT === parentId)
             .sort((a, b) => {
                 if (a[field] < b[field]) return order === 'asc' ? -1 : 1;
                 if (a[field] > b[field]) return order === 'asc' ? 1 : -1;
                 return 0;
             });
-        children.forEach(child => {
+        children.forEach((child) => {
             result.push(child);
             this.sortTreeByParameter(items, child._ID, order, field, result);
         });
@@ -192,19 +185,18 @@ export class TreeListUtils extends ViewDataCompUtils {
             fieldName: '_ORDER',
             type: 'string',
             isSort: true,
-            sortOrder: "asc",
-            sortIndex: 0
-
+            sortOrder: 'asc',
+            sortIndex: 0,
         };
         listColumns.push(defaultColumn);
         return listColumns;
     }
 
-    static addUuidColumn(listColumns){
+    static addUuidColumn(listColumns) {
         const uuidColumn = {
             id: 0,
             visible: false,
-            fieldName:  'uuid-'+ uuidv4(),
+            fieldName: 'uuid-' + uuidv4(),
             label: '',
             isFilter: false,
             isGroup: false,
@@ -213,11 +205,11 @@ export class TreeListUtils extends ViewDataCompUtils {
         listColumns.push(uuidColumn);
     }
     static createSelectionColumn(listColumns, parsedGridViewData) {
-        const width = this.calculateWidthOfSelectionColumn(parsedGridViewData);     
+        const width = this.calculateWidthOfSelectionColumn(parsedGridViewData);
         return this.addSelectionColumn(listColumns, {width});
     }
 
-    static createSelectionStaticColumn(listColumns) {     
+    static createSelectionStaticColumn(listColumns) {
         return this.addSelectionColumn(listColumns);
     }
 
@@ -226,8 +218,8 @@ export class TreeListUtils extends ViewDataCompUtils {
         if (longestBranch === 0 || longestBranch === 1 || longestBranch === 2) {
             return '60px';
         }
-        if(longestBranch=== null){
-            return "60px"
+        if (longestBranch === null) {
+            return '60px';
         }
         return longestBranch * 25 + 'px';
     }

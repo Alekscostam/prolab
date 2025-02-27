@@ -4,7 +4,7 @@ import React from 'react';
 import BaseContainer from '../../baseContainers/BaseContainer';
 import ActionButton from '../../components/ActionButton';
 import ActionButtonWithMenu from '../../components/prolab/ActionButtonWithMenu';
-import EditRowComponent from '../../components/prolab/EditRowComponent';
+import EditHeaderComponent from '../../components/prolab/EditHeaderComponent';
 import HeadPanel from '../../components/prolab/HeadPanel';
 import ShortcutsButton from '../../components/prolab/ShortcutsButton';
 import CrudService from '../../services/CrudService';
@@ -31,7 +31,7 @@ import {ResponseUtils} from '../../utils/ResponseUtils';
 import {TranslationUtils} from '../../utils/TranslationUtils';
 import {ConfirmPluginDialogComponent} from '../../components/prolab/ConfirmPluginDialogComponent';
 import {EditFormType} from '../../enum/EditFormType';
-import FullScreenDialogComponent from '../../components/prolab/FullScreenDialogComponent';
+import EditHeaderDialogComponent from '../../components/prolab/EditHeaderDialogComponent';
 import {ConfirmationOperationDialog} from '../../components/prolab/ConfirmOperationDialog';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
@@ -297,7 +297,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                 <React.Fragment>
                     {this.state.visibleEditPanel ? (
                         !StringUtils.isBlank(formType) && formType.toUpperCase() === EditFormType.FULLSCREEN ? (
-                            <FullScreenDialogComponent
+                            <EditHeaderDialogComponent
                                 visibleEditPanel={this.state.visibleEditPanel}
                                 editData={this.state.editData}
                                 kindView={this.state.elementKindView}
@@ -319,7 +319,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                                 showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                             />
                         ) : (
-                            <EditRowComponent
+                            <EditHeaderComponent
                                 visibleEditPanel={this.state.visibleEditPanel}
                                 editData={this.state.editData}
                                 onChange={this.handleEditRowChange}
@@ -673,6 +673,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                 {this.state.loading ? null : (
                     <React.Fragment>
                         <GridViewComponent
+                            targetContextMenu={'.dx-row.dx-data-row.dx-row-lines'}
                             id={this.props.id}
                             gridFromDashboard={true}
                             elementSubViewId={this.state.elementSubViewId}

@@ -29,10 +29,53 @@ import Constants from '../utils/Constants';
 import {InputTextarea} from 'primereact/inputtextarea';
 import MarkupDialogComponent from '../components/prolab/MarkupDialogComponent';
 import useStore from '../store';
-
+import EditListDataStore from '../containers/dao/DataEditListStore';
+// const mentionsConfig = [
+//     {
+//         dataSource: [
+//             {
+//                 text: 'John Heart',
+//                 team: 'Engineering',
+//                 icon: 'https://js.devexpress.com/React/Demos/WidgetsGallery/JSDemos/images/mentions/John-Heart.png',
+//             },
+//             {
+//                 text: 'Kevin Carter',
+//                 team: 'Engineering',
+//                 icon: 'https://js.devexpress.com/React/Demos/WidgetsGallery/JSDemos/images/mentions/Kevin-Carter.png',
+//             },
+//             {
+//                 text: 'Olivia Peyton',
+//                 team: 'Management',
+//                 icosn: 'https://js.devexpress.com/React/Demos/WidgetsGallery/JSDemos/images/mentions/Olivia-Peyton.png',
+//             },
+//             {
+//                 text: 'Robert Reagan',
+//                 team: 'Management',
+//                 icon: 'https://js.devexpress.com/React/Demos/WidgetsGallery/JSDemos/images/mentions/Robert-Reagan.png',
+//             },
+//             {
+//                 text: 'Cynthia Stanwick',
+//                 team: 'Engineering',
+//                 icon: 'https://js.devexpress.com/React/Demos/WidgetsGallery/JSDemos/images/mentions/Cynthia-Stanwick.png',
+//             },
+//             {
+//                 text: 'Brett Wade ',
+//                 team: 'Analysis',
+//                 icon: 'https://js.devexpress.com/React/Demos/WidgetsGallery/JSDemos/images/mentions/Brett-Wade.png',
+//             },
+//             {
+//                 text: 'Greta Sims',
+//                 team: 'QA',
+//                 icon: 'https://js.devexpress.com/React/Demos/WidgetsGallery/JSDemos/images/mentions/Greta-Sims.png',
+//             },
+//         ],
+//         searchExpr: 'text',
+//         displayExpr: 'text',
+//         valueExpr: 'text',
+//     },
+// ];
 let clickCount = 0;
 let timeout;
-// TODO: brak block ui na tryb sidepanel po wejsciu w liste podpowiedzi
 export class BaseRowComponent extends BaseContainer {
     constructor(props) {
         super(props);
@@ -44,8 +87,15 @@ export class BaseRowComponent extends BaseContainer {
                 isValidNumberFormat: true,
                 prevNumber: undefined,
             },
-        };
 
+            editListField: {},
+            editListVisible: false,
+            parsedGridView: {},
+            parsedGridViewData: {},
+            gridViewColumns: [],
+            gridViewTypes: [],
+        };
+        this.editListDataStore = new EditListDataStore();
         this.yesNoTypes = [
             {name: 'Tak', code: 'T'},
             {name: 'Nie', code: 'N'},
@@ -77,7 +127,10 @@ export class BaseRowComponent extends BaseContainer {
             'Wypełnij wszystkie wymagane pola'
         );
     }
-
+    isReadOnly = () => {
+        const editData = this.props.editData;
+        return editData?.editInfo?.readOnly;
+    };
     canRegisterKeyDownEvent() {
         const kindOperation = this.props.editData?.editInfo?.kindOperation;
         if (kindOperation) {
@@ -108,13 +161,6 @@ export class BaseRowComponent extends BaseContainer {
     componentWillUnmount() {
         super.componentWillUnmount();
         this.unregisterKeydownEvent();
-    }
-    handleSelectedRowData(e) {
-        const setFields = this.state.parsedGridView.setFields;
-        const prevSelectedRowData = this.state.selectedRowData;
-        const multiSelect = this.state?.parsedGridView?.gridOptions?.multiSelect;
-        const result = EditListUtils.selectedRowData(e, setFields, prevSelectedRowData, multiSelect);
-        this.setState({selectedRowData: result.rowsData, defaultSelectedRowKeys: result.rowsCrc});
     }
 
     handleCancel() {
@@ -231,7 +277,7 @@ export class BaseRowComponent extends BaseContainer {
         if (StringUtils.isBlank(value)) {
             return false;
         }
-        if (typeof value !== 'number') {
+        if (typeof value !== 'number' && !(value instanceof Date)) {
             if (StringUtils.isEmpty(value)) {
                 return false;
             }
@@ -261,9 +307,10 @@ export class BaseRowComponent extends BaseContainer {
         };
         e.component.option('toolbar.items', [...currentToolbarItems, markup]);
     }
+
     editListVisible(field) {
         this.blockUi();
-        ConsoleHelper('EditRowComponent::editListVisible');
+        ConsoleHelper('EditHeaderComponent::editListVisible');
         const editInfo = this.props.editData?.editInfo;
         const kindView = this.props.kindView;
         const editListObject = RequestUtils.createObjectDataToRequest(this.props);
@@ -304,6 +351,7 @@ export class BaseRowComponent extends BaseContainer {
                                     }
                                 });
                             });
+
                             if (singleSelectedRowDataTmp.length !== 0) {
                                 let CALC_CRC = EditListUtils.calculateCRC([singleSelectedRowDataTmp[0]]);
                                 singleSelectedRowDataTmp[0].CALC_CRC = CALC_CRC;
@@ -311,60 +359,21 @@ export class BaseRowComponent extends BaseContainer {
                                 defaultSelectedRowKeysTmp.push(CALC_CRC);
                             }
                         }
-                        ConsoleHelper(
-                            'EditRowComponent::ListVisible:: defaultSelectedRowKeys = %s hash = %s ',
-                            JSON.stringify(selectedRowDataTmp),
-                            JSON.stringify(defaultSelectedRowKeysTmp)
-                        );
                         let filtersListTmp = [];
-                        this.setState(
-                            () => ({
-                                gridViewType: responseView?.viewInfo?.type,
-                                parsedGridView: responseView,
-                                gridViewColumns: responseView.gridColumns,
-                                filtersList: filtersListTmp,
-                                packageRows: responseView?.viewInfo?.dataPackageSize,
-                                selectedRowData: selectedRowDataTmp,
-                                defaultSelectedRowKeys: defaultSelectedRowKeysTmp,
-                            }),
-                            () => {
-                                const res = this.editListDataStore.getEditListDataStore(
-                                    editInfo.viewId,
-                                    'gridView',
-                                    editInfo.recordId,
-                                    field.id,
-                                    editInfo.parentId,
-                                    null,
-                                    kindView,
-                                    editListObject,
-                                    setFields,
-                                    (err) => {
-                                        this.props.showErrorMessages(err);
-                                    },
-                                    () => {
-                                        this.setState({
-                                            dataGridStoreSuccess: true,
-                                        });
-                                    },
-                                    () => {
-                                        return {selectAll: this.state.selectAll};
-                                    },
-                                    selectedRowDataTmp
-                                );
-                                this.setState(
-                                    {
-                                        loading: false,
-                                        parsedGridViewData: res,
-                                        editListField: field,
-                                        editListVisible: true,
-                                    },
-                                    () => this.unblockUi()
-                                );
-                            }
-                        );
+                        this.setState({
+                            gridViewType: responseView?.viewInfo?.type,
+                            parsedGridView: responseView,
+                            gridViewColumns: responseView.gridColumns,
+                            filtersList: filtersListTmp,
+                            packageRows: responseView?.viewInfo?.dataPackageSize,
+                            selectedRowData: selectedRowDataTmp,
+                            defaultSelectedRowKeys: defaultSelectedRowKeysTmp,
+                            editListField: field,
+                            editListVisible: true,
+                        });
                     })
                     .catch((err) => {
-                        console.error('Error getEditList in EditRowComponent. Exception = ', err);
+                        console.error('Error getEditList in EditHeaderComponent. Exception = ', err);
                         this.props.showErrorMessages(err);
                         this.unblockUi();
                     });
@@ -411,6 +420,13 @@ export class BaseRowComponent extends BaseContainer {
         }
     };
 
+    isDisabled = (field) => {
+        if (field.readOnly) {
+            return true;
+        }
+        return !field.edit;
+    };
+
     renderInputComponent(field, fieldIndex, onChange, onBlur, groupUuid, required, validatorMsgs, onClickEditList) {
         //mock functionality
         const visibleDocumentCriteria = this.props?.visibleDocumentPanel;
@@ -426,14 +442,12 @@ export class BaseRowComponent extends BaseContainer {
         field.visible = MockService.getFieldEnableDisableOrMock(field.visible, 'visible');
         //end mock functionality
         const autoFill = field?.autoFill ? 'autofill-border' : '';
-        const editable = field?.edit ? 'editable-border' : 'not-editable';
+        const editable = !this.isDisabled(field) ? 'editable-border' : 'not-editable';
         const validate = !!validatorMsgs ? 'p-invalid' : '';
         const autoFillCheckbox = field?.autoFill ? 'autofill-border-checkbox' : '';
         const validateCheckbox = !!validatorMsgs ? 'p-invalid-checkbox' : '';
         const labelColor = !!field.labelColor ? field.labelColor : '';
         const selectionList = field?.selectionList ? 'p-inputgroup' : null;
-        const noBorderInSelectionList =
-            field?.selectionList && ColumnType.CH === field.type ? ' ' : 'no-border-p-inputgroup';
         const info = this.props.editData?.editInfo;
         let selectionListValues = field?.selectionListValues;
         if (visibleDocumentCriteria && selectionListValues) {
@@ -469,8 +483,7 @@ export class BaseRowComponent extends BaseContainer {
                                     filterBy={'name'}
                                     optionLabel='name'
                                     optionValue='name'
-                                    //   disabled={!field.edit}
-                                    disabled={field.edit}
+                                    disabled={this.isDisabled(field)}
                                     required={required}
                                 />
                             ) : (
@@ -487,8 +500,8 @@ export class BaseRowComponent extends BaseContainer {
                                                 onChange(InputType.TEXT, e, groupUuid, info);
                                             });
                                         }}
-                                        disabled={!field.edit}
                                         required={required}
+                                        disabled={this.isDisabled(field)}
                                     />
                                     {!!selectionList ? (
                                         <Button
@@ -527,7 +540,7 @@ export class BaseRowComponent extends BaseContainer {
                                         onChange(InputType.TEXT, e, groupUuid, info)
                                     )
                                 }
-                                disabled={!field.edit}
+                                disabled={this.isDisabled(field)}
                                 required={required}
                                 feedback={false}
                             />
@@ -565,7 +578,7 @@ export class BaseRowComponent extends BaseContainer {
                                     filterBy={'name'}
                                     optionLabel='name'
                                     optionValue='name'
-                                    disabled={!field.edit}
+                                    disabled={this.isDisabled(field)}
                                     required={required}
                                 />
                             ) : (
@@ -622,7 +635,7 @@ export class BaseRowComponent extends BaseContainer {
                                                 }
                                             }
                                         }}
-                                        disabled={!field.edit}
+                                        disabled={this.isDisabled(field)}
                                         required={required}
                                     />
                                     {!!selectionList ? (
@@ -673,7 +686,7 @@ export class BaseRowComponent extends BaseContainer {
                                 checked={
                                     field.value === true || DataGridUtils.conditionForTrueValueForBoolType(field.value)
                                 }
-                                disabled={!field.edit}
+                                disabled={this.isDisabled(field)}
                                 required={required}
                             />
                         </div>
@@ -703,7 +716,7 @@ export class BaseRowComponent extends BaseContainer {
                             optionLabel='name'
                             optionValue='code'
                             dataKey='code'
-                            disabled={!field.edit}
+                            disabled={this.isDisabled(field)}
                             required={required}
                         />
                     </React.Fragment>
@@ -728,7 +741,7 @@ export class BaseRowComponent extends BaseContainer {
                             dateFormat='yy-mm-dd'
                             onChange={(e) => (onChange ? onChange(InputType.DATE, e, groupUuid, info) : null)}
                             appendTo={document.body}
-                            disabled={!field.edit}
+                            disabled={this.isDisabled(field)}
                             required={required}
                             showButtonBar
                             showIcon
@@ -772,7 +785,7 @@ export class BaseRowComponent extends BaseContainer {
                             }}
                             onChange={(e) => (onChange ? onChange(InputType.DATETIME, e, groupUuid, info) : null)}
                             appendTo={document.body}
-                            disabled={!field.edit}
+                            disabled={this.isDisabled(field)}
                             required={required}
                             showButtonBar
                             showIcon
@@ -808,7 +821,7 @@ export class BaseRowComponent extends BaseContainer {
                                     onChange(InputType.TIME, e, groupUuid, info);
                                 }
                             }}
-                            disabled={!field.edit}
+                            disabled={this.isDisabled(field)}
                             required={required}
                             showButtonBar
                             showIcon
@@ -830,7 +843,7 @@ export class BaseRowComponent extends BaseContainer {
                         </label>
                         <InputTextarea
                             name={field.fieldName}
-                            disabled={!field.edit}
+                            disabled={this.isDisabled(field)}
                             required={required}
                             autoResize
                             style={{resize: 'none'}}
@@ -897,9 +910,10 @@ export class BaseRowComponent extends BaseContainer {
                         </label>
                         <div>
                             <HtmlEditor
-                                key={`html-editor_${fieldIndex}`}
+                                // mentions={mentionsConfig}
+                                key={`html-editor_${fieldIndex}-${groupUuid}`}
                                 ref={(el) => (this.refsTextAreaArray[fieldIndex] = el)}
-                                id={`editor_${fieldIndex}`}
+                                id={`editor_${fieldIndex}-${groupUuid}`}
                                 onContentReady={(e) => {
                                     const showMarkupOnHtmlEditor = useStore.getState().showMarkupOnHtmlEditor;
                                     if (showMarkupOnHtmlEditor) {
@@ -949,15 +963,9 @@ export class BaseRowComponent extends BaseContainer {
                                     }
                                 }}
                                 validationMessageMode='always'
-                                disabled={!field.edit}
+                                disabled={this.isDisabled(field)}
                                 required={required}
                             >
-                                {' '}
-                                {required ? (
-                                    <Validator>
-                                        <RequiredRule message={`Pole jest wymagane`} />
-                                    </Validator>
-                                ) : null}
                                 <TableResizing enabled={true} />
                                 <MediaResizing enabled={true} />
                                 <Toolbar multiline={false}>
@@ -1121,7 +1129,7 @@ export class BaseRowComponent extends BaseContainer {
                             value={field.value}
                             onChange={(e) => (onChange ? onChange(InputType.TEXT, e, groupUuid, info) : null)}
                             onBlur={(e) => (onBlur ? onBlur(InputType.TEXT, e, groupUuid, info) : null)}
-                            disabled={!field.edit}
+                            disabled={this.isDisabled(field)}
                             required={required}
                         />
                         <a href={field.value} style={{float: 'right'}} rel='noreferrer' target='_blank'>

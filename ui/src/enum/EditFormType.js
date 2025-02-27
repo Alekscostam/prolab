@@ -1,3 +1,4 @@
 export const EditFormType = {
-    FULLSCREEN: 'FULLSCREEN', 
+    FULLSCREEN: 'FULLSCREEN',
+    SIDEPANEL: 'SIDEPANEL',
 };

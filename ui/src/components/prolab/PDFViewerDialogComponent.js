@@ -14,12 +14,13 @@ export const PDFViewerDialogComponent = (props) => {
         setVisible(false);
     };
     const dialogHeader = () => {
-        return <div>{LocUtils.loc(labels, 'Document_pdf', 'Dokument PDF')} - {name}</div>;
+        return (
+            <div>
+                {LocUtils.loc(labels, 'Document_pdf', 'Dokument PDF')} - {name}
+            </div>
+        );
     };
-    const dialogFooter =  (
-        <div className='mt-1 mb-1 mr-1'>
-        </div>
-    );
+    const dialogFooter = <div className='mt-1 mb-1 mr-1'></div>;
     return (
         <div>
             <Dialog
@@ -27,14 +28,15 @@ export const PDFViewerDialogComponent = (props) => {
                 closable={true}
                 header={dialogHeader}
                 blockScroll
-                maximizable 
+                maximizable
                 visible={visible}
-                style={{ overflow: 'hidden !important'}}
+                style={{overflow: 'hidden !important'}}
                 onHide={hideDialog}
-                footer={(dialogFooter)}>
-                    <div className='dx-field mt-2'>
-                      <PDFViewerComponent labels={labels} file={file}></PDFViewerComponent>
-                    </div>
+                footer={dialogFooter}
+            >
+                <div className='dx-field mt-2'>
+                    <PDFViewerComponent labels={labels} file={file}></PDFViewerComponent>
+                </div>
             </Dialog>
         </div>
     );

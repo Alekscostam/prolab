@@ -13,6 +13,8 @@ export default class PluginListComponent extends React.Component {
         this.state = {
             selectedRowKeys: [],
             preventSave: false,
+            isGridInitialized: false,
+            canViewSelect: false,
         };
         this.onHide = this.onHide.bind(this);
         this.handleSelectedRowData = this.handleSelectedRowData.bind(this);
@@ -55,7 +57,7 @@ export default class PluginListComponent extends React.Component {
                     header={this.props.parsedPluginView?.info?.title}
                     footer={
                         <React.Fragment>
-                            {this.props.isPluginFirstStep ? (
+                            {this.props.isPluginFirstStep && this.state.canViewSelect ? (
                                 <div>
                                     <Button
                                         type='button'
@@ -110,6 +112,16 @@ export default class PluginListComponent extends React.Component {
                         }}
                         handleUnblockUi={() => {
                             this.props.handleUnblockUi();
+                        }}
+                        onContentReady={(ref) => {
+                            if (!this.state.isGridInitialized) {
+                                const visibleRows = ref.component.getVisibleRows();
+                                const canViewSelect = visibleRows.length !== 0;
+                                this.setState({
+                                    canViewSelect,
+                                    isGridInitialized: true,
+                                });
+                            }
                         }}
                         showSelection={true}
                         selectedRowKeys={this.state.selectedRowKeys}

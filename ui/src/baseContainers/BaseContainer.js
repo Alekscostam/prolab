@@ -46,6 +46,7 @@ class BaseContainer extends React.Component {
         this.crudService = new CrudService();
         this.batchService = new BatchService();
         this.editSpecService = new EditSpecService();
+        this.dataHistoryLogStore = new DataHistoryLogStore();
         this.scrollToFirstError = this.scrollToFirstError.bind(this);
         this.handleFormSubmit = this.handleFormSubmit.bind(this);
         this.handleValidForm = this.handleValidForm.bind(this);
@@ -271,7 +272,8 @@ class BaseContainer extends React.Component {
             messages.push(message);
         }
         if (title) {
-            title = LocUtils.locFromStoreWithDefault('Error', 'Błąd')`: ${title}`;
+            const result = LocUtils.locFromStoreWithDefault('Error', 'Błąd') + ':' + title;
+            title = result;
         } else {
             title = LocUtils.locFromStoreWithDefault('Error', 'Błąd');
         }
@@ -636,13 +638,7 @@ class BaseContainer extends React.Component {
         ConsoleHelper(`handleEditRowSave: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`);
         const saveElement = RequestUtils.createObjectDataToRequest(this.state);
         ConsoleHelper(`handleEditRowSave: element to save = ${JSON.stringify(saveElement)}`);
-        this.rowSave(viewId, recordId, parentId, saveElement, false, token);
-        if (this.shloudUnselectOnEditRowSave()) {
-            this.unselectAllDataGrid();
-        }
-    }
-    shloudUnselectOnEditRowSave() {
-        return !this.state?.copyData;
+        this.rowSave(viewId, recordId, parentId, saveElement, false, token, this.state?.copyData);
     }
 
     refreshView() {
@@ -790,7 +786,7 @@ class BaseContainer extends React.Component {
     kindOperationForRow() {
         return this.state.editData.editInfo?.kindOperation ? this.state.editData.editInfo?.kindOperation : undefined;
     }
-    rowSave = (viewId, recordId, parentId, saveElement, confirmSave, token) => {
+    rowSave = (viewId, recordId, parentId, saveElement, confirmSave, token, isCopy = false) => {
         this.blockUi();
         const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
         const kindOperation = this.kindOperationForRow();
@@ -808,6 +804,9 @@ class BaseContainer extends React.Component {
                         this.showGlobalErrorMessage(res);
                     }
                 );
+                if (!isCopy && saveResponse.status !== ResponseStatus.NOK) {
+                    this.unselectAllDataGrid();
+                }
                 let refresh = true;
                 if (kindOperation.toUpperCase() === 'COPY') {
                     if (saveResponse?.status !== ResponseStatus.NOK) {
@@ -1101,25 +1100,25 @@ class BaseContainer extends React.Component {
         const isThereNextStep = response?.info?.next;
         if (isThereNextStep) this.executePlugin(pluginId, listId);
     };
-    historyLog(recordId) {
-        const viewId = this.realViewSelector(recordId);
-        const recordIsZero = recordId === 0 || recordId === '0';
-        const parentId = recordIsZero ? recordId : this.getParentIdForView();
+    historyLog(id) {
+        const viewId = this.realViewSelector(id);
+        const recordIsZero = id === 0 || id === '0';
+        const parentId = recordIsZero ? id : this.getParentIdForView();
         const kindView = recordIsZero ? 'view' : this.state.kindView;
-        recordId = recordIsZero ? UrlUtils.getRecordId() : recordId;
+        id = recordIsZero ? UrlUtils.getRecordId() : id;
+        if (StringUtils.isBlank(id)) {
+            id = this.getSelectedRowKeysIds(id)[0];
+        }
         let visibleHistoryLogPanel = false;
         this.crudService
-            .getHistoryLogColumnsDefnitions(viewId, recordId, parentId, kindView)
+            .getHistoryLogColumnsDefinitions(viewId, id, parentId, kindView)
             .then((res) => {
                 let parsedHistoryLogViewData;
                 if (res.info.kind === 'GRID') {
                     visibleHistoryLogPanel = true;
-                    if (!this.historyLogStore) {
-                        this.historyLogStore = new DataHistoryLogStore();
-                    }
-                    const datas = this.historyLogStore.getHistoryLogDataStore(
+                    const datas = this.dataHistoryLogStore.getHistoryLogDataStore(
                         viewId,
-                        recordId,
+                        id,
                         parentId,
                         kindView,
                         (err) => {
@@ -1503,7 +1502,7 @@ class BaseContainer extends React.Component {
         }
     }
     changeWart(calcultedFormula, oldFormula) {
-        if (parseInt(calcultedFormula[0].value) === parseInt(oldFormula.ID)) {
+        if (parseInt(calcultedFormula[0].value) === parseInt(oldFormula._ID)) {
             oldFormula.WART = calcultedFormula[1].value;
         }
     }

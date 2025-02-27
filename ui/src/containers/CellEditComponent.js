@@ -7,7 +7,7 @@ import CrudService from '../services/CrudService';
 import PropTypes from 'prop-types';
 
 import EditListDataStore from './dao/DataEditListStore';
-import EditListComponent from '../components/prolab/EditListComponent';
+import ListOfHintsDialogComponent from '../components/prolab/ListOfHintsDialogComponent';
 import UrlUtils from '../utils/UrlUtils';
 import {EditorDialog} from '../components/prolab/EditorDialog';
 import {StringUtils} from '../utils/StringUtils';
@@ -21,6 +21,7 @@ import {MemoizedDateInput} from '../components/prolab/memoized/MemoizedDateInput
 import {MemoizedDateTimeInput} from '../components/prolab/memoized/MemoizedDateTimeInput';
 import {MemoizedTimeInput} from '../components/prolab/memoized/MemoizedTimeInput';
 import {EditorTextAreaDialog} from '../components/prolab/EditorTextAreaDialog';
+import useStore from '../store';
 
 class CellEditComponent extends Component {
     constructor(props) {
@@ -66,7 +67,10 @@ class CellEditComponent extends Component {
     render() {
         return <React.Fragment></React.Fragment>;
     }
-
+    showHintListButtons = () => {
+        const showHintListButtons = useStore.getState().showHintListButtons;
+        return showHintListButtons;
+    };
     forceLeaveEditMode() {
         document.getElementById('header-left').click();
     }
@@ -202,10 +206,20 @@ class CellEditComponent extends Component {
             )
         );
     };
+
     editListComponent = () => {
+        const viewId = this.props.id;
+        const recordId = this.state.editListRecordId;
+        const parentId = UrlUtils.batchIdParamExist() ? UrlUtils.getBatchIdParam() : this.props.elementParentId;
+        const currentEditListRow = this.currentEditListRow(recordId);
+        const editListBodyObject = EditListUtils.createBodyToEditList(currentEditListRow[0]);
         return (
             this.state.editListVisible && (
-                <EditListComponent
+                <ListOfHintsDialogComponent
+                    viewId={viewId}
+                    recordId={recordId}
+                    parentId={parentId}
+                    editListBody={editListBodyObject}
                     className
                     visible={this.state.editListVisible}
                     field={this.state.editListField}
@@ -226,7 +240,7 @@ class CellEditComponent extends Component {
                     handleUnblockUi={() => this.props.handleUnblockUi()}
                     handleOnChosen={(fieldsToUpdate) => {
                         try {
-                            ConsoleHelper('EditRowComponent::handleOnChosen = ', JSON.stringify(fieldsToUpdate));
+                            ConsoleHelper('EditHeaderComponent::handleOnChosen = ', JSON.stringify(fieldsToUpdate));
                             let rowReplacementCopy = Object.assign(
                                 {},
                                 this.findRowDataById(this.state.editListRecordId)
@@ -244,22 +258,13 @@ class CellEditComponent extends Component {
                         }
                     }}
                     showErrorMessages={(err) => this.props.showErrorMessages(err)}
-                    dataGridStoreSuccess={this.state.dataGridStoreSuccess}
                     selectedRowData={this.state.selectedRowDataEditList}
                     defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
-                    handleSelectedRowData={(e) => this.handleSelectedRowData(e)}
                     labels={this.props.labels}
                 />
             )
         );
     };
-    handleSelectedRowData(e) {
-        const setFields = this.state.parsedEditListView.setFields;
-        const prevSelectedRowData = this.state.selectedRowData;
-        const multiSelect = this.state?.parsedGridView?.gridOptions?.multiSelect;
-        const result = EditListUtils.selectedRowData(e, setFields, prevSelectedRowData, multiSelect);
-        this.setState({selectedRowDataEditList: result.rowsData, defaultSelectedRowKeys: result.rowsCrc});
-    }
 
     // to overide
     findRowDataById(recordId) {}
@@ -272,7 +277,6 @@ class CellEditComponent extends Component {
         this.setState(
             {
                 loading: true,
-                dataGridStoreSuccess: false,
             },
             () => {
                 const viewId = this.props.id;
@@ -312,17 +316,16 @@ class CellEditComponent extends Component {
                                     singleSelectedRowDataTmp.push(fieldTmp);
                                 });
                             });
-                            selectedRowDataTmp.push(singleSelectedRowDataTmp);
-                            let CALC_CRC = EditListUtils.calculateCRC(singleSelectedRowDataTmp);
-                            defaultSelectedRowKeysTmp.push(CALC_CRC);
+                            if (singleSelectedRowDataTmp.length !== 0) {
+                                let CALC_CRC = EditListUtils.calculateCRC([singleSelectedRowDataTmp[0]]);
+                                singleSelectedRowDataTmp[0].CALC_CRC = CALC_CRC;
+                                selectedRowDataTmp.push(singleSelectedRowDataTmp);
+                                defaultSelectedRowKeysTmp.push(CALC_CRC);
+                            }
                         }
-                        ConsoleHelper(
-                            'EditableComponent::editListVisible:: defaultSelectedRowKeys = %s hash = %s ',
-                            JSON.stringify(selectedRowDataTmp),
-                            JSON.stringify(defaultSelectedRowKeysTmp)
-                        );
                         this.setState(
                             () => ({
+                                loading: false,
                                 gridViewType: responseView?.viewInfo?.type,
                                 parsedEditListView: responseView,
                                 editViewColumns: responseView.gridColumns,
@@ -330,44 +333,12 @@ class CellEditComponent extends Component {
                                 packageRows: responseView?.viewInfo?.dataPackageSize,
                                 selectedRowDataEditList: selectedRowDataTmp,
                                 defaultSelectedRowKeys: defaultSelectedRowKeysTmp,
+                                editListRecordId: recordId,
+                                editListField: {id: fieldId},
+                                editListVisible: true,
                             }),
                             () => {
-                                try {
-                                    const res = this.editListDataStore.getEditListDataStore(
-                                        viewId,
-                                        'gridView',
-                                        recordId,
-                                        fieldId,
-                                        paramId,
-                                        null,
-                                        null,
-                                        editListBodyObject,
-                                        setFields,
-                                        //onError
-                                        (err) => {
-                                            this.props.showErrorMessages(err);
-                                        },
-                                        //onSuccess
-                                        () => {
-                                            this.setState({
-                                                dataGridStoreSuccess: true,
-                                            });
-                                        },
-                                        //onStart
-                                        () => {
-                                            return {selectAll: this.state.selectAll};
-                                        },
-                                        selectedRowDataTmp
-                                    );
-                                    this.setState({
-                                        loading: false,
-                                        parsedEditListViewData: res,
-                                        editListRecordId: recordId,
-                                        editListVisible: true,
-                                    });
-                                } finally {
-                                    this.props.handleUnblockUi();
-                                }
+                                this.props.handleUnblockUi();
                             }
                         );
                     })
