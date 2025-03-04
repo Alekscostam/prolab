@@ -17,6 +17,7 @@ export const ActionButton = (props) => {
         iconSide,
         iconSize,
         id,
+        style,
         inputLikeStyle,
         label,
         openInNewTab,
@@ -47,6 +48,7 @@ export const ActionButton = (props) => {
                                 {''}
                             </label>
                             <a
+                                style={style}
                                 title={`${title ? title : ''}${ariaLabel}`}
                                 tabIndex='0'
                                 className={`p-button p-component p-button-text-only ${
@@ -87,6 +89,7 @@ export const ActionButton = (props) => {
         } else {
             return (
                 <a
+                    style={style}
                     title={`${title ? title : ''}${ariaLabel}`}
                     tabIndex='0'
                     className={`p-button p-component p-button-text-only ${className !== undefined ? className : ''} ${
@@ -134,6 +137,7 @@ ActionButton.defaultProps = {
     inputLikeStyle: false,
     openInNewTab: false,
     params: {},
+    style: {},
     size: 'normal',
     variant: 'dark',
 };
@@ -157,6 +161,7 @@ ActionButton.propTypes = {
     params: PropTypes.object,
     rendered: PropTypes.bool,
     size: PropTypes.string,
+    style: PropTypes.string,
     title: PropTypes.string,
     variant: PropTypes.string,
 };

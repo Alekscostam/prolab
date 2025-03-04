@@ -914,6 +914,7 @@ export class BaseRowComponent extends BaseContainer {
                                 key={`html-editor_${fieldIndex}-${groupUuid}`}
                                 ref={(el) => (this.refsTextAreaArray[fieldIndex] = el)}
                                 id={`editor_${fieldIndex}-${groupUuid}`}
+                                readOnly={this.isDisabled(field)}
                                 onContentReady={(e) => {
                                     const showMarkupOnHtmlEditor = useStore.getState().showMarkupOnHtmlEditor;
                                     if (showMarkupOnHtmlEditor) {

@@ -6,7 +6,7 @@ import ActionButtonWithMenu from './ActionButtonWithMenu';
 import {sessionPrelongFnc} from '../../App';
 import {OperationType} from '../../enum/OperationType';
 import {ConfirmationOperationDialog} from './ConfirmOperationDialog';
-import useStore from '../../store';
+import {SessionStoreUtils} from '../../utils/SessionStoreUtils';
 
 export const OperationsButtons = (props) => {
     const renderOperationsButton = (operations) => {
@@ -72,7 +72,6 @@ export const OperationsButtons = (props) => {
                                     title={operations.label}
                                     handleClick={(e) => {
                                         e.selectAll = !atLeastOneSelected && !!operations.showAlways;
-
                                         return afterClickOperation(() =>
                                             props.handleEditSpec(Object.assign(e, operations))
                                         );
@@ -120,6 +119,7 @@ export const OperationsButtons = (props) => {
                                     buttonShadow={buttonShadow}
                                     title={operations.label}
                                     handleClick={() => {
+                                        SessionStoreUtils.saveClickedRowFromView(info?.data?.ID);
                                         afterClickOperation(() => props.handleBlockUi());
                                     }}
                                     href={props.hrefSubview}
@@ -484,10 +484,12 @@ export const OperationsButtons = (props) => {
                     case OperationType.OP_PREVIEW:
                         return props.handlePreview(i);
                     case OperationType.OP_EDIT_SPEC:
+                        SessionStoreUtils.saveClickedRowFromView(props?.info?.data?.ID);
                         return () => {};
                     case OperationType.OP_ADDSPEC_SPEC:
                         return props.handleAddSpecSpec(i);
                     case OperationType.OP_SUBVIEWS:
+                        SessionStoreUtils.saveClickedRowFromView(props?.info?.data?.ID);
                         return () => {};
                     case OperationType.OP_DELETE:
                         return props.handleDelete(i);
@@ -561,7 +563,6 @@ OperationsButtons.defaultProps = {
     operations: [],
     operationList: [],
     info: null,
-    handleHrefSubview: () => {},
     handleEdit: () => {},
     handlePreview: () => {},
     handleEditSpec: () => {},
@@ -595,7 +596,6 @@ OperationsButtons.propTypes = {
     handleEdit: PropTypes.func,
     handleEditSpec: PropTypes.func,
     hrefSubview: PropTypes.string,
-    handleHrefSubview: PropTypes.func,
     handlePreview: PropTypes.func,
     handleAddSpecSpec: PropTypes.func,
     handleDelete: PropTypes.func,

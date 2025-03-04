@@ -414,11 +414,11 @@ export class AddSpecContainer extends BaseContainer {
         const opCount = TranslationUtils.getOpButton(operations, OperationType.OP_ADDSPEC_COUNT);
         return (
             <div>
-                <div className='ml-4 text-end number-of-copies-header'>
+                <div className=' text-end number-of-copies-header'>
                     <div>
                         {!!opCount && (
                             <React.Fragment>
-                                {LocUtils.locFromStore('Number_of_copy')}
+                                <span className='mr-1'>{LocUtils.locFromStore('Number_of_copy')}</span>
                                 <InputNumber
                                     ref={this.numberOfCopiesRef}
                                     id='numberOsfCopy'
@@ -429,9 +429,9 @@ export class AddSpecContainer extends BaseContainer {
                                         }
                                         this.numberOfCopies.current = e.value;
                                     }}
-                                    className='p-inputtext-sm mr-2'
+                                    className='p-inputtext-sm'
                                     min={1}
-                                    style={{maxHeight: '43px'}}
+                                    style={{maxHeight: '43px', marginRight: '5px'}}
                                     value={1}
                                     showButtons
                                 />
@@ -441,6 +441,7 @@ export class AddSpecContainer extends BaseContainer {
                             <ActionButton
                                 rendered={!!opAdd}
                                 label={opAdd?.label}
+                                style={{marginRight: '5px'}}
                                 disabled={this.state.selectedRowKeys.length === 0}
                                 className=''
                                 handleClick={() => {

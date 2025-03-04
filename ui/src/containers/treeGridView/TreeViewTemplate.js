@@ -165,6 +165,7 @@ const renderCharacter = (
 
     if (!keyExistsInInvalidCellKeys) {
         try {
+            const value = cellInfo.data[cellInfo?.column?.dataField];
             const selectionList = columnDefinition?.selectionList ? 'p-inputgroup' : null;
             const downFill = columnDefinition?.downFill;
             return showHintListButtons() && (columnDefinition.edit || selectionList) ? (
@@ -173,9 +174,10 @@ const renderCharacter = (
                         <TextBox
                             mode={'text'}
                             isValid={true}
+                            value={value}
                             validationMessagePosition='left'
                             disabled={!columnDefinition.edit}
-                            defaultValue={cellInfo?.text}
+                            defaultValue={value}
                             stylingMode={'filled'}
                             valueChangeEvent={'keyup'}
                         />
@@ -188,7 +190,7 @@ const renderCharacter = (
                 </div>
             ) : (
                 <div
-                    title={StringUtils.textFromHtmlString(cellInfo.text)}
+                    title={StringUtils.textFromHtmlString(value)}
                     className={isWart(cellInfo?.column?.dataField) ? 'WART' : ''}
                     style={{color: fontColorFinal, background: bgColorFinal}}
                     dangerouslySetInnerHTML={{__html: cellInfo?.text}}

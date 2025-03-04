@@ -36,6 +36,7 @@ import {ResponseStatus} from '../enum/ResponseStatus';
 import useStore from '../store';
 import LocUtils from '../utils/LocUtils';
 import {ViewUtils} from '../utils/ViewUtils';
+import {SessionStoreUtils} from '../utils/SessionStoreUtils';
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -663,13 +664,10 @@ class BaseContainer extends React.Component {
             this.getRefGridView()?.instance?.getDataSource()?.reload();
         }
     }
-    windowNotHaveSubView() {
-        return (
-            this.isCardView() &&
-            UrlUtils.getViewType() === 'cardView' &&
-            !UrlUtils.getParentId() &&
-            !UrlUtils.getRecordId()
-        );
+    windowHaveSubView() {
+        const hasParentId = !StringUtils.isBlank(UrlUtils.getParentId());
+        const hasRecordId = !StringUtils.isBlank(UrlUtils.getRecordId());
+        return hasParentId && hasRecordId;
     }
     notValidTypeForRefresh() {
         return (
@@ -679,23 +677,23 @@ class BaseContainer extends React.Component {
         );
     }
     refreshSubView(forceReStateSubView) {
-        if (this.windowNotHaveSubView()) {
-            this.unblockUi();
+        if (this.windowHaveSubView()) {
+            if (
+                ((this.state.kindView === 'ViewSpec' || this.state.kindView === 'View') && this.state.subView) ||
+                forceReStateSubView
+            ) {
+                if (!this.notValidTypeForRefresh()) {
+                    if (window?.dataGrid) {
+                        if (this.state?.gridViewType !== 'cardView') window.dataGrid.clearSelection();
+                    }
+                    this.downloadSubViewData(forceReStateSubView);
+                }
+            } else {
+                removeCookieGlobal(CookiesName.REFRESH_SUB_VIEW);
+            }
             return;
         }
-        if (
-            ((this.state.kindView === 'ViewSpec' || this.state.kindView === 'View') && this.state.subView) ||
-            forceReStateSubView
-        ) {
-            if (!this.notValidTypeForRefresh()) {
-                if (window?.dataGrid) {
-                    if (this.state?.gridViewType !== 'cardView') window.dataGrid.clearSelection();
-                }
-                this.downloadSubViewData(forceReStateSubView);
-            }
-        } else {
-            removeCookieGlobal(CookiesName.REFRESH_SUB_VIEW);
-        }
+        this.unblockUi();
     }
 
     downloadSubViewData = (forceReStateSubView) => {
@@ -1433,7 +1431,7 @@ class BaseContainer extends React.Component {
                     attachmentResponse,
                     () => {
                         if (!!attachmentResponse.next) {
-                            this.unselectAllDataGrid();
+                            SessionStoreUtils.saveClickedRowFromView(recordId);
                             this.setState({
                                 attachmentViewInfo: {
                                     viewId,

@@ -44,6 +44,7 @@ import EntryResponseHelper from '../../utils/helper/EntryResponseHelper';
 import {TranslationUtils} from '../../utils/TranslationUtils';
 import {SelectedRowKeysUtils} from '../../utils/SelectedRowKeysUtils';
 import {handleEdit} from '../../utils/handler/EditHandler';
+import {SessionStoreUtils} from '../../utils/SessionStoreUtils';
 
 class GridViewComponent extends CellEditComponent {
     constructor(props) {
@@ -301,7 +302,7 @@ class GridViewComponent extends CellEditComponent {
                         this.props?.className ? this.props?.className : ''
                     } grid-container${headerAutoHeight ? ' grid-header-auto-height' : ''} ${
                         this.canRenderAdditionalOperationCol() ? 'grid-with-opperations' : ''
-                    }`}
+                    } `}
                     ref={(ref) => {
                         this.props.handleOnDataGrid(ref);
                     }}
@@ -416,7 +417,7 @@ class GridViewComponent extends CellEditComponent {
                         preloadEnabled={false}
                         useNative={this.isGroupModeEnabled()}
                     />
-                    <Paging defaultPageSize={packageCount} pageSize={packageCount} />
+                    <Paging defaultPageSize={packageCount} pageSize={packageCount} defaultPageIndex={0} />
                     <LoadPanel
                         enabled={true}
                         showIndicator={true}
@@ -659,9 +660,6 @@ class GridViewComponent extends CellEditComponent {
                                         ),
                                         currentBreadcrumb
                                     )}
-                                    handleHrefSubview={() => {
-                                        this.handleHrefSubview(viewId, recordId);
-                                    }}
                                     handleArchive={(e) =>
                                         this.preOperationAction(
                                             e,
@@ -842,6 +840,7 @@ class GridViewComponent extends CellEditComponent {
                     !!currentBreadcrumb ? currentBreadcrumb : ``
                 }`
             );
+            SessionStoreUtils.saveClickedRowFromView(recordId);
             window.location.assign(newUrl);
         }
     }
@@ -892,14 +891,13 @@ class GridViewComponent extends CellEditComponent {
     }
 
     handleEditSpec(viewId, parentId, recordId) {
-        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+        SessionStoreUtils.saveClickedRowFromView(recordId);
         let prevUrl = window.location.href;
         sessionStorage.setItem('prevUrl', prevUrl);
         TreeListUtils.openEditSpec(
             viewId,
             TreeListUtils.isKindViewSpec(this.props.parsedGridView) ? parentId : recordId,
             TreeListUtils.isKindViewSpec(this.props.parsedGridView) ? [recordId] : [],
-            currentBreadcrumb,
             () => this.props.handleUnblockUi(),
             (err) => this.props.showErrorMessages(err)
         );

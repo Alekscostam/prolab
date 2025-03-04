@@ -96,7 +96,6 @@ class TreeViewComponent extends CellEditComponent {
         this.expandRows();
     }
     componentDidUpdate(prevProps, prevState, snapshot) {
-        console.log('update --> treelist');
         return prevProps.id !== prevState.id && prevProps.elementRecordId !== prevState.elementRecordId;
     }
     shouldComponentUpdate() {
@@ -324,7 +323,7 @@ class TreeViewComponent extends CellEditComponent {
                         grouping={false}
                         groupPaging={false}
                     />
-                    <Paging enabled={true} defaultPageSize={25} defaultPageIndex={1} />
+                    <Paging enabled={true} defaultPageSize={25} defaultPageIndex={0} />
                     <FilterRow visible={showFilterRow} applyFilter={true} />
                     <HeaderFilter visible={true} allowSearch={true} stylingMode={'outlined'} />
                     <Sorting mode='multiple' />
@@ -401,7 +400,9 @@ class TreeViewComponent extends CellEditComponent {
                         handleUp={(e) => this.preOperationAction(e, () => this.props.handleUp())}
                         handleDown={(e) => this.preOperationAction(e, () => this.props.handleDown())}
                         handleAddLevel={(e) =>
-                            this.preOperationAction(e, () => this.props.handleAddLevel(selectedRecordId))
+                            this.preOperationAction(e, () =>
+                                this.props.handleAddLevel(this.selectedRecordIdRef.current)
+                            )
                         }
                         operationList={this.props.parsedGridView.operationsPPM}
                     />

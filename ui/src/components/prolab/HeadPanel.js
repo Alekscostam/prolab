@@ -22,7 +22,6 @@ export const HeadPanel = (props) => {
                 viewId,
                 parentId,
                 idParams,
-                currentBreadcrumb,
                 () => props.handleUnblockUi(),
                 (err) => props.showErrorMessages(err)
             );
@@ -38,7 +37,6 @@ export const HeadPanel = (props) => {
             viewId,
             parentId,
             idParams,
-            currentBreadcrumb,
             () => props.handleUnblockUi(),
             (err) => props.showErrorMessages(err)
         );
@@ -78,8 +76,8 @@ export const HeadPanel = (props) => {
                                     handleRestore={(e) => props.handleRestore(e)}
                                     handleFill={(e) => props.handleFill(e)}
                                     handleDownload={(e) => props.handleDownload(e)}
-                                    handleDown ={(e) => props.handleDown(e)}
-                                    handleUp ={(e) => props.handleUp(e)}
+                                    handleDown={(e) => props.handleDown(e)}
+                                    handleUp={(e) => props.handleUp(e)}
                                     handleDelete={(e) => props.handleDelete(e)}
                                     handlePublish={(e) => props.handlePublish(e)}
                                     handleCopy={(e) => props.handleCopy(e)}

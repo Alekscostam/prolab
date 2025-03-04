@@ -1,5 +1,5 @@
-import {TableResizing} from 'devextreme-react/cjs/html-editor';
 import LocUtils from '../../../utils/LocUtils';
+import HtmlEditor, {Item, MediaResizing, TableResizing, Toolbar} from 'devextreme-react/html-editor';
 import MarkupDialogComponent from '../MarkupDialogComponent';
 import useStore from '../../../store';
 
@@ -18,6 +18,7 @@ const headerValues = [false, 1, 2, 3, 4, 5];
 //O – Opisowe
 export const MemoizedDescriptionInput = React.memo(({field, cellInfo, inputValue, fieldIndex, required, validate}) => {
     const showMarkupOnHtmlEditor = useStore.getState().showMarkupOnHtmlEditor;
+
     return (
         <React.Fragment>
             <div aria-live='assertive'>
@@ -41,6 +42,7 @@ export const MemoizedDescriptionInput = React.memo(({field, cellInfo, inputValue
                     }}
                     validationMessageMode='always'
                     disabled={!field.edit}
+                    readOnly={!field.edit}
                     required={required}
                 >
                     {' '}

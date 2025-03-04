@@ -93,7 +93,6 @@ export class ViewContainer extends BaseViewContainer {
     }
     // AKOWALSKI
     // $?9:vq&v/T'rqq1u,7
- 
     getDataFromSubview(viewId, recordId, parentId, subviewId, filterId, viewType, forceReStateSubView) {
         this.setState({loading: true}, () => {
             this.viewService
@@ -386,6 +385,8 @@ export class ViewContainer extends BaseViewContainer {
                         handleShowErrorMessages={(err) => this.showErrorMessage(err)}
                         handleShowEditPanel={(editDataResponse) => this.handleShowEditPanel(editDataResponse)}
                         onHide={() => {
+                            this.unselectAllDataGrid();
+                            this.refreshView();
                             this.setState({
                                 attachmentViewInfo: null,
                             });

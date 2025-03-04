@@ -70,6 +70,7 @@ export const EditorDialog = (props) => {
                         ref={editor}
                         disabled={!editable}
                         visible={true}
+                        readOnly={!editable}
                         onValueChanged={(e) => {
                             if (e.event) {
                                 e.event.stopPropagation();

@@ -5,6 +5,7 @@ import {StringUtils} from '../StringUtils';
 import {ViewDataCompUtils} from './ViewDataCompUtils';
 import EditRowUtils from '../EditRowUtils';
 import {ColumnType} from '../../enum/ColumnType';
+import {RowTemplateUtils} from '../RowTemplateUtils';
 
 let _rowIndex = null;
 let _bgColor = null;
@@ -68,6 +69,9 @@ export class DataGridUtils extends ViewDataCompUtils {
                     fontColorFinal = _fontcolor;
                 }
             }
+            element.className =
+                ' ' +
+                RowTemplateUtils.highlighBackgroundClass(info.data.ID, info.values?.length - 2 === info.columnIndex);
             switch (column?.type) {
                 case ColumnType.O:
                 case ColumnType.OH:

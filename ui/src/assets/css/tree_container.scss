@@ -248,17 +248,19 @@ $base-color: #0e49eb;
 .dx-item.dx-tile .dx-tile-image.card-grid-selected {
     border: 2px solid $base-color;
 }
+
+
 .number-of-copies-header {
+    font-size: 15px;
     text-align: right;
-    #numberOsfCopy {
-        height: 40px;
+    #numberOfCopyText{
+        text-align: left;
     }
-    a {
-        height: 40px;
-        font-size: 16px;
+    #numberOsfCopy {
+        height: 37px;
     }
     input {
-        width: 130px;
+        width: 70px;
     }
 }
 

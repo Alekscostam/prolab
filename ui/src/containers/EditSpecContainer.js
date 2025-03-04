@@ -934,7 +934,9 @@ export class EditSpecContainer extends BaseContainer {
                                 handleFormulaRow={(id) => this.prepareCalculateFormula(id)}
                                 handleDownload={(id) => this.props.handleDownloadRow(id)}
                                 handleAttachments={(id) => this.props.handleAttachmentRow(id)}
-                                handleAddLevel={(id) => this.showAddSpecDialog(id)}
+                                handleAddLevel={(id) => {
+                                    this.showAddSpecDialog(id);
+                                }}
                                 handleUp={(id) => this.up(id)}
                                 handleDown={(id) => this.down(id)}
                                 handleRestoreRow={(id) => this.restore(id)}
