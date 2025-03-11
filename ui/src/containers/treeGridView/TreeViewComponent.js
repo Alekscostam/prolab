@@ -39,7 +39,6 @@ import {TranslationUtils} from '../../utils/TranslationUtils';
 import {SelectedRowKeysUtils} from '../../utils/SelectedRowKeysUtils';
 import {handleEdit} from '../../utils/handler/EditHandler';
 import {cellRenderSpecial} from './TreeViewTemplate';
-import useStore from '../../store';
 
 let clearSelection = false;
 
@@ -142,7 +141,7 @@ class TreeViewComponent extends CellEditComponent {
         this.manageKeydownEvent('remove');
     }
     findRowDataById(recordId) {
-        let editData = this.props.parsedGridViewData.filter((item) => {
+        const editData = this.props.parsedGridViewData.filter((item) => {
             return item._ID === recordId;
         });
         return editData[0];
@@ -209,7 +208,6 @@ class TreeViewComponent extends CellEditComponent {
         const parentId = this.props.elementRecordId;
         const subViewId = this.props.elementSubViewId;
         const viewId = TreeListUtils.getRealViewId(subViewId, this.props.id);
-        const selectedRecordId = this.selectedRecordIdRef.current;
         return (
             <React.Fragment>
                 {this.state.editListVisible && this.editListComponent()}
@@ -412,6 +410,11 @@ class TreeViewComponent extends CellEditComponent {
     }
 
     preOperationAction = (operation, callback, recordId = this.selectedRecordIdRef.current) => {
+        const refInstance = this.ref.instance;
+        if (refInstance) {
+            refInstance.closeEditCell();
+            refInstance.cancelEditData();
+        }
         const onlyOneRecord = operation?.onlyOneRecord;
         if (onlyOneRecord) {
             if (this.props.handleSelectedRowKeys) {

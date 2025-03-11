@@ -518,17 +518,26 @@ export class AddSpecContainer extends BaseContainer {
                 this.showGlobalErrorMessage(err);
             });
     };
+
     createValidIdAndParentId(array) {
         const minNextId = this.props.lastId;
-        const levelId = this.props.levelId;
-        array.forEach((el) => {
-            el._ID = el._ID + minNextId;
-            if (!StringUtils.isBlank(levelId)) el._ID_PARENT = levelId;
-            else if (el._ID_PARENT !== 0) el._ID_PARENT = el._ID_PARENT + minNextId;
-            el._STATUS = 'inserted';
+        const levelId = this.props.levelId ? this.props.levelId : 0;
+        const idMap = new Map();
+        array.forEach((element, index) => {
+            const newId = minNextId + index + 1;
+            idMap.set(element._ID, newId);
+            element._ID = newId;
+        });
+        array.forEach((element) => {
+            if (idMap.has(element._ID_PARENT)) {
+                element._ID_PARENT = idMap.get(element._ID_PARENT);
+            } else {
+                element._ID_PARENT = levelId;
+            }
         });
         return array;
     }
+
     createValidOrder(array) {
         const lastOrder = this.props.lastOrder;
         array.forEach((el, index) => {

@@ -1697,7 +1697,6 @@ export class BaseViewContainer extends BaseContainer {
             window.dataGrid = prevDataGridGlobalReference;
             dataGrid = prevDataGridGlobalReference;
         }
-        // dataGrid.selectRows(rowDataKeys.map((r) => r.ID));
         this.setState(
             {
                 selectedRowKeys: rowDataKeys,
@@ -1707,6 +1706,14 @@ export class BaseViewContainer extends BaseContainer {
                 if (callBack) callBack();
             }
         );
+    };
+
+    removeDuplicates = (array) => {
+        const countMap = array.reduce((acc, obj) => {
+            acc[obj.ID] = (acc[obj.ID] || 0) + 1;
+            return acc;
+        }, {});
+        return array.filter((obj) => countMap[obj.ID] === 1);
     };
 
     renderGridViewComponent = () => {
@@ -1767,10 +1774,8 @@ export class BaseViewContainer extends BaseContainer {
                                 select: true,
                             });
                             dataGrid.getSelectedRowsData().then((rowData) => {
-                                // const selectedRowKeys = this.state.selectedRowKeys;
-                                // const uniqueRowData = rowData.filter(
-                                //     (value, index, self) => index === self.findIndex((t) => t.ID === value.ID)
-                                // );
+                                rowData = this.removeDuplicates(rowData);
+                                dataGrid.selectRows(rowData.map((r) => r.ID));
                                 this.setState(
                                     {
                                         selectedRowKeys: rowData,
