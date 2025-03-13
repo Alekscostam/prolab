@@ -20,6 +20,8 @@ import ImageViewerComponent from '../../components/ImageViewerComponent';
 import {MenuWithButtons} from '../../components/prolab/MenuWithButtons';
 import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils';
 import {SelectedRowKeysUtils} from '../../utils/SelectedRowKeysUtils';
+import {RowTemplateUtils} from '../../utils/RowTemplateUtils';
+import {SessionStoreUtils} from '../../utils/SessionStoreUtils';
 
 class CardViewInfiniteComponent extends PureComponent {
     constructor(props) {
@@ -263,16 +265,7 @@ class CardViewInfiniteComponent extends PureComponent {
         );
     };
     handleHrefSubview = (rowData) => {
-        const elementSubViewId = this.props.elementSubViewId;
-        const elementId = this.props.id;
-        const viewId = DataGridUtils.getRealViewId(elementSubViewId, elementId);
-        const recordId = rowData.ID;
-        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
-        const newUrl = AppPrefixUtils.locationHrefUrl(
-            `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${
-                !!currentBreadcrumb ? currentBreadcrumb : ``
-            }`
-        );
+        const newUrl = this.hrefSubview(rowData);
         window.location.assign(newUrl);
     };
 
@@ -306,7 +299,6 @@ class CardViewInfiniteComponent extends PureComponent {
     };
     render() {
         const cardHeight = this.props.parsedCardView?.cardOptions?.height ?? 200;
-        const selectedRowData = this.selectedRowDataRef.current;
         const imageViewer = this.state.imageViewer;
         const isItemLoaded = (index) => !this.state.hasNextPage || index < this.state.items.length;
         const Item = ({index, style}) => {
@@ -353,10 +345,10 @@ class CardViewInfiniteComponent extends PureComponent {
                         menuRef={this.menuRef}
                         gridView={this.props.parsedCardView}
                         handleEdit={(e) => {
-                            this.preOperationAction(e, () => this.handleEdit(selectedRowData));
+                            this.preOperationAction(e, () => this.handleEdit(this.selectedRowDataRef.current));
                         }}
                         handleEditSpec={(e) => {
-                            this.preOperationAction(e, () => this.handleEditSpec(selectedRowData));
+                            this.preOperationAction(e, () => this.handleEditSpec(this.selectedRowDataRef.current));
                         }}
                         handlePlugins={(e) => this.preOperationAction(e, () => this.props.handlePluginRow(e.id))}
                         handleDocuments={(e) => {
@@ -364,7 +356,9 @@ class CardViewInfiniteComponent extends PureComponent {
                         }}
                         handleAdd={() => this.props.addButtonFunction()}
                         handleAddSpec={() => this.props.addButtonFunction()}
-                        handleHrefSubview={() => this.handleHrefSubview(selectedRowData)}
+                        handleHrefSubview={() => {
+                            this.handleHrefSubview(this.selectedRowDataRef.current);
+                        }}
                         handleCopy={(e) => {
                             this.preOperationAction(e, () => this.props.handleCopyRow());
                         }}
@@ -410,6 +404,7 @@ class CardViewInfiniteComponent extends PureComponent {
         callback();
     };
     renderSingleTile(rowData, index) {
+        const highlighBackground = '';
         const parsedCardView = this.props.parsedCardView;
         const {cardBody, cardHeader, cardImage, cardFooter, cardOptions = {}} = parsedCardView;
         const {width = 300, height = 200, bgColor1, bgColor2, fontColor} = cardOptions;
@@ -423,7 +418,7 @@ class CardViewInfiniteComponent extends PureComponent {
                         this.selectedRowDataRef.current = rowData;
                     }}
                     key={'tile-' + index}
-                    className={`dx-item dx-tile`}
+                    className={`dx-item dx-tile `}
                     onClick={() => {
                         if (this.isSelectionEnabled()) {
                             const index = selectedRowKeys.findIndex((item) => item.ID === rowData.ID);
@@ -439,7 +434,7 @@ class CardViewInfiniteComponent extends PureComponent {
                     <div className={'dx-item-content dx-tile-content'}>
                         <div
                             id={recordId}
-                            className={`dx-tile-image ${
+                            className={`dx-tile-image ${highlighBackground} ${
                                 this.isSelectionEnabled()
                                     ? selectedRowKeys.findIndex((item) => item.ID === recordId) > -1
                                         ? 'card-grid-selected'

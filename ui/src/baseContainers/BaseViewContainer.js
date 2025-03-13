@@ -1721,6 +1721,7 @@ export class BaseViewContainer extends BaseContainer {
         return (
             <React.Fragment>
                 <GridViewComponent
+                    ppmEnabled={true}
                     altAndLeftClickEnabled={true}
                     labels={this.props.labels}
                     id={this.props.id}

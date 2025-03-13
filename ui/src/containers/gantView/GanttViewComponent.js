@@ -484,16 +484,21 @@ class GanttViewComponent extends React.Component {
 
     handleHrefSubview(viewId, recordId) {
         const result = this.props.handleBlockUi();
-        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
         if (result) {
-            const newUrl = AppPrefixUtils.locationHrefUrl(
-                `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${
-                    !!currentBreadcrumb ? currentBreadcrumb : ``
-                }`
-            );
+            const newUrl = this.hrefSubView(viewId, recordId);
             window.location.assign(newUrl);
         }
     }
+
+    hrefSubView = (viewId, recordId) => {
+        const parentId = StringUtils.isBlank(this.props.elementRecordId) ? 0 : this.props.elementRecordId;
+        const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
+        return AppPrefixUtils.locationHrefUrl(
+            `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}&parentId=${parentId}${
+                !!currentBreadcrumb ? currentBreadcrumb : ``
+            }`
+        );
+    };
 
     addButton() {
         return (
@@ -618,6 +623,11 @@ class GanttViewComponent extends React.Component {
     };
 
     selectSingleRow(recordId) {
+        // const tasks = this.state.tasks;
+        // const row = document.querySelector(`tr[aria-rowindex="${1}"]`);
+        // if (row) {
+        //     row.classList.add('moja-klasa'); // Dodaje klasę do wiersza
+        // }
         const selectedRowKeys = this.props.selectedRowKeys;
         const store = this.state.rowElementsStorage;
         for (const [key, value] of store.entries()) {
@@ -738,11 +748,7 @@ class GanttViewComponent extends React.Component {
                                         handleEditSpec={() => {
                                             this.handleEditSpec(viewId, parentId, recordId);
                                         }}
-                                        hrefSubview={AppPrefixUtils.locationHrefUrl(
-                                            `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${
-                                                !!currentBreadcrumb ? currentBreadcrumb : ``
-                                            }`
-                                        )}
+                                        hrefSubview={this.hrefSubView(viewId, recordId)}
                                         hrefSpecView={EditSpecUtils.editSpecUrl(viewId, parentId, compress([recordId]))}
                                         handleHrefSubview={() => this.handleHrefSubview(viewId, recordId)}
                                         handleDocuments={(e) =>

@@ -24,19 +24,21 @@ export const features = [
         link: 'https://trello.com/c/DE5Kcv17/734-od%C5%9Bwie%C5%BCanie-wyniku-po-wyliczeniu-formu%C5%82%C4%85',
         text: 'Naprawa przeliczania rekordu z paska bocznego',
     },
+
     {
         type: 'FIX',
         color: 'red',
         description: 'Szczegóły w linku',
         date: '',
-        link: 'https://trello.com/c/8ZaBSi24/736-psuje-si%C4%99-zaznaczanie-pozycji-jak-uruchomi-si%C4%99-menu-podr%C4%99czne-pod-prawym-przyciskiem',
-        text: 'Odznaczanie rekordu po uprzednim kliknięciu PPM',
+        link: 'https://trello.com/c/xNb5Ey7R/739-ppm-na-listach-podpowiedzi',
+        text: 'Wyrzucenie PPM z miejsc w których nie powinno go być',
     },
     {
         type: 'FIX',
         color: 'red',
-        description: 'Nie dało sie wejsc w podwidok z poziomu karty',
+        description: 'Szczegóły w linku',
         date: '',
-        text: 'fix na wejscie w podwidok z poziomu karty',
+        link: 'https://trello.com/c/EipyIZNH/737-przej%C5%9Bcie-do-podwidok%C3%B3w-przez-ppm',
+        text: 'Poprawa wyświetlenia paska górnego po wejsciu w podiwdok z PPM',
     },
 ];

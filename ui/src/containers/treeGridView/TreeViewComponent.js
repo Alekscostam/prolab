@@ -516,11 +516,12 @@ class TreeViewComponent extends CellEditComponent {
         this.ref.instance.selectRows(selectedRowsData.map((el) => el._ID));
     }
     handleHrefSubview(viewId, recordId) {
+        const parentId = StringUtils.isBlank(this.props.elementRecordId) ? 0 : this.props.elementRecordId;
         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
         const result = this.props.handleBlockUi();
         if (result) {
             let newUrl = AppPrefixUtils.locationHrefUrl(
-                `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${
+                `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}&parentId=${parentId}${
                     !!currentBreadcrumb ? currentBreadcrumb : ``
                 }`
             );

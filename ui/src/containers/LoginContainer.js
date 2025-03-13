@@ -78,7 +78,7 @@ class LoginContainer extends BaseContainer {
                 this.showGlobalErrorMessage(ex.error.message);
             });
     }
-
+    // test_kpal2
     registration(e) {
         e.preventDefault();
         const element = {

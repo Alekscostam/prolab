@@ -81,6 +81,7 @@ const renderNumber = (cellInfo, fontColorFinal, bgColorFinal, columnDefinition, 
     try {
         const selectionList = columnDefinition?.selectionList ? 'p-inputgroup' : null;
         const downFill = columnDefinition?.downFill;
+        const value = cellInfo.data[cellInfo?.column?.dataField];
         return showHintListButtons() && (columnDefinition.edit || selectionList) ? (
             <div className={`row tree-view-text-box`}>
                 <div className={`${selectionList} col-12`}>
@@ -89,7 +90,7 @@ const renderNumber = (cellInfo, fontColorFinal, bgColorFinal, columnDefinition, 
                         isValid={true}
                         disabled={!columnDefinition.edit}
                         validationMessagePosition='left'
-                        defaultValue={cellInfo?.text}
+                        defaultValue={value}
                         stylingMode={'filled'}
                         valueChangeEvent={'keyup'}
                     />
@@ -101,10 +102,7 @@ const renderNumber = (cellInfo, fontColorFinal, bgColorFinal, columnDefinition, 
                 </div>
             </div>
         ) : (
-            <span
-                style={{color: fontColorFinal, background: bgColorFinal}}
-                dangerouslySetInnerHTML={{__html: cellInfo?.text}}
-            />
+            <span style={{color: fontColorFinal, background: bgColorFinal}} dangerouslySetInnerHTML={{__html: value}} />
         );
     } catch (err) {
         ConsoleHelper('Error render htmloutput. Exception=', err);
@@ -193,7 +191,7 @@ const renderCharacter = (
                     title={StringUtils.textFromHtmlString(value)}
                     className={isWart(cellInfo?.column?.dataField) ? 'WART' : ''}
                     style={{color: fontColorFinal, background: bgColorFinal}}
-                    dangerouslySetInnerHTML={{__html: cellInfo?.text}}
+                    dangerouslySetInnerHTML={{__html: value}}
                 />
             );
         } catch (err) {

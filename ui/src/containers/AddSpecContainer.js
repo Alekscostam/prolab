@@ -534,6 +534,7 @@ export class AddSpecContainer extends BaseContainer {
             } else {
                 element._ID_PARENT = levelId;
             }
+            element._STATUS = 'inserted';
         });
         return array;
     }
