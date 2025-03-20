@@ -435,14 +435,7 @@ export class EditSpecContainer extends BaseContainer {
         const globalComponents = document.getElementById('global-top-components');
         globalComponents.click();
         this.handleEditSpecSave(viewIdArg, parentIdArg, () => {
-            const prevUrl = sessionStorage.getItem('prevUrl');
-            sessionStorage.removeItem('prevUrl');
-            if (prevUrl) {
-                window.location.href = prevUrl;
-            } else {
-                this.refreshView();
-                this.refreshTable();
-            }
+            this.redirectToPrevUrl();
         });
     }
 
@@ -624,7 +617,6 @@ export class EditSpecContainer extends BaseContainer {
         this.refTreeList?.instance?.endCustomLoading();
     }
 
-    //usunięcie pojedyńczego rekordu
     deleteSingleRow(id, data) {
         const el = data.find((x) => x._ID === id);
         if (el._STATUS === 'inserted') {
@@ -1011,21 +1003,7 @@ export class EditSpecContainer extends BaseContainer {
         this.editSpecService
             .cancel(viewIdArg, parentIdArg, ids)
             .then(() => {
-                let prevUrl = window.location.href;
-                prevUrl = prevUrl.replace('edit-spec', 'grid-view');
-                if (!StringUtils.isBlank(UrlUtils.getPrevParentId())) {
-                    prevUrl = UrlUtils.removeAndAddParam('parentId', UrlUtils.getPrevParentId(), prevUrl);
-                    prevUrl = UrlUtils.removeAndAddParam('recordId', UrlUtils.getParentId(), prevUrl);
-                    prevUrl = UrlUtils.removeAndAddParam('bc', UrlUtils.getBc(), prevUrl);
-                    prevUrl = UrlUtils.deleteParameterFromURL(prevUrl, 'prevParentId');
-                    prevUrl = this.selectedFromPrevGridFnc(prevUrl);
-                } else {
-                    prevUrl = this.selectedFromPrevGridFnc(prevUrl);
-                    prevUrl = UrlUtils.deleteParameterFromURL(prevUrl, 'parentId');
-                    prevUrl = UrlUtils.deleteParameterFromURL(prevUrl, 'recordId');
-                    prevUrl = UrlUtils.deleteParameterFromURL(prevUrl, 'bc');
-                }
-                window.location.href = prevUrl;
+                this.redirectToPrevUrl();
             })
             .catch((err) => {
                 this.showGlobalErrorMessage(err);
@@ -1041,6 +1019,24 @@ export class EditSpecContainer extends BaseContainer {
         ConsoleHelper(`handleEditRowBlur inputType=${inputType} groupName=${groupName}`);
         this.handleEditRowChange(inputType, event, groupName, viewInfo, field);
     }
+
+    redirectToPrevUrl = () => {
+        let prevUrl = window.location.href;
+        prevUrl = prevUrl.replace('edit-spec', 'grid-view');
+        if (!StringUtils.isBlank(UrlUtils.getPrevParentId())) {
+            prevUrl = UrlUtils.removeAndAddParam('parentId', UrlUtils.getPrevParentId(), prevUrl);
+            prevUrl = UrlUtils.removeAndAddParam('recordId', UrlUtils.getParentId(), prevUrl);
+            prevUrl = UrlUtils.removeAndAddParam('bc', UrlUtils.getBc(), prevUrl);
+            prevUrl = UrlUtils.deleteParameterFromURL(prevUrl, 'prevParentId');
+            prevUrl = this.selectedFromPrevGridFnc(prevUrl);
+        } else {
+            prevUrl = this.selectedFromPrevGridFnc(prevUrl);
+            prevUrl = UrlUtils.deleteParameterFromURL(prevUrl, 'parentId');
+            prevUrl = UrlUtils.deleteParameterFromURL(prevUrl, 'recordId');
+            prevUrl = UrlUtils.deleteParameterFromURL(prevUrl, 'bc');
+        }
+        window.location.href = prevUrl;
+    };
 
     getMessages() {
         return this.messages;

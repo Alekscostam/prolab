@@ -292,6 +292,9 @@ class App extends Component {
 
     readConfigAndSaveInCookie(configUrl, afterSaveCookiesFnc) {
         return new ReadConfigService(configUrl).getConfiguration().then((configuration) => {
+            document.title = !StringUtils.isBlank(configuration.APP_FULL_NAME)
+                ? configuration.APP_FULL_NAME
+                : configuration.APP_NAME;
             const lang = configuration.LANG;
             const langs = configuration.LANG_LIST;
             const renderForgotPassword = !StringUtils.isBlank(configuration?.FORTOGPASSWORD_VIEWID);

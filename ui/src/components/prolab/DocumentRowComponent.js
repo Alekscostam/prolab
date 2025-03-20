@@ -23,7 +23,6 @@ export class DocumentRowComponent extends BaseRowComponent {
         };
 
         this.messages = React.createRef();
-        this.handleCancel = this.handleCancel.bind(this);
     }
 
     componentWillUnmount() {

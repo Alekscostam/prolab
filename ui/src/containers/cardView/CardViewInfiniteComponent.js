@@ -254,8 +254,6 @@ class CardViewInfiniteComponent extends PureComponent {
         const parentId = this.props?.elementRecordId;
         const viewId = DataGridUtils.getRealViewId(elementSubViewId, elementId);
         const recordId = rowData.ID;
-        const prevUrl = window.location.href;
-        sessionStorage.setItem('prevUrl', prevUrl);
         TreeListUtils.openEditSpec(
             viewId,
             TreeListUtils.isKindViewSpec(this.props.parsedGridView) ? parentId : recordId,

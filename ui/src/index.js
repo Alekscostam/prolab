@@ -20,9 +20,9 @@ import {ThroughProvider} from 'react-through';
 import '@mdi/font/css/materialdesignicons.min.css';
 
 const theApp = (
-        <ThroughProvider>
-            <App />
-        </ThroughProvider>
+    <ThroughProvider>
+        <App />
+    </ThroughProvider>
 );
 ReactDOM.render(theApp, document.getElementById('root'));
 serviceWorker.unregister();

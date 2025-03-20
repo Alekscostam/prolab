@@ -204,14 +204,15 @@ export class EditHeaderDialogComponent extends BaseRowComponent {
         const opClose = TranslationUtils.getOpButton(operations, OperationType.OP_CLOSE);
         const opAttachment = TranslationUtils.getOpButton(operations, OperationType.OP_ATTACHMENTS);
         const editData = this.props.editData;
-        const editInfo = this.props.editData?.editInfo;
+        const editInfo = editData?.editInfo;
 
         return (
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
                 <Dialog
                     id='fullscreen-dialog'
-                    header={<div></div>}
+                    header={undefined}
+                    headerStyle={{padding: '10px'}}
                     closable={false}
                     style={{width: '100%', height: '100%', maxHeight: '100%'}}
                     visible={true}

@@ -42,8 +42,6 @@ export const handleEdit = (
 };
 
 export const handleEditSpec = (viewId, parentId, recordId, parsedGridView, handleUnblockUi, showErrorMessages) => {
-    const prevUrl = window.location.href;
-    sessionStorage.setItem('prevUrl', prevUrl);
     TreeListUtils.openEditSpec(
         viewId,
         TreeListUtils.isKindViewSpec(parsedGridView) ? parentId : recordId,

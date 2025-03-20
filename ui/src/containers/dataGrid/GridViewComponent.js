@@ -37,7 +37,6 @@ import {saveObjToCookieGlobal} from '../../utils/Cookie';
 import {ColumnType} from '../../enum/ColumnType';
 import OperationCell from '../../enum/OperationCell';
 import {OperationType} from '../../enum/OperationType';
-import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils';
 import {HtmlUtils} from '../../utils/HtmlUtils';
 import {ViewDataCompUtils} from '../../utils/component/ViewDataCompUtils';
 import EntryResponseHelper from '../../utils/helper/EntryResponseHelper';
@@ -651,7 +650,7 @@ class GridViewComponent extends CellEditComponent {
                                     handleEditSpec={() => {
                                         this.handleEditSpec(viewId, parentId, recordId);
                                     }}
-                                    hrefSubview={AppPrefixUtils.locationHrefUrl(this.subViewHref(viewId, recordId))}
+                                    hrefSubview={this.subViewHref(viewId, recordId)}
                                     hrefSpecView={EditSpecUtils.editSpecUrl(
                                         viewId,
                                         TreeListUtils.isKindViewSpec(this.props.parsedGridView) ? parentId : recordId,
@@ -835,13 +834,15 @@ class GridViewComponent extends CellEditComponent {
     subViewHref = (viewId, recordId) => {
         const parentId = StringUtils.isBlank(this.props.elementRecordId) ? 0 : this.props.elementRecordId;
         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
-        return `/#/grid-view/${viewId}${
-            !!recordId ? `?recordId=${recordId}` : ``
-        }&parentId=${parentId}${currentBreadcrumb}`;
+        return AppPrefixUtils.locationHrefUrl(
+            `/#/grid-view/${viewId}${
+                !!recordId ? `?recordId=${recordId}` : ``
+            }&parentId=${parentId}${currentBreadcrumb}`
+        );
     };
 
     handleHrefSubview(viewId, recordId) {
-        let result = this.props.handleBlockUi();
+        const result = this.props.handleBlockUi();
         if (result) {
             const newUrl = this.subViewHref(viewId, recordId);
             SessionStoreUtils.saveClickedRowFromView(recordId);
@@ -896,8 +897,6 @@ class GridViewComponent extends CellEditComponent {
 
     handleEditSpec(viewId, parentId, recordId) {
         SessionStoreUtils.saveClickedRowFromView(recordId);
-        let prevUrl = window.location.href;
-        sessionStorage.setItem('prevUrl', prevUrl);
         TreeListUtils.openEditSpec(
             viewId,
             TreeListUtils.isKindViewSpec(this.props.parsedGridView) ? parentId : recordId,

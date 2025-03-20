@@ -561,8 +561,6 @@ class TreeViewComponent extends CellEditComponent {
         }
     }
     handleEditSpec(viewId, parentId, recordId) {
-        const prevUrl = window.location.href;
-        sessionStorage.setItem('prevUrl', prevUrl);
         TreeListUtils.openEditSpec(
             viewId,
             parentId,

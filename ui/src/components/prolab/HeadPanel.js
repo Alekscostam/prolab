@@ -86,8 +86,6 @@ export const HeadPanel = (props) => {
                                     handleAttachments={(e) => props.handleAttachments(e)}
                                     handleEdit={(e) => handleEdit(e, props, viewId, parentId, currentBreadcrumb)}
                                     handleEditSpec={(e) => {
-                                        let prevUrl = window.location.href;
-                                        sessionStorage.setItem('prevUrl', prevUrl);
                                         handleSpecEdit(e, props, viewId, parentId, currentBreadcrumb);
                                     }}
                                     inverseColor={true}
@@ -119,8 +117,6 @@ export const HeadPanel = (props) => {
                                     handleAttachments={(e) => props.handleAttachments(e)}
                                     handleEdit={(e) => handleEdit(e, props, viewId, parentId, currentBreadcrumb)}
                                     handleEditSpec={(e) => {
-                                        let prevUrl = window.location.href;
-                                        sessionStorage.setItem('prevUrl', prevUrl);
                                         handleSpecEdit(e, props, viewId, parentId, currentBreadcrumb);
                                     }}
                                     inverseColor={false}

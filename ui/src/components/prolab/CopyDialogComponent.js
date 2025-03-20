@@ -63,7 +63,6 @@ export default class CopyDialogComponent extends React.Component {
                             </div>
                         </React.Fragment>
                     }
-                    style={{height: '390px'}}
                     visible={this.props.visible}
                     resizable={false}
                     onHide={() => this.onHide()}
