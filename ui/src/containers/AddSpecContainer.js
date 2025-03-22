@@ -540,10 +540,6 @@ export class AddSpecContainer extends BaseContainer {
     }
 
     createValidOrder(array) {
-        const lastOrder = this.props.lastOrder;
-        array.forEach((el, index) => {
-            el._ORDER = index + 1 + lastOrder;
-        });
         return array;
     }
     //override

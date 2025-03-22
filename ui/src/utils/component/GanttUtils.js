@@ -9,7 +9,29 @@ export class GanttUtils extends ViewDataCompUtils {
         });
         return datas;
     };
-
+    static sortHierarchicallyWithIndex = (items) => {
+        const itemMap = new Map();
+        items.forEach((item) => itemMap.set(item.ID, {...item, children: []}));
+        let rootItems = [];
+        items.forEach((item) => {
+            if (item.ID_PARENT !== null) {
+                const parent = itemMap.get(item.ID_PARENT);
+                if (parent) {
+                    parent.children.push(itemMap.get(item.ID));
+                }
+            } else {
+                rootItems.push(itemMap.get(item.ID));
+            }
+        });
+        const sortTree = (nodes) => {
+            nodes.sort((a, b) => a.ID - b.ID);
+            return nodes.flatMap((node) => [node, ...sortTree(node.children)]);
+        };
+        return sortTree(rootItems).map(({children, ...rest}, index) => ({
+            ...rest,
+            index,
+        }));
+    };
     static recursionPainting = (data, value, datas) => {
         if (!data._LINE_COLOR_GRADIENT) {
             data._LINE_COLOR_GRADIENT = [value];

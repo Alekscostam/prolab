@@ -301,9 +301,6 @@ $base-color: #0e49eb;
     margin-left: 0!important;
     margin-right: 0!important;
 }
-#fullscreen-dialog{
-    min-width:300px;
-}
 .card-body-component{
     .image-component{
         aspect-ratio: 1 / 1;
@@ -546,6 +543,21 @@ $base-color: #0e49eb;
     }
     
 }
+
+@keyframes highlightRow {
+    0% { background-color: rgba(255, 224, 85, 0.70); } 
+    75%  { background-color: rgba(255, 224, 85, 0.50); } 
+}
+.dx-row.dx-data-row.dx-row-lines.dx-column-lines.highlight-row, .highlight-row {
+    animation: highlightRow 3s linear!important;
+    .highlight-row{
+        animation: highlightRow 3s linear!important;
+    }
+    td{
+        animation: highlightRow 3s linear!important;
+    }
+}
+
 #HistoryLogListDialog_content{
     .dx-row-focused, .dx-state-hover,.dx-selection{
         td{

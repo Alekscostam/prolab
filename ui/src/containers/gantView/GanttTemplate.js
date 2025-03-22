@@ -16,7 +16,9 @@ export const cellTemplate = (column) => {
             _bgcolor = info.data['_BGCOLOR'];
             _fontcolor = info.data['_FONTCOLOR'];
         }
-        if (_bgcolor) element.style.setProperty('background-color', _bgcolor, 'important');
+        if (_bgcolor) {
+            element.style.backgroundColor = _bgcolor;
+        }
 
         let fontColorFinal = 'black';
         let bgColorFinal = '';
@@ -188,7 +190,8 @@ const renderImageCell = (element, text, fontColor, bgColor) => {
         element
     );
 };
-const menuExtendedItems = (i, documentsList, batchesList, pluginsList) => {
+
+const menuExtendedItems = (i, documentsList = [], batchesList = [], pluginsList = []) => {
     let items = undefined;
     switch (i.type?.toUpperCase()) {
         case OperationType.OP_DOCUMENTS:

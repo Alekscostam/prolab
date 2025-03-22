@@ -11,17 +11,10 @@ export const features = [
     {
         type: 'FIX',
         color: 'red',
-        description: 'zmniejszenie widoku + zmniejszenie komponentu ilosci kopii',
-        date: '',
-        text: 'Zmiany w rozmiarze dialogu kopiowania',
-    },
-    {
-        type: 'FIX',
-        color: 'red',
         description: 'Szczegóły w linku',
         date: '',
-        link: 'https://trello.com/c/3BXWpk78/738-zapis-specyfikacji-nie-przechodzi',
-        text: 'Naprawa przekierowania po zapisie specyfikacji',
+        link: 'https://trello.com/c/abSaCr07/740-problem-kolejno%C5%9Bci-przy-dodawaniu',
+        text: 'usunięcie incrementacji przy order',
     },
 
     // {
@@ -31,11 +24,17 @@ export const features = [
     //     date: '',
     //     text: 'Naprawa wyświetlania i wyboru czasu w treelit',
     // },
+    // {
+    //     type: 'FIX',
+    //     color: 'red',
+    //     date: '',
+    //     text: 'Zaznaczanie na żółto w gantt i fixed columns w zwykłym grid',
+    // },
+
     {
         type: 'FIX',
         color: 'red',
-        description: 'Naprawa wejscia w podwidok po kliknięciu PPM',
         date: '',
-        text: 'Naprawa wejścia w podwidok po wywołaniu PPM',
+        text: 'Zabezpieczenie przed białą strona jesli w PPM idą niezdefiniowane documentList, pluginList',
     },
 ];

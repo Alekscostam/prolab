@@ -1029,14 +1029,6 @@ td[aria-roledescription='Editable'] {
     }
 }
 
-@keyframes highlightRow {
-    0% { background-color: rgba(255, 224, 85, 0.70); } 
-    75%  { background-color: rgba(255, 224, 85, 0.50); } 
-}
-
-.highlight-row {
-    animation: highlightRow 3s linear!important;
-}
 
 .dx-context-menu .dx-menu-item .dx-menu-item-content .dx-menu-item-popout-container .dx-menu-item-popout::before {
     content: "\f04e";
@@ -1070,6 +1062,9 @@ td[aria-roledescription='Editable'] {
 
 #numberOfCopy {
     max-height: 35px;
+    .p-inputnumber-button{
+        height: 10px;
+    }
 }
 
 #qrCode-textbox {
