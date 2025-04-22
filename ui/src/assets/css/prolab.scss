@@ -1052,7 +1052,9 @@ td[aria-roledescription='Editable'] {
         color: white;
     }
 }
-
+.no-outline {
+    outline: none !important;
+}
 .p-inputnumber-button.p-inputnumber-button-up.p-button.p-button-icon-only.p-component,
 .p-inputnumber-button.p-inputnumber-button-down.p-button.p-button-icon-only.p-component {
     max-height: 21px;

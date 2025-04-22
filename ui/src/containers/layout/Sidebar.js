@@ -54,7 +54,11 @@ class Sidebar extends React.Component {
     }
     componentDidMount() {
         ConsoleHelper('sidebar => componentDidMount');
-        if ((!localStorage.getItem(CookiesName.MENU)|| !localStorage.getItem(CookiesName.VERSION_API)  || this.state?.menu?.length === 0)) {
+        if (
+            !localStorage.getItem(CookiesName.MENU) ||
+            !localStorage.getItem(CookiesName.VERSION_API) ||
+            this.state?.menu?.length === 0
+        ) {
             this.menuService
                 .getMenu()
                 .then((data) => {
@@ -67,12 +71,12 @@ class Sidebar extends React.Component {
                         },
                         () => {
                             this.versionService
-                            .getVersion()
-                            .then((data) => {
-                                localStorage.setItem(CookiesName.VERSION_API, JSON.stringify(data.VersionAPI));
-                                this.forceUpdate();
-                            })
-                            .catch(() => {});
+                                .getVersion()
+                                .then((data) => {
+                                    localStorage.setItem(CookiesName.VERSION_API, JSON.stringify(data.VersionAPI));
+                                    this.forceUpdate();
+                                })
+                                .catch(() => {});
                             this.handleFilter('');
                         }
                     );
@@ -393,7 +397,7 @@ class Sidebar extends React.Component {
                                 <div className={'col-1'}>
                                     <Button
                                         id='buttonCollapsed'
-                                        className='p-button-text p-button-icon-only'
+                                        className='p-button-text p-button-icon-only no-outline'
                                         icon='pi pi-bars'
                                         iconPos='right'
                                         onClick={this.handleCollapseChange}
@@ -455,7 +459,12 @@ class Sidebar extends React.Component {
 
                     <SidebarFooter id={'menu-footer'} style={{textAlign: 'center'}}>
                         <div id={'user-credentials'} className={'col-12'}>
-                            <div className='row mt-3 mb-2 cursor-pointer' onClick={()=>{window.location.href = AppPrefixUtils.locationHrefUrl('/#/start');}}>
+                            <div
+                                className='row mt-3 mb-2 cursor-pointer'
+                                onClick={() => {
+                                    window.location.href = AppPrefixUtils.locationHrefUrl('/#/start');
+                                }}
+                            >
                                 {userName && <Avatar base64={avatar} userName={userName} collapsed={collapsed} />}
                             </div>
                         </div>
@@ -474,13 +483,16 @@ class Sidebar extends React.Component {
                             {this.sessionTimeOutComponent()}
                         </div>
                         {!collapsed ? (
-                            <div id={'version'} onClick={()=>{
-                                if(this.props.onShowAboutVersionDialog){
-                                    this.props.onShowAboutVersionDialog();
-                                }
-                            }} className={'to-right cursor-pointer'} style={{marginRight: '5px'}}>{`ver: ${
-                                packageJson.version
-                            }_${this.state.uiVersion?.buildNumber} api: ${JSON.parse(
+                            <div
+                                id={'version'}
+                                onClick={() => {
+                                    if (this.props.onShowAboutVersionDialog) {
+                                        this.props.onShowAboutVersionDialog();
+                                    }
+                                }}
+                                className={'to-right cursor-pointer'}
+                                style={{marginRight: '5px'}}
+                            >{`ver: ${packageJson.version}_${this.state.uiVersion?.buildNumber} api: ${JSON.parse(
                                 localStorage.getItem(CookiesName.VERSION_API)
                             )}`}</div>
                         ) : null}

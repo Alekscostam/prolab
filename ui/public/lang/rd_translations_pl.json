@@ -1,11 +1,21 @@
 {
     "labels": [
+        {"code": "Copying", "caption": "Kopiowanie"},
+        {"code": "Document_publication_completed", "caption": "Zakończono publikacje dokumentów"},
+        {"code": "Next", "caption": "Dalej"},
+        {"code": "Session_prelong", "caption": "Przedłużenie sesji"},
+        {"code": "Document_pdf", "caption": "Dokument PDF"},
+        {"code": "Prev", "caption": "Poprzednia"},
+        {"code": "Published", "caption": "Opublikowano"},
+        {"code": "Document_published", "caption": "Dokumenty zostały opublikowane"},
+        {"code": "Document_unpublished", "caption": "Dokumenty nie zostały opublikowane"},
         {"code": "Login_SigninError", "caption": "Błąd logowania"},
         {"code": "Login_ConnectionError", "caption": "Nie można nawiązać połączenia z serwerem"},
         {"code": "Login_UserName", "caption": "Nazwa użytkownika"},
         {"code": "Selection_List_Label", "caption": "Lista podpowiedzi"},
         {"code": "Login_Password", "caption": "Hasło"},
         {"code": "Login_Signin", "caption": "Zaloguj się"},
+        {"code": "Not_selected_elements", "caption": "Nie wybrano żadnych elementów"},
         {"code": "Move_To", "caption": "Przenieś do"},
         {"code": "Login_Signup", "caption": "Stwórz profil"},
         {"code": "Login_Signup_Info", "caption": "Nie masz swojego konta?"},
@@ -48,8 +58,12 @@
         {"code": "VER", "caption": "Wersja"},
         {"code": "FIX", "caption": "FIX"},
         {"code": "Publish_date", "caption": "Data publikacji"},
+        {"code": "Page", "caption": "Strona"},
         {"code": "Version", "caption": "Wersja"},
         {"code": "User", "caption": "Użytkownik"},
+        {"code": "No", "caption": "Nie"},
+        {"code": "Yes", "caption": "Tak"},
+        {"code": "Confirmation", "caption": "Potwierdzenie"},
         {"code": "Current_time", "caption": "Aktualny czas"},
         {
             "code": "Session_Expired",
@@ -60,6 +74,10 @@
         {
             "code": "Session_Timeout",
             "caption": "Sesja wyagasa. Czy chcesz ją przedłużyć?"
+        },
+        {
+            "code": "Question_Close_Edit",
+            "caption": "Czy na pewno chcesz zamknąc edycję?"
         },
         {
             "code": "extend_session",

@@ -6,7 +6,7 @@ import LocUtils from '../../utils/LocUtils';
 import ExcelEditorComponent from './ExcelEditorComponent';
 
 export const ExcelEditorDialogComponent = (props) => {
-    const {onHide, labels, file, name} = props;
+    const {onHide, file, name} = props;
     const [visible, setVisible] = useState(props.visible);
 
     const hideDialog = () => {
@@ -14,12 +14,13 @@ export const ExcelEditorDialogComponent = (props) => {
         setVisible(false);
     };
     const dialogHeader = () => {
-        return <div>{LocUtils.loc(labels, 'Excel', 'Excel')} - {name}</div>;
+        return (
+            <div>
+                {LocUtils.locFromStoreWithDefault('Excel', 'Excel')} - {name}
+            </div>
+        );
     };
-    const dialogFooter =  (
-        <div className='mt-1 mb-1 mr-1'>
-        </div>
-    );
+    const dialogFooter = <div className='mt-1 mb-1 mr-1'></div>;
     return (
         <div>
             <Dialog
@@ -28,13 +29,13 @@ export const ExcelEditorDialogComponent = (props) => {
                 header={dialogHeader}
                 blockScroll
                 visible={visible}
-                style={{ overflow: 'hidden !important', maxWidth:"1600px"}}
-                
+                style={{overflow: 'hidden !important', maxWidth: '1600px'}}
                 onHide={hideDialog}
-                footer={(dialogFooter)}>
-                    <div className='dx-field mt-4 mb-4'>
-                     <ExcelEditorComponent file={file} ></ExcelEditorComponent>
-                    </div>
+                footer={dialogFooter}
+            >
+                <div className='dx-field mt-4 mb-4'>
+                    <ExcelEditorComponent file={file}></ExcelEditorComponent>
+                </div>
             </Dialog>
         </div>
     );
@@ -43,7 +44,6 @@ export const ExcelEditorDialogComponent = (props) => {
 ExcelEditorDialogComponent.defaultProps = {
     onSave: undefined,
     onHide: undefined,
-    labels: undefined,
     visible: true,
     editable: true,
     value: '',
@@ -57,6 +57,4 @@ ExcelEditorDialogComponent.propTypes = {
     editable: PropTypes.bool,
     value: PropTypes.string,
     header: PropTypes.string,
-    labels: PropTypes.object,
 };
-

@@ -2,9 +2,9 @@ import moment from 'moment';
 import LocUtils from '../LocUtils';
 
 export class PageViewUtils {
-    static tickerSessionTimeoutFormat(timeToLeaveSession, labels) {
+    static tickerSessionTimeoutFormat(timeToLeaveSession) {
         return (
-            LocUtils.loc(labels, 'Session_expiration_time', 'Czas wygaśnięcia sesji: ') +
+            LocUtils.locFromStoreWithDefault('Session_expiration_time', 'Czas wygaśnięcia sesji: ') +
             moment
                 .utc(
                     timeToLeaveSession.hours * 3600000 +

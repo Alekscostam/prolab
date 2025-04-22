@@ -21,11 +21,10 @@ import {ResponseUtils} from '../utils/ResponseUtils';
 import ActionButtonWithMenu from '../components/prolab/ActionButtonWithMenu';
 import {ConfirmationEditQuitDialog} from '../components/prolab/ConfirmationEditQuitDialog';
 import {OperationType} from '../enum/OperationType';
-import { ViewUtils } from '../utils/ViewUtils';
-import { TranslationUtils } from '../utils/TranslationUtils';
+import {ViewUtils} from '../utils/ViewUtils';
+import {TranslationUtils} from '../utils/TranslationUtils';
 
 export class BatchContainer extends BaseContainer {
-    
     _isMounted = false;
 
     constructor(props) {
@@ -163,7 +162,7 @@ export class BatchContainer extends BaseContainer {
                             }
                         },
                         () => this.unblockUi(),
-                        () => this.unblockUi(),
+                        () => this.unblockUi()
                     );
                 })
                 .catch((err) => {
@@ -223,7 +222,7 @@ export class BatchContainer extends BaseContainer {
         return (
             <React.Fragment>
                 <DivContainer id='header-left'>
-                {Breadcrumb.render(this.props.labels, (fnc) => this.props.onShowEditQuitConfirmDialog(()=> fnc()))}
+                    {Breadcrumb.render(this.props.labels, (fnc) => this.props.onShowEditQuitConfirmDialog(() => fnc()))}
                     <div className='font-medium mb-2'>{this.state.parsedView?.editInfo?.viewName}</div>
                 </DivContainer>
             </React.Fragment>
@@ -254,8 +253,9 @@ export class BatchContainer extends BaseContainer {
                             label={opCancel?.label}
                             className='ml-2 inverse'
                             handleClick={() => {
-                                if(this.props.onShowEditQuitConfirmDialog) this.props.onShowEditQuitConfirmDialog(()=> this.batchCancel())
-                                else this.batchCancel()
+                                if (this.props.onShowEditQuitConfirmDialog)
+                                    this.props.onShowEditQuitConfirmDialog(() => this.batchCancel());
+                                else this.batchCancel();
                             }}
                         />
                     )}
@@ -270,8 +270,8 @@ export class BatchContainer extends BaseContainer {
         const globalComponents = document.getElementById('global-top-components');
         globalComponents.click();
         this.handleBatchSave(viewIdArg, parentIdArg, () => {
-            if(this.refDataGrid?.instance){
-             this.refDataGrid?.instance?.refresh();
+            if (this.refDataGrid?.instance) {
+                this.refDataGrid?.instance?.refresh();
             }
         });
     }
@@ -352,15 +352,15 @@ export class BatchContainer extends BaseContainer {
         );
     };
     availableOperationsForHeaderPanel = () => {
-       const parsedView = structuredClone(this.state.parsedView);
-       const operations = parsedView?.operations || [];
-       const operationForBatch = [OperationType.OP_FORMULA,OperationType.OP_FILL];
-       const filteredOperations =  operations.filter((op)=>{
-            return operationForBatch.includes(op.type)
-       }); 
-       parsedView.operations = filteredOperations;
-       return parsedView;
-    }
+        const parsedView = structuredClone(this.state.parsedView);
+        const operations = parsedView?.operations || [];
+        const operationForBatch = [OperationType.OP_FORMULA, OperationType.OP_FILL];
+        const filteredOperations = operations.filter((op) => {
+            return operationForBatch.includes(op.type);
+        });
+        parsedView.operations = filteredOperations;
+        return parsedView;
+    };
     renderButton(operation, index) {
         const margin = Constants.DEFAULT_MARGIN_BETWEEN_BUTTONS;
         if (!!operation.type) {
@@ -404,24 +404,24 @@ export class BatchContainer extends BaseContainer {
         const operations = this.state?.parsedView?.operations || [];
         return (
             <React.Fragment>
-                {ViewUtils.canViewHeaderPanel(this.availableOperationsForHeaderPanel()) && 
-                <HeadPanel
-                    elementId={this.state.elementId}
-                    elementRecordId={this.state.elementRecordId}
-                    elementSubViewId={this.state.elementSubViewId}
-                    elementKindView={this.state.elementKindView}
-                    labels={this.props.labels}
-                    selectedRowKeys={this.state.selectedRowKeys}
-                    operations={operations}
-                    leftContent={this.leftHeadPanelContent()}
-                    rightContent={this.rightHeadPanelContent()}
-                    handleFormula={() => this.calculateData()}
-                    handleFill={() => this.fillData()}
-                    handleUnblockUi={() => this.unblockUi()}
-                    showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
-                    handleBlockUi={() => this.blockUi()}
-                />}
-                
+                {ViewUtils.canViewHeaderPanel(this.availableOperationsForHeaderPanel()) && (
+                    <HeadPanel
+                        elementId={this.state.elementId}
+                        elementRecordId={this.state.elementRecordId}
+                        elementSubViewId={this.state.elementSubViewId}
+                        elementKindView={this.state.elementKindView}
+                        labels={this.props.labels}
+                        selectedRowKeys={this.state.selectedRowKeys}
+                        operations={operations}
+                        leftContent={this.leftHeadPanelContent()}
+                        rightContent={this.rightHeadPanelContent()}
+                        handleFormula={() => this.calculateData()}
+                        handleFill={() => this.fillData()}
+                        handleUnblockUi={() => this.unblockUi()}
+                        showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
+                        handleBlockUi={() => this.blockUi()}
+                    />
+                )}
             </React.Fragment>
         );
     };
@@ -523,6 +523,7 @@ export class BatchContainer extends BaseContainer {
                 {this.state.loading ? null : (
                     <React.Fragment>
                         <GridViewComponent
+                            multiLevelHeaders={this.isGridViewBands()}
                             altAndLeftClickEnabled={false}
                             handleSaveAction={() => this.handleSaveAction()}
                             id={this.props.id}

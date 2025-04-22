@@ -52,21 +52,23 @@ export default function CardInfiniteLoaderWrapper({
                 threshold={0}
                 minimumBatchSize={1}
             >
-                {({onItemsRendered, ref}) => (
-                    <List
-                        style={{marginTop: '10px', border: '1px solid rgba(221,221,221,.6)'}}
-                        className='infinite-loader-card'
-                        height={!!viewHeight ? viewHeight : 800}
-                        width={1200}
-                        itemCount={itemCountFinal}
-                        itemSize={cardHeight + padding}
-                        onItemsRendered={onItemsRendered}
-                        ref={ref}
-                        innerElementType={CardListContainer}
-                    >
-                        {item}
-                    </List>
-                )}
+                {({onItemsRendered, ref}) => {
+                    return (
+                        <List
+                            style={{marginTop: '10px', border: '1px solid rgba(221,221,221,.6)'}}
+                            className='infinite-loader-card'
+                            height={!!viewHeight ? viewHeight : 800}
+                            width={1200}
+                            itemCount={itemCountFinal}
+                            itemSize={cardHeight + padding}
+                            onItemsRendered={onItemsRendered}
+                            ref={ref}
+                            innerElementType={CardListContainer}
+                        >
+                            {item}
+                        </List>
+                    );
+                }}
             </InfiniteLoader>
         </React.Fragment>
     );

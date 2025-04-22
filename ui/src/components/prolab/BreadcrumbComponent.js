@@ -93,7 +93,7 @@ BreadcrumbComponent.defaultProps = {
 };
 
 BreadcrumbComponent.propTypes = {
-    labels: PropTypes.array,
+    labels: PropTypes.object,
     afterClick: PropTypes.func,
     initialMainPage: PropTypes.string,
     initialBreadcrumb: PropTypes.array,

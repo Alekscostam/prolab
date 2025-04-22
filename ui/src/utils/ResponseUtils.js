@@ -1,4 +1,4 @@
-import { StringUtils } from "./StringUtils";
+import {StringUtils} from './StringUtils';
 
 export class ResponseUtils {
     static columnsFromGroupCreate(responseView) {
@@ -16,6 +16,65 @@ export class ResponseUtils {
         });
         return columnsTmp;
     }
+    static columnsGroupCreate(responseView) {
+        const columnsTmp = [];
+        let columnOrderCounter = 0;
+        function processGroup(group) {
+            group.isBand = true;
+            group.caption = group.groupName;
+            if (Array.isArray(group.columns)) {
+                group.columns = group.columns.map((col) => {
+                    if (col.columns) {
+                        return processGroup(col);
+                    } else {
+                        col.groupName = group.groupName;
+                        col.freeze = StringUtils.isBlank(col?.freeze) ? group.freeze : col.freeze;
+                        col.columnOrder = columnOrderCounter++;
+                        col.dataField = col.label;
+                        col.caption = col.label;
+                        return col;
+                    }
+                });
+                const allChildrenInvisible = group.columns.every((child) => child.visible === false);
+                group.visible = !allChildrenInvisible; // jeśli wszystkie false → grupa też false
+            }
+            return group;
+        }
+        new Array(responseView.gridColumns).forEach((gridColumns) => {
+            gridColumns?.forEach((group) => {
+                columnsTmp.push(processGroup(group));
+            });
+        });
+        return columnsTmp;
+    }
+
+    static flattenColumns(gridColumns) {
+        const flatColumns = [];
+        let columnOrderCounter = 0;
+        function collectColumns(group, parentGroupName, parentFreeze) {
+            if (Array.isArray(group.columns)) {
+                group.columns.forEach((col) => {
+                    if (col.columns) {
+                        collectColumns(col, col.groupName || parentGroupName, col.freeze || parentFreeze);
+                    } else {
+                        col.groupName = parentGroupName;
+                        col.freeze = StringUtils.isBlank(col?.freeze) ? parentFreeze : col.freeze;
+                        col.columnOrder = columnOrderCounter++;
+                        col.dataField = col.label;
+                        col.caption = col.label;
+                        flatColumns.push(col);
+                    }
+                });
+            }
+        }
+        new Array(gridColumns).forEach((gc) => {
+            gc?.forEach((group) => {
+                collectColumns(group, group.groupName, group.freeze);
+            });
+        });
+        return flatColumns;
+    }
+
     static pluginListCreateAndPass(responseView) {
         const pluginsListTmp = [];
         for (let plugin in responseView?.pluginsList) {
@@ -24,7 +83,7 @@ export class ResponseUtils {
                 label: responseView?.pluginsList[plugin].label,
             });
         }
-        responseView.pluginsList = pluginsListTmp; 
+        responseView.pluginsList = pluginsListTmp;
         return pluginsListTmp;
     }
     static documentListCreateAndPass(responseView) {
@@ -35,7 +94,7 @@ export class ResponseUtils {
                 label: responseView?.documentsList[document].label,
             });
         }
-        responseView.documentsList = documentsListTmp; 
+        responseView.documentsList = documentsListTmp;
         return documentsListTmp;
     }
     static batchListCreateAndPass(responseView) {
@@ -46,7 +105,7 @@ export class ResponseUtils {
                 label: responseView?.batchesList[batch].label,
             });
         }
-        responseView.batchesList = batchesListTmp; 
+        responseView.batchesList = batchesListTmp;
         return batchesListTmp;
     }
     static filtersListCreateAndPass(responseView) {
@@ -57,7 +116,7 @@ export class ResponseUtils {
                 label: responseView?.filtersList[filter].label,
             });
         }
-        responseView.filtersList = filtersListTmp; 
+        responseView.filtersList = filtersListTmp;
         return filtersListTmp;
     }
     static editInfoToViewInfo(response, type, kindView) {

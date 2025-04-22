@@ -81,20 +81,20 @@ export class DocumentRowComponent extends BaseRowComponent {
                     icons={() => (
                         <React.Fragment>
                             <div id='label' className='label' style={{flex: 'auto'}}>
-                                {LocUtils.loc(this.props.labels, 'Confirm_criteria', 'Zatwierdzanie kryteriów')}
+                                {LocUtils.locFromStoreWithDefault('Confirm_criteria', 'Zatwierdzanie kryteriów')}
                             </div>
                             <div id='buttons' style={{textAlign: 'right'}}>
                                 <ShortcutButton
                                     id={'opSave'}
                                     className={`grid-button-panel inverse mt-1 mb-1 mr-1`}
                                     handleClick={this.handleFormSubmit}
-                                    label={LocUtils.loc(this.props.labels, 'Confirm', 'Zatwierdź')}
+                                    label={LocUtils.locFromStoreWithDefault('Confirm', 'Zatwierdź')}
                                 />
                                 <ShortcutButton
                                     id={'opCancel'}
                                     className={`grid-button-panel inverse mt-1 mb-1 mr-1`}
                                     handleClick={this.handleCancel}
-                                    label={LocUtils.loc(this.props.labels, 'Cancel', 'Anuluj')}
+                                    label={LocUtils.locFromStoreWithDefault('Cancel', 'Anuluj')}
                                 />
                             </div>
                         </React.Fragment>

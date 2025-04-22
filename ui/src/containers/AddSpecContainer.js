@@ -30,6 +30,7 @@ const autOfRangeIndexTab = 6;
 
 export class AddSpecContainer extends BaseContainer {
     _isMounted = false;
+    isExecutingSpec = false;
     constructor(props) {
         ConsoleHelper('AddSpecContainer -> constructor');
         super(props);
@@ -464,7 +465,7 @@ export class AddSpecContainer extends BaseContainer {
         const header = parsedView.info?.header;
         if (this.state.selectedRowKeys.length === 0) {
             this.showErrorMessage(
-                LocUtils.loc(this.props.labels, 'Not_selected_row', 'Nie wybrano żadnych elementów'),
+                LocUtils.locFromStoreWithDefault('Not_selected_elements', 'Nie wybrano żadnych elementów'),
                 4000,
                 true
             );
@@ -493,6 +494,8 @@ export class AddSpecContainer extends BaseContainer {
         if (this.isGridViewUrlExist()) {
             parentId = UrlUtils.getRecordId();
         }
+        if (this.isExecutingSpec) return;
+        this.isExecutingSpec = true;
         this.addSpecService
             .execute(
                 viewId,
@@ -512,10 +515,13 @@ export class AddSpecContainer extends BaseContainer {
                 else result = this.createValidOrder(this.createValidIdAndParentId(saveResponse.data));
                 this.props.handleAddElements(result);
                 this.props.onHide();
-                this.unblockUi();
             })
             .catch((err) => {
                 this.showGlobalErrorMessage(err);
+            })
+            .finally(() => {
+                this.isExecutingSpec = false;
+                this.unblockUi();
             });
     };
 

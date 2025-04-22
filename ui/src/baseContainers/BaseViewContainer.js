@@ -21,12 +21,12 @@ import ConsoleHelper from '../utils/ConsoleHelper';
 import LocUtils from '../utils/LocUtils';
 import EntryResponseHelper from '../utils/helper/EntryResponseHelper';
 import GanttViewComponent from '../containers/gantView/GanttViewComponent';
-import PluginListComponent from '../components/prolab/PluginListComponent';
+import PluginListDialog from '../components/prolab/PluginListDialog';
 import ActionButtonWithMenuUtils from '../utils/ActionButtonWithMenuUtils';
 import {DocumentRowComponent} from '../components/prolab/DocumentRowComponent';
-import CopyDialogComponent from '../components/prolab/CopyDialogComponent';
-import PublishDialogComponent from '../components/prolab/PublishDialogComponent';
-import PublishSummaryDialogComponent from '../components/prolab/PublishSummaryDialogComponent';
+import CopyDialog from '../components/prolab/CopyDialog';
+import PublishDialog from '../components/prolab/PublishDialog';
+import PublishSummaryDialog from '../components/prolab/PublishSummaryDialog';
 import UploadFileDialog from '../components/prolab/UploadFileDialog';
 import CardViewInfiniteComponent from '../containers/cardView/CardViewInfiniteComponent';
 import DataGridStore from '../containers/dao/DataGridStore';
@@ -40,18 +40,18 @@ import {ConfirmDialog} from 'primereact/confirmdialog';
 import {StringUtils} from '../utils/StringUtils';
 import {saveObjToCookieGlobal} from '../utils/Cookie';
 import DataHistoryLogStore from '../containers/dao/DataHistoryLogStore';
-import HistoryLogDialogComponent from '../components/prolab/HistoryLogDialogComponent';
+import HistoryLogDialog from '../components/prolab/HistoryLogDialog';
 import {OperationType} from '../enum/OperationType';
 import ReactDOM from 'react-dom';
-import {QrCodesDialogComponent} from '../components/prolab/QrCodesDialogComponent';
+import {QrCodesDialog} from '../components/prolab/QrCodesDialog';
 import ActionShortcutWithoutMenu from '../components/prolab/ActionShortcutWithoutMenu';
 import SelectedElements from '../components/SelectedElements';
 import {ResponseUtils} from '../utils/ResponseUtils';
 import {ViewUtils} from '../utils/ViewUtils';
-import {PDFViewerDialogComponent} from '../components/prolab/PDFViewerDialogComponent';
+import {PDFViewerDialog} from '../components/prolab/PDFViewerDialog';
 import FileTypeUtils from '../utils/FileTypeUtils';
 import {TranslationUtils} from '../utils/TranslationUtils';
-import {ConfirmPluginDialogComponent} from '../components/prolab/ConfirmPluginDialogComponent';
+import {ConfirmPluginDialog} from '../components/prolab/ConfirmPluginDialog';
 import {EditFormType} from '../enum/EditFormType';
 import EditHeaderComponent from '../components/prolab/EditHeaderComponent';
 import CodeService from '../services/CodeService';
@@ -339,7 +339,6 @@ export class BaseViewContainer extends BaseContainer {
         ConsoleHelper(
             `BaseViewContainer::processViewResponse: viewId=${isSubView}, recordId=${recordId}, parentId=${parentId},`
         );
-
         if (this._isMounted) {
             ViewValidatorUtils.validation(responseView);
             let id = UrlUtils.getViewIdFromURL();
@@ -347,7 +346,9 @@ export class BaseViewContainer extends BaseContainer {
                 id = this.props.id;
             }
             if (this.state.updateBreadcrumb !== false) Breadcrumb.updateView(responseView.viewInfo, id, recordId);
-            const gridViewColumnsTmp = ResponseUtils.columnsFromGroupCreate(responseView);
+            const gridViewColumnsTmp = this.isGridViewBands(responseView.viewInfo.type)
+                ? ResponseUtils.columnsGroupCreate(responseView)
+                : ResponseUtils.columnsFromGroupCreate(responseView);
             const pluginsListTmp = ResponseUtils.pluginListCreateAndPass(responseView);
             const documentsListTmp = ResponseUtils.documentListCreateAndPass(responseView);
             const batchesListTmp = ResponseUtils.batchListCreateAndPass(responseView);
@@ -604,7 +605,7 @@ export class BaseViewContainer extends BaseContainer {
                 ) : null}
 
                 {this.state.visibleCopyDialog ? (
-                    <CopyDialogComponent
+                    <CopyDialog
                         visible={this.state.visibleCopyDialog}
                         onHide={() => this.setState({visibleCopyDialog: false})}
                         isSpecification={this.state.parsedGridView.viewInfo.isSpecification}
@@ -615,7 +616,6 @@ export class BaseViewContainer extends BaseContainer {
                             });
                             this.copyEntry(this.state.copyId);
                         }}
-                        labels={this.props.labels}
                     />
                 ) : null}
                 {this.state.visibleUploadFile ? (
@@ -640,11 +640,10 @@ export class BaseViewContainer extends BaseContainer {
                                 visibleUploadFile: false,
                             });
                         }}
-                        labels={this.props.labels}
                     />
                 ) : null}
                 {this.state.visiblePublishDialog ? (
-                    <PublishDialogComponent
+                    <PublishDialog
                         visible={this.state.visiblePublishDialog}
                         onHide={() => {
                             let visiblePublishDialog = false;
@@ -680,11 +679,10 @@ export class BaseViewContainer extends BaseContainer {
                         handlePublish={(el) => {
                             this.publish(this.state?.currentSelectedRowKeyId, el);
                         }}
-                        labels={this.props.labels}
                     />
                 ) : null}
                 {this.state.visiblePublishSummaryDialog ? (
-                    <PublishSummaryDialogComponent
+                    <PublishSummaryDialog
                         publishSummary={this.state.publishSummary}
                         visible={this.state.visiblePublishSummaryDialog}
                         onHide={() =>
@@ -697,11 +695,10 @@ export class BaseViewContainer extends BaseContainer {
                             })
                         }
                         handleUnselectAllData={this.unselectAllDataGrid}
-                        labels={this.props.labels}
                     />
                 ) : null}
                 {this.state.visiblePluginPanel && (
-                    <PluginListComponent
+                    <PluginListDialog
                         visible={this.state.visiblePluginPanel}
                         field={this.state.editListField}
                         parsedPluginView={this.state.parsedPluginView}
@@ -725,12 +722,11 @@ export class BaseViewContainer extends BaseContainer {
                         dataGridStoreSuccess={this.state.dataPluginStoreSuccess}
                         selectedRowData={this.state.selectedRowData}
                         defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
-                        labels={this.props.labels}
                     />
                 )}
 
                 {this.state.visibleHistoryLogPanel ? (
-                    <HistoryLogDialogComponent
+                    <HistoryLogDialog
                         visible={this.state.visibleHistoryLogPanel}
                         field={this.state.editListField}
                         parsedHistoryLogView={this.state.parsedHistoryLogView}
@@ -740,11 +736,6 @@ export class BaseViewContainer extends BaseContainer {
                             this.blockUi();
                             return true;
                         }}
-                        unselectAllDataGrid={() => {
-                            this.setState({
-                                selectedRowKeys: [],
-                            });
-                        }}
                         historyLogId={this.state.historyLogId}
                         selectedRowKeys={this.state.selectedRowKeys}
                         handleUnblockUi={() => this.unblockUi}
@@ -752,14 +743,12 @@ export class BaseViewContainer extends BaseContainer {
                         dataGridStoreSuccess={this.state.dataHistoryLogStoreSuccess}
                         selectedRowData={this.state.selectedRowData}
                         defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
-                        labels={this.props.labels}
                     />
                 ) : null}
 
                 {this.state.visibleMessagePluginPanel ? (
-                    <ConfirmPluginDialogComponent
+                    <ConfirmPluginDialog
                         parsedPluginView={parsedPluginView}
-                        labels={this.props.labels}
                         onAccept={() => {
                             if (this.state.isPluginFirstStep) {
                                 const isThereNextStep = this.state.parsedPluginView?.info?.next;
@@ -1254,7 +1243,7 @@ export class BaseViewContainer extends BaseContainer {
     };
     // callback na zaznaczone elementy
     selectAllDataGrid(selectionValue) {
-        if (this.isGridView()) {
+        if (this.isTypeOfGrid()) {
             this.setState(
                 {
                     selectAll: true,
@@ -1304,7 +1293,7 @@ export class BaseViewContainer extends BaseContainer {
     }
     unselectAllDataGrid(selectionValue) {
         this.blockUi();
-        if (this.isGridView()) {
+        if (this.isTypeOfGrid()) {
             this.setState(
                 {
                     selectAll: true,
@@ -1483,48 +1472,27 @@ export class BaseViewContainer extends BaseContainer {
             }, 1000);
         }
     }
+
     showCopyView(id) {
         this.setState({
             visibleCopyDialog: true,
             copyId: id,
         });
     }
-    // TODO: zeby korzystalo z handleEdit jesli mozliwe
+
     editSubView(e) {
-        this.blockUi();
         const parentId = e.parentId || this.state.elementRecordId;
         const kindView = this.state.elementKindView;
-        this.crudService
-            .editEntry(e.viewId, e.recordId, parentId, kindView)
-            .then((entryResponse) => {
-                EntryResponseHelper.run(
-                    entryResponse,
-                    () => {
-                        if (!!entryResponse.next) {
-                            this.crudService
-                                .edit(e.viewId, e.recordId, parentId, kindView)
-                                .then((editDataResponse) => {
-                                    this.setState({
-                                        visibleEditPanel: true,
-                                        editData: editDataResponse,
-                                    });
-                                    this.unblockUi();
-                                })
-                                .catch((err) => {
-                                    this.showGlobalErrorMessage(err);
-                                });
-                        } else {
-                            this.unblockUi();
-                        }
-                    },
-                    () => this.unblockUi(),
-                    () => this.unblockUi()
-                );
-            })
-            .catch((err) => {
-                this.showGlobalErrorMessage(err);
-                this.unblockUi();
-            });
+        handleEdit(
+            this.crudService,
+            e.viewId,
+            e.recordId,
+            parentId,
+            kindView,
+            (editDataResponse) => this.setState({editData: editDataResponse, visibleEditPanel: true}),
+            () => this.unblockUi(),
+            (err) => this.showErrorMessage(err)
+        );
     }
 
     refreshGanttData = () => {
@@ -1585,14 +1553,7 @@ export class BaseViewContainer extends BaseContainer {
                 },
             });
         };
-        return (
-            <PDFViewerDialogComponent
-                onHide={onHide}
-                name={this.state.fileViewer.name}
-                file={this.state.fileViewer.file}
-                labels={this.props.labels}
-            />
-        );
+        return <PDFViewerDialog onHide={onHide} name={this.state.fileViewer.name} file={this.state.fileViewer.file} />;
     };
     //override
     renderContent = () => {
@@ -1600,7 +1561,7 @@ export class BaseViewContainer extends BaseContainer {
             <React.Fragment>
                 {this.state.loading ? null : (
                     <React.Fragment>
-                        {this.isGridView()
+                        {this.isTypeOfGrid()
                             ? this.renderGridViewComponent()
                             : this.isCardView()
                             ? this.renderCardViewComponent()
@@ -1616,7 +1577,7 @@ export class BaseViewContainer extends BaseContainer {
                             />
                         )}
                         {this.state.qrCodesDialog && (
-                            <QrCodesDialogComponent
+                            <QrCodesDialog
                                 onHide={() =>
                                     this.setState({
                                         qrCodesDialog: false,
@@ -1637,8 +1598,14 @@ export class BaseViewContainer extends BaseContainer {
                                     this.codeService
                                         .find(viewId, parentId, kindView, body)
                                         .then((result) => {
-                                            if (result.operation === '') {
+                                            if (StringUtils.isEmptyString(result.operation)) {
+                                                const message = result?.message;
                                                 this.refreshView();
+                                                if (message) {
+                                                    const text = message?.text;
+                                                    const title = message?.title;
+                                                    this.showErrorMessage(text, 3000, true, title);
+                                                }
                                             } else this.handleQrCodeResponse(result);
                                         })
                                         .catch((ex) => {
@@ -1651,7 +1618,6 @@ export class BaseViewContainer extends BaseContainer {
                                             this.unblockUi();
                                         });
                                 }}
-                                labels={this.props.labels}
                             />
                         )}
                         {this.state.confirmationOperation?.visible && (
@@ -1697,9 +1663,12 @@ export class BaseViewContainer extends BaseContainer {
             window.dataGrid = prevDataGridGlobalReference;
             dataGrid = prevDataGridGlobalReference;
         }
+        const uniqueKeys = Array.from(
+            new Map(rowDataKeys.map((item) => [String(item.ID), {ID: String(item.ID)}])).values()
+        );
         this.setState(
             {
-                selectedRowKeys: rowDataKeys,
+                selectedRowKeys: uniqueKeys,
                 prevDataGridGlobalReference: null,
             },
             () => {
@@ -1721,6 +1690,8 @@ export class BaseViewContainer extends BaseContainer {
         return (
             <React.Fragment>
                 <GridViewComponent
+                    multiLevelHeaders={this.isGridViewBands()}
+                    gridViewColumns={this.state.gridViewColumns}
                     ppmEnabled={true}
                     altAndLeftClickEnabled={true}
                     labels={this.props.labels}
@@ -1739,7 +1710,6 @@ export class BaseViewContainer extends BaseContainer {
                         return this.refDataGrid;
                     }}
                     parsedGridViewData={this.state.parsedGridViewData}
-                    gridViewColumns={this.state.gridViewColumns}
                     handleBlockUi={() => {
                         this.blockUi();
                         return true;
@@ -1851,6 +1821,8 @@ export class BaseViewContainer extends BaseContainer {
                             this.blockUi();
                             return true;
                         }}
+                        editHeaderIsVisible={this.state.visibleEditPanel}
+                        isBlocking={this.state.blocking}
                         handleUnblockUi={() => {
                             this.unblockUi();
                             return true;

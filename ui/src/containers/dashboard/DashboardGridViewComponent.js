@@ -21,15 +21,15 @@ import ConsoleHelper from '../../utils/ConsoleHelper';
 import LocUtils from '../../utils/LocUtils';
 import {Toast} from 'primereact/toast';
 import {AttachmentViewDialog} from '../attachmentView/AttachmentViewDialog';
-import CopyDialogComponent from '../../components/prolab/CopyDialogComponent';
-import PluginListComponent from '../../components/prolab/PluginListComponent';
-import HistoryLogDialogComponent from '../../components/prolab/HistoryLogDialogComponent';
+import CopyDialog from '../../components/prolab/CopyDialog';
+import PluginListDialog from '../../components/prolab/PluginListDialog';
+import HistoryLogDialog from '../../components/prolab/HistoryLogDialog';
 import {OperationType} from '../../enum/OperationType';
 import ReactDOM from 'react-dom';
 import {StringUtils} from '../../utils/StringUtils';
 import {ResponseUtils} from '../../utils/ResponseUtils';
 import {TranslationUtils} from '../../utils/TranslationUtils';
-import {ConfirmPluginDialogComponent} from '../../components/prolab/ConfirmPluginDialogComponent';
+import {ConfirmPluginDialog} from '../../components/prolab/ConfirmPluginDialog';
 import {EditFormType} from '../../enum/EditFormType';
 import EditHeaderDialogComponent from '../../components/prolab/EditHeaderDialogComponent';
 import {ConfirmationOperationDialog} from '../../components/prolab/ConfirmOperationDialog';
@@ -262,12 +262,11 @@ export class DashboardGridViewComponent extends BaseContainer {
                 <ConfirmDialog
                     visible={true}
                     closable={false}
-                    message={LocUtils.loc(
-                        this.props.labels,
+                    message={LocUtils.locFromStoreWithDefault(
                         'Question_Close_Edit',
                         'Czy na pewno chcesz zamknąć edycję?'
                     )}
-                    header={LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie')}
+                    header={LocUtils.locFromStoreWithDefault('Confirmation', 'Potwierdzenie')}
                     icon='pi pi-exclamation-triangle'
                     acceptLabel={localeOptions('accept')}
                     rejectLabel={localeOptions('reject')}
@@ -348,7 +347,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                     ) : null}
 
                     {this.state.visibleCopyDialog ? (
-                        <CopyDialogComponent
+                        <CopyDialog
                             visible={this.state.visibleCopyDialog}
                             onHide={() => this.setState({visibleCopyDialog: false})}
                             isSpecification={this.state.parsedGridView.viewInfo.isSpecification}
@@ -359,7 +358,6 @@ export class DashboardGridViewComponent extends BaseContainer {
                                 });
                                 this.copyEntry(this.state.copyId, this.props?.copyDataForDashboard);
                             }}
-                            labels={this.props.labels}
                         />
                     ) : null}
                     {this.state.attachmentViewInfo ? (
@@ -407,7 +405,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                         />
                     ) : null}
                     {this.state.visiblePluginPanel && (
-                        <PluginListComponent
+                        <PluginListDialog
                             visible={this.state.visiblePluginPanel}
                             field={this.state.editListField}
                             parsedPluginView={this.state.parsedPluginView}
@@ -431,11 +429,10 @@ export class DashboardGridViewComponent extends BaseContainer {
                             dataGridStoreSuccess={this.state.dataPluginStoreSuccess}
                             selectedRowData={this.state.selectedRowData}
                             defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
-                            labels={this.props.labels}
                         />
                     )}
                     {this.state.visibleHistoryLogPanel ? (
-                        <HistoryLogDialogComponent
+                        <HistoryLogDialog
                             visible={this.state.visibleHistoryLogPanel}
                             field={this.state.editListField}
                             parsedHistoryLogView={this.state.parsedHistoryLogView}
@@ -445,11 +442,6 @@ export class DashboardGridViewComponent extends BaseContainer {
                                 this.blockUi();
                                 return true;
                             }}
-                            unselectAllDataGrid={() => {
-                                this.setState({
-                                    selectedRowKeys: [],
-                                });
-                            }}
                             historyLogId={this.state.historyLogId}
                             selectedRowKeys={this.state.selectedRowKeys}
                             handleUnblockUi={() => this.unblockUi}
@@ -457,13 +449,11 @@ export class DashboardGridViewComponent extends BaseContainer {
                             dataGridStoreSuccess={this.state.dataHistoryLogStoreSuccess}
                             selectedRowData={this.state.selectedRowData}
                             defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
-                            labels={this.props.labels}
                         />
                     ) : null}
                     {this.state.visibleMessagePluginPanel ? (
-                        <ConfirmPluginDialogComponent
+                        <ConfirmPluginDialog
                             parsedPluginView={this.state.parsedPluginView}
-                            labels={this.props.labels}
                             onHide={() => this.setState({visibleMessagePluginPanel: false})}
                             onAccept={() => {
                                 if (this.state.isPluginFirstStep) {
@@ -673,6 +663,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                 {this.state.loading ? null : (
                     <React.Fragment>
                         <GridViewComponent
+                            multiLevelHeaders={this.isGridViewBands()}
                             targetContextMenu={'.dx-row.dx-data-row.dx-row-lines'}
                             id={this.props.id}
                             gridFromDashboard={true}

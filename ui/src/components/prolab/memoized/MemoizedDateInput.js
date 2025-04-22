@@ -1,10 +1,13 @@
 import {DateBox} from 'devextreme-react';
 import React from 'react';
 import EditRowUtils from '../../../utils/EditRowUtils';
-import Constants from '../../../utils/Constants';
+import {StringUtils} from '../../../utils/StringUtils';
 
 //D – Data
 export const MemoizedDateInput = React.memo(({field, cellInfo, inputValue, fieldIndex, required, validate}) => {
+    if (StringUtils.isEmptyString(inputValue)) {
+        inputValue = undefined;
+    }
     return (
         <React.Fragment>
             <DateBox

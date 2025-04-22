@@ -5,7 +5,7 @@ import {useEffect, useRef, useState} from 'react';
 import PropTypes from 'prop-types';
 import HtmlEditor, {Item, MediaResizing, TableResizing, Toolbar} from 'devextreme-react/html-editor';
 import LocUtils from '../../utils/LocUtils';
-import MarkupDialogComponent from './MarkupDialogComponent';
+import MarkupDialogComponent from './MarkupDialog';
 import useStore from '../../store';
 
 export const EditorDialog = (props) => {

@@ -25,14 +25,14 @@ export const ConfirmationOperationDialog = ({onHide, onAccept, operationType, vi
                         onHide();
                     }}
                     className='mr-2 p-button inverse'
-                    label={LocUtils.locFromStoreWithDefault('Confirm_no', 'Nie')}
+                    label={LocUtils.locFromStoreWithDefault('No', 'Nie')}
                 />
                 <Button
                     type='button'
                     onClick={() => {
                         onAccept();
                     }}
-                    label={LocUtils.locFromStoreWithDefault('Confirm_yes', 'Tak')}
+                    label={LocUtils.locFromStoreWithDefault('Yes', 'Tak')}
                 />
             </div>
         </React.Fragment>

@@ -5,7 +5,7 @@ import {ConfirmDialog} from 'primereact/confirmdialog';
 import {HtmlUtils} from '../../utils/HtmlUtils';
 import {StringUtils} from '../../utils/StringUtils';
 
-export const ConfirmPluginDialogComponent = ({parsedPluginView, onHide, onAccept, onReject}) => {
+export const ConfirmPluginDialog = ({parsedPluginView, onHide, onAccept, onReject}) => {
     const acceptLabel = () => {
         if (isQuestion()) {
             return LocUtils.locFromStoreWithDefault('Yes', 'Tak');
@@ -55,27 +55,39 @@ export const ConfirmPluginDialogComponent = ({parsedPluginView, onHide, onAccept
         }
         return undefined;
     };
+
     const getIcon = () => {
         const info = parsedPluginView?.info;
+        let icon = 'pi pi-exclamation-triangle';
+        let iconColor = 'black';
         if ('icon' in info) {
-            if (StringUtils.isBlank(info.icon)) {
-                return '';
+            if (!StringUtils.isBlank(info.icon)) {
+                icon = 'mdi' + ' ' + info.icon;
+            } else {
+                icon = '';
             }
-            return info.icon;
-        } else {
-            return 'pi pi-exclamation-triangle';
         }
+        if ('iconColor' in info) {
+            if (!StringUtils.isBlank(info.iconColor)) {
+                iconColor = info.iconColor;
+            }
+        }
+        return <i className={icon} style={{color: iconColor, fontSize: 32}} />;
     };
 
     const classNameGenerate = () => {
+        const info = parsedPluginView?.info;
         let className = 'confirm-plugin';
         if (isMessage()) {
             className = className + ' single-button';
-            if (HtmlUtils.isValidHtml(parsedPluginView.info?.message?.text)) {
+            if (HtmlUtils.isValidHtml(info?.message?.text)) {
                 className = className + ' override-align-items-stretch';
             }
         }
-        if (HtmlUtils.isValidHtml(parsedPluginView.info?.question?.text)) {
+        if (HtmlUtils.isValidHtml(info?.question?.text)) {
+            className = className + ' override-align-items-stretch';
+        }
+        if ('iconColor' in info) {
             className = className + ' override-align-items-stretch';
         }
         return className;
@@ -97,18 +109,16 @@ export const ConfirmPluginDialogComponent = ({parsedPluginView, onHide, onAccept
     );
 };
 
-ConfirmPluginDialogComponent.defaultProps = {
+ConfirmPluginDialog.defaultProps = {
     parsedPluginView: undefined,
-    labels: [],
     onHide: () => {},
     onAccept: () => {},
     onReject: () => {},
 };
 
-ConfirmPluginDialogComponent.defaultProps = {
+ConfirmPluginDialog.defaultProps = {
     parsedPluginView: PropTypes.object.isRequired,
     onHide: PropTypes.func.isRequired,
     onAccept: PropTypes.func.isRequired,
     onReject: PropTypes.func.isRequired,
-    labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
 };

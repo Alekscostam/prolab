@@ -50,6 +50,8 @@ import {jsPDF} from 'jspdf';
 import {exportGantt as exportGanttToPdf} from 'devextreme/pdf_exporter';
 import 'jspdf-autotable';
 import {cellTemplate, contextMenuItems} from './GanttTemplate.js';
+import {SessionStoreUtils} from '../../utils/SessionStoreUtils.js';
+import UrlUtils from '../../utils/UrlUtils.js';
 
 const UNCOLLAPSED_CUT_SIZE = 314;
 const COLLAPSED_CUT_SIZE = 125;
@@ -179,6 +181,9 @@ class GanttViewComponent extends React.Component {
                     onCustomCommand={(e) => {
                         this.onCustomCommandClick(e);
                     }}
+                    onContentReady={(e) => {
+                        this.highlightRow(e);
+                    }}
                     keyExpr={KEY}
                     focusedRowEnabled={false}
                     hoverStateEnabled={false}
@@ -266,6 +271,39 @@ class GanttViewComponent extends React.Component {
             </React.Fragment>
         );
     }
+    highlightRow = (e) => {
+        const clickedRowFromView = SessionStoreUtils.getClickedRowFromView();
+        if (clickedRowFromView) {
+            if (clickedRowFromView.view.id !== UrlUtils.getIdFromUrl()) {
+                SessionStoreUtils.clearClickedRowFromView();
+                return;
+            }
+            const visibleRow = GanttUtils.sortHierarchicallyWithIndex(this.state.tasks)?.find(
+                (task) => task.ID === clickedRowFromView.row?.id
+            );
+            if (visibleRow) {
+                const tables = e.element?.getElementsByTagName('table');
+                if (tables && tables.length > 1) {
+                    const lastTable = tables[tables.length - 1] || null;
+                    const penultimateTable = tables[tables.length - 2] || null;
+                    if (lastTable && penultimateTable) {
+                        lastTable.getElementsByTagName('tr');
+                        const trLastTable = lastTable.getElementsByTagName('tr')?.[visibleRow.index] || null;
+                        const trPenultimateTable =
+                            penultimateTable.getElementsByTagName('tr')?.[visibleRow.index] || null;
+                        if (trLastTable) {
+                            trLastTable.className = (trLastTable.className || '') + ' highlight-row';
+                            SessionStoreUtils.clearClickedRowFromView();
+                        }
+                        if (trPenultimateTable) {
+                            trPenultimateTable.className = (trPenultimateTable.className || '') + ' highlight-row';
+                            SessionStoreUtils.clearClickedRowFromView();
+                        }
+                    }
+                }
+            }
+        }
+    };
     exportButtonClick = (e) => {
         const format = this.state.formatBoxValue.toLowerCase();
         const isLandscape = this.state.landscapeCheckBoxValue;
@@ -372,7 +410,7 @@ class GanttViewComponent extends React.Component {
     datasInitialization(res) {
         const rowElementsStorage = new Map();
         for (let index = 0; index < res.data.length; index++) {
-            let array = [
+            const array = [
                 {
                     id: res.data[index].ID,
                 },
@@ -471,8 +509,6 @@ class GanttViewComponent extends React.Component {
     }
 
     handleEditSpec(viewId, parentId, recordId) {
-        let prevUrl = window.location.href;
-        sessionStorage.setItem('prevUrl', prevUrl);
         TreeListUtils.openEditSpec(
             viewId,
             parentId,
@@ -623,11 +659,6 @@ class GanttViewComponent extends React.Component {
     };
 
     selectSingleRow(recordId) {
-        // const tasks = this.state.tasks;
-        // const row = document.querySelector(`tr[aria-rowindex="${1}"]`);
-        // if (row) {
-        //     row.classList.add('moja-klasa'); // Dodaje klasę do wiersza
-        // }
         const selectedRowKeys = this.props.selectedRowKeys;
         const store = this.state.rowElementsStorage;
         for (const [key, value] of store.entries()) {

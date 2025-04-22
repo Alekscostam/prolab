@@ -164,7 +164,7 @@ export class EditHeaderComponent extends BaseRowComponent {
                                         </div>
                                         {kindOperation?.toUpperCase() === 'COPY' ? (
                                             <div id='label' className='label col-lg-12' style={{fontSize: '1em'}}>
-                                                {LocUtils.loc(labels, 'Copied_Label', 'Kopiowanie')}{' '}
+                                                {LocUtils.locFromStoreWithDefault('Copying', 'Kopiowanie')}{' '}
                                                 {copyDataGlobalTop?.copyCounter?.counter} /{' '}
                                                 {copyDataGlobalTop?.copyOptions?.numberOfCopy}{' '}
                                             </div>

@@ -19,7 +19,7 @@ function ResponseHelper() {
 
     return null;
 }
-ResponseHelper.run = (response, nokAcceptFnc, okAcceptFnc, resErrorMessage, onAfterOkClick) => {
+ResponseHelper.run = (response, nokAcceptFnc, okAcceptFnc, resErrorMessage, onAfterNokClick) => {
     switch (response.status) {
         case ResponseStatus.OK:
             if (!!response.message) {
@@ -40,7 +40,12 @@ ResponseHelper.run = (response, nokAcceptFnc, okAcceptFnc, resErrorMessage, onAf
                     true
                 );
             } else if (!!response.message) {
-                renderConfirmDialog(response.message.text, response.message.title, 'pi pi-info-circle', onAfterOkClick);
+                renderConfirmDialog(
+                    response.message.text,
+                    response.message.title,
+                    'pi pi-info-circle',
+                    onAfterNokClick
+                );
             } else if (!!response.error) {
                 resErrorMessage(response);
             }

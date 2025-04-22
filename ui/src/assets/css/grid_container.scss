@@ -558,6 +558,10 @@ $base-color: #0e49eb;
     }
 }
 
+.highlight-row{
+    animation: highlightRow 3s linear!important;
+}
+
 #HistoryLogListDialog_content{
     .dx-row-focused, .dx-state-hover,.dx-selection{
         td{
@@ -692,6 +696,11 @@ body #subviews-panel .dx-tabs {
     margin-bottom: -9px;
 }
 
+#copyDialog{
+    #copyDialog_content{
+        overflow: hidden;
+    }
+}
 .base-container-content
     .grid-container.grid-with-opperations
     .grid-header-auto-height
@@ -702,8 +711,10 @@ body #subviews-panel .dx-tabs {
     justify-content: center;
     display: flex;
 }
+.dx-cell-focus-disabled.header-button.dx-datagrid-drag-action{
+    border-bottom: none!important;
+}
 .base-container-content .grid-with-opperations .dx-datagrid-headers .dx-datagrid-table .dx-row > td:last-child {
-    border-bottom: none;
     background-color: white;
 }
 .base-container-content .grid-with-opperations .dx-datagrid-headers .dx-datagrid-table .dx-row > td:last-child:hover {

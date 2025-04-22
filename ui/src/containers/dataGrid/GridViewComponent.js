@@ -44,6 +44,7 @@ import {TranslationUtils} from '../../utils/TranslationUtils';
 import {SelectedRowKeysUtils} from '../../utils/SelectedRowKeysUtils';
 import {handleEdit} from '../../utils/handler/EditHandler';
 import {SessionStoreUtils} from '../../utils/SessionStoreUtils';
+import {ResponseUtils} from '../../utils/ResponseUtils';
 
 class GridViewComponent extends CellEditComponent {
     constructor(props) {
@@ -335,6 +336,7 @@ class GridViewComponent extends CellEditComponent {
                         }
                     }}
                     onContentReady={(e) => {
+                        this.highlightRow(e);
                         if (this.props.onContentReady) {
                             this.props.onContentReady(e);
                         }
@@ -439,6 +441,7 @@ class GridViewComponent extends CellEditComponent {
                         }}
                         handleSaveAction={(e) => this.props.handleSaveAction()}
                         handleHrefSubview={(e) => this.handleHrefSubview(viewId, selectedRecordId)}
+                        hrefSpecView={this.subViewHref(viewId, selectedRecordId)}
                         handleEdit={(e) =>
                             this.preOperationAction(e, () =>
                                 this.handleEdit(viewId, parentId, kindView, selectedRecordId)
@@ -469,6 +472,36 @@ class GridViewComponent extends CellEditComponent {
             </React.Fragment>
         );
     }
+    highlightRow = (e) => {
+        const clickedRowFromView = SessionStoreUtils.getClickedRowFromView();
+        if (clickedRowFromView) {
+            if (clickedRowFromView.view.id !== UrlUtils.getIdFromUrl()) {
+                SessionStoreUtils.clearClickedRowFromView();
+                return;
+            }
+            const visibleRow = e.component.getVisibleRows()?.find((row) => row.data?.ID === clickedRowFromView.row?.id);
+            if (visibleRow) {
+                const tables = e.element?.getElementsByTagName('table');
+                if (tables && tables.length > 1) {
+                    const lastTable = tables[tables.length - 1] || null;
+                    const penultimateTable = tables[tables.length - 2] || null;
+                    if (lastTable && penultimateTable) {
+                        const trLastTable = lastTable.getElementsByTagName('tr')?.[visibleRow.rowIndex] || null;
+                        const trPenultimateTable =
+                            penultimateTable.getElementsByTagName('tr')?.[visibleRow.rowIndex] || null;
+                        if (trLastTable) {
+                            trLastTable.className = (trLastTable.className || '') + ' highlight-row';
+                            SessionStoreUtils.clearClickedRowFromView();
+                        }
+                        if (trPenultimateTable) {
+                            trPenultimateTable.className = (trPenultimateTable.className || '') + ' highlight-row';
+                            SessionStoreUtils.clearClickedRowFromView();
+                        }
+                    }
+                }
+            }
+        }
+    };
     preOperationAction = (operation, callback, recordId = this.state.selectedRecordId) => {
         const onlyOneRecord = operation?.onlyOneRecord;
         if (this.props.handleSelectRows) {
@@ -532,11 +565,20 @@ class GridViewComponent extends CellEditComponent {
         }
         return null;
     }
+
+    getClonedGridViewColumns() {
+        if (this.props.multiLevelHeaders) {
+            return structuredClone(ResponseUtils.flattenColumns(this.props.gridViewColumns));
+        }
+        return structuredClone(this.props.gridViewColumns);
+    }
+
     postCustomizeColumns = (columns) => {
-        let columnDefinitionArray = structuredClone(this.props.gridViewColumns);
+        const columnDefinitionArray = this.getClonedGridViewColumns();
         let INDEX_COLUMN = 0;
         if (columns?.length > 0) {
             columns
+                .filter((column) => !column.isBand)
                 .filter((column) => column.visible === true)
                 ?.forEach((column) => {
                     if (column.name === '_ROWNUMBER') {
@@ -592,7 +634,6 @@ class GridViewComponent extends CellEditComponent {
                 });
             // Bardzo ważne!!! clear pol bo w tym utilsie są parametry typu let
             DataGridUtils.clearProperties();
-
             let operationsRecord = this.props.parsedGridView?.operationsRecord;
             let operationsRecordList = this.props.parsedGridView?.operationsRecordList;
             if (!(operationsRecord instanceof Array)) {
@@ -915,16 +956,98 @@ class GridViewComponent extends CellEditComponent {
     };
 
     preGenerateColumnsDefinition = () => {
+        const multiLevelHeaders = this.props.multiLevelHeaders;
+        if (multiLevelHeaders) {
+            return this.generateGroupColumns();
+        }
+        return this.generateColumns();
+    };
+
+    generateColumns() {
         const columns = [];
-        this.props.gridViewColumns?.forEach((columnDefinition, INDEX_COLUMN) => {
+        this.props.gridViewColumns?.forEach((columnDefinition, keyIndex) => {
             let sortOrder;
             if (!!columnDefinition?.sortIndex && columnDefinition?.sortIndex > 0 && !!columnDefinition?.sortOrder) {
                 sortOrder = columnDefinition?.sortOrder?.toLowerCase();
             }
-            columns.push(this.generateCustomizeColumn(INDEX_COLUMN, sortOrder, columnDefinition));
+            columns.push(
+                this.isEditableCell(columnDefinition) ? (
+                    <Column
+                        key={keyIndex}
+                        dataField={columnDefinition.fieldName}
+                        sortOrder={sortOrder}
+                        sortIndex={columnDefinition?.sortIndex}
+                        groupCellTemplate={this.groupCellTemplate}
+                        editCellRender={(cellInfo) =>
+                            this.editCellRender(cellInfo, columnDefinition, (operation) => {
+                                if (columnDefinition.type === ColumnType.B || columnDefinition.type === ColumnType.L) {
+                                    this.setState({rerenderFlag: !this.state?.rerenderFlag});
+                                } else {
+                                    switch (operation) {
+                                        case OperationCell.EDIT_LIST:
+                                            this.editListVisible(cellInfo.row?.data?.ID, columnDefinition.id);
+                                            break;
+                                        case OperationCell.FILL_DOWN:
+                                            this.downFill(cellInfo, columnDefinition);
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                }
+                            })
+                        }
+                    />
+                ) : (
+                    <Column
+                        key={keyIndex}
+                        dataField={columnDefinition.fieldName}
+                        sortOrder={sortOrder}
+                        sortIndex={columnDefinition?.sortIndex}
+                        groupCellTemplate={this.groupCellTemplate}
+                    />
+                )
+            );
         });
         return columns;
-    };
+    }
+
+    generateGroupColumns() {
+        const renderColumns = (groupDefinition, keyPrefix = '') => {
+            if (groupDefinition.isBand && Array.isArray(groupDefinition.columns)) {
+                return (
+                    <Column
+                        visible={groupDefinition.visible}
+                        alignment='center'
+                        fixed={this.getFixed(groupDefinition)}
+                        fixedPosition={this.getFixedPosition(groupDefinition)}
+                        key={keyPrefix + '-column-group'}
+                        caption={groupDefinition.caption}
+                        isBand={true}
+                    >
+                        {groupDefinition.columns.map((child, idx) => renderColumns(child, keyPrefix + '-' + idx))}
+                    </Column>
+                );
+            } else {
+                let sortOrder;
+                if (!!groupDefinition?.sortIndex && groupDefinition?.sortIndex > 0 && !!groupDefinition?.sortOrder) {
+                    sortOrder = groupDefinition?.sortOrder?.toLowerCase();
+                }
+                return (
+                    <Column
+                        visible={groupDefinition.visible}
+                        key={keyPrefix + '-column'}
+                        dataField={groupDefinition.fieldName}
+                        sortOrder={sortOrder}
+                        sortIndex={groupDefinition?.sortIndex}
+                        groupCellTemplate={this.groupCellTemplate}
+                    />
+                );
+            }
+        };
+        const columns = this.props.gridViewColumns.map((group, index) => renderColumns(group, 'col-' + index));
+        return columns;
+    }
+
     isSpecialCell = (columnDefinition) => {
         const type = columnDefinition?.type;
         try {
@@ -989,44 +1112,6 @@ class GridViewComponent extends CellEditComponent {
             }
         );
     };
-
-    generateCustomizeColumn = (keyIndex, sortOrder, columnDefinition) => {
-        return this.isEditableCell(columnDefinition) ? (
-            <Column
-                key={keyIndex}
-                dataField={columnDefinition.fieldName}
-                sortOrder={sortOrder}
-                sortIndex={columnDefinition?.sortIndex}
-                groupCellTemplate={this.groupCellTemplate}
-                editCellRender={(cellInfo) =>
-                    this.editCellRender(cellInfo, columnDefinition, (operation) => {
-                        if (columnDefinition.type === ColumnType.B || columnDefinition.type === ColumnType.L) {
-                            this.setState({rerenderFlag: !this.state?.rerenderFlag});
-                        } else {
-                            switch (operation) {
-                                case OperationCell.EDIT_LIST:
-                                    this.editListVisible(cellInfo.row?.data?.ID, columnDefinition.id);
-                                    break;
-                                case OperationCell.FILL_DOWN:
-                                    this.downFill(cellInfo, columnDefinition);
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                    })
-                }
-            />
-        ) : (
-            <Column
-                key={keyIndex}
-                dataField={columnDefinition.fieldName}
-                sortOrder={sortOrder}
-                sortIndex={columnDefinition?.sortIndex}
-                groupCellTemplate={this.groupCellTemplate}
-            />
-        );
-    };
 }
 
 GridViewComponent.defaultProps = {
@@ -1040,6 +1125,7 @@ GridViewComponent.defaultProps = {
     showColumnHeaders: true,
     showFilterRow: true,
     gridFromDashboard: false,
+    multiLevelHeaders: false,
     showSelection: true,
     targetContextMenu: '.ppm-enabled .dx-row.dx-data-row.dx-row-lines.dx-column-lines',
     dataGridStoreSuccess: true,
@@ -1076,6 +1162,8 @@ GridViewComponent.propTypes = {
     cellModeEnabled: PropTypes.bool,
 
     altAndLeftClickEnabled: PropTypes.bool,
+
+    multiLevelHeaders: PropTypes.bool,
 
     //buttons
     handleArchiveRow: PropTypes.func,

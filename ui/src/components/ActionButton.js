@@ -161,7 +161,7 @@ ActionButton.propTypes = {
     params: PropTypes.object,
     rendered: PropTypes.bool,
     size: PropTypes.string,
-    style: PropTypes.string,
+    style: PropTypes.object,
     title: PropTypes.string,
     variant: PropTypes.string,
 };

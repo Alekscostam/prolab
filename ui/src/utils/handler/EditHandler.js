@@ -1,5 +1,6 @@
 import {TreeListUtils} from '../component/TreeListUtils';
 import EntryResponseHelper from '../helper/EntryResponseHelper';
+import {SessionStoreUtils} from '../SessionStoreUtils';
 
 export const handleEdit = (
     crudService,
@@ -22,6 +23,7 @@ export const handleEdit = (
                         crudService
                             .edit(viewId, recordId, parentId, kindView)
                             .then((editDataResponse) => {
+                                SessionStoreUtils.saveClickedRowFromView(recordId);
                                 editDataResponse.editInfo.readOnly = readOnly;
                                 handleShowEditPanel(editDataResponse);
                             })

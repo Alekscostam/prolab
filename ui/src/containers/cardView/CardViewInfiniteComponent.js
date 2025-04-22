@@ -15,17 +15,18 @@ import {EditSpecUtils} from '../../utils/EditSpecUtils';
 import {compress} from 'int-compress-string';
 import {TreeListUtils} from '../../utils/component/TreeListUtils';
 import {StringUtils} from '../../utils/StringUtils';
-import EntryResponseHelper from '../../utils/helper/EntryResponseHelper';
-import ImageViewerComponent from '../../components/ImageViewerComponent';
+import ImageViewerDialog from '../../components/ImageViewerDialog';
 import {MenuWithButtons} from '../../components/prolab/MenuWithButtons';
-import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils';
 import {SelectedRowKeysUtils} from '../../utils/SelectedRowKeysUtils';
-import {RowTemplateUtils} from '../../utils/RowTemplateUtils';
 import {SessionStoreUtils} from '../../utils/SessionStoreUtils';
+import UrlUtils from '../../utils/UrlUtils';
+import {handleEdit} from '../../utils/handler/EditHandler';
 
 class CardViewInfiniteComponent extends PureComponent {
     constructor(props) {
         super(props);
+        this.cachedRequest = undefined;
+        this.lastFetchDate = new Date();
         this.crudService = new CrudService();
         this.labels = this.props;
         this.clickedPosition = React.createRef();
@@ -105,6 +106,36 @@ class CardViewInfiniteComponent extends PureComponent {
     canLoadNextPage() {
         return (this.props?.elementSubViewId && !this.state.isNextPageLoading) || this.state.items.length < 5;
     }
+
+    canFetchData(currentRequest) {
+        let result = true;
+        if (JSON.stringify(currentRequest) === JSON.stringify(this.cachedRequest || {})) {
+            const now = new Date();
+            const diffInMs = now - this.lastFetchDate;
+            if (diffInMs < 1000) {
+                result = false;
+            }
+        }
+        this.cachedRequest = currentRequest;
+        return result;
+    }
+
+    createRequestToCache(skip, packageCount) {
+        const obj = {
+            id: this.props.id,
+            pagination: {
+                skip: skip,
+                take: packageCount,
+            },
+            parentId: this.props.parentId,
+            filterId: this.props.filterId,
+            kindView: this.props.kindView,
+            parentViewId: this.props?.parentViewId,
+            parentKindViewSpec: this.props?.parentKindViewSpec,
+        };
+        return obj;
+    }
+
     _loadNextPage = (...args) => {
         const dataPackageSize = 30;
         const packageCount = !!dataPackageSize || dataPackageSize === 0 ? 30 : dataPackageSize;
@@ -123,52 +154,57 @@ class CardViewInfiniteComponent extends PureComponent {
                         let divide = args[0] * columnCount;
                         skip = Math.ceil(divide / packageCount) * dataPackageSize;
                     }
-                    this.dataCardStore
-                        .getDataForCard(
-                            this.props.id,
-                            {
-                                skip: skip,
-                                take: packageCount,
-                            },
-                            this.props.parentId,
-                            this.props.filterId,
-                            this.props.kindView,
-                            this.props?.parentViewId,
-                            this.props?.parentKindViewSpec
-                        )
-                        .then((res) => {
-                            let parsedCardViewData = [];
-                            let items = this.state.items;
-                            res.data.forEach((item) => {
-                                for (var key in item) {
-                                    var upper = key.toUpperCase();
-                                    if (upper !== key) {
-                                        item[upper] = item[key];
-                                        delete item[key];
+                    const currentCached = this.createRequestToCache(skip, packageCount);
+                    const canFetchData = this.canFetchData(currentCached);
+                    this.lastFetchDate = new Date();
+                    if (canFetchData) {
+                        this.dataCardStore
+                            .getDataForCard(
+                                this.props.id,
+                                {
+                                    skip: skip,
+                                    take: packageCount,
+                                },
+                                this.props.parentId,
+                                this.props.filterId,
+                                this.props.kindView,
+                                this.props?.parentViewId,
+                                this.props?.parentKindViewSpec
+                            )
+                            .then((res) => {
+                                let parsedCardViewData = [];
+                                let items = this.state.items;
+                                res.data.forEach((item) => {
+                                    for (var key in item) {
+                                        var upper = key.toUpperCase();
+                                        if (upper !== key) {
+                                            item[upper] = item[key];
+                                            delete item[key];
+                                        }
                                     }
-                                }
-                                for (let i = 0; i < items.length; i++) {
-                                    if (items[i].ID === item.ID) {
-                                        items.splice(i, 1);
-                                        i--;
+                                    for (let i = 0; i < items.length; i++) {
+                                        if (items[i].ID === item.ID) {
+                                            items.splice(i, 1);
+                                            i--;
+                                        }
                                     }
-                                }
-                                parsedCardViewData.push(item);
+                                    parsedCardViewData.push(item);
+                                });
+                                items = items.concat(parsedCardViewData);
+                                this.setState(
+                                    (state) => ({
+                                        hasNextPage: state.items.length < res.totalCount,
+                                        isNextPageLoading: false,
+                                        items: items,
+                                        totalCount: res.totalCount,
+                                    }),
+                                    () => {
+                                        this.props.handleTotalCounts(res.totalCount);
+                                        this.props.handleUnblockUi();
+                                    }
+                                );
                             });
-                            items = items.concat(parsedCardViewData);
-                            this.setState(
-                                (state) => ({
-                                    hasNextPage: state.items.length < res.totalCount,
-                                    isNextPageLoading: false,
-                                    items: items,
-                                    totalCount: res.totalCount,
-                                }),
-                                () => {
-                                    this.props.handleTotalCounts(res.totalCount);
-                                    this.props.handleUnblockUi();
-                                }
-                            );
-                        });
+                    }
                 }
             );
         }
@@ -212,39 +248,26 @@ class CardViewInfiniteComponent extends PureComponent {
         const viewId = DataGridUtils.getRealViewId(elementSubViewId, elementId);
         const result = this.props.handleBlockUi();
         if (result) {
-            this.crudService
-                .editEntry(viewId, recordId, subviewId, elementKindView)
-                .then((entryResponse) => {
-                    EntryResponseHelper.run(
-                        entryResponse,
-                        () => {
-                            if (!!entryResponse.next) {
-                                this.crudService
-                                    .edit(viewId, recordId, subviewId, elementKindView)
-                                    .then((editDataResponse) => {
-                                        this.setState(
-                                            {
-                                                editData: editDataResponse,
-                                            },
-                                            () => {
-                                                this.props.handleShowEditPanel(editDataResponse);
-                                            }
-                                        );
-                                    })
-                                    .catch((err) => {
-                                        this.props.showErrorMessages(err);
-                                    });
-                            } else {
-                                this.props.handleUnblockUi();
-                            }
+            handleEdit(
+                this.crudService,
+                viewId,
+                recordId,
+                subviewId,
+                elementKindView,
+                (editDataResponse) => {
+                    this.setState(
+                        {
+                            editData: editDataResponse,
                         },
-                        () => this.props.handleUnblockUi(),
-                        () => this.props.handleUnblockUi()
+                        () => {
+                            SessionStoreUtils.saveClickedRowFromView(recordId);
+                            this.props.handleShowEditPanel(editDataResponse);
+                        }
                     );
-                })
-                .catch((err) => {
-                    this.props.showErrorMessages(err);
-                });
+                },
+                () => this.props.handleUnblockUi(),
+                (err) => this.props.showErrorMessages(err)
+            );
         }
     };
 
@@ -372,7 +395,7 @@ class CardViewInfiniteComponent extends PureComponent {
                     />
                 )}
                 {imageViewer.imageViewDialogVisible && (
-                    <ImageViewerComponent
+                    <ImageViewerDialog
                         editable={false}
                         header={imageViewer.header}
                         onHide={() => {
@@ -384,7 +407,6 @@ class CardViewInfiniteComponent extends PureComponent {
                                 : imageViewer.imageBase64.replace('data:image/jpeg;base64,', '')
                         }
                         viewBase64={imageViewer.imageBase64}
-                        labels={this.labels}
                         visible
                     />
                 )}
@@ -401,13 +423,36 @@ class CardViewInfiniteComponent extends PureComponent {
         }
         callback();
     };
+
+    canHighlightBackground(rowData) {
+        const blockContainers = document.querySelectorAll('.block-ui-container.block');
+        const clickedRowFromView = SessionStoreUtils.getClickedRowFromView();
+        if (clickedRowFromView) {
+            if (clickedRowFromView?.view?.id !== UrlUtils.getIdFromUrl()) {
+                SessionStoreUtils.clearClickedRowFromView();
+            }
+            const id = rowData?.ID?.toString();
+            if (
+                clickedRowFromView?.row?.id?.toString() === id &&
+                Array.from(blockContainers).length === 0 &&
+                !this.props.editHeaderIsVisible
+            ) {
+                setTimeout(() => {
+                    SessionStoreUtils.clearClickedRowFromView();
+                }, 3000);
+                return 'highlight-row';
+            }
+        }
+        return '';
+    }
     renderSingleTile(rowData, index) {
-        const highlighBackground = '';
         const parsedCardView = this.props.parsedCardView;
         const {cardBody, cardHeader, cardImage, cardFooter, cardOptions = {}} = parsedCardView;
         const {width = 300, height = 200, bgColor1, bgColor2, fontColor} = cardOptions;
         const recordId = rowData.ID;
-        let selectedRowKeys = this.props.selectedRowKeys;
+        const selectedRowKeys = this.props.selectedRowKeys;
+        const highlighBackground = this.canHighlightBackground(rowData);
+
         return (
             <React.Fragment>
                 <div

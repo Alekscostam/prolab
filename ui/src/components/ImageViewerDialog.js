@@ -9,9 +9,8 @@ import LocUtils from '../utils/LocUtils';
 import UploadMultiImageFileBase64 from './prolab/UploadMultiImageFileBase64';
 import {StringUtils} from '../utils/StringUtils';
 
-export const ImageViewerComponent = (props) => {
-    
-    const {editable, base64, labels, visible, onHide, onApprove, header, viewBase64} = props;
+export const ImageViewerDialog = (props) => {
+    const {editable, base64, visible, onHide, onApprove, header, viewBase64} = props;
     const [imageSource, setImageSource] = useState(base64);
     return (
         <Dialog
@@ -25,14 +24,16 @@ export const ImageViewerComponent = (props) => {
                         <Button
                             type='button'
                             onClick={() => {
-                                if(onApprove){
+                                if (onApprove) {
                                     onApprove(imageSource);
                                 }
                             }}
-                            label={LocUtils.loc(labels, 'Confirm', 'Zatwierdź')}
+                            label={LocUtils.locFromStoreWithDefault('Confirm', 'Zatwierdź')}
                         />
                     </React.Fragment>
-                ) :<div></div>
+                ) : (
+                    <div></div>
+                )
             }
             breakpoints={{'860px': '75vw', '640px': '100vw'}}
             onHide={onHide}
@@ -43,7 +44,9 @@ export const ImageViewerComponent = (props) => {
                         <UploadMultiImageFileBase64
                             multiple={false}
                             displayText={
-                                imageSource === '' ? LocUtils.loc(labels, 'Choose_image', 'Wybierz obrazek') : ''
+                                imageSource === ''
+                                    ? LocUtils.locFromStoreWithDefault('Choose_image', 'Wybierz obrazek')
+                                    : ''
                             }
                             alt={''}
                             initBase64={StringUtils.isBlank(imageSource) ? '' : imageSource}
@@ -61,9 +64,8 @@ export const ImageViewerComponent = (props) => {
     );
 };
 
-ImageViewerComponent.defaultProps = {
+ImageViewerDialog.defaultProps = {
     visible: false,
-    labels: '',
     base64: '',
     header: '',
     viewBase64: '',
@@ -71,8 +73,7 @@ ImageViewerComponent.defaultProps = {
     mode: 'EDIT',
 };
 
-ImageViewerComponent.propTypes = {
-    labels: PropTypes.string.isRequired,
+ImageViewerDialog.propTypes = {
     viewBase64: PropTypes.string.isRequired,
     base64: PropTypes.string,
     header: PropTypes.string,
@@ -81,4 +82,4 @@ ImageViewerComponent.propTypes = {
     onHide: PropTypes.func,
 };
 
-export default ImageViewerComponent;
+export default ImageViewerDialog;

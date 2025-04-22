@@ -15,7 +15,7 @@ export const HeadPanel = (props) => {
     const parentId = props.elementRecordId;
     const viewId = DataGridUtils.getRealViewId(subViewId, props.elementId);
 
-    const handleEdit = (e, props, viewId, parentId, currentBreadcrumb) => {
+    const handleEdit = (e, props, viewId, parentId) => {
         if (props.elementKindView === 'ViewSpec' && props.selectedRowKeys.length > 0) {
             const idParams = props.selectedRowKeys.map((item) => item.ID);
             TreeListUtils.openEditSpec(
@@ -28,7 +28,7 @@ export const HeadPanel = (props) => {
         }
     };
 
-    const handleSpecEdit = (e, props, viewId, parentId, currentBreadcrumb) => {
+    const handleSpecEdit = (e, props, viewId, parentId) => {
         let idParams = [];
         if (!e.selectAll) {
             idParams = props.selectedRowKeys.map((item) => item.ID);

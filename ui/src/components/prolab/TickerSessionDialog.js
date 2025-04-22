@@ -61,7 +61,7 @@ export const TickerSessionDialog = (props) => {
             {secondsToPopup != null && secondsToPopup !== undefined && secondsToPopup > 0 && (
                 <Dialog
                     id='sessionTimeoutDialog'
-                    header={LocUtils.loc(props.labels, 'Session_expired', 'Sesja wygasa')}
+                    header={LocUtils.locFromStoreWithDefault('Session_expired', 'Sesja wygasa')}
                     closable={false}
                     draggable={false}
                     footer={
@@ -74,7 +74,7 @@ export const TickerSessionDialog = (props) => {
                                         onProlongSession();
                                         clearInterval(intervalId.current);
                                     }}
-                                    label={LocUtils.loc(props.labels, 'Session_prelong', 'Przedłuż')}
+                                    label={LocUtils.locFromStoreWithDefault('Session_prelong', 'Przedłuż')}
                                 />
                             </div>
                         </div>

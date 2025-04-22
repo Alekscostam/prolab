@@ -27,7 +27,7 @@ import {StringUtils} from '../utils/StringUtils';
 import {RequestUtils} from '../utils/RequestUtils';
 import Constants from '../utils/Constants';
 import {InputTextarea} from 'primereact/inputtextarea';
-import MarkupDialogComponent from '../components/prolab/MarkupDialogComponent';
+import MarkupDialogComponent from '../components/prolab/MarkupDialog';
 import useStore from '../store';
 import EditListDataStore from '../containers/dao/DataEditListStore';
 // const mentionsConfig = [
@@ -121,8 +121,7 @@ export class BaseRowComponent extends BaseContainer {
         this.editListVisible = this.editListVisible.bind(this);
 
         // this.tagBoxStore = new DataTagBoxStore();
-        this.fieldsMandatoryLabel = LocUtils.loc(
-            this.props.labels,
+        this.fieldsMandatoryLabel = LocUtils.locFromStoreWithDefault(
             'Fields_Mandatory_Label',
             'Wypełnij wszystkie wymagane pola'
         );

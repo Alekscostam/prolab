@@ -35,6 +35,7 @@ import {CookiesName} from './enum/CookieName';
 import {VersionPreviewDialog} from './components/prolab/VersionPreviewDialog';
 import {TranslationUtils} from './utils/TranslationUtils';
 import useStore from './store';
+import {SessionStoreUtils} from './utils/SessionStoreUtils';
 
 export let clearState;
 export let reStateApp;
@@ -224,10 +225,7 @@ class App extends Component {
         };
         const sessionTimeOutComponentRef = document.getElementById('session-time-out-component-ref');
         if (sessionTimeOutComponentRef) {
-            sessionTimeOutComponentRef.innerText = PageViewUtils.tickerSessionTimeoutFormat(
-                timeToLeaveSession,
-                this.state.labels
-            );
+            sessionTimeOutComponentRef.innerText = PageViewUtils.tickerSessionTimeoutFormat(timeToLeaveSession);
         }
         if (duration.seconds() < 0) {
             this.authService.logout();
@@ -271,6 +269,7 @@ class App extends Component {
         this.timer = undefined;
         this._isMounted = false;
         this.authService.removeLoginCookies();
+        SessionStoreUtils.clearClickedRowFromView();
     }
     unregisteredEventForSession() {
         const bodyApp = document.getElementById('body-app');
@@ -636,7 +635,6 @@ class App extends Component {
                         onHide={this.closeConfirmationEditQuitDialog}
                         onAccept={this.acceptConfirmationEditQuitDialog}
                         visible={this.state.confirmationQuitDialog?.render}
-                        labels={labels}
                     />
                 )}
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />

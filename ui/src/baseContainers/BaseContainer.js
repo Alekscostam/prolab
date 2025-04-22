@@ -41,6 +41,7 @@ import {SessionStoreUtils} from '../utils/SessionStoreUtils';
 class BaseContainer extends React.Component {
     constructor(props, service) {
         super(props);
+        this.columnGroupMockEnabled = false;
         this.refDataGrid = null;
         this.service = service;
         this.authService = new AuthService(this.props.backendUrl);
@@ -653,7 +654,7 @@ class BaseContainer extends React.Component {
                     this.getRefGanttView().current.refresh();
                 }
             }
-        } else if (this.isGridView()) {
+        } else if (this.isTypeOfGrid()) {
             if (!!this.getRefGridView()) {
                 if (window?.dataGrid) {
                     if (this.state?.gridViewType !== 'cardView') window.dataGrid.clearSelection();
@@ -710,7 +711,7 @@ class BaseContainer extends React.Component {
     };
 
     reloadOnlyDataGrid() {
-        if (this.isGridView()) {
+        if (this.isTypeOfGrid()) {
             if (!!this.getRefGridView()) this.getRefGridView().instance.getDataSource().reload();
         }
     }
@@ -756,22 +757,14 @@ class BaseContainer extends React.Component {
                     () => {
                         this.specSave(viewId, parentId, saveElement, true);
                     },
-                    () => {},
+                    () => {
+                        fncRedirect();
+                    },
                     (res) => {
                         this.showGlobalErrorMessage(res);
                     },
-                    () => {
-                        if (fncRedirect) {
-                            fncRedirect();
-                        }
-                    }
+                    () => {}
                 );
-                if (
-                    (StringUtils.isBlank(saveResponse?.status) || saveResponse?.status !== ResponseStatus.NOK) &&
-                    fncRedirect
-                ) {
-                    fncRedirect();
-                }
                 this.refreshView();
                 if (UrlUtils.urlParamExists('grid-view')) this.refreshSubView(true);
                 this.unselectAllDataGrid();
@@ -947,27 +940,29 @@ class BaseContainer extends React.Component {
         this.crudService
             .getDocumentDataInfo(viewId, id, listId, parentId)
             .then((res) => {
-                if (res.info.kind === 'GE') {
-                    if (res.info.next) {
+                if (res.info.next) {
+                    if (res.info.kind === 'GE') {
                         if (res.message) {
                             this.showSuccessMessage(res.message.text, undefined, res.message.title);
                         } else {
                             this.executeDocument(null, viewId, id, parentId, recordId);
                         }
-                    }
-                } else {
-                    if (res.inputDataFields?.length) {
-                        const documentInfo = {
-                            inputDataFields: res.inputDataFields,
-                            info: res.info,
-                        };
-                        this.setState({
-                            visibleDocumentPanel: true,
-                            documentInfo: documentInfo,
-                        });
                     } else {
-                        this.executeDocument(null, viewId, id, parentId, recordId);
+                        if (res.inputDataFields?.length) {
+                            const documentInfo = {
+                                inputDataFields: res.inputDataFields,
+                                info: res.info,
+                            };
+                            this.setState({
+                                visibleDocumentPanel: true,
+                                documentInfo: documentInfo,
+                            });
+                        } else {
+                            this.executeDocument(null, viewId, id, parentId, recordId);
+                        }
                     }
+                } else if (res?.info?.message) {
+                    this.showSuccessMessage(res.info?.message?.text, undefined, res.info?.message?.title);
                 }
             })
             .catch((ex) => {
@@ -1009,7 +1004,7 @@ class BaseContainer extends React.Component {
                     );
                     parsedPluginViewData = datas;
                 } else {
-                    if (res.info.message === null && res.info.question == null) {
+                    if (res?.info?.message === null && res.info.question == null) {
                         renderNextStep = false;
                     } else visibleMessagePluginPanel = true;
                 }
@@ -1067,7 +1062,7 @@ class BaseContainer extends React.Component {
                     );
                     parsedPluginViewData = datas;
                 } else {
-                    if (res.info.message === null && res.info.question == null) {
+                    if (res?.info?.message === null && res.info.question == null) {
                         this.afterNoMessageFromPlugin(res, listId, id);
                         return;
                     } else visibleMessagePluginPanel = true;
@@ -1765,6 +1760,7 @@ class BaseContainer extends React.Component {
     }
 
     handleCancelRowChange(viewId, recordId, parentId) {
+        SessionStoreUtils.clearClickedRowFromView();
         ConsoleHelper(`handleCancelRowChange: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`);
         const cancelElement = RequestUtils.createObjectDataToRequest(this.state);
         ConsoleHelper(`handleCancelRowChange: element to cancel = ${JSON.stringify(cancelElement)}`);
@@ -1973,6 +1969,26 @@ class BaseContainer extends React.Component {
 
     isGridView() {
         return this.state.gridViewType === 'gridView';
+    }
+
+    isGridViewBands(gridViewType = this.state.gridViewType) {
+        if (this.columnGroupMockEnabled) {
+            return true;
+        }
+        return gridViewType === 'gridViewBands';
+    }
+
+    isTypeOfGrid() {
+        if (this.columnGroupMockEnabled) {
+            return true;
+        }
+        if (this.state.gridViewType === 'gridView') {
+            return true;
+        }
+        if (this.state.gridViewType === 'gridViewBands') {
+            return true;
+        }
+        return false;
     }
 
     isGanttView() {

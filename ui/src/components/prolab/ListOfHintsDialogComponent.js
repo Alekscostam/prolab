@@ -3,15 +3,11 @@ import PropTypes from 'prop-types';
 import {Dialog} from 'primereact/dialog';
 import GridViewComponent from '../../containers/dataGrid/GridViewComponent';
 import {Button} from 'primereact/button';
-import {DataGridUtils} from '../../utils/component/DataGridUtils';
 import LocUtils from '../../utils/LocUtils';
 import {OperationType} from '../../enum/OperationType';
 import {TranslationUtils} from '../../utils/TranslationUtils';
-import UrlUtils from '../../utils/UrlUtils';
 import EditListUtils from '../../utils/EditListUtils';
 import EditListDataStore from '../../containers/dao/DataEditListStore';
-import ConsoleHelper from '../../utils/ConsoleHelper';
-import {StringUtils} from '../../utils/StringUtils';
 
 export default class ListOfHintsDialogComponent extends React.Component {
     constructor(props) {
@@ -28,7 +24,6 @@ export default class ListOfHintsDialogComponent extends React.Component {
         };
         this.refDataGrid = {};
         this.editListDataStore = new EditListDataStore();
-        this.selectAllClickedRef = React.createRef(false);
     }
 
     componentDidMount() {
@@ -200,15 +195,9 @@ export default class ListOfHintsDialogComponent extends React.Component {
                             }
                         }}
                         defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
-                        handleSelectAll={() => {
-                            this.selectAllClickedRef.current = true;
-                            // this.props.handleSelectAll();
-                        }}
+                        handleSelectAll={() => {}}
                         handleSelectedRowKeys={(e) => {
                             this.handleSelectedRowData(e);
-                            // if (!this.selectAllClickedRef.current) {
-                            // }
-                            // this.selectAllClickedRef.current = false;
                         }}
                         showFilterRow={true}
                         showErrorMessages={(err) => this.props.showErrorMessages(err)}

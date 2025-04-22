@@ -290,7 +290,6 @@ export class SchedulerContainer extends BaseContainer {
                                     });
                                 }}
                                 visible={this.state.renderConfirmationEditQuitDialog}
-                                labels={this.props.labels}
                                 onAccept={() => this.cancelSpec()}
                             />
                         )}

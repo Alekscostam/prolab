@@ -76,7 +76,6 @@ export class EditListUtils {
         const selectedRowsKeys = e.selectedRowKeys;
         let transformedRowsData = [];
         let transformedRowsCRC = [];
-        let selectedRowsToStore = [];
         if (multiSelect) {
             transformedRowsData = prevSelectedRowData;
             transformedRowsCRC = selectedRowsKeys;
@@ -101,16 +100,10 @@ export class EditListUtils {
                 let selectedRow = currentSelectedRowsData[selectedRowData];
                 let transformedSingleRowData = this.transformBySetFields(selectedRow, setFields);
                 let CALC_CRC = this.calculateCRC(transformedSingleRowData);
-                // const selectedRowToStore = structuredClone(selectedRow);
-                // selectedRowToStore.CALC_CRC = CALC_CRC;
-                // selectedRowsToStore.push(selectedRowToStore);
                 transformedRowsData.push(transformedSingleRowData);
                 transformedRowsCRC.push(CALC_CRC);
             }
         }
-        // const toStoreElements = structuredClone(selectedRowsToStore);
-        // toStoreElements.forEach((element) => delete element.found);
-        // useStore.getState().setListOfHintsElements([toStoreElements]);
         return {
             rowsData: transformedRowsData,
             rowsCrc: transformedRowsCRC,

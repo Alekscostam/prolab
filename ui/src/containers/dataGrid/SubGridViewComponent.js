@@ -15,7 +15,7 @@ import {
 } from '../../utils/Cookie';
 import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils';
 import UrlUtils from '../../utils/UrlUtils';
-import ImageViewerComponent from '../../components/ImageViewerComponent';
+import ImageViewerDialog from '../../components/ImageViewerDialog';
 import {MenuWithButtons} from '../../components/prolab/MenuWithButtons';
 import {sessionPrelongFnc} from '../../App';
 import {EditorDialog} from '../../components/prolab/EditorDialog';
@@ -110,7 +110,7 @@ class SubGridViewComponent extends React.Component {
         return (
             <React.Fragment>
                 {imageViewer?.imageViewDialogVisisble && (
-                    <ImageViewerComponent
+                    <ImageViewerDialog
                         editable={imageViewer.editable}
                         onHide={() => {
                             this.setState({
@@ -124,7 +124,6 @@ class SubGridViewComponent extends React.Component {
                         base64={imageViewer.imageBase64}
                         viewBase64={imageViewer.imageBase64}
                         header={imageViewer.header}
-                        labels={this.labels}
                         visible
                     />
                 )}

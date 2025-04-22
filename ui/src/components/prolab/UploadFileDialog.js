@@ -57,18 +57,18 @@ export default class UploadFileDialog extends React.Component {
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
                 <Dialog
                     id='attachmentDialog'
-                    header={LocUtils.loc(this.props.labels, 'Choose_files', 'Wybór plików')}
+                    header={LocUtils.locFromStoreWithDefault('Choose_files', 'Wybór plików')}
                     visible={this.props.visible}
                     resizable={false}
-                    footer={()=><div></div>}
+                    footer={() => <div></div>}
                     breakpoints={{'860px': '75vw', '640px': '100vw'}}
                     onHide={() => this.props.onHide()}
                 >
                     <div className='fileuploader-container border'>
                         <FileUpload
-                            uploadLabel={LocUtils.loc(this.props.labels, 'Save', 'Zapisz')}
-                            chooseLabel={LocUtils.loc(this.props.labels, 'Choose', 'Wybierz')}
-                            cancelLabel={LocUtils.loc(this.props.labels, 'Cancel', 'Anuluj')}
+                            uploadLabel={LocUtils.locFromStoreWithDefault('Save', 'Zapisz')}
+                            chooseLabel={LocUtils.locFromStoreWithDefault('Choose', 'Wybierz')}
+                            cancelLabel={LocUtils.locFromStoreWithDefault('Cancel', 'Anuluj')}
                             multiple
                             customUpload
                             onSelect={this.onSelect}
@@ -78,8 +78,10 @@ export default class UploadFileDialog extends React.Component {
                             accept='*'
                             emptyTemplate={
                                 <p style={{fontSize: '1.1em', color: 'var(--text-color-secondary)'}} className='m-0'>
-                                    
-                                    {LocUtils.loc(this.props.labels, 'Drag_and_drop', 'Przeciągnij i upuść pliki tutaj, aby je przesłać.')}
+                                    {LocUtils.locFromStoreWithDefault(
+                                        'Drag_and_drop',
+                                        'Przeciągnij i upuść pliki tutaj, aby je przesłać.'
+                                    )}
                                 </p>
                             }
                         />
@@ -98,5 +100,4 @@ UploadFileDialog.defaultProps = {
     id: PropTypes.number.isRequired,
     visible: PropTypes.bool.isRequired,
     onHide: PropTypes.func.isRequired,
-    labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
 };

@@ -6,7 +6,7 @@ import LocUtils from '../../utils/LocUtils';
 import MarkupDialogComponent from './MarkupDialogComponent';
 import useStore from '../../store';
 
-export const DocxViewerComponent = ({labels, file}) => {
+export const DocxViewerComponent = ({file}) => {
     const [editorContent, setEditorContent] = useState('');
     const sizeValues = ['8pt', '10pt', '12pt', '14pt', '18pt', '24pt', '36pt'];
     const fontValues = [

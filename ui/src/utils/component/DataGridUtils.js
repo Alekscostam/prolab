@@ -69,9 +69,6 @@ export class DataGridUtils extends ViewDataCompUtils {
                     fontColorFinal = _fontcolor;
                 }
             }
-            element.className =
-                ' ' +
-                RowTemplateUtils.highlighBackgroundClass(info.data.ID, info.values?.length - 2 === info.columnIndex);
             switch (column?.type) {
                 case ColumnType.O:
                 case ColumnType.OH:

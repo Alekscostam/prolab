@@ -1,12 +1,17 @@
 import UrlUtils from './UrlUtils';
 
 export class SessionStoreUtils {
-    static saveClickedRowFromView(id) {
+    static saveClickedRowFromView(
+        id,
+        recordId = UrlUtils.getRecordId(),
+        parentId = UrlUtils.getParentId(),
+        viewId = UrlUtils.getIdFromUrl()
+    ) {
         const clickedRowFromView = {
             view: {
-                id: UrlUtils.getIdFromUrl(),
-                recordId: UrlUtils.getRecordId(),
-                parentId: UrlUtils.getParentId(),
+                id: viewId,
+                recordId: recordId,
+                parentId: parentId,
             },
             row: {
                 id: id,

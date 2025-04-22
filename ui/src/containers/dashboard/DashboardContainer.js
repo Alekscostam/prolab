@@ -18,12 +18,12 @@ import UrlUtils from '../../utils/UrlUtils';
 import LocUtils from '../../utils/LocUtils';
 import DashboardCardViewComponent from './DashboardCardViewComponent';
 import CrudService from '../../services/CrudService';
-import HistoryLogDialogComponent from '../../components/prolab/HistoryLogDialogComponent';
+import HistoryLogDialog from '../../components/prolab/HistoryLogDialog';
 import {AttachmentViewDialog} from '../attachmentView/AttachmentViewDialog';
 import {OperationType} from '../../enum/OperationType';
 import ReactDOM from 'react-dom';
 import EntryResponseHelper from '../../utils/helper/EntryResponseHelper';
-import ImageViewerComponent from '../../components/ImageViewerComponent';
+import ImageViewerDialog from '../../components/ImageViewerDialog';
 import {StringUtils} from '../../utils/StringUtils';
 import {EditFormType} from '../../enum/EditFormType';
 import EditHeaderDialogComponent from '../../components/prolab/EditHeaderDialogComponent';
@@ -242,12 +242,11 @@ class DashboardContainer extends BaseContainer {
                 <ConfirmDialog
                     visible={true}
                     closable={false}
-                    message={LocUtils.loc(
-                        this.props.labels,
+                    message={LocUtils.locFromStoreWithDefault(
                         'Question_Close_Edit',
                         'Czy na pewno chcesz zamknąć edycję?'
                     )}
-                    header={LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie')}
+                    header={LocUtils.locFromStoreWithDefault('Confirmation', 'Potwierdzenie')}
                     icon={'pi pi-exclamation-triangle'}
                     acceptLabel={localeOptions('accept')}
                     rejectLabel={localeOptions('reject')}
@@ -325,7 +324,7 @@ class DashboardContainer extends BaseContainer {
                     )
                 ) : null}
                 {this.state.visibleHistoryLogPanel ? (
-                    <HistoryLogDialogComponent
+                    <HistoryLogDialog
                         visible={this.state.visibleHistoryLogPanel}
                         field={this.state.editListField}
                         parsedHistoryLogView={this.state.parsedHistoryLogView}
@@ -334,11 +333,6 @@ class DashboardContainer extends BaseContainer {
                         handleBlockUi={() => {
                             this.blockUi();
                             return true;
-                        }}
-                        unselectAllDataGrid={() => {
-                            this.setState({
-                                selectedRowKeys: [],
-                            });
                         }}
                         historyLogId={this.state.historyLogId}
                         selectedRowKeys={this.state.selectedRowKeys}
@@ -445,7 +439,7 @@ class DashboardContainer extends BaseContainer {
         return (
             <React.Fragment>
                 {imageViewer.imageViewDialogVisible && (
-                    <ImageViewerComponent
+                    <ImageViewerDialog
                         editable={false}
                         header={imageViewer.header}
                         onHide={() => {
@@ -457,7 +451,6 @@ class DashboardContainer extends BaseContainer {
                                 : imageViewer.imageBase64.replace('data:image/jpeg;base64,', '')
                         }
                         viewBase64={imageViewer.imageBase64}
-                        labels={this.labels}
                         visible
                     />
                 )}

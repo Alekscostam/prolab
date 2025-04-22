@@ -5,8 +5,8 @@ import {useEffect, useRef, useState} from 'react';
 import PropTypes from 'prop-types';
 import ShortcutButton from './ShortcutButton';
 import LocUtils from '../../utils/LocUtils';
-export const QrCodesDialogComponent = (props) => {
-    const {onHide, editable, labels, findCode} = props;
+export const QrCodesDialog = (props) => {
+    const {onHide, editable, findCode} = props;
     const qrCodeRef = useRef(undefined);
     const [visible, setVisible] = useState(props.visible);
 
@@ -102,22 +102,20 @@ export const QrCodesDialogComponent = (props) => {
     );
 };
 
-QrCodesDialogComponent.defaultProps = {
+QrCodesDialog.defaultProps = {
     onSave: undefined,
     onHide: undefined,
-    labels: undefined,
     visible: true,
     editable: true,
     value: '',
     header: '',
 };
 
-QrCodesDialogComponent.propTypes = {
+QrCodesDialog.propTypes = {
     onSave: PropTypes.func,
     onHide: PropTypes.func,
     visible: PropTypes.bool,
     editable: PropTypes.bool,
     value: PropTypes.string,
     header: PropTypes.string,
-    labels: PropTypes.object,
 };

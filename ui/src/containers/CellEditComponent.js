@@ -11,7 +11,7 @@ import ListOfHintsDialogComponent from '../components/prolab/ListOfHintsDialogCo
 import UrlUtils from '../utils/UrlUtils';
 import {EditorDialog} from '../components/prolab/EditorDialog';
 import {StringUtils} from '../utils/StringUtils';
-import ImageViewerComponent from '../components/ImageViewerComponent';
+import ImageViewerDialog from '../components/ImageViewerDialog';
 import {ColumnType} from '../enum/ColumnType';
 import {MemoizedTextInput} from '../components/prolab/memoized/MemoizedTextInput';
 import {MemoizedNumericInput} from '../components/prolab/memoized/MemoizedNumericInput';
@@ -183,7 +183,7 @@ class CellEditComponent extends Component {
         const {imageViewer} = this.state;
         return (
             imageViewer?.imageViewDialogVisisble && (
-                <ImageViewerComponent
+                <ImageViewerDialog
                     editable={imageViewer.editable}
                     header={imageViewer.header}
                     onHide={() => {
@@ -200,7 +200,6 @@ class CellEditComponent extends Component {
                             : imageViewer.imageBase64.replace('data:image/jpeg;base64,', '')
                     }
                     viewBase64={imageViewer.imageBase64}
-                    labels={this.labels}
                     visible
                 />
             )

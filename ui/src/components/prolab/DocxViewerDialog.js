@@ -3,11 +3,10 @@ import {Dialog} from 'primereact/dialog';
 import {useEffect, useRef, useState} from 'react';
 import PropTypes from 'prop-types';
 import LocUtils from '../../utils/LocUtils';
-import PDFViewerComponent from './PDFViewerComponent';
 import DocxViewerComponent from './DocxViewerComponent';
 
-export const DocxViewerDialogComponent = (props) => {
-    const {onHide, labels, file, name} = props;
+export const DocxViewerDialog = (props) => {
+    const {onHide, file, name} = props;
     const [visible, setVisible] = useState(props.visible);
 
     const hideDialog = () => {
@@ -15,12 +14,13 @@ export const DocxViewerDialogComponent = (props) => {
         setVisible(false);
     };
     const dialogHeader = () => {
-        return <div>{LocUtils.loc(labels, 'Document_docx', 'Dokument docx')} - {name}</div>;
+        return (
+            <div>
+                {LocUtils.locFromStoreWithDefault('Document_docx', 'Dokument docx')} - {name}
+            </div>
+        );
     };
-    const dialogFooter =  (
-        <div className='mt-1 mb-1 mr-1'>
-        </div>
-    );
+    const dialogFooter = <div className='mt-1 mb-1 mr-1'></div>;
     return (
         <div className='container'>
             <Dialog
@@ -29,18 +29,19 @@ export const DocxViewerDialogComponent = (props) => {
                 header={dialogHeader}
                 blockScroll
                 visible={visible}
-                style={{ overflow: 'hidden !important', maxWidth:"1310px"}}
+                style={{overflow: 'hidden !important', maxWidth: '1310px'}}
                 onHide={hideDialog}
-                footer={(dialogFooter)}>
-                    <div className='dx-field mt-2'>
-                      <DocxViewerComponent labels={labels} file={file}></DocxViewerComponent>
-                    </div>
+                footer={dialogFooter}
+            >
+                <div className='dx-field mt-2'>
+                    <DocxViewerComponent file={file}></DocxViewerComponent>
+                </div>
             </Dialog>
         </div>
     );
 };
 
-DocxViewerDialogComponent.defaultProps = {
+DocxViewerDialog.defaultProps = {
     onSave: undefined,
     onHide: undefined,
     labels: undefined,
@@ -50,7 +51,7 @@ DocxViewerDialogComponent.defaultProps = {
     header: '',
 };
 
-DocxViewerDialogComponent.propTypes = {
+DocxViewerDialog.propTypes = {
     onSave: PropTypes.func,
     onHide: PropTypes.func,
     visible: PropTypes.bool,

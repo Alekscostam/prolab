@@ -5,8 +5,8 @@ import PropTypes from 'prop-types';
 import LocUtils from '../../utils/LocUtils';
 import PDFViewerComponent from './PDFViewerComponent';
 
-export const PDFViewerDialogComponent = (props) => {
-    const {onHide, labels, file, name} = props;
+export const PDFViewerDialog = (props) => {
+    const {onHide, file, name} = props;
     const [visible, setVisible] = useState(props.visible);
 
     const hideDialog = () => {
@@ -16,7 +16,7 @@ export const PDFViewerDialogComponent = (props) => {
     const dialogHeader = () => {
         return (
             <div>
-                {LocUtils.loc(labels, 'Document_pdf', 'Dokument PDF')} - {name}
+                {LocUtils.locFromStoreWithDefault('Document_pdf', 'Dokument PDF')} - {name}
             </div>
         );
     };
@@ -35,29 +35,27 @@ export const PDFViewerDialogComponent = (props) => {
                 footer={dialogFooter}
             >
                 <div className='dx-field mt-2'>
-                    <PDFViewerComponent labels={labels} file={file}></PDFViewerComponent>
+                    <PDFViewerComponent file={file}></PDFViewerComponent>
                 </div>
             </Dialog>
         </div>
     );
 };
 
-PDFViewerDialogComponent.defaultProps = {
+PDFViewerDialog.defaultProps = {
     onSave: undefined,
     onHide: undefined,
-    labels: undefined,
     visible: true,
     editable: true,
     value: '',
     header: '',
 };
 
-PDFViewerDialogComponent.propTypes = {
+PDFViewerDialog.propTypes = {
     onSave: PropTypes.func,
     onHide: PropTypes.func,
     visible: PropTypes.bool,
     editable: PropTypes.bool,
     value: PropTypes.string,
     header: PropTypes.string,
-    labels: PropTypes.object,
 };
