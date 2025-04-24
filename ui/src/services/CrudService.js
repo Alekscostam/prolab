@@ -267,8 +267,20 @@ export default class CrudService extends BaseService {
             method: 'GET',
         })
             .then((response) => {
-                fileName = response.headers.get('content-disposition').split('filename=')[1].split(';')[0];
-                fileName = fileName ? fileName.replace(/^"|"$/g, '') : undefined;
+                const contentHeader = response.headers.get('content-disposition');
+                if (contentHeader) {
+                    try {
+                        const utf8Match = contentHeader.match(/filename\*=(?:UTF-8'')?([^;]+)/i);
+                        const plainMatch = contentHeader.match(/filename="?([^";]+)"?/i);
+                        if (utf8Match && utf8Match[1]) {
+                            fileName = decodeURIComponent(utf8Match[1].trim().replace(/['"]/g, ''));
+                        } else if (plainMatch && plainMatch[1]) {
+                            fileName = plainMatch[1].trim();
+                        }
+                    } catch (e) {
+                        console.warn('Błąd podczas dekodowania filename:', e);
+                    }
+                }
                 return response.blob();
             })
             .then((blob) => {

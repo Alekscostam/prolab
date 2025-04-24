@@ -77,7 +77,7 @@ export const features = [
         description: 'Szczegóły w linku',
         date: '',
         link: 'https://trello.com/c/RUXyCiFV/746-findkreski-komunikat-%C5%BCe-nic-nie-znalezionoa',
-        text: 'komunikat, że nic nie znaleziono po wywolaniu kodu kreskowego',
+        text: 'Komunikat, że nic nie znaleziono po wywolaniu kodu kreskowego',
     },
     // {
     //     type: 'NEW',
@@ -92,6 +92,24 @@ export const features = [
         description: 'Podwójnie fetchowało te same dane po kliknieciu zapisz w edycji nagłówka w cardview',
         date: '',
         text: 'Pozbycie się zbędnego fetcha w przypadku zapisu danych za pomocą nagłówka w cardView',
+    },
+    {
+        type: 'FIX',
+        color: 'red',
+        date: '',
+        text: 'Rozpoznawanie polskich znaków z pobierania załączników',
+    },
+    {
+        type: 'FIX',
+        color: 'red',
+        date: '',
+        text: 'Zamykanie widoku attachmentu z edycji nagłówka nie powoduje zbędnego refresha głównego widoku',
+    },
+    {
+        type: 'FIX',
+        color: 'red',
+        date: '',
+        text: 'Usunięcie podwójnego wywołania download przy pobieraniu załącznika',
     },
     {
         type: 'FIX',
@@ -116,6 +134,13 @@ export const features = [
             'Nalezy przetestować komponenty: Dialog kopiowania, Dialog historii, Dialog pluginu, Dialog publikowania, Dialog podsumowania publikowania',
         date: '',
         importanceColor: 'orange',
-        text: 'Przechodzenie z komponentów kalsowych na funkcyjne ',
+        text: 'Przechodzenie z komponentów klasowych na funkcyjne ',
+    },
+    {
+        type: 'NEW',
+        color: 'green',
+        description: '',
+        date: '',
+        text: 'Jesli widok niezdefniowany to ustawiamy gridView',
     },
 ];

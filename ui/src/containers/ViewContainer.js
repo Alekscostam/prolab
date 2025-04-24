@@ -385,8 +385,11 @@ export class ViewContainer extends BaseViewContainer {
                         handleShowErrorMessages={(err) => this.showErrorMessage(err)}
                         handleShowEditPanel={(editDataResponse) => this.handleShowEditPanel(editDataResponse)}
                         onHide={() => {
-                            this.unselectAllDataGrid();
-                            this.refreshView();
+                            const visibleEditPanel = this.state.visibleEditPanel;
+                            if (!visibleEditPanel) {
+                                this.unselectAllDataGrid();
+                                this.refreshView();
+                            }
                             this.setState({
                                 attachmentViewInfo: null,
                             });

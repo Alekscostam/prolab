@@ -134,7 +134,7 @@ export const VersionPreviewDialog = (props) => {
                 style={{background: task.importanceColor}}
             >
                 <span className='ver-item-text'>{task.text}</span>
-                <span className='ver-item-info'>{`${task.description}`}</span>
+                <span className='ver-item-info'>{`${task.description || ''}`}</span>
                 {!StringUtils.isBlank(task?.link) && (
                     <span className='ver-item-text'>
                         <a href={`${task.link}`}>{LocUtils.locFromStore('Link_to_task')} </a>{' '}

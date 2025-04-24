@@ -1265,7 +1265,7 @@ class BaseContainer extends React.Component {
         this.crudService
             .downloadAttachment(viewId, recordId)
             .then(() => {
-                const selectedRowKeys = this.state.selectedRowKeys.filter((el) => el.ID !== recordId);
+                const selectedRowKeys = this.state.selectedRowKeys.filter((el) => String(el.ID) !== String(recordId));
                 if (selectedRowKeys.length !== 0) {
                     this.downloadAttachment(selectedRowKeys[0].ID);
                 } else {
@@ -1897,6 +1897,12 @@ class BaseContainer extends React.Component {
             return UrlUtils.getViewIdFromURL();
         }
         return this.getRealViewId();
+    }
+
+    isDefinedView() {
+        return (
+            this.isGridView() || this.isDashboard() || this.isGridViewBands() || this.isGanttView() || this.isCardView()
+        );
     }
 
     handleEditRowBlur(inputType, event, groupName, viewInfo, field) {

@@ -15,9 +15,14 @@ import {
 } from '../../model/ViewModel';
 import {parseBoolean} from './ValidationUtils';
 
+const VIEWS = ['gridView', 'cardView', 'dashboard', 'TreeList', 'gantt', 'gridViewBands'];
+
 export class ViewValidatorUtils {
     static validation(jsonDataArg) {
         let parsedViewObject = jsonDataArg;
+        if (!VIEWS.includes(parsedViewObject.viewInfo.type)) {
+            parsedViewObject.viewInfo.type = 'gridView';
+        }
         return new ViewResponse({
             viewInfo: new ViewInfo({
                 id: parsedViewObject.viewInfo.id,
