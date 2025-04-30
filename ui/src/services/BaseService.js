@@ -182,29 +182,35 @@ export default class BaseService {
             })
                 .then((response) => {
                     if (response?.ok === false) {
-                        headers.accept = 'application/json';
-                        response.json().then((json) => {
-                            return reject({
-                                status: response.status,
-                                ok: response.ok,
-                                error: json.error,
+                        if (response?.status === 401) {
+                            this.handleErrorCommon(
+                                response,
+                                url,
+                                options,
+                                headers,
+                                null,
+                                resolve,
+                                reject,
+                                null,
+                                (a, b, c) => this.fetchFileResponse(a, b, c)
+                            );
+                        } else {
+                            headers.accept = 'application/json';
+                            response.json().then((json) => {
+                                return reject({
+                                    status: response.status,
+                                    ok: response.ok,
+                                    error: json.error,
+                                });
                             });
-                        });
+                        }
                     } else {
                         return resolve(response);
                     }
                 })
                 .catch((error) => {
-                    this.handleErrorCommon(
-                        error,
-                        url,
-                        options,
-                        headers,
-                        null,
-                        resolve,
-                        reject,
-                        null,
-                        this.fetchFileResponse
+                    this.handleErrorCommon(error, url, options, headers, null, resolve, reject, null, (a, b, c) =>
+                        this.fetchFileResponse(a, b, c)
                     );
                 });
         });

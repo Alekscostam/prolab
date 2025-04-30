@@ -746,7 +746,7 @@ class BaseContainer extends React.Component {
                 this.unblockUi();
             });
     };
-
+    // FIXX: naprawa zapisywania edycji specyfikacji, refresh token w przypadku jesli to wymagane w operacji typu download,
     specSave = (viewId, parentId, saveElement, confirmSave, fncRedirect) => {
         this.blockUi();
         this.editSpecService
@@ -758,7 +758,9 @@ class BaseContainer extends React.Component {
                         this.specSave(viewId, parentId, saveElement, true);
                     },
                     () => {
-                        fncRedirect();
+                        if (fncRedirect) {
+                            fncRedirect();
+                        }
                     },
                     (res) => {
                         this.showGlobalErrorMessage(res);
