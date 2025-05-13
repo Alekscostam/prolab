@@ -7,4 +7,7 @@ export class ArrayUtils {
         }
         return false;
     }
+    static checkArraySize(array, count) {
+        return Array.isArray(array) && array.length === count;
+    }
 }

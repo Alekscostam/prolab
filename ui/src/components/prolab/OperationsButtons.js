@@ -71,6 +71,7 @@ export const OperationsButtons = (props) => {
                                     buttonShadow={buttonShadow}
                                     title={operations.label}
                                     handleClick={(e) => {
+                                        SessionStoreUtils.saveFiltersFromView();
                                         e.selectAll = !atLeastOneSelected && !!operations.showAlways;
                                         return afterClickOperation(() =>
                                             props.handleEditSpec(Object.assign(e, operations))
@@ -119,6 +120,7 @@ export const OperationsButtons = (props) => {
                                     buttonShadow={buttonShadow}
                                     title={operations.label}
                                     handleClick={() => {
+                                        SessionStoreUtils.saveFiltersFromView();
                                         SessionStoreUtils.saveClickedRowFromView(info?.data?.ID);
                                         afterClickOperation(() => props.handleBlockUi());
                                     }}
@@ -484,11 +486,13 @@ export const OperationsButtons = (props) => {
                     case OperationType.OP_PREVIEW:
                         return props.handlePreview(i);
                     case OperationType.OP_EDIT_SPEC:
+                        SessionStoreUtils.saveFiltersFromView();
                         SessionStoreUtils.saveClickedRowFromView(props?.info?.data?.ID);
                         return () => {};
                     case OperationType.OP_ADDSPEC_SPEC:
                         return props.handleAddSpecSpec(i);
                     case OperationType.OP_SUBVIEWS:
+                        SessionStoreUtils.saveFiltersFromView();
                         SessionStoreUtils.saveClickedRowFromView(props?.info?.data?.ID);
                         return () => {};
                     case OperationType.OP_DELETE:

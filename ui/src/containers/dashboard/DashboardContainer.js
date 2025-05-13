@@ -555,7 +555,6 @@ class DashboardContainer extends BaseContainer {
         const showAddFromDashboard = useStore.getState().showAddFromDashboard;
         const opADD = TranslationUtils.getOpButton(item?.operations, OperationType.OP_ADD);
         const opADDButton = TranslationUtils.getOpButton(item?.operations, OperationType.OP_ADD_BUTTON);
-
         return (
             <div key={`${item.id}_${cardViewId}_grid-view`} className='panel-dashboard'>
                 <span className='title-dashboard'>{item.label}</span>
@@ -615,7 +614,6 @@ class DashboardContainer extends BaseContainer {
                     showColumnLines={false}
                     showRowLines={true}
                     showBorders={false}
-                    showColumnHeaders={useStore.getState().showDashboardHeaders}
                     showAddButton={false}
                     showFilterRow={false}
                     showSelection={false}

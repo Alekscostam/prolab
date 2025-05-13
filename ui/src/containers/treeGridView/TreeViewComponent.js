@@ -529,7 +529,7 @@ class TreeViewComponent extends CellEditComponent {
         }
     }
     handlePreview(viewId, parentId, kindView, recordId) {
-        handleEdit(viewId, parentId, kindView, recordId, true);
+        this.handleEdit(viewId, parentId, kindView, recordId, true);
     }
     handleEdit(viewId, parentId, recordId, kindView, readOnly = false) {
         if (TreeListUtils.isKindViewSpec(this.props.parsedGridView)) {

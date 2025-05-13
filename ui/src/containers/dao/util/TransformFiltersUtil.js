@@ -1,3 +1,5 @@
+import {StringUtils} from '../../../utils/StringUtils';
+
 export default class TansformFiltersUtil {
     static filterValidTransform(loadOptions) {
         if (loadOptions.filter) {
@@ -41,6 +43,23 @@ export default class TansformFiltersUtil {
         }
         return loadOptions;
     }
+
+    static replaceNullFilters(loadOptions) {
+        if (loadOptions.filter) {
+            for (let x = 0; x < loadOptions?.filter?.length; x++) {
+                const element = loadOptions.filter[x];
+                if (!Array.isArray(element)) {
+                    if (Array.isArray(loadOptions.filter) && loadOptions.filter.length === 3) {
+                        if (StringUtils.isBlank(loadOptions.filter[2])) {
+                            loadOptions.filter = undefined;
+                        }
+                    }
+                }
+            }
+        }
+        return loadOptions;
+    }
+
     static isNotValidRequiredParam(param) {
         return !(
             param === true ||

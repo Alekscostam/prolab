@@ -5,6 +5,7 @@ import BaseService from '../../services/BaseService';
 import ConsoleHelper from '../../utils/ConsoleHelper';
 import TansformFiltersUtil from '../dao/util/TransformFiltersUtil';
 import {StringUtils} from '../../utils/StringUtils';
+import {handleSwitchFilterForGrid} from '../../utils/handler/FilterSwitchHandler';
 
 export default class DataGridStore extends BaseService {
     constructor() {
@@ -158,6 +159,7 @@ export default class DataGridStore extends BaseService {
                 //         }
                 //     }
                 // }
+                loadOptions = TansformFiltersUtil.replaceNullFilters(loadOptions);
                 this.cachedLoadOptions = loadOptions;
                 let params = '?';
                 const filter = loadOptions?.filter;
@@ -217,6 +219,7 @@ export default class DataGridStore extends BaseService {
                             ? ''
                             : `&parentId=${recordParentIdArg}`;
                 }
+                handleSwitchFilterForGrid(filter);
                 const kindViewParam = !!kindViewArg && !!recordParentIdParam ? `&kindView=${kindViewArg}` : '';
                 const selectAllParam = !!addSelectAllParam ? `&selection=true` : '';
                 const recordParentViewIdParam = !!recordParentViewIdArg ? `&parentViewId=${recordParentViewIdArg}` : '';
@@ -228,6 +231,7 @@ export default class DataGridStore extends BaseService {
                     sort: sort,
                     group: group,
                 };
+
                 return this.fetch(url, {
                     method: 'POST',
                     body: JSON.stringify(requestBody),

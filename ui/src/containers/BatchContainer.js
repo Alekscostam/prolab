@@ -19,7 +19,6 @@ import BatchService from '../services/BatchService';
 import EntryResponseHelper from '../utils/helper/EntryResponseHelper';
 import {ResponseUtils} from '../utils/ResponseUtils';
 import ActionButtonWithMenu from '../components/prolab/ActionButtonWithMenu';
-import {ConfirmationEditQuitDialog} from '../components/prolab/ConfirmationEditQuitDialog';
 import {OperationType} from '../enum/OperationType';
 import {ViewUtils} from '../utils/ViewUtils';
 import {TranslationUtils} from '../utils/TranslationUtils';

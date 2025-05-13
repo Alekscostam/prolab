@@ -40,6 +40,7 @@ class CardViewInfiniteComponent extends PureComponent {
                 imageBase64: undefined,
                 header: undefined,
             },
+            endLoadedData: false,
             hasNextPage: true,
             isNextPageLoading: false,
             items: [],
@@ -175,8 +176,8 @@ class CardViewInfiniteComponent extends PureComponent {
                                 let parsedCardViewData = [];
                                 let items = this.state.items;
                                 res.data.forEach((item) => {
-                                    for (var key in item) {
-                                        var upper = key.toUpperCase();
+                                    for (let key in item) {
+                                        let upper = key.toUpperCase();
                                         if (upper !== key) {
                                             item[upper] = item[key];
                                             delete item[key];
@@ -199,6 +200,19 @@ class CardViewInfiniteComponent extends PureComponent {
                                         totalCount: res.totalCount,
                                     }),
                                     () => {
+                                        this.setState(
+                                            {
+                                                endLoadedData: true,
+                                            },
+                                            () => {
+                                                setTimeout(() => {
+                                                    this.setState({
+                                                        endLoadedData: false,
+                                                    });
+                                                }, 3000);
+                                            }
+                                        );
+
                                         this.props.handleTotalCounts(res.totalCount);
                                         this.props.handleUnblockUi();
                                     }
@@ -425,7 +439,6 @@ class CardViewInfiniteComponent extends PureComponent {
     };
 
     canHighlightBackground(rowData) {
-        const blockContainers = document.querySelectorAll('.block-ui-container.block');
         const clickedRowFromView = SessionStoreUtils.getClickedRowFromView();
         if (clickedRowFromView) {
             if (clickedRowFromView?.view?.id !== UrlUtils.getIdFromUrl()) {
@@ -434,8 +447,8 @@ class CardViewInfiniteComponent extends PureComponent {
             const id = rowData?.ID?.toString();
             if (
                 clickedRowFromView?.row?.id?.toString() === id &&
-                Array.from(blockContainers).length === 0 &&
-                !this.props.editHeaderIsVisible
+                !this.props.editHeaderIsVisible &&
+                this.state.endLoadedData
             ) {
                 setTimeout(() => {
                     SessionStoreUtils.clearClickedRowFromView();
@@ -452,7 +465,6 @@ class CardViewInfiniteComponent extends PureComponent {
         const recordId = rowData.ID;
         const selectedRowKeys = this.props.selectedRowKeys;
         const highlighBackground = this.canHighlightBackground(rowData);
-
         return (
             <React.Fragment>
                 <div

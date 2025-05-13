@@ -173,7 +173,7 @@ export class EditHeaderComponent extends BaseRowComponent {
                                 </div>
                                 <div className={rightColSize} style={{paddingLeft: '0px'}}>
                                     <div id='buttons' style={{textAlign: 'right'}}>
-                                        {opSave && !this.isReadOnly() && (
+                                        {opSave && (
                                             <ShortcutButton
                                                 id={'opSave'}
                                                 className={`grid-button-panel inverse mt-1 mb-1 mr-1`}
@@ -183,7 +183,7 @@ export class EditHeaderComponent extends BaseRowComponent {
                                                 rendered={opSave}
                                             />
                                         )}
-                                        {opFill && !this.isReadOnly() && EditRowUtils.hasAnyToFillField(editData) && (
+                                        {opFill && EditRowUtils.hasAnyToFillField(editData) && (
                                             <ShortcutButton
                                                 id={'opFill'}
                                                 className={`grid-button-panel inverse mt-1 mb-1 mr-1`}
@@ -235,7 +235,6 @@ export class EditHeaderComponent extends BaseRowComponent {
                                         )}
                                         {opAttachment && (
                                             <ShortcutButton
-                                                disabled={this.isReadOnly()}
                                                 id={'opAttachment'}
                                                 className={`grid-button-panel normal mt-1 mb-1 mr-1 col-lg-12`}
                                                 handleClick={this.handleAttachment}

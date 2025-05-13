@@ -1400,7 +1400,8 @@ class BaseContainer extends React.Component {
             });
     }
     attachment(id, isAttachmentFromHeader) {
-        const viewId = isAttachmentFromHeader ? this.props.id : this.getRealViewId();
+        let viewId = isAttachmentFromHeader ? this.props.id : this.getRealViewId();
+        viewId = StringUtils.isBlank(viewId) ? UrlUtils.getIdFromUrl() : viewId;
         let recordId = this.getSelectedRowKeysIds(id);
         if (Array.isArray(recordId)) {
             recordId = recordId[0];

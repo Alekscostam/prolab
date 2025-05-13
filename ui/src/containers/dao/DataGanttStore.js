@@ -44,7 +44,9 @@ export default class DataGanttStore extends BaseService {
         const recordParentIdParam = !!recordParentIdArg ? `&parentId=${recordParentIdArg}` : '';
         const kindViewParam = kindViewArg !== undefined && kindViewArg != null ? `&kindView=${kindViewArg}` : '';
         const takeParam = take !== undefined && take != null ? `&take=${take}` : '';
-        const url = this.commonCorrectUrl(`${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${recordParentIdParam}${kindViewParam}${takeParam}`);
+        const url = this.commonCorrectUrl(
+            `${this.domain}/${this.path}/${viewIdArg}${params}${filterIdParam}${recordParentIdParam}${kindViewParam}${takeParam}`
+        );
         const requestBody = {
             filter: filter,
             sort: sort,
@@ -63,7 +65,7 @@ export default class DataGanttStore extends BaseService {
                 resourcesData: res.resourcesData,
                 resourcesAssigmentData: res.resourcesAssigmentData,
             };
-            onSuccessCallback(res.totalCount)
+            onSuccessCallback(res.totalCount);
             return this.cachedLastResponse;
         });
     }

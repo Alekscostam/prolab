@@ -32,14 +32,10 @@ import {TreeListUtils} from '../../utils/component/TreeListUtils';
 import {EditSpecUtils} from '../../utils/EditSpecUtils';
 import {compress} from 'int-compress-string';
 import {StringUtils} from '../../utils/StringUtils';
-import Image from '../../components/Image';
 import ActionButton from '../../components/ActionButton.js';
 import LocUtils from '../../utils/LocUtils.js';
-import {MenuWithButtons} from '../../components/prolab/MenuWithButtons.js';
 import {DataGridUtils} from '../../utils/component/DataGridUtils.js';
-import {ColumnType} from '../../enum/ColumnType.js';
 import moment from 'moment/moment.js';
-import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils.js';
 import {HtmlUtils} from '../../utils/HtmlUtils.js';
 import {ViewDataCompUtils} from '../../utils/component/ViewDataCompUtils.js';
 import {CheckBox} from 'devextreme-react';
@@ -52,6 +48,10 @@ import 'jspdf-autotable';
 import {cellTemplate, contextMenuItems} from './GanttTemplate.js';
 import {SessionStoreUtils} from '../../utils/SessionStoreUtils.js';
 import UrlUtils from '../../utils/UrlUtils.js';
+import {ColumnUtils} from '../../utils/ColumnUtils.js';
+import useStore from '../../store.js';
+import FilterClear from '../../components/prolab/FilterClear.js';
+import {handleSwitchFilterForGantt} from '../../utils/handler/FilterSwitchHandler.js';
 
 const UNCOLLAPSED_CUT_SIZE = 314;
 const COLLAPSED_CUT_SIZE = 125;
@@ -182,7 +182,10 @@ class GanttViewComponent extends React.Component {
                         this.onCustomCommandClick(e);
                     }}
                     onContentReady={(e) => {
+                        this.registerOnFilterValuesChange();
                         this.highlightRow(e);
+                        const ganttRef = this.ganttRef?.current?.instance?._treeList;
+                        useStore.getState().setGanttView(ganttRef);
                     }}
                     keyExpr={KEY}
                     focusedRowEnabled={false}
@@ -271,6 +274,7 @@ class GanttViewComponent extends React.Component {
             </React.Fragment>
         );
     }
+
     highlightRow = (e) => {
         const clickedRowFromView = SessionStoreUtils.getClickedRowFromView();
         if (clickedRowFromView) {
@@ -278,28 +282,14 @@ class GanttViewComponent extends React.Component {
                 SessionStoreUtils.clearClickedRowFromView();
                 return;
             }
-            const visibleRow = GanttUtils.sortHierarchicallyWithIndex(this.state.tasks)?.find(
-                (task) => task.ID === clickedRowFromView.row?.id
-            );
+            const visibleRows = e.component._treeList.getVisibleRows();
+            const visibleRow = visibleRows?.find((row) => row.data?.ID === clickedRowFromView.row?.id);
             if (visibleRow) {
-                const tables = e.element?.getElementsByTagName('table');
-                if (tables && tables.length > 1) {
-                    const lastTable = tables[tables.length - 1] || null;
-                    const penultimateTable = tables[tables.length - 2] || null;
-                    if (lastTable && penultimateTable) {
-                        lastTable.getElementsByTagName('tr');
-                        const trLastTable = lastTable.getElementsByTagName('tr')?.[visibleRow.index] || null;
-                        const trPenultimateTable =
-                            penultimateTable.getElementsByTagName('tr')?.[visibleRow.index] || null;
-                        if (trLastTable) {
-                            trLastTable.className = (trLastTable.className || '') + ' highlight-row';
-                            SessionStoreUtils.clearClickedRowFromView();
-                        }
-                        if (trPenultimateTable) {
-                            trPenultimateTable.className = (trPenultimateTable.className || '') + ' highlight-row';
-                            SessionStoreUtils.clearClickedRowFromView();
-                        }
-                    }
+                const element = visibleRow.cells[1];
+                if (element) {
+                    const tr = element.cellElement.parentNode;
+                    tr.className = tr.className + ' highlight-row';
+                    SessionStoreUtils.clearClickedRowFromView();
                 }
             }
         }
@@ -310,14 +300,18 @@ class GanttViewComponent extends React.Component {
         const exportMode = this.state.exportModeBoxValue.toLowerCase();
         const dataRangeMode = this.state.dateRangeBoxValue.toLowerCase();
         const gantt = this.ganttRef.current.instance;
-        exportGanttToPdf({
-            component: gantt,
-            createDocumentMethod: (args) => new jsPDF(args),
-            format: format,
-            isLandscape,
-            exportMode: exportMode,
-            dateRange: dataRangeMode,
-        }).then((doc) => doc.save('gantt.pdf'));
+        try {
+            exportGanttToPdf({
+                component: gantt,
+                createDocumentMethod: (args) => new jsPDF(args),
+                format: format,
+                isLandscape,
+                exportMode: exportMode,
+                dateRange: dataRangeMode,
+            }).then((doc) => doc.save('gantt.pdf'));
+        } catch (err) {
+            console.log(err);
+        }
     };
 
     setSelectionWidth(data) {
@@ -394,6 +388,7 @@ class GanttViewComponent extends React.Component {
     };
     componentWillUnmount() {
         this.unregisterKeydownEvent();
+        this.unregisterOnFilterValuesChangeEvent();
     }
 
     isSelectionEnabled() {
@@ -429,6 +424,29 @@ class GanttViewComponent extends React.Component {
         });
     }
 
+    registerOnFilterValuesChange = () => {
+        const filters = Array.from(document.getElementsByClassName('dx-texteditor-input'));
+        for (let index = 0; index < filters.length; index++) {
+            const filter = filters[index];
+            filter.addEventListener('input', this.onFilterValuesChange);
+        }
+    };
+
+    unregisterOnFilterValuesChangeEvent = () => {
+        const filters = Array.from(document.getElementsByClassName('dx-texteditor-input'));
+        for (let index = 0; index < filters.length; index++) {
+            const filter = filters[index];
+            filter.removeEventListener('input', this.onFilterValuesChange);
+        }
+    };
+
+    onFilterValuesChange = (e) => {
+        setTimeout(() => {
+            handleSwitchFilterForGantt();
+            this.props.unselectAll();
+        }, 1100);
+    };
+
     datasRefreshSelector(store) {
         this.setState({
             rowElementsStorage: store,
@@ -460,7 +478,6 @@ class GanttViewComponent extends React.Component {
     getRangeDate(dateRange) {
         return !!dateRange ? moment(dateRange, Constants.DATE_FORMAT.YYYY_MM_DD).toDate() : null;
     }
-    // TODO: napraw ze jak klikasz w wiersz to ze potem w naglowku kliaksz w anuluj i wszystklo sie odznacza ale checkbox z pewnym oposnieniem
     preOperationAction = (operation, callback, recordId = this.state.selectedRecordId) => {
         const onlyOneRecord = operation?.onlyOneRecord;
         if (onlyOneRecord) {
@@ -475,7 +492,7 @@ class GanttViewComponent extends React.Component {
     };
 
     handlePreview(viewId, parentId, kindView, recordId) {
-        handleEdit(viewId, parentId, kindView, recordId, true);
+        this.handleEdit(viewId, parentId, kindView, recordId, true);
     }
 
     handleEdit(viewId, parentId, recordId, kindView, readOnly = false) {
@@ -509,6 +526,7 @@ class GanttViewComponent extends React.Component {
     }
 
     handleEditSpec(viewId, parentId, recordId) {
+        SessionStoreUtils.saveFiltersFromView();
         TreeListUtils.openEditSpec(
             viewId,
             parentId,
@@ -521,6 +539,7 @@ class GanttViewComponent extends React.Component {
     handleHrefSubview(viewId, recordId) {
         const result = this.props.handleBlockUi();
         if (result) {
+            SessionStoreUtils.saveFiltersFromView();
             const newUrl = this.hrefSubView(viewId, recordId);
             window.location.assign(newUrl);
         }
@@ -607,6 +626,12 @@ class GanttViewComponent extends React.Component {
                           el.id = `actions-${info.column.headerId}-${info.rowIndex}`;
                           element.append(el);
                           const recordId = info.row?.data?.ID;
+                          const defaultValue = this.state.rowElementsStorage.get(recordId)[1].value;
+                          if (defaultValue) {
+                              setTimeout(() => {
+                                  this.selectRowBackground(recordId);
+                              }, 200);
+                          }
                           ReactDOM.render(
                               <label className={`container-checkbox `}>
                                   <CheckBox
@@ -617,7 +642,7 @@ class GanttViewComponent extends React.Component {
                                       onValueChange={() => {
                                           this.selectSingleRow(recordId);
                                       }}
-                                      defaultValue={this.state.rowElementsStorage.get(recordId)[1].value}
+                                      defaultValue={defaultValue}
                                       className={'checkBoxSelection'}
                                   />
                                   <span className='checkmark'></span>
@@ -663,7 +688,7 @@ class GanttViewComponent extends React.Component {
         const store = this.state.rowElementsStorage;
         for (const [key, value] of store.entries()) {
             if (recordId === key) {
-                let array = [
+                const array = [
                     {
                         id: key,
                     },
@@ -678,12 +703,49 @@ class GanttViewComponent extends React.Component {
         let index = selectedRowKeys.findIndex((item) => item.ID === recordId);
         if (index !== -1) {
             selectedRowKeys.splice(index, 1);
+            this.unselectRowBackground(recordId);
         } else {
             selectedRowKeys.push({ID: recordId});
+            this.selectRowBackground(recordId);
         }
         this.props.handleSelectedRowKeys(selectedRowKeys);
         this.datasRefreshSelector(store);
     }
+
+    getCells(recordId) {
+        const visibleRows = this.ganttRef.current.instance._treeList.getVisibleRows();
+        const visibleRow = visibleRows?.find((row) => row.data?.ID === recordId);
+        const element = visibleRow.cells[0];
+        if (element) {
+            const cells = Array.from(visibleRow.cells);
+            return cells;
+        }
+        return [];
+    }
+
+    selectRowBackground = (recordId) => {
+        const cells = this.getCells(recordId);
+        for (let index = 0; index < cells.length; index++) {
+            const td = cells[index].cellElement;
+            if (td) {
+                td.className = td.className + ' selected-row';
+            }
+        }
+    };
+
+    unselectRowBackground = (recordId) => {
+        const cells = this.getCells(recordId);
+        for (let index = 0; index < cells.length; index++) {
+            const td = cells[index].cellElement;
+            if (td) {
+                td.className = td.className.replace(/\bselected-row\b/g, '').trim();
+                const tr = td.parentNode;
+                if (tr) {
+                    tr.className = tr.className.replace(/\bdx-selection\b/g, '').trim();
+                }
+            }
+        }
+    };
 
     generateColumns() {
         let columns = [];
@@ -706,6 +768,10 @@ class GanttViewComponent extends React.Component {
                     <Column
                         key={INDEX_COLUMN}
                         fixed={false}
+                        filterValue={ColumnUtils.getValueFromFilter(
+                            this.props.filtersCached,
+                            columnDefinition.fieldName
+                        )}
                         onCellPrepared={this.onCellPrepared}
                         caption={columnDefinition.label}
                         sortIndex={columnDefinition.sortIndex}
@@ -717,7 +783,6 @@ class GanttViewComponent extends React.Component {
                         allowFiltering={columnDefinition?.isFilter}
                         allowFixing={true}
                         allowReordering={true}
-                        className='xd'
                         allowResizing={true}
                         renderAsync={true}
                         allowSorting={columnDefinition?.isSort}
@@ -743,6 +808,20 @@ class GanttViewComponent extends React.Component {
                         fixedPosition={'right'}
                         headerCellTemplate={(element) => {
                             ReactDOM.render(this.addButton(), element);
+                            const combinedFilter = this.ganttRef.current.instance._treeList.getCombinedFilter();
+                            const filterLastRow = element.parentNode.parentNode.parentNode.lastChild.lastChild;
+                            if (useStore.getState()?.showFilterClear) {
+                                ReactDOM.render(
+                                    <FilterClear
+                                        clearFnc={() => {
+                                            const ganttRef = this.ganttRef.current.instance._treeList;
+                                            ganttRef.clearFilter();
+                                        }}
+                                        filters={combinedFilter}
+                                    />,
+                                    filterLastRow
+                                );
+                            }
                         }}
                         cellTemplate={(element, info) => {
                             let el = document.createElement('div');
@@ -753,7 +832,6 @@ class GanttViewComponent extends React.Component {
                             const kindView = this.props.elementKindView;
                             const recordId = info.row?.data?.ID;
                             const parentId = info.row?.data?.ID_PARENT;
-                            const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
                             const viewId = GanttUtils.getRealViewId(subViewId, this.props.id);
                             ReactDOM.render(
                                 <div style={{textAlign: 'center', display: 'flex'}}>

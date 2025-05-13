@@ -21,6 +21,7 @@ import {sessionPrelongFnc} from '../../App';
 import {EditorDialog} from '../../components/prolab/EditorDialog';
 import {OperationType} from '../../enum/OperationType';
 import {CookiesName} from '../../enum/CookieName';
+import {ResponseUtils} from '../../utils/ResponseUtils';
 
 class SubGridViewComponent extends React.Component {
     constructor(props) {
@@ -72,6 +73,108 @@ class SubGridViewComponent extends React.Component {
     componentWillUnmount() {
         removeCookieGlobal(CookiesName.REFRESH_SUB_VIEW);
     }
+
+    isGridViewBands = () => {
+        const subView = this.props.subView;
+        return subView?.viewInfo?.type === 'gridViewBands' || subView.viewInfo?.headerType === 'gridViewBands';
+    };
+    generateHeaderColumns() {
+        if (this.isGridViewBands()) {
+            return this.generateGroupColumns();
+        }
+        return this.generateColumns();
+    }
+
+    generateGroupColumns() {
+        const headerColumns = ResponseUtils.columnsGroupCreate(this.props.subView, 'headerColumns');
+        const renderColumns = (group, keyPrefix = '') => {
+            if (group.isBand && Array.isArray(group.columns)) {
+                return (
+                    <Column
+                        visible={group.visible}
+                        alignment='center'
+                        fixed={this.getFixed(group)}
+                        fixedPosition={this.getFixedPosition(group)}
+                        key={keyPrefix + '-column-group'}
+                        caption={group.caption}
+                        isBand={true}
+                    >
+                        {group.columns.map((child, idx) => renderColumns(child, keyPrefix + '-' + idx))}
+                    </Column>
+                );
+            } else {
+                let sortOrder;
+                if (!!group?.sortIndex && group?.sortIndex > 0 && !!group?.sortOrder) {
+                    sortOrder = group?.sortOrder?.toLowerCase();
+                }
+                return (
+                    <Column
+                        visible={group.visible}
+                        key={keyPrefix + '-column'}
+                        dataField={group.fieldName}
+                        sortOrder={sortOrder}
+                        caption={group.caption}
+                        sortIndex={group?.sortIndex}
+                    />
+                );
+            }
+        };
+        const columns = headerColumns.map((group, index) => renderColumns(group, 'col-' + index));
+        return columns;
+    }
+
+    generateColumns() {
+        const headerColumns = ResponseUtils.columnsFromGroupCreate(this.props.subView, 'headerColumns');
+        return headerColumns
+            ?.filter((c) => c.visible === true)
+            .map((c, index) => {
+                return (
+                    <Column
+                        key={c.fieldName + '-' + index}
+                        allowFixing={true}
+                        caption={c.label}
+                        dataType={DataGridUtils.specifyColumnType(c?.type)}
+                        format={DataGridUtils.specifyColumnFormat(c?.type)}
+                        cellTemplate={DataGridUtils.cellTemplate(
+                            c,
+                            null,
+                            (base64, header) => {
+                                this.setState({
+                                    imageViewer: {
+                                        imageViewDialogVisisble: true,
+                                        editable: false,
+                                        imageBase64: base64,
+                                        header: header,
+                                    },
+                                });
+                            },
+                            (value, header, type) => {
+                                this.setState({
+                                    editorViewer: {
+                                        visible: true,
+                                        editable: false,
+                                        value: value,
+                                        header: header,
+                                        type: type,
+                                    },
+                                });
+                            }
+                        )}
+                        dataField={c.fieldName}
+                    />
+                );
+            });
+    }
+
+    getFixed(columnDefinition) {
+        return columnDefinition.freeze !== undefined && columnDefinition?.freeze !== null
+            ? columnDefinition?.freeze?.toLowerCase() === 'left' || columnDefinition?.freeze?.toLowerCase() === 'right'
+            : false;
+    }
+    getFixedPosition(columnDefinition) {
+        return !!columnDefinition.freeze ? columnDefinition.freeze?.toLowerCase() : null;
+    }
+
     render() {
         const {imageViewer, editorViewer} = this.state;
         const {labels} = this.props;
@@ -187,44 +290,7 @@ class SubGridViewComponent extends React.Component {
                                     allowColumnResizing={true}
                                     columnHidingEnabled={false}
                                 >
-                                    {this.props.subView?.headerColumns
-                                        ?.filter((c) => c.visible === true)
-                                        .map((c) => {
-                                            return (
-                                                <Column
-                                                    allowFixing={true}
-                                                    caption={c.label}
-                                                    dataType={DataGridUtils.specifyColumnType(c?.type)}
-                                                    format={DataGridUtils.specifyColumnFormat(c?.type)}
-                                                    cellTemplate={DataGridUtils.cellTemplate(
-                                                        c,
-                                                        null,
-                                                        (base64, header) => {
-                                                            this.setState({
-                                                                imageViewer: {
-                                                                    imageViewDialogVisisble: true,
-                                                                    editable: false,
-                                                                    imageBase64: base64,
-                                                                    header: header,
-                                                                },
-                                                            });
-                                                        },
-                                                        (value, header, type) => {
-                                                            this.setState({
-                                                                editorViewer: {
-                                                                    visible: true,
-                                                                    editable: false,
-                                                                    value: value,
-                                                                    header: header,
-                                                                    type: type,
-                                                                },
-                                                            });
-                                                        }
-                                                    )}
-                                                    dataField={c.fieldName}
-                                                />
-                                            );
-                                        })}
+                                    {this.generateHeaderColumns()}
                                     {showEditButton || showMenu ? (
                                         <Column
                                             allowFixing={true}
@@ -234,7 +300,7 @@ class SubGridViewComponent extends React.Component {
                                             fixedPosition='right'
                                             cellTemplate={(element, info) => {
                                                 ReactDOM.render(
-                                                    <div>
+                                                    <React.Fragment>
                                                         <ShortcutButton
                                                             id={`${info.column.headerId}_menu_button`}
                                                             className={`action-button-with-menu`}
@@ -250,7 +316,6 @@ class SubGridViewComponent extends React.Component {
                                                             }}
                                                             rendered={showEditButton}
                                                         />
-
                                                         <ActionButtonWithMenu
                                                             id='more_shortcut'
                                                             iconName='mdi-dots-vertical'
@@ -272,7 +337,7 @@ class SubGridViewComponent extends React.Component {
                                                             rendered={showMenu}
                                                             title={labels ? labels['View_AdditionalOptions'] : ''}
                                                         />
-                                                    </div>,
+                                                    </React.Fragment>,
                                                     element
                                                 );
                                             }}

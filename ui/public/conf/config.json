@@ -13,7 +13,7 @@
     "SHOW_HINT_LIST_BUTTONS":false,
     "SHOW_MARKUP_ON_HTML_EDITOR":true,
     "SHOW_ADD_FROM_DASHBOARD":false,
-    "SHOW_DASHBOARD_HEADERS":true,
+    "SHOW_FILTER_CLEAR":false,
     "CAPTCHA_KEY":""
 
 }

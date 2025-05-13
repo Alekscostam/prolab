@@ -295,7 +295,6 @@ export default class CrudService extends BaseService {
         const url = new URL(
             `${this.domain}/${this.path}/${viewId}/document/${documentId}/download${fileId ? `?fileId=${fileId}` : ''}`
         );
-
         return this.fetchFileResponse(url, {
             method: 'GET',
         })
@@ -313,7 +312,6 @@ export default class CrudService extends BaseService {
         const url = new URL(
             `${this.domain}/${this.path}/${viewId}/document/${documentId}/download${fileId ? `?fileId=${fileId}` : ''}`
         );
-
         return this.fetchFileResponse(url, {
             method: 'GET',
         }).catch((err) => {

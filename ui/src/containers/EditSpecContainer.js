@@ -157,6 +157,7 @@ export class EditSpecContainer extends BaseContainer {
                             id: responseView.editInfo.viewId,
                             name: responseView.editInfo.viewName,
                             parentId: responseView.editInfo.parentId,
+                            headerType: responseView.editInfo?.headerType || 'gridView',
                             type: 'gridView',
                             kindView: 'ViewSpec',
                         },

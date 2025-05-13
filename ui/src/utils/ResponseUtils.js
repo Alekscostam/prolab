@@ -1,10 +1,10 @@
 import {StringUtils} from './StringUtils';
 
 export class ResponseUtils {
-    static columnsFromGroupCreate(responseView) {
+    static columnsFromGroupCreate(responseView, propertyName = 'gridColumns') {
         const columnsTmp = [];
         let columnOrderCounter = 0;
-        new Array(responseView.gridColumns).forEach((gridColumns) => {
+        new Array(responseView[propertyName]).forEach((gridColumns) => {
             gridColumns?.forEach((group) => {
                 group.columns?.forEach((column) => {
                     column.groupName = group.groupName;
@@ -16,7 +16,7 @@ export class ResponseUtils {
         });
         return columnsTmp;
     }
-    static columnsGroupCreate(responseView) {
+    static columnsGroupCreate(responseView, propertyName = 'gridColumns') {
         const columnsTmp = [];
         let columnOrderCounter = 0;
         function processGroup(group) {
@@ -40,14 +40,13 @@ export class ResponseUtils {
             }
             return group;
         }
-        new Array(responseView.gridColumns).forEach((gridColumns) => {
+        new Array(responseView[propertyName]).forEach((gridColumns) => {
             gridColumns?.forEach((group) => {
                 columnsTmp.push(processGroup(group));
             });
         });
         return columnsTmp;
     }
-
     static flattenColumns(gridColumns) {
         const flatColumns = [];
         let columnOrderCounter = 0;
@@ -74,7 +73,6 @@ export class ResponseUtils {
         });
         return flatColumns;
     }
-
     static pluginListCreateAndPass(responseView) {
         const pluginsListTmp = [];
         for (let plugin in responseView?.pluginsList) {

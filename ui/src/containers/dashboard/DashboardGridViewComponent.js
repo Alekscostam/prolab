@@ -49,6 +49,7 @@ export class DashboardGridViewComponent extends BaseContainer {
         this.state = {
             loading: true,
             elementId: props.id,
+            showColumnHeaders: false,
             elementSubViewId: null,
             elementRecordId: null,
             copyData: null,
@@ -131,9 +132,10 @@ export class DashboardGridViewComponent extends BaseContainer {
         ConsoleHelper(
             `GridGridViewContainer::downloadData: viewId=${viewId}, recordId=${recordId}, subViewId=${subviewId}, viewType=${viewType}`
         );
+
         this.getViewById(viewId, recordId, viewType);
     }
-
+    // FIXX: obsługa parametru dashboardHideHeader, parametryzacja showfilterclear, multiheader w podwidoku
     //@override
     getViewById(viewId, recordId, viewType) {
         this.setState({loading: true}, () => {
@@ -194,6 +196,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                                 batchesList: batchesListTmp,
                                 filtersList: filtersListTmp,
                                 // options: responseView?.options,
+                                showColumnHeaders: !responseView?.gridOptions?.dashboardHideHeader,
                                 selectedRowKeys: [],
                                 viewInfoTypes: viewInfoTypesTmp,
                                 packageRows: responseView?.viewInfo?.dataPackageSize,
@@ -701,7 +704,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                             showColumnLines={this.props.showColumnLines}
                             showRowLines={this.props.showRowLines}
                             showBorders={this.props.showBorders}
-                            showColumnHeaders={this.props.showColumnHeaders}
+                            showColumnHeaders={this.state.showColumnHeaders}
                             showFilterRow={this.props.showFilterRow}
                             showSelection={this.props.showSelection}
                             dataGridHeight={this.props.dataGridHeight}

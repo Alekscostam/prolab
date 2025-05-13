@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ConsoleHelper from '../../utils/ConsoleHelper';
 import {ColumnType} from '../../enum/ColumnType';
+import {ColumnUtils} from '../../utils/ColumnUtils';
 
 class GridViewMinimizeComponent extends React.Component {
     constructor(props) {
@@ -15,9 +16,10 @@ class GridViewMinimizeComponent extends React.Component {
         let fieldValue = '';
         let fieldType = '';
         try {
-            fieldName = this.props.subView?.headerColumns[0].label;
-            fieldValue = this.props.subView?.headerData[0][this.props.subView.headerColumns[0].fieldName];
-            fieldType = this.props.subView?.headerColumns[0].type;
+            const column = ColumnUtils.findFirstVisibleLeafColumn(this.props.subView?.headerColumns);
+            fieldName = column?.label;
+            fieldValue = this.props.subView?.headerData[0][column.fieldName];
+            fieldType = column?.type;
         } catch (e) {}
 
         switch (fieldType) {

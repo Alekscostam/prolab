@@ -45,6 +45,9 @@ import {SelectedRowKeysUtils} from '../../utils/SelectedRowKeysUtils';
 import {handleEdit} from '../../utils/handler/EditHandler';
 import {SessionStoreUtils} from '../../utils/SessionStoreUtils';
 import {ResponseUtils} from '../../utils/ResponseUtils';
+import {ColumnUtils} from '../../utils/ColumnUtils';
+import FilterClear from '../../components/prolab/FilterClear';
+import useStore from '../../store';
 
 class GridViewComponent extends CellEditComponent {
     constructor(props) {
@@ -53,6 +56,7 @@ class GridViewComponent extends CellEditComponent {
         this.dataGrid = null;
         this.crudService = new CrudService();
         this.menuRef = React.createRef();
+        this.switchRef = React.createRef();
         this.refDateTime = React.createRef();
         this.clickedPosition = React.createRef();
         this.focusedRowKey = React.createRef();
@@ -219,13 +223,15 @@ class GridViewComponent extends CellEditComponent {
     addButton() {
         return (
             this.addButtonExist() && (
-                <ActionButton
-                    rendered={true}
-                    label={LocUtils.locFromStoreWithDefault('Add_button', 'Dodaj')}
-                    handleClick={(e) => {
-                        this.props.addButtonFunction(e);
-                    }}
-                />
+                <React.Fragment>
+                    <ActionButton
+                        rendered={true}
+                        label={LocUtils.locFromStoreWithDefault('Add_button', 'Dodaj')}
+                        handleClick={(e) => {
+                            this.props.addButtonFunction(e);
+                        }}
+                    />
+                </React.Fragment>
             )
         );
     }
@@ -430,6 +436,7 @@ class GridViewComponent extends CellEditComponent {
                     />
                     {this.preGenerateColumnsDefinition()}
                 </DataGrid>
+
                 {this.props.parsedGridView?.operationsPPM && this.props.parsedGridView.operationsPPM.length !== 0 && (
                     <MenuWithButtons
                         menuRef={this.menuRef}
@@ -440,7 +447,9 @@ class GridViewComponent extends CellEditComponent {
                             this.preOperationAction(e, () => this.props.handleDocumentRow(e.id));
                         }}
                         handleSaveAction={(e) => this.props.handleSaveAction()}
-                        handleHrefSubview={(e) => this.handleHrefSubview(viewId, selectedRecordId)}
+                        handleHrefSubview={(e) => {
+                            this.handleHrefSubview(viewId, selectedRecordId);
+                        }}
                         hrefSpecView={this.subViewHref(viewId, selectedRecordId)}
                         handleEdit={(e) =>
                             this.preOperationAction(e, () =>
@@ -481,23 +490,11 @@ class GridViewComponent extends CellEditComponent {
             }
             const visibleRow = e.component.getVisibleRows()?.find((row) => row.data?.ID === clickedRowFromView.row?.id);
             if (visibleRow) {
-                const tables = e.element?.getElementsByTagName('table');
-                if (tables && tables.length > 1) {
-                    const lastTable = tables[tables.length - 1] || null;
-                    const penultimateTable = tables[tables.length - 2] || null;
-                    if (lastTable && penultimateTable) {
-                        const trLastTable = lastTable.getElementsByTagName('tr')?.[visibleRow.rowIndex] || null;
-                        const trPenultimateTable =
-                            penultimateTable.getElementsByTagName('tr')?.[visibleRow.rowIndex] || null;
-                        if (trLastTable) {
-                            trLastTable.className = (trLastTable.className || '') + ' highlight-row';
-                            SessionStoreUtils.clearClickedRowFromView();
-                        }
-                        if (trPenultimateTable) {
-                            trPenultimateTable.className = (trPenultimateTable.className || '') + ' highlight-row';
-                            SessionStoreUtils.clearClickedRowFromView();
-                        }
-                    }
+                const element = visibleRow.cells[1];
+                if (element) {
+                    const tr = element.cellElement.parentNode;
+                    tr.className = tr.className + ' highlight-row';
+                    SessionStoreUtils.clearClickedRowFromView();
                 }
             }
         }
@@ -572,7 +569,7 @@ class GridViewComponent extends CellEditComponent {
         }
         return structuredClone(this.props.gridViewColumns);
     }
-
+    // FIXX:  clear filter na gantt
     postCustomizeColumns = (columns) => {
         const columnDefinitionArray = this.getClonedGridViewColumns();
         let INDEX_COLUMN = 0;
@@ -595,6 +592,7 @@ class GridViewComponent extends CellEditComponent {
                                 column.allowGrouping = columnDefinition?.isGroup;
                                 column.allowReordering = true;
                                 column.allowResizing = true;
+                                ColumnUtils.applyFilters(this.props.filtersCached, column);
                                 column.allowSorting = columnDefinition?.isSort;
                                 column.allowWrapping = this.props.parsedGridView?.gridOptions?.rowAutoHeight || false;
                                 column.visibleIndex = columnDefinition?.columnOrder;
@@ -632,6 +630,7 @@ class GridViewComponent extends CellEditComponent {
                         }
                     }
                 });
+            // TODO: czasami jak idzie sie do dziecka to switch jest zaznacozny
             // Bardzo ważne!!! clear pol bo w tym utilsie są parametry typu let
             DataGridUtils.clearProperties();
             let operationsRecord = this.props.parsedGridView?.operationsRecord;
@@ -648,6 +647,19 @@ class GridViewComponent extends CellEditComponent {
                         if (this.props.showAddButton) {
                             element.parentNode.classList.add('header-button');
                             ReactDOM.render(this.addButton(), element);
+                            const filterLastRow = element.parentNode.parentNode.parentNode.lastChild.lastChild;
+                            if (!this.props?.isAttachement && useStore.getState()?.showFilterClear) {
+                                ReactDOM.render(
+                                    <FilterClear
+                                        clearFnc={() => {
+                                            const gridRef = this.props.getRef()._instance;
+                                            gridRef.clearFilter();
+                                        }}
+                                        filters={window.dataGrid.getCombinedFilter()}
+                                    />,
+                                    filterLastRow
+                                );
+                            }
                         }
                     },
                     width: ViewDataCompUtils.operationsColumnLength(
@@ -885,13 +897,14 @@ class GridViewComponent extends CellEditComponent {
     handleHrefSubview(viewId, recordId) {
         const result = this.props.handleBlockUi();
         if (result) {
+            SessionStoreUtils.saveFiltersFromView();
             const newUrl = this.subViewHref(viewId, recordId);
             SessionStoreUtils.saveClickedRowFromView(recordId);
             window.location.assign(newUrl);
         }
     }
     handlePreview(viewId, parentId, kindView, recordId) {
-        handleEdit(viewId, parentId, kindView, recordId, true);
+        this.handleEdit(viewId, parentId, kindView, recordId, true);
     }
     handleEdit(viewId, parentId, kindView, recordId, readOnly = false) {
         if (TreeListUtils.isKindViewSpec(this.props.parsedGridView)) {
@@ -937,6 +950,7 @@ class GridViewComponent extends CellEditComponent {
     }
 
     handleEditSpec(viewId, parentId, recordId) {
+        SessionStoreUtils.saveFiltersFromView();
         SessionStoreUtils.saveClickedRowFromView(recordId);
         TreeListUtils.openEditSpec(
             viewId,

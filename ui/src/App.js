@@ -305,7 +305,7 @@ class App extends Component {
             const appName = configuration.APP_NAME;
             const captchaShow = configuration.CAPTCHA_SHOW;
             const showHintListButtons = configuration.SHOW_HINT_LIST_BUTTONS;
-            const showDashboardHeaders = configuration.SHOW_DASHBOARD_HEADERS;
+            const showFilterClear = configuration.SHOW_FILTER_CLEAR;
             const showMarkupOnHtmlEditor = configuration.SHOW_MARKUP_ON_HTML_EDITOR;
             const showAddFromDashboard = configuration.SHOW_ADD_FROM_DASHBOARD;
             const captchaKey = configuration.CAPTCHA_KEY;
@@ -324,7 +324,7 @@ class App extends Component {
                     captchaKey,
                 },
             });
-            useStore.getState().setShowDashboardHeaders(showDashboardHeaders);
+            useStore.getState().setShowFilterClear(showFilterClear);
             useStore.getState().setShowHintListButtons(showHintListButtons);
             useStore.getState().setShowAddFromDashboard(showAddFromDashboard);
             useStore.getState().setAppVersion(appVersion);

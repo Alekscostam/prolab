@@ -132,14 +132,12 @@ export class ViewContainer extends BaseViewContainer {
                                                 : subViewResponse.subViews[0]?.id;
                                             if (!subViewResponse.subViews || subViewResponse.subViews.length === 0) {
                                                 this.showErrorMessages(
-                                                    LocUtils.loc(
-                                                        this.props.labels,
-                                                        'No_Subview',
-                                                        'Brak podwidoków - niepoprawna konfiguracja!'
-                                                    )
+                                                    LocUtils.locFromStoreWithDefault('No_Subview','Brak podwidoków - niepoprawna konfiguracja!')
                                                 );
-                                                window.history.back();
-                                                this.unblockUi();
+                                                this.setState({loading: false}, () => {
+                                                    window.history.back();
+                                                    this.unblockUi();
+                                                });
                                                 return;
                                             } else {
                                                 let subViewsTabs = [];

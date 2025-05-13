@@ -257,7 +257,6 @@ export class EditHeaderDialogComponent extends BaseRowComponent {
                                 </div>
                                 {opAttachment && (
                                     <ShortcutButton
-                                        disabled={this.isReadOnly()}
                                         id={'opAttachment'}
                                         className={`grid-button-panel-big normal mt-1 mb-1 mr-1`}
                                         handleClick={this.handleAttachment}
@@ -269,7 +268,7 @@ export class EditHeaderDialogComponent extends BaseRowComponent {
                             </div>
                             <div className='col-4'></div>
                             <div className='col-lg-4 col-md-12 text-right'>
-                                {opSave && !this.isReadOnly() && (
+                                {opSave && (
                                     <ShortcutButton
                                         id={'opSave'}
                                         className={`grid-button-panel-big inverse mt-1 mb-1 mr-1 `}
@@ -279,7 +278,7 @@ export class EditHeaderDialogComponent extends BaseRowComponent {
                                         rendered={opSave}
                                     />
                                 )}
-                                {opFill && !this.isReadOnly() && EditRowUtils.hasAnyToFillField(editData) && (
+                                {opFill && EditRowUtils.hasAnyToFillField(editData) && (
                                     <ShortcutButton
                                         id={'opFill'}
                                         className={`grid-button-panel-big inverse mt-1 mb-1 mr-1 `}

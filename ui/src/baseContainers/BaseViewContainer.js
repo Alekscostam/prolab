@@ -15,7 +15,7 @@ import {DataGridUtils} from '../utils/component/DataGridUtils';
 import {ViewValidatorUtils} from '../utils/parser/ViewValidatorUtils';
 import UrlUtils from '../utils/UrlUtils';
 import Constants from '../utils/Constants';
-import $ from 'jquery';
+import $, {data} from 'jquery';
 import {localeOptions} from 'primereact/api';
 import ConsoleHelper from '../utils/ConsoleHelper';
 import LocUtils from '../utils/LocUtils';
@@ -55,10 +55,11 @@ import {ConfirmPluginDialog} from '../components/prolab/ConfirmPluginDialog';
 import {EditFormType} from '../enum/EditFormType';
 import EditHeaderComponent from '../components/prolab/EditHeaderComponent';
 import CodeService from '../services/CodeService';
-import {ArrayUtils} from '../utils/ArrayUtils';
 import {CodeOperationType} from '../enum/CodeOperationType';
 import {handleEdit, handleEditSpec} from '../utils/handler/EditHandler';
 import {ConfirmationOperationDialog} from '../components/prolab/ConfirmOperationDialog';
+import {SessionStoreUtils} from '../utils/SessionStoreUtils';
+import useStore from '../store';
 
 let dataGrid;
 
@@ -97,6 +98,7 @@ export class BaseViewContainer extends BaseContainer {
             elementId: props.id,
             elementSubViewId: null,
             qrCodesDialog: false,
+            filtersCached: [],
             visibleAddSpec: false,
             elementRecordId: null,
             elementParentId: null,
@@ -225,6 +227,7 @@ export class BaseViewContainer extends BaseContainer {
         if (id === undefined) {
             id = this.props.id;
         }
+
         this.removeAttachementReferenceIfPossible();
         const subViewId = UrlUtils.getSubViewId();
         const recordId = this.props.recordId || UrlUtils.getRecordId();
@@ -371,6 +374,7 @@ export class BaseViewContainer extends BaseContainer {
                     hint: viewButton?.label,
                 });
             }
+            useStore.getState().setCurrentViewType(responseView?.viewInfo?.type);
             this.setState(
                 () => ({
                     loading: false, //elementId: this.props.id,
@@ -382,6 +386,7 @@ export class BaseViewContainer extends BaseContainer {
                     documentsList: documentsListTmp,
                     batchesList: batchesListTmp,
                     filtersList: filtersListTmp,
+                    filtersCached: this.getFilters(),
                     selectedRowKeys: [],
                     viewInfoTypes: viewInfoTypesTmp,
                     packageRows: responseView?.viewInfo?.dataPackageSize,
@@ -526,7 +531,46 @@ export class BaseViewContainer extends BaseContainer {
             });
         }
     };
+    getFilters = () => {
+        const filtersInformation = SessionStoreUtils.getFiltersInformation();
+        if (SessionStoreUtils.canApplyFilter() && !this.isAttachement && !this.isDashboard()) {
+            const filters = this.extractFilters(filtersInformation.filters);
+            SessionStoreUtils.clearFiltersInformation();
+            return filters;
+        }
+        this.clearFiltersIfViewChanged(filtersInformation);
+        return undefined;
+    };
+    extractFilters = (rawFilters) => {
+        if (!Array.isArray(rawFilters)) return [];
 
+        const isCondition = (el) => Array.isArray(el) && el.length === 3 && !el.some(Array.isArray);
+        if (isCondition(rawFilters)) {
+            return [rawFilters];
+        }
+
+        const collectConditions = (arr) => {
+            let result = [];
+            for (const el of arr) {
+                if (isCondition(el)) {
+                    result.push(el);
+                } else if (Array.isArray(el)) {
+                    result = result.concat(collectConditions(el));
+                }
+            }
+            return result;
+        };
+
+        return collectConditions(rawFilters);
+    };
+    clearFiltersIfViewChanged = (filtersInformation) => {
+        if (!filtersInformation) return;
+        const viewIdFromCookie = StringUtils.isBlank(filtersInformation?.view?.id) ? null : filtersInformation.view.id;
+        const viewIdFromUrl = UrlUtils.getIdFromUrlOrAlternative(null);
+        if (viewIdFromCookie !== viewIdFromUrl) {
+            SessionStoreUtils.clearFiltersInformation();
+        }
+    };
     renderGlobalTop() {
         const {parsedPluginView} = this.state;
         const formType = this.state.editData?.editInfo?.editFormType;
@@ -1690,6 +1734,7 @@ export class BaseViewContainer extends BaseContainer {
         return (
             <React.Fragment>
                 <GridViewComponent
+                    filtersCached={this.state.filtersCached}
                     multiLevelHeaders={this.isGridViewBands()}
                     gridViewColumns={this.state.gridViewColumns}
                     ppmEnabled={true}
@@ -1864,6 +1909,7 @@ export class BaseViewContainer extends BaseContainer {
         return (
             <React.Fragment>
                 <GanttViewComponent
+                    filtersCached={this.state.filtersCached}
                     id={this.props.id}
                     unselectAll={() => {
                         this.setState({
