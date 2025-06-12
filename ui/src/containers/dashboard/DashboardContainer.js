@@ -21,7 +21,7 @@ import CrudService from '../../services/CrudService';
 import HistoryLogDialog from '../../components/prolab/HistoryLogDialog';
 import {AttachmentViewDialog} from '../attachmentView/AttachmentViewDialog';
 import {OperationType} from '../../enum/OperationType';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import EntryResponseHelper from '../../utils/helper/EntryResponseHelper';
 import ImageViewerDialog from '../../components/ImageViewerDialog';
 import {StringUtils} from '../../utils/StringUtils';
@@ -202,12 +202,10 @@ class DashboardContainer extends BaseContainer {
         }
     };
     render() {
-        const {labels} = this.props;
         return (
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
                 <BlockUi
-                    labels={labels}
                     tag='div'
                     blocking={this.state.blocking || this.state.loading}
                     loader={this.loader}
@@ -217,9 +215,7 @@ class DashboardContainer extends BaseContainer {
                         colClass='col-12 dashboard-link-container g-0'
                         style={{marginLeft: '-10px', marginRight: '-10px', paddingRight: '0px'}}
                     >
-                        {!!this.props.dashboard ? null : (
-                            <div style={{marginLeft: '10px'}}>{Breadcrumb.render(labels)}</div>
-                        )}
+                        {!!this.props.dashboard ? null : <div style={{marginLeft: '10px'}}>{Breadcrumb.render()}</div>}
                         <DivContainer colClass='dashboard'>
                             {this.state.loading === false ? (
                                 <React.Fragment>
@@ -238,7 +234,8 @@ class DashboardContainer extends BaseContainer {
             const confirmDialogWrapper = document.createElement('div');
             confirmDialogWrapper.className = 'confirm-dialog';
             document.body.appendChild(confirmDialogWrapper);
-            ReactDOM.render(
+            const root = ReactDOM.createRoot(confirmDialogWrapper);
+            root.render(
                 <ConfirmDialog
                     visible={true}
                     closable={false}
@@ -292,7 +289,6 @@ class DashboardContainer extends BaseContainer {
                                 this.onHideEditPanel(e, viewId, recordId, parentId);
                             }}
                             onError={(e) => this.showErrorMessage(e)}
-                            labels={this.props.labels}
                             showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                         />
                     ) : (
@@ -318,7 +314,6 @@ class DashboardContainer extends BaseContainer {
                             onHide={(e, viewId, recordId, parentId) => {
                                 this.onHideEditPanel(e, viewId, recordId, parentId);
                             }}
-                            labels={this.props.labels}
                             showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                         />
                     )
@@ -341,7 +336,6 @@ class DashboardContainer extends BaseContainer {
                         dataGridStoreSuccess={this.state.dataHistoryLogStoreSuccess}
                         selectedRowData={this.state.selectedRowData}
                         defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
-                        labels={this.props.labels}
                     />
                 ) : null}
                 {this.state.attachmentViewInfo ? (
@@ -630,7 +624,6 @@ class DashboardContainer extends BaseContainer {
                         return true;
                     }}
                     dataGridHeight={_cardHeight - 60}
-                    labels={this.props.labels}
                 />
             </div>
         );

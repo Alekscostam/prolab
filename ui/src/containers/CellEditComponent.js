@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, PureComponent} from 'react';
 import EditRowUtils from '../utils/EditRowUtils';
 
 import ConsoleHelper from '../utils/ConsoleHelper';
@@ -23,10 +23,9 @@ import {MemoizedTimeInput} from '../components/prolab/memoized/MemoizedTimeInput
 import {EditorTextAreaDialog} from '../components/prolab/EditorTextAreaDialog';
 import useStore from '../store';
 
-class CellEditComponent extends Component {
+class CellEditComponent extends PureComponent {
     constructor(props) {
         super(props);
-        this.labels = this.props;
         this.dataGrid = null;
         this.editListDataStore = new EditListDataStore();
         this.crudService = new CrudService();
@@ -44,18 +43,12 @@ class CellEditComponent extends Component {
             parsedEditListViewData: undefined,
             imageViewer: {
                 imageBtnClicked: false, //optional
-                imageViewDialogVisisble: false,
+                imageViewDialogVisible: false,
                 editable: false,
                 imageBase64: undefined,
                 header: undefined,
             },
-            editorViewer: {
-                visible: false,
-                editable: false,
-                value: undefined,
-                header: undefined,
-                type: undefined,
-            },
+            editorViewer: this.clearedEditorViewerObj(),
         };
         ConsoleHelper('CellEditComponent -> constructor');
     }
@@ -75,16 +68,19 @@ class CellEditComponent extends Component {
         document.getElementById('header-left').click();
     }
 
+    clearedEditorViewerObj = () => {
+        return {
+            visible: false,
+            editable: false,
+            value: undefined,
+            header: undefined,
+            type: undefined,
+        };
+    };
     onHideEditor() {
         this.forceLeaveEditMode();
         this.setState({
-            editorViewer: {
-                visible: false,
-                editable: false,
-                value: undefined,
-                header: undefined,
-                type: undefined,
-            },
+            editorViewer: this.clearedEditorViewerObj(),
         });
         this.onHideEditorCallback();
     }
@@ -164,7 +160,7 @@ class CellEditComponent extends Component {
             this.setState(
                 {
                     imageViewer: {
-                        imageViewDialogVisisble: false,
+                        imageViewDialogVisible: false,
                         editable: false,
                         imageBase64: '',
                     },
@@ -182,7 +178,7 @@ class CellEditComponent extends Component {
     imageViewerComponent = () => {
         const {imageViewer} = this.state;
         return (
-            imageViewer?.imageViewDialogVisisble && (
+            imageViewer?.imageViewDialogVisible && (
                 <ImageViewerDialog
                     editable={imageViewer.editable}
                     header={imageViewer.header}
@@ -259,7 +255,6 @@ class CellEditComponent extends Component {
                     showErrorMessages={(err) => this.props.showErrorMessages(err)}
                     selectedRowData={this.state.selectedRowDataEditList}
                     defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
-                    labels={this.props.labels}
                 />
             )
         );
@@ -473,7 +468,6 @@ class CellEditComponent extends Component {
             case ColumnType.E: //E – Data + czas
                 return (
                     <MemoizedDateTimeInput
-                        labels={this.props.labels}
                         field={field}
                         cellInfo={cellInfo}
                         inputValue={cellInfo.value}
@@ -513,10 +507,10 @@ class CellEditComponent extends Component {
                 return null;
             case ColumnType.IM: //IM – Obrazki
             case ColumnType.I: //I – Obrazek
-                if (!this.trashClicked.current && !this.state?.imageViewer?.imageViewDialogVisisble) {
+                if (!this.trashClicked.current && !this.state?.imageViewer?.imageViewDialogVisible) {
                     this.setState({
                         imageViewer: {
-                            imageViewDialogVisisble: true,
+                            imageViewDialogVisible: true,
                             imageBase64: cellInfo.value,
                             editable: true,
                             header: cellInfo.column?.caption,

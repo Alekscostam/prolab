@@ -20,7 +20,6 @@ class DashboardCardViewComponent extends React.Component {
     constructor(props) {
         super(props);
         this.crudService = new CrudService();
-        this.labels = this.props;
         ConsoleHelper('CardViewComponent -> constructor');
     }
 

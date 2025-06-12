@@ -1,6 +1,6 @@
 import {ConfirmDialog} from 'primereact/confirmdialog';
 import {localeOptions} from 'primereact/api';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import UrlUtils from '../UrlUtils';
 import {HtmlUtils} from '../HtmlUtils';
 
@@ -24,7 +24,7 @@ EntryResponseHelper.run = (entryResponse, accept, reject, unblockUi) => {
         const confirmDialogWrapper = document.createElement('div');
         document.body.appendChild(confirmDialogWrapper);
         confirmDialogWrapper.className = 'confirm-dialog';
-        ReactDOM.render(
+        ReactDOM.createRoot(confirmDialogWrapper).render(
             <ConfirmDialog
                 closable={false}
                 visible={true}
@@ -46,8 +46,7 @@ EntryResponseHelper.run = (entryResponse, accept, reject, unblockUi) => {
                     safeRemoveChild();
                 }}
                 rejectClassName={entryResponse?.message || entryResponse?.question ? 'hidden' : undefined} // Ukryj przycisk reject dla pytania i odpowiedzi
-            />,
-            confirmDialogWrapper
+            />
         );
         const safeRemoveChild = () => {
             if (document.body.contains(confirmDialogWrapper)) {

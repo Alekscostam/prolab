@@ -1,4 +1,4 @@
-import LocUtils from "./LocUtils";
+import LocUtils from './LocUtils';
 
 export class TranslationUtils {
     static getOpButton(operations, type) {
@@ -13,20 +13,20 @@ export class TranslationUtils {
         }
         return null;
     }
-    static getOrCreateOpButton(operations, labels, type, alternativeText) {
+    static getOrCreateOpButton(operations, type, alternativeText) {
         operations = operations || [];
         const result = this.getOpButton(operations, type);
         if (result) {
             return result;
         }
-        operations.push({type: type, label: LocUtils.loc(labels, type, alternativeText)});
+        operations.push({type: type, label: LocUtils.locFromStoreWithDefault(type, alternativeText)});
         return this.getOpButton(operations, type);
     }
-    static getOpButtonWithTranslation(operations, labels, type, alternativeText) {
+    static getOpButtonWithTranslation(operations, type, alternativeText) {
         operations = operations || [];
         const result = this.getOpButton(operations, type);
         if (result) {
-            result.label = LocUtils.loc(labels, type, alternativeText);
+            result.label = LocUtils.locFromStoreWithDefault(type, alternativeText);
             return result;
         }
         return null;

@@ -2,7 +2,7 @@ import {ColumnType} from '../../enum/ColumnType';
 import {GanttUtils} from '../../utils/component/GanttUtils';
 import {StringUtils} from '../../utils/StringUtils';
 import Image from '../../components/Image';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import {OperationType} from '../../enum/OperationType';
 
 let _rowIndex = null;
@@ -78,25 +78,26 @@ export const cellTemplate = (column) => {
 };
 
 const renderCell = (element, text, fontColor, bgColor) => {
-    return ReactDOM.render(
+    const root = ReactDOM.createRoot(element);
+    return root.render(
         <div
             style={{
                 display: 'inline',
                 color: fontColor,
                 backgroundColor: bgColor,
                 borderRadius: '25px',
-                padding: '2px 6px 2px 6px',
             }}
             title={text}
         >
             {text}
-        </div>,
-        element
+        </div>
     );
 };
 
 const renderWithoutHtmlCell = (element, text, fontColor, bgColor, width) => {
-    return ReactDOM.render(
+    const root = ReactDOM.createRoot(element);
+
+    return root.render(
         <div
             style={{
                 whiteSpace: 'nowrap',
@@ -106,18 +107,18 @@ const renderWithoutHtmlCell = (element, text, fontColor, bgColor, width) => {
                 backgroundColor: bgColor,
                 color: fontColor,
                 borderRadius: '25px',
-                padding: '2px 6px 2px 6px',
             }}
             title={StringUtils.textFromHtmlString(text)}
         >
             {StringUtils.textFromHtmlString(text)}
-        </div>,
-        element
+        </div>
     );
 };
 
 const renderHtmlCell = (element, text, fontColor, bgColor, column) => {
-    return ReactDOM.render(
+    const root = ReactDOM.createRoot(element);
+
+    return root.render(
         <div
             style={{
                 whiteSpace: column.allowWrapping ? 'wrap' : 'nowrap',
@@ -127,43 +128,42 @@ const renderHtmlCell = (element, text, fontColor, bgColor, column) => {
                 backgroundColor: bgColor,
                 color: fontColor,
                 borderRadius: column.allowWrapping ? '18px' : '25px',
-                padding: '2px 6px 2px 6px',
                 float: column.type === ColumnType.N ? 'right' : undefined,
             }}
             title={StringUtils.textFromHtmlString(text)}
             dangerouslySetInnerHTML={{__html: text}}
-        ></div>,
-        element
+        ></div>
     );
 };
 
 const renderCheckboxCell = (element, text, fontColor, bgColor, conditionFn) => {
-    return ReactDOM.render(
+    const root = ReactDOM.createRoot(element);
+
+    return root.render(
         <div
             style={{
                 display: 'inline',
                 color: fontColor,
                 backgroundColor: bgColor,
                 borderRadius: '25px',
-                padding: '2px 6px 2px 6px',
             }}
             title={text}
         >
             <input type='checkbox' readOnly={true} checked={conditionFn(text)} />
-        </div>,
-        element
+        </div>
     );
 };
 
 const renderImagesCell = (element, text, fontColor, bgColor) => {
-    return ReactDOM.render(
+    const root = ReactDOM.createRoot(element);
+
+    return root.render(
         <div
             style={{
                 display: 'inline',
                 color: fontColor,
                 backgroundColor: bgColor,
                 borderRadius: '25px',
-                padding: '2px 0px 2px 0px',
             }}
         >
             {text?.map((i, index) => {
@@ -175,19 +175,19 @@ const renderImagesCell = (element, text, fontColor, bgColor) => {
 };
 
 const renderImageCell = (element, text, fontColor, bgColor) => {
-    return ReactDOM.render(
+    const root = ReactDOM.createRoot(element);
+
+    return root.render(
         <div
             style={{
                 display: 'inline',
                 color: fontColor,
                 backgroundColor: bgColor,
                 borderRadius: '25px',
-                padding: '2px 0px 2px 0px',
             }}
         >
             <Image style={{maxHeight: '26px'}} base64={text} />
-        </div>,
-        element
+        </div>
     );
 };
 

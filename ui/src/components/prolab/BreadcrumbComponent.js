@@ -5,13 +5,14 @@ import {Breadcrumb, BREADCRUMB_URL_PARAM_NAME, TIMESTAMP_URL_PARAM_NAME} from '.
 import {StringUtils} from '../../utils/StringUtils';
 import {BreadCrumb} from 'primereact/breadcrumb';
 import {HtmlUtils} from '../../utils/HtmlUtils';
+import LocUtils from '../../utils/LocUtils';
 
-export const BreadcrumbComponent = ({initialBreadcrumb, afterClick, initialMainPage, labels}) => {
+export const BreadcrumbComponent = ({initialBreadcrumb = [], afterClick = undefined, initialMainPage = undefined}) => {
     const prepareForMainBreadcrumb = () => {
         const item = {};
         item.url = initialMainPage;
         item.className = 'main-breadcrumb';
-        item.label = labels['View_StartPage'];
+        item.label = LocUtils.locFromStore('View_StartPage');
         item.command = () => {
             if (afterClick && shouldShowEditQuitConfirmationDialog()) {
                 afterClick(() => {
@@ -85,15 +86,8 @@ export const BreadcrumbComponent = ({initialBreadcrumb, afterClick, initialMainP
         </React.Fragment>
     );
 };
-BreadcrumbComponent.defaultProps = {
-    labels: [],
-    afterClick: undefined,
-    initialMainPage: undefined,
-    initialBreadcrumb: [],
-};
 
 BreadcrumbComponent.propTypes = {
-    labels: PropTypes.object,
     afterClick: PropTypes.func,
     initialMainPage: PropTypes.string,
     initialBreadcrumb: PropTypes.array,

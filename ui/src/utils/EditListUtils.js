@@ -109,9 +109,6 @@ export class EditListUtils {
             rowsCrc: transformedRowsCRC,
         };
     }
-    static prepareElementToStore(currentSelectedRowsData) {
-        const toStoreElements = structuredClone(currentSelectedRowsData);
-    }
 }
 
 export default EditListUtils;

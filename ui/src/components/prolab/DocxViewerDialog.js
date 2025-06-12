@@ -44,7 +44,6 @@ export const DocxViewerDialog = (props) => {
 DocxViewerDialog.defaultProps = {
     onSave: undefined,
     onHide: undefined,
-    labels: undefined,
     visible: true,
     editable: true,
     value: '',
@@ -58,5 +57,4 @@ DocxViewerDialog.propTypes = {
     editable: PropTypes.bool,
     value: PropTypes.string,
     header: PropTypes.string,
-    labels: PropTypes.object,
 };

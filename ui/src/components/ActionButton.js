@@ -7,25 +7,25 @@ import PropTypes from 'prop-types';
 export const ActionButton = (props) => {
     const {
         className,
-        colClass,
-        disabled,
-        downloadFile,
+        colClass = 'col-xl-4 col-lg-6 col-md-6 col-sm-12',
+        disabled = false,
+        downloadFile = false,
         handleClick,
         href,
         iconColor,
         iconName,
-        iconSide,
+        iconSide = 'right',
         iconSize,
         id,
-        style,
-        inputLikeStyle,
+        style = {},
+        inputLikeStyle = false,
         label,
-        openInNewTab,
-        params,
-        rendered,
-        size,
+        openInNewTab = false,
+        params = {},
+        rendered = true,
+        size = 'normal',
         title,
-        variant,
+        variant = 'dark',
     } = props;
     let ariaLabel = '';
     if (openInNewTab) {
@@ -56,7 +56,7 @@ export const ActionButton = (props) => {
                                 } ${variant !== undefined ? variant : ''} ${size !== undefined ? size : ''} ${
                                     disabled ? 'p-disabled disabled' : ''
                                 }`}
-                                href={disabled ? undefined : href ? href : 'javascript:;'}
+                                href={href && !disabled ? href : undefined}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     if (disabled || !handleClick) {
@@ -95,7 +95,7 @@ export const ActionButton = (props) => {
                     className={`p-button p-component p-button-text-only ${className !== undefined ? className : ''} ${
                         variant !== undefined ? variant : ''
                     } ${size !== undefined ? size : ''} ${disabled ? 'p-disabled disabled' : ''}`}
-                    href={disabled ? undefined : href ? href : 'javascript:;'}
+                    href={href && !disabled ? href : undefined}
                     onClick={(e) => {
                         e.stopPropagation();
                         if (disabled || !handleClick) {
@@ -126,20 +126,6 @@ export const ActionButton = (props) => {
     } else {
         return null;
     }
-};
-
-ActionButton.defaultProps = {
-    colClass: 'col-xl-4 col-lg-6 col-md-6 col-sm-12',
-    downloadFile: false,
-    iconSide: 'right',
-    rendered: true,
-    disabled: false,
-    inputLikeStyle: false,
-    openInNewTab: false,
-    params: {},
-    style: {},
-    size: 'normal',
-    variant: 'dark',
 };
 
 ActionButton.propTypes = {

@@ -4,8 +4,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Image from '../Image';
 
-export const Avatar = (props) => {
-    const {userName, base64, rendered, collapsed} = props;
+export const Avatar = ({userName, base64, rendered = true, collapsed = false}) => {
     const initials = userName
         .match(/(\b\S)?/g)
         .join('')
@@ -50,11 +49,6 @@ export const Avatar = (props) => {
     } else {
         return null;
     }
-};
-
-Avatar.defaultProps = {
-    rendered: true,
-    collapsed: false,
 };
 
 Avatar.propTypes = {

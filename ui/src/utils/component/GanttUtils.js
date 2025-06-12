@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import {ViewDataCompUtils} from './ViewDataCompUtils';
 
 export class GanttUtils extends ViewDataCompUtils {
@@ -53,8 +53,7 @@ export class GanttUtils extends ViewDataCompUtils {
     static cellTemplateAfterSelected() {
         return function (element, info) {
             element.style.backgroundColor = '#dde6ff';
-            // element.style.color="red"
-            return ReactDOM.render(
+            return ReactDOM.createRoot(element).render(
                 <div
                     style={{
                         display: 'inline',
@@ -65,8 +64,7 @@ export class GanttUtils extends ViewDataCompUtils {
                     title={info.text}
                 >
                     {info.text}
-                </div>,
-                element
+                </div>
             );
         };
     }

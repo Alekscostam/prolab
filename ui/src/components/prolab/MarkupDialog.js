@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import {Dialog} from 'primereact/dialog';
 import {Button} from 'primereact/button';
 import {InputTextarea} from 'primereact/inputtextarea';
@@ -58,15 +58,14 @@ MarkupDialogComponent.render = ({onAccept, initValue, onClose}) => {
     const confirmDialogWrapper = document.createElement('div');
     confirmDialogWrapper.className = 'confirm-dialog';
     document.body.appendChild(confirmDialogWrapper);
-
-    ReactDOM.render(
+    const root = ReactDOM.createRoot(confirmDialogWrapper);
+    root.render(
         <MarkupDialog
             onAccept={onAccept}
             onClose={onClose}
             initValue={initValue}
             confirmDialogWrapper={confirmDialogWrapper}
-        />,
-        confirmDialogWrapper
+        />
     );
 };
 

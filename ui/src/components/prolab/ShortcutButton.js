@@ -7,23 +7,23 @@ import {sessionPrelongFnc} from '../../App';
 
 export const ShortcutButton = (props) => {
     const {
-        active,
+        active = false,
         className,
-        disabled,
+        disabled = false,
         handleClick,
         handleBlur,
         href,
         iconColor,
         iconName,
-        iconSide,
+        iconSide = 'right',
         iconSize,
         id,
         label,
-        params,
-        rendered,
+        params = {},
+        rendered = true,
         title,
-        linkViewMode,
-        buttonShadow,
+        linkViewMode = false,
+        buttonShadow = true,
     } = props;
     let ariaLabel = '';
     if (rendered) {
@@ -48,7 +48,7 @@ export const ShortcutButton = (props) => {
                                   className !== undefined ? className : ''
                               } ${disabled ? 'p-disabled disabled' : ''} ${active ? 'active-shortcut-button' : ''}`
                     }
-                    href={disabled ? undefined : href ? href : 'javascript:;'}
+                    href={href && !disabled ? href : undefined}
                     onClick={(e) => {
                         if (sessionPrelongFnc) {
                             sessionPrelongFnc();
@@ -83,18 +83,6 @@ export const ShortcutButton = (props) => {
     } else {
         return null;
     }
-};
-
-ShortcutButton.defaultProps = {
-    colClass: 'col-xl-4 col-lg-6 col-md-6 col-sm-12',
-    downloadFile: false,
-    iconSide: 'right',
-    rendered: true,
-    disabled: false,
-    params: {},
-    active: false,
-    linkViewMode: false,
-    buttonShadow: true,
 };
 
 ShortcutButton.propTypes = {

@@ -1,7 +1,4 @@
-import React from 'react';
-import LocUtils from '../../utils/LocUtils';
-
-function Loader(props) {
+function Loader() {
     return (
         <div id='cover-spin-container'>
             <div id='cover-spin' />

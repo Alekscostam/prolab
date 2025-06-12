@@ -3,6 +3,7 @@ export const CookiesName = {
     ERROR_AFTER_REFRESH: 'error_logout',
     LOGGED_USER: 'logged_user',
     LOGGED_IN: 'logged_in',
+    URL_AFTER_LOGIN: 'url_after_login',
     SESSION_TIMEOUT: 'session_timeout',
     SESSION_TIMEOUT_IN_MINUTES: 'session_timeout_in_minutes',
     ID_REFRESH_TOKEN: 'id_refresh_token',

@@ -22,7 +22,6 @@ import ActionButtonWithMenuUtils from '../utils/ActionButtonWithMenuUtils';
 import {AddSpecContainer} from './AddSpecContainer';
 import SubGridViewComponent from './dataGrid/SubGridViewComponent';
 import {TreeListUtils} from '../utils/component/TreeListUtils';
-import {ConfirmationEditQuitDialog} from '../components/prolab/ConfirmationEditQuitDialog';
 import EditSpecService from '../services/EditSpecService';
 import {OperationType} from '../enum/OperationType';
 import {StringUtils} from '../utils/StringUtils';
@@ -382,7 +381,7 @@ export class EditSpecContainer extends BaseContainer {
         return (
             <React.Fragment>
                 <DivContainer id='header-left'>
-                    {Breadcrumb.render(this.props.labels, (fnc) => this.props.onShowEditQuitConfirmDialog(() => fnc()))}
+                    {Breadcrumb.render((fnc) => this.props.onShowEditQuitConfirmDialog(() => fnc()))}
                     <div className='font-medium mb-4'>{this.state.parsedView?.viewInfo?.name}</div>
                 </DivContainer>
             </React.Fragment>
@@ -472,30 +471,24 @@ export class EditSpecContainer extends BaseContainer {
 
     //override
     createObjectToSave(rowArray) {
-        const booleanLogicColumns = this.state.columns.filter((el) => el.type === 'L');
-        const booleanNumberColumns = this.state.columns.filter((el) => el.type === 'B');
-        const arrayTmp = [];
-        for (let row of rowArray) {
-            Object.keys(row).forEach((el) => {
-                booleanLogicColumns.forEach((bool) => {
-                    if (bool.fieldName === el) {
-                        row[el] ? (row[el] = 'T') : (row[el] = 'N');
-                    }
-                });
-            });
-            Object.keys(row).forEach((el) => {
-                booleanNumberColumns.forEach((bool) => {
-                    if (bool.fieldName === el) {
-                        row[el] = this.booleanShouldBeZero(row, el) ? 0 : 1;
-                    }
-                });
-            });
-            let rowArray = [];
-            for (let field in row) {
-                rowArray.push({fieldName: field, value: row[field]});
+        const booleanLogicFields = new Set(
+            this.state.columns.filter((col) => col.type === 'L').map((col) => col.fieldName)
+        );
+        const booleanNumberFields = new Set(
+            this.state.columns.filter((col) => col.type === 'B').map((col) => col.fieldName)
+        );
+        const arrayTmp = rowArray.map((row) => {
+            const processedRow = {...row};
+            for (const field in processedRow) {
+                if (booleanLogicFields.has(field)) {
+                    processedRow[field] = processedRow[field] ? 'T' : 'N';
+                }
+                if (booleanNumberFields.has(field)) {
+                    processedRow[field] = this.booleanShouldBeZero(processedRow, field) ? 0 : 1;
+                }
             }
-            arrayTmp.push(rowArray);
-        }
+            return Object.entries(processedRow).map(([fieldName, value]) => ({fieldName, value}));
+        });
         arrayTmp.forEach((array) => {
             array.forEach((el) => {
                 if (el.fieldName === '_STATUS' && el.value === 'inserted') {
@@ -566,7 +559,6 @@ export class EditSpecContainer extends BaseContainer {
                     elementKindView={this.state.elementKindView}
                     selectedRowKeys={this.state.selectedRowKeys}
                     operations={operations}
-                    labels={this.props.labels}
                     leftContent={
                         <React.Fragment>
                             {operations.map((operation, index) => {
@@ -941,7 +933,6 @@ export class EditSpecContainer extends BaseContainer {
                                 handleArchiveRow={(id) => this.archive(id)}
                                 handlePublishRow={(id) => this.publishEntry(id)}
                                 showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
-                                labels={this.props.labels}
                             />
 
                             <SelectedElements
@@ -1050,6 +1041,5 @@ EditSpecContainer.defaultProps = {
 
 EditSpecContainer.propTypes = {
     id: PropTypes.string.isRequired,
-    labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
     collapsed: PropTypes.bool.isRequired,
 };

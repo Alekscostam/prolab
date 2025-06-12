@@ -93,7 +93,6 @@ export class EditHeaderComponent extends BaseRowComponent {
     }
 
     render() {
-        const labels = this.props?.labels;
         const operations = this.props?.editData?.operations || [];
         const kindOperation = this.props.editData?.editInfo?.kindOperation;
         const leftColSize = this.getColSize().left;
@@ -141,7 +140,6 @@ export class EditHeaderComponent extends BaseRowComponent {
                         showErrorMessages={(err) => this.props.showErrorMessages(err)}
                         selectedRowData={this.state.selectedRowData}
                         defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
-                        labels={labels}
                     />
                 )}
                 <Sidebar
@@ -304,7 +302,7 @@ export class EditHeaderComponent extends BaseRowComponent {
     renderGroup(group, groupIndex) {
         if (EditRowUtils.hasAnyVisibleField(group)) {
             return (
-                <React.Fragment>
+                <React.Fragment key={`fragment-${groupIndex}`}>
                     <Panel
                         key={`key_group_${groupIndex}`}
                         id={`group_${groupIndex}`}
@@ -342,7 +340,6 @@ EditHeaderComponent.propTypes = {
     onEditList: PropTypes.func,
     onHide: PropTypes.func.isRequired,
     validator: PropTypes.instanceOf(SimpleReactValidator).isRequired,
-    labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
 };
 
 export default EditHeaderComponent;

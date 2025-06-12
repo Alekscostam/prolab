@@ -2,7 +2,6 @@ import 'devextreme/dist/css/dx.light.css';
 import 'whatwg-fetch';
 import BaseService from '../../services/BaseService';
 import ConsoleHelper from '../../utils/ConsoleHelper';
-import TransformFiltersUtil from './util/TransformFiltersUtil';
 import CustomStore from 'devextreme/data/custom_store';
 import TansformFiltersUtil from '../dao/util/TransformFiltersUtil';
 

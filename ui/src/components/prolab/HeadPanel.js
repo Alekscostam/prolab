@@ -68,7 +68,6 @@ export const HeadPanel = (props) => {
                                 style={{paddingTop: '5px', paddingLeft: '5px'}}
                             >
                                 <OperationsButtons
-                                    labels={props.labels}
                                     operations={props.operations}
                                     atLeastOneSelected={true}
                                     isFromHeader={true}
@@ -104,7 +103,6 @@ export const HeadPanel = (props) => {
                                 style={{paddingTop: '5px', paddingLeft: '5px'}}
                             >
                                 <OperationsButtons
-                                    labels={props.labels}
                                     operations={props.operations}
                                     atLeastOneSelected={false}
                                     handleRestore={(e) => props.handleRestore(e)}
@@ -142,13 +140,10 @@ export const HeadPanel = (props) => {
     );
 };
 
-HeadPanel.defaultProps = {};
-
 HeadPanel.propTypes = {
     elementId: PropTypes.string.isRequired,
-    elementRecordId: PropTypes.string, // nie musi byc required jednak
+    elementRecordId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     elementKindView: PropTypes.string,
-    labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
     selectedRowKeys: PropTypes.array,
     operations: PropTypes.array,
     handleDelete: PropTypes.func,
@@ -160,7 +155,7 @@ HeadPanel.propTypes = {
     handleBlockUi: PropTypes.func,
     handleUnblockUi: PropTypes.func,
     showErrorMessages: PropTypes.func,
-    elementSubViewId: PropTypes.string,
+    elementSubViewId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     leftContent: PropTypes.any,
     rightContent: PropTypes.any,
 };

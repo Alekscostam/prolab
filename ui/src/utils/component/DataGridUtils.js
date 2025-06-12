@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client'; // Użycie React 18
 import Image from '../../components/Image';
 import {StringUtils} from '../StringUtils';
 import {ViewDataCompUtils} from './ViewDataCompUtils';
@@ -21,16 +21,17 @@ export class DataGridUtils extends ViewDataCompUtils {
     }
 
     static isWart(dataField) {
-        if (dataField) {
-            return dataField.toUpperCase() === 'WART';
-        }
-        return false;
+        return dataField?.toUpperCase() === 'WART';
+    }
+    static renderToElement(element, node) {
+        ReactDOM.createRoot(element).render(node);
     }
     static cellTemplate(column, isEditableCell, onImageClick, onEditorClick) {
         return function (element, info) {
             let className = info?.data?.SKASOWANY === 1 ? 'deleted-row' : '';
             let bgColorFinal = undefined;
             let rowSelected = null;
+
             if (_rowIndex !== info.row.dataIndex) {
                 rowSelected =
                     info?.row?.cells?.filter((c) => c.column?.type === 'selection' && c.value === true).length > 0;
@@ -41,273 +42,161 @@ export class DataGridUtils extends ViewDataCompUtils {
                 _bgColor = info.data[_BGCOLOR];
                 _fontcolor = info.data[_FONTCOLOR];
             }
-            if (!!rowSelected) {
-                bgColorFinal = undefined;
-            } else {
-                const specialBgColor = info.data['_BGCOLOR_' + info.column?.dataField];
-                if (!!specialBgColor) {
-                    bgColorFinal = specialBgColor;
-                } else {
-                    if (_bgColor) {
-                        element.style.backgroundColor = _bgColor;
-                        bgColorFinal = undefined;
-                    }
-                }
+
+            const specialBgColor = info.data['_BGCOLOR_' + info.column?.dataField];
+            if (!rowSelected) {
+                bgColorFinal = specialBgColor || _bgColor;
+                if (!specialBgColor && _bgColor) element.style.backgroundColor = _bgColor;
             }
 
             let fontColorFinal = 'black';
             const specialFontColor = info.data['_FONTCOLOR_' + info.column?.dataField];
-
-            if (!!specialFontColor) {
+            if (specialFontColor) {
                 fontColorFinal = specialFontColor;
-                className = className + ' importance-color';
-            } else {
-                if (!info.data[_FONTCOLOR]) {
-                    _fontcolor = '#00000';
-                }
-                if (!!_fontcolor) {
-                    fontColorFinal = _fontcolor;
-                }
+                className += ' importance-color';
+            } else if (_fontcolor) {
+                fontColorFinal = _fontcolor;
             }
+
+            const commonProps = {
+                className,
+                style: {
+                    whiteSpace: info.column.allowWrapping ? 'wrap' : 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    backgroundColor: bgColorFinal,
+                    color: fontColorFinal,
+                    borderRadius: '25px',
+                    padding: '2px 6px',
+                },
+                title: StringUtils.textFromHtmlString(info.text),
+            };
+
             switch (column?.type) {
                 case ColumnType.O:
                 case ColumnType.OH:
-                    return ReactDOM.render(
+                    return this.renderToElement(
+                        element,
                         <div
-                            className={className}
+                            {...commonProps}
                             onClick={() => {
-                                if (StringUtils.isEmpty(info.text)) {
-                                    return;
-                                }
-                                if (onEditorClick) {
+                                if (!StringUtils.isEmpty(info.text) && onEditorClick) {
                                     onEditorClick(info.text, info.column?.caption, column?.type);
                                 }
                             }}
                             style={{
+                                ...commonProps.style,
                                 cursor: StringUtils.isEmpty(info.text) ? 'default' : 'pointer',
-                                whiteSpace: info.column.allowWrapping ? 'wrap' : 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                backgroundColor: bgColorFinal,
-                                color: fontColorFinal,
-                                borderRadius: info.column.allowWrapping ? '18px' : '25px',
-                                padding: '2px 6px 2px 6px',
                             }}
-                            title={StringUtils.textFromHtmlString(info.text)}
-                            // dangerouslySetInnerHTML={_html:}
                         >
                             {DataGridUtils.getText(info)}
-                        </div>,
-                        element
+                        </div>
                     );
                 case ColumnType.C:
                 case ColumnType.N:
                 case ColumnType.D:
                 case ColumnType.E:
                 case ColumnType.T:
-                    return ReactDOM.render(
+                    return this.renderToElement(
+                        element,
                         <div
-                            className={className}
+                            {...commonProps}
                             style={{
-                                // display: 'inline',
-                                whiteSpace: info.column.allowWrapping ? 'wrap' : 'nowrap',
-                                // maxWidth: column.width + 'px',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                minHeight: '18px',
-                                backgroundColor: bgColorFinal,
-                                color: fontColorFinal,
-                                borderRadius: info.column.allowWrapping ? '18px' : '25px',
-                                padding: '2px 6px 2px 6px',
+                                ...commonProps.style,
                                 float: column.type === ColumnType.N ? 'right' : undefined,
+                                minHeight: '18px',
                             }}
-                            title={StringUtils.textFromHtmlString(info.text)}
                         >
                             {DataGridUtils.getText(info)}
-                        </div>,
-                        element
+                        </div>
                     );
                 case ColumnType.CH:
-                    return ReactDOM.render(
+                    return this.renderToElement(
+                        element,
                         <div
-                            className={className}
+                            {...commonProps}
                             style={{
-                                whiteSpace: info.column.allowWrapping ? 'wrap' : 'nowrap',
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
+                                ...commonProps.style,
                                 minHeight: '18px',
-                                backgroundColor: bgColorFinal,
-                                color: fontColorFinal,
-                                borderRadius: info.column.allowWrapping ? '18px' : '25px',
-                                padding: '2px 6px 2px 6px',
                                 float: column.type === ColumnType.N ? 'right' : undefined,
                             }}
-                            title={StringUtils.textFromHtmlString(info.text)}
                             dangerouslySetInnerHTML={{__html: info.text}}
-                        ></div>,
-                        element
+                        />
                     );
                 case ColumnType.H:
-                    return ReactDOM.render(
-                        <div
-                            className={className}
-                            style={{
-                                display: 'inline',
-                                backgroundColor: bgColorFinal,
-                                color: fontColorFinal,
-                                borderRadius: '25px',
-                                padding: '2px 6px 2px 6px',
-                            }}
-                            title={info.text}
-                        >
+                    return this.renderToElement(
+                        element,
+                        <div {...commonProps}>
                             <a href={info.value} rel='noopener noreferrer' target='_blank'>
                                 {info.text}
                             </a>
-                        </div>,
-                        element
+                        </div>
                     );
-
                 case ColumnType.B:
-                    return ReactDOM.render(
-                        <div
-                            className={className}
-                            style={{
-                                display: 'inline',
-                                backgroundColor: bgColorFinal,
-                                color: fontColorFinal,
-                                borderRadius: '25px',
-                                padding: '2px 6px 2px 6px',
-                            }}
-                            title={info.text}
-                        >
-                            <input
-                                type='checkbox'
-                                onChange={(e) => {
-                                    setTimeout(function () {
-                                        const id = `${EditRowUtils.getType(column?.type)}${column.id}`;
-                                        const checkbox = document.getElementById(id);
-                                        if (checkbox) {
-                                            checkbox.click();
-                                        }
-                                    }, 100);
-                                }}
-                                readOnly={true}
-                                checked={DataGridUtils.conditionForTrueValueForBoolType(info.text)}
-                            />
-                        </div>,
-                        element
-                    );
                 case ColumnType.L:
-                    return ReactDOM.render(
-                        <div
-                            className={className}
-                            style={{
-                                display: 'inline',
-                                backgroundColor: bgColorFinal,
-                                color: fontColorFinal,
-                                borderRadius: '25px',
-                                padding: '2px 6px 2px 6px',
-                            }}
-                            title={info.text}
-                        >
+                    const checked =
+                        column.type === ColumnType.B
+                            ? DataGridUtils.conditionForTrueValueForBoolType(info.text)
+                            : DataGridUtils.conditionForTrueValueForLogicType(info.text);
+                    return this.renderToElement(
+                        element,
+                        <div {...commonProps}>
                             <input
                                 type='checkbox'
-                                onChange={(e) => {
-                                    setTimeout(function () {
+                                onChange={() => {
+                                    setTimeout(() => {
                                         const id = `${EditRowUtils.getType(column?.type)}${column.id}`;
-                                        const checkbox = document.getElementById(id);
-                                        if (checkbox) checkbox.click();
+                                        document.getElementById(id)?.click();
                                     }, 100);
                                 }}
-                                readOnly={true}
-                                checked={DataGridUtils.conditionForTrueValueForLogicType(info.text)}
+                                readOnly
+                                checked={checked}
                             />
-                        </div>,
-                        element
+                        </div>
                     );
                 case ColumnType.I:
                 case ColumnType.IM:
+                    commonProps.style.padding = '';
+                    commonProps.style.borderRadius = '0px';
+                    commonProps.style.display = 'flex';
+                    commonProps.style.justifyContent = 'center';
+                    commonProps.style.alignItems = 'center';
+
                     if (Array.isArray(info.text) && info.text?.length > 0) {
-                        return ReactDOM.render(
-                            <div
-                                className='cursor-pointer'
-                                style={{
-                                    display: 'inline',
-                                    backgroundColor: bgColorFinal,
-                                    color: fontColorFinal,
-                                    borderRadius: '25px',
-                                    padding: '2px 0px 2px 0px',
-                                }}
-                            >
-                                {info.text?.map((i, index) => {
-                                    return (
-                                        <Image
-                                            onImageClick={(base64) => {
-                                                if (onImageClick) {
-                                                    onImageClick(base64, info.column?.caption);
-                                                }
-                                            }}
-                                            style={{maxWidth: '100%'}}
-                                            key={index}
-                                            base64={info.text}
-                                        />
-                                    );
-                                })}
-                            </div>,
-                            element
+                        return this.renderToElement(
+                            element,
+                            <div className='cursor-pointer' style={commonProps.style}>
+                                {info.text.map((i, index) => (
+                                    <Image
+                                        key={index}
+                                        base64={i}
+                                        onImageClick={(base64) => onImageClick?.(base64, info.column?.caption)}
+                                        style={{maxWidth: '100%'}}
+                                    />
+                                ))}
+                            </div>
                         );
                     } else {
-                        return ReactDOM.render(
-                            <div
-                                className='cursor-pointer'
-                                style={{
-                                    display: 'inline',
-                                    backgroundColor: bgColorFinal,
-                                    color: fontColorFinal,
-                                    borderRadius: '25px',
-                                    padding: '2px 0px 2px 0px',
-                                }}
-                            >
+                        return this.renderToElement(
+                            element,
+                            <div className='cursor-pointer' style={commonProps.style}>
                                 <Image
-                                    onImageClick={(base64) => {
-                                        if (onImageClick) {
-                                            onImageClick(base64, info.column?.caption);
-                                        }
-                                    }}
+                                    base64={info.text}
+                                    onImageClick={(base64) => onImageClick?.(base64, info.column?.caption)}
                                     onRemove={() => {
-                                        setTimeout(function () {
-                                            const trashButton = document.getElementById('trash-button');
-                                            if (trashButton) {
-                                                trashButton.click();
-                                            }
+                                        setTimeout(() => {
+                                            document.getElementById('trash-button')?.click();
                                         }, 300);
                                     }}
                                     canRemove={isEditableCell && info.text?.length > 0}
-                                    base64={info.text}
                                 />
-                            </div>,
-                            element
+                            </div>
                         );
                     }
                 default:
-                    return ReactDOM.render(
-                        <div
-                            className={className}
-                            style={{
-                                display: 'inline',
-                                backgroundColor: bgColorFinal,
-                                color: fontColorFinal,
-                                borderRadius: '25px',
-                                padding: '2px 6px 2px 6px',
-                            }}
-                            title={info.text}
-                        >
-                            {info.text}
-                        </div>,
-                        element
-                    );
+                    return this.renderToElement(element, <div {...commonProps}>{info.text}</div>);
             }
-        };
+        }.bind(this);
     }
 
     static getText(info) {

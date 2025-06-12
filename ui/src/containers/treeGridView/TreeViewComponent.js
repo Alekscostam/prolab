@@ -17,7 +17,7 @@ import {
 } from 'devextreme-react/tree-list';
 import {RemoteOperations} from 'devextreme-react/data-grid';
 import {Breadcrumb} from '../../utils/BreadcrumbUtils';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import OperationsButtons from '../../components/prolab/OperationsButtons';
 import AppPrefixUtils from '../../utils/AppPrefixUtils';
 import {TreeListUtils} from '../../utils/component/TreeListUtils';
@@ -45,7 +45,6 @@ let clearSelection = false;
 class TreeViewComponent extends CellEditComponent {
     constructor(props) {
         super(props);
-        this.labels = this.props;
         this.crudService = new CrudService();
         this.selectionClicked = React.createRef(false);
         this.selectionCheckboxClicked = React.createRef(false);
@@ -669,7 +668,7 @@ class TreeViewComponent extends CellEditComponent {
                             element.offsetParent.style.justifyContent = 'center';
                             element.offsetParent.style.display = 'flex';
                             if (this.props?.addButtonFunction) {
-                                ReactDOM.render(this.addButton(), element);
+                                ReactDOM.createRoot(element).render(this.addButton());
                             }
                             return;
                         },
@@ -692,10 +691,9 @@ class TreeViewComponent extends CellEditComponent {
                             const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
                             let viewId = this.props.id;
                             viewId = TreeListUtils.getRealViewId(subViewId, viewId);
-                            ReactDOM.render(
+                            ReactDOM.createRoot(element).render(
                                 <div style={{textAlign: 'center', display: 'flex', maxWidth: '20px!important'}}>
                                     <OperationsButtons
-                                        labels={this.labels}
                                         operations={operationsRecord}
                                         operationList={operationsRecordList}
                                         info={info}
@@ -828,8 +826,7 @@ class TreeViewComponent extends CellEditComponent {
                                         }
                                         handleBlockUi={(e) => this.props.handleBlockUi()}
                                     />
-                                </div>,
-                                element
+                                </div>
                             );
                         },
                     });
@@ -1066,7 +1063,6 @@ TreeViewComponent.propTypes = {
     gridViewColumns: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
     selectedRowKeys: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
     onChange: PropTypes.func.isRequired,
-    labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
     onBlur: PropTypes.func,
     handleOnTreeList: PropTypes.func.isRequired,
     handleOnInitialized: PropTypes.func,

@@ -1,7 +1,6 @@
 import React, {PureComponent} from 'react';
 import {DataGridUtils} from '../../utils/component/DataGridUtils';
 import {Breadcrumb} from '../../utils/BreadcrumbUtils';
-import $ from 'jquery';
 import {CardViewUtils} from '../../utils/CardViewUtils';
 import AppPrefixUtils from '../../utils/AppPrefixUtils';
 import PropTypes from 'prop-types';
@@ -28,7 +27,6 @@ class CardViewInfiniteComponent extends PureComponent {
         this.cachedRequest = undefined;
         this.lastFetchDate = new Date();
         this.crudService = new CrudService();
-        this.labels = this.props;
         this.clickedPosition = React.createRef();
         this.menuRef = React.createRef();
         this.selectedRecordIdRef = React.createRef();
@@ -255,9 +253,9 @@ class CardViewInfiniteComponent extends PureComponent {
 
     handleEdit = (rowData) => {
         const elementId = this.props.id;
-        const subviewId = elementSubViewId ? elementId : undefined;
         const recordId = rowData.ID;
         const elementSubViewId = this.props.elementSubViewId;
+        const subviewId = elementSubViewId ? elementId : undefined;
         const elementKindView = this.props.elementKindView;
         const viewId = DataGridUtils.getRealViewId(elementSubViewId, elementId);
         const result = this.props.handleBlockUi();
@@ -513,7 +511,6 @@ class CardViewInfiniteComponent extends PureComponent {
                                             margin={'mr-0'}
                                             inverseColor={false}
                                             buttonShadow={false}
-                                            labels={this.labels}
                                             operations={this.props.parsedCardView.operationsRecord}
                                             operationList={this.props.parsedCardView.operationsRecordList}
                                             info={null}

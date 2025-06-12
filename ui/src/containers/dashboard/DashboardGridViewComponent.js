@@ -25,7 +25,7 @@ import CopyDialog from '../../components/prolab/CopyDialog';
 import PluginListDialog from '../../components/prolab/PluginListDialog';
 import HistoryLogDialog from '../../components/prolab/HistoryLogDialog';
 import {OperationType} from '../../enum/OperationType';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import {StringUtils} from '../../utils/StringUtils';
 import {ResponseUtils} from '../../utils/ResponseUtils';
 import {TranslationUtils} from '../../utils/TranslationUtils';
@@ -261,7 +261,7 @@ export class DashboardGridViewComponent extends BaseContainer {
             const confirmDialogWrapper = document.createElement('div');
             confirmDialogWrapper.className = 'confirm-dialog';
             document.body.appendChild(confirmDialogWrapper);
-            ReactDOM.render(
+            ReactDOM.createRoot(confirmDialogWrapper).render(
                 <ConfirmDialog
                     visible={true}
                     closable={false}
@@ -281,8 +281,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                     reject={() => {
                         document.body.removeChild(confirmDialogWrapper);
                     }}
-                />,
-                confirmDialogWrapper
+                />
             );
         } else {
             this.setState({visibleEditPanel: e}, () => {
@@ -317,7 +316,6 @@ export class DashboardGridViewComponent extends BaseContainer {
                                     this.onHideEditPanel(e, viewId, recordId, parentId);
                                 }}
                                 onError={(e) => this.showErrorMessage(e)}
-                                labels={this.props.labels}
                                 showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                             />
                         ) : (
@@ -343,7 +341,6 @@ export class DashboardGridViewComponent extends BaseContainer {
                                     this.onHideEditPanel(e, viewId, recordId, parentId);
                                 }}
                                 onError={(e) => this.showErrorMessage(e)}
-                                labels={this.props.labels}
                                 showErrorMessages={(err) => this.customShowErrorMessages(err)}
                             />
                         )
@@ -574,7 +571,6 @@ export class DashboardGridViewComponent extends BaseContainer {
         return (
             <React.Fragment>
                 <HeadPanel
-                    labels={this.props.labels}
                     selectedRowKeys={this.state.selectedRowKeys}
                     operations={operations}
                     leftContent={this.leftHeadPanelContent()}
@@ -762,6 +758,5 @@ export class DashboardGridViewComponent extends BaseContainer {
         handleUnBlockUi: PropTypes.func,
         handleShowErrorMessages: PropTypes.func,
         dataGridHeight: PropTypes.number,
-        labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
     };
 }

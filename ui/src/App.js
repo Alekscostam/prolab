@@ -36,6 +36,8 @@ import {VersionPreviewDialog} from './components/prolab/VersionPreviewDialog';
 import {TranslationUtils} from './utils/TranslationUtils';
 import useStore from './store';
 import {SessionStoreUtils} from './utils/SessionStoreUtils';
+import WebSocket from './socket/WebSocket';
+import BarcodeScannerSimulator from './reader/BarcodeScannerSimulator';
 
 export let clearState;
 export let reStateApp;
@@ -93,6 +95,7 @@ class App extends Component {
             sessionTimeOut: null,
         };
         this._isMounted = false;
+        this.simulateBarCodeScannerEnabled = false;
         this.handleLogoutBySideBar = this.handleLogoutBySideBar.bind(this);
         this.getTranslations = this.getTranslations.bind(this);
         PrimeReact.ripple = true;
@@ -115,7 +118,23 @@ class App extends Component {
         localStorage.setItem(CookiesName.SESSION_TIMEOUT, myDate);
         localStorage.setItem(CookiesName.SESSION_TIMEOUT_IN_MINUTES, 1);
     }
+
+    simulateBarCodeScanner() {
+        if (this.simulateBarCodeScannerEnabled) {
+            const scanner = new BarcodeScannerSimulator({
+                value: '123123123',
+            });
+            setInterval(() => {
+                scanner.run();
+                console.log('Symulacja kodu wykonana');
+            }, 15000);
+        }
+    }
+
     componentDidMount() {
+        this.simulateBarCodeScanner();
+        const webSocket = new WebSocket();
+        useStore.getState().setWebSocket(webSocket);
         if (!this._isMounted) {
             if (this.state.sessionMock) {
                 this.setFakeSessionTimeout();
@@ -134,12 +153,19 @@ class App extends Component {
         this.setClearState();
         this.setRenderNoRefreshContent();
         this.showSessionTimeoutIfPossible();
+        this.saveCookieUrlAfterLogin();
         this.readConfigAndSaveInCookie(configUrl).catch((err) => {
             console.error('Error start application = ', err);
         });
     };
     componentDidUpdate() {
         this.showSessionTimeoutIfPossible();
+    }
+    saveCookieUrlAfterLogin() {
+        if (!this.authService.isLoggedUser()) {
+            const currentUrl = window.location.href;
+            sessionStorage.setItem(CookiesName.URL_AFTER_LOGIN, currentUrl);
+        }
     }
     onpopstate = () => {
         window.onpopstate = function () {
@@ -230,6 +256,7 @@ class App extends Component {
         if (duration.seconds() < 0) {
             this.authService.logout();
         }
+        useStore.getState().webSocket?.connect();
         if (sessionTimeout < tickerPopupDate && !this.state?.rednerSessionTimeoutDialog) {
             this.setState({rednerSessionTimeoutDialog: true, secondsToPopupTicker: duration.seconds()}, () => {
                 setTimeout(() => {
@@ -305,6 +332,7 @@ class App extends Component {
             const appName = configuration.APP_NAME;
             const captchaShow = configuration.CAPTCHA_SHOW;
             const showHintListButtons = configuration.SHOW_HINT_LIST_BUTTONS;
+            const wssUrl = configuration.WSS_URL;
             const showFilterClear = configuration.SHOW_FILTER_CLEAR;
             const showMarkupOnHtmlEditor = configuration.SHOW_MARKUP_ON_HTML_EDITOR;
             const showAddFromDashboard = configuration.SHOW_ADD_FROM_DASHBOARD;
@@ -324,6 +352,7 @@ class App extends Component {
                     captchaKey,
                 },
             });
+            useStore.getState().setWssUrl(wssUrl);
             useStore.getState().setShowFilterClear(showFilterClear);
             useStore.getState().setShowHintListButtons(showHintListButtons);
             useStore.getState().setShowAddFromDashboard(showAddFromDashboard);
@@ -355,7 +384,7 @@ class App extends Component {
         });
     }
 
-    handleLogoutByTokenExpired(forceByButton, labels) {
+    handleLogoutByTokenExpired(forceByButton) {
         this.authService.logout();
         if (this.state.user) {
             this.setState({user: null, renderNoRefreshContent: false});
@@ -364,9 +393,8 @@ class App extends Component {
                     severity: 'error',
                     sticky: false,
                     life: 10000,
-                    summary: LocUtils.loc(labels, 'Logout_User', 'Sesja wygasła'),
-                    detail: LocUtils.loc(
-                        labels,
+                    summary: LocUtils.locFromStoreWithDefault('Logout_User', 'Sesja wygasła'),
+                    detail: LocUtils.locFromStoreWithDefault(
                         'Session_Expired',
                         'Nastąpiło wylogowanie użytkownika z powodu przekroczenia czasu bezczynności użytkownika'
                     ),
@@ -492,12 +520,13 @@ class App extends Component {
         return (
             <Login
                 {...props}
-                labels={this.state.labels}
                 appState={this.state}
                 onAfterLogin={() => {
                     const configUrl = UrlUtils.makeConfigUrl('');
                     this.readConfigAndSaveInCookie(configUrl, () => {
                         sessionStorage.setItem(CookiesName.LOGGED_IN, true);
+                        const urlAfterLogin = sessionStorage.getItem(CookiesName.URL_AFTER_LOGIN);
+                        sessionStorage.removeItem(CookiesName.URL_AFTER_LOGIN);
                         this.setState(
                             {
                                 user: this.authService.getProfile().sub,
@@ -508,6 +537,7 @@ class App extends Component {
                                     this.setFakeSessionTimeout();
                                 }
                                 this.getLocalization(this.state.configUrl);
+                                if (!StringUtils.isBlank(urlAfterLogin)) window.location.href = urlAfterLogin;
                             }
                         );
                     });
@@ -537,13 +567,11 @@ class App extends Component {
     }
 
     addButton = () => {
-        const {labels} = this.state;
         const foundedOpADD = TranslationUtils.getOpButton(this.state.operations, OperationType.OP_ADD_BUTTON);
         const foundedOpADDSpec = TranslationUtils.getOpButton(this.state.operations, OperationType.OP_ADD_SPEC_BUTTON);
         if (foundedOpADD || foundedOpADDSpec) {
             const opADD = TranslationUtils.getOrCreateOpButton(
                 this.state.operations,
-                labels,
                 OperationType.OP_ADD_BUTTON,
                 foundedOpADD ? foundedOpADD?.label : foundedOpADDSpec?.label
             );
@@ -572,13 +600,11 @@ class App extends Component {
     }
 
     getOpButton() {
-        const {labels} = this.state;
         const foundedOpADD = TranslationUtils.getOpButton(this.state.operations, OperationType.OP_ADD_BUTTON);
         const foundedOpADDSpec = TranslationUtils.getOpButton(this.state.operations, OperationType.OP_ADD_SPEC_BUTTON);
         if (foundedOpADD || foundedOpADDSpec) {
             return TranslationUtils.getOrCreateOpButton(
                 this.state.operations,
-                labels,
                 OperationType.OP_ADD,
                 foundedOpADD ? foundedOpADD?.label : foundedOpADDSpec?.label
             );
@@ -588,12 +614,12 @@ class App extends Component {
 
     render() {
         const authService = this.authService;
-        const {labels} = this.state;
         const loggedIn = authService.isLoggedUser();
         return (
             <React.Fragment>
                 {this.state.renderAboutVersionDialog && this.state.canRenderAboutVersionDialog && (
                     <VersionPreviewDialog
+                        visible={this.state.renderAboutVersionDialog}
                         onHide={() => {
                             this.setState({
                                 renderAboutVersionDialog: false,
@@ -604,7 +630,6 @@ class App extends Component {
                 {this.state.rednerSessionTimeoutDialog && (
                     <TickerSessionDialog
                         secondsToPopup={this.state.secondsToPopupTicker}
-                        labels={labels}
                         authService={authService}
                         visible={this.state.rednerSessionTimeoutDialog}
                         onProlongSession={() => {
@@ -624,7 +649,7 @@ class App extends Component {
                                     rednerSessionTimeoutDialog: false,
                                 },
                                 () => {
-                                    this.handleLogoutByTokenExpired(true, labels);
+                                    this.handleLogoutByTokenExpired(true);
                                 }
                             );
                         }}
@@ -651,9 +676,7 @@ class App extends Component {
                                 <Sidebar
                                     authService={this.authService}
                                     historyBrowser={this.historyBrowser}
-                                    handleLogoutUser={(forceByButton) =>
-                                        this.handleLogoutBySideBar(forceByButton, this.state.labels)
-                                    }
+                                    handleLogoutUser={() => this.handleLogoutBySideBar()}
                                     onShowEditQuitConfirmDialog={(menuItemClickedId) =>
                                         this.showEditQuitConfirmDialog(menuItemClickedId)
                                     }
@@ -663,7 +686,6 @@ class App extends Component {
                                         });
                                     }}
                                     onClickItemHrefReactionEnabled={this.state.sidebarClickItemReactionEnabled}
-                                    labels={this.state.labels}
                                     collapsed={true}
                                     handleCollapseChange={(e) => this.handleCollapseChange(e)}
                                 />
@@ -672,7 +694,7 @@ class App extends Component {
                                 <div className={`${loggedIn ? 'container-fluid' : ''}`}>
                                     {this.state.renderNoRefreshContent && this.enabledTopComponents() ? (
                                         <React.Fragment>
-                                            {Breadcrumb.render(labels, (callBackFnc) =>
+                                            {Breadcrumb.render((callBackFnc) =>
                                                 this.showEditQuitConfirmDialog(null, callBackFnc)
                                             )}
                                             <DivContainer colClass='row base-container-header'>
@@ -710,7 +732,6 @@ class App extends Component {
                                                         className='from-app'
                                                         handleOnInitialized={(ref) => (this.selectedDataGrid = ref)}
                                                         subView={this.state.subView}
-                                                        labels={labels}
                                                         handleRightHeadPanelContent={(e) => {
                                                             if (e.type === OperationType.OP_EDIT) {
                                                                 this.viewContainer?.current?.editSubView(e);
@@ -745,7 +766,6 @@ class App extends Component {
                                                             >
                                                                 <DashboardContainer
                                                                     key={'Dashboard'}
-                                                                    labels={labels}
                                                                     handleRenderNoRefreshContent={(
                                                                         renderNoRefreshContent
                                                                     ) => {
@@ -771,7 +791,6 @@ class App extends Component {
                                                                 <ViewContainer
                                                                     ref={this.viewContainer}
                                                                     id={props.match.params.id}
-                                                                    labels={labels}
                                                                     handleRenderNoRefreshContent={(
                                                                         renderNoRefreshContent
                                                                     ) => {
@@ -818,7 +837,6 @@ class App extends Component {
                                                                     }
                                                                     ref={this.editSpecContainer}
                                                                     id={props.match.params.id}
-                                                                    labels={labels}
                                                                     collapsed={this.state.collapsed}
                                                                     handleRenderNoRefreshContent={(
                                                                         renderNoRefreshContent
@@ -859,7 +877,6 @@ class App extends Component {
                                                                                 renderNoRefreshContent,
                                                                         });
                                                                     }}
-                                                                    labels={labels}
                                                                     collapsed={this.state.collapsed}
                                                                 />
                                                             </AuthComponent>
@@ -875,7 +892,7 @@ class App extends Component {
                     </HashRouter>
                 ) : (
                     <React.Fragment>
-                        {LocUtils.loc(labels, 'App_Loading', 'Proszę czekać, trwa ładowanie aplikacji....')}
+                        {LocUtils.locFromStoreWithDefault('App_Loading', 'Proszę czekać, trwa ładowanie aplikacji....')}
                     </React.Fragment>
                 )}
             </React.Fragment>

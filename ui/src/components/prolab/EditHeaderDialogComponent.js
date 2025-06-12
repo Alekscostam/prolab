@@ -196,7 +196,6 @@ export class EditHeaderDialogComponent extends BaseRowComponent {
         });
     }
     render() {
-        const labels = this.props?.labels;
         const operations = this.props?.editData?.operations || [];
         const opSave = TranslationUtils.getOpButton(operations, OperationType.OP_SAVE);
         const opFill = TranslationUtils.getOpButton(operations, OperationType.OP_FILL);
@@ -246,7 +245,6 @@ export class EditHeaderDialogComponent extends BaseRowComponent {
                             dataGridStoreSuccess={this.state.dataGridStoreSuccess}
                             selectedRowData={this.state.selectedRowData}
                             defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
-                            labels={labels}
                         />
                     )}
                     <form onSubmit={this.handleFormSubmit} noValidate>
@@ -411,7 +409,6 @@ EditHeaderDialogComponent.propTypes = {
     onEditList: PropTypes.func,
     onHide: PropTypes.func.isRequired,
     validator: PropTypes.instanceOf(SimpleReactValidator).isRequired,
-    labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
 };
 
 export default EditHeaderDialogComponent;

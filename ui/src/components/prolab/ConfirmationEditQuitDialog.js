@@ -59,6 +59,5 @@ ConfirmationEditQuitDialog.propTypes = {
     onAccept: PropTypes.func,
     visible: PropTypes.bool,
     value: PropTypes.string,
-    labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
     header: PropTypes.string,
 };

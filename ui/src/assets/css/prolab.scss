@@ -342,12 +342,17 @@ label {
     border-radius: 50px;
     color: white;
 }
+.p-dialog-footer{
+    .p-button,.p-button.inverse {
+        max-height: 35px;
+    }
+}
 .font-button,
 .p-button {
     text-align: center;
     font-weight: normal;
     letter-spacing: 0;
-    padding: 0.514rem 1rem;
+    // padding: 0.514rem 1rem;
     background-color: $base-color;
     color: $button-text-color;
 }
@@ -358,7 +363,7 @@ label {
     font-weight: normal;
     // font-weight: 600;
     letter-spacing: 0;
-    padding: 0.514rem 0.85rem;
+    // padding: 0.514rem 0.85rem;
     background-color: white;
     color: $base-color !important;
     box-shadow: 0 2px 8px 3px rgba(0, 0, 0, 0.1);
@@ -484,6 +489,7 @@ label {
 
 .p-button.p-component.p-button-text-only {
     color: $button-text-color;
+    max-height: 35px;
 }
 
 .grid-view-header .font-medium {

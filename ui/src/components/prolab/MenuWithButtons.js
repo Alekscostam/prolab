@@ -1,6 +1,5 @@
-import {Menu} from 'primereact/menu';
 import {OperationType} from '../../enum/OperationType';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect} from 'react';
 import {ContextMenu} from 'devextreme-react';
 
 export const MenuWithButtons = (props) => {
@@ -143,6 +142,7 @@ export const MenuWithButtons = (props) => {
               })
             : [];
     };
+    // TODO: po PPM mruga
     return (
         <React.Fragment>
             <span id='action-button-with-menu-contant' className='action-button-with-menu-contant'></span>

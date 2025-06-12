@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import PropTypes from 'prop-types';
 import ActionLink from '../components/ActionLink';
 import ActionButton from '../components/ActionButton';
@@ -110,19 +110,6 @@ class BaseContainer extends React.Component {
         $(window).unbind();
     }
 
-    getTranslationParam(language, param) {
-        let frameworkType = 'rd'.toLowerCase();
-        let lang = language.toLowerCase();
-        return this.fetch(`${readObjFromCookieGlobal('CONFIG_URL')}/lang/${frameworkType}_translations_${lang}.json`, {
-            method: 'GET',
-        })
-            .then((arr) => {
-                return Promise.resolve(arr.labels.find((el) => el.code.toLowerCase() === param.toLowerCase()));
-            })
-            .catch((err) => {
-                throw err;
-            });
-    }
     componentDidUpdate() {
         if (this.scrollToError) {
             this.scrollToError = false;
@@ -137,7 +124,7 @@ class BaseContainer extends React.Component {
     showInfoMessage(
         detail,
         life = Constants.SUCCESS_MSG_LIFE,
-        summary = LocUtils.loc(this.props?.labels, 'Information', 'Informacja')
+        summary = LocUtils.locFromStoreWithDefault('Information', 'Informacja')
     ) {
         this.getMessages()?.show({
             severity: 'info',
@@ -175,12 +162,12 @@ class BaseContainer extends React.Component {
     }
 
     showResponseErrorMessage(errorResponse) {
-        let title = LocUtils.loc(this.props?.labels, 'Error', 'Błąd');
+        let title = LocUtils.locFromStoreWithDefault('Error', 'Błąd');
         let message;
         if (!!errorResponse?.error) {
             message = errorResponse.error?.message;
         } else {
-            message = LocUtils.loc(this.props?.labels, 'Unexpected_Error_Occurred', 'Wystąpił nieoczekiwany błąd');
+            message = LocUtils.locFromStoreWithDefault('Unexpected_Error_Occurred', 'Wystąpił nieoczekiwany błąd');
         }
         this.getMessages()?.show({
             severity: 'error',
@@ -206,7 +193,7 @@ class BaseContainer extends React.Component {
         errMsg,
         life = Constants.ERROR_MSG_LIFE,
         closable = true,
-        summary = LocUtils.loc(this.props?.labels, 'Error', 'Błąd')
+        summary = LocUtils.locFromStoreWithDefault('Error', 'Błąd')
     ) {
         this.getMessages()?.show({
             severity: 'error',
@@ -268,7 +255,7 @@ class BaseContainer extends React.Component {
             }
         }
         if (!message && messages.length === 0) {
-            message = LocUtils.loc(this.props?.labels, 'Unexpected_Error_Occurred', 'Wystąpił nieoczekiwany błąd');
+            message = LocUtils.locFromStoreWithDefault('Unexpected_Error_Occurred', 'Wystąpił nieoczekiwany błąd');
         }
         if (messages.length === 0) {
             messages.push(message);
@@ -535,11 +522,6 @@ class BaseContainer extends React.Component {
 
     loader() {
         const {waitPanelLabel} = this.state;
-        const labels = this.props?.labels
-            ? this.props?.labels
-            : useStore.getState().labels
-            ? useStore.getState().labels
-            : [];
         let label = '';
         if (waitPanelLabel !== undefined && waitPanelLabel !== null) {
             label = waitPanelLabel;
@@ -583,7 +565,6 @@ class BaseContainer extends React.Component {
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
                 <BlockUi
-                    labels={this.props?.labels}
                     tag='div'
                     className='block-ui-div'
                     blocking={this.state.blocking || this.state.loading}
@@ -1295,7 +1276,7 @@ class BaseContainer extends React.Component {
                     () => {
                         if (!!entryResponse.next) {
                             const copyData = this.state.copyData;
-                            let copyOptions = {copyOptions: copyData.copyOptions};
+                            const copyOptions = {copyOptions: copyData.copyOptions};
                             this.crudService
                                 .copy(viewId, parentId, kindView, selectedRowKeys[0], copyOptions)
                                 .then((copyResponse) => {

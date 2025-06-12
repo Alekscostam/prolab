@@ -3,11 +3,12 @@ import {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import LocUtils from '../../utils/LocUtils';
 import {TabPanel} from 'devextreme-react';
-import {tabsPositions, stylingModes, iconPositions, features} from './dataSource/VersionDataSource';
 import {StringUtils} from '../../utils/StringUtils';
 import ActionButton from '../ActionButton';
 import useStore from '../../store';
 import {CookiesName} from '../../enum/CookieName';
+import {features, iconPositions, stylingModes, tabsPositions} from './dataSource/FeaturesDataSource';
+import {version as devExtremeVersion} from 'devextreme/core/version';
 
 export const VersionPreviewDialog = (props) => {
     const version = [
@@ -50,12 +51,21 @@ export const VersionPreviewDialog = (props) => {
             date: '',
             text: 'Device name',
         },
+        {
+            identifier: 'DEV_EXTREME_VER',
+            type: 'VER',
+            color: 'blue',
+            description: devExtremeVersion,
+            date: '',
+            text: 'DevExtreme version',
+        },
     ];
 
     const dataSource = [
         {
             type: 'FIX',
             title: LocUtils.locFromStore('FIX'),
+
             tasks: features.filter((item) => item.type === 'FIX'),
         },
         {
@@ -176,16 +186,6 @@ export const VersionPreviewDialog = (props) => {
     );
 };
 
-VersionPreviewDialog.defaultProps = {
-    onSave: undefined,
-    onHide: undefined,
-    labels: undefined,
-    visible: true,
-    editable: true,
-    value: '',
-    header: '',
-};
-
 VersionPreviewDialog.propTypes = {
     onSave: PropTypes.func,
     onHide: PropTypes.func,
@@ -193,5 +193,4 @@ VersionPreviewDialog.propTypes = {
     editable: PropTypes.bool,
     value: PropTypes.string,
     header: PropTypes.string,
-    labels: PropTypes.object,
 };

@@ -21,7 +21,7 @@ import 'devexpress-gantt/dist/dx-gantt.css';
 import Constants from '../../utils/Constants';
 import CrudService from '../../services/CrudService';
 import {Breadcrumb} from '../../utils/BreadcrumbUtils';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import OperationsButtons from '../../components/prolab/OperationsButtons';
 import AppPrefixUtils from '../../utils/AppPrefixUtils';
 import DataGanttStore from '../dao/DataGanttStore.js';
@@ -72,7 +72,6 @@ class GanttViewComponent extends React.Component {
         this.dataGanttStore = new DataGanttStore();
         this.currentClickedCell = React.createRef();
         this.clickedPosition = React.createRef();
-        this.labels = this.props;
         this.menuContextRef = React.createRef();
         this.state = {
             data: {},
@@ -589,7 +588,7 @@ class GanttViewComponent extends React.Component {
                           const el = document.createElement('div');
                           element.append(el);
                           element.parentNode.classList.add('parent-checkbox-area');
-                          ReactDOM.render(
+                          ReactDOM.createRoot(element).render(
                               <label className={`container-checkbox`}>
                                   <CheckBox
                                       ref={this.selectAllRef}
@@ -606,8 +605,7 @@ class GanttViewComponent extends React.Component {
                                       className={'checkBoxSelection select-all'}
                                   />
                                   <span className='checkmark'></span>
-                              </label>,
-                              element
+                              </label>
                           );
                       }}
                       fixed={true}
@@ -632,7 +630,7 @@ class GanttViewComponent extends React.Component {
                                   this.selectRowBackground(recordId);
                               }, 200);
                           }
-                          ReactDOM.render(
+                          ReactDOM.createRoot(element).render(
                               <label className={`container-checkbox `}>
                                   <CheckBox
                                       id={'checkbox-' + recordId}
@@ -646,8 +644,7 @@ class GanttViewComponent extends React.Component {
                                       className={'checkBoxSelection'}
                                   />
                                   <span className='checkmark'></span>
-                              </label>,
-                              element
+                              </label>
                           );
                       }}
                   />
@@ -807,19 +804,18 @@ class GanttViewComponent extends React.Component {
                         width={ViewDataCompUtils.operationsColumnLength(operationsRecord, operationsRecordList, true)}
                         fixedPosition={'right'}
                         headerCellTemplate={(element) => {
-                            ReactDOM.render(this.addButton(), element);
+                            ReactDOM.createRoot(element).render(this.addButton());
                             const combinedFilter = this.ganttRef.current.instance._treeList.getCombinedFilter();
                             const filterLastRow = element.parentNode.parentNode.parentNode.lastChild.lastChild;
                             if (useStore.getState()?.showFilterClear) {
-                                ReactDOM.render(
+                                ReactDOM.createRoot(filterLastRow).render(
                                     <FilterClear
                                         clearFnc={() => {
                                             const ganttRef = this.ganttRef.current.instance._treeList;
                                             ganttRef.clearFilter();
                                         }}
                                         filters={combinedFilter}
-                                    />,
-                                    filterLastRow
+                                    />
                                 );
                             }
                         }}
@@ -833,10 +829,9 @@ class GanttViewComponent extends React.Component {
                             const recordId = info.row?.data?.ID;
                             const parentId = info.row?.data?.ID_PARENT;
                             const viewId = GanttUtils.getRealViewId(subViewId, this.props.id);
-                            ReactDOM.render(
+                            ReactDOM.createRoot(element).render(
                                 <div style={{textAlign: 'center', display: 'flex'}}>
                                     <OperationsButtons
-                                        labels={this.labels}
                                         operations={operationsRecord}
                                         operationList={operationsRecordList}
                                         info={info}
@@ -932,8 +927,7 @@ class GanttViewComponent extends React.Component {
                                         }
                                         handleBlockUi={() => this.props.handleBlockUi()}
                                     />
-                                </div>,
-                                element
+                                </div>
                             );
                         }}
                     />

@@ -74,10 +74,10 @@ export default class EditListDataStore extends BaseService {
         });
         recordIdArg = UrlUtils.batchIdParamExist() ? UrlUtils.getBatchIdParam() : recordIdArg;
         const point = UrlUtils.batchIdParamExist() ? 'batch' : 'edit';
-        const kindViewParam = !!kindViewArg && !!parentIdParam ? `&kindView=${kindViewArg}` : '';
         const viewTypeParam = this.createParam(viewTypeArg, 'viewType');
         const filterIdParam = this.createParam(filterIdArg, 'filter');
         const parentIdParam = this.createParam(parentIdArg, 'parentId');
+        const kindViewParam = !!kindViewArg && !!parentIdParam ? `&kindView=${kindViewArg}` : '';
         const selectAllParam = `&selection=true`;
         const requestBody = {
             filter: filter,
@@ -186,7 +186,6 @@ export default class EditListDataStore extends BaseService {
                         body: JSON.stringify(requestBody),
                     })
                         .then((response) => {
-                            let dataFromResponse = structuredClone(response.data);
                             this.processData(response.data, selectedRows, setFields);
                             ConsoleHelper('EditListDataStore -> fetch data');
                             if (onSuccess) {

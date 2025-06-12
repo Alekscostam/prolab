@@ -442,7 +442,7 @@ export class AddSpecContainer extends BaseContainer {
                             <ActionButton
                                 rendered={!!opAdd}
                                 label={opAdd?.label}
-                                style={{marginRight: '5px'}}
+                                style={{marginRight: '5px', maxHeight: '38px'}}
                                 disabled={this.state.selectedRowKeys.length === 0}
                                 className=''
                                 handleClick={() => {
@@ -668,7 +668,6 @@ export class AddSpecContainer extends BaseContainer {
                                     handleArchiveRow={(id) => this.archive(id)}
                                     handlePublishRow={(id) => this.publishEntry(id)}
                                     showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
-                                    labels={this.props.labels}
                                 />
                             )}
                             <SelectedElements
@@ -694,7 +693,6 @@ AddSpecContainer.defaultProps = {
 
 AddSpecContainer.propTypes = {
     id: PropTypes.string.isRequired,
-    labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
     collapsed: PropTypes.bool.isRequired,
     visibleAddSpec: PropTypes.bool.isRequired,
     createObjectToSave: PropTypes.func,

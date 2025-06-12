@@ -19,7 +19,14 @@ $base-color: #0e49eb;
 .dx-dropdowneditor-icon {
     background: white;
 }
-
+.dx-datagrid-table.dx-datagrid-table-fixed{
+    .dx-row.dx-data-row.dx-row-lines.dx-column-lines{
+        td{
+            padding-top: 0px!important;
+            padding-bottom: 0px!important;
+        }
+    }
+}
 .dx-datagrid-rowsview tr > td {
     color: $data-label;
     text-align: left;
@@ -934,6 +941,9 @@ body .grid-container {
     float: right;
 }
 #grid-container {
+    .dx-row.dx-data-row.dx-row-lines{
+        height: 37px;
+    }
     ::-webkit-scrollbar {
         width: 7px;
         height: 7px;

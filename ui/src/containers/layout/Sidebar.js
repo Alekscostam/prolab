@@ -22,6 +22,7 @@ import Avatar from '../../components/prolab/Avatar';
 import ConsoleHelper from '../../utils/ConsoleHelper';
 import AuthService from '../../services/AuthService';
 import {CookiesName} from '../../enum/CookieName';
+import LocUtils from '../../utils/LocUtils';
 
 class Sidebar extends React.Component {
     constructor(props) {
@@ -272,11 +273,11 @@ class Sidebar extends React.Component {
         const renderDynamicMenu = (items) => {
             const timestamp = Date.now();
             return loggedIn ? (
-                <Menu key='menu' iconShape='circle' popperArrow='false'>
+                <Menu iconShape='circle' popperArrow='false'>
                     {items?.map((item) => {
                         const activeItem = containsViewId(item, this.state.viewId, item.id);
                         return item.type === 'View' ? (
-                            <li key={`menu_item_g_key_${item.id}`}>
+                            <React.Fragment key={`menu_item_id_${item.id}_fragment`}>
                                 <MenuItem
                                     id={`menu_item_id_${item.id}`}
                                     key={`menu_item_key_${item.id}`}
@@ -311,7 +312,7 @@ class Sidebar extends React.Component {
                                     </a>
                                 </MenuItem>
                                 {item?.sub && renderDynamicMenu(item?.sub)}
-                            </li>
+                            </React.Fragment>
                         ) : (
                             <SubMenu
                                 key={`menu_sub_${item.id}`}
@@ -358,7 +359,7 @@ class Sidebar extends React.Component {
         if (!authService.isLoggedUser()) {
             return null;
         }
-        const {labels} = this.props;
+
         return (
             <React.Fragment>
                 <div className='btn-toggle' onClick={() => this.handleToggleSidebar()}>
@@ -409,14 +410,14 @@ class Sidebar extends React.Component {
                                     <span id='menu-search-span' className='p-input-icon-left p-input-icon-right'>
                                         <i className='pi pi-search' />
                                         <InputText
-                                            ariaLabel={labels['Menu_Search']}
+                                            ariaLabel={LocUtils.locFromStore('Menu_Search')}
                                             className='p-inputtext-sm'
                                             key='filterValue'
                                             id='filterValue'
                                             name='filterValue'
                                             style={{width: '100%'}}
                                             type='text'
-                                            placeholder={labels['Menu_Search']}
+                                            placeholder={LocUtils.locFromStore('Menu_Search')}
                                             value={filterValue}
                                             onChange={(e) => {
                                                 e.preventDefault();
@@ -442,7 +443,7 @@ class Sidebar extends React.Component {
                                 <ActionButton
                                     id='mini-search-button'
                                     iconName='mdi-magnify'
-                                    title={labels['Menu_Search']}
+                                    title={LocUtils.locFromStore('Menu_Search')}
                                     label={''}
                                     handleClick={() => {
                                         this.handleCollapseChange();
@@ -476,7 +477,7 @@ class Sidebar extends React.Component {
                                 style={{textAlign: 'center'}}
                             >
                                 <FaSignOutAlt />
-                                <span>{labels['Menu_Logout']}</span>
+                                <span>{LocUtils.locFromStore('Menu_Logout')}</span>
                             </div>
                         </div>
                         <div className='to-right' style={{marginRight: '5px'}}>
@@ -504,7 +505,6 @@ class Sidebar extends React.Component {
 }
 
 Sidebar.propTypes = {
-    labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
     handleCollapseChange: PropTypes.func.isRequired,
     onShowEditQuitConfirmDialog: PropTypes.func,
     loggedUser: PropTypes.any,

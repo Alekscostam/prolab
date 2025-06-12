@@ -233,19 +233,6 @@ export default class AuthService {
             });
     }
 
-    getTranslationParam(language, param) {
-        const frameworkType = 'rd'.toLowerCase();
-        const lang = language.toLowerCase();
-        return this.fetch(`${readObjFromCookieGlobal('CONFIG_URL')}/lang/${frameworkType}_translations_${lang}.json`, {
-            method: 'GET',
-        })
-            .then((arr) => {
-                return Promise.resolve(arr.labels.find((el) => el.code.toLowerCase() === param.toLowerCase()));
-            })
-            .catch((err) => {
-                throw err;
-            });
-    }
     isLoggedUser() {
         return !!localStorage.getItem(CookiesName.LOGGED_USER);
     }
@@ -309,6 +296,7 @@ export default class AuthService {
         }
         const endWithHash = window.location.href.endsWith('/#/');
         this.removeLoginCookies();
+        useStore.getState().webSocket?.disconnect();
         useStore.getState().setAccessToken(undefined);
         useStore.getState().setRefreshToken(undefined);
         if (!endWithHash) {

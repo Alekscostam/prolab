@@ -7,7 +7,6 @@ import LocUtils from '../utils/LocUtils';
 import {AttachmentViewDialog} from './attachmentView/AttachmentViewDialog';
 import {BaseViewContainer} from '../baseContainers/BaseViewContainer';
 import EntryResponseHelper from '../utils/helper/EntryResponseHelper';
-import {DataGridUtils} from '../utils/component/DataGridUtils';
 import {AddSpecContainer} from './AddSpecContainer';
 import UrlUtils from '../utils/UrlUtils';
 import {OperationType} from '../enum/OperationType';
@@ -132,7 +131,10 @@ export class ViewContainer extends BaseViewContainer {
                                                 : subViewResponse.subViews[0]?.id;
                                             if (!subViewResponse.subViews || subViewResponse.subViews.length === 0) {
                                                 this.showErrorMessages(
-                                                    LocUtils.locFromStoreWithDefault('No_Subview','Brak podwidoków - niepoprawna konfiguracja!')
+                                                    LocUtils.locFromStoreWithDefault(
+                                                        'No_Subview',
+                                                        'Brak podwidoków - niepoprawna konfiguracja!'
+                                                    )
                                                 );
                                                 this.setState({loading: false}, () => {
                                                     window.history.back();
@@ -352,7 +354,6 @@ export class ViewContainer extends BaseViewContainer {
             <div>
                 {this.state.attachmentViewInfo ? (
                     <AttachmentViewDialog
-                        labels={this.props.labels}
                         ref={this.viewContainer}
                         recordId={this.state.attachmentViewInfo.recordId}
                         id={this.state.attachmentViewInfo.viewId}
@@ -438,7 +439,6 @@ ViewContainer.defaultProps = {
 
 ViewContainer.propTypes = {
     id: PropTypes.string.isRequired,
-    labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
     handleRenderNoRefreshContent: PropTypes.func.isRequired,
     handleViewInfoName: PropTypes.func.isRequired,
     handleSubView: PropTypes.func.isRequired,

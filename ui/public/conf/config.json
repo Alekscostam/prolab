@@ -14,6 +14,6 @@
     "SHOW_MARKUP_ON_HTML_EDITOR":true,
     "SHOW_ADD_FROM_DASHBOARD":false,
     "SHOW_FILTER_CLEAR":false,
-    "CAPTCHA_KEY":""
-
+    "CAPTCHA_KEY":"",
+    "WSS_URL":""
 }

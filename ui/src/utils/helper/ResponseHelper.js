@@ -1,6 +1,6 @@
 import {ConfirmDialog} from 'primereact/confirmdialog';
 import {localeOptions} from 'primereact/api';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import React from 'react';
 import {useEffect} from 'react';
 import {ResponseStatus} from '../../enum/ResponseStatus';
@@ -60,7 +60,7 @@ function renderConfirmDialog(message, header, icon, onAccept, isQuestionDialog =
     confirmDialogWrapper.classList.add('confirm-dialog-wrapper');
     confirmDialogWrapper.classList.add('confirm-dialog');
     document.body.appendChild(confirmDialogWrapper);
-    ReactDOM.render(
+    ReactDOM.createRoot(confirmDialogWrapper).render(
         <ConfirmDialog
             closable={false}
             visible={true}
@@ -85,8 +85,7 @@ function renderConfirmDialog(message, header, icon, onAccept, isQuestionDialog =
                     : () => document.body.removeChild(confirmDialogWrapper)
             }
             rejectClassName={`${isQuestionDialog ? `p-button-text` : 'p-hidden'} `}
-        />,
-        confirmDialogWrapper
+        />
     );
 }
 

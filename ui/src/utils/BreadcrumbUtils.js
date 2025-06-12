@@ -5,7 +5,6 @@ import ConsoleHelper from './ConsoleHelper';
 import hash from 'object-hash';
 import BreadcrumbComponent from '../components/prolab/BreadcrumbComponent';
 import {StringUtils} from './StringUtils';
-import useStore from '../store';
 
 export const BREADCRUMB_URL_PARAM_NAME = 'bc';
 export const TIMESTAMP_URL_PARAM_NAME = 'ts';
@@ -207,15 +206,13 @@ export class Breadcrumb {
     static shouldShowEditQuitConfirmationDialog() {
         return UrlUtils.isBatch() || UrlUtils.isEditSpec();
     }
-    static render(labels, afterBreadcrumbItemClick) {
-        ConsoleHelper('#$#$#$#$', labels);
+    static render(afterBreadcrumbItemClick) {
         const breadcrumb = this.cutBreadcrumpToURL(this.readFromUrl(), window.document.URL.toString());
         const mainPage = AppPrefixUtils.locationHrefUrl('/#/start');
         return (
             <React.Fragment>
                 <div>
                     <BreadcrumbComponent
-                        labels={labels}
                         initialBreadcrumb={breadcrumb}
                         afterClick={afterBreadcrumbItemClick}
                         initialMainPage={mainPage}

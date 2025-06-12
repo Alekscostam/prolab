@@ -17,6 +17,8 @@ import ActionLink from '../components/ActionLink';
 import UserService from '../services/UserService';
 import UserRowComponent from '../components/prolab/UserRowComponent';
 import useStore from '../store';
+import WebSocket from '../socket/WebSocket';
+import LocUtils from '../utils/LocUtils';
 
 class LoginContainer extends BaseContainer {
     constructor(props) {
@@ -156,7 +158,6 @@ class LoginContainer extends BaseContainer {
     };
 
     handleFormSubmit(e) {
-        const {labels} = this.state;
         if (e !== undefined) {
             e.preventDefault();
         }
@@ -183,11 +184,16 @@ class LoginContainer extends BaseContainer {
                         }));
                         this.validator.showMessages();
                         this.forceUpdate();
-                        this.showErrorMessages(labels['Login_SigninError'], 10000, true, labels['Error'] + err.status);
+                        this.showErrorMessages(
+                            LocUtils.locFromStore('Login_SigninError'),
+                            10000,
+                            true,
+                            LocUtils.locFromStore('Error') + err.status
+                        );
                         this.unblockUi();
                         return;
                     }
-                    this.showErrorMessages(labels['Login_ConnectionError'], 10000);
+                    this.showErrorMessages(LocUtils.locFromStore('Login_ConnectionError'), 10000);
                     this.unblockUi();
                 });
         } else {
@@ -201,12 +207,10 @@ class LoginContainer extends BaseContainer {
         if (this.authService.isLoggedUser()) {
             return this.renderAfterAuth();
         } else {
-            const {labels} = this.state;
             return (
                 this._isMounted && (
                     <BlockUi
                         tag='div'
-                        labels={labels}
                         blocking={this.state.blocking || this.state.loading}
                         loader={this.loader}
                         renderBlockUi={true}
@@ -217,7 +221,6 @@ class LoginContainer extends BaseContainer {
                                 onHide={() => {
                                     this.setState({visibleUserComponent: false});
                                 }}
-                                labels={labels}
                                 token={this.state.token}
                                 editData={this.state.editData}
                                 onSave={this.handleEditRowSave}
@@ -254,7 +257,6 @@ class LoginContainer extends BaseContainer {
         }
     }
     renderBeforeAuth() {
-        const {labels} = this.state;
         return (
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
@@ -296,11 +298,13 @@ class LoginContainer extends BaseContainer {
                                             <div className='container'>
                                                 <div className='row'>
                                                     <div className='col-lg-10 col-xl-9 mx-auto'>
-                                                        <div className='font-big  mb-4 '>{labels['Login_Signin']}</div>
-                                                        <form>
+                                                        <div className='font-big  mb-4 '>
+                                                            {LocUtils.locFromStore('Login_Signin')}
+                                                        </div>
+                                                        <div>
                                                             <div className='form-group mb-4'>
                                                                 <label htmlFor='username'>
-                                                                    {labels['Login_UserName']}
+                                                                    {LocUtils.locFromStore('Login_UserName')}
                                                                 </label>
                                                                 <InputText
                                                                     key={'username'}
@@ -322,7 +326,7 @@ class LoginContainer extends BaseContainer {
                                                             </div>
                                                             <div className='form-group mb-3'>
                                                                 <label htmlFor='password'>
-                                                                    {labels['Login_Password']}
+                                                                    {LocUtils.locFromStore('Login_Password')}
                                                                 </label>
                                                                 <Password
                                                                     key={'password'}
@@ -337,7 +341,9 @@ class LoginContainer extends BaseContainer {
                                                                         const value = e.currentTarget.value;
                                                                         this.setState({password: value});
                                                                     }}
-                                                                    promptLabel={labels['Login_Password']}
+                                                                    promptLabel={LocUtils.locFromStore(
+                                                                        'Login_Password'
+                                                                    )}
                                                                     feedback={false}
                                                                     required={true}
                                                                     validator={this.authValidValidator}
@@ -349,7 +355,9 @@ class LoginContainer extends BaseContainer {
                                                                     <p className='text-right'>
                                                                         <ActionLink
                                                                             handleClick={this.resetPassword}
-                                                                            label={labels['Login_ResetPassword']}
+                                                                            label={LocUtils.locFromStore(
+                                                                                'Login_ResetPassword'
+                                                                            )}
                                                                         />
                                                                     </p>
                                                                 </div>
@@ -363,7 +371,7 @@ class LoginContainer extends BaseContainer {
                                                                 /> */}
                                                             <div>
                                                                 <ActionButton
-                                                                    label={labels['Login_Signin']}
+                                                                    label={LocUtils.locFromStore('Login_Signin')}
                                                                     className='mt-4'
                                                                     variant='login-button'
                                                                     handleClick={this.handleFormSubmit}
@@ -371,16 +379,19 @@ class LoginContainer extends BaseContainer {
                                                                 {this.state.renderSignIn && (
                                                                     <div className='mt-4'>
                                                                         <p className='font-normal text-center'>
-                                                                            {labels['Login_Signup_Info']}&nbsp;
+                                                                            {LocUtils.locFromStore('Login_Signup_Info')}
+                                                                            &nbsp;
                                                                             <ActionLink
                                                                                 handleClick={this.registration}
-                                                                                label={labels['Login_Signup']}
+                                                                                label={LocUtils.locFromStore(
+                                                                                    'Login_Signup'
+                                                                                )}
                                                                             />
                                                                         </p>
                                                                     </div>
                                                                 )}
                                                             </div>
-                                                        </form>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>

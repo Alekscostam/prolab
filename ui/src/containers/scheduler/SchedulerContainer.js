@@ -182,7 +182,7 @@ export class SchedulerContainer extends BaseContainer {
         return (
             <React.Fragment>
                 <DivContainer id='header-left'>
-                    {Breadcrumb.render(this.props.labels)}
+                    {Breadcrumb.render()}
                     <div className='font-medium mb-4'>{this.state.parsedView?.viewInfo?.name}</div>
                 </DivContainer>
             </React.Fragment>
@@ -191,18 +191,8 @@ export class SchedulerContainer extends BaseContainer {
     //override
     renderHeaderRight() {
         const operations = [];
-        const opSave = DataGridUtils.getOrCreateOpButton(
-            operations,
-            this.props.labels,
-            OperationType.OP_SAVE,
-            'Zapisz'
-        );
-        const opCancel = DataGridUtils.getOrCreateOpButton(
-            operations,
-            this.props.labels,
-            OperationType.OP_CANCEL,
-            'Anuluj'
-        );
+        const opSave = DataGridUtils.getOrCreateOpButton(operations, OperationType.OP_SAVE, 'Zapisz');
+        const opCancel = DataGridUtils.getOrCreateOpButton(operations, OperationType.OP_CANCEL, 'Anuluj');
         return (
             <React.Fragment>
                 <div id='global-top-components'>
@@ -243,7 +233,6 @@ export class SchedulerContainer extends BaseContainer {
                     elementKindView={this.state.elementKindView}
                     selectedRowKeys={this.state.selectedRowKeys}
                     operations={operations}
-                    labels={this.props.labels}
                     leftContent={
                         <React.Fragment>
                             {operations.map((operation, index) => {
@@ -314,6 +303,5 @@ SchedulerContainer.defaultProps = {
 
 SchedulerContainer.propTypes = {
     id: PropTypes.string.isRequired,
-    labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
     collapsed: PropTypes.bool.isRequired,
 };

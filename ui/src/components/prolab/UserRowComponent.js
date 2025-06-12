@@ -23,22 +23,11 @@ export default class UserRowComponent extends BaseRowComponent {
     }
 
     render() {
-        const {labels} = this.props;
         const editData = this.props.editData;
         const operations = editData.operations;
-        const opSave = TranslationUtils.getOpButtonWithTranslation(operations, labels, OperationType.OP_SAVE, 'Zapisz');
-        const opFill = TranslationUtils.getOpButtonWithTranslation(
-            operations,
-            labels,
-            OperationType.OP_FILL,
-            'Uzupełnij'
-        );
-        const opCancel = TranslationUtils.getOpButtonWithTranslation(
-            operations,
-            labels,
-            OperationType.OP_CANCEL,
-            'Anuluj'
-        );
+        const opSave = TranslationUtils.getOpButtonWithTranslation(operations, OperationType.OP_SAVE, 'Zapisz');
+        const opFill = TranslationUtils.getOpButtonWithTranslation(operations, OperationType.OP_FILL, 'Uzupełnij');
+        const opCancel = TranslationUtils.getOpButtonWithTranslation(operations, OperationType.OP_CANCEL, 'Anuluj');
         return (
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
@@ -203,5 +192,4 @@ UserRowComponent.defaultProps = {
     user: PropTypes.string.isRequired,
     visible: PropTypes.bool.isRequired,
     onHide: PropTypes.func.isRequired,
-    labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
 };

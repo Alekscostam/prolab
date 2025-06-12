@@ -3,8 +3,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export const Image = (props) => {
-    const {alt, base64, rendered, style, className, canRemove, onRemove, onImageClick} = props;
+export const Image = ({
+    alt = '',
+    base64,
+    rendered = true,
+    style = {maxHeight: '26px'},
+    className,
+    canRemove,
+    onRemove,
+    onImageClick,
+}) => {
     if (!!base64) {
         let base64Tmp;
         let indexOfComa = base64?.toString().indexOf('data:image');
@@ -66,14 +74,8 @@ export const Image = (props) => {
     return null;
 };
 
-Image.defaultProps = {
-    rendered: true,
-    alt: '',
-    style: {maxHeight: '26px'},
-};
-
 Image.propTypes = {
-    alt: PropTypes.string.isRequired,
+    alt: PropTypes.string,
     base64: PropTypes.string.isRequired,
     className: PropTypes.string,
     rendered: PropTypes.bool,

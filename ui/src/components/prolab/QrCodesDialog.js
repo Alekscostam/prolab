@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import ShortcutButton from './ShortcutButton';
 import LocUtils from '../../utils/LocUtils';
 export const QrCodesDialog = (props) => {
-    const {onHide, editable, findCode} = props;
+    const {onHide, findCode} = props;
     const qrCodeRef = useRef(undefined);
     const [visible, setVisible] = useState(props.visible);
 
@@ -34,7 +34,7 @@ export const QrCodesDialog = (props) => {
         return <div> {LocUtils.locFromStoreWithDefault('Search', 'Szukaj')}</div>;
     };
 
-    const dialogFooter = editable ? (
+    const dialogFooter = (
         <div>
             <ShortcutButton
                 id={'opCancel'}
@@ -54,8 +54,6 @@ export const QrCodesDialog = (props) => {
                 label={LocUtils.locFromStoreWithDefault('Confirm', 'Zatwierdź')}
             />
         </div>
-    ) : (
-        <div></div>
     );
 
     const fullNameLabel = {'aria-label': 'Full Name'};
@@ -65,8 +63,9 @@ export const QrCodesDialog = (props) => {
                 closable={false}
                 header={dialogHeader}
                 blockScroll
+                resizable={false}
                 visible={visible}
-                style={{width: '25vw', overflow: 'hidden !important'}}
+                style={{width: '28vw', overflow: 'hidden !important'}}
                 onHide={hideDialog}
                 footer={dialogFooter}
             >
@@ -78,13 +77,8 @@ export const QrCodesDialog = (props) => {
                         <div className='dx-field-value'>
                             <TextBox
                                 id='qrCode-textbox'
-                                onContentReady={() => {
-                                    setTimeout(() => {
-                                        const ref = qrCodeRef.current;
-                                        if (ref) {
-                                            ref.instance.focus();
-                                        }
-                                    }, 100);
+                                onInitialized={(e) => {
+                                    e.component.focus();
                                 }}
                                 hoverStateEnabled
                                 focusStateEnabled

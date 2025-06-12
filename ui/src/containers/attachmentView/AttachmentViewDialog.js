@@ -390,7 +390,6 @@ AttachmentViewDialog.defaultProps = {
 
 AttachmentViewDialog.propTypes = {
     id: PropTypes.string.isRequired,
-    labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
     handleRenderNoRefreshContent: PropTypes.func.isRequired,
     handleViewInfoName: PropTypes.func.isRequired,
     handleSubView: PropTypes.func.isRequired,

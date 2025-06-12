@@ -201,7 +201,7 @@ class BlockUi extends Component {
                                     {React.isValidElement(loader) || loader instanceof Function ? (
                                         loader(waitPanelLabel)
                                     ) : (
-                                        <Loader labels={this.props.labels} waitPanelLabel={waitPanelLabel} />
+                                        <Loader waitPanelLabel={waitPanelLabel} />
                                     )}
                                 </div>
                             </div>

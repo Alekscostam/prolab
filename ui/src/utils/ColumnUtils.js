@@ -1,3 +1,4 @@
+import {Column} from 'devextreme-react/cjs/data-grid';
 import {ArrayUtils} from './ArrayUtils';
 import {StringUtils} from './StringUtils';
 
@@ -7,6 +8,7 @@ export class ColumnUtils {
         if (!ArrayUtils.isEmpty(filtersIn)) {
             const filterFounded = this.getFilter(filtersIn, column?.name);
             if (filterFounded) {
+                column.selectedFilterOperation = filterFounded[1];
                 column.filterValue = filterFounded[2];
             }
         }
@@ -78,5 +80,51 @@ export class ColumnUtils {
             }
         }
         return null;
+    }
+
+    static generateGroupColumns(viewColumns) {
+        const renderColumns = (group, keyPrefix = '') => {
+            if (group.isBand && Array.isArray(group.columns)) {
+                return (
+                    <Column
+                        visible={group.visible}
+                        alignment='center'
+                        fixed={this.getFixed(group)}
+                        fixedPosition={this.getFixedPosition(group)}
+                        key={keyPrefix + '-column-group'}
+                        caption={group.caption}
+                        isBand={true}
+                    >
+                        {group.columns.map((child, idx) => renderColumns(child, keyPrefix + '-' + idx))}
+                    </Column>
+                );
+            } else {
+                let sortOrder;
+                if (!!group?.sortIndex && group?.sortIndex > 0 && !!group?.sortOrder) {
+                    sortOrder = group?.sortOrder?.toLowerCase();
+                }
+                return (
+                    <Column
+                        visible={group.visible}
+                        key={keyPrefix + '-column'}
+                        dataField={group.fieldName}
+                        sortOrder={sortOrder}
+                        caption={group.caption}
+                        sortIndex={group?.sortIndex}
+                    />
+                );
+            }
+        };
+        const columns = viewColumns.map((group, index) => renderColumns(group, 'col-' + index));
+        return columns;
+    }
+
+    static getFixed(columnDefinition) {
+        return columnDefinition.freeze !== undefined && columnDefinition?.freeze !== null
+            ? columnDefinition?.freeze?.toLowerCase() === 'left' || columnDefinition?.freeze?.toLowerCase() === 'right'
+            : false;
+    }
+    static getFixedPosition(columnDefinition) {
+        return !!columnDefinition.freeze ? columnDefinition.freeze?.toLowerCase() : null;
     }
 }

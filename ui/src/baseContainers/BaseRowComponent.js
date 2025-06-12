@@ -1161,10 +1161,6 @@ export class BaseRowComponent extends BaseContainer {
     getMessages() {
         return this.messages;
     }
-
-    getFiles(files) {
-        ConsoleHelper(files[0].base64);
-    }
 }
 
 BaseRowComponent.defaultProps = {};
@@ -1183,7 +1179,6 @@ BaseRowComponent.propTypes = {
     onHide: PropTypes.func.isRequired,
     validator: PropTypes.instanceOf(SimpleReactValidator).isRequired,
     onError: PropTypes.func,
-    labels: PropTypes.object.isRequired,
 };
 
 export default BaseRowComponent;

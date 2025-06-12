@@ -1,5 +1,3 @@
-import useStore from '../store';
-
 class NumberUtil {
     static toInt(val) {
         if (val && !isNaN(val)) {

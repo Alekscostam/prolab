@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import DataGrid, {Column} from 'devextreme-react/data-grid';
 import {DataGridUtils} from '../../utils/component/DataGridUtils';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import ShortcutButton from '../../components/prolab/ShortcutButton';
 import ActionButtonWithMenu from '../../components/prolab/ActionButtonWithMenu';
 import ConsoleHelper from '../../utils/ConsoleHelper';
@@ -22,6 +22,8 @@ import {EditorDialog} from '../../components/prolab/EditorDialog';
 import {OperationType} from '../../enum/OperationType';
 import {CookiesName} from '../../enum/CookieName';
 import {ResponseUtils} from '../../utils/ResponseUtils';
+import {ColumnUtils} from '../../utils/ColumnUtils';
+import LocUtils from '../../utils/LocUtils';
 
 class SubGridViewComponent extends React.Component {
     constructor(props) {
@@ -32,7 +34,7 @@ class SubGridViewComponent extends React.Component {
         this.state = {
             minimize: minimizeCache === true,
             imageViewer: {
-                imageViewDialogVisisble: false,
+                imageViewDialogVisible: false,
                 editable: false,
                 imageBase64: undefined,
                 header: undefined,
@@ -78,49 +80,13 @@ class SubGridViewComponent extends React.Component {
         const subView = this.props.subView;
         return subView?.viewInfo?.type === 'gridViewBands' || subView.viewInfo?.headerType === 'gridViewBands';
     };
+    // Ujednolici to z tym co jest w komponencie GridViewData
     generateHeaderColumns() {
         if (this.isGridViewBands()) {
-            return this.generateGroupColumns();
+            const headerColumns = ResponseUtils.columnsGroupCreate(this.props.subView, 'headerColumns');
+            return ColumnUtils.generateGroupColumns(headerColumns);
         }
         return this.generateColumns();
-    }
-
-    generateGroupColumns() {
-        const headerColumns = ResponseUtils.columnsGroupCreate(this.props.subView, 'headerColumns');
-        const renderColumns = (group, keyPrefix = '') => {
-            if (group.isBand && Array.isArray(group.columns)) {
-                return (
-                    <Column
-                        visible={group.visible}
-                        alignment='center'
-                        fixed={this.getFixed(group)}
-                        fixedPosition={this.getFixedPosition(group)}
-                        key={keyPrefix + '-column-group'}
-                        caption={group.caption}
-                        isBand={true}
-                    >
-                        {group.columns.map((child, idx) => renderColumns(child, keyPrefix + '-' + idx))}
-                    </Column>
-                );
-            } else {
-                let sortOrder;
-                if (!!group?.sortIndex && group?.sortIndex > 0 && !!group?.sortOrder) {
-                    sortOrder = group?.sortOrder?.toLowerCase();
-                }
-                return (
-                    <Column
-                        visible={group.visible}
-                        key={keyPrefix + '-column'}
-                        dataField={group.fieldName}
-                        sortOrder={sortOrder}
-                        caption={group.caption}
-                        sortIndex={group?.sortIndex}
-                    />
-                );
-            }
-        };
-        const columns = headerColumns.map((group, index) => renderColumns(group, 'col-' + index));
-        return columns;
     }
 
     generateColumns() {
@@ -141,7 +107,7 @@ class SubGridViewComponent extends React.Component {
                             (base64, header) => {
                                 this.setState({
                                     imageViewer: {
-                                        imageViewDialogVisisble: true,
+                                        imageViewDialogVisible: true,
                                         editable: false,
                                         imageBase64: base64,
                                         header: header,
@@ -166,40 +132,21 @@ class SubGridViewComponent extends React.Component {
             });
     }
 
-    getFixed(columnDefinition) {
-        return columnDefinition.freeze !== undefined && columnDefinition?.freeze !== null
-            ? columnDefinition?.freeze?.toLowerCase() === 'left' || columnDefinition?.freeze?.toLowerCase() === 'right'
-            : false;
-    }
-    getFixedPosition(columnDefinition) {
-        return !!columnDefinition.freeze ? columnDefinition.freeze?.toLowerCase() : null;
-    }
-
     render() {
         const {imageViewer, editorViewer} = this.state;
-        const {labels} = this.props;
-        let showEditButton = false;
-        let menuItems = [];
-        this.props.subView?.headerOperations.forEach((operation) => {
-            showEditButton = showEditButton || operation.type === OperationType.OP_EDIT;
-            if (
-                operation.type === OperationType.OP_PUBLIC ||
-                operation.type === OperationType.OP_HISTORY ||
-                operation.type === OperationType.OP_EDIT ||
-                operation.type === OperationType.OP_ATTACHMENTS
-            ) {
-                operation.icon = 'mdi ' + operation.iconCode;
-                menuItems.push(operation);
-            }
-        });
-
+        const allowedTypes = [
+            OperationType.OP_PUBLIC,
+            OperationType.OP_HISTORY,
+            OperationType.OP_EDIT,
+            OperationType.OP_ATTACHMENTS,
+        ];
+        const headerOperations = this.props.subView?.headerOperations || [];
+        const menuItems = headerOperations
+            .filter((op) => allowedTypes.includes(op.type))
+            .map((op) => ({...op, icon: `mdi ${op.iconCode}`}));
+        const showEditButton = headerOperations.some((op) => op.type === OperationType.OP_EDIT);
         const showMenu = menuItems.length > 0;
-        let widthTmp = 0;
-        if (showMenu && showEditButton) {
-            widthTmp = 76;
-        } else if (showMenu || showEditButton) {
-            widthTmp = 50;
-        }
+        const widthTmp = showMenu && showEditButton ? 76 : showMenu || showEditButton ? 50 : 0;
         const rowAutoHeight = false;
         const columnAutoWidth = true;
         const subViewMode = !!this.props.subView;
@@ -212,13 +159,13 @@ class SubGridViewComponent extends React.Component {
             });
         return (
             <React.Fragment>
-                {imageViewer?.imageViewDialogVisisble && (
+                {imageViewer?.imageViewDialogVisible && (
                     <ImageViewerDialog
                         editable={imageViewer.editable}
                         onHide={() => {
                             this.setState({
                                 imageViewer: {
-                                    imageViewDialogVisisble: false,
+                                    imageViewDialogVisible: false,
                                     editable: false,
                                     imageBase64: undefined,
                                 },
@@ -258,7 +205,7 @@ class SubGridViewComponent extends React.Component {
                                 onImageClick={(base64, header) => {
                                     this.setState({
                                         imageViewer: {
-                                            imageViewDialogVisisble: true,
+                                            imageViewDialogVisible: true,
                                             editable: false,
                                             imageBase64: base64,
                                             header: header,
@@ -281,7 +228,6 @@ class SubGridViewComponent extends React.Component {
                                         this.setState({selectedRecordId: e.row.data.ID});
                                     }}
                                     id='selection-data-grid'
-                                    // handleOnDataGrid={(ref) => (this.refDataGrid = ref)}
                                     ref={(ref) => this.props.handleOnInitialized(ref)}
                                     dataSource={this.props.subView?.headerData}
                                     wordWrapEnabled={rowAutoHeight}
@@ -299,7 +245,7 @@ class SubGridViewComponent extends React.Component {
                                             fixed={true}
                                             fixedPosition='right'
                                             cellTemplate={(element, info) => {
-                                                ReactDOM.render(
+                                                ReactDOM.createRoot(element).render(
                                                     <React.Fragment>
                                                         <ShortcutButton
                                                             id={`${info.column.headerId}_menu_button`}
@@ -335,10 +281,12 @@ class SubGridViewComponent extends React.Component {
                                                                 true
                                                             )}
                                                             rendered={showMenu}
-                                                            title={labels ? labels['View_AdditionalOptions'] : ''}
+                                                            title={LocUtils.locFromStoreWithDefault(
+                                                                'View_AdditionalOptions',
+                                                                ''
+                                                            )}
                                                         />
-                                                    </React.Fragment>,
-                                                    element
+                                                    </React.Fragment>
                                                 );
                                             }}
                                         />
@@ -395,7 +343,6 @@ class SubGridViewComponent extends React.Component {
 SubGridViewComponent.defaultProps = {};
 SubGridViewComponent.propTypes = {
     subView: PropTypes.object.isRequired,
-    labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
     handleOnInitialized: PropTypes.func.isRequired,
     handleOnEditClick: PropTypes.func,
 };

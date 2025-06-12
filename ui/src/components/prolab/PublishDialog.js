@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import {useState, useRef} from 'react';
 import PropTypes from 'prop-types';
 import {Dialog} from 'primereact/dialog';
 import {Button} from 'primereact/button';
@@ -113,7 +113,6 @@ PublishDialog.propTypes = {
     onHide: PropTypes.func.isRequired,
     close: PropTypes.func.isRequired,
     handlePublish: PropTypes.func.isRequired,
-    labels: PropTypes.oneOfType([PropTypes.object, PropTypes.array]).isRequired,
     publishValues: PropTypes.shape({
         version: PropTypes.string,
     }),

@@ -20,7 +20,7 @@ import ConsoleHelper from '../../utils/ConsoleHelper';
 import CrudService from '../../services/CrudService';
 import {DataGridUtils} from '../../utils/component/DataGridUtils';
 import {Breadcrumb} from '../../utils/BreadcrumbUtils';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import OperationsButtons from '../../components/prolab/OperationsButtons';
 import AppPrefixUtils from '../../utils/AppPrefixUtils';
 import {EditSpecUtils} from '../../utils/EditSpecUtils';
@@ -48,11 +48,11 @@ import {ResponseUtils} from '../../utils/ResponseUtils';
 import {ColumnUtils} from '../../utils/ColumnUtils';
 import FilterClear from '../../components/prolab/FilterClear';
 import useStore from '../../store';
+import {ArrayUtils} from '../../utils/ArrayUtils';
 
 class GridViewComponent extends CellEditComponent {
     constructor(props) {
         super(props);
-        this.labels = this.props;
         this.dataGrid = null;
         this.crudService = new CrudService();
         this.menuRef = React.createRef();
@@ -63,6 +63,7 @@ class GridViewComponent extends CellEditComponent {
         this.keyDownClicked = React.createRef(false);
         this.editSpecService = new EditSpecService();
         this.state = {
+            gridViewColumns: this.props.gridViewColumns,
             allRowsShow: false,
             keyDownClicked: false,
             focusedRowKey: UrlUtils.getURLParameter('selectedFromPrevGrid')
@@ -70,7 +71,7 @@ class GridViewComponent extends CellEditComponent {
                 : undefined,
             editListVisible: false,
             imageViewer: {
-                imageViewDialogVisisble: false,
+                imageViewDialogVisible: false,
                 editable: false,
                 imageBase64: undefined,
                 header: undefined,
@@ -149,50 +150,19 @@ class GridViewComponent extends CellEditComponent {
             gridContainer.removeEventListener('mousedown', this.handleAltAndLeftClickFunction);
         }
     }
-    handleSpaceClickFunction = (event) => {
-        if (event.code === 'Space' || event.keyCode === 32) {
-            const gridRef = this.props?.getRef()?._instance;
-            if (gridRef) {
-                const dxStateHovers = Array.from(document.getElementsByClassName('dx-state-hover'));
-                if (dxStateHovers.length > 0) {
-                    const currentHoveredRowIndex = dxStateHovers[0].rowIndex;
-                    let selectedRows = this.props.selectedRows;
-                    const element = {
-                        ID: `${this.props.getRef().instance.getKeyByRowIndex(currentHoveredRowIndex)}`,
-                    };
-                    if (selectedRows.find((row) => row.ID === element.ID)) {
-                        selectedRows = selectedRows.filter((selectedRow) => selectedRow.ID !== element.ID);
-                    } else {
-                        selectedRows.push(element);
-                    }
-                    this.selectRowKeys(selectedRows);
+    handleAltAndLeftClickFunction = (event) => {
+        if (this.props.altAndLeftClickEnabled && event.button === 0 && event.altKey) {
+            const isOnGrid = HtmlUtils.clickedInsideComponent(event, 'grid-container');
+            if (this.currentClickedCell.current && this.props?.getRef() && isOnGrid) {
+                const dxStateHovers = document.getElementsByClassName('dx-state-hover');
+                if (!ArrayUtils.isEmpty(dxStateHovers)) {
+                    dxStateHovers[1].children[0].children[0].click();
                 }
             }
         }
     };
-    handleAltAndLeftClickFunction = (event) => {
-        if (this.props.altAndLeftClickEnabled && event.button === 0 && event.altKey) {
-            setTimeout(() => {
-                const isOnGrid = HtmlUtils.clickedInsideComponent(event, 'grid-container');
-                if (this.currentClickedCell.current && this.props?.getRef() && isOnGrid) {
-                    const clickedCell = parseInt(this.currentClickedCell.current);
-                    const gridRef = this.props.getRef()._instance;
-                    let selectedRows = this.props.selectedRows.map((selectedRow) => {
-                        return {ID: parseInt(selectedRow.ID)};
-                    });
-                    if (selectedRows.find((row) => row.ID === clickedCell)) {
-                        selectedRows = selectedRows.filter((selectedRow) => selectedRow.ID !== clickedCell);
-                    } else {
-                        selectedRows.push({ID: clickedCell});
-                    }
-                    gridRef.selectRows(selectedRows.map((el) => el.ID));
-                    this.props.handleSelectRows(selectedRows);
-                }
-            }, 0);
-        }
-    };
     waitForSuccess() {
-        return this.props.dataGridStoreSuccess === false || this.props.gridViewColumns?.length === 0;
+        return this.props.dataGridStoreSuccess === false || this.state.gridViewColumns?.length === 0;
     }
 
     isGroupModeEnabled = () => {
@@ -289,19 +259,18 @@ class GridViewComponent extends CellEditComponent {
                         if (this.props.ppmEnabled) {
                             if (e?.row?.data?.ID) {
                                 if (this.selectionMode() === 'multiple') {
-                                    const selectedRows = SelectedRowKeysUtils.mergeKeysWithRecordId(
-                                        e.row.data.ID,
-                                        this.props.selectedRows
+                                    const isAlreadySelected = this.props.selectedRows.find(
+                                        (el) => el.ID === String(e?.row?.data?.ID)
                                     );
-                                    this.selectRowKeys(selectedRows);
+                                    if (!isAlreadySelected) e.row.cells[0].cellElement.firstChild.click();
                                 }
                                 this.setState({selectedRecordId: e.row.data.ID});
                             }
                         }
                     }}
                     onKeyDown={(e) => {
+                        if (UrlUtils.isBatch()) this.onKeyDown(e);
                         this.keyDownClicked.current = true;
-                        this.onKeyDown(e);
                     }}
                     id={`grid-container`}
                     defaultFocusedRowKey={this.state.focusedRowKey}
@@ -333,8 +302,8 @@ class GridViewComponent extends CellEditComponent {
                     allowColumnReordering={true}
                     onOptionChanged={(e) => {
                         if (e.fullName.includes('filterValue') && e.name === 'columns') {
-                            if (this.labels?.getRef) {
-                                this.labels.getRef().instance.clearSelection();
+                            if (this.props?.getRef) {
+                                this.props.getRef().instance.clearSelection();
                                 if (this.props?.handleUnselectAll) {
                                     this.props.handleUnselectAll();
                                 }
@@ -524,17 +493,7 @@ class GridViewComponent extends CellEditComponent {
     onKeyDownSelectRows() {
         const dxRowFocused = document.getElementsByClassName('dx-row-focused')[0];
         if (dxRowFocused) {
-            let selectedRows = this.props.selectedRows;
-            const currentSelectedRowIndex = dxRowFocused.rowIndex;
-            const element = {
-                ID: `${this.props.getRef().instance.getKeyByRowIndex(currentSelectedRowIndex)}`,
-            };
-            if (selectedRows.find((row) => parseInt(row.ID) === parseInt(element.ID))) {
-                selectedRows = selectedRows.filter((selectedRow) => parseInt(selectedRow.ID) !== parseInt(element.ID));
-            } else {
-                selectedRows.push(element);
-            }
-            this.props.handleSelectRows(selectedRows);
+            dxRowFocused.children[0].click();
         }
         this.keyDownClicked.current = false;
     }
@@ -565,9 +524,9 @@ class GridViewComponent extends CellEditComponent {
 
     getClonedGridViewColumns() {
         if (this.props.multiLevelHeaders) {
-            return structuredClone(ResponseUtils.flattenColumns(this.props.gridViewColumns));
+            return structuredClone(ResponseUtils.flattenColumns(this.state.gridViewColumns));
         }
-        return structuredClone(this.props.gridViewColumns);
+        return structuredClone(this.state.gridViewColumns);
     }
     // FIXX:  clear filter na gantt
     postCustomizeColumns = (columns) => {
@@ -607,8 +566,8 @@ class GridViewComponent extends CellEditComponent {
                                 column.cellTemplate = this.getCellTemplate(columnDefinition);
                                 column.dataType = DataGridUtils.specifyColumnType(columnDefinition?.type);
                                 column.format = DataGridUtils.specifyColumnFormat(columnDefinition?.type);
-                                column.fixed = this.getFixed(columnDefinition);
-                                column.fixedPosition = this.getFixedPosition(columnDefinition);
+                                column.fixed = ColumnUtils.getFixed(columnDefinition);
+                                column.fixedPosition = ColumnUtils.getFixedPosition(columnDefinition);
                                 if (!!columnDefinition.groupIndex && columnDefinition.groupIndex > 0) {
                                     column.groupIndex = columnDefinition.groupIndex;
                                 }
@@ -641,23 +600,24 @@ class GridViewComponent extends CellEditComponent {
             }
             if (this.canRenderAdditionalOperationCol()) {
                 columns?.push({
-                    caption: '',
                     fixed: true,
+                    fixedPosition: 'right',
                     headerCellTemplate: (element) => {
                         if (this.props.showAddButton) {
                             element.parentNode.classList.add('header-button');
-                            ReactDOM.render(this.addButton(), element);
+                            const root = ReactDOM.createRoot(element);
+                            root.render(this.addButton());
                             const filterLastRow = element.parentNode.parentNode.parentNode.lastChild.lastChild;
                             if (!this.props?.isAttachement && useStore.getState()?.showFilterClear) {
-                                ReactDOM.render(
+                                const rootFilter = ReactDOM.createRoot(filterLastRow);
+                                rootFilter.render(
                                     <FilterClear
                                         clearFnc={() => {
                                             const gridRef = this.props.getRef()._instance;
                                             gridRef.clearFilter();
                                         }}
                                         filters={window.dataGrid.getCombinedFilter()}
-                                    />,
-                                    filterLastRow
+                                    />
                                 );
                             }
                         }
@@ -667,7 +627,6 @@ class GridViewComponent extends CellEditComponent {
                         operationsRecordList,
                         this.addButtonExist()
                     ),
-                    fixedPosition: 'right',
                     cellTemplate: (element, info) => {
                         let el = document.createElement('div');
                         el.id = `actions-${info.column.headerId}-${info.rowIndex}`;
@@ -679,10 +638,9 @@ class GridViewComponent extends CellEditComponent {
                         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
                         let viewId = this.props.id;
                         viewId = DataGridUtils.getRealViewId(subViewId, viewId);
-                        ReactDOM.render(
+                        ReactDOM.createRoot(element).render(
                             <div style={{textAlign: 'center', display: 'flex'}}>
                                 <OperationsButtons
-                                    labels={this.labels}
                                     operations={operationsRecord}
                                     operationList={operationsRecordList}
                                     info={info}
@@ -793,15 +751,14 @@ class GridViewComponent extends CellEditComponent {
                                     }
                                     handleBlockUi={(e) => this.props.handleBlockUi()}
                                 />
-                            </div>,
-                            element
+                            </div>
                         );
                     },
                 });
             }
         } else {
             //when no data
-            this.props.gridViewColumns?.forEach((columnDefinition) => {
+            this.state.gridViewColumns?.forEach((columnDefinition) => {
                 if (columnDefinition.visible === true) {
                     let column = {};
                     column.allowFiltering = false;
@@ -825,7 +782,7 @@ class GridViewComponent extends CellEditComponent {
             (value, header) => {
                 this.setState({
                     imageViewer: {
-                        imageViewDialogVisisble: true,
+                        imageViewDialogVisible: true,
                         editable: this.isEditableCell(columnDefinition),
                         imageBase64: value,
                         header: header,
@@ -848,14 +805,7 @@ class GridViewComponent extends CellEditComponent {
             }
         );
     }
-    getFixed(columnDefinition) {
-        return columnDefinition.freeze !== undefined && columnDefinition?.freeze !== null
-            ? columnDefinition?.freeze?.toLowerCase() === 'left' || columnDefinition?.freeze?.toLowerCase() === 'right'
-            : false;
-    }
-    getFixedPosition(columnDefinition) {
-        return !!columnDefinition.freeze ? columnDefinition.freeze?.toLowerCase() : null;
-    }
+
     canReplaceFilterExpression(columnDefinition) {
         if (
             (columnDefinition?.type === ColumnType.L || columnDefinition?.type === ColumnType.B) &&
@@ -971,15 +921,16 @@ class GridViewComponent extends CellEditComponent {
 
     preGenerateColumnsDefinition = () => {
         const multiLevelHeaders = this.props.multiLevelHeaders;
+        const gridViewColumns = this.state.gridViewColumns;
         if (multiLevelHeaders) {
-            return this.generateGroupColumns();
+            return this.generateGroupColumns(gridViewColumns);
         }
         return this.generateColumns();
     };
 
     generateColumns() {
         const columns = [];
-        this.props.gridViewColumns?.forEach((columnDefinition, keyIndex) => {
+        this.state.gridViewColumns?.forEach((columnDefinition, keyIndex) => {
             let sortOrder;
             if (!!columnDefinition?.sortIndex && columnDefinition?.sortIndex > 0 && !!columnDefinition?.sortOrder) {
                 sortOrder = columnDefinition?.sortOrder?.toLowerCase();
@@ -1032,8 +983,8 @@ class GridViewComponent extends CellEditComponent {
                     <Column
                         visible={groupDefinition.visible}
                         alignment='center'
-                        fixed={this.getFixed(groupDefinition)}
-                        fixedPosition={this.getFixedPosition(groupDefinition)}
+                        fixed={ColumnUtils.getFixed(groupDefinition)}
+                        fixedPosition={ColumnUtils.getFixedPosition(groupDefinition)}
                         key={keyPrefix + '-column-group'}
                         caption={groupDefinition.caption}
                         isBand={true}
@@ -1058,7 +1009,7 @@ class GridViewComponent extends CellEditComponent {
                 );
             }
         };
-        const columns = this.props.gridViewColumns.map((group, index) => renderColumns(group, 'col-' + index));
+        const columns = this.state.gridViewColumns.map((group, index) => renderColumns(group, 'col-' + index));
         return columns;
     }
 

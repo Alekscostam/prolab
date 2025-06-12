@@ -1,6 +1,5 @@
-import {Button, TextBox} from 'devextreme-react';
 import {Dialog} from 'primereact/dialog';
-import {useEffect, useRef, useState} from 'react';
+import {useState} from 'react';
 import PropTypes from 'prop-types';
 import LocUtils from '../../utils/LocUtils';
 import PDFViewerComponent from './PDFViewerComponent';

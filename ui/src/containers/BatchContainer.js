@@ -27,7 +27,6 @@ export class BatchContainer extends BaseContainer {
     _isMounted = false;
 
     constructor(props) {
-        ConsoleHelper('EditSpecContainer -> constructor');
         super(props);
         this.batchService = new BatchService();
         this.crudService = new CrudService();
@@ -221,7 +220,7 @@ export class BatchContainer extends BaseContainer {
         return (
             <React.Fragment>
                 <DivContainer id='header-left'>
-                    {Breadcrumb.render(this.props.labels, (fnc) => this.props.onShowEditQuitConfirmDialog(() => fnc()))}
+                    {Breadcrumb.render((fnc) => this.props.onShowEditQuitConfirmDialog(() => fnc()))}
                     <div className='font-medium mb-2'>{this.state.parsedView?.editInfo?.viewName}</div>
                 </DivContainer>
             </React.Fragment>
@@ -289,41 +288,33 @@ export class BatchContainer extends BaseContainer {
     }
     //override
     createObjectToSave(rowArray) {
-        const booleanLogicColumns = this.state.columns.filter((el) => el.type === 'L');
-        const booleanNumberColumns = this.state.columns.filter((el) => el.type === 'B');
-        const imageColumns = this.state.columns.filter((el) => el.type === 'I');
-        const arrayTmp = [];
-        for (let row of rowArray) {
-            Object.keys(row).forEach((el) => {
-                imageColumns.forEach((image) => {
-                    if (image.fieldName === el) {
-                        row[el] = this.shouldBeNegative(row[el]) ? null : row[el];
-                    }
-                });
-            });
-            Object.keys(row).forEach((el) => {
-                booleanLogicColumns.forEach((bool) => {
-                    if (bool.fieldName === el) {
-                        if (!(row[el] === 'T' || row[el] === 'N')) {
-                            row[el] ? (row[el] = 'T') : (row[el] = 'N');
-                        }
-                    }
-                });
-            });
-            Object.keys(row).forEach((el) => {
-                booleanNumberColumns.forEach((bool) => {
-                    if (bool.fieldName === el) {
-                        row[el] = this.shouldBeNegative(row[el]) ? 0 : 1;
-                    }
-                });
-            });
-            const rowArray = [];
-            for (let field in row) {
-                rowArray.push({fieldName: field, value: row[field]});
+        const {columns} = this.state;
+
+        const isOfType = (type) => (col) => col.type === type;
+        const getFieldNames = (type) => columns.filter(isOfType(type)).map((col) => col.fieldName);
+
+        const logicFields = new Set(getFieldNames('L'));
+        const numberFields = new Set(getFieldNames('B'));
+        const imageFields = new Set(getFieldNames('I'));
+
+        return rowArray.map((row) => {
+            const processedRow = {...row};
+
+            for (const key in processedRow) {
+                if (imageFields.has(key)) {
+                    processedRow[key] = this.shouldBeNegative(processedRow[key]) ? null : processedRow[key];
+                }
+                if (logicFields.has(key)) {
+                    const val = processedRow[key];
+                    processedRow[key] = val === 'T' || val === 'N' ? val : val ? 'T' : 'N';
+                }
+                if (numberFields.has(key)) {
+                    processedRow[key] = this.shouldBeNegative(processedRow[key]) ? 0 : 1;
+                }
             }
-            arrayTmp.push(rowArray);
-        }
-        return arrayTmp;
+
+            return Object.entries(processedRow).map(([fieldName, value]) => ({fieldName, value}));
+        });
     }
     unselectAllDataGrid() {}
     //override
@@ -409,7 +400,6 @@ export class BatchContainer extends BaseContainer {
                         elementRecordId={this.state.elementRecordId}
                         elementSubViewId={this.state.elementSubViewId}
                         elementKindView={this.state.elementKindView}
-                        labels={this.props.labels}
                         selectedRowKeys={this.state.selectedRowKeys}
                         operations={operations}
                         leftContent={this.leftHeadPanelContent()}
@@ -515,6 +505,7 @@ export class BatchContainer extends BaseContainer {
             return oldFormula;
         }
     }
+    // FIXX: odblokowanie PPm w batch, center image w datagrid
     //override
     renderContent = () => {
         return (
@@ -522,6 +513,7 @@ export class BatchContainer extends BaseContainer {
                 {this.state.loading ? null : (
                     <React.Fragment>
                         <GridViewComponent
+                            ppmEnabled={true}
                             multiLevelHeaders={this.isGridViewBands()}
                             altAndLeftClickEnabled={false}
                             handleSaveAction={() => this.handleSaveAction()}
@@ -544,7 +536,6 @@ export class BatchContainer extends BaseContainer {
                                 });
                             }}
                             packageRows={this.state.packageRows}
-                            labels={this.props.labels}
                             focusedRowEnabled={true}
                             hoverStateEnabled={true}
                             modifyParsedGridViewData={(newCopyRow) => {
@@ -619,6 +610,5 @@ BatchContainer.defaultProps = {
 
 BatchContainer.propTypes = {
     id: PropTypes.string.isRequired,
-    labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
     collapsed: PropTypes.bool.isRequired,
 };

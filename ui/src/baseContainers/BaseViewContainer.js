@@ -42,7 +42,7 @@ import {saveObjToCookieGlobal} from '../utils/Cookie';
 import DataHistoryLogStore from '../containers/dao/DataHistoryLogStore';
 import HistoryLogDialog from '../components/prolab/HistoryLogDialog';
 import {OperationType} from '../enum/OperationType';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import {QrCodesDialog} from '../components/prolab/QrCodesDialog';
 import ActionShortcutWithoutMenu from '../components/prolab/ActionShortcutWithoutMenu';
 import SelectedElements from '../components/SelectedElements';
@@ -60,6 +60,7 @@ import {handleEdit, handleEditSpec} from '../utils/handler/EditHandler';
 import {ConfirmationOperationDialog} from '../components/prolab/ConfirmOperationDialog';
 import {SessionStoreUtils} from '../utils/SessionStoreUtils';
 import useStore from '../store';
+import KeyCombinationDetector from '../utils/KeyCombinationDetector';
 
 let dataGrid;
 
@@ -291,7 +292,8 @@ export class BaseViewContainer extends BaseContainer {
     keyDownFunction = (event) => {
         const findKey = this.state?.parsedGridView?.options?.findKey;
         if (!StringUtils.isBlank(findKey)) {
-            if (event.ctrlKey && event.key === 'k') {
+            const keyCombinationDetector = new KeyCombinationDetector(event, findKey);
+            if (keyCombinationDetector.isExecuted()) {
                 event.preventDefault();
                 this.setState({qrCodesDialog: true});
             }
@@ -501,16 +503,16 @@ export class BaseViewContainer extends BaseContainer {
             const confirmDialogWrapper = document.createElement('div');
             confirmDialogWrapper.className = 'confirm-dialog';
             document.body.appendChild(confirmDialogWrapper);
-            ReactDOM.render(
+            const root = ReactDOM.createRoot(confirmDialogWrapper);
+            root.render(
                 <ConfirmDialog
                     closable={false}
                     visible={true}
-                    message={LocUtils.loc(
-                        this.props.labels,
+                    message={LocUtils.locFromStoreWithDefault(
                         'Question_Close_Edit',
                         'Czy na pewno chcesz zamknąć edycję?'
                     )}
-                    header={LocUtils.loc(this.props.labels, 'Confirm_Label', 'Potwierdzenie')}
+                    header={LocUtils.locFromStoreWithDefault('Confirm_Label', 'Potwierdzenie')}
                     icon='pi pi-exclamation-triangle'
                     acceptLabel={localeOptions('accept')}
                     rejectLabel={localeOptions('reject')}
@@ -522,8 +524,7 @@ export class BaseViewContainer extends BaseContainer {
                     reject={() => {
                         document.body.removeChild(confirmDialogWrapper);
                     }}
-                />,
-                confirmDialogWrapper
+                />
             );
         } else {
             this.setState({visibleEditPanel: e}, () => {
@@ -596,7 +597,6 @@ export class BaseViewContainer extends BaseContainer {
                                 this.onHideEditPanel(e, viewId, recordId, parentId);
                             }}
                             onError={(e) => this.showErrorMessage(e)}
-                            labels={this.props.labels}
                             showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                         />
                     ) : (
@@ -624,7 +624,6 @@ export class BaseViewContainer extends BaseContainer {
                                 this.onHideEditPanel(e, viewId, recordId, parentId);
                             }}
                             onError={(e) => this.showErrorMessage(e)}
-                            labels={this.props.labels}
                             showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                         />
                     )
@@ -643,7 +642,6 @@ export class BaseViewContainer extends BaseContainer {
                         validator={this.validator}
                         onHide={() => this.setState({visibleDocumentPanel: false})}
                         onError={(e) => this.showErrorMessage(e)}
-                        labels={this.props.labels}
                         showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
                     />
                 ) : null}
@@ -1261,7 +1259,6 @@ export class BaseViewContainer extends BaseContainer {
                         elementRecordId={this.state.elementRecordId}
                         elementSubViewId={this.state.elementSubViewId}
                         elementKindView={this.state.elementKindView}
-                        labels={this.props.labels}
                         selectedRowKeys={this.state.selectedRowKeys}
                         operations={operations}
                         leftContent={this.leftHeadPanelContent()}
@@ -1622,15 +1619,19 @@ export class BaseViewContainer extends BaseContainer {
                         )}
                         {this.state.qrCodesDialog && (
                             <QrCodesDialog
+                                visible={this.state.qrCodesDialog}
                                 onHide={() =>
                                     this.setState({
                                         qrCodesDialog: false,
                                     })
                                 }
                                 findCode={(code) => {
-                                    const viewId = UrlUtils.getIdFromUrlOrAlternative(this.props.id);
+                                    const isSubView = !StringUtils.isBlank(this.state.subView);
+                                    const viewId = isSubView
+                                        ? this.state.elementId
+                                        : UrlUtils.getIdFromUrlOrAlternative(this.props.id);
                                     const kindView = UrlUtils.getKindView();
-                                    const parentId = UrlUtils.getParentId();
+                                    const parentId = isSubView ? this.state.elementSubViewId : UrlUtils.getParentId();
                                     const filterId = UrlUtils.getFilterId();
                                     const body = {
                                         filter: null,
@@ -1686,17 +1687,15 @@ export class BaseViewContainer extends BaseContainer {
     };
 
     renderDashboardViewComponent = () => {
-        const {labels} = this.props;
         return (
             <React.Fragment>
-                <div className='col-12 '>{Breadcrumb.render(labels)} </div>
+                <div className='col-12 '>{Breadcrumb.render()} </div>
                 <DashboardContainer
                     key={'Dashboard'}
                     dashboard={this.state.subView}
                     handleRenderNoRefreshContent={(renderNoRefreshContent) => {
                         this.props.handleRenderNoRefreshContent(renderNoRefreshContent);
                     }}
-                    labels={labels}
                 />
             </React.Fragment>
         );
@@ -1739,7 +1738,6 @@ export class BaseViewContainer extends BaseContainer {
                     gridViewColumns={this.state.gridViewColumns}
                     ppmEnabled={true}
                     altAndLeftClickEnabled={true}
-                    labels={this.props.labels}
                     id={this.props.id}
                     isAttachement={this.isAttachement}
                     selectedRows={this.state.selectedRowKeys}
@@ -1791,7 +1789,6 @@ export class BaseViewContainer extends BaseContainer {
                             });
                             dataGrid.getSelectedRowsData().then((rowData) => {
                                 rowData = this.removeDuplicates(rowData);
-                                dataGrid.selectRows(rowData.map((r) => r.ID));
                                 this.setState(
                                     {
                                         selectedRowKeys: rowData,
@@ -1916,7 +1913,6 @@ export class BaseViewContainer extends BaseContainer {
                             selectedRowKeys: [],
                         });
                     }}
-                    labels={this.props.labels}
                     collapsed={this.props.collapsed}
                     elementSubViewId={this.state.elementSubViewId}
                     elementKindView={this.state.elementKindView}
@@ -1995,7 +1991,6 @@ BaseViewContainer.defaultProps = {
 
 BaseViewContainer.propTypes = {
     id: PropTypes.string.isRequired,
-    labels: PropTypes.oneOfType([PropTypes.object.isRequired, PropTypes.array.isRequired]),
     handleRenderNoRefreshContent: PropTypes.array.isRequired,
     handleViewInfoName: PropTypes.func.isRequired,
     handleSubView: PropTypes.func.isRequired,

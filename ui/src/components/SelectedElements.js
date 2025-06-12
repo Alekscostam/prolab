@@ -16,8 +16,4 @@ export const SelectedElements = ({selectedRowKeys, totalCounts}) => {
     );
 };
 
-SelectedElements.defaultProps = {};
-
-SelectedElements.propTypes = {};
-
 export default SelectedElements;

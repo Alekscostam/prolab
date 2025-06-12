@@ -1,8 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-export const DivContainer = (props) => {
-    const {id, children, colClass, rendered, style} = props;
+export const DivContainer = ({
+    id,
+    children,
+    colClass = 'col-xl-12 col-lg-12 col-md-12 col-sm-12',
+    rendered = true,
+    style = undefined,
+}) => {
     if (rendered) {
         return (
             <div id={id} className={colClass} style={style}>
@@ -12,12 +17,6 @@ export const DivContainer = (props) => {
     } else {
         return null;
     }
-};
-
-DivContainer.defaultProps = {
-    colClass: 'col-xl-12 col-lg-12 col-md-12 col-sm-12',
-    rendered: true,
-    style: undefined,
 };
 
 DivContainer.propTypes = {
