@@ -61,6 +61,12 @@ import {ConfirmationOperationDialog} from '../components/prolab/ConfirmOperation
 import {SessionStoreUtils} from '../utils/SessionStoreUtils';
 import useStore from '../store';
 import KeyCombinationDetector from '../utils/KeyCombinationDetector';
+import {
+    getStore,
+    isFirstMethodShowBarCode,
+    isSecondMethodShowBarCode,
+    isThirdMethodShowBarCode,
+} from '../utils/helper/StoreHelper';
 
 let dataGrid;
 
@@ -82,6 +88,7 @@ export class BaseViewContainer extends BaseContainer {
         this.dataHistoryLogStore = new DataHistoryLogStore();
         this.dataTreeStore = new DataTreeStore();
         this.refDataGrid = React.createRef();
+        this.inputRef = React.createRef();
         this.ganttRef = React.createRef();
         this.refCardGrid = React.createRef();
         this.messages = React.createRef();
@@ -288,14 +295,18 @@ export class BaseViewContainer extends BaseContainer {
     unregisterKeydownEvent() {
         window.removeEventListener('keydown', this.keyDownFunction);
     }
-    // KODZIK TESTOWY
     keyDownFunction = (event) => {
         const findKey = this.state?.parsedGridView?.options?.findKey;
         if (!StringUtils.isBlank(findKey)) {
             const keyCombinationDetector = new KeyCombinationDetector(event, findKey);
             if (keyCombinationDetector.isExecuted()) {
+                const dialogsOpened = document.getElementsByClassName('p-dialog-mask');
+                if (dialogsOpened.length > 1) {
+                    event.preventDefault();
+                    return;
+                }
+                this.showBarCode();
                 event.preventDefault();
-                this.setState({qrCodesDialog: true});
             }
         }
     };
@@ -1596,6 +1607,81 @@ export class BaseViewContainer extends BaseContainer {
         };
         return <PDFViewerDialog onHide={onHide} name={this.state.fileViewer.name} file={this.state.fileViewer.file} />;
     };
+    showBarCode = () => {
+        const second = isSecondMethodShowBarCode();
+        const first = isFirstMethodShowBarCode();
+        const third = isThirdMethodShowBarCode();
+
+        const barCode = document.getElementById('barCode');
+        const hiddenInput = document.getElementById('hidden-input');
+        const qrCodeTextbox = document.getElementById('qrCode-textbox')?.children?.[0]?.children?.[0]?.children?.[0];
+
+        const showBarCodeElement = () => {
+            if (barCode) barCode.style.display = 'flex';
+            else console.warn('Element #barCode nie został znaleziony.');
+        };
+
+        const focusQrCodeTextbox = () => {
+            if (qrCodeTextbox) {
+                qrCodeTextbox.focus();
+                qrCodeTextbox.click();
+            } else console.warn('Element qrCodeTextbox nie został znaleziony.');
+        };
+
+        const handleHiddenInputRead = (onSuccess, fallback) => {
+            if (hiddenInput) hiddenInput.focus();
+            setTimeout(() => {
+                const inputValue = hiddenInput?.value;
+                if (inputValue) {
+                    console.log('value of barcode: ' + inputValue);
+                    onSuccess(inputValue);
+                    if (hiddenInput) hiddenInput.value = '';
+                } else fallback?.();
+            }, 200);
+        };
+
+        if (first) {
+            console.log('firstMethodShowBarCode executed');
+            showBarCodeElement();
+            focusQrCodeTextbox();
+        } else if (second) {
+            console.log('secondMethodShowBarCode executed');
+            showBarCodeElement();
+            handleHiddenInputRead(
+                (value) => {
+                    if (qrCodeTextbox) qrCodeTextbox.value = value;
+                    document.getElementById('opConfirm-qr-code')?.click();
+                },
+                () => {
+                    focusQrCodeTextbox();
+                }
+            );
+        } else if (third) {
+            console.log('thirdMethodShowBarCode executed');
+            handleHiddenInputRead(
+                (value) => {
+                    this.findCode?.(value);
+                },
+                () => {
+                    showBarCodeElement();
+                    focusQrCodeTextbox();
+                }
+            );
+        } else console.error('Method to show barcode not exist: ' + getStore().barCodeShowMethod);
+    };
+
+    closeBarCode = () => {
+        const qrCodeTextbox = document.getElementById('qrCode-textbox')?.children?.[0]?.children?.[0]?.children?.[0];
+        if (qrCodeTextbox) {
+            qrCodeTextbox.value = '';
+        } else {
+            console.warn('Element qrCodeTextbox nie został znaleziony.');
+        }
+        const barCode = document.getElementById('barCode');
+        if (barCode) barCode.style.display = 'none';
+        else console.warn('Element #barCode nie został znaleziony.');
+    };
+
     //override
     renderContent = () => {
         return (
@@ -1617,54 +1703,14 @@ export class BaseViewContainer extends BaseContainer {
                                 totalCounts={this.state.totalCounts}
                             />
                         )}
-                        {this.state.qrCodesDialog && (
-                            <QrCodesDialog
-                                visible={this.state.qrCodesDialog}
-                                onHide={() =>
-                                    this.setState({
-                                        qrCodesDialog: false,
-                                    })
-                                }
-                                findCode={(code) => {
-                                    const isSubView = !StringUtils.isBlank(this.state.subView);
-                                    const viewId = isSubView
-                                        ? this.state.elementId
-                                        : UrlUtils.getIdFromUrlOrAlternative(this.props.id);
-                                    const kindView = UrlUtils.getKindView();
-                                    const parentId = isSubView ? this.state.elementSubViewId : UrlUtils.getParentId();
-                                    const filterId = UrlUtils.getFilterId();
-                                    const body = {
-                                        filter: null,
-                                        filterId: StringUtils.isBlank(filterId) ? 0 : filterId,
-                                        barCode: code,
-                                        value: '',
-                                    };
-                                    this.blockUi();
-                                    this.codeService
-                                        .find(viewId, parentId, kindView, body)
-                                        .then((result) => {
-                                            if (StringUtils.isEmptyString(result.operation)) {
-                                                const message = result?.message;
-                                                this.refreshView();
-                                                if (message) {
-                                                    const text = message?.text;
-                                                    const title = message?.title;
-                                                    this.showErrorMessage(text, 3000, true, title);
-                                                }
-                                            } else this.handleQrCodeResponse(result);
-                                        })
-                                        .catch((ex) => {
-                                            this.showGlobalErrorMessage(ex);
-                                        })
-                                        .finally(() => {
-                                            this.setState({
-                                                qrCodesDialog: false,
-                                            });
-                                            this.unblockUi();
-                                        });
-                                }}
-                            />
-                        )}
+
+                        <QrCodesDialog
+                            onHide={() => this.closeBarCode()}
+                            findCode={(code) => {
+                                this.findCode(code);
+                            }}
+                        />
+
                         {this.state.confirmationOperation?.visible && (
                             <ConfirmationOperationDialog
                                 onAccept={() => {
@@ -1684,6 +1730,41 @@ export class BaseViewContainer extends BaseContainer {
                 )}
             </React.Fragment>
         );
+    };
+
+    findCode = (code) => {
+        const isSubView = !StringUtils.isBlank(this.state.subView);
+        const viewId = isSubView ? this.state.elementId : UrlUtils.getIdFromUrlOrAlternative(this.props.id);
+        const kindView = UrlUtils.getKindView();
+        const parentId = isSubView ? this.state.elementSubViewId : UrlUtils.getParentId();
+        const filterId = UrlUtils.getFilterId();
+        const body = {
+            filter: null,
+            filterId: StringUtils.isBlank(filterId) ? 0 : filterId,
+            barCode: code,
+            value: '',
+        };
+        this.blockUi();
+        this.codeService
+            .find(viewId, parentId, kindView, body)
+            .then((result) => {
+                if (StringUtils.isEmptyString(result.operation)) {
+                    const message = result?.message;
+                    this.refreshView();
+                    if (message) {
+                        const text = message?.text;
+                        const title = message?.title;
+                        this.showErrorMessage(text, 3000, true, title);
+                    }
+                } else this.handleQrCodeResponse(result);
+            })
+            .catch((ex) => {
+                this.showGlobalErrorMessage(ex);
+            })
+            .finally(() => {
+                this.closeBarCode();
+                this.unblockUi();
+            });
     };
 
     renderDashboardViewComponent = () => {

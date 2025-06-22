@@ -358,7 +358,7 @@ class TreeViewComponent extends CellEditComponent {
                 </TreeList>
                 {this.props.parsedGridView?.operationsPPM && this.props.parsedGridView.operationsPPM.length !== 0 && (
                     <MenuWithButtons
-                        target='.dx-row.dx-data-row.dx-row-lines.dx-column-lines'
+                        target={this.props.targetContextMenu}
                         menuRef={this.menuRef}
                         gridView={this.props.parsedGridView}
                         handlePlugins={(e) => this.preOperationAction(e, () => this.props.handlePluginRow(e.id))}
@@ -1044,6 +1044,7 @@ TreeViewComponent.defaultProps = {
     showColumnHeaders: true,
     focusedRowEnabled: false,
     rowRenderingMode: 'standard',
+    targetContextMenu: '#spec-edit #spec-edit .dx-row.dx-data-row.dx-row-lines.dx-column-lines',
     hoverStateEnabled: false,
     preloadEnabled: true,
     showFilterRow: true,
@@ -1091,6 +1092,7 @@ TreeViewComponent.propTypes = {
     showRowLines: PropTypes.bool,
     preloadEnabled: PropTypes.bool,
     rowRenderingMode: PropTypes.string,
+    targetContextMenu: PropTypes.string,
     showBorders: PropTypes.bool,
     showFilterRow: PropTypes.bool,
     showSelection: PropTypes.bool,

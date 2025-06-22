@@ -1,9 +1,12 @@
 import {create} from 'zustand';
+import {StringUtils} from './utils/StringUtils';
 
 const useStore = create((set) => ({
     fetchData: true,
     filterClearFnc: null,
+    draggableGridEnabled: false,
     ganttView: undefined,
+    barCodeShowMethod: undefined,
     wssUrl: undefined,
     webSocket: undefined,
     dataGridView: undefined,
@@ -20,6 +23,15 @@ const useStore = create((set) => ({
     refreshToken: undefined,
     currentViewType: undefined,
     setLabels: (value) => set({labels: value}),
+    setBarCodeShowMethod: (value) => {
+        if (StringUtils.isBlank(value)) {
+            value = 'FIRST';
+        }
+        set({
+            barCodeShowMethod: value,
+        });
+    },
+    setDraggableGridEnabled: (value) => set({draggableGridEnabled: value}),
     setGanttView: (value) => set({ganttView: value}),
     setDataGridView: (value) => set({dataGridView: value}),
     setAppVersion: (value) => set({appVersion: value}),

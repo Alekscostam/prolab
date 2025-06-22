@@ -13,7 +13,7 @@ import TreeViewComponent from './treeGridView/TreeViewComponent';
 import ActionButton from '../components/ActionButton';
 import DivContainer from '../components/DivContainer';
 import LocUtils from '../utils/LocUtils';
-import {Tabs} from 'devextreme-react';
+import {NumberBox, Tabs} from 'devextreme-react';
 import {InputNumber} from 'primereact/inputnumber';
 import {TreeListUtils} from '../utils/component/TreeListUtils';
 import {sessionPrelongFnc} from '../App';
@@ -41,8 +41,6 @@ export class AddSpecContainer extends BaseContainer {
         this.dataTreeStore = new DataTreeStore();
         this.refTreeList = React.createRef();
         this.numberOfCopiesRef = React.createRef();
-        this.numberOfCopies = React.createRef(1);
-        this.numberOfCopiesEvent = React.createRef();
         this.messages = React.createRef();
         this.tabClicked = React.createRef();
         this.blocking = React.createRef(true);
@@ -65,7 +63,6 @@ export class AddSpecContainer extends BaseContainer {
     }
 
     componentDidMount() {
-        this.numberOfCopies.current = 1;
         this._isMounted = true;
         let id = UrlUtils.getViewIdFromURL();
         if (id === undefined) {
@@ -407,7 +404,14 @@ export class AddSpecContainer extends BaseContainer {
             });
         }
     }
-    // TODO: naprwic komponent up and down bo sie zacina nalezy uzyc metody onValueChabnge
+    getNumberOfCopies = () => {
+        const value = this.numberOfCopiesRef.current.instance.option('value');
+        return parseInt(value);
+    };
+    setNumberOfCopies = (newValue) => {
+        this.numberOfCopiesRef.current.current.instance.option('value', newValue);
+    };
+
     //override
     renderHeaderRight() {
         const operations = this.state.parsedView.operations;
@@ -415,40 +419,40 @@ export class AddSpecContainer extends BaseContainer {
         const opCount = TranslationUtils.getOpButton(operations, OperationType.OP_ADDSPEC_COUNT);
         return (
             <div>
-                <div className=' text-end number-of-copies-header'>
+                <div className=' text-end number-of-copies-header' style={{float: 'right', marginRight: '10px'}}>
                     <div>
                         {!!opCount && (
-                            <React.Fragment>
-                                <span className='mr-1'>{LocUtils.locFromStore('Number_of_copy')}</span>
-                                <InputNumber
+                            <div className='row justify-content-center'>
+                                <NumberBox
                                     ref={this.numberOfCopiesRef}
+                                    stylingMode='outlined'
+                                    label={LocUtils.locFromStore('Number_of_copy')}
                                     id='numberOsfCopy'
-                                    name='numberOfCopy'
-                                    onChange={(e) => {
-                                        if (sessionPrelongFnc) {
-                                            sessionPrelongFnc();
-                                        }
-                                        this.numberOfCopies.current = e.value;
-                                    }}
-                                    className='p-inputtext-sm'
+                                    width={150} // 👈 dodano szerokość
+                                    style={{maxHeight: '43px', marginRight: '5px', marginTop: '1px'}}
+                                    defaultValue={1}
+                                    format='###0'
+                                    step={1}
+                                    className={'max-width-size'}
+                                    type='largeNumber'
+                                    labelMode='static'
                                     min={1}
-                                    style={{maxHeight: '43px', marginRight: '5px'}}
-                                    value={1}
-                                    showButtons
+                                    max={1000000}
+                                    showSpinButtons={true}
                                 />
-                            </React.Fragment>
-                        )}
-                        {opAdd && (
-                            <ActionButton
-                                rendered={!!opAdd}
-                                label={opAdd?.label}
-                                style={{marginRight: '5px', maxHeight: '38px'}}
-                                disabled={this.state.selectedRowKeys.length === 0}
-                                className=''
-                                handleClick={() => {
-                                    this.handleExecSpec();
-                                }}
-                            />
+                                {opAdd && (
+                                    <ActionButton
+                                        rendered={!!opAdd}
+                                        label={opAdd?.label}
+                                        style={{marginRight: '5px', maxHeight: '38px'}}
+                                        disabled={this.state.selectedRowKeys.length === 0}
+                                        className=''
+                                        handleClick={() => {
+                                            this.handleExecSpec();
+                                        }}
+                                    />
+                                )}
+                            </div>
                         )}
                     </div>
                 </div>
@@ -489,7 +493,7 @@ export class AddSpecContainer extends BaseContainer {
     }
     //override
     specExec = (viewId, parentId, type, headerId, header) => {
-        const numberOfCopies = this.numberOfCopiesRef?.current.getElement().children[0]?.value;
+        const numberOfCopies = this.getNumberOfCopies();
         this.blockUi();
         if (this.isGridViewUrlExist()) {
             parentId = UrlUtils.getRecordId();
@@ -562,8 +566,7 @@ export class AddSpecContainer extends BaseContainer {
         });
     }
     increaseNumberOfCopies() {
-        const inputRef = this.numberOfCopiesRef.current.inputRef.current;
-        inputRef.value = (parseInt(inputRef.value) + 1).toString();
+        this.setNumberOfCopies(this.getNumberOfCopies() + 1);
     }
     //override
     renderContent() {
@@ -575,6 +578,9 @@ export class AddSpecContainer extends BaseContainer {
                         <div id='spec-edit-dialog' className='spec-edit-dialog '>
                             {this.state.renderTreeView && (
                                 <TreeViewComponent
+                                    targetContextMenu={
+                                        '#spec-edit-dialog #spec-edit .dx-row.dx-data-row.dx-row-lines.dx-column-lines'
+                                    }
                                     altAndLeftClickEnabled={true}
                                     ref={this.refTreeList}
                                     id={this.props.id}

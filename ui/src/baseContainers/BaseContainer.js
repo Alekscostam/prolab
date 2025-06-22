@@ -727,7 +727,6 @@ class BaseContainer extends React.Component {
                 this.unblockUi();
             });
     };
-    // FIXX: naprawa zapisywania edycji specyfikacji, refresh token w przypadku jesli to wymagane w operacji typu download,
     specSave = (viewId, parentId, saveElement, confirmSave, fncRedirect) => {
         this.blockUi();
         this.editSpecService

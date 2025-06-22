@@ -1,3 +1,5 @@
+import {OperationDescriptions} from 'devextreme-react/cjs/data-grid';
+
 export const tabsPositionsSelectBoxLabel = {'aria-label': 'Tab position'};
 export const tabsPositions = ['top', 'left', 'right', 'bottom'];
 export const stylingModesSelectBoxLabel = {'aria-label': 'Styling mode'};
@@ -8,75 +10,58 @@ export const importanceColor = '#FFF4F4';
 
 //  gdy klikalo sie z głónego grida na modyfikuj specyfikacje to nie mozna było powrocic od razu po klinieciu strzalki wstecz.  .
 export const features = [
+    // NEW
     {
         type: 'FIX',
         color: 'red',
-        description: 'Szczegóły w linku.',
         date: '',
-        link: 'https://trello.com/c/tlj6i6wi/769-wariuje-zaznaczanie-checkbox-w-specyfikacji',
-        text: 'Poprawa zaznaczania',
+        text: 'Usuniecie zbędnych chmurek na gridach, których nie pwoinno być',
     },
+
     {
         type: 'FIX',
         color: 'red',
+        description: '@Roman miał problem ze nie działy strzalki',
         date: '',
-        text: 'Centrowanie obrazków na grid',
+        text: 'Wymiana komponentu Liczby kopii w dodawaniu parametru',
+    },
+
+    {
+        type: 'FIX',
+        color: 'red',
+        description: '',
+        date: '',
+        text: 'Naprawa PPM w dodawaniu parametrów (dublowaly sie z tymi z głównego widoku w treelist)',
+    },
+
+    {
+        type: 'FIX',
+        color: 'red',
+        description:
+            'Istnieją trzy wersje na wypadek gdyby któras nie działa - Parametr BAR_CODE_SHOW_METHOD na FISRT/SECOND/THIRD',
+        date: '',
+        text: 'Kreski - zmiana wywoływania poprzez czytnik',
+        more: ' <b>FIRST:</b> po naciśnięciu Ctrl + K w JavaScripcie pojawia się okno (wcześniej było to robione w React), w którym aktywowany jest input, a następnie do niego trafia kod.</br> <b>SECOND:</b> istnieje ukryty input, niewidoczny dla użytkownika. Po wywołaniu Ctrl + K ten input staje się aktywny, a następnie otwierane jest okno, do którego przekazywana jest jego wartość.</br> <b> THIRD: </b> po naciśnięciu Ctrl + K aktywowany zostaje ukryty input, ale bez otwierania okna — od razu wywoływana jest metoda find().',
     },
     {
         type: 'FIX',
         color: 'red',
         description: '',
         date: '',
-        text: 'Odblokowanie PPM w batch',
-    },
-    {
-        type: 'FIX',
-        color: 'red',
-        description: 'Szaczegóły w linku',
-        date: '',
-        link: 'https://trello.com/c/tlhfkEMo/771-przegl%C4%85danie-danych-przefiltrowanych',
-        text: 'Poprawa działania filterOperation przy zapamiętywaniu filtrów',
-    },
-    {
-        type: 'FIX',
-        color: 'red',
-        description: 'Jak dalej będzie źle to musicie wysłać ten czytnik ',
-        date: '',
-        text: 'Focus automatyczny po inicjalizacji komponentu w ctrl + K',
-    },
-    {
-        type: 'NEW',
-        color: 'green',
-        description: 'Który umozliwia połączenie za pomoca socketów z BE',
-        date: '',
-        text: 'Parametr WSS_URL',
+        text: 'Blokada wywolania kreski jak jest odpalony jakis dialog',
     },
     {
         type: 'NEW',
         color: 'green',
         description: '',
         date: '',
-        text: 'Implementacja mechanizmu zapisywania adresu URL odwiedzonego przed logowaniem w pliku cookie, w celu przekierowania użytkownika po pomyślnej autoryzacji.',
+        text: 'Show more w dialogu wersji',
     },
     {
         type: 'NEW',
         color: 'green',
-        description: '',
+        description: 'Aby włączyć tę opcje należy ustawić parametr DRAGGABLE_GRID_ENABLED na true',
         date: '',
-        text: 'DevExtreme 23.2.13',
-    },
-    {
-        type: 'NEW',
-        color: 'green',
-        description: '',
-        date: '',
-        text: 'React 19',
-    },
-    {
-        type: 'NEW',
-        color: 'green',
-        description: '',
-        date: '',
-        text: 'Dodanie informacji o wersji DevExtreme do PreviewDialog do zakładki "Wersja"',
+        text: 'Możliwość przeciągania datagrida w momencie klikniecia i przytrzymania lewego klawisza myszy',
     },
 ];

@@ -332,6 +332,8 @@ class App extends Component {
             const appName = configuration.APP_NAME;
             const captchaShow = configuration.CAPTCHA_SHOW;
             const showHintListButtons = configuration.SHOW_HINT_LIST_BUTTONS;
+            const barCodeShowMethod = configuration.BAR_CODE_SHOW_METHOD;
+            const draggableGridEnabled = configuration.DRAGGABLE_GRID_ENABLED;
             const wssUrl = configuration.WSS_URL;
             const showFilterClear = configuration.SHOW_FILTER_CLEAR;
             const showMarkupOnHtmlEditor = configuration.SHOW_MARKUP_ON_HTML_EDITOR;
@@ -353,6 +355,8 @@ class App extends Component {
                 },
             });
             useStore.getState().setWssUrl(wssUrl);
+            useStore.getState().setBarCodeShowMethod(barCodeShowMethod);
+            useStore.getState().setDraggableGridEnabled(draggableGridEnabled);
             useStore.getState().setShowFilterClear(showFilterClear);
             useStore.getState().setShowHintListButtons(showHintListButtons);
             useStore.getState().setShowAddFromDashboard(showAddFromDashboard);

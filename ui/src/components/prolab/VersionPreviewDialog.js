@@ -85,6 +85,11 @@ export const VersionPreviewDialog = (props) => {
     const [tabsPosition, setTabsPosition] = useState(tabsPositions[0]);
     const [stylingMode, setStylingMode] = useState(stylingModes[0]);
     const [iconPosition, setIconPosition] = useState(iconPositions[0]);
+    const [moreInformation, setMoreInformation] = useState({
+        title: undefined,
+        description: undefined,
+        showDialog: undefined,
+    });
 
     useEffect(() => {
         return () => {};
@@ -93,6 +98,22 @@ export const VersionPreviewDialog = (props) => {
     const hideDialog = () => {
         onHide();
         setVisible(false);
+    };
+
+    const closeMore = () => {
+        setMoreInformation({
+            title: undefined,
+            description: undefined,
+            showDialog: undefined,
+        });
+    };
+
+    const openMore = (taskName, more) => {
+        setMoreInformation({
+            title: taskName,
+            description: more,
+            showDialog: true,
+        });
     };
 
     const dialogHeader = () => {
@@ -150,13 +171,29 @@ export const VersionPreviewDialog = (props) => {
                         <a href={`${task.link}`}>{LocUtils.locFromStore('Link_to_task')} </a>{' '}
                     </span>
                 )}
+                {task.more && (
+                    <span
+                        className='mdi mdi-information'
+                        onClick={() => {
+                            openMore(task.text, task.more);
+                        }}
+                        style={{
+                            position: 'absolute',
+                            right: '8px',
+                            top: '8px',
+                            cursor: 'pointer',
+                            fontSize: '25px',
+                            color: 'red',
+                        }}
+                    />
+                )}
             </div>
         ));
         return <div className='tabpanel-item'>{taskItems}</div>;
     };
 
     return (
-        <div>
+        <>
             <Dialog
                 closable={true}
                 header={dialogHeader}
@@ -182,7 +219,19 @@ export const VersionPreviewDialog = (props) => {
                     <ActionButton label={LocUtils.locFromStore('Change_log')} handleClick={downloadFile} />
                 </div>
             </Dialog>
-        </div>
+            <Dialog
+                visible={moreInformation.showDialog}
+                onHide={() => {
+                    closeMore();
+                }}
+                style={{maxWidth: '750px'}}
+                closable={true}
+                header={<b>{moreInformation.title}</b>}
+                id='more-feature-dialog'
+            >
+                <p dangerouslySetInnerHTML={{__html: moreInformation.description}} />
+            </Dialog>
+        </>
     );
 };
 

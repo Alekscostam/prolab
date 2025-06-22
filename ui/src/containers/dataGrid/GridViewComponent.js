@@ -49,10 +49,13 @@ import {ColumnUtils} from '../../utils/ColumnUtils';
 import FilterClear from '../../components/prolab/FilterClear';
 import useStore from '../../store';
 import {ArrayUtils} from '../../utils/ArrayUtils';
+import {getStore} from '../../utils/helper/StoreHelper';
+import {MouseDragScroller} from '../../utils/MouseDragScroller';
 
 class GridViewComponent extends CellEditComponent {
     constructor(props) {
         super(props);
+        this.mouseDragScroller = undefined;
         this.dataGrid = null;
         this.crudService = new CrudService();
         this.menuRef = React.createRef();
@@ -130,13 +133,47 @@ class GridViewComponent extends CellEditComponent {
         element.append(span);
     };
 
+    getScrollableContainer() {
+        const gridRef = this.props?.getRef()?._instance;
+        const scrollableContainer = gridRef?.element()?.querySelector('.dx-scrollable-container');
+        return scrollableContainer;
+    }
+
     componentDidMount() {
         super.componentDidMount();
         this.unregisterKeydownEvent();
         this.registerKeydownEvent();
     }
+
+    canBeGridDraggable = () => {
+        return getStore().draggableGridEnabled && !UrlUtils.isBatch();
+    };
+
+    registerMouseEvent = (scrollContainer) => {
+        if (this.canBeGridDraggable() && StringUtils.isBlank(this.mouseDragScroller)) {
+            if (scrollContainer) {
+                this.mouseDragScroller = new MouseDragScroller(scrollContainer);
+                this.mouseDragScroller.init();
+                return;
+            }
+            setTimeout(() => {
+                scrollContainer = this.getScrollableContainer();
+                this.mouseDragScroller = new MouseDragScroller(scrollContainer);
+                this.mouseDragScroller.init();
+            }, 2000);
+        }
+    };
+
+    unregisterMouseEvent = () => {
+        if (this.canBeGridDraggable()) {
+            this.mouseDragScroller?.destroy();
+            this.mouseDragScroller = undefined;
+        }
+    };
+
     componentWillUnmount() {
         this.unregisterKeydownEvent();
+        this.unregisterMouseEvent();
     }
     registerKeydownEvent() {
         const gridContainer = document.getElementById('grid-container');
@@ -262,7 +299,7 @@ class GridViewComponent extends CellEditComponent {
                                     const isAlreadySelected = this.props.selectedRows.find(
                                         (el) => el.ID === String(e?.row?.data?.ID)
                                     );
-                                    if (!isAlreadySelected) e.row.cells[0].cellElement.firstChild.click();
+                                    if (!isAlreadySelected) e.row.cells[0]?.cellElement?.firstChild?.click();
                                 }
                                 this.setState({selectedRecordId: e.row.data.ID});
                             }
@@ -301,6 +338,7 @@ class GridViewComponent extends CellEditComponent {
                     columnResizingMode='widget'
                     allowColumnReordering={true}
                     onOptionChanged={(e) => {
+                        this.unclickAfterFilter(e);
                         if (e.fullName.includes('filterValue') && e.name === 'columns') {
                             if (this.props?.getRef) {
                                 this.props.getRef().instance.clearSelection();
@@ -355,6 +393,9 @@ class GridViewComponent extends CellEditComponent {
                         }
                     }}
                     onInitialized={(ref) => {
+                        if (ref?.component) {
+                            this.registerMouseEvent(this.getScrollableContainer());
+                        }
                         if (!!this.props.handleOnInitialized) this.props.handleOnInitialized(ref);
                     }}
                 >
@@ -1076,6 +1117,55 @@ class GridViewComponent extends CellEditComponent {
                 refGrid.instance.getDataSource().reload();
             }
         );
+    };
+
+    unclickAfterFilter = (e) => {
+        if (e.fullName && e.fullName.includes('.filterValue')) {
+            if (
+                Array.isArray(e.value) &&
+                e.value.length === 2 &&
+                e.value[0] !== undefined &&
+                e.value[1] !== undefined
+            ) {
+                // const xd = document.getElementById('XDD');
+                // const root = document.getElementById('root');
+                // root.click();
+                // e.component.closeEditCell();
+                // e.component.cancelEditData();
+                // const refGrid = this.props.getRef().instance;
+                // refGrid.closeEditCell();
+                // const aaa = Array.from(document.getElementsByClassName('dx-checkbox-icon'));
+                // if (aaa.length != 0) {
+                //     aaa[0].click();
+                // }
+                // if (this.numberBoxRef.current) {
+                //     setTimeout(() => {
+                //         const hiddenInput = document.getElementById('hidden-input');
+                //         hiddenInput.focus();
+                //         const xxx = document.getElementById('XDD').children[1].children[0].children[0];
+                //         xxx.focus();
+                //         setTimeout(() => {
+                //             const element = document.querySelector(
+                //                 '.dx-command-select.dx-cell-focus-disabled.dx-editor-cell.dx-editor-inline-block'
+                //             );
+                //             element.click();
+                //             // document.getElementsByClassName("dx-command-select.dx-cell-focus-disabled.dx-editor-cell.dx-editor-inline-block")[0].click()
+                //             xxx.click();
+                //         }, 1000);
+                //         debugger;
+                //     }, 2000);
+                //     // Znajdujemy input w środku NumberBox i wywołujemy focus()
+                //     // const inputElement = this.numberBoxRef.current.element().querySelector('input');
+                //     // if (inputElement) {
+                //     //     inputElement.focus();
+                //     // }
+                // }
+                // e.element.click();
+                // console.log('Ustawiono zakres dat:', e.value[0], e.value[1]);
+                // console.log('Ustawiono zakres dat:', e.component);
+                // Możesz teraz np. ukryć edytor, zareagować itd.
+            }
+        }
     };
 }
 

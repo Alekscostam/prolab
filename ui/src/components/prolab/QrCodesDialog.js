@@ -27,7 +27,6 @@ export const QrCodesDialog = (props) => {
 
     const hideDialog = () => {
         onHide();
-        setVisible(false);
     };
 
     const dialogHeader = () => {
@@ -45,11 +44,13 @@ export const QrCodesDialog = (props) => {
                 label={LocUtils.locFromStoreWithDefault('Cancel', 'Anuluj')}
             />
             <ShortcutButton
-                id={'opConfirm'}
+                id={'opConfirm-qr-code'}
                 className={`grid-button-panel-big inverse mt-1 mb-1 mr-1`}
                 handleClick={() => {
-                    const value = qrCodeRef.current.instance.option('value');
-                    findCode(value);
+                    const qrCodeTextbox =
+                        document.getElementById('qrCode-textbox')?.children?.[0]?.children?.[0]?.children?.[0];
+
+                    findCode(qrCodeTextbox.value);
                 }}
                 label={LocUtils.locFromStoreWithDefault('Confirm', 'Zatwierdź')}
             />
@@ -58,13 +59,13 @@ export const QrCodesDialog = (props) => {
 
     const fullNameLabel = {'aria-label': 'Full Name'};
     return (
-        <div>
+        <div id='barCode' style={{display: 'none'}}>
             <Dialog
                 closable={false}
                 header={dialogHeader}
                 blockScroll
                 resizable={false}
-                visible={visible}
+                visible={true}
                 style={{width: '28vw', overflow: 'hidden !important'}}
                 onHide={hideDialog}
                 footer={dialogFooter}

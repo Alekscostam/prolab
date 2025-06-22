@@ -42,13 +42,6 @@ export class DataGridUtils extends ViewDataCompUtils {
                 _bgColor = info.data[_BGCOLOR];
                 _fontcolor = info.data[_FONTCOLOR];
             }
-
-            const specialBgColor = info.data['_BGCOLOR_' + info.column?.dataField];
-            if (!rowSelected) {
-                bgColorFinal = specialBgColor || _bgColor;
-                if (!specialBgColor && _bgColor) element.style.backgroundColor = _bgColor;
-            }
-
             let fontColorFinal = 'black';
             const specialFontColor = info.data['_FONTCOLOR_' + info.column?.dataField];
             if (specialFontColor) {
@@ -56,6 +49,15 @@ export class DataGridUtils extends ViewDataCompUtils {
                 className += ' importance-color';
             } else if (_fontcolor) {
                 fontColorFinal = _fontcolor;
+            }
+
+            const specialBgColor = info.data['_BGCOLOR_' + info.column?.dataField];
+            if (!rowSelected) {
+                bgColorFinal = specialBgColor || _bgColor;
+                if (!specialBgColor && _bgColor) {
+                    element.style.backgroundColor = _bgColor;
+                    bgColorFinal = undefined;
+                }
             }
 
             const commonProps = {

@@ -50,6 +50,11 @@ html * {
 html {
     height: 100%;
 }
+.max-width-size{
+    .dx-texteditor-input{
+        width: 100%;
+    }
+}
 .p-fileupload-row {
     .p-badge.p-badge-warning {
         display: none !important;

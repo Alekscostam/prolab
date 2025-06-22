@@ -480,6 +480,20 @@ class Sidebar extends React.Component {
                                 <span>{LocUtils.locFromStore('Menu_Logout')}</span>
                             </div>
                         </div>
+                        <input
+                            id='hidden-input'
+                            style={{
+                                position: 'absolute',
+                                left: '-9999px',
+                                top: '0',
+                                width: '1px',
+                                height: '1px',
+                                opacity: 0,
+                                pointerEvents: 'none',
+                                border: 'none',
+                                outline: 'none',
+                            }}
+                        />
                         <div className='to-right' style={{marginRight: '5px'}}>
                             {this.sessionTimeOutComponent()}
                         </div>
