@@ -1,8 +1,7 @@
 import {ConfirmDialog} from 'primereact/confirmdialog';
 import {localeOptions} from 'primereact/api';
 import ReactDOM from 'react-dom/client';
-import React from 'react';
-import {useEffect} from 'react';
+import React, {useEffect} from 'react';
 import {ResponseStatus} from '../../enum/ResponseStatus';
 import {HtmlUtils} from '../HtmlUtils';
 
@@ -11,7 +10,10 @@ function ResponseHelper() {
         return () => {
             // Czyść wszystkie dialogi potwierdzające przy odmontowywaniu komponentu
             document.querySelectorAll('.confirm-dialog-wrapper').forEach((element) => {
-                ReactDOM.unmountComponentAtNode(element);
+                const root = element._reactRoot;
+                if (root) {
+                    root.unmount();
+                }
                 document.body.removeChild(element);
             });
         };
@@ -19,19 +21,20 @@ function ResponseHelper() {
 
     return null;
 }
+
 ResponseHelper.run = (response, nokAcceptFnc, okAcceptFnc, resErrorMessage, onAfterNokClick) => {
     switch (response.status) {
         case ResponseStatus.OK:
-            if (!!response.message) {
+            if (response.message) {
                 renderConfirmDialog(response.message.text, response.message.title, 'pi pi-info-circle', okAcceptFnc);
-            } else if (!!response.error) {
+            } else if (response.error) {
                 resErrorMessage(response);
             } else {
                 okAcceptFnc();
             }
             break;
         case ResponseStatus.NOK:
-            if (!!response.question) {
+            if (response.question) {
                 renderConfirmDialog(
                     response.question.text,
                     response.question.title,
@@ -39,14 +42,14 @@ ResponseHelper.run = (response, nokAcceptFnc, okAcceptFnc, resErrorMessage, onAf
                     nokAcceptFnc,
                     true
                 );
-            } else if (!!response.message) {
+            } else if (response.message) {
                 renderConfirmDialog(
                     response.message.text,
                     response.message.title,
                     'pi pi-info-circle',
                     onAfterNokClick
                 );
-            } else if (!!response.error) {
+            } else if (response.error) {
                 resErrorMessage(response);
             }
             break;
@@ -55,12 +58,22 @@ ResponseHelper.run = (response, nokAcceptFnc, okAcceptFnc, resErrorMessage, onAf
             break;
     }
 };
+
 function renderConfirmDialog(message, header, icon, onAccept, isQuestionDialog = false) {
     const confirmDialogWrapper = document.createElement('div');
-    confirmDialogWrapper.classList.add('confirm-dialog-wrapper');
-    confirmDialogWrapper.classList.add('confirm-dialog');
+    confirmDialogWrapper.classList.add('confirm-dialog-wrapper', 'confirm-dialog');
     document.body.appendChild(confirmDialogWrapper);
-    ReactDOM.createRoot(confirmDialogWrapper).render(
+
+    // Tworzymy root i zapisujemy go jako właściwość DOM elementu
+    const root = ReactDOM.createRoot(confirmDialogWrapper);
+    confirmDialogWrapper._reactRoot = root;
+
+    const cleanup = () => {
+        root.unmount();
+        document.body.removeChild(confirmDialogWrapper);
+    };
+    debugger;
+    root.render(
         <ConfirmDialog
             closable={false}
             visible={true}
@@ -73,18 +86,12 @@ function renderConfirmDialog(message, header, icon, onAccept, isQuestionDialog =
                 onAccept
                     ? () => {
                           onAccept();
-                          document.body.removeChild(confirmDialogWrapper);
+                          cleanup();
                       }
-                    : () => {
-                          document.body.removeChild(confirmDialogWrapper);
-                      }
+                    : cleanup
             }
-            reject={
-                isQuestionDialog
-                    ? () => document.body.removeChild(confirmDialogWrapper)
-                    : () => document.body.removeChild(confirmDialogWrapper)
-            }
-            rejectClassName={`${isQuestionDialog ? `p-button-text` : 'p-hidden'} `}
+            reject={cleanup}
+            rejectClassName={isQuestionDialog ? 'p-button-text' : 'p-hidden'}
         />
     );
 }

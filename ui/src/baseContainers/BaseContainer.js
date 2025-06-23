@@ -309,14 +309,12 @@ class BaseContainer extends React.Component {
     }
 
     scrollToFirstError() {
-        if (this !== undefined && ReactDOM.findDOMNode(this) !== undefined && ReactDOM.findDOMNode(this) !== null) {
-            const errors = ReactDOM.findDOMNode(this).getElementsByClassName('srv-validation-message');
+        const errors = document.getElementsByClassName('srv-validation-message');
+        try {
             if (errors && errors.length > 0) {
-                errors[0].parentNode.scrollIntoView();
+                errors[0]?.parentNode?.scrollIntoView();
             }
-        } else {
-            ConsoleHelper('scrollToFirstError ', this, ReactDOM.findDOMNode(this));
-        }
+        } catch (e) {}
     }
 
     handleValidForm() {}
