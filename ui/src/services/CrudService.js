@@ -72,11 +72,9 @@ export default class CrudService extends BaseService {
                 return Promise.resolve(editDataEntryResponse);
             })
             .catch((err) => {
-                // window.location.href = UrlUtils.getUrlWithoutEditRowParams();
                 throw err;
             });
     }
-    // https://rdprolab.inform-tech.pl:444/Api/api/View/95/Edit/11 TODO:
     edit(viewId, recordId, parentId) {
         return this.fetch(
             `${this.getDomain()}/${this.path}/${viewId}/Edit/${recordId}${parentId ? `?parentId=${parentId}` : ''}`,
@@ -89,7 +87,7 @@ export default class CrudService extends BaseService {
                 return Promise.resolve(EditRowUtils.convertEditResponse(editDataResponse));
             })
             .catch((err) => {
-                // window.location.href = UrlUtils.getUrlWithoutEditRowParams();
+                window.location.href = UrlUtils.getUrlWithoutEditRowParams();
                 throw err;
             });
     }

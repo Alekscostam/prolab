@@ -6,10 +6,13 @@ export class MouseDragScroller {
         this.startY = 0;
         this.scrollLeft = 0;
         this.scrollTop = 0;
+        this.dragStartTimeout = null;
+        this.suppressClick = false;
 
         this.onMouseDown = this.onMouseDown.bind(this);
         this.onMouseMove = this.onMouseMove.bind(this);
         this.onMouseUp = this.onMouseUp.bind(this);
+        this.onDoubleClick = this.onDoubleClick.bind(this);
     }
 
     init() {
@@ -19,6 +22,7 @@ export class MouseDragScroller {
         this.container.addEventListener('mouseleave', this.onMouseUp);
         this.container.addEventListener('mouseup', this.onMouseUp);
         this.container.addEventListener('mousemove', this.onMouseMove);
+        this.container.addEventListener('dblclick', this.onDoubleClick);
     }
 
     destroy() {
@@ -28,23 +32,31 @@ export class MouseDragScroller {
         this.container.removeEventListener('mouseleave', this.onMouseUp);
         this.container.removeEventListener('mouseup', this.onMouseUp);
         this.container.removeEventListener('mousemove', this.onMouseMove);
+        this.container.removeEventListener('dblclick', this.onDoubleClick);
     }
 
     onMouseDown(e) {
         if (e.button !== 0) return;
-        this.isDragging = true;
-        this.startX = e.pageX - this.container.offsetLeft;
-        this.startY = e.pageY - this.container.offsetTop;
-        this.scrollLeft = this.container.scrollLeft;
-        this.scrollTop = this.container.scrollTop;
-        this.container.style.cursor = 'grabbing';
-        this.container.style.userSelect = 'none';
+        this.dragStartTimeout = setTimeout(() => {
+            this.isDragging = true;
+            this.startX = e.pageX - this.container.offsetLeft;
+            this.startY = e.pageY - this.container.offsetTop;
+            this.scrollLeft = this.container.scrollLeft;
+            this.scrollTop = this.container.scrollTop;
+            this.container.style.cursor = 'grabbing';
+            this.container.style.userSelect = 'none';
+        }, 10);
     }
 
-    onMouseUp() {
-        this.isDragging = false;
-        this.container.style.cursor = 'default';
-        this.container.style.removeProperty('user-select');
+    onMouseUp(e) {
+        clearTimeout(this.dragStartTimeout);
+        this.dragStartTimeout = null;
+
+        if (this.isDragging) {
+            this.isDragging = false;
+            this.container.style.cursor = 'default';
+            this.container.style.removeProperty('user-select');
+        }
     }
 
     onMouseMove(e) {
@@ -60,4 +72,6 @@ export class MouseDragScroller {
         this.container.scrollLeft = this.scrollLeft - walkX;
         this.container.scrollTop = this.scrollTop - walkY;
     }
+
+    onDoubleClick(e) {}
 }

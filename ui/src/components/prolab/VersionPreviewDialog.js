@@ -7,10 +7,18 @@ import {StringUtils} from '../../utils/StringUtils';
 import ActionButton from '../ActionButton';
 import useStore from '../../store';
 import {CookiesName} from '../../enum/CookieName';
-import {features, iconPositions, stylingModes, tabsPositions} from './dataSource/FeaturesDataSource';
+import {iconPositions, stylingModes, tabsPositions} from './dataSource/FeaturesDataSource';
 import {version as devExtremeVersion} from 'devextreme/core/version';
+import {getStore} from '../../utils/helper/StoreHelper';
 
 export const VersionPreviewDialog = (props) => {
+    const [aboutVersion, setAboutVersion] = useState([]);
+
+    useEffect(() => {
+        setAboutVersion(getStore().aboutVersion);
+        return () => {};
+    }, [props, aboutVersion]);
+
     const version = [
         {
             type: 'VER',
@@ -18,6 +26,7 @@ export const VersionPreviewDialog = (props) => {
             description: process.env.REACT_APP_BUILD_NUMBER,
             date: '',
             text: 'Build number',
+            isNew: true,
         },
         {
             identifier: 'APP_NAME',
@@ -26,6 +35,7 @@ export const VersionPreviewDialog = (props) => {
             description: sessionStorage.getItem(CookiesName.APP_NAME),
             date: '',
             text: 'App name',
+            isNew: true,
         },
         {
             identifier: 'APP_VERSION',
@@ -34,6 +44,7 @@ export const VersionPreviewDialog = (props) => {
             description: sessionStorage.getItem(CookiesName.APP_VERSION),
             date: '',
             text: 'App version',
+            isNew: true,
         },
 
         {
@@ -42,6 +53,7 @@ export const VersionPreviewDialog = (props) => {
             description: process.env.REACT_APP_BUILD_TIME,
             date: '',
             text: 'Build time',
+            isNew: true,
         },
         {
             identifier: 'DEVICE_NAME',
@@ -50,6 +62,7 @@ export const VersionPreviewDialog = (props) => {
             description: sessionStorage.getItem(CookiesName.DEVICE_NAME),
             date: '',
             text: 'Device name',
+            isNew: true,
         },
         {
             identifier: 'DEV_EXTREME_VER',
@@ -58,6 +71,7 @@ export const VersionPreviewDialog = (props) => {
             description: devExtremeVersion,
             date: '',
             text: 'DevExtreme version',
+            isNew: true,
         },
     ];
 
@@ -65,18 +79,28 @@ export const VersionPreviewDialog = (props) => {
         {
             type: 'FIX',
             title: LocUtils.locFromStore('FIX'),
-
-            tasks: features.filter((item) => item.type === 'FIX'),
+            tasks: aboutVersion
+                ?.flatMap((v) => v.data)
+                ?.filter((item) => item.type === 'FIX')
+                ?.filter((item) => item.isNew),
         },
         {
             type: 'NEW',
             title: LocUtils.locFromStore('NEW'),
-            tasks: features.filter((item) => item.type === 'NEW'),
+            tasks: aboutVersion
+                ?.flatMap((v) => v.data)
+                ?.filter((item) => item.type === 'NEW')
+                ?.filter((item) => item.isNew),
         },
         {
             type: 'VER',
             title: LocUtils.locFromStore('VER'),
             tasks: version,
+        },
+        {
+            type: 'HISTORY',
+            title: LocUtils.locFromStore('HISTORY'),
+            tasks: aboutVersion?.flatMap((v) => v.data)?.filter((item) => !item.isNew),
         },
     ];
     const {onHide} = props;
@@ -120,76 +144,120 @@ export const VersionPreviewDialog = (props) => {
         return <div> {LocUtils.locFromStore('About_current_version')} </div>;
     };
 
-    const contentChangeLog = () => {
+    const contentChangeLog = (title = undefined) => {
         const textContent = [];
-        textContent.push('wersja ' + useStore.getState().appVersion);
-        textContent.push('--------------------');
-        const allTasks = dataSource.filter((item) => item.type !== 'VER').flatMap((item) => item.tasks);
-        let currentType = undefined;
-        let counter = 1;
-        allTasks.forEach((task, index) => {
-            if (index === 0) {
-                currentType = task.type;
-                textContent.push(currentType);
-            }
-            if (currentType !== task.type) {
-                counter = 1;
-                currentType = task.type;
-                textContent.push(currentType);
-            }
-            const text = counter + '. ' + task.text;
-            textContent.push(text);
-            counter++;
-        });
+        aboutVersion
+            .filter((av) => {
+                if (title === undefined) {
+                    return true;
+                } else {
+                    return av.title === title;
+                }
+            })
+            .forEach((av, index) => {
+                textContent.push('');
+                textContent.push(changeLogName(av.title));
+                textContent.push('--------------------');
+                let currentType = undefined;
+                let counter = 1;
+                av.data.forEach((task, index) => {
+                    if (index === 0) {
+                        currentType = task.type;
+                        textContent.push(currentType);
+                    }
+                    if (currentType !== task.type) {
+                        counter = 1;
+                        currentType = task.type;
+                        textContent.push(currentType);
+                    }
+                    const text = counter + '. ' + task.text;
+                    textContent.push(text);
+                    if (task.more) {
+                        textContent.push('');
+                        const cleanText = task.more
+                            .replace(/<br\s*\/?>/gi, '\n')
+                            .replace(/<[^>]+>/g, '')
+                            .replace(/ +/g, ' ')
+                            .trim();
+                        textContent.push(cleanText);
+                        textContent.push('');
+                    }
+                    counter++;
+                });
+            });
         return textContent.join('\n');
     };
 
-    const changeLogName = () => {
-        return `changelog-${useStore.getState().appVersion}.txt`;
+    const changeLogName = (title) => {
+        if (StringUtils.isBlankOrEmpty(title)) {
+            return `changelog-${useStore.getState().appVersion}.txt`;
+        }
+        return title;
     };
 
-    const downloadFile = () => {
-        const blob = new Blob([contentChangeLog()], {type: 'text/plain'});
+    const downloadFile = (title) => {
+        const blob = new Blob([contentChangeLog(title)], {type: 'text/plain'});
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = changeLogName();
+        link.download = changeLogName(title);
         link.click();
         URL.revokeObjectURL(link.href);
     };
 
     const tabPanelItem = ({data}) => {
-        const taskItems = data.tasks.map((task, index) => (
-            <div
-                key={'item-' + index}
-                className={`ver-item ver-item-color-${task.color}`}
-                style={{background: task.importanceColor}}
-            >
-                <span className='ver-item-text'>{task.text}</span>
-                <span className='ver-item-info'>{`${task.description || ''}`}</span>
-                {!StringUtils.isBlank(task?.link) && (
-                    <span className='ver-item-text'>
-                        <a href={`${task.link}`}>{LocUtils.locFromStore('Link_to_task')} </a>{' '}
-                    </span>
-                )}
-                {task.more && (
-                    <span
-                        className='mdi mdi-information'
-                        onClick={() => {
-                            openMore(task.text, task.more);
-                        }}
-                        style={{
-                            position: 'absolute',
-                            right: '8px',
-                            top: '8px',
-                            cursor: 'pointer',
-                            fontSize: '25px',
-                            color: 'red',
-                        }}
-                    />
-                )}
+        const isNew = data.tasks.find((task) => task.isNew);
+        if (isNew) {
+            const taskItems = data.tasks.map((task, index) => (
+                <div
+                    key={'item-' + index}
+                    className={`ver-item ver-item-color-${task.color}`}
+                    style={{background: task.importanceColor}}
+                >
+                    <span className='ver-item-text'>{task.text}</span>
+                    <span className='ver-item-info'>{`${task.description || ''}`}</span>
+                    {!StringUtils.isBlank(task?.link) && (
+                        <span className='ver-item-text'>
+                            <a href={`${task.link}`} rel='noopener noreferrer' target='_blank'>
+                                {LocUtils.locFromStore('Link_to_task')}{' '}
+                            </a>{' '}
+                        </span>
+                    )}
+                    {task.more && (
+                        <span
+                            className='mdi mdi-information'
+                            onClick={() => {
+                                openMore(task.text, task.more);
+                            }}
+                            style={{
+                                position: 'absolute',
+                                right: '8px',
+                                top: '8px',
+                                cursor: 'pointer',
+                                fontSize: '25px',
+                                color: 'red',
+                            }}
+                        />
+                    )}
+                </div>
+            ));
+            return <div className='tabpanel-item'>{taskItems}</div>;
+        } else if (data.tasks?.length === 0) {
+            return <div></div>;
+        }
+        return (
+            <div className='row ml-1 mt-4'>
+                {aboutVersion.map((av, index) => {
+                    return (
+                        <div className='col-12 mb-2'>
+                            <a style={{cursor: 'pointer'}} onClick={() => downloadFile(av.title)}>
+                                {index + 1 + `. `}
+                                {index === 0 ? changeLogName() : av.title}
+                            </a>
+                        </div>
+                    );
+                })}
             </div>
-        ));
-        return <div className='tabpanel-item'>{taskItems}</div>;
+        );
     };
 
     return (
@@ -216,7 +284,7 @@ export const VersionPreviewDialog = (props) => {
                     ></TabPanel>
                 </div>
                 <div className='float-right mt-3'>
-                    <ActionButton label={LocUtils.locFromStore('Change_log')} handleClick={downloadFile} />
+                    <ActionButton label={LocUtils.locFromStore('Change_log')} handleClick={() => downloadFile()} />
                 </div>
             </Dialog>
             <Dialog

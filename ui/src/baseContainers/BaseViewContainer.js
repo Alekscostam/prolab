@@ -485,7 +485,7 @@ export class BaseViewContainer extends BaseContainer {
                     kindView,
                     (res) => this.handleShowEditPanel(res),
                     () => this.handleUnBlockUi(),
-                    (err) => this.showErrorMessage(err)
+                    (err) => this.showGlobalErrorMessage(err)
                 );
                 break;
             case CodeOperationType.EDIT_SPEC:
@@ -496,7 +496,7 @@ export class BaseViewContainer extends BaseContainer {
                     result.listId[0],
                     this.state.parsedGridView,
                     () => this.handleUnBlockUi(),
-                    (err) => this.showErrorMessage(err)
+                    (err) => this.showGlobalErrorMessage(err)
                 );
                 break;
             case CodeOperationType.FIND:
@@ -1748,15 +1748,13 @@ export class BaseViewContainer extends BaseContainer {
         this.codeService
             .find(viewId, parentId, kindView, body)
             .then((result) => {
-                if (StringUtils.isEmptyString(result.operation)) {
-                    const message = result?.message;
-                    this.refreshView();
-                    if (message) {
-                        const text = message?.text;
-                        const title = message?.title;
-                        this.showErrorMessage(text, 3000, true, title);
-                    }
-                } else this.handleQrCodeResponse(result);
+                const message = result?.message;
+                if (message) {
+                    const text = message?.text;
+                    const title = message?.title;
+                    this.showErrorMessage(text, 3000, true, title);
+                }
+                this.handleQrCodeResponse(result);
             })
             .catch((ex) => {
                 this.showGlobalErrorMessage(ex);

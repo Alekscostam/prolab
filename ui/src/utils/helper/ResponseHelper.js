@@ -64,7 +64,6 @@ function renderConfirmDialog(message, header, icon, onAccept, isQuestionDialog =
     confirmDialogWrapper.classList.add('confirm-dialog-wrapper', 'confirm-dialog');
     document.body.appendChild(confirmDialogWrapper);
 
-    // Tworzymy root i zapisujemy go jako właściwość DOM elementu
     const root = ReactDOM.createRoot(confirmDialogWrapper);
     confirmDialogWrapper._reactRoot = root;
 
@@ -72,7 +71,6 @@ function renderConfirmDialog(message, header, icon, onAccept, isQuestionDialog =
         root.unmount();
         document.body.removeChild(confirmDialogWrapper);
     };
-    debugger;
     root.render(
         <ConfirmDialog
             closable={false}

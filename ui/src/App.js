@@ -38,6 +38,8 @@ import useStore from './store';
 import {SessionStoreUtils} from './utils/SessionStoreUtils';
 import WebSocket from './socket/WebSocket';
 import BarcodeScannerSimulator from './reader/BarcodeScannerSimulator';
+import {getStore} from './utils/helper/StoreHelper';
+import AboutVersionService from './services/AboutVersionService';
 
 export let clearState;
 export let reStateApp;
@@ -156,6 +158,15 @@ class App extends Component {
         this.saveCookieUrlAfterLogin();
         this.readConfigAndSaveInCookie(configUrl).catch((err) => {
             console.error('Error start application = ', err);
+        });
+        this.readAboutVersion(configUrl).catch((err) => {
+            console.error('Cant read version info = ', err);
+        });
+    };
+
+    readAboutVersion = (configUrl) => {
+        return new AboutVersionService(configUrl).getAboutVersion().then((response) => {
+            getStore().setAboutVersion(response.changeLog);
         });
     };
     componentDidUpdate() {

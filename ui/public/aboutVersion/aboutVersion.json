@@ -1,0 +1,114 @@
+{
+  "changeLog": [
+    {
+      "title":"",
+      "data": [
+        {
+          "isNew": true,
+          "type": "FIX",
+          "color": "red",
+          "link":"https://trello.com/c/m86Ak3yF/779-edycja-pola-czas-w-specyfikacji",
+          "date": "",
+          "text": "Naprawa blank strony po kliknięcie w Date component w treelist"
+        },
+        {
+          "isNew": true,
+          "type": "NEW",
+          "color": "green",
+          "link":"https://trello.com/c/OLbI1QnR/778-mo%C5%BCliwo%C5%9B%C4%87-zaznaczenia-warto%C5%9Bci-w-kom%C3%B3rce-double-click",
+          "date": "",
+          "text": "Double click zaznacza text na datagrid"
+        },
+        {
+          "isNew": true,
+          "type": "FIX",
+          "color": "red",
+          "date": "",
+          "text": "Kasowanie parametrów z URL w przypadku wystąpienia błędu na edycji nagłówka"
+        },
+        {
+          "isNew": true,
+          "type": "FIX",
+          "color": "red",
+          "date": "",
+          "text": "Naprawa blank strony po wywołaniu ctrl + k"
+        },
+        {
+          "isNew": true,
+          "type": "NEW",
+          "color": "green",
+          "date": "",
+          "text": "Otwieranie linku w nowej karcie po kliknieciu z dialogu wersji"
+        },
+        {
+          "isNew": true,
+          "type": "NEW",
+          "color": "green",
+          "date": "",
+          "text": "Wersja w pliku aboutVersion.json w katalogu aboutVersion"
+        },
+        {
+          "isNew": true,
+          "type": "NEW",
+          "color": "green",
+          "date": "",
+          "text": "Zakładka historii w dialogu wersji"
+        }
+      ]
+    },
+    {
+      "title":"Wersja któraś tam",
+      "data": [
+        {
+          "type": "FIX",
+          "color": "red",
+          "date": "",
+          "text": "Usunięcie zbędnych chmurek na gridach, których nie powinno być"
+        },
+        {
+          "type": "FIX",
+          "color": "red",
+          "description": "@Roman miał problem, że nie działały strzałki",
+          "date": "",
+          "text": "Wymiana komponentu Liczby kopii w dodawaniu parametru"
+        },
+        {
+          "type": "FIX",
+          "color": "red",
+          "description": "",
+          "date": "",
+          "text": "Naprawa PPM w dodawaniu parametrów (dublowały się z tymi z głównego widoku w treelist)"
+        },
+        {
+          "type": "FIX",
+          "color": "red",
+          "description": "Istnieją trzy wersje na wypadek, gdyby któraś nie działała — parametr BAR_CODE_SHOW_METHOD na FIRST/SECOND/THIRD",
+          "date": "",
+          "text": "Kreski - zmiana wywoływania poprzez czytnik",
+          "more": "<b>FIRST:</b> po naciśnięciu Ctrl + K w JavaScripcie pojawia się okno (wcześniej było to robione w React), w którym aktywowany jest input, a następnie do niego trafia kod.<br><b>SECOND:</b> istnieje ukryty input, niewidoczny dla użytkownika. Po wywołaniu Ctrl + K ten input staje się aktywny, a następnie otwierane jest okno, do którego przekazywana jest jego wartość.<br><b>THIRD:</b> po naciśnięciu Ctrl + K aktywowany zostaje ukryty input, ale bez otwierania okna — od razu wywoływana jest metoda find()."
+        },
+        {
+          "type": "FIX",
+          "color": "red",
+          "description": "",
+          "date": "",
+          "text": "Blokada wywołania kreski, gdy jest otwarty jakiś dialog"
+        },
+        {
+          "type": "NEW",
+          "color": "green",
+          "description": "",
+          "date": "",
+          "text": "Show more w dialogu wersji"
+        },
+        {
+          "type": "NEW",
+          "color": "green",
+          "description": "Aby włączyć tę opcję, należy ustawić parametr DRAGGABLE_GRID_ENABLED na true",
+          "date": "",
+          "text": "Możliwość przeciągania datagrida w momencie kliknięcia i przytrzymania lewego klawisza myszy"
+        }
+      ]
+    }
+  ]
+}

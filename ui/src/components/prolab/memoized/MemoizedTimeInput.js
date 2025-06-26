@@ -6,7 +6,7 @@ import {StringUtils} from '../../../utils/StringUtils';
 //T – Czas
 export const MemoizedTimeInput = React.memo(({field, cellInfo, inputValue, fieldIndex, required, validate}) => {
     let date = new Date();
-    if (!StringUtils.isBlank(inputValue)) {
+    if (!StringUtils.isBlankOrEmpty(inputValue)) {
         const [hours, minutes] = inputValue.split(':').map(Number);
         date.setHours(hours, minutes, 0, 0); // Ustawia godzinę i minutę
     } else {

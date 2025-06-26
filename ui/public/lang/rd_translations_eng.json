@@ -70,6 +70,7 @@
         {"code": "Change_log", "caption": "Change log"},
         {"code": "NEW", "caption": "New"},
         {"code": "VER", "caption": "Version"},
+        {"code": "HISTORY", "caption": "Historia"},
         {"code": "FIX", "caption": "FIX"},
         {"code": "Communication_error", "caption": "communication with the server while downloading data."},
         {"code": "Publish_date", "caption": "Publish date"},
