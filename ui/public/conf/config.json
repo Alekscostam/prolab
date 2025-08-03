@@ -1,5 +1,5 @@
 {
-    "REACT_APP_BACKEND_URL": "https://prolabrd.inform-tech.pl:444/PPA/api",
+    "REACT_APP_BACKEND_URL": "https://rdprolab.inform-tech.pl:444/PPA/api",
     "REACT_APP_URL_PREFIX": "",
     "LANG": "PL",
     "LANG_LIST": ["PL", "ENG", "DE"],
@@ -9,13 +9,16 @@
     "DEVICE_NAME": "DeviceTest",
     "APP_NAME": "ProlabRD",
     "APP_FULL_NAME": "ProlabRD",
-    "CAPTCHA_ENABLE":false,
     "SHOW_HINT_LIST_BUTTONS":false,
     "SHOW_MARKUP_ON_HTML_EDITOR":true,
     "SHOW_ADD_FROM_DASHBOARD":false,
-    "SHOW_FILTER_CLEAR":false,
+    "SHOW_FILTER_CLEAR":true,
+    "REMEMBER_ME":true,
     "BAR_CODE_SHOW_METHOD":"FIRST",
-    "DRAGGABLE_GRID_ENABLED":true,
-    "CAPTCHA_KEY":"",
+    "DRAGGABLE_GRID_ENABLED":false,
+    "CAPTCHA": {
+        "SITE_KEY": "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI",
+        "ENABLED": false
+    },
     "WSS_URL":""
 }

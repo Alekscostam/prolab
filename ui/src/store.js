@@ -5,7 +5,9 @@ const useStore = create((set) => ({
     fetchData: true,
     filterClearFnc: null,
     draggableGridEnabled: false,
+    rememberMe: false,
     ganttView: undefined,
+    captcha: undefined,
     barCodeShowMethod: undefined,
     wssUrl: undefined,
     aboutVersion: undefined,
@@ -33,6 +35,8 @@ const useStore = create((set) => ({
         });
     },
     setDraggableGridEnabled: (value) => set({draggableGridEnabled: value}),
+    setCaptcha: (value) => set({captcha: value}),
+    setRememberMe: (value) => set({rememberMe: value}),
     setGanttView: (value) => set({ganttView: value}),
     setDataGridView: (value) => set({dataGridView: value}),
     setAppVersion: (value) => set({appVersion: value}),

@@ -129,13 +129,8 @@ export class DashboardGridViewComponent extends BaseContainer {
     }
 
     downloadData(viewId, recordId, subviewId, viewType) {
-        ConsoleHelper(
-            `GridGridViewContainer::downloadData: viewId=${viewId}, recordId=${recordId}, subViewId=${subviewId}, viewType=${viewType}`
-        );
-
         this.getViewById(viewId, recordId, viewType);
     }
-    // FIXX: obsługa parametru dashboardHideHeader, parametryzacja showfilterclear, multiheader w podwidoku
     //@override
     getViewById(viewId, recordId, viewType) {
         this.setState({loading: true}, () => {
@@ -182,11 +177,9 @@ export class DashboardGridViewComponent extends BaseContainer {
                         if (this.props.onOperationLoaded) {
                             this.props.onOperationLoaded(responseView.operations, responseView.viewInfo);
                         }
-                        // TODO: OPTIONS -> showheaders
                         this.setState(
                             () => ({
                                 loading: false,
-                                //elementId: this.props.id,
                                 gridViewType: responseView?.viewInfo?.type,
                                 viewType: responseView?.viewInfo?.type,
                                 parsedGridView: responseView,
@@ -195,7 +188,6 @@ export class DashboardGridViewComponent extends BaseContainer {
                                 documentsList: documentsListTmp,
                                 batchesList: batchesListTmp,
                                 filtersList: filtersListTmp,
-                                // options: responseView?.options,
                                 showColumnHeaders: !responseView?.gridOptions?.dashboardHideHeader,
                                 selectedRowKeys: [],
                                 viewInfoTypes: viewInfoTypesTmp,

@@ -52,7 +52,6 @@ const FilterClear = ({clearFnc, filters}) => {
                             }
                         }}
                     />
-                    <label className='ml-2 mt-0 mb-0'>{LocUtils.locFromStoreWithDefault('Filters', 'Filtry')}</label>
                 </div>
             </div>
         </div>

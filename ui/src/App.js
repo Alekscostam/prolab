@@ -67,8 +67,6 @@ class App extends Component {
                 appName: undefined,
                 deviceName: undefined,
                 appVersion: undefined,
-                captchaShow: undefined,
-                captchaKey: undefined,
             },
             loadedConfiguration: false,
             editData: undefined,
@@ -341,15 +339,15 @@ class App extends Component {
                 : false;
             const deviceName = configuration.DEVICE_NAME;
             const appName = configuration.APP_NAME;
-            const captchaShow = configuration.CAPTCHA_SHOW;
+            const captcha = configuration.CAPTCHA;
             const showHintListButtons = configuration.SHOW_HINT_LIST_BUTTONS;
+            const rememberMe = configuration.REMEMBER_ME;
             const barCodeShowMethod = configuration.BAR_CODE_SHOW_METHOD;
             const draggableGridEnabled = configuration.DRAGGABLE_GRID_ENABLED;
             const wssUrl = configuration.WSS_URL;
             const showFilterClear = configuration.SHOW_FILTER_CLEAR;
             const showMarkupOnHtmlEditor = configuration.SHOW_MARKUP_ON_HTML_EDITOR;
             const showAddFromDashboard = configuration.SHOW_ADD_FROM_DASHBOARD;
-            const captchaKey = configuration.CAPTCHA_KEY;
             const appVersion = packageJson.version + '_' + process.env.REACT_APP_BUILD_NUMBER;
             this.setState({
                 canRenderAboutVersionDialog: canRenderAboutVersionDialog,
@@ -361,20 +359,20 @@ class App extends Component {
                     appName,
                     deviceName,
                     appVersion,
-                    captchaShow,
-                    captchaKey,
                 },
             });
-            useStore.getState().setWssUrl(wssUrl);
-            useStore.getState().setBarCodeShowMethod(barCodeShowMethod);
-            useStore.getState().setDraggableGridEnabled(draggableGridEnabled);
-            useStore.getState().setShowFilterClear(showFilterClear);
-            useStore.getState().setShowHintListButtons(showHintListButtons);
-            useStore.getState().setShowAddFromDashboard(showAddFromDashboard);
-            useStore.getState().setAppVersion(appVersion);
-            useStore.getState().setAppName(appName);
-            useStore.getState().setDeviceName(deviceName);
-            useStore.getState().setShowMarkupOnHtmlEditor(showMarkupOnHtmlEditor);
+            getStore().setWssUrl(wssUrl);
+            getStore().setCaptcha(captcha);
+            getStore().setRememberMe(rememberMe);
+            getStore().setBarCodeShowMethod(barCodeShowMethod);
+            getStore().setDraggableGridEnabled(draggableGridEnabled);
+            getStore().setShowFilterClear(showFilterClear);
+            getStore().setShowHintListButtons(showHintListButtons);
+            getStore().setShowAddFromDashboard(showAddFromDashboard);
+            getStore().setAppVersion(appVersion);
+            getStore().setAppName(appName);
+            getStore().setDeviceName(deviceName);
+            getStore().setShowMarkupOnHtmlEditor(showMarkupOnHtmlEditor);
             saveObjToCookieGlobal(CookiesName.APP_VERSION, appVersion);
             saveObjToCookieGlobal(CookiesName.DEVICE_NAME, deviceName);
             saveObjToCookieGlobal(CookiesName.APP_NAME, appName);

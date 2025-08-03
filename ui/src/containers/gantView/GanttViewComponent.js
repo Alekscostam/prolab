@@ -15,6 +15,7 @@ import Gantt, {
     Toolbar,
     Item,
 } from 'devextreme-react/gantt';
+import {v4 as uuidv4} from 'uuid';
 
 import 'devextreme/dist/css/dx.light.css';
 import 'devexpress-gantt/dist/dx-gantt.css';
@@ -52,6 +53,9 @@ import {ColumnUtils} from '../../utils/ColumnUtils.js';
 import useStore from '../../store.js';
 import FilterClear from '../../components/prolab/FilterClear.js';
 import {handleSwitchFilterForGantt} from '../../utils/handler/FilterSwitchHandler.js';
+import {MouseDragScroller} from '../../utils/MouseDragScroller.js';
+import {getStore} from '../../utils/helper/StoreHelper.js';
+import {ViewUtils} from '../../utils/ViewUtils.js';
 
 const UNCOLLAPSED_CUT_SIZE = 314;
 const COLLAPSED_CUT_SIZE = 125;
@@ -67,6 +71,7 @@ class GanttViewComponent extends React.Component {
         super(props);
         this.crudService = new CrudService();
         this.ganttRef = React.createRef();
+        this.mouseDragScroller = null;
         this.refsCheckboxArray = [];
         this.selectAllRef = React.createRef();
         this.dataGanttStore = new DataGanttStore();
@@ -110,6 +115,9 @@ class GanttViewComponent extends React.Component {
         this.refreshRef = () => {
             if (this.ganttRef?.current?.instance) {
                 this.ganttRef.current.instance._treeList.refresh();
+                setTimeout(() => {
+                    ViewUtils.removeClassFromAllElements('dx-selection');
+                }, 1000);
             }
         };
         this.addSingleRow = (recordId) => {
@@ -126,6 +134,14 @@ class GanttViewComponent extends React.Component {
         ];
         return stripLines;
     }
+    registerMouseEvent = () => {
+        if (getStore().draggableGridEnabled) {
+            const ganttRef = this.ganttRef?.current?.instance?._treeList;
+            const scrollableContainer = ganttRef?.element()?.querySelector('.dx-scrollable-container');
+            this.mouseDragScroller = new MouseDragScroller(scrollableContainer);
+            this.mouseDragScroller.init();
+        }
+    };
 
     existsOperationsPPM = () => {
         return this.props.parsedGanttView.operationsPPM && this.props.parsedGanttView.operationsPPM?.length !== 0;
@@ -184,7 +200,9 @@ class GanttViewComponent extends React.Component {
                         this.registerOnFilterValuesChange();
                         this.highlightRow(e);
                         const ganttRef = this.ganttRef?.current?.instance?._treeList;
+                        this.registerMouseEvent();
                         useStore.getState().setGanttView(ganttRef);
+                        this.filterTasksByFilters();
                     }}
                     keyExpr={KEY}
                     focusedRowEnabled={false}
@@ -283,16 +301,17 @@ class GanttViewComponent extends React.Component {
             }
             const visibleRows = e.component._treeList.getVisibleRows();
             const visibleRow = visibleRows?.find((row) => row.data?.ID === clickedRowFromView.row?.id);
-            if (visibleRow) {
-                const element = visibleRow.cells[1];
-                if (element) {
-                    const tr = element.cellElement.parentNode;
-                    tr.className = tr.className + ' highlight-row';
-                    SessionStoreUtils.clearClickedRowFromView();
+            const element = visibleRow?.cells?.[1];
+            const cellElement = element?.cellElement;
+            if (cellElement && !StringUtils.isBlank(cellElement)) {
+                const tr = cellElement.parentNode;
+                if (tr instanceof HTMLElement) {
+                    tr.classList.add('highlight-row');
                 }
             }
         }
     };
+    // TU NAPRAW
     exportButtonClick = (e) => {
         const format = this.state.formatBoxValue.toLowerCase();
         const isLandscape = this.state.landscapeCheckBoxValue;
@@ -307,14 +326,18 @@ class GanttViewComponent extends React.Component {
                 isLandscape,
                 exportMode: exportMode,
                 dateRange: dataRangeMode,
-            }).then((doc) => doc.save('gantt.pdf'));
+            })
+                .then((doc) => doc.save('gantt.pdf'))
+                .catch((err) => {
+                    console.error('Export failed', err);
+                });
         } catch (err) {
             console.log(err);
         }
     };
 
-    setSelectionWidth(data) {
-        const allDatas = data.map((el) => new ParentModel(el.ID, el.ID_PARENT));
+    selectionWidth() {
+        const allDatas = this.state.data?.data?.map((el) => new ParentModel(el.ID, el.ID_PARENT));
         const parents = allDatas.filter((el) => el.idParent === null);
         let childrens = allDatas.filter((el) => el.idParent != null);
         let resultLength = 0;
@@ -335,9 +358,7 @@ class GanttViewComponent extends React.Component {
         if (resultLength < 75) {
             resultLength = 75;
         }
-        this.setState({
-            selectionColumnWidth: resultLength,
-        });
+        return resultLength;
     }
 
     countingParents(parent, childrens, allDatas, duplicates) {
@@ -362,15 +383,18 @@ class GanttViewComponent extends React.Component {
             typeof this.props.parsedGanttViewData.then === 'function'
         ) {
             this.props.parsedGanttViewData.then((value) => {
-                this.setSelectionWidth(value.data);
                 const data = GanttUtils.paintDatas(value.data);
                 value.data = data;
-                this.setState({
-                    data: value,
-                });
-                this.datasInitialization(value);
-                this.initGantt();
-                this.generateColumns();
+                this.setState(
+                    {
+                        data: value,
+                    },
+                    () => {
+                        this.datasInitialization(value);
+                        this.initGantt();
+                        this.generateColumns();
+                    }
+                );
             });
         } else if (Array.isArray(this.props.parsedGanttViewData) && this.props.parsedGanttViewData?.length === 0) {
             this.generateColumns();
@@ -388,6 +412,8 @@ class GanttViewComponent extends React.Component {
     componentWillUnmount() {
         this.unregisterKeydownEvent();
         this.unregisterOnFilterValuesChangeEvent();
+        this.mouseDragScroller?.destroy();
+        this.mouseDragScroller = null;
     }
 
     isSelectionEnabled() {
@@ -438,13 +464,24 @@ class GanttViewComponent extends React.Component {
             filter.removeEventListener('input', this.onFilterValuesChange);
         }
     };
-
     onFilterValuesChange = (e) => {
         setTimeout(() => {
             handleSwitchFilterForGantt();
+            SessionStoreUtils.saveFiltersFromView();
+            this.filterTasksByFilters();
             this.props.unselectAll();
         }, 1100);
     };
+
+    filterTasksByFilters() {
+        const view = getStore().ganttView;
+        const filters = ColumnUtils.filterColumnPair(view.getCombinedFilter(), view.option('columns')) || [];
+        const filteredTasks = ColumnUtils.filteredResults(this.state.tasks, filters);
+        const allElements = TreeListUtils.findAllParentsRecursively(this.state.tasks, filteredTasks);
+        if (this.props.handleTotalCounts) {
+            this.props.handleTotalCounts(allElements.length);
+        }
+    }
 
     datasRefreshSelector(store) {
         this.setState({
@@ -580,76 +617,77 @@ class GanttViewComponent extends React.Component {
         return opAdd || opAddFile;
     }
     renderCustomSelection(columns) {
-        return this.isSelectionEnabled()
-            ? columns.push(
-                  <Column
-                      key={'column-gantt-selection'}
-                      headerCellTemplate={(element, info) => {
-                          const el = document.createElement('div');
-                          element.append(el);
-                          element.parentNode.classList.add('parent-checkbox-area');
-                          ReactDOM.createRoot(element).render(
-                              <label className={`container-checkbox`}>
-                                  <CheckBox
-                                      ref={this.selectAllRef}
-                                      iconSize={15}
-                                      key={'checkbox-select-all'}
-                                      onValueChange={(e) => {
-                                          const fakeEvent = {
-                                              target: {
-                                                  checked: e,
-                                              },
-                                          };
-                                          this.selectAll(fakeEvent);
-                                      }}
-                                      className={'checkBoxSelection select-all'}
-                                  />
-                                  <span className='checkmark'></span>
-                              </label>
-                          );
-                      }}
-                      fixed={true}
-                      width={this.state.selectionColumnWidth}
-                      fixedPosition={'left'}
-                      cellTemplate={(element, info) => {
-                          const gradients = info.data?._LINE_COLOR_GRADIENT;
-                          gradients.forEach((el) => {
-                              const divElement = document.createElement('div');
-                              const classLine = 'line-treelist-' + el;
-                              divElement.classList.add(classLine);
-                              divElement.classList.add('line-treelist');
-                              element.parentNode.appendChild(divElement);
-                          });
-                          let el = document.createElement('div');
-                          el.id = `actions-${info.column.headerId}-${info.rowIndex}`;
-                          element.append(el);
-                          const recordId = info.row?.data?.ID;
-                          const defaultValue = this.state.rowElementsStorage.get(recordId)[1].value;
-                          if (defaultValue) {
-                              setTimeout(() => {
-                                  this.selectRowBackground(recordId);
-                              }, 200);
-                          }
-                          ReactDOM.createRoot(element).render(
-                              <label className={`container-checkbox `}>
-                                  <CheckBox
-                                      id={'checkbox-' + recordId}
-                                      iconSize={15}
-                                      ref={(el) => (this.refsCheckboxArray[recordId] = el)}
-                                      key={'checkbox' + recordId}
-                                      onValueChange={() => {
-                                          this.selectSingleRow(recordId);
-                                      }}
-                                      defaultValue={defaultValue}
-                                      className={'checkBoxSelection'}
-                                  />
-                                  <span className='checkmark'></span>
-                              </label>
-                          );
-                      }}
-                  />
-              )
-            : null;
+        if (this.isSelectionEnabled()) {
+            const width = this.selectionWidth();
+            columns.push(
+                <Column
+                    key={'column-gantt-selection'}
+                    headerCellTemplate={(element, info) => {
+                        const el = document.createElement('div');
+                        element.append(el);
+                        element.parentNode.classList.add('parent-checkbox-area');
+                        ReactDOM.createRoot(element).render(
+                            <label className={`container-checkbox`}>
+                                <CheckBox
+                                    ref={this.selectAllRef}
+                                    iconSize={15}
+                                    key={'checkbox-select-all'}
+                                    onValueChange={(e) => {
+                                        const fakeEvent = {
+                                            target: {
+                                                checked: e,
+                                            },
+                                        };
+                                        this.selectAll(fakeEvent);
+                                    }}
+                                    className={'checkBoxSelection select-all'}
+                                />
+                                <span className='checkmark'></span>
+                            </label>
+                        );
+                    }}
+                    fixed={true}
+                    width={width}
+                    fixedPosition={'left'}
+                    cellTemplate={(element, info) => {
+                        const gradients = info.data?._LINE_COLOR_GRADIENT;
+                        gradients.forEach((el) => {
+                            const divElement = document.createElement('div');
+                            const classLine = 'line-treelist-' + el;
+                            divElement.classList.add(classLine);
+                            divElement.classList.add('line-treelist');
+                            element.parentNode.appendChild(divElement);
+                        });
+                        let el = document.createElement('div');
+                        el.id = `actions-${info.column.headerId}-${info.rowIndex}`;
+                        element.append(el);
+                        const recordId = info.row?.data?.ID;
+                        const defaultValue = this.state.rowElementsStorage.get(recordId)[1].value;
+                        if (defaultValue) {
+                            setTimeout(() => {
+                                this.selectRowBackground(recordId);
+                            }, 200);
+                        }
+                        ReactDOM.createRoot(element).render(
+                            <label className={`container-checkbox `}>
+                                <CheckBox
+                                    id={'checkbox-' + recordId}
+                                    iconSize={15}
+                                    ref={(el) => (this.refsCheckboxArray[recordId] = el)}
+                                    key={'checkbox' + recordId}
+                                    onValueChange={() => {
+                                        this.selectSingleRow(recordId);
+                                    }}
+                                    defaultValue={defaultValue}
+                                    className={'checkBoxSelection'}
+                                />
+                                <span className='checkmark'></span>
+                            </label>
+                        );
+                    }}
+                />
+            );
+        }
     }
     selectAll = (e) => {
         this.props.handleBlockUi();
@@ -763,7 +801,7 @@ class GanttViewComponent extends React.Component {
             this.props.parsedGanttView?.ganttColumns?.forEach((columnDefinition, INDEX_COLUMN) => {
                 columns.push(
                     <Column
-                        key={INDEX_COLUMN}
+                        key={`column-${uuidv4()}`}
                         fixed={false}
                         filterValue={ColumnUtils.getValueFromFilter(
                             this.props.filtersCached,
@@ -799,11 +837,15 @@ class GanttViewComponent extends React.Component {
             ) {
                 columns.push(
                     <Column
+                        key={`column-${uuidv4()}`}
                         caption=''
                         fixed={true}
                         width={ViewDataCompUtils.operationsColumnLength(operationsRecord, operationsRecordList, true)}
                         fixedPosition={'right'}
                         headerCellTemplate={(element) => {
+                            if (element?.parentElement) {
+                                element.parentElement.style.textAlign = 'center';
+                            }
                             ReactDOM.createRoot(element).render(this.addButton());
                             const combinedFilter = this.ganttRef.current.instance._treeList.getCombinedFilter();
                             const filterLastRow = element.parentNode.parentNode.parentNode.lastChild.lastChild;
@@ -950,9 +992,14 @@ class GanttViewComponent extends React.Component {
                 );
             });
         }
-        this.setState({
-            columns: columns,
-        });
+        this.setState(
+            {
+                columns: columns,
+            },
+            () => {
+                this.filterTasksByFilters();
+            }
+        );
     }
     clearProperties() {
         _rowIndex = null;

@@ -81,18 +81,39 @@ export class TreeListUtils extends ViewDataCompUtils {
             return el._ID === startIndex;
         });
         array.push(parent);
-        TreeListUtils.recursionElementTocalculate(parent, array, allTheElements);
+        TreeListUtils.recursionElementToCalculate(parent, array, allTheElements);
         return array;
     };
 
-    static recursionElementTocalculate = (parent, array, allTheElements) => {
+    static recursionElementToCalculate = (parent, array, allTheElements) => {
         allTheElements.forEach((el) => {
             if (el._ID_PARENT === parent._ID) {
                 array.push(el);
-                this.recursionElementTocalculate(el, array, allTheElements);
+                this.recursionElementToCalculate(el, array, allTheElements);
             }
         });
     };
+
+    static findAllParentsRecursively(allElements = [], filteredElements = []) {
+        const idToElement = new Map(allElements.map((el) => [el.ID, el]));
+        const result = new Map();
+
+        function addWithParents(el) {
+            if (!el || result.has(el.ID)) return;
+            result.set(el.ID, el);
+            if (el.ID_PARENT != null) {
+                const parent = idToElement.get(el.ID_PARENT);
+                addWithParents(parent);
+            }
+        }
+
+        filteredElements.forEach((el) => {
+            const element = typeof el === 'object' ? el : idToElement.get(el);
+            addWithParents(element);
+        });
+
+        return Array.from(result.values());
+    }
 
     static openEditSpec = (viewId, parentId, recordIds, handleUnblockUiCallback, showErrorMessagesCallback) => {
         TreeListUtils.getEditSpecService()

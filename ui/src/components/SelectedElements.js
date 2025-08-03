@@ -5,7 +5,7 @@ export const SelectedElements = ({selectedRowKeys, totalCounts}) => {
     if (StringUtils.isBlank(selectedRowKeys)) {
         return <div></div>;
     }
-    let length = selectedRowKeys.length;
+    const length = selectedRowKeys.length;
     if (StringUtils.isBlank(totalCounts)) {
         return <div></div>;
     }

@@ -310,7 +310,7 @@ export class EditHeaderComponent extends BaseRowComponent {
                         header={group.groupName}
                         toggleable={group.isExpanded}
                     >
-                        <DivContainer>
+                        <DivContainer key={'div-group-' + groupIndex}>
                             {group.fields?.map((field, index) => {
                                 field.readOnly = this.isReadOnly();
                                 return this.renderField(field, index, group.uuid);

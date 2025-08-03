@@ -8,8 +8,6 @@ import {OperationType} from '../../enum/OperationType';
 import {TranslationUtils} from '../../utils/TranslationUtils';
 import {useRef, useCallback} from 'react';
 
-// FIXX: Dokończenie multi header column, filtrowanie w historii operacji nie kasuje zaznaczonego rekordu na głównym, tłumaczenia  dla komponentów podsumwoania publikacji, przedłuzenia sesji, publikacji
-
 const HistoryLogDialog = ({
     id,
     visible,

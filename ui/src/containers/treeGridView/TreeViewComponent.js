@@ -186,7 +186,7 @@ class TreeViewComponent extends CellEditComponent {
             e.component.cancelEditData();
         }
     };
-    // TODO: naprawic w liscie podpwoiedzi klik jak jestsmy na dole
+
     render() {
         const columnAutoWidth = this.props.parsedGridView?.gridOptions?.columnAutoWidth || true;
         const rowAutoHeight = this.props.parsedGridView?.gridOptions?.rowAutoHeight || false;
@@ -947,6 +947,9 @@ class TreeViewComponent extends CellEditComponent {
             case ColumnType.L:
             case ColumnType.B:
                 this.forceUpdate();
+                break;
+            case ColumnType.I:
+                this.onShowImageViewer(cellInfo);
                 break;
             default:
                 break;

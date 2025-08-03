@@ -36,7 +36,6 @@ export class AddSpecContainer extends BaseContainer {
         super(props);
         this.viewService = new ViewService();
         this.crudService = new CrudService();
-        this.crudService = new CrudService();
         this.addSpecService = new AddSpecService();
         this.dataTreeStore = new DataTreeStore();
         this.refTreeList = React.createRef();
@@ -71,9 +70,6 @@ export class AddSpecContainer extends BaseContainer {
         const parentId = UrlUtils.getParentId();
         const recordId = UrlUtils.getRecordId();
         const filterId = UrlUtils.getFilterId();
-        ConsoleHelper(
-            `AddSpecContainer::componentDidMount -> id=${id}, parentId = ${parentId} recordId = ${recordId} filterId = ${filterId}`
-        );
         this.setState({
             elementParentId: parentId,
             elementRecordId: recordId,
@@ -93,15 +89,6 @@ export class AddSpecContainer extends BaseContainer {
         const s2 = !DataGridUtils.equalNumbers(this.state.elementFilterId, filterId);
         const s3 = !DataGridUtils.equalString(this.state.elementRecordId, recordId);
         const updatePage = s1 || s2 || s3;
-        ConsoleHelper(
-            'AddSpecContainer::componentDidUpdate -> updateData={%s} updatePage={%s} id={%s} id={%s} s1={%s} s2={%s} s3={%s}',
-            updatePage,
-            prevProps.id,
-            this.props.id,
-            s1,
-            s2,
-            s3
-        );
         if (updatePage) {
             this.setState(
                 {
@@ -125,7 +112,6 @@ export class AddSpecContainer extends BaseContainer {
     }
 
     downloadData(viewId, parentId, recordId) {
-        ConsoleHelper(`AddSpecContainer::downloadData: viewId=${viewId}, parentId=${parentId}, recordId=${recordId}`);
         this.getViewById(viewId, parentId, recordId);
     }
 
@@ -329,7 +315,7 @@ export class AddSpecContainer extends BaseContainer {
     renderHeaderLeft() {
         return (
             <React.Fragment>
-                <DivContainer id='header-left' style={{maxWidth: '400px'}}>
+                <DivContainer id='header-left' style={{maxWidth: '400px', marginLeft: '-15px'}}>
                     <div id='subviews-panel'>
                         {this.state.tabs?.length > 0 ? (
                             <Tabs
@@ -418,43 +404,44 @@ export class AddSpecContainer extends BaseContainer {
         const opAdd = TranslationUtils.getOpButton(operations, OperationType.OP_ADDSPEC_ADD);
         const opCount = TranslationUtils.getOpButton(operations, OperationType.OP_ADDSPEC_COUNT);
         return (
-            <div>
-                <div className=' text-end number-of-copies-header' style={{float: 'right', marginRight: '10px'}}>
-                    <div>
-                        {!!opCount && (
-                            <div className='row justify-content-center'>
-                                <NumberBox
-                                    ref={this.numberOfCopiesRef}
-                                    stylingMode='outlined'
-                                    label={LocUtils.locFromStore('Number_of_copy')}
-                                    id='numberOsfCopy'
-                                    width={150} // 👈 dodano szerokość
-                                    style={{maxHeight: '43px', marginRight: '5px', marginTop: '1px'}}
-                                    defaultValue={1}
-                                    format='###0'
-                                    step={1}
-                                    className={'max-width-size'}
-                                    type='largeNumber'
-                                    labelMode='static'
-                                    min={1}
-                                    max={1000000}
-                                    showSpinButtons={true}
+            <div
+                className=' text-end number-of-copies-header '
+                style={{float: 'right', marginRight: '10px', marginTop: '2px'}}
+            >
+                <div>
+                    {!!opCount && (
+                        <div className='row justify-content-center'>
+                            <NumberBox
+                                ref={this.numberOfCopiesRef}
+                                stylingMode='outlined'
+                                label={LocUtils.locFromStore('Number_of_copy')}
+                                id='numberOsfCopy'
+                                width={150}
+                                style={{maxHeight: '43px', marginRight: '5px', marginTop: '1px'}}
+                                defaultValue={1}
+                                format='###0'
+                                step={1}
+                                className={'max-width-size'}
+                                type='largeNumber'
+                                labelMode='static'
+                                min={1}
+                                max={1000000}
+                                showSpinButtons={true}
+                            />
+                            {opAdd && (
+                                <ActionButton
+                                    rendered={!!opAdd}
+                                    label={opAdd?.label}
+                                    style={{marginRight: '5px', maxHeight: '38px'}}
+                                    disabled={this.state.selectedRowKeys.length === 0}
+                                    className=''
+                                    handleClick={() => {
+                                        this.handleExecSpec();
+                                    }}
                                 />
-                                {opAdd && (
-                                    <ActionButton
-                                        rendered={!!opAdd}
-                                        label={opAdd?.label}
-                                        style={{marginRight: '5px', maxHeight: '38px'}}
-                                        disabled={this.state.selectedRowKeys.length === 0}
-                                        className=''
-                                        handleClick={() => {
-                                            this.handleExecSpec();
-                                        }}
-                                    />
-                                )}
-                            </div>
-                        )}
-                    </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
         );
@@ -475,9 +462,6 @@ export class AddSpecContainer extends BaseContainer {
             );
             return;
         }
-        ConsoleHelper(
-            `handleExecSpec: viewId = ${viewId} parentId = ${parentId}  parentId = ${type}  parentId = ${headerId}  parentId = ${header}`
-        );
         this.specExec(viewId, parentId, type, headerId, header);
     }
 

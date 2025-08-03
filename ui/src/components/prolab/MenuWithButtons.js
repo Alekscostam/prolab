@@ -145,11 +145,9 @@ export const MenuWithButtons = (props) => {
     // TODO: po PPM mruga
     return (
         <React.Fragment>
-            <span id='action-button-with-menu-contant' className='action-button-with-menu-contant'></span>
             <ContextMenu
                 id='menu-with-buttons'
                 ref={props.menuRef}
-                width={100}
                 style={{zIndex: props.zIndex}}
                 dataSource={menuItems()}
                 itemRender={itemTemplate}

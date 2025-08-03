@@ -5,7 +5,7 @@ import {Button} from 'primereact/button';
 import LocUtils from '../../utils/LocUtils';
 import {Toast} from 'primereact/toast';
 import {Checkbox} from 'primereact/checkbox';
-import {InputNumber} from 'primereact/inputnumber';
+import {NumberBox} from 'devextreme-react';
 
 const CopyDialog = ({visible, isSpecification, handleCopy, handleUnselectAllData, onHide}) => {
     const messages = useRef(null);
@@ -33,7 +33,7 @@ const CopyDialog = ({visible, isSpecification, handleCopy, handleUnselectAllData
     const handleNumberOfCopyChange = (e) => {
         setCopyOptions((prev) => ({
             ...prev,
-            [e.target.id]: e.value,
+            numberOfCopy: e.value,
         }));
     };
 
@@ -62,13 +62,14 @@ const CopyDialog = ({visible, isSpecification, handleCopy, handleUnselectAllData
                         />
                     </div>
                 }
+                style={{maxWidth: '300px'}}
                 blockScroll
                 visible={visible}
                 resizable={false}
                 onHide={handleDialogHide}
             >
-                <div>
-                    <div className='row col-12'>
+                <div className='row'>
+                    <div className='col-12'>
                         <Checkbox
                             id='headerCopy'
                             name='headerCopy'
@@ -76,14 +77,14 @@ const CopyDialog = ({visible, isSpecification, handleCopy, handleUnselectAllData
                             checked={copyOptions.headerCopy}
                             onChange={handleChangeCopyOptions}
                         />
-                        <label style={{color: '#000'}}>
+                        <label style={{color: '#000', marginBottom: '0px'}}>
                             {LocUtils.locFromStoreWithDefault('Copy_header', 'Kopiowanie nagłówka')}
                         </label>
                     </div>
 
                     {isSpecification && (
-                        <>
-                            <div className='row mt-2 col-lg-12'>
+                        <div className='col-12 mt-2'>
+                            <div>
                                 <Checkbox
                                     id='specCopy'
                                     name='specCopy'
@@ -91,11 +92,11 @@ const CopyDialog = ({visible, isSpecification, handleCopy, handleUnselectAllData
                                     checked={copyOptions.specCopy}
                                     onChange={handleChangeCopyOptions}
                                 />
-                                <label style={{color: '#000'}}>
+                                <label style={{color: '#000', marginBottom: '0px'}}>
                                     {LocUtils.locFromStoreWithDefault('Copy_spec', 'Kopiowanie specyfikacji')}
                                 </label>
                             </div>
-                            <div className='row mt-2 col-lg-12'>
+                            <div>
                                 <Checkbox
                                     id='specResultsCopy'
                                     name='specResultsCopy'
@@ -103,12 +104,14 @@ const CopyDialog = ({visible, isSpecification, handleCopy, handleUnselectAllData
                                     checked={copyOptions.specResultsCopy}
                                     onChange={handleChangeCopyOptions}
                                 />
-                                <label style={{color: '#000'}}>{LocUtils.locFromStore('Copy_spec_result')}</label>
+                                <label style={{color: '#000', marginBottom: '0px'}}>
+                                    {LocUtils.locFromStore('Copy_spec_result')}
+                                </label>
                             </div>
-                        </>
+                        </div>
                     )}
 
-                    <div className='row mb-2 mt-1 col-lg-12'>
+                    <div className='col-12 mt-2'>
                         <Checkbox
                             id='copyLastModifiedObject'
                             name='copyLastModifiedObject'
@@ -116,22 +119,23 @@ const CopyDialog = ({visible, isSpecification, handleCopy, handleUnselectAllData
                             checked={copyOptions.copyLastModifiedObject}
                             onChange={handleChangeCopyOptions}
                         />
-                        <label style={{color: '#000'}}>{LocUtils.locFromStore('Copy_last_modified')}</label>
+                        <label style={{color: '#000', marginBottom: '0px'}}>
+                            {LocUtils.locFromStore('Copy_last_modified')}
+                        </label>
                     </div>
 
-                    <label style={{color: '#000'}} className='mt-2'>
-                        {LocUtils.locFromStore('Number_of_copy')}
-                    </label>
-
-                    <div className='row'>
-                        <InputNumber
-                            id='numberOfCopy'
-                            name='numberOfCopy'
-                            className='col-12'
+                    <div className='col-12 mt-2'>
+                        <NumberBox
+                            stylingMode='outlined'
+                            label={LocUtils.locFromStore('Number_of_copy')}
+                            defaultValue={1}
                             min={1}
+                            max={1000000}
                             value={copyOptions.numberOfCopy}
-                            onValueChange={handleNumberOfCopyChange}
-                            showButtons
+                            onValueChanged={handleNumberOfCopyChange}
+                            showSpinButtons={true}
+                            step={1}
+                            format='###0'
                         />
                     </div>
                 </div>

@@ -505,7 +505,6 @@ export class BatchContainer extends BaseContainer {
             return oldFormula;
         }
     }
-    // FIXX: odblokowanie PPm w batch, center image w datagrid
     //override
     renderContent = () => {
         return (

@@ -1,6 +1,5 @@
 import {InputText} from 'primereact/inputtext';
 import {Dropdown} from 'primereact/dropdown';
-import {Message} from 'primereact/message';
 import {Password} from 'primereact/password';
 import {Toast} from 'primereact/toast';
 import PropTypes from 'prop-types';
@@ -17,8 +16,11 @@ import ActionLink from '../components/ActionLink';
 import UserService from '../services/UserService';
 import UserRowComponent from '../components/prolab/UserRowComponent';
 import useStore from '../store';
-import WebSocket from '../socket/WebSocket';
 import LocUtils from '../utils/LocUtils';
+import {getStore} from '../utils/helper/StoreHelper';
+import ReCAPTCHA from 'react-google-recaptcha';
+import {readValueCookieGlobal, saveValueToCookieGlobal} from '../utils/Cookie';
+import {StringUtils} from '../utils/StringUtils';
 
 class LoginContainer extends BaseContainer {
     constructor(props) {
@@ -36,6 +38,7 @@ class LoginContainer extends BaseContainer {
             password: '',
             redirectToReferrer: true,
             editData: {},
+            captchaToken: undefined,
             authValid: true,
             lang: undefined,
             visibleUserComponent: false,
@@ -47,8 +50,6 @@ class LoginContainer extends BaseContainer {
             appName: this.props?.appState?.configApp?.appName,
             deviceName: this.props?.appState?.configApp?.deviceName,
             appVersion: this.props?.appState?.configApp?.appVersion,
-            captchaShow: this.props?.appState?.configApp?.captchaShow,
-            captchaKey: this.props?.appState?.configApp?.captchaKey,
         };
         this.authValidValidator = new SimpleReactValidator({
             validators: {
@@ -121,7 +122,7 @@ class LoginContainer extends BaseContainer {
         this.authService.removeLoginCookies();
         const values = queryString.parse(this.props.location.search);
         this.targetLocation = values.location;
-        this.getConfigForLoginPage();
+        this.getConfigForLoginPage(readValueCookieGlobal('chosen-lang'));
     }
     componentDidUpdate() {
         super.componentDidUpdate();
@@ -134,8 +135,10 @@ class LoginContainer extends BaseContainer {
             });
         }
     };
-    getConfigForLoginPage = () => {
-        const lang = this.state.lang ? this.state.lang : this.state?.defaultLang;
+    getConfigForLoginPage = (lang = this.state.lang) => {
+        if (StringUtils.isBlankOrEmpty(lang)) {
+            lang = this.state?.defaultLang;
+        }
         this.localizationService
             .getTranslationsFromFile('rd', lang)
             .then((resp) => {
@@ -169,7 +172,8 @@ class LoginContainer extends BaseContainer {
                     this.state.password,
                     this.state.appName,
                     this.state.deviceName,
-                    this.state.appVersion
+                    this.state.appVersion,
+                    this.state.captchaToken
                 )
                 .then(() => {
                     if (this.props.onAfterLogin) {
@@ -256,6 +260,14 @@ class LoginContainer extends BaseContainer {
             this.handleFormSubmit();
         }
     }
+    loginDisabled = () => {
+        if (getStore().captcha?.ENABLED) {
+            if (!this.state.captchaToken) {
+                return true;
+            }
+        }
+        return false;
+    };
     renderBeforeAuth() {
         return (
             <React.Fragment>
@@ -282,14 +294,21 @@ class LoginContainer extends BaseContainer {
                                         <Dropdown
                                             options={this.state.langs}
                                             placeholder={'Wybierz język'}
-                                            value={this.state.lang}
+                                            value={
+                                                readValueCookieGlobal('chosen-lang')
+                                                    ? readValueCookieGlobal('chosen-lang')
+                                                    : this.state.lang
+                                            }
                                             key='lang'
                                             id='lang'
                                             inputId='langInput'
                                             name='lang'
-                                            onChange={(e) =>
-                                                this.setState({lang: e.value}, () => this.getConfigForLoginPage())
-                                            }
+                                            onChange={(e) => {
+                                                saveValueToCookieGlobal('chosen-lang', e.value);
+                                                this.setState({lang: e.value}, () =>
+                                                    this.getConfigForLoginPage(this.state.lang)
+                                                );
+                                            }}
                                             appendTo='self'
                                         />
                                     </div>
@@ -319,6 +338,7 @@ class LoginContainer extends BaseContainer {
                                                                         const value = e.currentTarget.value;
                                                                         this.setState({username: value});
                                                                     }}
+                                                                    autoComplete={getStore().rememberMe ? 'on' : 'off'}
                                                                     required={true}
                                                                     validator={this.validator}
                                                                     validators='required|max:50'
@@ -331,11 +351,14 @@ class LoginContainer extends BaseContainer {
                                                                 <Password
                                                                     key={'password'}
                                                                     id={'password'}
-                                                                    name={'password'}
+                                                                    name={'login_pass_hlogin_pass_hiddenidden'}
                                                                     placeholder={''}
                                                                     style={{
                                                                         width: '100%',
                                                                     }}
+                                                                    autoComplete={
+                                                                        getStore().rememberMe ? '' : 'new-password'
+                                                                    }
                                                                     value={this.state.password}
                                                                     onChange={(e) => {
                                                                         const value = e.currentTarget.value;
@@ -362,17 +385,26 @@ class LoginContainer extends BaseContainer {
                                                                     </p>
                                                                 </div>
                                                             )}
-
-                                                            {/* <ReCAPTCHA
+                                                            {getStore()?.captcha?.ENABLED && (
+                                                                <ReCAPTCHA
+                                                                    id='re-captcha'
+                                                                    sitekey={getStore().captcha?.SITE_KEY}
                                                                     ref={this.recaptchaRef}
-                                                                    sitekey='TWOJ_SITE_KEY'
-                                                                    onChange={() => {
+                                                                    onChange={(value) => {
+                                                                        this.setState({captchaToken: value});
                                                                     }}
-                                                                /> */}
+                                                                    onExpired={() => {
+                                                                        this.setState({captchaToken: null});
+                                                                    }}
+                                                                    hl={this.state.lang}
+                                                                />
+                                                            )}
+
                                                             <div>
                                                                 <ActionButton
                                                                     label={LocUtils.locFromStore('Login_Signin')}
                                                                     className='mt-4'
+                                                                    disabled={this.loginDisabled()}
                                                                     variant='login-button'
                                                                     handleClick={this.handleFormSubmit}
                                                                 />

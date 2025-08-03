@@ -61,6 +61,7 @@
         {"code": "VER", "caption": "Wersja"},
         {"code": "HISTORY", "caption": "Historia"},
         {"code": "FIX", "caption": "FIX"},
+        {"code": "PARAMETERS", "caption": "Parametry"},
         {"code": "Publish_date", "caption": "Data publikacji"},
         {"code": "Page", "caption": "Strona"},
         {"code": "Version", "caption": "Wersja"},
@@ -69,6 +70,10 @@
         {"code": "Yes", "caption": "Tak"},
         {"code": "Confirmation", "caption": "Potwierdzenie"},
         {"code": "Current_time", "caption": "Aktualny czas"},
+        {"code": "Message", "caption": "Komunikat"},
+        {"code": "Warning", "caption": "Ostrzeżenie"},
+        {"code": "Something_went_wrong", "caption": "Ups! Coś poszło nie tak."},
+        {"code": "try_again", "caption": "Spróbuj ponownie"},
         {
             "code": "Session_Expired",
             "caption": "Sesja wygasła",

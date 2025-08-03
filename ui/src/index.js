@@ -18,13 +18,16 @@ import * as serviceWorker from './serviceWorker';
 // import './assets/css/mdi.scss';
 import '@mdi/font/css/materialdesignicons.min.css';
 import {MyProvider} from './MyProvider';
+import ErrorBoundary from './ErrorBoundary';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 const theApp = (
-    <MyProvider>
-        <App />
-    </MyProvider>
+    <ErrorBoundary>
+        <MyProvider>
+            <App />
+        </MyProvider>
+    </ErrorBoundary>
 );
 
 root.render(theApp);

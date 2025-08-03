@@ -25,7 +25,12 @@ export class StringUtils {
     static isBlankOrEmpty(value) {
         return value === undefined || value === null || value === '';
     }
-
+    static containingText(text, textIn) {
+        if (typeof text !== 'string' || typeof textIn !== 'string') {
+            return false;
+        }
+        return text.includes(textIn);
+    }
     static isNumber(value) {
         return !isNaN(parseFloat(value)) && isFinite(value);
     }
@@ -38,7 +43,6 @@ export class StringUtils {
         }
         return text.slice(0, maxLength) + '...';
     }
-
     static normalizeText(text) {
         const normalizedText = unorm.nfkd(text);
         const superscriptToStandard = {

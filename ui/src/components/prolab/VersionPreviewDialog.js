@@ -1,5 +1,5 @@
 import {Dialog} from 'primereact/dialog';
-import {useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import LocUtils from '../../utils/LocUtils';
 import {TabPanel} from 'devextreme-react';
@@ -18,6 +18,142 @@ export const VersionPreviewDialog = (props) => {
         setAboutVersion(getStore().aboutVersion);
         return () => {};
     }, [props, aboutVersion]);
+
+    const parameters = [
+        {
+            type: 'PARAMETERS',
+            text: 'APP_FULL_NAME',
+            description: 'Pełna nazwa aplikacji',
+            isNew: true,
+            color: 'orange',
+        },
+        {
+            type: 'PARAMETERS',
+            text: 'APP_NAME',
+            description: 'Nazwa aplikacji',
+            isNew: true,
+            color: 'orange',
+        },
+        {
+            type: 'PARAMETERS',
+            text: 'BAR_CODE_SHOW_METHOD',
+            description: 'Metoda wykrywania barcode dla czytnika',
+            isNew: true,
+            color: 'orange',
+        },
+        {
+            type: 'PARAMETERS',
+            text: 'CAPTCHA -> SITE_KEY i ENABLED',
+            description: 'Parametry do wyświetlenia captchy',
+            isNew: true,
+            color: 'orange',
+        },
+        {
+            type: 'PARAMETERS',
+            text: 'DEVICE_NAME',
+            description: 'Nazwa urządzenia',
+            isNew: true,
+            color: 'orange',
+        },
+        {
+            type: 'PARAMETERS',
+            text: 'DRAGGABLE_GRID_ENABLED',
+            description: 'Możliwość przeciągania grida lewym klawiszem myszy',
+            isNew: true,
+            color: 'orange',
+        },
+        {
+            type: 'PARAMETERS',
+            text: 'FORTOGPASSWORD_VIEWID',
+            description: 'Przycisk zapomniałem hasła',
+            isNew: true,
+            color: 'orange',
+        },
+        {
+            type: 'PARAMETERS',
+            text: 'LANG',
+            description: 'Domyślny język',
+            isNew: true,
+            color: 'orange',
+        },
+        {
+            type: 'PARAMETERS',
+            text: 'LANG_LIST',
+            description: 'Lista dostępnych języków',
+            isNew: true,
+            color: 'orange',
+        },
+        {
+            type: 'PARAMETERS',
+            text: 'REACT_APP_BACKEND_URL',
+            description: 'URL do BE',
+            isNew: true,
+            color: 'orange',
+        },
+        {
+            type: 'PARAMETERS',
+            text: 'REACT_APP_URL_PREFIX',
+            description: 'Prefix do URL',
+            isNew: true,
+            color: 'orange',
+        },
+        {
+            type: 'PARAMETERS',
+            text: 'REMEMBER_ME',
+            description: 'Zapamiętywanie na stronie logowania',
+            isNew: true,
+            color: 'orange',
+        },
+        {
+            type: 'PARAMETERS',
+            text: 'SHOW_ADD_FROM_DASHBOARD',
+            description: 'Włączenie możliwości dodawania na dashboard',
+            isNew: true,
+            color: 'orange',
+        },
+        {
+            type: 'PARAMETERS',
+            text: 'SHOW_FILTER_CLEAR',
+            description: 'Przycisk czyszczenia filtrów na widokach',
+            isNew: true,
+            color: 'orange',
+        },
+        {
+            type: 'PARAMETERS',
+            text: 'SHOW_HINT_LIST_BUTTONS',
+            description: 'Widoczność przycisków listy podpowiedzi w TreeList w trybie podglądu',
+            isNew: true,
+            color: 'orange',
+        },
+        {
+            type: 'PARAMETERS',
+            text: 'SHOW_MARKUP_ON_HTML_EDITOR',
+            description: 'Widoczność na przycisku markup w edytorach tekstowych',
+            isNew: true,
+            color: 'orange',
+        },
+        {
+            type: 'PARAMETERS',
+            text: 'SHOW_VERSION_DIALOG',
+            description: 'Widoczność dialogu wersji',
+            isNew: true,
+            color: 'orange',
+        },
+        {
+            type: 'PARAMETERS',
+            text: 'WSS_URL',
+            description: 'URL BE do websocketów',
+            isNew: true,
+            color: 'orange',
+        },
+        {
+            type: 'PARAMETERS',
+            text: 'SIGNIN_VIEWID',
+            description: 'Przycisk rejestracji na stronie logowania',
+            isNew: true,
+            color: 'orange',
+        },
+    ];
 
     const version = [
         {
@@ -100,7 +236,12 @@ export const VersionPreviewDialog = (props) => {
         {
             type: 'HISTORY',
             title: LocUtils.locFromStore('HISTORY'),
-            tasks: aboutVersion?.flatMap((v) => v.data)?.filter((item) => !item.isNew),
+            tasks: aboutVersion?.flatMap((v) => v.data),
+        },
+        {
+            type: 'PARAMETERS',
+            title: LocUtils.locFromStore('PARAMETERS'),
+            tasks: parameters,
         },
     ];
     const {onHide} = props;
@@ -159,18 +300,16 @@ export const VersionPreviewDialog = (props) => {
                 textContent.push(changeLogName(av.title));
                 textContent.push('--------------------');
                 let currentType = undefined;
-                let counter = 1;
                 av.data.forEach((task, index) => {
                     if (index === 0) {
                         currentType = task.type;
                         textContent.push(currentType);
                     }
                     if (currentType !== task.type) {
-                        counter = 1;
                         currentType = task.type;
                         textContent.push(currentType);
                     }
-                    const text = counter + '. ' + task.text;
+                    const text = index + 1 + '. ' + task.text;
                     textContent.push(text);
                     if (task.more) {
                         textContent.push('');
@@ -182,7 +321,6 @@ export const VersionPreviewDialog = (props) => {
                         textContent.push(cleanText);
                         textContent.push('');
                     }
-                    counter++;
                 });
             });
         return textContent.join('\n');
@@ -205,71 +343,59 @@ export const VersionPreviewDialog = (props) => {
     };
 
     const tabPanelItem = ({data}) => {
-        const isNew = data.tasks.find((task) => task.isNew);
-        if (isNew) {
-            const taskItems = data.tasks.map((task, index) => (
-                <div
-                    key={'item-' + index}
-                    className={`ver-item ver-item-color-${task.color}`}
-                    style={{background: task.importanceColor}}
-                >
-                    <span className='ver-item-text'>{task.text}</span>
-                    <span className='ver-item-info'>{`${task.description || ''}`}</span>
-                    {!StringUtils.isBlank(task?.link) && (
-                        <span className='ver-item-text'>
-                            <a href={`${task.link}`} rel='noopener noreferrer' target='_blank'>
-                                {LocUtils.locFromStore('Link_to_task')}{' '}
-                            </a>{' '}
-                        </span>
-                    )}
-                    {task.more && (
-                        <span
-                            className='mdi mdi-information'
-                            onClick={() => {
-                                openMore(task.text, task.more);
-                            }}
-                            style={{
-                                position: 'absolute',
-                                right: '8px',
-                                top: '8px',
-                                cursor: 'pointer',
-                                fontSize: '25px',
-                                color: 'red',
-                            }}
-                        />
-                    )}
-                </div>
-            ));
-            return <div className='tabpanel-item'>{taskItems}</div>;
-        } else if (data.tasks?.length === 0) {
+        if (data.tasks?.length === 0) {
             return <div></div>;
         }
-        return (
-            <div className='row ml-1 mt-4'>
-                {aboutVersion.map((av, index) => {
-                    return (
-                        <div className='col-12 mb-2'>
-                            <a style={{cursor: 'pointer'}} onClick={() => downloadFile(av.title)}>
-                                {index + 1 + `. `}
-                                {index === 0 ? changeLogName() : av.title}
-                            </a>
-                        </div>
-                    );
-                })}
+        const taskItems = data.tasks.map((task, index) => (
+            <div
+                key={'item-' + index}
+                className={`ver-item ver-item-color-${task.color}`}
+                style={{background: task.importanceColor}}
+            >
+                <span className='ver-item-text'>{task.text}</span>
+                <span className='ver-item-info'>{`${task.description || ''}`}</span>
+                {!StringUtils.isBlank(task?.link) && (
+                    <span className='ver-item-text'>
+                        <a href={`${task.link}`} rel='noopener noreferrer' target='_blank'>
+                            {LocUtils.locFromStore('Link_to_task')}{' '}
+                        </a>{' '}
+                    </span>
+                )}
+                {task.more && (
+                    <span
+                        className='mdi mdi-information'
+                        onClick={() => {
+                            openMore(task.text, task.more);
+                        }}
+                        style={{
+                            position: 'absolute',
+                            right: '8px',
+                            top: '8px',
+                            cursor: 'pointer',
+                            fontSize: '25px',
+                            color: 'red',
+                        }}
+                    />
+                )}
             </div>
-        );
+        ));
+        return <div className='tabpanel-item'>{taskItems}</div>;
     };
 
     return (
-        <>
+        <React.Fragment>
             <Dialog
                 closable={true}
                 header={dialogHeader}
                 blockScroll
                 visible={visible}
-                style={{width: '868px', overflow: 'hidden !important'}}
+                style={{width: '868px', maxHeight: '700px', overflow: 'hidden !important'}}
                 onHide={hideDialog}
-                footer={<div></div>}
+                footer={
+                    <div className='float-right mt-3'>
+                        <ActionButton label={LocUtils.locFromStore('Change_log')} handleClick={() => downloadFile()} />
+                    </div>
+                }
             >
                 <div className='ver-update'>
                     <TabPanel
@@ -282,9 +408,6 @@ export const VersionPreviewDialog = (props) => {
                         iconPosition={iconPosition}
                         itemComponent={(data) => tabPanelItem(data)}
                     ></TabPanel>
-                </div>
-                <div className='float-right mt-3'>
-                    <ActionButton label={LocUtils.locFromStore('Change_log')} handleClick={() => downloadFile()} />
                 </div>
             </Dialog>
             <Dialog
@@ -299,7 +422,7 @@ export const VersionPreviewDialog = (props) => {
             >
                 <p dangerouslySetInnerHTML={{__html: moreInformation.description}} />
             </Dialog>
-        </>
+        </React.Fragment>
     );
 };
 

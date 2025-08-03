@@ -34,7 +34,6 @@ export class ActionButtonWithMenu extends React.Component {
         } = this.props;
         return (
             <React.Fragment>
-                <span id='action-button-with-menu-contant' className='action-button-with-menu-contant'></span>
                 <Menu
                     appendTo={document.body}
                     id={`${id}_popup_menu`}

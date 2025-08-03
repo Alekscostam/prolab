@@ -6,7 +6,12 @@ import {Dialog} from 'primereact/dialog';
 import React from 'react';
 import {Button} from 'primereact/button';
 
-export const ConfirmationOperationDialog = ({onHide, onAccept, operationType, visible}) => {
+export const ConfirmationOperationDialog = ({
+    onHide = () => {},
+    onAccept = () => {},
+    operationType = undefined,
+    visible = false,
+}) => {
     const getTranslatedTitle = () => {
         switch (operationType.toUpperCase()) {
             case OperationType.OP_DELETE:
@@ -18,27 +23,25 @@ export const ConfirmationOperationDialog = ({onHide, onAccept, operationType, vi
 
     const dialogFooter = (
         <React.Fragment>
-            <div>
-                <Button
-                    type='button'
-                    onClick={() => {
-                        onHide();
-                    }}
-                    className='mr-2 p-button inverse'
-                    label={LocUtils.locFromStoreWithDefault('No', 'Nie')}
-                />
-                <Button
-                    type='button'
-                    onClick={() => {
-                        onAccept();
-                    }}
-                    label={LocUtils.locFromStoreWithDefault('Yes', 'Tak')}
-                />
-            </div>
+            <Button
+                type='button'
+                onClick={() => {
+                    onHide();
+                }}
+                className='mr-2 p-button inverse'
+                label={LocUtils.locFromStoreWithDefault('No', 'Nie')}
+            />
+            <Button
+                type='button'
+                onClick={() => {
+                    onAccept();
+                }}
+                label={LocUtils.locFromStoreWithDefault('Yes', 'Tak')}
+            />
         </React.Fragment>
     );
 
-    const dialogHeader = <div>{getTranslatedTitle()}</div>;
+    const dialogHeader = <React.Fragment>{getTranslatedTitle()}</React.Fragment>;
 
     return (
         <Dialog
@@ -51,13 +54,6 @@ export const ConfirmationOperationDialog = ({onHide, onAccept, operationType, vi
             breakpoints={{'960px': '75vw', '640px': '100vw'}}
         ></Dialog>
     );
-};
-
-ConfirmationOperationDialog.defaultProps = {
-    onHide: () => {},
-    onAccept: () => {},
-    operationType: undefined,
-    visible: false,
 };
 
 ConfirmationOperationDialog.propTypes = {

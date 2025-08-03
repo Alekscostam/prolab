@@ -35,4 +35,10 @@ export class ViewUtils {
         const recordIdExists = UrlUtils.recordIdParamExist();
         return parentIdExists && recordIdExists;
     }
+
+    static removeClassFromAllElements(className) {
+        if (!className) return;
+        const elements = document.querySelectorAll(`.${className}`);
+        elements.forEach((el) => el.classList.remove(className));
+    }
 }

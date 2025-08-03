@@ -474,6 +474,10 @@ export class BaseViewContainer extends BaseContainer {
         const viewId = UrlUtils.getIdFromUrlOrAlternative(this.props.id);
         const kindView = UrlUtils.getKindView();
         const parentId = UrlUtils.getParentId();
+        if (StringUtils.isBlank(result.listId) || Array.isEmpty(result?.listId)) {
+            this.unblockUi();
+            return;
+        }
         switch (result.operation) {
             case CodeOperationType.EDIT:
                 this.blockUi();
@@ -1987,6 +1991,11 @@ export class BaseViewContainer extends BaseContainer {
                 <GanttViewComponent
                     filtersCached={this.state.filtersCached}
                     id={this.props.id}
+                    handleTotalCounts={(totalCounts) => {
+                        this.setState({
+                            totalCounts: totalCounts,
+                        });
+                    }}
                     unselectAll={() => {
                         this.setState({
                             selectedRowKeys: [],

@@ -72,10 +72,12 @@ export default class CellCustomBackground {
             const rows = Array.from(
                 document.querySelectorAll('tr[aria-rowindex="' + Number(this.cellInfo.row?.dataIndex + 1) + '"]')
             );
-            const penultimateElement = rows[rows.length - 2];
-            if (penultimateElement) {
+            const rowWithMostChildren = rows.reduce((maxRow, currentRow) => {
+                return currentRow.children.length > maxRow.children.length ? currentRow : maxRow;
+            });
+            if (rowWithMostChildren) {
                 if (!StringUtils.isBlank(this.cellInfo?.column?.headerId)) {
-                    const elements = Array.from(penultimateElement.children).filter(
+                    const elements = Array.from(rowWithMostChildren.children).filter(
                         (child) => child.getAttribute('aria-describedby') === this.cellInfo.column.headerId
                     );
                     if (elements.length !== 0) {

@@ -218,7 +218,7 @@ export class BaseRowComponent extends BaseContainer {
             : null;
         field = this.fieldTypeTransform(field);
         return (
-            <React.Fragment>
+            <React.Fragment key={'renderField-' + fieldIndex}>
                 {this.canRenderInputComponent(field) ? (
                     <DivContainer colClass={'row mb-2'}>
                         <DivContainer>

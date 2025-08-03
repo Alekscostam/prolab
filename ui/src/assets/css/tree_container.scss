@@ -20,6 +20,12 @@ $base-color: #0e49eb;
     background: red !important;
 }
 
+.cell-image{
+    justify-content: center;
+    display: flex;
+    margin-right: 5px;
+}
+
 .dx-datagrid-rowsview tr > td {
     color: $data-label;
     text-align: left;
@@ -31,6 +37,9 @@ $base-color: #0e49eb;
     font-weight: 500;
 }
 #spec-edit {
+    .dx-item.dx-menu-item.dx-menu-item-has-icon.dx-menu-item-has-submenu{
+        margin-left: -5px;
+    }
     .dx-show-invalid-badge.dx-textbox.dx-texteditor.dx-editor-filled.dx-widget.dx-validator.dx-visibility-change-handler{
         width: 100%;
     }

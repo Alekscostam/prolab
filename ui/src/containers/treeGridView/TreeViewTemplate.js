@@ -1,4 +1,4 @@
-import {NumberBox, TextBox} from 'devextreme-react';
+import {CheckBox, NumberBox, TextBox} from 'devextreme-react';
 import {ColumnType} from '../../enum/ColumnType';
 import CellCustomBackground from '../../model/CellCustomBackground';
 import ConsoleHelper from '../../utils/ConsoleHelper';
@@ -6,6 +6,7 @@ import Image from '../../components/Image';
 import {StringUtils} from '../../utils/StringUtils';
 import useStore from '../../store';
 import {MemoizedOperations} from '../../components/prolab/memoized/MemoizedOperations';
+import {ViewDataCompUtils} from '../../utils/component/ViewDataCompUtils';
 
 export const cellRenderSpecial = (cellInfo, columnDefinition, keyExistsInInvalidCellKeys, onOperationClick) => {
     try {
@@ -34,12 +35,34 @@ export const cellRenderSpecial = (cellInfo, columnDefinition, keyExistsInInvalid
             case ColumnType.IM:
                 return renderMultiImage(cellInfo);
             case ColumnType.I:
-                return renderSingleImage(cellInfo);
+                return renderSingleImage(cellInfo, columnDefinition, onOperationClick);
+            case ColumnType.B:
+                return renderBoolean(cellInfo);
+            case ColumnType.L:
+                return renderLogic(cellInfo);
             default:
                 return undefined;
         }
     } catch (err) {
         ConsoleHelper('Error global cell render. Exception=', err);
+    }
+};
+
+const renderBoolean = (cellInfo) => {
+    try {
+        const checked = ViewDataCompUtils.conditionForTrueValueForBoolType(cellInfo.text);
+        return <CheckBox value={checked} disabled={true} />;
+    } catch (err) {
+        ConsoleHelper('Error render boolean. Exception=', err);
+    }
+};
+
+const renderLogic = (cellInfo) => {
+    try {
+        const checked = ViewDataCompUtils.conditionForTrueValueForLogicType(cellInfo.text);
+        return <CheckBox value={checked} disabled={true} />;
+    } catch (err) {
+        ConsoleHelper('Error render logic. Exception=', err);
     }
 };
 
@@ -120,11 +143,11 @@ const renderMultiImage = (cellInfo) => {
     }
 };
 
-const renderSingleImage = (cellInfo) => {
+const renderSingleImage = (cellInfo, columnDefinition, onOperationClick) => {
     try {
         return !!cellInfo?.text ? (
             cellInfo?.text?.split(',').map(() => (
-                <div key={cellInfo?.text}>
+                <div className='cell-image' key={cellInfo?.text}>
                     <Image
                         onRemove={(e) => {
                             this.trashClicked.current = true;
@@ -135,7 +158,12 @@ const renderSingleImage = (cellInfo) => {
                                 }, 0);
                             }, 0);
                         }}
-                        canRemove={cellInfo?.text.length > 0}
+                        onImageClick={() => {
+                            if (onOperationClick && !cellInfo.edit) {
+                                onOperationClick(cellInfo, columnDefinition);
+                            }
+                        }}
+                        canRemove={columnDefinition.edit ? cellInfo?.text.length > 0 : false}
                         base64={cellInfo?.text}
                     />
                 </div>

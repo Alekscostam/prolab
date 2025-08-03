@@ -138,10 +138,14 @@ class BaseContainer extends React.Component {
         });
     }
 
-    showWarningMessage(detail, life = Constants.ERROR_MSG_LIFE, summary = '') {
+    showWarningMessage(
+        detail,
+        life = Constants.ERROR_MSG_LIFE,
+        summary = LocUtils.locFromStoreWithDefault('Warning', 'Ostrzeżenie')
+    ) {
         this.getMessages()?.show({
             severity: 'warn',
-            life: Constants.ERROR_MSG_LIFE,
+            life: life,
             summary: summary,
             content: (
                 <div className='p-flex p-flex-column' style={{flex: '1'}}>
@@ -151,7 +155,11 @@ class BaseContainer extends React.Component {
         });
     }
 
-    showSuccessMessage(detail, life = Constants.SUCCESS_MSG_LIFE, summary = '') {
+    showSuccessMessage(
+        detail,
+        life = Constants.SUCCESS_MSG_LIFE,
+        summary = LocUtils.locFromStoreWithDefault('Message', 'Komunikat')
+    ) {
         this.getMessages()?.show({
             severity: 'success',
             life: life,
@@ -1303,12 +1311,12 @@ class BaseContainer extends React.Component {
                                         this.processCopyOk(id, callBack);
                                         return;
                                     }
+                                    this.unblockUi();
                                     this.showGlobalErrorMessage(err);
                                 });
                             this.setState({
                                 currentSelectedRowKeyId: selectedRowKeys[0],
                             });
-                            this.unblockUi();
                         } else {
                             this.unblockUi();
                         }
@@ -1774,7 +1782,7 @@ class BaseContainer extends React.Component {
                 (field) => field.fieldName.toUpperCase() === varName.toUpperCase()
             );
             fieldArr.value = varValue;
-            this.setState({modifyEditData: true}); // TODO: documentInfo?
+            this.setState({modifyEditData: true});
         }
     }
     handleEditRowChange(inputType, event, groupUuid, info) {

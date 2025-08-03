@@ -155,7 +155,7 @@ export default class AuthService {
         }
     }
 
-    login(username, password, appName, deviceName, appVersion) {
+    login(username, password, appName, deviceName, appVersion, recaptchaToken) {
         return this.fetch(`${this.domain}/auth/token`, {
             method: 'POST',
             body: JSON.stringify({
@@ -164,6 +164,7 @@ export default class AuthService {
                 DeviceName: deviceName,
                 AppName: appName,
                 AppVersion: appVersion,
+                RecaptchaToken: recaptchaToken,
             }),
         }).then((res) => {
             useStore.getState().setRefreshToken(res.refreshToken);

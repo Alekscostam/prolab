@@ -171,6 +171,21 @@ class CellEditComponent extends PureComponent {
             );
         }, 0);
     }
+
+    onShowImageViewer = (cellInfo, editable = false) => {
+        this.setState({
+            imageViewer: {
+                imageViewDialogVisible: true,
+                imageBase64: StringUtils.containingText(cellInfo.value, 'data:image/jpeg;base64,')
+                    ? cellInfo.value
+                    : `data:image/jpeg;base64,${cellInfo.value}`,
+                editable: editable,
+                header: cellInfo.column?.caption,
+            },
+            cellInfo,
+        });
+    };
+
     // to overdie
     onHideEditorCallback() {}
     // to overdie

@@ -30,6 +30,7 @@ import SelectedElements from '../components/SelectedElements';
 import {ResponseUtils} from '../utils/ResponseUtils';
 import {TranslationUtils} from '../utils/TranslationUtils';
 import LocUtils from '../utils/LocUtils';
+import {ConfirmationOperationDialog} from '../components/prolab/ConfirmOperationDialog';
 
 export let operationClicked = false;
 export class EditSpecContainer extends BaseContainer {
@@ -58,6 +59,11 @@ export class EditSpecContainer extends BaseContainer {
             parsedData: null,
             columns: [],
             selectedRowKeys: [],
+            confirmationOperation: {
+                visible: false,
+                fncAfterClickYes: () => {},
+                operationType: undefined,
+            },
         };
         this.getViewById = this.getViewById.bind(this);
         this.showAddSpecDialog = this.showAddSpecDialog.bind(this);
@@ -571,7 +577,9 @@ export class EditSpecContainer extends BaseContainer {
                             <ShortcutsButton items={this.state.parsedView?.shortcutButtons} maxShortcutButtons={5} />
                         </React.Fragment>
                     }
-                    handleDelete={() => this.delete()}
+                    handleDelete={() =>
+                        this.onShowConfirmationOperationDialog(OperationType.OP_DELETE, () => this.delete())
+                    }
                     handleFormula={(e) => {
                         this.prepareCalculateFormula();
                     }}
@@ -845,6 +853,24 @@ export class EditSpecContainer extends BaseContainer {
         }
         return false;
     }
+    onShowConfirmationOperationDialog = (type, fncAfterClickYes) => {
+        this.setState({
+            confirmationOperation: {
+                visible: true,
+                fncAfterClickYes: fncAfterClickYes,
+                operationType: type,
+            },
+        });
+    };
+    onHideConfirmationOperationDialog = () => {
+        this.setState({
+            confirmationOperation: {
+                visible: false,
+                fncAfterClickYes: () => {},
+                operationType: undefined,
+            },
+        });
+    };
     //override
     renderContent = () => {
         const parsedData = this.state?.parsedData?.filter((el) => el._STATUS !== 'deleted');
@@ -915,7 +941,11 @@ export class EditSpecContainer extends BaseContainer {
                                         }
                                     );
                                 }}
-                                handleDeleteRow={(id) => this.delete(id)}
+                                handleDeleteRow={(id) =>
+                                    this.onShowConfirmationOperationDialog(OperationType.OP_DELETE, () =>
+                                        this.delete(id)
+                                    )
+                                }
                                 handleFormulaRow={(id) => this.prepareCalculateFormula(id)}
                                 handleDownload={(id) => this.props.handleDownloadRow(id)}
                                 handleAttachments={(id) => this.props.handleAttachmentRow(id)}
@@ -961,6 +991,21 @@ export class EditSpecContainer extends BaseContainer {
                                 collapsed={this.props.collapsed}
                             />
                         ) : null}
+
+                        {this.state.confirmationOperation?.visible && (
+                            <ConfirmationOperationDialog
+                                onAccept={() => {
+                                    this.state.confirmationOperation.fncAfterClickYes();
+                                    this.onHideConfirmationOperationDialog();
+                                }}
+                                onHide={() => {
+                                    this.onHideConfirmationOperationDialog();
+                                    this.unselectAllDataGrid();
+                                }}
+                                operationType={this.state.confirmationOperation.operationType}
+                                visible={this.state.confirmationOperation?.visible}
+                            />
+                        )}
                     </React.Fragment>
                 )}
             </React.Fragment>

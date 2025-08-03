@@ -563,16 +563,12 @@ label {
     }
 }
 
+
 .dx-popup-title {
     margin-top: 10px;
     border-bottom: none !important;
 }
 
-.maximalized-sub-view {
-    .action-button-with-menu-contant {
-        margin-right: 4px;
-    }
-}
 
 .dx-datagrid-filter-panel .dx-datagrid-filter-panel-clear-filter,
 .dx-datagrid-filter-panel .dx-datagrid-filter-panel-text,
@@ -1011,6 +1007,20 @@ td[aria-roledescription='Editable'] {
 }
 .dx-context-menu *{
     background-color: white!important;
+}
+.p-button:focus  { 
+  outline: none !important;
+}
+.dx-gantt-tsac:first-child {
+    .dx-gantt-tsa, .dx-gantt-vb {
+        height: 60px!important;
+    }
+}
+.dx-gantt-si{
+    height: 60px!important;
+}
+.dx-gantt-tsac{
+    height: 97px!important;
 }
 
 .dx-context-menu{

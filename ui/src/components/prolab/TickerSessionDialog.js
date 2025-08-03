@@ -89,7 +89,7 @@ export const TickerSessionDialog = (props) => {
                         ref={progressBar}
                         id='progress-bar-status'
                         className={seconds === 0 ? 'complete' : ''}
-                        width='90%'
+                        width='100%'
                         min={0}
                         max={secondsToPopup}
                         elementAttr={elementAttr}

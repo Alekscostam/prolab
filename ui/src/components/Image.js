@@ -21,6 +21,10 @@ export const Image = ({
         } else {
             base64Tmp = `data:image/jpeg;base64,${base64}`;
         }
+        const base64DataOnly = base64Tmp.split(',')[1];
+        const byteArray = Uint8Array.from(atob(base64DataOnly), (c) => c.charCodeAt(0));
+        const blob = new Blob([byteArray], {type: 'image/jpeg'}); 
+        const blobUrl = URL.createObjectURL(blob);
         if (rendered) {
             return (
                 <div className='cursor-pointer'>
@@ -42,9 +46,10 @@ export const Image = ({
                             </div>
                             <img
                                 style={style}
+                                loading='lazy'
                                 className={className}
                                 alt={alt}
-                                src={base64Tmp}
+                                src={blobUrl}
                                 onClick={(e) => {
                                     if (onImageClick) {
                                         onImageClick(base64Tmp, e);
@@ -55,9 +60,10 @@ export const Image = ({
                     ) : (
                         <img
                             style={style}
+                            loading='lazy'
                             className={className}
                             alt={alt}
-                            src={base64Tmp}
+                            src={blobUrl}
                             onClick={(e) => {
                                 if (onImageClick) {
                                     onImageClick(base64Tmp, e);

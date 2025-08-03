@@ -41,7 +41,6 @@ import {HtmlUtils} from '../../utils/HtmlUtils';
 import {ViewDataCompUtils} from '../../utils/component/ViewDataCompUtils';
 import EntryResponseHelper from '../../utils/helper/EntryResponseHelper';
 import {TranslationUtils} from '../../utils/TranslationUtils';
-import {SelectedRowKeysUtils} from '../../utils/SelectedRowKeysUtils';
 import {handleEdit} from '../../utils/handler/EditHandler';
 import {SessionStoreUtils} from '../../utils/SessionStoreUtils';
 import {ResponseUtils} from '../../utils/ResponseUtils';
@@ -160,7 +159,7 @@ class GridViewComponent extends CellEditComponent {
                 scrollContainer = this.getScrollableContainer();
                 this.mouseDragScroller = new MouseDragScroller(scrollContainer);
                 this.mouseDragScroller.init();
-            }, 2000);
+            }, 5000);
         }
     };
 
@@ -301,7 +300,9 @@ class GridViewComponent extends CellEditComponent {
                                     );
                                     if (!isAlreadySelected) e.row.cells[0]?.cellElement?.firstChild?.click();
                                 }
-                                this.setState({selectedRecordId: e.row.data.ID});
+                                setTimeout(() => {
+                                    this.setState({selectedRecordId: e.row.data.ID});
+                                }, 0);
                             }
                         }
                     }}
@@ -499,11 +500,12 @@ class GridViewComponent extends CellEditComponent {
                 return;
             }
             const visibleRow = e.component.getVisibleRows()?.find((row) => row.data?.ID === clickedRowFromView.row?.id);
-            if (visibleRow) {
-                const element = visibleRow.cells[1];
-                if (element) {
-                    const tr = element.cellElement.parentNode;
-                    tr.className = tr.className + ' highlight-row';
+            const element = visibleRow?.cells?.[1];
+            const cellElement = element?.cellElement;
+            if (cellElement && !StringUtils.isBlank(cellElement)) {
+                const tr = cellElement.parentNode;
+                if (tr instanceof HTMLElement) {
+                    tr.classList.add('highlight-row');
                     SessionStoreUtils.clearClickedRowFromView();
                 }
             }
@@ -569,7 +571,23 @@ class GridViewComponent extends CellEditComponent {
         }
         return structuredClone(this.state.gridViewColumns);
     }
-    // FIXX:  clear filter na gantt
+    fillHeightForGrid = (element) => {
+        try {
+            const headerAutoHeight = this.props?.parsedGridView?.gridOptions?.headerAutoHeight || false;
+            if (!headerAutoHeight || !element) return;
+            const table = element.closest('.dx-datagrid-headers.dx-bordered-top-view');
+            const headerChild = element.parentNode;
+            if (!table || !headerChild || !table.parentElement) return;
+            const headerParent = table?.children?.[1]?.children?.[0]?.children?.[1]?.children?.[0];
+            const parentHeight = headerParent?.clientHeight;
+            if (parentHeight && headerChild.offsetHeight !== parentHeight) {
+                headerChild.style.height = `${parentHeight}px`;
+            }
+        } catch (error) {
+            console.warn('fillHeightForGrid error:', error);
+        }
+    };
+
     postCustomizeColumns = (columns) => {
         const columnDefinitionArray = this.getClonedGridViewColumns();
         let INDEX_COLUMN = 0;
@@ -630,7 +648,6 @@ class GridViewComponent extends CellEditComponent {
                         }
                     }
                 });
-            // TODO: czasami jak idzie sie do dziecka to switch jest zaznacozny
             // Bardzo ważne!!! clear pol bo w tym utilsie są parametry typu let
             DataGridUtils.clearProperties();
             let operationsRecord = this.props.parsedGridView?.operationsRecord;
@@ -646,6 +663,7 @@ class GridViewComponent extends CellEditComponent {
                     headerCellTemplate: (element) => {
                         if (this.props.showAddButton) {
                             element.parentNode.classList.add('header-button');
+                            this.fillHeightForGrid(element);
                             const root = ReactDOM.createRoot(element);
                             root.render(this.addButton());
                             const filterLastRow = element.parentNode.parentNode.parentNode.lastChild.lastChild;

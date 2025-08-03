@@ -1,12 +1,12 @@
-import {Button} from 'devextreme-react';
 import {Dialog} from 'primereact/dialog';
 import {useEffect, useRef, useState} from 'react';
-
+import {Button} from 'primereact/button';
 import PropTypes from 'prop-types';
 import HtmlEditor, {Item, MediaResizing, TableResizing, Toolbar} from 'devextreme-react/html-editor';
 import LocUtils from '../../utils/LocUtils';
 import MarkupDialogComponent from './MarkupDialog';
 import useStore from '../../store';
+import React from 'react';
 
 export const EditorDialog = (props) => {
     const {onSave, onHide, header, editable} = props;
@@ -36,18 +36,19 @@ export const EditorDialog = (props) => {
         setVisible(false);
     };
     const dialogFooter = editable ? (
-        <div>
+        <React.Fragment>
             <Button
                 id='save-editor-button'
-                text={LocUtils.locFromStoreWithDefault('Save', 'Zapisz')}
+                type='button'
                 onClick={() => {
                     if (onSave) {
                         onSave(editor.current?.instance?.option('value'));
                     }
                     hideDialog();
                 }}
+                label={LocUtils.locFromStoreWithDefault('Save', 'Zapisz')}
             />
-        </div>
+        </React.Fragment>
     ) : (
         <div></div>
     );
