@@ -25,6 +25,7 @@ export const MemoizedTextInput = React.memo(
         const cellValidator = new CellValidator(cellInfo, field);
         const [isValid, setIsValid] = useState(cellValidator.isValidField(inputValue));
         let currentVal = inputValue;
+
         return (
             <React.Fragment>
                 <div className={`row`}>

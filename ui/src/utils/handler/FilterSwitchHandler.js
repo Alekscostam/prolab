@@ -3,6 +3,7 @@ import {StringUtils} from '../StringUtils';
 
 export const handleSwitchFilterForGrid = (filters) => {
     const combinedFilter = window?.dataGrid?.getCombinedFilter();
+
     if (combinedFilter) {
         filters = combinedFilter;
     }

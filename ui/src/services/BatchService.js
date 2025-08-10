@@ -21,7 +21,7 @@ export default class BatchService extends BaseService {
     getView(viewId, parentId) {
         const batchId = UrlUtils.getBatchIdParam();
         const selectedRowKeys = readObjFromCookieGlobal('selectedRowKeys');
-        const idRowKeys = selectedRowKeys.map((el) => el.ID);
+        const idRowKeys = selectedRowKeys?.map((el) => el.ID);
         const requestBody = {
             listId: idRowKeys,
         };
@@ -40,7 +40,7 @@ export default class BatchService extends BaseService {
     getViewEntry(viewId, parentId) {
         const batchId = UrlUtils.getBatchIdParam();
         const selectedRowKeys = readObjFromCookieGlobal('selectedRowKeys');
-        const idRowKeys = selectedRowKeys.map((el) => el.ID);
+        const idRowKeys = selectedRowKeys?.map((el) => el.ID);
         const requestBody = {
             listId: idRowKeys,
         };
@@ -61,7 +61,7 @@ export default class BatchService extends BaseService {
     getData(viewId, parentId) {
         const batchId = UrlUtils.getBatchIdParam();
         const selectedRowKeys = readObjFromCookieGlobal('selectedRowKeys');
-        const idRowKeys = selectedRowKeys.map((el) => el.ID);
+        const idRowKeys = selectedRowKeys?.map((el) => el.ID);
         const requestBody = {
             listId: idRowKeys,
         };
@@ -99,26 +99,24 @@ export default class BatchService extends BaseService {
         ).catch((err) => {
             throw err;
         });
-    } 
-    
+    }
+
     fill(viewId, parentId, data) {
         const batchId = UrlUtils.getBatchIdParam();
-        return this.fetch(
-            `${this.getDomain()}/${this.path}/${viewId}/batch/${batchId}/autofill?parentId=${parentId}`,
-            {
-                method: 'POST',
-                body: JSON.stringify({
-                    data,
-                }),
-            }
-        )
-        .then((res) => {
-            return Promise.resolve(res);
-        }).catch((err) => {
-            throw err;
-        });
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/batch/${batchId}/autofill?parentId=${parentId}`, {
+            method: 'POST',
+            body: JSON.stringify({
+                data,
+            }),
+        })
+            .then((res) => {
+                return Promise.resolve(res);
+            })
+            .catch((err) => {
+                throw err;
+            });
     }
-    
+
     calculate(viewId, returnId, data) {
         let paramArrays = [];
         if (!!returnId) {
@@ -126,20 +124,18 @@ export default class BatchService extends BaseService {
         }
         const parameters = paramArrays.length > 0 ? '?' + paramArrays.join('&') : '';
         const batchId = UrlUtils.getBatchIdParam();
-        return this.fetch(
-            `${this.getDomain()}/${this.path}/${viewId}/batch/${batchId}/calculate${parameters}`,
-            {
-                method: 'POST',
-                body: JSON.stringify({
-                    data,
-                }),
-            }
-        )
-        .then((res) => {
-            return Promise.resolve(res);
-        }).catch((err) => {
-            throw err;
-        });
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/batch/${batchId}/calculate${parameters}`, {
+            method: 'POST',
+            body: JSON.stringify({
+                data,
+            }),
+        })
+            .then((res) => {
+                return Promise.resolve(res);
+            })
+            .catch((err) => {
+                throw err;
+            });
     }
 
     cancel(viewId, parentId, ids) {

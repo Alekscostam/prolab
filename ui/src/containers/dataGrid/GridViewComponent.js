@@ -52,6 +52,8 @@ import {getStore} from '../../utils/helper/StoreHelper';
 import {MouseDragScroller} from '../../utils/MouseDragScroller';
 
 class GridViewComponent extends CellEditComponent {
+    _filterClearRoot = null;
+
     constructor(props) {
         super(props);
         this.mouseDragScroller = undefined;
@@ -63,10 +65,12 @@ class GridViewComponent extends CellEditComponent {
         this.clickedPosition = React.createRef();
         this.focusedRowKey = React.createRef();
         this.keyDownClicked = React.createRef(false);
+        this.firstLoadDone = React.createRef(false);
         this.editSpecService = new EditSpecService();
         this.state = {
             gridViewColumns: this.props.gridViewColumns,
             allRowsShow: false,
+            packageCount: 80,
             keyDownClicked: false,
             focusedRowKey: UrlUtils.getURLParameter('selectedFromPrevGrid')
                 ? parseInt(UrlUtils.getURLParameter('selectedFromPrevGrid'))
@@ -213,6 +217,7 @@ class GridViewComponent extends CellEditComponent {
             return this.props.packageRows;
         }
         return result;
+        // return 70;
     };
     findRowDataById(recordId) {
         const editData = this.props.parsedGridViewData.filter((item) => {
@@ -262,6 +267,20 @@ class GridViewComponent extends CellEditComponent {
             e.component.cancelEditData();
         }
     };
+    renderClearFilter = () => {
+        const clearFilter = document.getElementById('clear-filter-outside');
+        if (this._filterClearRoot && !clearFilter) {
+            this._filterClearRoot.render(
+                <FilterClear
+                    clearFnc={() => {
+                        const gridRef = this.props.getRef()._instance;
+                        gridRef.clearFilter();
+                    }}
+                    filters={window?.dataGrid?.getCombinedFilter()}
+                />
+            );
+        }
+    };
     render() {
         const showGroupPanel = this.props.gridFromDashboard
             ? false
@@ -280,6 +299,7 @@ class GridViewComponent extends CellEditComponent {
         const defaultSelectedRowKeys = this.props.defaultSelectedRowKeys;
         const selectedRowKeys = this.props.selectedRowKeys;
         const packageCount = this.getPackageCount();
+        // const packageCount = this.state.packageCount;
         const kindView = this.props.elementKindView;
         const subViewId = this.props.elementSubViewId;
         const selectedRecordId = this.state.selectedRecordId;
@@ -341,6 +361,9 @@ class GridViewComponent extends CellEditComponent {
                     onOptionChanged={(e) => {
                         this.unclickAfterFilter(e);
                         if (e.fullName.includes('filterValue') && e.name === 'columns') {
+                            if (this.props?.handleOnFilterChange) {
+                                this.props.handleOnFilterChange();
+                            }
                             if (this.props?.getRef) {
                                 this.props.getRef().instance.clearSelection();
                                 if (this.props?.handleUnselectAll) {
@@ -351,6 +374,7 @@ class GridViewComponent extends CellEditComponent {
                     }}
                     onContentReady={(e) => {
                         this.highlightRow(e);
+                        this.renderClearFilter();
                         if (this.props.onContentReady) {
                             this.props.onContentReady(e);
                         }
@@ -666,18 +690,9 @@ class GridViewComponent extends CellEditComponent {
                             this.fillHeightForGrid(element);
                             const root = ReactDOM.createRoot(element);
                             root.render(this.addButton());
-                            const filterLastRow = element.parentNode.parentNode.parentNode.lastChild.lastChild;
+                            const filterLastRow = element?.parentNode?.parentNode?.parentNode?.lastChild?.lastChild;
                             if (!this.props?.isAttachement && useStore.getState()?.showFilterClear) {
-                                const rootFilter = ReactDOM.createRoot(filterLastRow);
-                                rootFilter.render(
-                                    <FilterClear
-                                        clearFnc={() => {
-                                            const gridRef = this.props.getRef()._instance;
-                                            gridRef.clearFilter();
-                                        }}
-                                        filters={window.dataGrid.getCombinedFilter()}
-                                    />
-                                );
+                                this._filterClearRoot = ReactDOM.createRoot(filterLastRow);
                             }
                         }
                     },
@@ -1267,6 +1282,7 @@ GridViewComponent.propTypes = {
     allowSelectAll: PropTypes.bool,
     handleMaxPackgeCount: PropTypes.func,
     handleFillDownParsedData: PropTypes.func,
+    handleOnFilterChange: PropTypes.func,
 
     gridFromDashboard: PropTypes.bool,
 };

@@ -4,56 +4,85 @@
       "title":"",
       "data": [
         {
-          "isNew": true,
+          "isNew":true,
+          "type": "FIX",
+          "color": "red",
+          "date": "",
+          "text": "Filtrowanie w batch wraz z licznikiem wierszy"
+        },
+        {
+          "isNew":true,
+          "type": "FIX",
+          "color": "red",
+          "date": "",
+          "text": "Zmniejszenie rerenderu FilterClear co powodowało niemożliwość autoamtycznego zaznaczenia filtru"
+        },
+        {
+          "isNew":true,
+          "type": "FIX",
+          "color": "red",
+          "description": "",
+          "date": "",
+          "text": "Usunięcie błędu białej strony w przypadku braku coockies'a dotyczacego batchy po wejsciu w widok modyfikacji nagłowka/seryjnej"
+        },
+        {
+          "isNew":true,
+          "type": "FIX",
+          "color": "red",
+          
+          "importanceColor":"#fff666",
+          "description": "Usuwanie customowego eventu(ktory jest tworzony w momencie onChange) oraz zabezpiecznie przed wyjątkami runtime. Należy przetestować ten komponent w batch i treelist",
+          "date": "",
+          "text": "Zabezpieczenie i optymalizacja MemoizedDateTimeInput"
+        }
+      ]
+    },
+     {
+      "title":"Wersja któraś tam",
+      "data": [
+        {
           "type": "FIX",
           "color": "red",
           "date": "",
           "text": "CTRL+K - jeśli idzie pusta lista lub null z find - to nic sie nie wywoła"
         },
         {
-          "isNew": true,
           "type": "NEW",
           "color": "green",
           "date": "",
           "text": "Wymiana komponentu wyboru kopii w dialogu kopiowania"
         },
         {
-          "isNew": true,
           "type": "FIX",
           "color": "red",
           "date": "",
           "text": "Draggable grid czasami nie działał jak były widoczne obrazki"
         },
         {
-          "isNew": true,
           "type": "NEW",
           "color": "green",
           "date": "",
           "text": "Draggable na gantt widok"
         },
         {
-          "isNew": true,
           "type": "FIX",
           "color": "red",
           "date": "",
           "text": "fix na zliczanie taskow w preview version"
         },
         {
-          "isNew": true,
           "type": "FIX",
           "color": "red",
           "date": "",
           "text": "Brakujące key w componentach - fix wydajnosciowy"
         },
         {
-          "isNew": true,
           "type": "FIX",
           "color": "red",
           "date": "",
           "text": "PPM i potem wejscie do edycji i anulacja wymazuje zaznaczony row - gantt"
         }, 
         {
-          "isNew": true,
           "type": "FIX",
           "description": "W niektórych przypadkach, gdy zaznaczone były dwa filtry i użytkownik przechodził do edycji specyfikacji, a następnie wracał za pomocą przycisku wstecz w przeglądarce, następowało nieprawidłowe odświeżenie widoku siatki (gridu). Błąd powiązany z funkcjonalnością, ktora dotyczyła kolorowania wybranego rekordu z którego weszliśmy do modyfikacji specyfikacji",
           "color": "red",
@@ -61,21 +90,18 @@
           "text": "Poprawa błędu związanego z psuciem sie grida"
         },
         {
-          "isNew": true,
           "type": "FIX",
           "color": "red",
           "date": "",
           "text": "Wyrowanie kart do brzegów w widoku kart"
         },
         {
-          "isNew": true,
           "type": "FIX",
           "color": "red",
           "date": "",
           "text": "Wyrowanie grida w załącznikach do brzegów"
         },
         {
-          "isNew": true,
           "type": "FIX",
           "importanceColor":"#ff6666",
           "description": "jak dodawaliśmy nowy parametr to bralo złe pola do kolorowania na szaro. Sparawdźcie czy wszystkie cellsy w treelist teraz dobrze sie wysweitlają i czy nie ma jakichś błedów",
@@ -84,7 +110,6 @@
           "text": "Prawidłowe wyświetlanie disabled background w treelist jak dodajemy parametr"
         },
         {
-          "isNew": true,
           "type": "FIX",
           "color": "red",
           "date": "",
@@ -92,7 +117,6 @@
           "text": "Potwierdzenie usuwania w modyfikacji specyfikacji"
         },
         {
-          "isNew": true,
           "type": "FIX",
           "color": "red",
           "date": "",
@@ -100,42 +124,36 @@
           "text": "Przedłużenie blockUI w momencie wywoływania zatwierdzenia w dialogu kopiowania"
         },
         {
-          "isNew": true,
           "type": "FIX",
           "color": "red",
           "date": "",
           "text": "Usunięcie skoku wysokości przy wejsciu w konkretny cell w treelist"
         },
         {
-          "isNew": true,
           "type": "FIX",
           "color": "red",
           "date": "",
           "text": "Domyślne tytuły w przypadku kiedy w komunikatach typ warning i succesfull jest null"
         },
         {
-          "isNew": true,
           "type": "FIX",
           "color": "red",
           "date": "",
           "text": "Minimalna wysokość i szerokość dla dialogu"
         },
         {
-          "isNew": true,
           "type": "FIX",
           "color": "red",
           "date": "",
           "text": "Resize dialogu w załącznikach psuł cały datagrid - robił go niewidocznym"
         },
         {
-          "isNew": true,
           "type": "NEW",
           "color": "green",
           "date": "",
           "text": "React ERROR BOUNDARY do obsługi błędów białej strony"
         },
         {
-          "isNew": true,
           "type": "FIX",
           "color": "red",
           "link":"https://trello.com/c/u3RiHzgl/783-edycja-pola-obrazkowego-w-specyfikacji",
@@ -144,14 +162,12 @@
           "text": "Ikona usuwania (kosza) przy obrazku została ukryta, gdy edit jest ustawiony na false, czyli w trybie tylko do odczytu"
         },
         {
-          "isNew": true,
           "type": "NEW",
           "color": "green",
           "date": "",
           "text": "Obrazek w kolumnie został odpowiednio wycentrowany w widoku TreeList dla lepszej estetyki i spójności interfejsu."
         },
         {
-          "isNew": true,
           "type": "NEW",
           "color": "green",
           "date": "",
@@ -159,7 +175,6 @@
           "text": "Dodano możliwość wyświetlania podglądu obrazka również w trybie view, dzięki czemu użytkownik może zobaczyć obraz nawet bez możliwości edycji w Treelist."
         },
         {
-          "isNew": true,
           "type": "FIX",
           "color": "red",
           "link":"https://trello.com/c/T8nCSkCp/782-przegl%C4%85d-pola-logicznego-w-edycji-specyfikacji",
@@ -169,7 +184,6 @@
         },
       
         {
-          "isNew": true,
           "type": "NEW",
           "color": "green",
           "date": "",
@@ -178,7 +192,6 @@
         },
       
         {
-          "isNew": true,
           "type": "FIX",
           "color": "red",
           "date": "",
@@ -186,7 +199,6 @@
           "text": "W przypadku wystąpienia błędu walidacji, po najechaniu kursorem na komórkę z błędem, tekst w komórce był podświetlany na czarno. Na ciemnym tle powodowało to brak czytelności - treelist"
         },
         {
-          "isNew": true,
           "type": "NEW",
           "color": "green",
           "link":"https://trello.com/c/EHp8R7q7/427-wprowadzi%C4%87-captcha-przy-logowaniu",
@@ -196,7 +208,6 @@
           "text": "Implementacja captchy"
         },
         {
-          "isNew": true,
           "type": "NEW",
           "color": "green",
           "link":"https://trello.com/c/TaAshKOH/654-wy%C5%82%C4%85czenie-zapami%C4%99tywania-warto%C5%9Bci-w-polu-username",
@@ -205,7 +216,6 @@
           "text": "Wyłączenie remember me na parametr 'REMEMBER_ME' false"
         },
         {
-          "isNew": true,
           "type": "FIX",
           "color": "red",
           "link":"https://trello.com/c/yTtIEhSm/785-gantt-dopasowanie-wysoko%C5%9Bci-rekordu-w-cz%C4%99%C5%9Bci-z-datami",
@@ -214,7 +224,6 @@
           "text": "Naprawa wysokości header w gantt"
         },
         {
-          "isNew": true,
           "type": "FIX",
           "color": "red",
           "date": "",
@@ -222,7 +231,6 @@
           "text": "Naprawa zapamietywnia filtru od dat w gantt"
         },
         {
-          "isNew": true,
           "type": "FIX",
             "link":"https://trello.com/c/E1bcGug6/784-licznik-rekord%C3%B3w-w-widoku-gantt",
           "color": "red",
@@ -231,7 +239,6 @@
           "text": "Prawidłwoe wylicznie totalcount w gantt"
         },
         {
-          "isNew": true,
           "type": "FIX",
           "link":"",
           "color": "red",
@@ -241,7 +248,6 @@
           "text": "Zapamietywnie filtra typu beetween w zwykłym grid"
         },
         {
-          "isNew": true,
           "type": "FIX",
           "link":"",
           "color": "red",
@@ -251,7 +257,6 @@
           "text": "Zbiorcza naprawa zapamiętywnia filtrów w gantt"
         },
         {
-          "isNew": true,
           "type": "FIX",
           "link":"",
           "color": "red",
@@ -260,7 +265,6 @@
           "text": "Naprawa niewidocznej pierwszej kolumny w gantt"
         },
         {
-          "isNew": true,
           "type": "FIX",
           "link":"",
           "color": "red",
@@ -269,7 +273,6 @@
           "text": "Naprawa podwójnego mrugniecia po kliknieciu PPM na głównym gridzie"
         },
         {
-          "isNew": true,
           "type": "FIX",
           "link":"",
           "color": "red",
@@ -278,7 +281,6 @@
           "text": "Autodopasowanie wysokości headera z przyciskiem 'Dodaj' na głónym gridzie przy rerenderze"
         },
         {
-          "isNew": true,
           "type": "NEW",
           "link":"",
           "color": "green",

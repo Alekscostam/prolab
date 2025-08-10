@@ -22,6 +22,11 @@ import ActionButtonWithMenu from '../components/prolab/ActionButtonWithMenu';
 import {OperationType} from '../enum/OperationType';
 import {ViewUtils} from '../utils/ViewUtils';
 import {TranslationUtils} from '../utils/TranslationUtils';
+import {handleSwitchFilterForGrid} from '../utils/handler/FilterSwitchHandler';
+import SelectedElements from '../components/SelectedElements';
+import {ColumnUtils} from '../utils/ColumnUtils';
+import {TreeListUtils} from '../utils/component/TreeListUtils';
+import {getStore} from '../utils/helper/StoreHelper';
 
 export class BatchContainer extends BaseContainer {
     _isMounted = false;
@@ -37,6 +42,7 @@ export class BatchContainer extends BaseContainer {
         this.state = {
             loading: true,
             isChanged: undefined,
+            totalCounts: undefined,
             packageRows: 30,
             levelId: undefined,
             visibleAddSpec: false,
@@ -204,9 +210,11 @@ export class BatchContainer extends BaseContainer {
             loading: false,
             dataGridStoreSuccess: true,
             parsedData: res.data,
+            totalCounts: res.data?.length || 0,
         });
     }
     componentWillUnmount() {
+        window.dataGrid = undefined;
         super.componentWillUnmount();
     }
 
@@ -505,6 +513,15 @@ export class BatchContainer extends BaseContainer {
             return oldFormula;
         }
     }
+
+    onAfterFilterChange() {
+        const view = getStore().dataGridView;
+        const filters = ColumnUtils.filterColumnPair(view.getCombinedFilter(), view.option('columns')) || [];
+        const filteredTasks = ColumnUtils.filteredResults(this.state.parsedData, filters);
+        const allElements = TreeListUtils.findAllParentsRecursively(this.state.parsedData, filteredTasks);
+        this.setState({totalCounts: allElements?.length});
+    }
+
     //override
     renderContent = () => {
         return (
@@ -515,6 +532,15 @@ export class BatchContainer extends BaseContainer {
                             ppmEnabled={true}
                             multiLevelHeaders={this.isGridViewBands()}
                             altAndLeftClickEnabled={false}
+                            handleOnInitialized={(e) => {
+                                const dataGrid = e.component;
+                                window.dataGrid = dataGrid;
+                                getStore().setDataGridView(dataGrid);
+                            }}
+                            handleOnFilterChange={() => {
+                                handleSwitchFilterForGrid();
+                                this.onAfterFilterChange();
+                            }}
                             handleSaveAction={() => this.handleSaveAction()}
                             id={this.props.id}
                             elementParentId={this.state.elementParentId}
@@ -573,6 +599,8 @@ export class BatchContainer extends BaseContainer {
                                 this.fillData(id);
                             }}
                         />
+
+                        <SelectedElements totalCounts={this.state.totalCounts} onlyTotalCounts={true} />
                     </React.Fragment>
                 )}
             </React.Fragment>

@@ -8,6 +8,7 @@ export class ErrorBoundary extends React.Component {
         this.state = {
             hasError: false,
             error: null,
+            stack: null,
             errorInfo: null,
             reloadPage: false,
         };
@@ -19,7 +20,8 @@ export class ErrorBoundary extends React.Component {
 
     componentDidCatch(error, errorInfo) {
         console.error('ErrorBoundary:', error, errorInfo);
-        this.setState({errorInfo});
+        const stack = error.stack;
+        this.setState({errorInfo, stack});
     }
 
     handleReset = () => {
@@ -49,7 +51,7 @@ export class ErrorBoundary extends React.Component {
                     <details style={styles.details}>
                         {this.state.error && this.state.error.toString()}
                         <br />
-                        {this.state.errorInfo?.componentStack}
+                        {this.state.stack}
                     </details>
                     {/* <i style={styles.home} className='mdi mdi-home' onClick={this.goHome} /> */}
                     <button style={styles.button} onClick={this.handleReset}>

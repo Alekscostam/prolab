@@ -8,7 +8,11 @@ export const MemoizedTimeInput = React.memo(({field, cellInfo, inputValue, field
     let date = new Date();
     if (!StringUtils.isBlankOrEmpty(inputValue)) {
         const [hours, minutes] = inputValue.split(':').map(Number);
-        date.setHours(hours, minutes, 0, 0); // Ustawia godzinę i minutę
+        if (!isNaN(hours) && !isNaN(minutes)) {
+            date.setHours(hours, minutes, 0, 0);
+        } else {
+            date = undefined;
+        }
     } else {
         date = undefined;
     }
