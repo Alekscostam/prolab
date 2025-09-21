@@ -277,7 +277,7 @@ export default class DataGridStore extends BaseService {
 
     selectWhenIsNotSelectAll(loadOptions) {
         const filterIds = JSON.stringify(loadOptions['filter']);
-        const selectionIds = filterIds.match(/-?\d+/g).map((id) => ({ID: id}));
+        const selectionIds = filterIds?.match(/-?\d+/g).map((id) => ({ID: id})) || [];
         if (selectionIds instanceof Array && selectionIds.length > 0) {
             let selectionIdsResponse = {
                 data: selectionIds,
@@ -289,7 +289,7 @@ export default class DataGridStore extends BaseService {
 
     selectWhenIsSelectAll(loadOptions) {
         const filterIds = JSON.stringify(loadOptions['filter']);
-        const selectionIds = filterIds.match(/-?\d+/g).map((id) => ({ID: id}));
+        const selectionIds = filterIds?.match(/-?\d+/g).map((id) => ({ID: id})) || [];
         let data = this.cachedFromSelectAll.data;
         selectionIds.forEach((selectionId) => {
             data = data.filter((el) => {

@@ -67,6 +67,7 @@ class GridViewComponent extends CellEditComponent {
         this.keyDownClicked = React.createRef(false);
         this.firstLoadDone = React.createRef(false);
         this.editSpecService = new EditSpecService();
+        this.mergedColumns = this.props.gridViewColumns.filter((e) => e.isMerge);
         this.state = {
             gridViewColumns: this.props.gridViewColumns,
             allRowsShow: false,
@@ -309,6 +310,47 @@ class GridViewComponent extends CellEditComponent {
         }
     };
 
+    isMergeColumn = (dataField) => {
+        return this.mergedColumns.find((mc) => (mc.fieldName = dataField));
+    };
+
+    mergeColumns = (e) => {
+        if (getStore().showMerge) {
+            if (e.rowType === 'data' && e.rowIndex > 0) {
+                setTimeout(() => {
+                    const dataField = e.column.dataField;
+                    if (this.isMergeColumn(dataField)) {
+                        const previousCellValue = e.component.cellValue(e.rowIndex - 1, dataField);
+                        if (e.value === previousCellValue) {
+                            let previousCellElement = e.component.getCellElement(e.rowIndex - 1, dataField);
+                            if (previousCellElement?.style) {
+                                let rowspan = 2;
+                                while (
+                                    previousCellElement &&
+                                    previousCellElement.style &&
+                                    previousCellElement.style.display === 'none' &&
+                                    e.rowIndex - rowspan + 1 >= 0 // nie wychodzimy poza początek tabeli
+                                ) {
+                                    rowspan++;
+                                    previousCellElement = e.component.getCellElement(
+                                        e.rowIndex - rowspan + 1,
+                                        dataField
+                                    );
+                                }
+                                if (previousCellElement?.setAttribute) {
+                                    previousCellElement.setAttribute('rowspan', rowspan);
+                                    if (e.cellElement?.style) {
+                                        e.cellElement.style.display = 'none';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    };
+
     render() {
         const showGroupPanel = this.props.gridFromDashboard
             ? false
@@ -392,8 +434,6 @@ class GridViewComponent extends CellEditComponent {
                     }}
                     onContentReady={(e) => {
                         this.highlightRow(e);
-                        // debugger;
-                        // this.getVisibleRows();
                         this.renderClearFilter();
                         if (this.props.onContentReady) {
                             this.props.onContentReady(e);
@@ -404,6 +444,9 @@ class GridViewComponent extends CellEditComponent {
                     showColumnLines={showColumnLines}
                     showRowLines={showRowLines}
                     showBorders={showBorders}
+                    onCellPrepared={(e) => {
+                        this.mergeColumns(e);
+                    }}
                     showColumnHeaders={showColumnHeaders}
                     columnHidingEnabled={false}
                     height={dataGridHeight ? dataGridHeight + 'px' : '100%'}

@@ -340,6 +340,7 @@ class App extends Component {
             const appName = configuration.APP_NAME;
             const captcha = configuration.CAPTCHA;
             const showHintListButtons = configuration.SHOW_HINT_LIST_BUTTONS;
+            const showMerge = configuration.SHOW_MERGE;
             const rememberMe = configuration.REMEMBER_ME;
             const barCodeShowMethod = configuration.BAR_CODE_SHOW_METHOD;
             const draggableGridEnabled = configuration.DRAGGABLE_GRID_ENABLED;
@@ -368,6 +369,7 @@ class App extends Component {
             getStore().setShowFilterClear(showFilterClear);
             getStore().setShowHintListButtons(showHintListButtons);
             getStore().setShowAddFromDashboard(showAddFromDashboard);
+            getStore().setShowMerge(showMerge);
             getStore().setAppVersion(appVersion);
             getStore().setAppName(appName);
             getStore().setDeviceName(deviceName);

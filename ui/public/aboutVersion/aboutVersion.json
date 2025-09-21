@@ -168,6 +168,15 @@
         },
         {
           "isNew":true,
+          "type": "NEW",
+          "color": "green",
+          "link":"https://trello.com/c/b8J002cp/792-nie-obs%C5%82uguje-%C5%82%C4%85czenia-p%C3%B3l-parametr-ismerge",
+          "description":"Parametr SHOW_MERGE - w przyszlosci po testach ten parametr będzie do usunięcia",
+          "date": "",
+          "text": "Mergowanie wierszy w wybranych kolumnach"
+        },
+        {
+          "isNew":true,
           "type": "FIX",
           "color": "red",
           "description":"",
