@@ -1,7 +1,7 @@
 import {DateBox} from 'devextreme-react';
 import React, {useEffect, useRef} from 'react';
-import EditRowUtils from '../../../utils/EditRowUtils';
-import {StringUtils} from '../../../utils/StringUtils';
+import EditRowUtils from '../../utils/EditRowUtils';
+import {StringUtils} from '../../utils/StringUtils';
 import moment from 'moment';
 
 export const MemoizedDateTimeInput = React.memo(({field, cellInfo, fieldIndex, required, validate, refDateTime}) => {
@@ -70,7 +70,9 @@ export const MemoizedDateTimeInput = React.memo(({field, cellInfo, fieldIndex, r
         <DateBox
             id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
             name={field.fieldName}
-            defaultValue={StringUtils.isBlankOrEmpty(cellInfo.displayValue) ? undefined : new Date(cellInfo.displayValue)}
+            defaultValue={
+                StringUtils.isBlankOrEmpty(cellInfo.displayValue) ? undefined : new Date(cellInfo.displayValue)
+            }
             className={`${validate}`}
             showAnalogClock={true}
             ref={refDateTime}

@@ -222,13 +222,17 @@ export default class EditListDataStore extends BaseService {
             if (rowData.CALC_CRC === undefined || rowData.CALC_CRC === null) {
                 rowData.CALC_CRC = EditListUtils.calculateCRCBySetFields(rowData, setFields);
                 selectedRows.forEach((selectedRow) => {
-                    const selectedRowName = selectedRow[0][setFields[0]?.fieldList];
-                    const responseRowName = rowData[setFields[0]?.fieldList];
-                    const namesEquals = selectedRowName === responseRowName;
-                    const foundIsBlank = StringUtils.isBlank(selectedRow[0]?.found);
+                    const selectedRowIndexId = EditListUtils.findIdIndexFromSelectedRowData(selectedRow);
+                    const setFieldIndexId = EditListUtils.findIndexFromFields(setFields);
+                    const selectedRowName = selectedRow[selectedRowIndexId][setFields[setFieldIndexId]?.fieldList];
+                    const responseRowName = rowData[setFields[setFieldIndexId]?.fieldList];
+                    const namesEquals =
+                        (selectedRowName === undefined && responseRowName === undefined) ||
+                        String(selectedRowName) === String(responseRowName);
+                    const foundIsBlank = StringUtils.isBlank(selectedRow[selectedRowIndexId]?.found);
                     if (namesEquals && foundIsBlank) {
-                        selectedRow[0].found = true;
-                        rowData.CALC_CRC = selectedRow[0].CALC_CRC;
+                        selectedRow[selectedRowIndexId].found = true;
+                        rowData.CALC_CRC = selectedRow[selectedRowIndexId].CALC_CRC;
                     }
                 });
             }

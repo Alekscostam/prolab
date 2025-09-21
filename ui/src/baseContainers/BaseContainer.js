@@ -795,7 +795,7 @@ class BaseContainer extends React.Component {
                     }
                 }
                 if (this.state?.attachmentFiles?.length) {
-                    this.uploadAttachemnt(this.state.parsedGridView, this.state.attachmentFiles[0]);
+                    this.uploadAttachment(this.state.parsedGridView, this.state.attachmentFiles[0]);
                 }
                 if (refresh && saveResponse.status !== ResponseStatus.NOK) {
                     if (this.shouldRefreshSubView(kindOperation)) {
@@ -960,7 +960,6 @@ class BaseContainer extends React.Component {
     isDashboardView() {
         return this.state.subView === null && this.state?.gridViewType === 'dashboard';
     }
-    // TODO: plugin z dasha nie dziala. wiesz ktory ten z PPM
     executePlugin(pluginId, requestBody) {
         const viewIdArg = ViewUtils.canBeSubViewRender(this.state.subView)
             ? this.state.elementSubViewId
@@ -1181,7 +1180,7 @@ class BaseContainer extends React.Component {
             }
         }
     }
-    uploadAttachemnt(gridView, attachmentFile) {
+    uploadAttachment(gridView, attachmentFile) {
         this.blockUi();
         const viewInfo = gridView.viewInfo;
         const viewId = viewInfo.id;
@@ -1189,7 +1188,7 @@ class BaseContainer extends React.Component {
         const parentViewId = viewInfo.parentViewId;
         const isKindViewSpec = this.props.isKindViewSpec;
         this.crudService
-            .uploadAttachemnt(viewId, parentId, parentViewId, attachmentFile, isKindViewSpec)
+            .uploadAttachment(viewId, parentId, parentViewId, attachmentFile, isKindViewSpec)
             .then((uploadResponse) => {
                 EntryResponseHelper.run(
                     uploadResponse,
@@ -1402,6 +1401,7 @@ class BaseContainer extends React.Component {
             }
         }
         const isKindViewSpec = this.isKindViewSpec(recordId);
+        // const isKindViewSpec = false;
         if (recordId === '0' || recordId === 0) {
             recordId = this.state.elementRecordId;
         }

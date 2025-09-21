@@ -14,9 +14,8 @@ import ActionButton from '../components/ActionButton';
 import DivContainer from '../components/DivContainer';
 import LocUtils from '../utils/LocUtils';
 import {NumberBox, Tabs} from 'devextreme-react';
-import {InputNumber} from 'primereact/inputnumber';
 import {TreeListUtils} from '../utils/component/TreeListUtils';
-import {sessionPrelongFnc} from '../App';
+import {sessionExtendFnc} from '../App';
 import {Dialog} from 'primereact/dialog';
 import {OperationType} from '../enum/OperationType';
 import {TabSpecType} from '../enum/TabSpecType';
@@ -255,6 +254,7 @@ export class AddSpecContainer extends BaseContainer {
                             const columnsTmp = ResponseUtils.columnsFromGroupCreate(responseView);
                             this.setState(
                                 {
+                                    // showColumnHeaders: responseView?.gridOptions?.dashboardHeader,
                                     parsedView: responseView,
                                     columns: columnsTmp,
                                     viewInfo: responseView.viewInfo,
@@ -333,8 +333,8 @@ export class AddSpecContainer extends BaseContainer {
                                 dataSource={this.state.tabs}
                                 selectedIndex={this.state.selectedIndex}
                                 onItemClick={(event) => {
-                                    if (sessionPrelongFnc) {
-                                        sessionPrelongFnc();
+                                    if (sessionExtendFnc) {
+                                        sessionExtendFnc();
                                     }
                                     this.hideTreeView();
                                     this.onItemTabClick(event.itemIndex);

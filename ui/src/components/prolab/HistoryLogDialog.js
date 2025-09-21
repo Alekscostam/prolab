@@ -41,14 +41,12 @@ const HistoryLogDialog = ({
         <div>
             <Toast id='toast-messages' position='top-center' ref={toastRef} />
             <Dialog
-                closable={false}
+                closable={true}
                 id='HistoryLogListDialog'
                 header={parsedHistoryLogView?.info?.title}
-                footer={
-                    <React.Fragment>
-                        {opClose ? <Button type='button' onClick={handleHide} label={opClose.label} /> : <div></div>}
-                    </React.Fragment>
-                }
+                footer={() => {
+                    return <div></div>;
+                }}
                 visible={visible === true}
                 resizable={false}
                 breakpoints={{'960px': '75vw', '640px': '100vw'}}

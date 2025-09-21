@@ -1,7 +1,7 @@
 import {DateBox} from 'devextreme-react';
 import React from 'react';
-import EditRowUtils from '../../../utils/EditRowUtils';
-import {StringUtils} from '../../../utils/StringUtils';
+import EditRowUtils from '../../utils/EditRowUtils';
+import {StringUtils} from '../../utils/StringUtils';
 
 //D – Data
 export const MemoizedDateInput = React.memo(({field, cellInfo, inputValue, fieldIndex, required, validate}) => {

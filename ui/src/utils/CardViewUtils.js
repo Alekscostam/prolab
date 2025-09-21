@@ -1,6 +1,6 @@
 import {CheckBox} from 'devextreme-react';
 import React from 'react';
-import CardImage from '../components/CardImage';
+import CardImage from '../components/card/CardImage';
 import {ColumnType} from '../enum/ColumnType';
 import {StringUtils} from './StringUtils';
 

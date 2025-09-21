@@ -378,14 +378,14 @@ class CardViewInfiniteComponent extends PureComponent {
                         menuRef={this.menuRef}
                         gridView={this.props.parsedCardView}
                         handleEdit={(e) => {
-                            this.preOperationAction(e, () => this.handleEdit(this.selectedRowDataRef.current));
+                            this.preAction(e, () => this.handleEdit(this.selectedRowDataRef.current));
                         }}
                         handleEditSpec={(e) => {
-                            this.preOperationAction(e, () => this.handleEditSpec(this.selectedRowDataRef.current));
+                            this.preAction(e, () => this.handleEditSpec(this.selectedRowDataRef.current));
                         }}
-                        handlePlugins={(e) => this.preOperationAction(e, () => this.props.handlePluginRow(e.id))}
+                        handlePlugins={(e) => this.preAction(e, () => this.props.handlePluginRow(e.id))}
                         handleDocuments={(e) => {
-                            this.preOperationAction(e, () => this.props.handleDocumentRow(e.id));
+                            this.preAction(e, () => this.props.handleDocumentRow(e.id));
                         }}
                         handleAdd={() => this.props.addButtonFunction()}
                         handleAddSpec={() => this.props.addButtonFunction()}
@@ -393,16 +393,16 @@ class CardViewInfiniteComponent extends PureComponent {
                             this.handleHrefSubview(this.selectedRowDataRef.current);
                         }}
                         handleCopy={(e) => {
-                            this.preOperationAction(e, () => this.props.handleCopyRow());
+                            this.preAction(e, () => this.props.handleCopyRow());
                         }}
-                        handleArchive={(e) => this.preOperationAction(e, () => this.props.handleArchiveRow())}
-                        handleDownload={(e) => this.preOperationAction(e, () => this.props.handleDownloadRow())}
-                        handleAttachments={(e) => this.preOperationAction(e, () => this.props.handleAttachmentRow())}
-                        handleDelete={(e) => this.preOperationAction(e, () => this.props.handleDeleteRow())}
-                        handleFormula={(e) => this.preOperationAction(e, () => this.props.handleFormulaRow())}
-                        handleHistory={(e) => this.preOperationAction(e, () => this.props.handleHistoryLogRow())}
-                        handleRestore={(e) => this.preOperationAction(e, () => this.props.handleRestoreRow())}
-                        handlePublish={(e) => this.preOperationAction(e, () => this.props.handlePublishRow())}
+                        handleArchive={(e) => this.preAction(e, () => this.props.handleArchiveRow())}
+                        handleDownload={(e) => this.preAction(e, () => this.props.handleDownloadRow())}
+                        handleAttachments={(e) => this.preAction(e, () => this.props.handleAttachmentRow())}
+                        handleDelete={(e) => this.preAction(e, () => this.props.handleDeleteRow())}
+                        handleFormula={(e) => this.preAction(e, () => this.props.handleFormulaRow())}
+                        handleHistory={(e) => this.preAction(e, () => this.props.handleHistoryLogRow())}
+                        handleRestore={(e) => this.preAction(e, () => this.props.handleRestoreRow())}
+                        handlePublish={(e) => this.preAction(e, () => this.props.handlePublishRow())}
                         operationList={this.props.parsedCardView.operationsPPM}
                     />
                 )}
@@ -425,7 +425,7 @@ class CardViewInfiniteComponent extends PureComponent {
             </React.Fragment>
         );
     }
-    preOperationAction = (operation, callback, recordId = this.selectedRecordIdRef.current) => {
+    preAction = (operation, callback, recordId = this.selectedRecordIdRef.current) => {
         if (this.isSelectionEnabled()) {
             const onlyOneRecord = operation?.onlyOneRecord;
             if (onlyOneRecord) {
@@ -460,7 +460,7 @@ class CardViewInfiniteComponent extends PureComponent {
         const parsedCardView = this.props.parsedCardView;
         const {cardBody, cardHeader, cardImage, cardFooter, cardOptions = {}} = parsedCardView;
         const {width = 300, height = 200, bgColor1, bgColor2, fontColor} = cardOptions;
-        const recordId = rowData.ID;
+        const rId = rowData.ID;
         const selectedRowKeys = this.props.selectedRowKeys;
         const highlighBackground = this.canHighlightBackground(rowData);
         return (
@@ -486,10 +486,10 @@ class CardViewInfiniteComponent extends PureComponent {
                 >
                     <div className={'dx-item-content dx-tile-content'}>
                         <div
-                            id={recordId}
+                            id={rId}
                             className={`dx-tile-image ${highlighBackground} ${
                                 this.isSelectionEnabled()
-                                    ? selectedRowKeys.findIndex((item) => item.ID === recordId) > -1
+                                    ? selectedRowKeys.findIndex((item) => item.ID === rId) > -1
                                         ? 'card-grid-selected'
                                         : ''
                                     : ''
@@ -514,9 +514,7 @@ class CardViewInfiniteComponent extends PureComponent {
                                             operations={this.props.parsedCardView.operationsRecord}
                                             operationList={this.props.parsedCardView.operationsRecordList}
                                             info={null}
-                                            handleEdit={(e) =>
-                                                this.preOperationAction(e, () => this.handleEdit(rowData), recordId)
-                                            }
+                                            handleEdit={(e) => this.preAction(e, () => this.handleEdit(rowData), rId)}
                                             handleEditSpec={() => this.handleEditSpec(rowData)}
                                             hrefSpecView={this.hrefSpecView(rowData)}
                                             hrefSubview={this.hrefSubview(rowData)}
@@ -524,81 +522,37 @@ class CardViewInfiniteComponent extends PureComponent {
                                                 this.handleHrefSubview(rowData);
                                             }}
                                             handleArchive={(e) =>
-                                                this.preOperationAction(
-                                                    e,
-                                                    () => this.props.handleArchiveRow(recordId),
-                                                    recordId
-                                                )
+                                                this.preAction(e, () => this.props.handleArchiveRow(rId), rId)
                                             }
                                             handleDownload={(e) =>
-                                                this.preOperationAction(
-                                                    e,
-                                                    () => this.props.handleDownloadRow(recordId),
-                                                    recordId
-                                                )
+                                                this.preAction(e, () => this.props.handleDownloadRow(rId), rId)
                                             }
                                             handleAttachments={(e) =>
-                                                this.preOperationAction(
-                                                    e,
-                                                    () => this.props.handleAttachmentRow(recordId),
-                                                    recordId
-                                                )
+                                                this.preAction(e, () => this.props.handleAttachmentRow(rId), rId)
                                             }
                                             handleCopy={(e) =>
-                                                this.preOperationAction(
-                                                    e,
-                                                    () => this.props.handleCopyRow(recordId),
-                                                    recordId
-                                                )
+                                                this.preAction(e, () => this.props.handleCopyRow(rId), rId)
                                             }
                                             handleDelete={(e) =>
-                                                this.preOperationAction(
-                                                    e,
-                                                    () => this.props.handleDeleteRow(recordId),
-                                                    recordId
-                                                )
+                                                this.preAction(e, () => this.props.handleDeleteRow(rId), rId)
                                             }
                                             handleHistory={(e) =>
-                                                this.preOperationAction(
-                                                    e,
-                                                    () => this.props.handleHistoryLogRow(recordId),
-                                                    recordId
-                                                )
+                                                this.preAction(e, () => this.props.handleHistoryLogRow(rId), rId)
                                             }
                                             handleFormula={(e) =>
-                                                this.preOperationAction(
-                                                    e,
-                                                    () => this.props.handleFormulaRow(recordId),
-                                                    recordId
-                                                )
+                                                this.preAction(e, () => this.props.handleFormulaRow(rId), rId)
                                             }
                                             handleRestore={(e) =>
-                                                this.preOperationAction(
-                                                    e,
-                                                    () => this.props.handleRestoreRow(recordId),
-                                                    recordId
-                                                )
+                                                this.preAction(e, () => this.props.handleRestoreRow(rId), rId)
                                             }
                                             handlePublish={(e) =>
-                                                this.preOperationAction(
-                                                    e,
-                                                    () => this.props.handlePublishRow(recordId),
-                                                    recordId
-                                                )
+                                                this.preAction(e, () => this.props.handlePublishRow(rId), rId)
                                             }
                                             handleDocuments={(e) =>
-                                                this.preOperationAction(
-                                                    e,
-                                                    () => this.props.handleDocumentRow(e.id, recordId),
-                                                    recordId
-                                                )
+                                                this.preAction(e, () => this.props.handleDocumentRow(e.id, rId), rId)
                                             }
                                             handlePlugins={(e) =>
-                                                this.preOperationAction(
-                                                    e,
-                                                    () => this.props.handlePluginRow(e.id, recordId),
-                                                    recordId
-                                                )
+                                                this.preAction(e, () => this.props.handlePluginRow(e.id, rId), rId)
                                             }
                                             handleBlockUi={() => this.props.handleBlockUi()}
                                         />

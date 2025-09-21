@@ -1,7 +1,6 @@
 import Constants from '../Constants';
 import moment from 'moment';
 import ConsoleHelper from '../ConsoleHelper';
-import LocUtils from '../LocUtils';
 import {ColumnType} from '../../enum/ColumnType';
 import {StringUtils} from '../StringUtils';
 

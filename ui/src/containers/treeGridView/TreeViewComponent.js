@@ -26,7 +26,6 @@ import {EditSpecUtils} from '../../utils/EditSpecUtils';
 import {compress} from 'int-compress-string';
 import CellEditComponent from '../CellEditComponent';
 import {StringUtils} from '../../utils/StringUtils';
-import Image from '../../components/Image';
 import {MenuWithButtons} from '../../components/prolab/MenuWithButtons';
 import LocUtils from '../../utils/LocUtils';
 import ActionButton from '../../components/ActionButton';
@@ -95,13 +94,6 @@ class TreeViewComponent extends CellEditComponent {
     }
     componentDidUpdate(prevProps, prevState, snapshot) {
         return prevProps.id !== prevState.id && prevProps.elementRecordId !== prevState.elementRecordId;
-    }
-    shouldComponentUpdate() {
-        const quitEditDialog = document.getElementById('quitEditDialog');
-        if (quitEditDialog) {
-            return false;
-        }
-        return true;
     }
 
     mergeKeysWithRecordId = (id) => {
@@ -361,45 +353,43 @@ class TreeViewComponent extends CellEditComponent {
                         target={this.props.targetContextMenu}
                         menuRef={this.menuRef}
                         gridView={this.props.parsedGridView}
-                        handlePlugins={(e) => this.preOperationAction(e, () => this.props.handlePluginRow(e.id))}
-                        handleDocuments={(e) => this.preOperationAction(e, () => this.props.handleDocumentRow(e.id))}
-                        handleSaveAction={(e) => this.preOperationAction(e, () => this.props.handleSaveAction())}
+                        handlePlugins={(e) => this.preAction(e, () => this.props.handlePluginRow(e.id))}
+                        handleDocuments={(e) => this.preAction(e, () => this.props.handleDocumentRow(e.id))}
+                        handleSaveAction={(e) => this.preAction(e, () => this.props.handleSaveAction())}
                         handleAddSpecCount={(e) => this.props.handleAddSpecCount()}
                         handleAddSpecSpec={(e) => this.props.handleAddSpecSpec(this.selectedRecordIdRef.current)}
-                        handleExecSpec={(e) => this.preOperationAction(e, () => this.props.handleExecSpec())}
+                        handleExecSpec={(e) => this.preAction(e, () => this.props.handleExecSpec())}
                         handleAddSpec={() => this.props.addButtonFunction()}
                         handleHrefSubview={() => this.handleHrefSubview(viewId, this.selectedRecordIdRef.current)}
                         handleEdit={(e) =>
-                            this.preOperationAction(e, () =>
+                            this.preAction(e, () =>
                                 this.handleEdit(viewId, parentId, kindView, this.selectedRecordIdRef.current)
                             )
                         }
                         handlePreview={(e) =>
-                            this.preOperationAction(e, () =>
+                            this.preAction(e, () =>
                                 this.handlePreview(viewId, parentId, kindView, this.selectedRecordIdRef.current)
                             )
                         }
                         handleEditSpec={() => this.handleEditSpec(viewId, parentId, this.selectedRecordIdRef.current)}
-                        handleCopy={(e) => this.preOperationAction(e, () => this.props.handleCopyRow())}
-                        handleArchive={(e) => this.preOperationAction(e, () => this.props.handleArchiveRow())}
-                        handlePublish={(e) => this.preOperationAction(e, () => this.props.handlePublishRow())}
-                        handleDownload={(e) => this.preOperationAction(e, () => this.props.handleDownloadRow())}
-                        handleAttachments={(e) => this.preOperationAction(e, () => this.props.handleAttachmentRow())}
-                        handleDelete={(e) => this.preOperationAction(e, () => this.props.handleDeleteRow())}
-                        handleRestore={(e) => this.preOperationAction(e, () => this.props.handleRestoreRow())}
-                        handleFormula={(e) => this.preOperationAction(e, () => this.props.handleFormulaRow())}
-                        handleHistory={(e) => this.preOperationAction(e, () => this.props.handleHistoryLogRow())}
-                        handleFill={(e) => this.preOperationAction(e, () => this.props.handleFillRow())}
-                        handleExpand={(e) => this.preOperationAction(e, () => this.handleExpand())}
-                        handleCollapse={(e) => this.preOperationAction(e, () => this.handleCollapse())}
-                        handleCheck={(e) => this.preOperationAction(e, () => this.handleCheck())}
-                        handleUncheck={(e) => this.preOperationAction(e, () => this.handleUncheck())}
-                        handleUp={(e) => this.preOperationAction(e, () => this.props.handleUp())}
-                        handleDown={(e) => this.preOperationAction(e, () => this.props.handleDown())}
+                        handleCopy={(e) => this.preAction(e, () => this.props.handleCopyRow())}
+                        handleArchive={(e) => this.preAction(e, () => this.props.handleArchiveRow())}
+                        handlePublish={(e) => this.preAction(e, () => this.props.handlePublishRow())}
+                        handleDownload={(e) => this.preAction(e, () => this.props.handleDownloadRow())}
+                        handleAttachments={(e) => this.preAction(e, () => this.props.handleAttachmentRow())}
+                        handleDelete={(e) => this.preAction(e, () => this.props.handleDeleteRow())}
+                        handleRestore={(e) => this.preAction(e, () => this.props.handleRestoreRow())}
+                        handleFormula={(e) => this.preAction(e, () => this.props.handleFormulaRow())}
+                        handleHistory={(e) => this.preAction(e, () => this.props.handleHistoryLogRow())}
+                        handleFill={(e) => this.preAction(e, () => this.props.handleFillRow())}
+                        handleExpand={(e) => this.preAction(e, () => this.handleExpand())}
+                        handleCollapse={(e) => this.preAction(e, () => this.handleCollapse())}
+                        handleCheck={(e) => this.preAction(e, () => this.handleCheck())}
+                        handleUncheck={(e) => this.preAction(e, () => this.handleUncheck())}
+                        handleUp={(e) => this.preAction(e, () => this.props.handleUp())}
+                        handleDown={(e) => this.preAction(e, () => this.props.handleDown())}
                         handleAddLevel={(e) =>
-                            this.preOperationAction(e, () =>
-                                this.props.handleAddLevel(this.selectedRecordIdRef.current)
-                            )
+                            this.preAction(e, () => this.props.handleAddLevel(this.selectedRecordIdRef.current))
                         }
                         operationList={this.props.parsedGridView.operationsPPM}
                     />
@@ -408,7 +398,7 @@ class TreeViewComponent extends CellEditComponent {
         );
     }
 
-    preOperationAction = (operation, callback, recordId = this.selectedRecordIdRef.current) => {
+    preAction = (operation, callback, recordId = this.selectedRecordIdRef.current) => {
         const refInstance = this.ref.instance;
         if (refInstance) {
             refInstance.closeEditCell();
@@ -686,144 +676,84 @@ class TreeViewComponent extends CellEditComponent {
                             element.append(el);
                             const subViewId = this.props.elementSubViewId;
                             const kindView = this.props.elementKindView;
-                            const recordId = info.row?.data?._ID;
+                            const rId = info.row?.data?._ID;
                             const parentId = this.props.elementRecordId;
                             const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
                             let viewId = this.props.id;
+                            if (element) element.classList.add('operation-columns');
+
                             viewId = TreeListUtils.getRealViewId(subViewId, viewId);
                             ReactDOM.createRoot(element).render(
-                                <div style={{textAlign: 'center', display: 'flex', maxWidth: '20px!important'}}>
+                                <div style={{textAlign: 'center'}}>
                                     <OperationsButtons
                                         operations={operationsRecord}
                                         operationList={operationsRecordList}
                                         info={info}
                                         handleEdit={(e) => {
-                                            this.preOperationAction(
+                                            this.preAction(
                                                 e,
-                                                () => this.handleEdit(viewId, parentId, recordId, kindView),
-                                                recordId
+                                                () => this.handleEdit(viewId, parentId, rId, kindView),
+                                                rId
                                             );
                                         }}
                                         handlePreview={(e) => {
-                                            this.preOperationAction(
+                                            this.preAction(
                                                 e,
-                                                () => this.handlePreview(viewId, parentId, recordId, kindView),
-                                                recordId
+                                                () => this.handlePreview(viewId, parentId, rId, kindView),
+                                                rId
                                             );
                                         }}
                                         handleEditSpec={() => {
-                                            this.handleEditSpec(viewId, parentId, recordId);
+                                            this.handleEditSpec(viewId, parentId, rId);
                                         }}
                                         hrefSubview={AppPrefixUtils.locationHrefUrl(
-                                            `/#/grid-view/${viewId}${!!recordId ? `?recordId=${recordId}` : ``}${
+                                            `/#/grid-view/${viewId}${!!rId ? `?recordId=${rId}` : ``}${
                                                 !!currentBreadcrumb ? currentBreadcrumb : ``
                                             }`
                                         )}
-                                        hrefSpecView={EditSpecUtils.editSpecUrl(viewId, parentId, compress([recordId]))}
-                                        handleHrefSubview={(e) => this.handleHrefSubview(viewId, recordId)}
-                                        handleAddSpecSpec={(e) => this.props.handleAddSpecSpec(recordId)}
+                                        hrefSpecView={EditSpecUtils.editSpecUrl(viewId, parentId, compress([rId]))}
+                                        handleHrefSubview={(e) => this.handleHrefSubview(viewId, rId)}
+                                        handleAddSpecSpec={(e) => this.props.handleAddSpecSpec(rId)}
                                         handleArchive={(e) =>
-                                            this.preOperationAction(
-                                                e,
-                                                () => this.props.handleArchiveRow(recordId),
-                                                recordId
-                                            )
+                                            this.preAction(e, () => this.props.handleArchiveRow(rId), rId)
                                         }
                                         handlePublish={(e) =>
-                                            this.preOperationAction(
-                                                e,
-                                                () => this.props.handlePublish(recordId),
-                                                recordId
-                                            )
+                                            this.preAction(e, () => this.props.handlePublish(rId), rId)
                                         }
                                         handleDownload={(e) =>
-                                            this.preOperationAction(
-                                                e,
-                                                () => this.props.handleDownloadRow(recordId),
-                                                recordId
-                                            )
+                                            this.preAction(e, () => this.props.handleDownloadRow(rId), rId)
                                         }
                                         handleAttachments={(e) =>
-                                            this.preOperationAction(
-                                                e,
-                                                () => this.props.handleAttachmentRow(recordId),
-                                                recordId
-                                            )
+                                            this.preAction(e, () => this.props.handleAttachmentRow(rId), rId)
                                         }
-                                        handleCopy={(e) =>
-                                            this.preOperationAction(
-                                                e,
-                                                () => this.props.handleCopyRow(recordId),
-                                                recordId
-                                            )
-                                        }
+                                        handleCopy={(e) => this.preAction(e, () => this.props.handleCopyRow(rId), rId)}
                                         handleDelete={(e) =>
-                                            this.preOperationAction(
-                                                e,
-                                                () => this.props.handleDeleteRow(recordId),
-                                                recordId
-                                            )
+                                            this.preAction(e, () => this.props.handleDeleteRow(rId), rId)
                                         }
                                         handleRestore={(e) =>
-                                            this.preOperationAction(
-                                                e,
-                                                () => this.props.handleRestoreRow(recordId),
-                                                recordId
-                                            )
+                                            this.preAction(e, () => this.props.handleRestoreRow(rId), rId)
                                         }
                                         handleDocuments={(e) =>
-                                            this.preOperationAction(
-                                                e,
-                                                () => this.props.handleDocumentRow(e.id, recordId),
-                                                recordId
-                                            )
+                                            this.preAction(e, () => this.props.handleDocumentRow(e.id, rId), rId)
                                         }
                                         handlePlugins={(e) =>
-                                            this.preOperationAction(
-                                                e,
-                                                () => this.props.handlePluginRow(e.id, recordId),
-                                                recordId
-                                            )
+                                            this.preAction(e, () => this.props.handlePluginRow(e.id, rId), rId)
                                         }
                                         handleFormula={(e) =>
-                                            this.preOperationAction(
-                                                e,
-                                                () => this.props.handleFormulaRow(recordId),
-                                                recordId
-                                            )
+                                            this.preAction(e, () => this.props.handleFormulaRow(rId), rId)
                                         }
                                         handleHistory={(e) =>
-                                            this.preOperationAction(
-                                                e,
-                                                () => this.props.handleHistoryLogRow(recordId),
-                                                recordId
-                                            )
+                                            this.preAction(e, () => this.props.handleHistoryLogRow(rId), rId)
                                         }
-                                        handleUp={(e) =>
-                                            this.preOperationAction(e, () => this.props.handleUp(recordId), recordId)
-                                        }
-                                        handleDown={(e) =>
-                                            this.preOperationAction(e, () => this.props.handleDown(recordId), recordId)
-                                        }
+                                        handleUp={(e) => this.preAction(e, () => this.props.handleUp(rId), rId)}
+                                        handleDown={(e) => this.preAction(e, () => this.props.handleDown(rId), rId)}
                                         handleAddLevel={(e) =>
-                                            this.preOperationAction(
-                                                e,
-                                                () => this.props.handleAddLevel(recordId),
-                                                recordId
-                                            )
+                                            this.preAction(e, () => this.props.handleAddLevel(rId), rId)
                                         }
-                                        handleExpand={(e) =>
-                                            this.preOperationAction(e, () => this.handleExpand(recordId), recordId)
-                                        }
-                                        handleCollapse={(e) =>
-                                            this.preOperationAction(e, () => this.handleCollapse(recordId), recordId)
-                                        }
-                                        handleCheck={(e) =>
-                                            this.preOperationAction(e, () => this.handleCheck(recordId), recordId)
-                                        }
-                                        handleUncheck={(e) =>
-                                            this.preOperationAction(e, () => this.handleUncheck(recordId), recordId)
-                                        }
+                                        handleExpand={(e) => this.preAction(e, () => this.handleExpand(rId), rId)}
+                                        handleCollapse={(e) => this.preAction(e, () => this.handleCollapse(rId), rId)}
+                                        handleCheck={(e) => this.preAction(e, () => this.handleCheck(rId), rId)}
+                                        handleUncheck={(e) => this.preAction(e, () => this.handleUncheck(rId), rId)}
                                         handleBlockUi={(e) => this.props.handleBlockUi()}
                                     />
                                 </div>
@@ -885,10 +815,27 @@ class TreeViewComponent extends CellEditComponent {
         const opAddFile = !!TranslationUtils.getOpButton(operations, OperationType.OP_ADD_SPEC_BUTTON);
         return !!opAddFile;
     }
+
     onHideImageCallBack() {
-        const rowDatas = this.ref.instance.getVisibleRows();
+        const treeList = this.ref?.instance;
+        if (this.props.forceUpdate && treeList) {
+            this.props.forceUpdate(() => {
+                setTimeout(() => {
+                    treeList.closeEditCell();
+                    treeList.cancelEditData();
+                }, 500);
+            });
+        }
+        const rowDatas = this.ref?.instance?.getVisibleRows();
         this.paintLineIfPossible(rowDatas);
     }
+    onHideEditMode = () => {
+        const treeList = this.ref?.instance;
+        if (treeList) {
+            treeList.closeEditCell();
+            treeList.cancelEditData();
+        }
+    };
     onHideEditorCallback() {
         if (this.props.onHideEditorCallback) {
             this.props.onHideEditorCallback();
@@ -924,13 +871,14 @@ class TreeViewComponent extends CellEditComponent {
                                       cellInfo,
                                       columnDefinition,
                                       this.props.keyExistsInInvalidCellKeys,
-                                      () => this.onOperationCellClick(cellInfo, columnDefinition)
+                                      (deleteOperation) =>
+                                          this.onOperationCellClick(cellInfo, columnDefinition, deleteOperation)
                                   )
                             : undefined
                     }
                     editCellRender={(cellInfo) =>
-                        this.editCellRender(cellInfo, columnDefinition, () => {
-                            this.onOperationCellClick(cellInfo, columnDefinition);
+                        this.editCellRender(cellInfo, columnDefinition, (deleteOperation) => {
+                            this.onOperationCellClick(cellInfo, columnDefinition, deleteOperation);
                         })
                     }
                 />
@@ -939,7 +887,11 @@ class TreeViewComponent extends CellEditComponent {
         return columns;
     }
 
-    onOperationCellClick = (cellInfo, columnDefinition) => {
+    onOperationCellClick = (cellInfo, columnDefinition, deleteOperation = false) => {
+        if (deleteOperation === true) {
+            this.trashClicked.current = true;
+            return;
+        }
         switch (columnDefinition.type) {
             case ColumnType.C:
                 this.editListVisible(cellInfo.row?.data?._ID, columnDefinition.id);

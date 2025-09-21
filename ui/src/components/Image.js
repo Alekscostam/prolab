@@ -23,31 +23,36 @@ export const Image = ({
         }
         const base64DataOnly = base64Tmp.split(',')[1];
         const byteArray = Uint8Array.from(atob(base64DataOnly), (c) => c.charCodeAt(0));
-        const blob = new Blob([byteArray], {type: 'image/jpeg'}); 
+        const blob = new Blob([byteArray], {type: 'image/jpeg'});
         const blobUrl = URL.createObjectURL(blob);
         if (rendered) {
             return (
                 <div className='cursor-pointer'>
                     {canRemove ? (
-                        <div className='row'>
-                            <div className='ml-3 mr-2' style={{marginTop: '6px'}}>
-                                <i
-                                    onClick={(e) => {
-                                        if (onRemove) {
-                                            onRemove(e);
-                                        }
-                                    }}
-                                    style={{
-                                        cursor: 'pointer',
-                                        fontSize: '22px',
-                                    }}
-                                    className='icon mdi mdi-trash-can mdi-trash-background trash-icon-treeview'
-                                ></i>
-                            </div>
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <i
+                                onClick={(e) => {
+                                    if (onRemove) {
+                                        onRemove(e);
+                                    }
+                                }}
+                                style={{
+                                    marginTop: '2px',
+                                    cursor: 'pointer',
+                                    fontSize: '22px',
+                                }}
+                                className='icon mdi mdi-trash-can mdi-trash-background trash-icon-treeview'
+                            ></i>
                             <img
                                 style={style}
                                 loading='lazy'
-                                className={className}
+                                className='mr-2 '
                                 alt={alt}
                                 src={blobUrl}
                                 onClick={(e) => {

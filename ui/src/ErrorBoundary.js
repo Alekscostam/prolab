@@ -53,7 +53,6 @@ export class ErrorBoundary extends React.Component {
                         <br />
                         {this.state.stack}
                     </details>
-                    {/* <i style={styles.home} className='mdi mdi-home' onClick={this.goHome} /> */}
                     <button style={styles.button} onClick={this.handleReset}>
                         {this.getLabel()}
                     </button>

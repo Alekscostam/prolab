@@ -1,4 +1,3 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import LocUtils from '../../utils/LocUtils';
 import {ConfirmDialog} from 'primereact/confirmdialog';

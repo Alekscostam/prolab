@@ -200,7 +200,7 @@ class UrlUtils {
         const currenturl = window.location.href;
         return currenturl + `${queryStringTmp.join('&')}`;
     }
-    // chyba do string utils
+
     static notExistsQuestionMark(str) {
         return !str.includes('?');
     }
@@ -275,20 +275,6 @@ class UrlUtils {
         if (match) {
             return match[1];
         }
-    }
-
-    static navigateToExternalUrl = (url) => {
-        window.open(url, '_blank');
-    };
-
-    static getShortUrlParams(paramValues) {
-        let joinResult = paramValues.join(',');
-        return joinResult;
-    }
-
-    static getUrlParams(paramName, paramValues) {
-        let joinResult = paramValues.join('&' + paramName + '=');
-        return paramName + '=' + joinResult;
     }
 
     static makeConfigUrl(urlPrefix) {

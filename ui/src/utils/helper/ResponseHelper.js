@@ -8,7 +8,6 @@ import {HtmlUtils} from '../HtmlUtils';
 function ResponseHelper() {
     useEffect(() => {
         return () => {
-            // Czyść wszystkie dialogi potwierdzające przy odmontowywaniu komponentu
             document.querySelectorAll('.confirm-dialog-wrapper').forEach((element) => {
                 const root = element._reactRoot;
                 if (root) {

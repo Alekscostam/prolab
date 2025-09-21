@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import ShortcutButton from './ShortcutButton';
 import Constants from '../../utils/Constants';
 import ActionButtonWithMenu from './ActionButtonWithMenu';
-import {sessionPrelongFnc} from '../../App';
+import {sessionExtendFnc} from '../../App';
 import {OperationType} from '../../enum/OperationType';
 import {SessionStoreUtils} from '../../utils/SessionStoreUtils';
 import LocUtils from '../../utils/LocUtils';
@@ -474,8 +474,8 @@ export const OperationsButtons = ({
     };
 
     const afterClickOperation = (operationSelectedFnc, operationTypeForConfirmation) => {
-        if (sessionPrelongFnc) {
-            sessionPrelongFnc();
+        if (sessionExtendFnc) {
+            sessionExtendFnc();
         }
         operationSelectedFnc();
     };

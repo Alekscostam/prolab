@@ -3,7 +3,7 @@
 /* eslint-disable react/jsx-max-props-per-line */
 import React from 'react';
 import PropTypes from 'prop-types';
-import {sessionPrelongFnc} from '../../App';
+import {sessionExtendFnc} from '../../App';
 
 export const ShortcutButton = (props) => {
     const {
@@ -50,8 +50,8 @@ export const ShortcutButton = (props) => {
                     }
                     href={href && !disabled ? href : undefined}
                     onClick={(e) => {
-                        if (sessionPrelongFnc) {
-                            sessionPrelongFnc();
+                        if (sessionExtendFnc) {
+                            sessionExtendFnc();
                         }
                         e.stopPropagation();
                         if (disabled || !handleClick) {

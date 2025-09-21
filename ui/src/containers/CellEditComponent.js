@@ -13,13 +13,13 @@ import {EditorDialog} from '../components/prolab/EditorDialog';
 import {StringUtils} from '../utils/StringUtils';
 import ImageViewerDialog from '../components/ImageViewerDialog';
 import {ColumnType} from '../enum/ColumnType';
-import {MemoizedTextInput} from '../components/prolab/memoized/MemoizedTextInput';
-import {MemoizedNumericInput} from '../components/prolab/memoized/MemoizedNumericInput';
-import {MemoizedBoolInput} from '../components/prolab/memoized/MemoizedBoolInput';
-import {MemoizedLogicInput} from '../components/prolab/memoized/MemoizedLogicInput';
-import {MemoizedDateInput} from '../components/prolab/memoized/MemoizedDateInput';
-import {MemoizedDateTimeInput} from '../components/prolab/memoized/MemoizedDateTimeInput';
-import {MemoizedTimeInput} from '../components/prolab/memoized/MemoizedTimeInput';
+import {MemoizedTextInput} from '../components/memoized/MemoizedTextInput';
+import {MemoizedNumericInput} from '../components/memoized/MemoizedNumericInput';
+import {MemoizedBoolInput} from '../components/memoized/MemoizedBoolInput';
+import {MemoizedLogicInput} from '../components/memoized/MemoizedLogicInput';
+import {MemoizedDateInput} from '../components/memoized/MemoizedDateInput';
+import {MemoizedDateTimeInput} from '../components/memoized/MemoizedDateTimeInput';
+import {MemoizedTimeInput} from '../components/memoized/MemoizedTimeInput';
 import {EditorTextAreaDialog} from '../components/prolab/EditorTextAreaDialog';
 import useStore from '../store';
 
@@ -67,7 +67,7 @@ class CellEditComponent extends PureComponent {
     forceLeaveEditMode() {
         document.getElementById('header-left').click();
     }
-
+    onHideEditMode = () => {};
     clearedEditorViewerObj = () => {
         return {
             visible: false,
@@ -533,18 +533,11 @@ class CellEditComponent extends PureComponent {
                         cellInfo,
                     });
                 }
-                return (
-                    <React.Fragment>
-                        <div
-                            id='trash-button'
-                            onClick={() => {
-                                this.trashClicked.current = false;
-                                cellInfo.setValue('');
-                            }}
-                            className={`image-base ${autoFill} ${validate}`}
-                        ></div>
-                    </React.Fragment>
-                );
+                if (this.trashClicked?.current) {
+                    this.trashClicked.current = false;
+                    cellInfo.setValue('');
+                    this.onHideEditMode();
+                }
             case ColumnType.H: //H - Hyperlink
                 return (
                     <MemoizedTextInput

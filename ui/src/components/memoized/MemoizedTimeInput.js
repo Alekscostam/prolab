@@ -1,10 +1,9 @@
 import {DateBox} from 'devextreme-react';
 import React from 'react';
-import EditRowUtils from '../../../utils/EditRowUtils';
-import {StringUtils} from '../../../utils/StringUtils';
+import EditRowUtils from '../../utils/EditRowUtils';
+import {StringUtils} from '../../utils/StringUtils';
 
-//T – Czas
-export const MemoizedTimeInput = React.memo(({field, cellInfo, inputValue, fieldIndex, required, validate}) => {
+const getDate = (inputValue) => {
     let date = new Date();
     if (!StringUtils.isBlankOrEmpty(inputValue)) {
         const [hours, minutes] = inputValue.split(':').map(Number);
@@ -16,6 +15,11 @@ export const MemoizedTimeInput = React.memo(({field, cellInfo, inputValue, field
     } else {
         date = undefined;
     }
+    return date;
+};
+
+//T – Czas
+export const MemoizedTimeInput = React.memo(({field, cellInfo, inputValue, fieldIndex, required, validate}) => {
     return (
         <React.Fragment>
             <DateBox
@@ -31,7 +35,7 @@ export const MemoizedTimeInput = React.memo(({field, cellInfo, inputValue, field
                 type='time'
                 useMaskBehavior={true}
                 displayFormat={'HH:mm'}
-                defaultValue={date}
+                defaultValue={getDate(inputValue)}
             />
         </React.Fragment>
     );

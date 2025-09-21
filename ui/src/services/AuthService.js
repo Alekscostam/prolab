@@ -181,9 +181,6 @@ export default class AuthService {
     refresh() {
         const idToken = localStorage.getItem(CookiesName.ID_TOKEN);
         const idRefreshToken = localStorage.getItem(CookiesName.ID_REFRESH_TOKEN);
-        if (StringUtils.isBlank(idToken) || StringUtils.isBlank(idRefreshToken)) {
-            console.error('TOKENS ARE BLANK. LOOK AT COOKIES idToken:', idToken, ' idRefreshToken:', idRefreshToken);
-        }
         return this.fetch(
             `${this.getAndSetDomainIfNeccessery()}/auth/refreshToken`,
             {
@@ -352,30 +349,5 @@ export default class AuthService {
         } catch (err) {
             return [];
         }
-    }
-
-    isUserInRole(role) {
-        const roles = this.getRoles();
-        return roles.includes(role);
-    }
-
-    isUserInAnyRole(...rolesToFind) {
-        const roles = this.getRoles();
-        let authorized = false;
-        rolesToFind.forEach((role) => {
-            if (roles.includes(role)) {
-                authorized = true;
-            }
-        });
-        return authorized;
-    }
-
-    getUserId() {
-        const user = this.getProfile();
-        return user.userId ? user.userId : null;
-    }
-
-    getUserLang() {
-        return 'PL';
     }
 }

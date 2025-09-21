@@ -17,7 +17,7 @@ import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils';
 import UrlUtils from '../../utils/UrlUtils';
 import ImageViewerDialog from '../../components/ImageViewerDialog';
 import {MenuWithButtons} from '../../components/prolab/MenuWithButtons';
-import {sessionPrelongFnc} from '../../App';
+import {sessionExtendFnc} from '../../App';
 import {EditorDialog} from '../../components/prolab/EditorDialog';
 import {OperationType} from '../../enum/OperationType';
 import {CookiesName} from '../../enum/CookieName';
@@ -252,8 +252,8 @@ class SubGridViewComponent extends React.Component {
                                                             className={`action-button-with-menu`}
                                                             iconName={'mdi-pencil'}
                                                             handleClick={(e) => {
-                                                                if (sessionPrelongFnc) {
-                                                                    sessionPrelongFnc();
+                                                                if (sessionExtendFnc) {
+                                                                    sessionExtendFnc();
                                                                 }
                                                                 e.viewId = viewId;
                                                                 e.recordId = recordId;

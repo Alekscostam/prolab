@@ -236,7 +236,7 @@ export default class CrudService extends BaseService {
             });
     }
 
-    uploadAttachemnt(viewId, parentId, parentViewId, formData, isKindViewSpec) {
+    uploadAttachment(viewId, parentId, parentViewId, formData, isKindViewSpec) {
         const headers = {
             Accept: 'application/json',
             'Cache-Control': 'no-cache, no-store, must-revalidate',

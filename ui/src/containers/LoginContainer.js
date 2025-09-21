@@ -164,6 +164,9 @@ class LoginContainer extends BaseContainer {
         if (e !== undefined) {
             e.preventDefault();
         }
+        if (this.loginDisabled()) {
+            return;
+        }
         if (this.validator.allValid()) {
             this.blockUi();
             this.authService
@@ -257,7 +260,6 @@ class LoginContainer extends BaseContainer {
     onKeyDown(e) {
         if (e.key === 'Enter') {
             e.preventDefault();
-            this.handleFormSubmit();
         }
     }
     loginDisabled = () => {

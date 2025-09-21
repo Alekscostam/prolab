@@ -69,13 +69,17 @@
 
     table {
         &.dx-treelist-table {
+            td:not(.operation-columns) {
+                padding-left: 5px;
+            }
+            .operation-columns{
+                padding-left: 0px;
+            }
             td {
                 height: 37px;
-                padding-left: 5px;
                 padding-right: 0px;
                 padding-top: 0px;
                 padding-bottom: 0px;
-
                 button {
                     border-top-right-radius: 0px;
                     border-bottom-right-radius: 0px;

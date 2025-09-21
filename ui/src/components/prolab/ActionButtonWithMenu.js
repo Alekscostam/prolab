@@ -1,11 +1,8 @@
-/* eslint-disable no-script-url */
-/* eslint-disable jsx-a11y/anchor-is-valid */
-/* eslint-disabButtonWithMenuComponentle react/jsx-max-props-per-line */
 import React from 'react';
 import PropTypes from 'prop-types';
 import ShortcutButton from './ShortcutButton';
 import {Menu} from 'primereact/menu';
-import {sessionPrelongFnc} from '../../App';
+import {sessionExtendFnc} from '../../App';
 
 export class ActionButtonWithMenu extends React.Component {
     handleClick = (event) => {
@@ -52,8 +49,8 @@ export class ActionButtonWithMenu extends React.Component {
                     className={`action-button-with-menu ${className}`}
                     disabled={disabled}
                     handleClick={(event) => {
-                        if (sessionPrelongFnc) {
-                            sessionPrelongFnc();
+                        if (sessionExtendFnc) {
+                            sessionExtendFnc();
                         }
                         const content = document.getElementById('header-left');
                         if (content) content.click();

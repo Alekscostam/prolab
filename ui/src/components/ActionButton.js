@@ -1,7 +1,3 @@
-/* eslint-disable no-script-url */
-/* eslint-disable jsx-a11y/anchor-is-valid */
-/* eslint-disable react/jsx-max-props-per-line */
-import React from 'react';
 import PropTypes from 'prop-types';
 
 export const ActionButton = (props) => {

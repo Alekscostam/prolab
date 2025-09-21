@@ -1,12 +1,7 @@
 import {StringUtils} from '../utils/StringUtils';
 
-// const testOne = [["UWAGI","contains","pró"],"and",[["OPIS","=","Opis dodatkowy 123"],"or",["OPIS","=","Opis dodatkowy"]]];
-// const testTwo = [["UWAGI","contains","pró"],"and",["OPIS","=","Opis dodatkowy 123"]];
-// const testThree = ["PIERW_TYP","=","N"];
-
 export default class CellValidator {
     constructor(cellInfo, field) {
-        // cellInfo.data.PIERW_TYP = "C";
         this.dataField = cellInfo?.column?.dataField || '';
         this.data = cellInfo?.data || {};
         this.pierwType = cellInfo?.data?.PIERW_TYP || '';

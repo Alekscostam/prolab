@@ -70,25 +70,6 @@ $base-color: #0e49eb;
     background-color: $base-color;
 }
 
-.dx-datagrid
-    .dx-datagrid-content
-    .dx-datagrid-table
-    .dx-row
-    > td.dx-cell-modified:not(.dx-field-item-content):not(.dx-validation-pending):first-of-type,
-.dx-datagrid
-    .dx-datagrid-content
-    .dx-datagrid-table
-    .dx-row
-    > td.dx-datagrid-invalid:not(.dx-field-item-content):not(.dx-validation-pending):not(
-        .dx-datagrid-select-all
-    ):first-of-type,
-.dx-datagrid
-    .dx-datagrid-content
-    .dx-datagrid-table
-    .dx-row
-    > td:not(.dx-validation-pending):not(.dx-datagrid-select-all):first-of-type {
-    padding-left: 0;
-}
 .disabled-background {
     background-color: whitesmoke !important;
 }
@@ -418,11 +399,13 @@ $base-color: #0e49eb;
     .dx-datagrid-content
     .dx-datagrid-table
     .dx-row
-    > td:not(.dx-validation-pending):not(.dx-datagrid-select-all) {
+    > td:not(.dx-validation-pending):not(.dx-datagrid-select-all), td:not(.dx-command-select) {
     padding-right: 5px;
     padding-left: 5px;
 }
-
+td.dx-command-select{
+    padding: 7px!important;
+}
 .card-grid-header {
     .shortcut.p-button {
         border-radius: 0;
@@ -580,6 +563,14 @@ $base-color: #0e49eb;
         }
     }
 }
+.dx-htmleditor-toolbar-wrapper{
+    .dx-overlay-content .dx-popup-content .dx-scrollable-content .dx-item-content{
+        margin-left: 0px!important;
+    }
+}
+.dx-toolbar-menu-section .dx-list-item-content, .dx-toolbar-menu-section .dx-toolbar-item-auto-hide{
+    padding: 0px!important;
+}
 #attachmentDialog_content{
     #content{
         #selected-elements, #selected-elements-outer{
@@ -593,8 +584,9 @@ $base-color: #0e49eb;
     #header-panel{
         padding-right: 0px;
         padding-left: 0px;
-    }
+    }   
 }
+
 .dx-datebox-date .dx-dropdowneditor-icon::before,
 .dx-datebox-datetime .dx-dropdowneditor-icon::before,
 .dx-datebox-time .dx-dropdowneditor-icon::before,
@@ -740,7 +732,7 @@ body #subviews-panel .dx-tabs {
 #editListDialog .dx-header-row > td:last-child > .dx-datagrid-text-content {
     display: block !important;
 }
-.attachement{
+.attachment{
 
     .dx-cell-focus-disabled.header-button.dx-datagrid-drag-action{
         border-bottom: none!important;
@@ -1106,7 +1098,6 @@ body .grid-container {
 }
 .tiles {
     display: inline-flex;
-    justify-content: space-between;
 }
 
 .tile {

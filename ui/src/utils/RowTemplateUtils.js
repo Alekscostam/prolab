@@ -1,4 +1,3 @@
-import useStore from '../store';
 import {CompareUtils} from './CompareUtils';
 import {SessionStoreUtils} from './SessionStoreUtils';
 import UrlUtils from './UrlUtils';

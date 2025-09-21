@@ -142,7 +142,6 @@ export const MenuWithButtons = (props) => {
               })
             : [];
     };
-    // TODO: po PPM mruga
     return (
         <React.Fragment>
             <ContextMenu

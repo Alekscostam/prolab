@@ -20,12 +20,21 @@ export class EditListUtils {
         }
         return defaultSelectedRowKeysTmp;
     }
-
+    static findIdIndexFromSelectedRowData(arr = []) {
+        const index = arr.findIndex((el) => 'ID' in el);
+        const result = index !== -1 ? index : 0;
+        return result;
+    }
+    static findIndexFromFields(fields = []) {
+        const index = fields.findIndex((el) => el.fieldList === 'ID');
+        const result = index !== -1 ? index : 0;
+        return result;
+    }
     static calculateCRC(objToHash) {
         if (objToHash) {
             if (Array.isArray(objToHash)) {
                 if (objToHash.length > 1) {
-                    const result = objToHash[0];
+                    const result = objToHash[this.findIdIndexFromSelectedRowData(objToHash)];
                     const calculatedCRC = hash([result]);
                     return calculatedCRC;
                 }

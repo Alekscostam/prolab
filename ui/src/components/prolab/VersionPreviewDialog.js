@@ -7,9 +7,13 @@ import {StringUtils} from '../../utils/StringUtils';
 import ActionButton from '../ActionButton';
 import useStore from '../../store';
 import {CookiesName} from '../../enum/CookieName';
-import {iconPositions, stylingModes, tabsPositions} from './dataSource/FeaturesDataSource';
+
 import {version as devExtremeVersion} from 'devextreme/core/version';
 import {getStore} from '../../utils/helper/StoreHelper';
+
+const tabsPositions = ['top', 'left', 'right', 'bottom'];
+const stylingModes = ['secondary', 'primary'];
+const iconPositions = ['top', 'start', 'end', 'bottom'];
 
 export const VersionPreviewDialog = (props) => {
     const [aboutVersion, setAboutVersion] = useState([]);
@@ -177,9 +181,18 @@ export const VersionPreviewDialog = (props) => {
             identifier: 'APP_VERSION',
             type: 'VER',
             color: 'blue',
-            description: sessionStorage.getItem(CookiesName.APP_VERSION),
+            description: JSON.parse(sessionStorage.getItem(CookiesName.APP_VERSION)),
             date: '',
             text: 'App version',
+            isNew: true,
+        },
+        {
+            identifier: 'API_VERSION',
+            type: 'VER',
+            color: 'blue',
+            description: JSON.parse(localStorage.getItem(CookiesName.VERSION_API)),
+            date: '',
+            text: 'API version',
             isNew: true,
         },
 
@@ -195,7 +208,7 @@ export const VersionPreviewDialog = (props) => {
             identifier: 'DEVICE_NAME',
             type: 'VER',
             color: 'blue',
-            description: sessionStorage.getItem(CookiesName.DEVICE_NAME),
+            description: JSON.parse(sessionStorage.getItem(CookiesName.DEVICE_NAME)),
             date: '',
             text: 'Device name',
             isNew: true,
@@ -210,7 +223,6 @@ export const VersionPreviewDialog = (props) => {
             isNew: true,
         },
     ];
-
     const dataSource = [
         {
             type: 'FIX',
@@ -346,7 +358,7 @@ export const VersionPreviewDialog = (props) => {
         if (data.tasks?.length === 0) {
             return <div></div>;
         }
-        const taskItems = data.tasks.map((task, index) => (
+        const taskItems = data?.tasks?.map((task, index) => (
             <div
                 key={'item-' + index}
                 className={`ver-item ver-item-color-${task.color}`}

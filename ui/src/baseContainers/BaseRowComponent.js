@@ -4,7 +4,8 @@ import DivContainer from '../components/DivContainer';
 import {InputText} from 'primereact/inputtext';
 import BaseContainer from '../baseContainers/BaseContainer';
 import {Dropdown} from 'primereact/dropdown';
-import {Calendar} from 'primereact/calendar';
+import DateBox from 'devextreme-react/date-box';
+
 import SimpleReactValidator from '../components/validator';
 import HtmlEditor, {Item, MediaResizing, TableResizing, Toolbar} from 'devextreme-react/html-editor';
 import {Validator} from 'devextreme-react';
@@ -30,52 +31,7 @@ import {InputTextarea} from 'primereact/inputtextarea';
 import MarkupDialogComponent from '../components/prolab/MarkupDialog';
 import useStore from '../store';
 import EditListDataStore from '../containers/dao/DataEditListStore';
-// const mentionsConfig = [
-//     {
-//         dataSource: [
-//             {
-//                 text: 'John Heart',
-//                 team: 'Engineering',
-//                 icon: 'https://js.devexpress.com/React/Demos/WidgetsGallery/JSDemos/images/mentions/John-Heart.png',
-//             },
-//             {
-//                 text: 'Kevin Carter',
-//                 team: 'Engineering',
-//                 icon: 'https://js.devexpress.com/React/Demos/WidgetsGallery/JSDemos/images/mentions/Kevin-Carter.png',
-//             },
-//             {
-//                 text: 'Olivia Peyton',
-//                 team: 'Management',
-//                 icosn: 'https://js.devexpress.com/React/Demos/WidgetsGallery/JSDemos/images/mentions/Olivia-Peyton.png',
-//             },
-//             {
-//                 text: 'Robert Reagan',
-//                 team: 'Management',
-//                 icon: 'https://js.devexpress.com/React/Demos/WidgetsGallery/JSDemos/images/mentions/Robert-Reagan.png',
-//             },
-//             {
-//                 text: 'Cynthia Stanwick',
-//                 team: 'Engineering',
-//                 icon: 'https://js.devexpress.com/React/Demos/WidgetsGallery/JSDemos/images/mentions/Cynthia-Stanwick.png',
-//             },
-//             {
-//                 text: 'Brett Wade ',
-//                 team: 'Analysis',
-//                 icon: 'https://js.devexpress.com/React/Demos/WidgetsGallery/JSDemos/images/mentions/Brett-Wade.png',
-//             },
-//             {
-//                 text: 'Greta Sims',
-//                 team: 'QA',
-//                 icon: 'https://js.devexpress.com/React/Demos/WidgetsGallery/JSDemos/images/mentions/Greta-Sims.png',
-//             },
-//         ],
-//         searchExpr: 'text',
-//         displayExpr: 'text',
-//         valueExpr: 'text',
-//     },
-// ];
-let clickCount = 0;
-let timeout;
+
 export class BaseRowComponent extends BaseContainer {
     constructor(props) {
         super(props);
@@ -352,8 +308,10 @@ export class BaseRowComponent extends BaseContainer {
                             });
 
                             if (singleSelectedRowDataTmp.length !== 0) {
-                                let CALC_CRC = EditListUtils.calculateCRC([singleSelectedRowDataTmp[0]]);
-                                singleSelectedRowDataTmp[0].CALC_CRC = CALC_CRC;
+                                const indexOfId =
+                                    EditListUtils.findIdIndexFromSelectedRowData(singleSelectedRowDataTmp);
+                                let CALC_CRC = EditListUtils.calculateCRC([singleSelectedRowDataTmp[indexOfId]]);
+                                singleSelectedRowDataTmp[indexOfId].CALC_CRC = CALC_CRC;
                                 selectedRowDataTmp.push(singleSelectedRowDataTmp);
                                 defaultSelectedRowKeysTmp.push(CALC_CRC);
                             }
@@ -391,17 +349,6 @@ export class BaseRowComponent extends BaseContainer {
         return date;
     }
 
-    doubleClickFakeEvent(fieldIndex) {
-        const dataTimeComponent = document.getElementById(`date_time_${fieldIndex}`);
-        if (dataTimeComponent) {
-            if (dataTimeComponent.children.length >= 2) {
-                const calendarBtn = dataTimeComponent?.children[1];
-                if (calendarBtn) {
-                    calendarBtn.click();
-                }
-            }
-        }
-    }
     handleOnChange = (field, value, onChange) => {
         if (onChange) {
             onChange();
@@ -424,6 +371,17 @@ export class BaseRowComponent extends BaseContainer {
             return true;
         }
         return !field.edit;
+    };
+
+    prepareEvent = (e, field) => {
+        e.target = {
+            id: e.element.id,
+            name: field.fieldName,
+            value: e.value,
+        };
+        e.preventDefault = () => {};
+        e.stopPropagation = () => {};
+        return e;
     };
 
     renderInputComponent(field, fieldIndex, onChange, onBlur, groupUuid, required, validatorMsgs, onClickEditList) {
@@ -731,21 +689,27 @@ export class BaseRowComponent extends BaseContainer {
                             {field.label}
                             {required ? '*' : ''}
                         </label>
-                        <Calendar
-                            id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
+                        <DateBox
+                            firstDayOfWeek={1}
+                            onValueChanged={(e) => {
+                                e = this.prepareEvent(e, field);
+                                if (onChange) {
+                                    onChange(InputType.DATE, e, groupUuid, info);
+                                }
+                            }}
+                            useMaskBehavior={required}
+                            showCloseButton
+                            type='date'
                             name={field.fieldName}
-                            className={`${autoFill} ${editable} ${validate}`}
+                            displayFormat={'yyyy-MM-dd'}
+                            className={`${autoFill} ${editable} ${validate} base-row`}
+                            id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                             style={{width: '100%'}}
-                            value={this.validateDate(field)}
-                            dateFormat='yy-mm-dd'
-                            onChange={(e) => (onChange ? onChange(InputType.DATE, e, groupUuid, info) : null)}
-                            appendTo={document.body}
-                            disabled={this.isDisabled(field)}
                             required={required}
-                            showButtonBar
-                            showIcon
-                            mask='9999-99-99'
-                        ></Calendar>
+                            stylingMode='outlined'
+                            value={this.validateDate(field)}
+                            disabled={this.isDisabled(field)}
+                        />
                     </React.Fragment>
                 );
             case ColumnType.E: //E – Data + czas
@@ -760,36 +724,27 @@ export class BaseRowComponent extends BaseContainer {
                             {field.label}
                             {required ? '*' : ''}
                         </label>
-                        <Calendar
-                            ref={this.calendarDateTimeRef}
-                            id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
-                            showTime
-                            hourFormat='24'
-                            name={field.fieldName}
-                            className={`${autoFill} ${editable} ${validate}`}
-                            style={{width: '100%'}}
-                            value={this.validateDate(field)}
-                            dateFormat='yy-mm-dd'
-                            onSelect={(e) => {
-                                clickCount++;
-                                if (clickCount === 1) {
-                                    timeout = setTimeout(function () {
-                                        clickCount = 0;
-                                    }, 300); // Ustaw interwał czasowy na oczekiwanie na drugie kliknięcie (np. 300ms)
-                                } else if (clickCount >= 2) {
-                                    this.doubleClickFakeEvent(fieldIndex);
-                                    clearTimeout(timeout);
-                                    clickCount = 0;
+                        <DateBox
+                            firstDayOfWeek={1}
+                            onValueChanged={(e) => {
+                                e = this.prepareEvent(e, field);
+                                if (onChange) {
+                                    onChange(InputType.DATETIME, e, groupUuid, info);
                                 }
                             }}
-                            onChange={(e) => (onChange ? onChange(InputType.DATETIME, e, groupUuid, info) : null)}
-                            appendTo={document.body}
+                            useMaskBehavior={required}
+                            displayFormat={'yyyy-MM-dd HH:mm'}
+                            type='datetime'
+                            name={field.fieldName}
                             disabled={this.isDisabled(field)}
+                            className={`${autoFill} ${editable} ${validate} base-row`}
+                            id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
+                            style={{width: '100%'}}
                             required={required}
-                            showButtonBar
-                            showIcon
-                            mask='9999-99-99 99:99'
-                        ></Calendar>
+                            showAnalogClock={false}
+                            stylingMode='outlined'
+                            value={this.validateDate(field)}
+                        />
                     </React.Fragment>
                 );
             case ColumnType.T: //T – Czas
@@ -803,30 +758,25 @@ export class BaseRowComponent extends BaseContainer {
                             {field.label}
                             {required ? '*' : ''}
                         </label>
-                        <Calendar
+                        <DateBox
                             id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
-                            timeOnly
-                            showTime
-                            hourFormat='24'
                             name={field.fieldName}
-                            className={`${autoFill} ${editable} ${validate}`}
-                            style={{width: '100%'}}
-                            appendTo={document.body}
-                            onChange={(e) => {
+                            onValueChanged={(e) => {
+                                e = this.prepareEvent(e, field);
                                 if (onChange) {
-                                    if (e.originalEvent.currentTarget.value.includes('_')) {
-                                        return;
-                                    }
                                     onChange(InputType.TIME, e, groupUuid, info);
                                 }
                             }}
+                            style={{width: '100%'}}
+                            className={`${autoFill} ${editable} ${validate} base-row`}
                             disabled={this.isDisabled(field)}
                             required={required}
-                            showButtonBar
-                            showIcon
+                            type='time'
+                            stylingMode='outlined'
                             value={this.validateDate(field)}
-                            mask={'99:99'}
-                        ></Calendar>
+                            useMaskBehavior={required}
+                            displayFormat={'HH:mm'}
+                        />
                     </React.Fragment>
                 );
             case ColumnType.O:

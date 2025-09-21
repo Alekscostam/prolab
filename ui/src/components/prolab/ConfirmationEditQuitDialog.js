@@ -5,7 +5,7 @@ import LocUtils from '../../utils/LocUtils';
 import {Button} from 'primereact/button';
 
 export const ConfirmationEditQuitDialog = (props) => {
-    const {onHide, onAccept, visible} = props;
+    const {onHide = () => {}, onAccept = () => {}, visible = true} = props;
 
     const dialogFooter = (
         <React.Fragment>
@@ -46,18 +46,8 @@ export const ConfirmationEditQuitDialog = (props) => {
     );
 };
 
-ConfirmationEditQuitDialog.defaultProps = {
-    onHide: () => {},
-    onAccept: () => {},
-    visible: true,
-    value: '',
-    header: '',
-};
-
 ConfirmationEditQuitDialog.propTypes = {
     onHide: PropTypes.func,
     onAccept: PropTypes.func,
     visible: PropTypes.bool,
-    value: PropTypes.string,
-    header: PropTypes.string,
 };

@@ -70,7 +70,7 @@ class GridViewComponent extends CellEditComponent {
         this.state = {
             gridViewColumns: this.props.gridViewColumns,
             allRowsShow: false,
-            packageCount: 80,
+            packageCount: this.getDefaultPackageCount(),
             keyDownClicked: false,
             focusedRowKey: UrlUtils.getURLParameter('selectedFromPrevGrid')
                 ? parseInt(UrlUtils.getURLParameter('selectedFromPrevGrid'))
@@ -91,6 +91,7 @@ class GridViewComponent extends CellEditComponent {
             },
             selectedRecordId: undefined,
         };
+        this.allowWrapping = this.props.parsedGridView?.gridOptions?.rowAutoHeight;
         this.rowRenderingMode = UrlUtils.isBatch() ? 'standard' : 'virtual';
         ConsoleHelper('GridViewComponent -> constructor');
     }
@@ -143,6 +144,7 @@ class GridViewComponent extends CellEditComponent {
     }
 
     componentDidMount() {
+        // ResponseUtils.test();
         super.componentDidMount();
         this.unregisterKeydownEvent();
         this.registerKeydownEvent();
@@ -202,7 +204,7 @@ class GridViewComponent extends CellEditComponent {
         }
     };
     waitForSuccess() {
-        return this.props.dataGridStoreSuccess === false || this.state.gridViewColumns?.length === 0;
+        return this.props.dataGridStoreSuccess === false || this.props.gridViewColumns?.length === 0;
     }
 
     isGroupModeEnabled = () => {
@@ -211,7 +213,7 @@ class GridViewComponent extends CellEditComponent {
     getPackageCount = () => {
         const result =
             StringUtils.isBlank(this.props.packageRows) || this.props.packageRows === 0
-                ? Constants.DEFAULT_DATA_PACKAGE_COUNT
+                ? this.getDefaultPackageCount()
                 : this.props.packageRows;
         if (this.props.cellModeEnabled && this.state.allRowsShow) {
             return this.props.packageRows;
@@ -281,6 +283,32 @@ class GridViewComponent extends CellEditComponent {
             );
         }
     };
+
+    onGroupIndexChange = (e) => {
+        if (e?.fullName?.includes('groupIndex')) {
+            const match = e?.fullName.match(/columns\[(\d+)\]\.groupIndex/);
+            if (match && this.props.handleOnGroupIndexChange) {
+                const columnIndex = match[1];
+                const value = StringUtils.isBlank(e.value) ? e.previousValue : e.value;
+                this.props.handleOnGroupIndexChange(columnIndex, value);
+            }
+        }
+    };
+
+    onFilterChange = (e) => {
+        if (e?.fullName?.includes('filterValue') && e?.name === 'columns') {
+            if (this.props?.handleOnFilterChange) {
+                this.props.handleOnFilterChange();
+            }
+            if (this.props?.getRef) {
+                this.props.getRef().instance.clearSelection();
+                if (this.props?.handleUnselectAll) {
+                    this.props.handleUnselectAll();
+                }
+            }
+        }
+    };
+
     render() {
         const showGroupPanel = this.props.gridFromDashboard
             ? false
@@ -299,7 +327,6 @@ class GridViewComponent extends CellEditComponent {
         const defaultSelectedRowKeys = this.props.defaultSelectedRowKeys;
         const selectedRowKeys = this.props.selectedRowKeys;
         const packageCount = this.getPackageCount();
-        // const packageCount = this.state.packageCount;
         const kindView = this.props.elementKindView;
         const subViewId = this.props.elementSubViewId;
         const selectedRecordId = this.state.selectedRecordId;
@@ -333,7 +360,7 @@ class GridViewComponent extends CellEditComponent {
                     id={`grid-container`}
                     defaultFocusedRowKey={this.state.focusedRowKey}
                     keyExpr='ID'
-                    className={`${this.props?.isAttachement ? 'attachement ' : 'grid'} ${
+                    className={`${this.props?.isAttachment ? 'attachment ' : 'grid'} ${
                         this.props.ppmEnabled ? 'ppm-enabled' : ''
                     } ${this.props?.className ? this.props?.className : ''} grid-container${
                         headerAutoHeight ? ' grid-header-auto-height' : ''
@@ -360,20 +387,13 @@ class GridViewComponent extends CellEditComponent {
                     allowColumnReordering={true}
                     onOptionChanged={(e) => {
                         this.unclickAfterFilter(e);
-                        if (e.fullName.includes('filterValue') && e.name === 'columns') {
-                            if (this.props?.handleOnFilterChange) {
-                                this.props.handleOnFilterChange();
-                            }
-                            if (this.props?.getRef) {
-                                this.props.getRef().instance.clearSelection();
-                                if (this.props?.handleUnselectAll) {
-                                    this.props.handleUnselectAll();
-                                }
-                            }
-                        }
+                        this.onFilterChange(e);
+                        this.onGroupIndexChange(e);
                     }}
                     onContentReady={(e) => {
                         this.highlightRow(e);
+                        // debugger;
+                        // this.getVisibleRows();
                         this.renderClearFilter();
                         if (this.props.onContentReady) {
                             this.props.onContentReady(e);
@@ -418,6 +438,7 @@ class GridViewComponent extends CellEditComponent {
                         }
                     }}
                     onInitialized={(ref) => {
+                        this.resizeAfterDelay();
                         if (ref?.component) {
                             this.registerMouseEvent(this.getScrollableContainer());
                         }
@@ -461,7 +482,11 @@ class GridViewComponent extends CellEditComponent {
                         preloadEnabled={false}
                         useNative={this.isGroupModeEnabled()}
                     />
-                    <Paging defaultPageSize={packageCount} pageSize={packageCount} defaultPageIndex={0} />
+                    <Paging
+                        defaultPageSize={this.state.packageCount}
+                        pageSize={this.state.packageCount}
+                        defaultPageIndex={0}
+                    />
                     <LoadPanel
                         enabled={true}
                         showIndicator={true}
@@ -477,39 +502,39 @@ class GridViewComponent extends CellEditComponent {
                         menuRef={this.menuRef}
                         target={this.props.targetContextMenu}
                         gridView={this.props.parsedGridView}
-                        handlePlugins={(e) => this.preOperationAction(e, () => this.props.handlePluginRow(e.id))}
+                        handlePlugins={(e) => this.preAction(e, () => this.props.handlePluginRow(e.id))}
                         handleDocuments={(e) => {
-                            this.preOperationAction(e, () => this.props.handleDocumentRow(e.id));
+                            this.preAction(e, () => this.props.handleDocumentRow(e.id));
                         }}
                         handleSaveAction={(e) => this.props.handleSaveAction()}
                         handleHrefSubview={(e) => {
                             this.handleHrefSubview(viewId, selectedRecordId);
                         }}
                         hrefSpecView={this.subViewHref(viewId, selectedRecordId)}
-                        handleEdit={(e) =>
-                            this.preOperationAction(e, () =>
-                                this.handleEdit(viewId, parentId, kindView, selectedRecordId)
-                            )
-                        }
+                        handleEdit={(e) => {
+                            this.preAction(e, () => this.handleEdit(viewId, parentId, kindView, selectedRecordId));
+                        }}
                         handlePreview={(e) => {
-                            this.preOperationAction(e, () =>
-                                this.handlePreview(viewId, parentId, kindView, selectedRecordId)
-                            );
+                            this.preAction(e, () => this.handlePreview(viewId, parentId, kindView, selectedRecordId));
                         }}
                         handleEditSpec={(e) => this.handleEditSpec(viewId, parentId, selectedRecordId)}
-                        handleCopy={(e) => this.preOperationAction(e, () => this.props.handleCopyRow())}
-                        handleArchive={(e) => this.preOperationAction(e, () => this.props.handleArchiveRow())}
-                        handlePublish={(e) => this.preOperationAction(e, () => this.props.handlePublishRow())}
-                        handleBatch={(e) => this.preOperationAction(e, () => this.handleBatch(e.id, viewId, parentId))}
-                        handleAdd={(e) => this.preOperationAction(e, () => this.props.addButtonFunction())}
-                        handleAddSpec={(e) => this.preOperationAction(e, () => this.props.addButtonFunction())}
-                        handleDownload={(e) => this.preOperationAction(e, () => this.props.handleDownloadRow())}
-                        handleAttachments={(e) => this.preOperationAction(e, () => this.props.handleAttachmentRow())}
-                        handleDelete={(e) => this.preOperationAction(e, () => this.props.handleDeleteRow())}
-                        handleRestore={(e) => this.preOperationAction(e, () => this.props.handleRestoreRow())}
-                        handleFormula={(e) => this.preOperationAction(e, () => this.props.handleFormulaRow())}
-                        handleHistory={(e) => this.preOperationAction(e, () => this.props.handleHistoryLogRow())}
-                        handleFill={(e) => this.preOperationAction(e, () => this.props.handleFillRow())}
+                        handleCopy={(e) => this.preAction(e, () => this.props.handleCopyRow(selectedRecordId))}
+                        handleArchive={(e) => this.preAction(e, () => this.props.handleArchiveRow(selectedRecordId))}
+                        handlePublish={(e) => this.preAction(e, () => this.props.handlePublishRow(selectedRecordId))}
+                        handleBatch={(e) => this.preAction(e, () => this.handleBatch(e.id, viewId, parentId))}
+                        handleAdd={(e) => this.preAction(e, () => this.props.addButtonFunction())}
+                        handleAddSpec={(e) => this.preAction(e, () => this.props.addButtonFunction())}
+                        handleDownload={(e) => this.preAction(e, () => this.props.handleDownloadRow(selectedRecordId))}
+                        handleAttachments={(e) =>
+                            this.preAction(e, () => this.props.handleAttachmentRow(selectedRecordId))
+                        }
+                        handleDelete={(e) => this.preAction(e, () => this.props.handleDeleteRow(selectedRecordId))}
+                        handleRestore={(e) => this.preAction(e, () => this.props.handleRestoreRow(selectedRecordId))}
+                        handleFormula={(e) => this.preAction(e, () => this.props.handleFormulaRow(selectedRecordId))}
+                        handleHistory={(e) => {
+                            this.preAction(e, () => this.props.handleHistoryLogRow(selectedRecordId));
+                        }}
+                        handleFill={(e) => this.preAction(e, () => this.props.handleFillRow(selectedRecordId))}
                         operationList={this.props.parsedGridView.operationsPPM}
                     />
                 )}
@@ -535,7 +560,7 @@ class GridViewComponent extends CellEditComponent {
             }
         }
     };
-    preOperationAction = (operation, callback, recordId = this.state.selectedRecordId) => {
+    preAction = (operation, callback, recordId = this.state.selectedRecordId) => {
         const onlyOneRecord = operation?.onlyOneRecord;
         if (this.props.handleSelectRows) {
             if (onlyOneRecord) {
@@ -588,13 +613,38 @@ class GridViewComponent extends CellEditComponent {
         }
         return null;
     }
-
+    getDefaultPackageCount = () => {
+        let viewportHeight = window.innerHeight - 120;
+        const showGroupPanel = this.props.gridFromDashboard
+            ? false
+            : this.props.parsedGridView?.gridOptions?.showGroupPanel || false;
+        if (showGroupPanel) {
+            viewportHeight = viewportHeight - 40;
+        }
+        if (UrlUtils.parentIdParamExist() && UrlUtils.recordIdParamExist()) {
+            const fetchRows = (viewportHeight / 100) * 4;
+            return Math.round(fetchRows);
+        }
+        const fetchRows = (viewportHeight / 100) * 5;
+        return Math.round(fetchRows);
+    };
     getClonedGridViewColumns() {
         if (this.props.multiLevelHeaders) {
-            return structuredClone(ResponseUtils.flattenColumns(this.state.gridViewColumns));
+            return structuredClone(ResponseUtils.flattenColumns(this.props.gridViewColumns));
         }
-        return structuredClone(this.state.gridViewColumns);
+        return structuredClone(this.props.gridViewColumns);
     }
+    getInstance = () => {
+        return this.props?.getRef()?._instance;
+    };
+    // TODO:
+    getVisibleRows = () => {
+        const isntance = this.getInstance();
+        const visibleRows = isntance?.getVisibleRows();
+        const element1 = Array.from(document.querySelectorAll('tr[aria-rowindex="2"]'))?.[0];
+        const element2 = Array.from(document.querySelectorAll('tr[aria-rowindex="2"]'))?.[1];
+        return isntance?.getVisibleRows();
+    };
     fillHeightForGrid = (element) => {
         try {
             const headerAutoHeight = this.props?.parsedGridView?.gridOptions?.headerAutoHeight || false;
@@ -616,62 +666,64 @@ class GridViewComponent extends CellEditComponent {
         const columnDefinitionArray = this.getClonedGridViewColumns();
         let INDEX_COLUMN = 0;
         if (columns?.length > 0) {
-            columns
+            const visibleColumns = columns
                 .filter((column) => !column.isBand)
-                .filter((column) => column.visible === true)
-                ?.forEach((column) => {
-                    if (column.name === '_ROWNUMBER') {
-                        column.visible = false;
-                    } else {
-                        if (columnDefinitionArray) {
-                            const columnDefinition = this.removeElementFromArray(columnDefinitionArray, column);
-                            if (columnDefinition) {
-                                const editable = columnDefinition?.edit || columnDefinition?.selectionList;
-                                column.allowEditing = editable;
-                                column.visible = columnDefinition?.visible;
-                                column.allowFiltering = columnDefinition?.isFilter;
-                                column.allowFixing = true;
-                                column.allowGrouping = columnDefinition?.isGroup;
-                                column.allowReordering = true;
-                                column.allowResizing = true;
-                                ColumnUtils.applyFilters(this.props.filtersCached, column);
-                                column.allowSorting = columnDefinition?.isSort;
-                                column.allowWrapping = this.props.parsedGridView?.gridOptions?.rowAutoHeight || false;
-                                column.visibleIndex = columnDefinition?.columnOrder;
-                                column.headerId =
-                                    'column_' + INDEX_COLUMN + '_' + columnDefinition?.fieldName?.toLowerCase();
-                                column.width = columnDefinition?.width || 100;
-                                column.name = columnDefinition?.fieldName;
-                                column.caption = columnDefinition?.label;
-                                if (columnDefinition.type === ColumnType.B || columnDefinition.type === ColumnType.L) {
-                                    column.showEditorAlways = false;
-                                }
-                                column.cellTemplate = this.getCellTemplate(columnDefinition);
-                                column.dataType = DataGridUtils.specifyColumnType(columnDefinition?.type);
-                                column.format = DataGridUtils.specifyColumnFormat(columnDefinition?.type);
-                                column.fixed = ColumnUtils.getFixed(columnDefinition);
-                                column.fixedPosition = ColumnUtils.getFixedPosition(columnDefinition);
-                                if (!!columnDefinition.groupIndex && columnDefinition.groupIndex > 0) {
-                                    column.groupIndex = columnDefinition.groupIndex;
-                                }
-                                if (this.canReplaceFilterExpression(columnDefinition)) {
-                                    column.calculateFilterExpression = (value, selectedFilterOperations, target) =>
-                                        DataGridUtils.calculateCustomFilterExpression(
-                                            value,
-                                            selectedFilterOperations,
-                                            target,
-                                            columnDefinition
-                                        );
-                                }
-                                column.headerFilter = {groupInterval: null};
-                                column.renderAsync = true;
-                                INDEX_COLUMN++;
-                            } else {
-                                column.visible = false;
+                .filter((column) => column.visible === true);
+            visibleColumns?.forEach((column, index) => {
+                if (column.name === '_ROWNUMBER') {
+                    column.visible = false;
+                } else {
+                    const isLast = index === visibleColumns.length - 1; // <-- tutaj sprawdzenie ostatniego
+                    if (columnDefinitionArray) {
+                        const columnDefinition = this.removeElementFromArray(columnDefinitionArray, column);
+                        if (columnDefinition) {
+                            const editable = columnDefinition?.edit || columnDefinition?.selectionList;
+                            column.allowEditing = editable;
+                            column.visible = columnDefinition?.visible;
+                            column.allowFiltering = columnDefinition?.isFilter;
+                            column.allowFixing = true;
+                            column.allowGrouping = columnDefinition?.isGroup;
+                            column.allowReordering = true;
+                            column.allowResizing = true;
+                            ColumnUtils.applyFilters(this.props.filtersCached, column);
+                            column.allowSorting = columnDefinition?.isSort;
+                            column.allowWrapping = this.props.parsedGridView?.gridOptions?.rowAutoHeight || false;
+                            column.visibleIndex = columnDefinition?.columnOrder;
+                            column.headerId =
+                                'column_' + INDEX_COLUMN + '_' + columnDefinition?.fieldName?.toLowerCase();
+                            column.width = columnDefinition?.width || 100;
+                            column.name = columnDefinition?.fieldName;
+                            column.caption = columnDefinition?.label;
+                            if (columnDefinition.type === ColumnType.B || columnDefinition.type === ColumnType.L) {
+                                column.showEditorAlways = false;
                             }
+                            columnDefinition.isLast = isLast;
+                            column.cellTemplate = this.getCellTemplate(columnDefinition);
+                            column.dataType = DataGridUtils.specifyColumnType(columnDefinition?.type);
+                            column.format = DataGridUtils.specifyColumnFormat(columnDefinition?.type);
+                            column.fixed = ColumnUtils.getFixed(columnDefinition);
+                            column.fixedPosition = ColumnUtils.getFixedPosition(columnDefinition);
+                            if (!!columnDefinition.groupIndex && columnDefinition.groupIndex > 0) {
+                                column.groupIndex = columnDefinition.groupIndex;
+                            }
+                            if (this.canReplaceFilterExpression(columnDefinition)) {
+                                column.calculateFilterExpression = (value, selectedFilterOperations, target) =>
+                                    DataGridUtils.calculateCustomFilterExpression(
+                                        value,
+                                        selectedFilterOperations,
+                                        target,
+                                        columnDefinition
+                                    );
+                            }
+                            column.headerFilter = {groupInterval: null};
+                            column.renderAsync = true;
+                            INDEX_COLUMN++;
+                        } else {
+                            column.visible = false;
                         }
                     }
-                });
+                }
+            });
             // Bardzo ważne!!! clear pol bo w tym utilsie są parametry typu let
             DataGridUtils.clearProperties();
             let operationsRecord = this.props.parsedGridView?.operationsRecord;
@@ -691,7 +743,7 @@ class GridViewComponent extends CellEditComponent {
                             const root = ReactDOM.createRoot(element);
                             root.render(this.addButton());
                             const filterLastRow = element?.parentNode?.parentNode?.parentNode?.lastChild?.lastChild;
-                            if (!this.props?.isAttachement && useStore.getState()?.showFilterClear) {
+                            if (!this.props?.isAttachment && useStore.getState()?.showFilterClear) {
                                 this._filterClearRoot = ReactDOM.createRoot(filterLastRow);
                             }
                         }
@@ -707,122 +759,70 @@ class GridViewComponent extends CellEditComponent {
                         element.append(el);
                         const subViewId = this.props.elementSubViewId;
                         const kindView = this.props.elementKindView;
-                        const recordId = info.row?.data?.ID;
+                        const rId = info.row?.data?.ID;
                         const parentId = this.props.elementRecordId;
                         const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
                         let viewId = this.props.id;
                         viewId = DataGridUtils.getRealViewId(subViewId, viewId);
                         ReactDOM.createRoot(element).render(
-                            <div style={{textAlign: 'center', display: 'flex'}}>
+                            <div style={{textAlign: 'center'}}>
                                 <OperationsButtons
                                     operations={operationsRecord}
                                     operationList={operationsRecordList}
                                     info={info}
                                     handleEdit={(e) =>
-                                        this.preOperationAction(
-                                            e,
-                                            () => this.handleEdit(viewId, parentId, kindView, recordId),
-                                            recordId
-                                        )
+                                        this.preAction(e, () => this.handleEdit(viewId, parentId, kindView, rId), rId)
                                     }
                                     handlePreview={(e) =>
-                                        this.preOperationAction(
+                                        this.preAction(
                                             e,
-                                            () => this.handlePreview(viewId, parentId, kindView, recordId),
-                                            recordId
+                                            () => this.handlePreview(viewId, parentId, kindView, rId),
+                                            rId
                                         )
                                     }
                                     handleEditSpec={() => {
-                                        this.handleEditSpec(viewId, parentId, recordId);
+                                        this.handleEditSpec(viewId, parentId, rId);
                                     }}
-                                    hrefSubview={this.subViewHref(viewId, recordId)}
+                                    hrefSubview={this.subViewHref(viewId, rId)}
                                     hrefSpecView={EditSpecUtils.editSpecUrl(
                                         viewId,
-                                        TreeListUtils.isKindViewSpec(this.props.parsedGridView) ? parentId : recordId,
-                                        compress(
-                                            TreeListUtils.isKindViewSpec(this.props.parsedGridView) ? [recordId] : []
-                                        ),
+                                        TreeListUtils.isKindViewSpec(this.props.parsedGridView) ? parentId : rId,
+                                        compress(TreeListUtils.isKindViewSpec(this.props.parsedGridView) ? [rId] : []),
                                         currentBreadcrumb
                                     )}
                                     handleArchive={(e) =>
-                                        this.preOperationAction(
-                                            e,
-                                            () => this.props.handleArchiveRow(recordId),
-                                            recordId
-                                        )
+                                        this.preAction(e, () => this.props.handleArchiveRow(rId), rId)
                                     }
                                     handlePublish={(e) =>
-                                        this.preOperationAction(
-                                            e,
-                                            () => this.props.handlePublishRow(recordId),
-                                            recordId
-                                        )
+                                        this.preAction(e, () => this.props.handlePublishRow(rId), rId)
                                     }
-                                    handleCopy={(e) =>
-                                        this.preOperationAction(e, () => this.props.handleCopyRow(recordId), recordId)
-                                    }
+                                    handleCopy={(e) => this.preAction(e, () => this.props.handleCopyRow(rId), rId)}
                                     handleDocuments={(e) =>
-                                        this.preOperationAction(
-                                            e,
-                                            () => this.props.handleDocumentRow(e.id, recordId),
-                                            recordId
-                                        )
+                                        this.preAction(e, () => this.props.handleDocumentRow(e.id, rId), rId)
                                     }
                                     handlePlugins={(e) =>
-                                        this.preOperationAction(
-                                            e,
-                                            () => this.props.handlePluginRow(e.id, recordId),
-                                            recordId
-                                        )
+                                        this.preAction(e, () => this.props.handlePluginRow(e.id, rId), rId)
                                     }
                                     handleDownload={(e) =>
-                                        this.preOperationAction(
-                                            e,
-                                            () => this.props.handleDownloadRow(recordId),
-                                            recordId
-                                        )
+                                        this.preAction(e, () => this.props.handleDownloadRow(rId), rId)
                                     }
                                     handleBatch={(e) =>
-                                        this.preOperationAction(
-                                            e,
-                                            () => this.handleBatch(e.id, viewId, parentId, recordId),
-                                            recordId
-                                        )
+                                        this.preAction(e, () => this.handleBatch(e.id, viewId, parentId, rId), rId)
                                     }
                                     handleAttachments={(e) =>
-                                        this.preOperationAction(
-                                            e,
-                                            () => this.props.handleAttachmentRow(recordId),
-                                            recordId
-                                        )
+                                        this.preAction(e, () => this.props.handleAttachmentRow(rId), rId)
                                     }
-                                    handleDelete={(e) =>
-                                        this.preOperationAction(e, () => this.props.handleDeleteRow(recordId), recordId)
-                                    }
+                                    handleDelete={(e) => this.preAction(e, () => this.props.handleDeleteRow(rId), rId)}
                                     handleRestore={(e) =>
-                                        this.preOperationAction(
-                                            e,
-                                            () => this.props.handleRestoreRow(recordId),
-                                            recordId
-                                        )
+                                        this.preAction(e, () => this.props.handleRestoreRow(rId), rId)
                                     }
                                     handleFormula={(e) =>
-                                        this.preOperationAction(
-                                            e,
-                                            () => this.props.handleFormulaRow(recordId),
-                                            recordId
-                                        )
+                                        this.preAction(e, () => this.props.handleFormulaRow(rId), rId)
                                     }
                                     handleHistory={(e) =>
-                                        this.preOperationAction(
-                                            e,
-                                            () => this.props.handleHistoryLogRow(recordId),
-                                            recordId
-                                        )
+                                        this.preAction(e, () => this.props.handleHistoryLogRow(rId), rId)
                                     }
-                                    handleFill={(e) =>
-                                        this.preOperationAction(e, () => this.props.handleFillRow(recordId), recordId)
-                                    }
+                                    handleFill={(e) => this.preAction(e, () => this.props.handleFillRow(rId), rId)}
                                     handleBlockUi={(e) => this.props.handleBlockUi()}
                                 />
                             </div>
@@ -832,7 +832,7 @@ class GridViewComponent extends CellEditComponent {
             }
         } else {
             //when no data
-            this.state.gridViewColumns?.forEach((columnDefinition) => {
+            this.props.gridViewColumns?.forEach((columnDefinition) => {
                 if (columnDefinition.visible === true) {
                     let column = {};
                     column.allowFiltering = false;
@@ -849,6 +849,18 @@ class GridViewComponent extends CellEditComponent {
         const currentUrl = window.location.href;
         window.location.href = UrlUtils.deleteParameterFromURL(currentUrl, 'selectedFromPrevGrid');
     };
+
+    resizeAfterDelay = () => {
+        if (this.allowWrapping) {
+            setTimeout(() => {
+                const ref = this.props?.getRef()?._instance;
+                if (ref) {
+                    ref.resize();
+                }
+            }, 3000);
+        }
+    };
+
     getCellTemplate(columnDefinition) {
         return DataGridUtils.cellTemplate(
             columnDefinition,
@@ -995,7 +1007,7 @@ class GridViewComponent extends CellEditComponent {
 
     preGenerateColumnsDefinition = () => {
         const multiLevelHeaders = this.props.multiLevelHeaders;
-        const gridViewColumns = this.state.gridViewColumns;
+        const gridViewColumns = this.props.gridViewColumns;
         if (multiLevelHeaders) {
             return this.generateGroupColumns(gridViewColumns);
         }
@@ -1004,7 +1016,7 @@ class GridViewComponent extends CellEditComponent {
 
     generateColumns() {
         const columns = [];
-        this.state.gridViewColumns?.forEach((columnDefinition, keyIndex) => {
+        this.props.gridViewColumns?.forEach((columnDefinition, keyIndex) => {
             let sortOrder;
             if (!!columnDefinition?.sortIndex && columnDefinition?.sortIndex > 0 && !!columnDefinition?.sortOrder) {
                 sortOrder = columnDefinition?.sortOrder?.toLowerCase();
@@ -1083,7 +1095,7 @@ class GridViewComponent extends CellEditComponent {
                 );
             }
         };
-        const columns = this.state.gridViewColumns.map((group, index) => renderColumns(group, 'col-' + index));
+        const columns = this.props.gridViewColumns.map((group, index) => renderColumns(group, 'col-' + index));
         return columns;
     }
 
@@ -1114,19 +1126,21 @@ class GridViewComponent extends CellEditComponent {
         this.props.handleBlockUi();
         const {value, rowIndex} = ci;
         const {fieldName} = cd;
-        this.props.handleMaxPackgeCount();
-        this.setState(
-            {
-                allRowsShow: true,
-            },
-            () => {
-                const refGrid = this.props.getRef();
-                refGrid.instance.getDataSource().reload();
-                setTimeout(() => {
-                    this.dawnFillParsedData(rowIndex, fieldName, value);
-                }, 100);
-            }
-        );
+        if (this.props.handleMaxPackageCount) {
+            this.props.handleMaxPackageCount();
+            this.setState(
+                {
+                    allRowsShow: true,
+                },
+                () => {
+                    const refGrid = this.props.getRef();
+                    refGrid.instance.getDataSource().reload();
+                    setTimeout(() => {
+                        this.dawnFillParsedData(rowIndex, fieldName, value);
+                    }, 100);
+                }
+            );
+        }
     }
 
     dawnFillParsedData = (selectedRowIndex, fieldName, value) => {
@@ -1151,7 +1165,6 @@ class GridViewComponent extends CellEditComponent {
             }
         );
     };
-
     unclickAfterFilter = (e) => {
         if (e.fullName && e.fullName.includes('.filterValue')) {
             if (
@@ -1160,7 +1173,6 @@ class GridViewComponent extends CellEditComponent {
                 e.value[0] !== undefined &&
                 e.value[1] !== undefined
             ) {
-                // const xd = document.getElementById('XDD');
                 // const root = document.getElementById('root');
                 // root.click();
                 // e.component.closeEditCell();
@@ -1280,8 +1292,9 @@ GridViewComponent.propTypes = {
     dataGridHeight: PropTypes.number,
     dataGridStoreSuccess: PropTypes.oneOfType([PropTypes.func, PropTypes.bool]),
     allowSelectAll: PropTypes.bool,
-    handleMaxPackgeCount: PropTypes.func,
+    handleMaxPackageCount: PropTypes.func,
     handleFillDownParsedData: PropTypes.func,
+    handleOnGroupIndexChange: PropTypes.func,
     handleOnFilterChange: PropTypes.func,
 
     gridFromDashboard: PropTypes.bool,

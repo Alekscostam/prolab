@@ -56,7 +56,7 @@ export default class UploadFileDialog extends React.Component {
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
                 <Dialog
-                    id='attachmentDialog'
+                    id='uploadFileDialog'
                     header={LocUtils.locFromStoreWithDefault('Choose_files', 'Wybór plików')}
                     visible={this.props.visible}
                     resizable={false}

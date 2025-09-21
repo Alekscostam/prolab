@@ -1933,5 +1933,61 @@ td[aria-roledescription='Editable'] {
         }
     }
 }
+.base-row.dx-datebox-calendar, .base-row.dx-datebox-time{
+    border-radius: 6px!important;
+    .dx-texteditor-input{
+        color: #182d67;
+        font-weight: 650;
+        font-size: 12px;
+        padding-left: 8px;
+        padding-right: 8px;
+        padding-top: 13px;
+        padding-bottom: 13px;
+        font-family: Roboto,RobotoFallback,"Noto Kufi Arabic",Helvetica,Arial,sans-serif;
+    }
+    .dx-dropdowneditor-icon {
+        width: 45px!important;
+        position: relative;
+        left: -8px;
+        background:  rgba(0, 0, 0, 0.12) !important; 
+    }
+}
+.dx-overlay-wrapper.dx-popup-wrapper.dx-dropdowneditor-overlay.dx-popup-cancel-visible.dx-popup-done-visible.dx-datebox-wrapper.dx-datebox-wrapper-datetime.dx-datebox-wrapper-calendar{
+    .dx-overlay-content.dx-popup-normal.dx-resizable.dx-popup-inherit-height{
+        .dx-show-invalid-badge.dx-numberbox.dx-texteditor.dx-numberbox-spin.dx-editor-outlined.dx-widget{
+            .dx-texteditor-input{
+                font-size: 14px;
+            }
+        }
+    }
+}
+.base-row.dx-texteditor.dx-editor-outlined{
+    box-shadow: inset 0 0 0 0.5px rgb(34, 34, 34);
+    border: 1px solid white!important
+}
+.base-row.dx-texteditor.dx-editor-outlined:hover{
+    box-shadow: inset 0 0 0 1px rgb(0, 0, 0);
+}
+.base-row.dx-texteditor.dx-editor-outlined.dx-state-focused {
+    box-shadow: inset 0 0 0 2px #3F51B5!important;
+}
+.base-row.dx-datebox-date .dx-dropdowneditor-icon::before, .base-row.dx-datebox-datetime .dx-dropdowneditor-icon::before, .base-row.dx-datebox-time .dx-dropdowneditor-icon::before, .base-row.dx-dropdowneditor-icon
+{
+    
+    color:$base-color !important; 
+}
+#row-edit {
+    .p-button-secondary.p-button.p-component.p-button-icon-only {
+        .mdi:before {
+            line-height: 0px;
+            font-size: 16px ;
+            font-weight: 500;
+            align-items: center;
+            display: flex;
+            justify-content: center;
+        }
+    }
+}
+
 @import 'edit_spec_field';
 @import 'edit_row';

@@ -1,9 +1,8 @@
-import React from "react";
+import React from 'react';
 import Validator, {PatternRule, RequiredRule} from 'devextreme-react/validator';
-import EditRowUtils from "../../../utils/EditRowUtils";
-import { NumberBox } from "devextreme-react";
-import { MemoizedOperations } from "./MemoizedOperations";
-
+import EditRowUtils from '../../utils/EditRowUtils';
+import {NumberBox} from 'devextreme-react';
+import {MemoizedOperations} from './MemoizedOperations';
 
 //N – Numeryczny/Liczbowy
 export const MemoizedNumericInput = React.memo(

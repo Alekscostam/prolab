@@ -9,23 +9,23 @@
     transition: 0.3s;
     border: 1px solid rgba(0, 0, 0, 0.38);
 }
-
+#imageViewer.p-dialog{
+    #drop-region {   padding: 0px;} 
+}
 #drop-region:hover {
     border-color: rgba(0, 0, 0, 0.87);
     box-shadow: 0 0 45px rgba(0, 0, 0, 0.1);
 }
 
-#image-preview {
-    margin-top: 5px;
-}
-
 #image-preview .image-view {
     display: inline-block;
     position: relative;
-    margin-right: 13px;
-    margin-bottom: 13px;
 }
-
+#image-preview{
+    width:fit-content;
+    padding: 0px;
+    margin: 0px;
+}
 #image-preview .overlay {
     position: absolute;
     width: 100%;

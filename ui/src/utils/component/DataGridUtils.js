@@ -1,25 +1,29 @@
-import React from 'react';
 import ReactDOM from 'react-dom/client'; // Użycie React 18
 import Image from '../../components/Image';
 import {StringUtils} from '../StringUtils';
 import {ViewDataCompUtils} from './ViewDataCompUtils';
 import EditRowUtils from '../EditRowUtils';
 import {ColumnType} from '../../enum/ColumnType';
-import {RowTemplateUtils} from '../RowTemplateUtils';
+import {getStore} from '../helper/StoreHelper';
 
 let _rowIndex = null;
 let _bgColor = null;
 let _fontcolor = null;
 const _FONTCOLOR = '_FONTCOLOR';
 const _BGCOLOR = '_BGCOLOR';
+const _rowSpanMap = {}; // pamięta scalone wiersze
+let arrayOfUniqueElements = [];
+let arrayOfUniqueData = [];
+let uniqueMap = new Map();
 
 export class DataGridUtils extends ViewDataCompUtils {
     static clearProperties() {
         _rowIndex = null;
         _bgColor = null;
         _fontcolor = null;
+        arrayOfUniqueElements = [];
+        arrayOfUniqueData = [];
     }
-
     static isWart(dataField) {
         return dataField?.toUpperCase() === 'WART';
     }
@@ -31,7 +35,6 @@ export class DataGridUtils extends ViewDataCompUtils {
             let className = info?.data?.SKASOWANY === 1 ? 'deleted-row' : '';
             let bgColorFinal = undefined;
             let rowSelected = null;
-
             if (_rowIndex !== info.row.dataIndex) {
                 rowSelected =
                     info?.row?.cells?.filter((c) => c.column?.type === 'selection' && c.value === true).length > 0;
@@ -73,11 +76,11 @@ export class DataGridUtils extends ViewDataCompUtils {
                 },
                 title: StringUtils.textFromHtmlString(info.text),
             };
-
+            let result = undefined;
             switch (column?.type) {
                 case ColumnType.O:
                 case ColumnType.OH:
-                    return this.renderToElement(
+                    result = this.renderToElement(
                         element,
                         <div
                             {...commonProps}
@@ -94,12 +97,13 @@ export class DataGridUtils extends ViewDataCompUtils {
                             {DataGridUtils.getText(info)}
                         </div>
                     );
+                    break;
                 case ColumnType.C:
                 case ColumnType.N:
                 case ColumnType.D:
                 case ColumnType.E:
                 case ColumnType.T:
-                    return this.renderToElement(
+                    result = this.renderToElement(
                         element,
                         <div
                             {...commonProps}
@@ -112,8 +116,9 @@ export class DataGridUtils extends ViewDataCompUtils {
                             {DataGridUtils.getText(info)}
                         </div>
                     );
+                    break;
                 case ColumnType.CH:
-                    return this.renderToElement(
+                    result = this.renderToElement(
                         element,
                         <div
                             {...commonProps}
@@ -125,8 +130,9 @@ export class DataGridUtils extends ViewDataCompUtils {
                             dangerouslySetInnerHTML={{__html: info.text}}
                         />
                     );
+                    break;
                 case ColumnType.H:
-                    return this.renderToElement(
+                    result = this.renderToElement(
                         element,
                         <div {...commonProps}>
                             <a href={info.value} rel='noopener noreferrer' target='_blank'>
@@ -134,13 +140,14 @@ export class DataGridUtils extends ViewDataCompUtils {
                             </a>
                         </div>
                     );
+                    break;
                 case ColumnType.B:
                 case ColumnType.L:
                     const checked =
                         column.type === ColumnType.B
                             ? DataGridUtils.conditionForTrueValueForBoolType(info.text)
                             : DataGridUtils.conditionForTrueValueForLogicType(info.text);
-                    return this.renderToElement(
+                    result = this.renderToElement(
                         element,
                         <div {...commonProps}>
                             <input
@@ -156,6 +163,7 @@ export class DataGridUtils extends ViewDataCompUtils {
                             />
                         </div>
                     );
+                    break;
                 case ColumnType.I:
                 case ColumnType.IM:
                     commonProps.style.padding = '';
@@ -165,7 +173,7 @@ export class DataGridUtils extends ViewDataCompUtils {
                     commonProps.style.alignItems = 'center';
 
                     if (Array.isArray(info.text) && info.text?.length > 0) {
-                        return this.renderToElement(
+                        result = this.renderToElement(
                             element,
                             <div className='cursor-pointer' style={commonProps.style}>
                                 {info.text.map((i, index) => (
@@ -178,8 +186,9 @@ export class DataGridUtils extends ViewDataCompUtils {
                                 ))}
                             </div>
                         );
+                        break;
                     } else {
-                        return this.renderToElement(
+                        result = this.renderToElement(
                             element,
                             <div className='cursor-pointer' style={commonProps.style}>
                                 <Image
@@ -194,13 +203,17 @@ export class DataGridUtils extends ViewDataCompUtils {
                                 />
                             </div>
                         );
+                        break;
                     }
                 default:
-                    return this.renderToElement(element, <div {...commonProps}>{info.text}</div>);
+                    result = this.renderToElement(element, <div {...commonProps}>{info.text}</div>);
+                    break;
             }
+            return result;
         }.bind(this);
     }
 
+    static mergingRows = () => {};
     static getText(info) {
         return StringUtils.textFromHtmlString(info.text);
     }

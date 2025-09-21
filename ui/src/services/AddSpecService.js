@@ -1,11 +1,6 @@
 import BaseService from './BaseService';
 
-/*
-GET zwracający dane potrzebne do wyrenderowania widoku: informacje ogólne o widoku, opcje
-widoku, kolumny, przyciski, lista dokumentów oraz lista wtyczek.
- */
 export default class AddSpecService extends BaseService {
-    // Initializing important variables
     constructor() {
         super();
         this.path = 'view';

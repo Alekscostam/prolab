@@ -15,7 +15,28 @@
           "type": "FIX",
           "color": "red",
           "date": "",
+          "text": "Usunięcie zbędnego footera w dialogu załączników."
+        },
+        {
+          "isNew":true,
+          "type": "FIX",
+          "color": "red",
+          "date": "",
           "text": "Zmniejszenie rerenderu FilterClear co powodowało niemożliwość autoamtycznego zaznaczenia filtru"
+        },
+        {
+          "isNew":true,
+          "type": "FIX",
+          "color": "red",
+          "date": "",
+          "text": "Dodanie polskiego tłumaczenia w komponencie DxExtremeEditor na Toolbar"
+        },
+        {
+          "isNew":true,
+          "type": "FIX",
+          "color": "red",
+          "date": "",
+          "text": "Zmiana przycisku „Zamknij” na ikonę krzyżyka w celu ujednolicenia z innymi dialogami w dialogu historii operacji."
         },
         {
           "isNew":true,
@@ -27,13 +48,169 @@
         },
         {
           "isNew":true,
+          "type": "NEW",
+          "color": "green",
+          "description": "",
+          "date": "",
+          "text": "Dynamiczne wyliczanie defaultPackageCount jeśli z BE nie będzie szła ta informacja"
+        },
+        {
+          "isNew": true,
           "type": "FIX",
           "color": "red",
-          
+          "description": "",
+          "link": "https://trello.com/c/xOzKbDP0/514-zamkni%C4%99cie-okna-z-za%C5%82%C4%85cznikami-od%C5%9Bwie%C5%BCenie-view-lub-rekordu",
+          "date": "",
+          "text": "Zamknięcie okna z załącznikami - Odświeżenie view i rekordu"
+        },
+        {
+          "isNew":true,
+          "type": "FIX",
+          "color": "red",
+          "description": "",
+          "date": "",
+          "text": "Zwiększenie z-indexu na toasty dzięki czemu zawsze są nad maską w przypadku pojawiania sie dialogu"
+        },
+        {
+          "isNew":true,
+          "type": "FIX",
+          "color": "red",
+          "description": "",
+          "date": "",
+          "text": "Ukrywanie filtrów w Treelist, GridView, Gantt na parametr z BE (do ustalenia jaki)"
+        },
+        {
+          "isNew":true,
+          "type": "FIX",
+          "color": "red",
+          "description": "Frontend respektuje grupowanie z BE, ale daje użytkownikowi kontrolę, żeby to zmienić. Należy przetestować grupowanie jak i te multi headery czy na pewno nic sie nie rozjechało",
+          "date": "",
+          "importanceColor":"#fff666",
+          "text": "BE wysyła do FE informację o grupowaniu i do tej pory FE nie miało możliwości tego nadpisać/zdjąć. FE zostało poprawione, aby użytkownik mógł zdjąć grupowanie ustawione domyślnie przez BE."
+        },
+        {
+          "isNew":true,
+          "type": "FIX",
+          "color": "red",
           "importanceColor":"#fff666",
           "description": "Usuwanie customowego eventu(ktory jest tworzony w momencie onChange) oraz zabezpiecznie przed wyjątkami runtime. Należy przetestować ten komponent w batch i treelist",
           "date": "",
           "text": "Zabezpieczenie i optymalizacja MemoizedDateTimeInput"
+        },
+        {
+          "isNew":true,
+          "type": "FIX",
+          "color": "red",
+          "description":"",
+          "date": "",
+          "text": "Wyłączenie zapisywania danych widoku w ciasteczku, jeśli informacje o widoku są zbyt duże, co wcześniej powodowało błąd zapisu do ciasteczka"
+        },
+        {
+          "isNew":true,
+          "type": "FIX",
+          "color": "red",
+          "description":"",
+          "date": "",
+          "text": "Wyrownanie obrazka w edycji nagłówka"
+        },
+        {
+          "isNew":true,
+          "type": "FIX",
+          "color": "red",
+          "description":"",
+          "date": "",
+          "text": "Wyrównano kolumnę „Operations” w TreeList."
+        },
+        {
+          "isNew":true,
+          "type": "FIX",
+          "color": "red",
+          "description":"Ten widok podany w linku już mi nie działa, więc cięzko mi było testować. To sie psuło jak była włączona opcja 'rowAutoHeight' i było duzo tekstu ",
+          "link": "https://trello.com/c/Ueh5FkDM/695-viewgrid-rozje%C5%BCd%C5%BCa-si%C4%99",
+          "date": "",
+          "text": "Dodano automatyczny resize rozmiaru DataGrid w przypadku niedopasowania siatki."
+        },
+        {
+          "isNew":true,
+          "type": "FIX",
+          "color": "red",
+          "description":"Ważna zmiana",
+          "link": "https://trello.com/c/0uuwSYsl/794-fix-problem-z-wyborem-na-li%C5%9Bcie-podpowiedzi-w-przypadku-tych-samych-pozycji-do-wpisania-dla-pola-wirtualnego",
+          "date": "",
+          "importanceColor":"#ff6666",
+          "text": "Zmiana brania pod uwage columny do wyliczenia hasha klucza w liście podpowiedzi."
+        },
+        {
+          "isNew":true,
+          "type": "FIX",
+          "color": "red",
+          "link":"https://trello.com/c/n4Pdw1hF/788-ppm-b%C5%82%C4%85d",
+          "description":"",
+          "date": "",
+          "text": "Naprawiono działanie PPM na ekranie startowym"
+        },
+        {
+          "isNew":true,
+          "type": "FIX",
+          "color": "red",
+          "link":"https://trello.com/c/8U8a1YoA/790-widok-kafelki",
+          "description":"",
+          "date": "",
+          "text": "Powrót kart do lewej strony"
+        },
+        {
+          "isNew":true,
+          "type": "NEW",
+          "color": "green",
+          "description":"",
+          "date": "",
+          "text": "Parsowanie dat rzymskich kalendarza w edycji nagłówka"
+        },
+        {
+          "isNew":true,
+          "type": "FIX",
+          "color": "red",
+          "description":"",
+          "date": "",
+          "text": "Drop region mniejszy dla dialogu image"
+        },
+        {
+          "isNew":true,
+          "type": "FIX",
+          "color": "red",
+          "description":"",
+          "link":"https://trello.com/c/EHp8R7q7/427-wprowadzi%C4%87-captcha-przy-logowaniu",
+          "date": "",
+          "text": "Wyłączenie logowania na enter"
+        },
+        {
+          "isNew":true,
+          "type": "FIX",
+          "color": "red",
+          "link":"https://trello.com/c/I7ZLb4YS/789-od%C5%9Bwie%C5%BCanie-po-dodaniu-obrazka-i-obs%C5%82uga-kosza",
+          "description":"Należy dokładnie przetestować różne warianty zwiazane z obrazkami czy sie nie rozjechało",
+          "date": "",
+          "importanceColor":"#ff6666",
+          "text": "Naprawa wyswietlania kosza w treelist, poprawa refresha image po jego dodaniu w treelist"
+        },
+        {
+          "isNew":true,
+          "type": "FIX",
+          "color": "red",
+          "link":"https://trello.com/c/hKUeKpIF/793-ikonki-przy-edycji-pola-podpowied%C5%BA-i-wype%C5%82nij-w-d%C3%B3%C5%82",
+          "description":"",
+          "date": "",
+          "text": "Naprawa nieskalowalnych ikon do prawej w edycji specyfikacji"
+        },
+        {
+          "isNew":true,
+          "type": "FIX",
+          "color": "red",
+          "link":"https://trello.com/c/9WIT2EU7/791-zmiana-kalendarza-by-tydzie%C5%84-zaczyna%C5%82-si%C4%99-od-poniedzia%C5%82ku",
+          "description":"Należy dokładnie przetestować w edycji nagłówka. Musiałem wymienić cały komponent, bo nie dalo sie ustawić daty na poniedziałek...",
+          "date": "",
+          "importanceColor":"#ff6666",
+          "text": "Wymiana komponentów date, datetime, time z biblioteki primereact na devextreme"
         }
       ]
     },

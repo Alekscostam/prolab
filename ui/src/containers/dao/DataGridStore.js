@@ -6,6 +6,7 @@ import ConsoleHelper from '../../utils/ConsoleHelper';
 import TansformFiltersUtil from '../dao/util/TransformFiltersUtil';
 import {StringUtils} from '../../utils/StringUtils';
 import {handleSwitchFilterForGrid} from '../../utils/handler/FilterSwitchHandler';
+import {ResponseUtils} from '../../utils/ResponseUtils';
 
 export default class DataGridStore extends BaseService {
     constructor() {
@@ -133,7 +134,8 @@ export default class DataGridStore extends BaseService {
         onErrorCallback,
         recordParentViewIdArg,
         isAttachmentDialog,
-        isKindViewSpec
+        isKindViewSpec,
+        columns
     ) {
         this.lastFetchedData = null;
         if (!viewIdArg) {
@@ -219,7 +221,7 @@ export default class DataGridStore extends BaseService {
                             ? ''
                             : `&parentId=${recordParentIdArg}`;
                 }
-                handleSwitchFilterForGrid(filter);
+                handleSwitchFilterForGrid();
                 const kindViewParam = !!kindViewArg && !!recordParentIdParam ? `&kindView=${kindViewArg}` : '';
                 const selectAllParam = !!addSelectAllParam ? `&selection=true` : '';
                 const recordParentViewIdParam = !!recordParentViewIdArg ? `&parentViewId=${recordParentViewIdArg}` : '';
@@ -239,9 +241,10 @@ export default class DataGridStore extends BaseService {
                     .then((response) => {
                         ConsoleHelper('DataGridStore -> fetch ');
                         if (onSuccessCallback) {
-                            onSuccessCallback(group, response.totalCount);
+                            onSuccessCallback(response);
                         }
                         const fetchedData = {
+                            // data: ResponseUtils.mergeRows(columns, response.data),
                             data: response.data,
                             totalCount: response.totalCount,
                             summary: response.summary || [],

@@ -1,6 +1,6 @@
 import {Button} from 'primereact/button';
 import React from 'react';
-import OperationCell from '../../../enum/OperationCell';
+import OperationCell from '../../enum/OperationCell';
 
 export const MemoizedOperations = React.memo(({editListVisible, fillDownVisible, onOperationClick}) => {
     return (
@@ -8,7 +8,7 @@ export const MemoizedOperations = React.memo(({editListVisible, fillDownVisible,
             {editListVisible && (
                 <Button
                     type='button'
-                    style={{marginLeft: 'auto'}}
+                    style={{maxWidth: '41px'}}
                     onClick={() => onOperationClick(OperationCell.EDIT_LIST)}
                     icon='mdi mdi-format-list-bulleted'
                     className='p-button-secondary'
@@ -17,7 +17,7 @@ export const MemoizedOperations = React.memo(({editListVisible, fillDownVisible,
             {fillDownVisible && (
                 <Button
                     type='button'
-                    style={{marginLeft: 'auto'}}
+                    style={{maxWidth: '41px'}}
                     onClick={() => onOperationClick(OperationCell.FILL_DOWN)}
                     icon='mdi mdi-sort-bool-ascending'
                     className='p-button-secondary'

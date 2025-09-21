@@ -70,7 +70,6 @@ import {
 
 let dataGrid;
 
-// BaseViewContainer dla ViewContainer i AttachmentViewDialog
 export class BaseViewContainer extends BaseContainer {
     _isMounted = false;
     defaultKindView = 'View';
@@ -93,7 +92,7 @@ export class BaseViewContainer extends BaseContainer {
         this.refCardGrid = React.createRef();
         this.messages = React.createRef();
         this.selectedDataGrid = null;
-        this.isAttachement = false;
+        this.isAttachment = false;
         this.state = {
             loading: true,
             fileViewer: {
@@ -191,7 +190,7 @@ export class BaseViewContainer extends BaseContainer {
         );
         const newUrl = UrlUtils.deleteParameterFromURL(window.document.URL.toString(), 'force');
         window.history.replaceState('', '', newUrl);
-        if (!this.isAttachement) this.openEditRowIfPossible();
+        if (!this.isAttachment) this.openEditRowIfPossible();
         this.registerKeydownEvent();
         this.setState(
             {
@@ -219,9 +218,9 @@ export class BaseViewContainer extends BaseContainer {
         );
     }
 
-    removeAttachementReferenceIfPossible() {
+    removeAttachmentReferenceIfPossible() {
         const prevDataGridGlobalReference = this.state.prevDataGridGlobalReference;
-        if (!!prevDataGridGlobalReference && !this.state.isAttachement) {
+        if (!!prevDataGridGlobalReference && !this.state.isAttachment) {
             window.dataGrid = prevDataGridGlobalReference;
             dataGrid = prevDataGridGlobalReference;
             this.setState({
@@ -236,7 +235,7 @@ export class BaseViewContainer extends BaseContainer {
             id = this.props.id;
         }
 
-        this.removeAttachementReferenceIfPossible();
+        this.removeAttachmentReferenceIfPossible();
         const subViewId = UrlUtils.getSubViewId();
         const recordId = this.props.recordId || UrlUtils.getRecordId();
         const filterId = UrlUtils.getFilterId();
@@ -352,9 +351,6 @@ export class BaseViewContainer extends BaseContainer {
         // to overide
     }
     processViewResponse(responseView, parentId, recordId, isSubView) {
-        ConsoleHelper(
-            `BaseViewContainer::processViewResponse: viewId=${isSubView}, recordId=${recordId}, parentId=${parentId},`
-        );
         if (this._isMounted) {
             ViewValidatorUtils.validation(responseView);
             let id = UrlUtils.getViewIdFromURL();
@@ -394,6 +390,7 @@ export class BaseViewContainer extends BaseContainer {
                     gridViewType: responseView?.viewInfo?.type,
                     kindView: responseView?.viewInfo?.kindView,
                     parsedGridView: responseView,
+                    // showColumnHeaders: responseView?.gridOptions?.dashboardHeader,
                     gridViewColumns: gridViewColumnsTmp,
                     pluginsList: pluginsListTmp,
                     documentsList: documentsListTmp,
@@ -549,7 +546,7 @@ export class BaseViewContainer extends BaseContainer {
     };
     getFilters = () => {
         const filtersInformation = SessionStoreUtils.getFiltersInformation();
-        if (SessionStoreUtils.canApplyFilter() && !this.isAttachement && !this.isDashboard()) {
+        if (SessionStoreUtils.canApplyFilter() && !this.isAttachment && !this.isDashboard()) {
             const filters = this.extractFilters(filtersInformation.filters);
             SessionStoreUtils.clearFiltersInformation();
             return filters;
@@ -667,9 +664,9 @@ export class BaseViewContainer extends BaseContainer {
                         onHide={() => this.setState({visibleCopyDialog: false})}
                         isSpecification={this.state.parsedGridView.viewInfo.isSpecification}
                         handleUnselectAllData={this.unselectAllDataGrid}
-                        handleCopy={(datas) => {
+                        handleCopy={(copyData) => {
                             this.setState({
-                                copyData: datas,
+                                copyData: copyData,
                             });
                             this.copyEntry(this.state.copyId);
                         }}
@@ -683,13 +680,13 @@ export class BaseViewContainer extends BaseContainer {
                             const options = this.state.parsedGridView.options;
                             const gridView = this.state.parsedGridView;
                             if (options.addFilesAddForm) {
-                                this.uploadAttachemnt(gridView, attachmentFiles[0]);
+                                this.uploadAttachment(gridView, attachmentFiles[0]);
                                 this.setState({
                                     attachmentFiles,
                                 });
                             } else {
                                 attachmentFiles.forEach((attachmentFile) => {
-                                    this.uploadAttachemnt(gridView, attachmentFile);
+                                    this.uploadAttachment(gridView, attachmentFile);
                                 });
                                 this.refreshView();
                             }
@@ -1775,6 +1772,7 @@ export class BaseViewContainer extends BaseContainer {
                 <div className='col-12 '>{Breadcrumb.render()} </div>
                 <DashboardContainer
                     key={'Dashboard'}
+                    showColumnHeaders={this.state.showColumnHeaders}
                     dashboard={this.state.subView}
                     handleRenderNoRefreshContent={(renderNoRefreshContent) => {
                         this.props.handleRenderNoRefreshContent(renderNoRefreshContent);
@@ -1811,18 +1809,33 @@ export class BaseViewContainer extends BaseContainer {
         return array.filter((obj) => countMap[obj.ID] === 1);
     };
 
+    onGroupIndexChange = (index, value) => {
+        this.setState((prevState) => {
+            const gridViewColumns = [...prevState.gridViewColumns];
+            gridViewColumns[index] = {
+                ...gridViewColumns[index],
+                groupIndex: value,
+            };
+            return {gridViewColumns};
+        });
+    };
+
     renderGridViewComponent = () => {
         const parentIdArg = this.state.subView == null ? UrlUtils.getParentId() : this.state.elementRecordId;
         return (
             <React.Fragment>
                 <GridViewComponent
+                    handleOnGroupIndexChange={(index, value) => {
+                        this.onGroupIndexChange(index, value);
+                    }}
+                    showColumnHeaders={this.state.showColumnHeaders}
                     filtersCached={this.state.filtersCached}
                     multiLevelHeaders={this.isGridViewBands()}
                     gridViewColumns={this.state.gridViewColumns}
                     ppmEnabled={true}
                     altAndLeftClickEnabled={true}
                     id={this.props.id}
-                    isAttachement={this.isAttachement}
+                    isAttachment={this.isAttachment}
                     selectedRows={this.state.selectedRowKeys}
                     elementSubViewId={this.state.elementSubViewId}
                     elementKindView={this.state.elementKindView}
@@ -2001,6 +2014,7 @@ export class BaseViewContainer extends BaseContainer {
                             selectedRowKeys: [],
                         });
                     }}
+                    showColumnHeaders={this.state.showColumnheaders}
                     collapsed={this.props.collapsed}
                     elementSubViewId={this.state.elementSubViewId}
                     elementKindView={this.state.elementKindView}

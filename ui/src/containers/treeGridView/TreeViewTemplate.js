@@ -5,7 +5,7 @@ import ConsoleHelper from '../../utils/ConsoleHelper';
 import Image from '../../components/Image';
 import {StringUtils} from '../../utils/StringUtils';
 import useStore from '../../store';
-import {MemoizedOperations} from '../../components/prolab/memoized/MemoizedOperations';
+import {MemoizedOperations} from '../../components/memoized/MemoizedOperations';
 import {ViewDataCompUtils} from '../../utils/component/ViewDataCompUtils';
 
 export const cellRenderSpecial = (cellInfo, columnDefinition, keyExistsInInvalidCellKeys, onOperationClick) => {
@@ -150,17 +150,11 @@ const renderSingleImage = (cellInfo, columnDefinition, onOperationClick) => {
                 <div className='cell-image' key={cellInfo?.text}>
                     <Image
                         onRemove={(e) => {
-                            this.trashClicked.current = true;
-                            setTimeout(function () {
-                                document.getElementById('trash-button').click();
-                                setTimeout(function () {
-                                    document.getElementById('grid-selection-panel').click();
-                                }, 0);
-                            }, 0);
+                            onOperationClick(true);
                         }}
                         onImageClick={() => {
                             if (onOperationClick && !cellInfo.edit) {
-                                onOperationClick(cellInfo, columnDefinition);
+                                onOperationClick();
                             }
                         }}
                         canRemove={columnDefinition.edit ? cellInfo?.text.length > 0 : false}
@@ -194,22 +188,24 @@ const renderCharacter = (
             const selectionList = columnDefinition?.selectionList ? 'p-inputgroup' : null;
             const downFill = columnDefinition?.downFill;
             return showHintListButtons() && (columnDefinition.edit || selectionList) ? (
-                <div className={`row tree-view-text-box`}>
-                    <div className={`${selectionList} col-12`}>
+                <div className='row tree-view-text-box'>
+                    <div className={`${selectionList} col-12 d-flex align-items-center`}>
                         <TextBox
-                            mode={'text'}
+                            mode='text'
                             isValid={true}
                             value={value}
                             validationMessagePosition='left'
                             disabled={!columnDefinition.edit}
                             defaultValue={value}
-                            stylingMode={'filled'}
-                            valueChangeEvent={'keyup'}
+                            stylingMode='filled'
+                            valueChangeEvent='keyup'
+                            className='flex-grow-1'
                         />
                         <MemoizedOperations
                             editListVisible={!!selectionList}
                             onOperationClick={columnDefinition.edit ? onOperationClick : () => {}}
                             fillDownVisible={!!downFill}
+                            className='ms-2'
                         />
                     </div>
                 </div>

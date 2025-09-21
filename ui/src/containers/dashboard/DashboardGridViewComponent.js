@@ -188,7 +188,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                                 documentsList: documentsListTmp,
                                 batchesList: batchesListTmp,
                                 filtersList: filtersListTmp,
-                                showColumnHeaders: !responseView?.gridOptions?.dashboardHideHeader,
+                                showColumnHeaders: responseView?.gridOptions?.dashboardHeader,
                                 selectedRowKeys: [],
                                 viewInfoTypes: viewInfoTypesTmp,
                                 packageRows: responseView?.viewInfo?.dataPackageSize,
@@ -364,14 +364,14 @@ export class DashboardGridViewComponent extends BaseContainer {
                             setPrevDataGridGlobalReference={() => {
                                 this.setState({
                                     prevDataGridGlobalReference: window.dataGrid,
-                                    isAttachement: true,
+                                    isAttachment: true,
                                 });
                             }}
                             handleBackToOldGlobalReference={() => {
                                 const prevDataGridGlobalReference = this.state.prevDataGridGlobalReference;
                                 window.dataGrid = prevDataGridGlobalReference;
                                 this.setState({
-                                    isAttachement: false,
+                                    isAttachment: false,
                                 });
                             }}
                             handleShowGlobalErrorMessage={(err) => {
@@ -657,6 +657,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                             multiLevelHeaders={this.isGridViewBands()}
                             targetContextMenu={'.dx-row.dx-data-row.dx-row-lines'}
                             id={this.props.id}
+                            ppmEnabled={true}
                             gridFromDashboard={true}
                             elementSubViewId={this.state.elementSubViewId}
                             handleOnDataGrid={(ref) => (this.refDataGrid = ref)}

@@ -1,7 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import useStore from '../../store';
 import {StringUtils} from '../../utils/StringUtils';
-import LocUtils from '../../utils/LocUtils';
 
 import {useCallback} from 'react';
 import {InputSwitch} from 'primereact/inputswitch';

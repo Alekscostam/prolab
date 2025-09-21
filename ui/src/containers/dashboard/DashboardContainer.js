@@ -350,14 +350,14 @@ class DashboardContainer extends BaseContainer {
                         setPrevDataGridGlobalReference={() => {
                             this.setState({
                                 prevDataGridGlobalReference: window.dataGrid,
-                                isAttachement: true,
+                                isAttachment: true,
                             });
                         }}
                         handleBackToOldGlobalReference={() => {
                             const prevDataGridGlobalReference = this.state.prevDataGridGlobalReference;
                             window.dataGrid = prevDataGridGlobalReference;
                             this.setState({
-                                isAttachement: false,
+                                isAttachment: false,
                             });
                         }}
                         handleShowGlobalErrorMessage={(err) => {

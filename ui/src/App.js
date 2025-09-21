@@ -44,7 +44,7 @@ import AboutVersionService from './services/AboutVersionService';
 export let clearState;
 export let reStateApp;
 export let renderNoRefreshContentFnc;
-export let sessionPrelongFnc = null;
+export let sessionExtendFnc = null;
 // TODO: załącnziki w gantt
 // http://localhost:3000/#/grid-view/18941?filterId=3036&viewType=gantt&bc=W3sibmFtZSI6IldhbGlkYWNqYSIsImlkIjo2MDc5LCJ0eXBlIjoibWVudSJ9LHsibmFtZSI6IkdhbnR0IHRlc3QiLCJpZCI6MTg5NDEsInR5cGUiOiJ2aWV3IiwicGF0aCI6Ii8jL2dyaWQtdmlldy8xODk0MSJ9XQ
 
@@ -86,7 +86,7 @@ class App extends Component {
             labels: [],
             renderNoRefreshContent: false,
             viewInfoName: null,
-            rednerSessionTimeoutDialog: false,
+            renderSessionTimeoutDialog: false,
             subView: null,
             operations: null,
             shortcutButtons: null,
@@ -148,7 +148,7 @@ class App extends Component {
     appInitialize = () => {
         const urlPrefixCookie = readObjFromCookieGlobal('REACT_APP_URL_PREFIX');
         const configUrl = UrlUtils.makeConfigUrl(urlPrefixCookie);
-        this.prelongSessionByRootClick();
+        this.extendSessionByRootClick();
         this.setRestateApp();
         this.setClearState();
         this.setRenderNoRefreshContent();
@@ -215,21 +215,21 @@ class App extends Component {
             });
         };
     }
-    prelongSessionByRootClick() {
+    extendSessionByRootClick() {
         const bodyApp = document.getElementById('body-app');
         const root = document.getElementById('root');
-        const eventForSessionPrelong = () => {
-            if (this.authService.isLoggedUser()) this.prelongSessionIfUserExist();
+        const eventForSessionExtend = () => {
+            if (this.authService.isLoggedUser()) this.extendSessionIfUserExist();
             return true;
         };
-        sessionPrelongFnc = eventForSessionPrelong;
-        bodyApp.addEventListener('click', eventForSessionPrelong);
-        root.addEventListener('click', eventForSessionPrelong);
-        bodyApp.addEventListener('contextmenu', eventForSessionPrelong);
-        document.addEventListener('wheel', eventForSessionPrelong);
-        root.addEventListener('contextmenu', eventForSessionPrelong);
-        bodyApp.addEventListener('keydown', eventForSessionPrelong);
-        root.addEventListener('keydown', eventForSessionPrelong);
+        sessionExtendFnc = eventForSessionExtend;
+        bodyApp.addEventListener('click', eventForSessionExtend);
+        root.addEventListener('click', eventForSessionExtend);
+        bodyApp.addEventListener('contextmenu', eventForSessionExtend);
+        document.addEventListener('wheel', eventForSessionExtend);
+        root.addEventListener('contextmenu', eventForSessionExtend);
+        bodyApp.addEventListener('keydown', eventForSessionExtend);
+        root.addEventListener('keydown', eventForSessionExtend);
     }
     showSessionTimeoutIfPossible = () => {
         if (this.timer === undefined || this.timer === null) {
@@ -266,10 +266,9 @@ class App extends Component {
             this.authService.logout();
         }
         useStore.getState().webSocket?.connect();
-        if (sessionTimeout < tickerPopupDate && !this.state?.rednerSessionTimeoutDialog) {
-            this.setState({rednerSessionTimeoutDialog: true, secondsToPopupTicker: duration.seconds()}, () => {
+        if (sessionTimeout < tickerPopupDate && !this.state?.renderSessionTimeoutDialog) {
+            this.setState({renderSessionTimeoutDialog: true, secondsToPopupTicker: duration.seconds()}, () => {
                 setTimeout(() => {
-                    // czasami buguje sie w podiwdoku wiec taki restate
                     this.forceUpdate();
                 }, 10);
             });
@@ -284,13 +283,13 @@ class App extends Component {
         const now = new Date();
         return moment.duration(sessionTimeout - now);
     }
-    prelongSessionIfUserExist(fromDialogSession, callBack) {
+    extendSessionIfUserExist(fromDialogSession, callBack) {
         const loggedUser = this.authService.isLoggedUser();
         if (loggedUser) {
             const timeInMinutes = localStorage.getItem(CookiesName.SESSION_TIMEOUT_IN_MINUTES);
-            const canPrelongSession =
-                (timeInMinutes && fromDialogSession) || (timeInMinutes && !this.state?.rednerSessionTimeoutDialog);
-            if (canPrelongSession) {
+            const canExtendSession =
+                (timeInMinutes && fromDialogSession) || (timeInMinutes && !this.state?.renderSessionTimeoutDialog);
+            if (canExtendSession) {
                 const sessionTimeout = moment(new Date()).add(timeInMinutes, 'm').toString();
                 localStorage.setItem(CookiesName.SESSION_TIMEOUT, sessionTimeout);
                 if (callBack) {
@@ -311,14 +310,14 @@ class App extends Component {
         const bodyApp = document.getElementById('body-app');
         const root = document.getElementById('root');
         try {
-            if (sessionPrelongFnc) {
-                bodyApp.removeEventListener('click', sessionPrelongFnc);
-                bodyApp.removeEventListener('keydown', sessionPrelongFnc);
-                bodyApp.removeEventListener('scroll', sessionPrelongFnc);
-                root.removeEventListener('click', sessionPrelongFnc);
-                root.removeEventListener('keydown', sessionPrelongFnc);
-                root.removeEventListener('scroll', sessionPrelongFnc);
-                document.addEventListener('wheel', sessionPrelongFnc);
+            if (sessionExtendFnc) {
+                bodyApp.removeEventListener('click', sessionExtendFnc);
+                bodyApp.removeEventListener('keydown', sessionExtendFnc);
+                bodyApp.removeEventListener('scroll', sessionExtendFnc);
+                root.removeEventListener('click', sessionExtendFnc);
+                root.removeEventListener('keydown', sessionExtendFnc);
+                root.removeEventListener('scroll', sessionExtendFnc);
+                document.addEventListener('wheel', sessionExtendFnc);
             }
         } catch (err) {
             console.log(err);
@@ -640,17 +639,16 @@ class App extends Component {
                         }}
                     />
                 )}
-                {this.state.rednerSessionTimeoutDialog && (
+                {this.state.renderSessionTimeoutDialog && (
                     <TickerSessionDialog
                         secondsToPopup={this.state.secondsToPopupTicker}
                         authService={authService}
-                        visible={this.state.rednerSessionTimeoutDialog}
+                        visible={this.state.renderSessionTimeoutDialog}
                         onProlongSession={() => {
-                            console.log('refreshFromTickerSession');
                             authService.refresh().then(() => {
-                                this.prelongSessionIfUserExist(true, () => {
+                                this.extendSessionIfUserExist(true, () => {
                                     this.setState({
-                                        rednerSessionTimeoutDialog: false,
+                                        renderSessionTimeoutDialog: false,
                                     });
                                 });
                             });
@@ -659,7 +657,7 @@ class App extends Component {
                             authService.removeLoginCookies();
                             this.setState(
                                 {
-                                    rednerSessionTimeoutDialog: false,
+                                    renderSessionTimeoutDialog: false,
                                 },
                                 () => {
                                     this.handleLogoutByTokenExpired(true);

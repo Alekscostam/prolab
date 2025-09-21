@@ -234,6 +234,7 @@ export class EditSpecContainer extends BaseContainer {
                             const columnsTmp = ResponseUtils.columnsFromGroupCreate(responseView);
                             this.setState(
                                 {
+                                    // showColumnHeaders: responseView?.gridOptions?.dashboardHeader,
                                     parsedView: responseView,
                                     viewInfo: responseView.viewInfo,
                                     columns: columnsTmp,
@@ -883,6 +884,7 @@ export class EditSpecContainer extends BaseContainer {
                                 invalidCellKeys={this.invalidCellKeys}
                                 ref={this.treeListComponentRef}
                                 altAndLeftClickEnabled={true}
+                                showColumnHeaders={this.state.showColumnHeaders}
                                 afterFinishEditCell={(cellValidator, value, withMessage) => {
                                     if (!StringUtils.isBlank(cellValidator)) {
                                         if (!cellValidator.test(value))
@@ -895,6 +897,9 @@ export class EditSpecContainer extends BaseContainer {
                                 }}
                                 id={this.props.id}
                                 onHideEditorCallback={() => this.forceUpdate()}
+                                forceUpdate={(callBack = () => {}) => {
+                                    this.forceUpdate(callBack);
+                                }}
                                 viewInfo={this.state.viewInfo}
                                 handleSaveAction={() => this.handleSaveAction()}
                                 addButtonFunction={() => this.showAddSpecDialog()}

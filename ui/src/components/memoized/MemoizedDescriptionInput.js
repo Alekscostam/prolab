@@ -1,7 +1,7 @@
-import LocUtils from '../../../utils/LocUtils';
+import LocUtils from '../../utils/LocUtils';
 import HtmlEditor, {Item, MediaResizing, TableResizing, Toolbar} from 'devextreme-react/html-editor';
 import MarkupDialogComponent from '../MarkupDialogComponent';
-import useStore from '../../../store';
+import useStore from '../../store';
 
 const sizeValues = ['8pt', '10pt', '12pt', '14pt', '18pt', '24pt', '36pt'];
 const fontValues = [

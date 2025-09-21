@@ -27,7 +27,7 @@
         {"code": "Confirmation_delete_title", "caption": "Czy na pewno chcesz usunąć dane?"},
         {"code": "View_AdditionalOptions", "caption": "Dodatkowe opcje"},
         {"code": "View_StartPage", "caption": "Strona startowa"},
-        {"code": "Show_markup", "caption": "Show markup"},
+        {"code": "Show_markup", "caption": "Pokaż znaczniki"},
         {"code": "Markup", "caption": "Markup"},
         {"code": "No_Subview", "caption": "Brak podwidoku"},
         {"code": "Session_expiration_time", "caption": "Czas do wygaśnięcia sesji: "},

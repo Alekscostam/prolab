@@ -117,6 +117,54 @@ export class ResponseUtils {
         responseView.filtersList = filtersListTmp;
         return filtersListTmp;
     }
+
+    static mergeRows(columns, rows) {
+        const columnsMerge = columns.filter((c) => c.isMerge);
+
+        columnsMerge.forEach((column) => {
+            const fieldExists = rows.some((row) => row[column.fieldName] !== undefined);
+            if (!fieldExists) return;
+
+            let count = 1;
+            let startIndex = 0;
+
+            for (let i = 0; i < rows.length; i++) {
+                const currentValue = rows[i][column.fieldName];
+                const nextValue = rows[i + 1] ? rows[i + 1][column.fieldName] : null;
+
+                if (currentValue === nextValue) {
+                    count++;
+                } else {
+                    rows[startIndex][column.fieldName + '_MERGE_COUNT'] = count;
+                    for (let j = startIndex + 1; j <= i; j++) {
+                        rows[j][column.fieldName + '_MERGE_COUNT'] = 'none';
+                    }
+                    count = 1;
+                    startIndex = i + 1;
+                }
+            }
+        });
+        return rows;
+    }
+
+    static test() {
+        const xd = this.mergeRows(
+            [
+                {fieldName: 'country', isMerge: true},
+                {fieldName: 'city', isMerge: true},
+            ],
+            [
+                {country: 'PL'},
+                {country: 'PL'},
+                {country: 'DE'},
+                {country: 'DE'},
+                {country: 'DE'},
+                {country: 'FR'},
+                {country: 'DE'},
+                {country: 'PL'},
+            ]
+        );
+    }
     static editInfoToViewInfo(response, type, kindView) {
         return {
             ...response,

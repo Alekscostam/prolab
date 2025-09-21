@@ -192,6 +192,7 @@ export class BatchContainer extends BaseContainer {
             Breadcrumb.currentBreadcrumbAsUrlParam();
             this.setState(
                 () => ({
+                    // showColumnHeaders: responseView?.gridOptions?.dashboardHeader,
                     parsedView: responseView,
                     columns: columnsTmp,
                 }),
@@ -530,6 +531,7 @@ export class BatchContainer extends BaseContainer {
                     <React.Fragment>
                         <GridViewComponent
                             ppmEnabled={true}
+                            showColumnHeaders={this.state.showColumnHeaders}
                             multiLevelHeaders={this.isGridViewBands()}
                             altAndLeftClickEnabled={false}
                             handleOnInitialized={(e) => {
@@ -551,7 +553,7 @@ export class BatchContainer extends BaseContainer {
                             parsedGridViewData={this.state.parsedData}
                             gridViewColumns={this.state.columns}
                             cellModeEnabled={true}
-                            handleMaxPackgeCount={() => {
+                            handleMaxPackageCount={() => {
                                 this.setState({packageRows: 500});
                             }}
                             handleFillDownParsedData={(parsedData) => {

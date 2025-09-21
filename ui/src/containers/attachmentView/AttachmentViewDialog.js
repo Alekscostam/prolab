@@ -18,7 +18,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
         super(props);
         this.getViewById = this.getViewById.bind(this);
         this.downloadData = this.downloadData.bind(this);
-        this.isAttachement = true;
+        this.isAttachment = true;
         this.state = {
             currentViewType: 'gridView',
             realParentId: undefined,
@@ -154,7 +154,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
         }
         this.setState({loading: true}, () => {
             this.viewService
-                .getAttachemntView(viewId, recordId, parentId, this.getKindView(viewType))
+                .getAttachmentView(viewId, recordId, parentId, this.getKindView(viewType))
                 .then((responseView) => {
                     const {elementSubViewId} = this.state;
                     this.setState({
@@ -199,13 +199,13 @@ export class AttachmentViewDialog extends BaseViewContainer {
                         selectAll: this.state.selectAll,
                     };
                 },
-                (group, totalCounts) => {
+                (responseView) => {
                     this.setState(
                         {
                             select: false,
                             selectAll: false,
                             dataGridStoreSuccess: true,
-                            totalCounts: totalCounts,
+                            totalCounts: responseView.totalCount,
                         },
                         () => {
                             this.unblockUi();
@@ -352,7 +352,6 @@ export class AttachmentViewDialog extends BaseViewContainer {
                 header={LocUtils.locFromStoreWithDefault('Attachments', 'Załączniki')}
                 visible={true}
                 resizable={true}
-                footer={() => <div></div>}
                 breakpoints={{'960px': '75vw'}}
                 style={{width: '90vw'}}
                 onHide={() => this.props.onHide()}

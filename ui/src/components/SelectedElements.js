@@ -1,4 +1,3 @@
-import React from 'react';
 import {StringUtils} from '../utils/StringUtils';
 
 export const SelectedElements = ({selectedRowKeys, totalCounts, onlyTotalCounts = false}) => {

@@ -12,6 +12,7 @@ import UrlUtils from '../utils/UrlUtils';
 import {OperationType} from '../enum/OperationType';
 import {StringUtils} from '../utils/StringUtils';
 import {TranslationUtils} from '../utils/TranslationUtils';
+import {ResponseUtils} from '../utils/ResponseUtils';
 
 export class ViewContainer extends BaseViewContainer {
     constructor(props) {
@@ -240,6 +241,9 @@ export class ViewContainer extends BaseViewContainer {
 
     // overide
     getDataByViewResponse(responseView, parentId, filterId) {
+        const gridViewColumnsTmp = this.isGridViewBands(responseView.viewInfo.type)
+            ? ResponseUtils.columnsGroupCreate(responseView)
+            : ResponseUtils.columnsFromGroupCreate(responseView);
         const initFilterId = responseView?.viewInfo?.filterdId;
         const viewIdArg = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
         const parentIdArg = this.state.subView == null ? parentId : this.state.elementRecordId;
@@ -312,13 +316,13 @@ export class ViewContainer extends BaseViewContainer {
                             selectAll: this.state.selectAll,
                         };
                     },
-                    (group, totalCounts) => {
+                    (responseData) => {
                         this.setState(
                             {
                                 select: false,
                                 selectAll: false,
                                 dataGridStoreSuccess: true,
-                                totalCounts: totalCounts,
+                                totalCounts: responseData?.totalCount,
                             },
                             () => {
                                 this.unblockUi();
@@ -336,7 +340,11 @@ export class ViewContainer extends BaseViewContainer {
                                 this.unblockUi();
                             }
                         );
-                    }
+                    },
+                    undefined,
+                    undefined,
+                    undefined,
+                    gridViewColumnsTmp
                 );
                 if (!!res) {
                     this.setState({
@@ -365,14 +373,14 @@ export class ViewContainer extends BaseViewContainer {
                         setPrevDataGridGlobalReference={() => {
                             this.setState({
                                 prevDataGridGlobalReference: window.dataGrid,
-                                isAttachement: true,
+                                isAttachment: true,
                             });
                         }}
                         handleBackToOldGlobalReference={() => {
                             const prevDataGridGlobalReference = this.state.prevDataGridGlobalReference;
                             window.dataGrid = prevDataGridGlobalReference;
                             this.setState({
-                                isAttachement: false,
+                                isAttachment: false,
                             });
                         }}
                         handleShowGlobalErrorMessage={(err) => {
@@ -388,6 +396,7 @@ export class ViewContainer extends BaseViewContainer {
                             if (!visibleEditPanel) {
                                 this.unselectAllDataGrid();
                                 this.refreshView();
+                                this.refreshSubView();
                             }
                             this.setState({
                                 attachmentViewInfo: null,

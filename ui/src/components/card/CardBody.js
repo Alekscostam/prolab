@@ -1,5 +1,5 @@
-import {StringUtils} from '../../../utils/StringUtils';
-import CardImage from '../../CardImage';
+import {StringUtils} from '../../utils/StringUtils';
+import CardImage from './CardImage';
 import PropTypes from 'prop-types';
 
 export const CardBody = ({image, body, imageClick, rowData}) => {

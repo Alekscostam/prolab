@@ -2,6 +2,7 @@ import {ColumnType} from '../enum/ColumnType';
 import moment from 'moment';
 import Constants from './Constants';
 import {ArrayUtils} from './ArrayUtils';
+import {DateUtils} from './DateUtlis';
 
 export class EditRowUtils {
     static searchField(editData, searchFieldName, callback) {
@@ -97,20 +98,36 @@ export class EditRowUtils {
     }
 
     static convertEditResponse(editDataResponse) {
-        for (let editField of editDataResponse?.editFields) {
-            for (let panel of editField.panels) {
-                for (let group of panel.groups) {
-                    for (let field of group.fields) {
+        for (let editField of editDataResponse?.editFields ?? []) {
+            for (let panel of editField.panels ?? []) {
+                for (let group of panel.groups ?? []) {
+                    for (let field of group.fields ?? []) {
+                        let date;
                         switch (field.type) {
-                            case ColumnType.D:
-                                field.value = new Date(moment(field.value, Constants.DATE_FORMAT.YYYY_MM_DD));
+                            case ColumnType.D: {
+                                let date = new Date(moment(field.value, Constants.DATE_FORMAT.YYYY_MM_DD));
+                                if (isNaN(date.getTime())) {
+                                    date = DateUtils.parseGregorianRomanDate(field.value);
+                                }
+                                field.value = date ? moment(date).format(Constants.DATE_FORMAT.YYYY_MM_DD) : null;
                                 break;
-                            case ColumnType.E:
-                                field.value = new Date(moment(field.value, Constants.DATE_FORMAT.YYYY_MM_DD_HHmm));
+                            }
+                            case ColumnType.E: {
+                                let date = new Date(moment(field.value, Constants.DATE_FORMAT.YYYY_MM_DD_HHmm));
+                                if (isNaN(date.getTime())) {
+                                    date = DateUtils.parseGregorianRomanDate(field.value);
+                                }
+                                field.value = date ? moment(date).format(Constants.DATE_FORMAT.YYYY_MM_DD_HHmm) : null;
                                 break;
-                            case ColumnType.T:
-                                field.value = new Date(moment(field.value, Constants.DATE_FORMAT.HHmm));
+                            }
+                            case ColumnType.T: {
+                                let date = new Date(moment(field.value, Constants.DATE_FORMAT.HHmm));
+                                if (isNaN(date.getTime())) {
+                                    date = DateUtils.parseGregorianRomanDate(field.value);
+                                }
+                                field.value = date ? moment(date).format(Constants.DATE_FORMAT.HHmm) : null;
                                 break;
+                            }
                             default:
                         }
                     }

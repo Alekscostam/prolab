@@ -13,7 +13,7 @@ import ConsoleHelper from '../../utils/ConsoleHelper';
 import ActionButtonWithMenuUtils from '../../utils/ActionButtonWithMenuUtils';
 import {OperationType} from '../../enum/OperationType';
 import {TranslationUtils} from '../../utils/TranslationUtils';
-import {CardBody} from '../../components/prolab/card/CardBody';
+import {CardBody} from '../../components/card/CardBody';
 
 // TODO: zrobic CardFooter i CardHeader
 class DashboardCardViewComponent extends React.Component {

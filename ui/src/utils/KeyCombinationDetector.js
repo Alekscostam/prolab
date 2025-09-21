@@ -13,11 +13,9 @@ export default class KeyCombinationDetector {
     hasAlt() {
         return this.keys.includes(ALT);
     }
-
     hasCtrl() {
         return this.keys.includes(CTRL);
     }
-
     hasShift() {
         return this.keys.includes(SHIFT);
     }

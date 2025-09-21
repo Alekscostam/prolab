@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
-import CellValidator from '../../../model/CellValidator';
+import CellValidator from '../../model/CellValidator';
 import {TextBox, Validator} from 'devextreme-react';
-import EditRowUtils from '../../../utils/EditRowUtils';
+import EditRowUtils from '../../utils/EditRowUtils';
 import {MemoizedOperations} from './MemoizedOperations';
 import {PatternRule, RequiredRule} from 'devextreme-react/validator';
-import {StringUtils} from '../../../utils/StringUtils';
+import {StringUtils} from '../../utils/StringUtils';
 
 export const MemoizedTextInput = React.memo(
     ({

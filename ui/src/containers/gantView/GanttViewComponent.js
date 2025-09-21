@@ -514,7 +514,7 @@ class GanttViewComponent extends React.Component {
     getRangeDate(dateRange) {
         return !!dateRange ? moment(dateRange, Constants.DATE_FORMAT.YYYY_MM_DD).toDate() : null;
     }
-    preOperationAction = (operation, callback, recordId = this.state.selectedRecordId) => {
+    preAction = (operation, callback, recordId = this.state.selectedRecordId) => {
         const onlyOneRecord = operation?.onlyOneRecord;
         if (onlyOneRecord) {
             const toUnselect = this.refsCheckboxArray.filter((_, index) => String(index) !== String(recordId));
@@ -878,14 +878,14 @@ class GanttViewComponent extends React.Component {
                                         operationList={operationsRecordList}
                                         info={info}
                                         handleEdit={(e) => {
-                                            this.preOperationAction(
+                                            this.preAction(
                                                 e,
                                                 () => this.handleEdit(viewId, parentId, recordId, kindView),
                                                 recordId
                                             );
                                         }}
                                         handlePreview={(e) => {
-                                            this.preOperationAction(
+                                            this.preAction(
                                                 e,
                                                 () => this.handlePreview(viewId, parentId, recordId, kindView),
                                                 recordId
@@ -898,74 +898,42 @@ class GanttViewComponent extends React.Component {
                                         hrefSpecView={EditSpecUtils.editSpecUrl(viewId, parentId, compress([recordId]))}
                                         handleHrefSubview={() => this.handleHrefSubview(viewId, recordId)}
                                         handleDocuments={(e) =>
-                                            this.preOperationAction(
+                                            this.preAction(
                                                 e,
                                                 () => this.props.handleDocumentRow(e.id, recordId),
                                                 recordId
                                             )
                                         }
                                         handlePlugins={(e) =>
-                                            this.preOperationAction(
+                                            this.preAction(
                                                 e,
                                                 () => this.props.handlePluginRow(e.id, recordId),
                                                 recordId
                                             )
                                         }
                                         handleArchive={(e) =>
-                                            this.preOperationAction(
-                                                e,
-                                                () => this.props.handleArchiveRow(recordId),
-                                                recordId
-                                            )
+                                            this.preAction(e, () => this.props.handleArchiveRow(recordId), recordId)
                                         }
                                         handleDownload={(e) =>
-                                            this.preOperationAction(
-                                                e,
-                                                () => this.props.handleDownloadRow(recordId),
-                                                recordId
-                                            )
+                                            this.preAction(e, () => this.props.handleDownloadRow(recordId), recordId)
                                         }
                                         handleAttachments={(e) =>
-                                            this.preOperationAction(
-                                                e,
-                                                () => this.props.handleAttachmentRow(recordId),
-                                                recordId
-                                            )
+                                            this.preAction(e, () => this.props.handleAttachmentRow(recordId), recordId)
                                         }
                                         handlePublish={(e) =>
-                                            this.preOperationAction(
-                                                e,
-                                                () => this.props.handlePublish(recordId),
-                                                recordId
-                                            )
+                                            this.preAction(e, () => this.props.handlePublish(recordId), recordId)
                                         }
                                         handleHistory={(e) =>
-                                            this.preOperationAction(
-                                                e,
-                                                () => this.props.handleHistoryLogRow(recordId),
-                                                recordId
-                                            )
+                                            this.preAction(e, () => this.props.handleHistoryLogRow(recordId), recordId)
                                         }
                                         handleCopy={(e) =>
-                                            this.preOperationAction(
-                                                e,
-                                                () => this.props.handleCopyRow(recordId),
-                                                recordId
-                                            )
+                                            this.preAction(e, () => this.props.handleCopyRow(recordId), recordId)
                                         }
                                         handleDelete={(e) =>
-                                            this.preOperationAction(
-                                                e,
-                                                () => this.props.handleDeleteRow(recordId),
-                                                recordId
-                                            )
+                                            this.preAction(e, () => this.props.handleDeleteRow(recordId), recordId)
                                         }
                                         handleRestore={(e) =>
-                                            this.preOperationAction(
-                                                e,
-                                                () => this.props.handleRestoreRow(recordId),
-                                                recordId
-                                            )
+                                            this.preAction(e, () => this.props.handleRestoreRow(recordId), recordId)
                                         }
                                         handleBlockUi={() => this.props.handleBlockUi()}
                                     />
@@ -1017,7 +985,7 @@ class GanttViewComponent extends React.Component {
             setTimeout(() => {
                 switch (e.name?.toUpperCase()) {
                     case OperationType.OP_EDIT:
-                        this.preOperationAction(e, () => this.handleEdit(viewId, parentId, selectedRecordId, kindView));
+                        this.preAction(e, () => this.handleEdit(viewId, parentId, selectedRecordId, kindView));
                         break;
                     case OperationType.OP_EDIT_SPEC:
                         this.handleEditSpec(viewId, parentId, selectedRecordId);
@@ -1026,40 +994,40 @@ class GanttViewComponent extends React.Component {
                         this.handleHrefSubview(viewId, selectedRecordId);
                         break;
                     case OperationType.OP_DELETE:
-                        this.preOperationAction(e, () => this.props.handleDeleteRow());
+                        this.preAction(e, () => this.props.handleDeleteRow());
                         break;
                     case OperationType.OP_RESTORE:
-                        this.preOperationAction(e, () => this.props.handleRestoreRow());
+                        this.preAction(e, () => this.props.handleRestoreRow());
                         break;
                     case OperationType.OP_COPY:
-                        this.preOperationAction(e, () => this.props.handleCopyRow());
+                        this.preAction(e, () => this.props.handleCopyRow());
                         break;
                     case OperationType.SK_DOCUMENT:
-                        this.preOperationAction(e, () => this.props.handleDocumentRow(e.id));
+                        this.preAction(e, () => this.props.handleDocumentRow(e.id));
                         break;
                     case OperationType.SK_PLUGIN:
-                        this.preOperationAction(e, () => this.props.handlePluginRow(e.id));
+                        this.preAction(e, () => this.props.handlePluginRow(e.id));
                         break;
                     case OperationType.OP_ARCHIVE:
-                        this.preOperationAction(e, () => this.props.handleArchiveRow());
+                        this.preAction(e, () => this.props.handleArchiveRow());
                         break;
                     case OperationType.OP_PUBLISH:
-                        this.preOperationAction(e, () => this.props.handlePublishRow());
+                        this.preAction(e, () => this.props.handlePublishRow());
                         break;
                     case OperationType.OP_FORMULA:
-                        this.preOperationAction(e, () => this.props.handleFormulaRow());
+                        this.preAction(e, () => this.props.handleFormulaRow());
                         break;
                     case OperationType.OP_DOWNLOAD:
-                        this.preOperationAction(e, () => this.props.handleDownloadRow());
+                        this.preAction(e, () => this.props.handleDownloadRow());
                         break;
                     case OperationType.OP_HISTORY:
-                        this.preOperationAction(e, () => this.props.handleHistoryLogRow());
+                        this.preAction(e, () => this.props.handleHistoryLogRow());
                         break;
                     case OperationType.OP_ATTACHMENTS:
-                        this.preOperationAction(e, () => this.props.handleAttachmentRow());
+                        this.preAction(e, () => this.props.handleAttachmentRow());
                         break;
                     case OperationType.OP_FILL:
-                        this.preOperationAction(e, () => this.props.handleFillRow());
+                        this.preAction(e, () => this.props.handleFillRow());
                         break;
                     case OperationType.OP_ADD:
                         this.props.addButtonFunction();

@@ -1,19 +1,15 @@
 import BaseService from './BaseService';
 import moment from 'moment';
 import ConsoleHelper from '../utils/ConsoleHelper';
+import {canFitInCookie} from '../utils/Cookie';
 
-/*
-GET zwracający dane potrzebne do wyrenderowania widoku: informacje ogólne o widoku, opcje
-widoku, kolumny, przyciski, lista dokumentów oraz lista wtyczek.
- */
 export default class ViewService extends BaseService {
-    // Initializing important variables
     constructor() {
         super();
         this.path = 'view';
         this.getView = this.getView.bind(this);
         this.getSubView = this.getSubView.bind(this);
-        this.getAttachemntView = this.getAttachemntView.bind(this);
+        this.getAttachmentView = this.getAttachmentView.bind(this);
     }
 
     getView(viewId, viewType, recordParentId, kindView) {
@@ -35,7 +31,7 @@ export default class ViewService extends BaseService {
         });
     }
 
-    getAttachemntView(viewId, recordId, parentId, kindView) {
+    getAttachmentView(viewId, recordId, parentId, kindView) {
         if (Array.isArray(recordId)) {
             recordId = recordId[0];
         }
@@ -126,7 +122,12 @@ export default class ViewService extends BaseService {
                     data: result,
                 };
                 ConsoleHelper('getSubView: setting data to cache');
-                sessionStorage.setItem(cacheKey, JSON.stringify(cacheValue));
+                try {
+                    if (!canFitInCookie(JSON.stringify(cacheValue)))
+                        sessionStorage.setItem(cacheKey, JSON.stringify(cacheValue));
+                } catch (ex) {
+                    ConsoleHelper('cannot store subview info because size of model is too high', ex);
+                }
                 return Promise.resolve(result);
             })
             .catch((err) => {
