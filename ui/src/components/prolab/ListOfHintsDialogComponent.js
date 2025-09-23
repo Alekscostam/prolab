@@ -76,9 +76,10 @@ export default class ListOfHintsDialogComponent extends React.Component {
                 (err) => {
                     this.props.showErrorMessages(err);
                 },
-                () => {
+                (defaultSelectedRowKeys) => {
                     this.setState({
                         dataGridStoreSuccess: true,
+                        defaultSelectedRowKeys: defaultSelectedRowKeys,
                     });
                 },
                 () => {

@@ -25,6 +25,16 @@ export class EditListUtils {
         const result = index !== -1 ? index : 0;
         return result;
     }
+    static determineKey(data) {
+        if (!data || data.length === 0) return null;
+        const firstElement = data[0];
+        if (firstElement.hasOwnProperty('ID')) {
+            console.log('Key is ID');
+        } else {
+            const firstKey = Object.keys(firstElement)[0];
+            console.log('Key is first element from data: ', firstKey);
+        }
+    }
     static findIndexFromFields(fields = []) {
         const index = fields.findIndex((el) => el.fieldList === 'ID');
         const result = index !== -1 ? index : 0;
@@ -52,6 +62,20 @@ export class EditListUtils {
     static calculateCRCBySetFields(rowData, setFields) {
         const objToHash = EditListUtils.transformBySetFields(rowData, setFields);
         const calculateCRC = EditListUtils.calculateCRC(objToHash);
+        return calculateCRC;
+    }
+    static calculateCrcById(rowData) {
+        let result = undefined;
+        if (!rowData || typeof rowData !== 'object') {
+            return result;
+        }
+        if ('ID' in rowData) {
+            result = [{ID: rowData.ID}];
+        } else {
+            const firstKey = Object.keys(rowData)[0];
+            result = [{[firstKey]: rowData[firstKey]}];
+        }
+        const calculateCRC = EditListUtils.calculateCRC(result);
         return calculateCRC;
     }
     static addUuidToFields(editData) {

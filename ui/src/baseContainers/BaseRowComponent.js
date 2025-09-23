@@ -324,7 +324,7 @@ export class BaseRowComponent extends BaseContainer {
                             filtersList: filtersListTmp,
                             packageRows: responseView?.viewInfo?.dataPackageSize,
                             selectedRowData: selectedRowDataTmp,
-                            defaultSelectedRowKeys: defaultSelectedRowKeysTmp,
+                            defaultSelectedRowKeys: [],
                             editListField: field,
                             editListVisible: true,
                         });

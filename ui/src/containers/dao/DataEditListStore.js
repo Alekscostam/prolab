@@ -186,10 +186,15 @@ export default class EditListDataStore extends BaseService {
                         body: JSON.stringify(requestBody),
                     })
                         .then((response) => {
-                            this.processData(response.data, selectedRows, setFields);
+                            this.setKeys(response.data, selectedRows, setFields);
+                            const defaultSelectedRowKeys = this.findDefaultSelectedRowKeys(
+                                response.data,
+                                selectedRows,
+                                setFields
+                            );
                             ConsoleHelper('EditListDataStore -> fetch data');
                             if (onSuccess) {
-                                onSuccess();
+                                onSuccess(defaultSelectedRowKeys);
                             }
                             this.response = {
                                 data: response.data,
@@ -216,29 +221,44 @@ export default class EditListDataStore extends BaseService {
             },
         });
     }
-
-    processData = (data, selectedRows, setFields) => {
+    setKeys = (data) => {
+        EditListUtils.determineKey(data);
         data.forEach((rowData, index) => {
             if (rowData.CALC_CRC === undefined || rowData.CALC_CRC === null) {
-                rowData.CALC_CRC = EditListUtils.calculateCRCBySetFields(rowData, setFields);
-                selectedRows.forEach((selectedRow) => {
-                    const selectedRowIndexId = EditListUtils.findIdIndexFromSelectedRowData(selectedRow);
-                    const setFieldIndexId = EditListUtils.findIndexFromFields(setFields);
-                    const selectedRowName = selectedRow[selectedRowIndexId][setFields[setFieldIndexId]?.fieldList];
-                    const responseRowName = rowData[setFields[setFieldIndexId]?.fieldList];
-                    const namesEquals =
-                        (selectedRowName === undefined && responseRowName === undefined) ||
-                        String(selectedRowName) === String(responseRowName);
-                    const foundIsBlank = StringUtils.isBlank(selectedRow[selectedRowIndexId]?.found);
-                    if (namesEquals && foundIsBlank) {
-                        selectedRow[selectedRowIndexId].found = true;
-                        rowData.CALC_CRC = selectedRow[selectedRowIndexId].CALC_CRC;
-                    }
-                });
+                rowData.CALC_CRC = EditListUtils.calculateCrcById(rowData);
             }
         });
     };
 
+    findDefaultSelectedRowKeys(data, selectedRows, setFields) {
+        const alreadySelected = [];
+        for (const key in selectedRows) {
+            const sr = selectedRows[key];
+            for (const key2 in data) {
+                const rowData = data[key2];
+                const objToHash = EditListUtils.transformBySetFields(sr[0], setFields);
+                const idIndexFromSelectedRowData = EditListUtils.findIdIndexFromSelectedRowData(objToHash);
+                const elementToCompare = objToHash[idIndexFromSelectedRowData];
+                const isFound = this.checkValueExists(rowData, elementToCompare);
+                if (isFound) {
+                    alreadySelected.push(rowData.CALC_CRC);
+                    break;
+                }
+            }
+        }
+        return alreadySelected;
+    }
+    checkValueExists(rowData, element) {
+        if (!rowData || !element) return false;
+        const key = Object.keys(rowData)[0];
+        let value1 = rowData[key];
+        let value2 = element[key];
+        if (key === 'ID') {
+            value1 = Number(value1);
+            value2 = Number(value2);
+        }
+        return value1 === value2;
+    }
     createParam(param, paramName) {
         return this.shouldBeParamEmpty(param) ? '' : `&${paramName}=${param}`;
     }
