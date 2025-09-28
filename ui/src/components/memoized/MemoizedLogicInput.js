@@ -25,7 +25,6 @@ export const MemoizedLogicInput = React.memo(
                         }}
                         disabled={!field.edit}
                         defaultValue={inputValue === true || TreeListUtils.conditionForTrueValue(inputValue)}
-                        value={inputValue === true || TreeListUtils.conditionForTrueValue(inputValue)}
                         required={required}
                     />
                 </div>

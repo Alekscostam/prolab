@@ -228,17 +228,7 @@ export class BaseRowComponent extends BaseContainer {
         }
         return {width: `${size}%`};
     }
-    canPushRowData(value) {
-        if (StringUtils.isBlank(value)) {
-            return false;
-        }
-        if (typeof value !== 'number' && !(value instanceof Date)) {
-            if (StringUtils.isEmpty(value)) {
-                return false;
-            }
-        }
-        return true;
-    }
+
     addMarkupItem(field, currentToolbarItems, onChange, e, groupUuid, info) {
         const markup = {
             name: 'markup',
@@ -279,42 +269,22 @@ export class BaseRowComponent extends BaseContainer {
                     .editList(editInfo.viewId, editInfo.recordId, editInfo.parentId, field.id, kindView, editListObject)
                     .then((responseView) => {
                         let selectedRowDataTmp = [];
-                        let defaultSelectedRowKeysTmp = [];
                         const editData = this.props.editData;
                         const setFields = structuredClone(responseView.setFields);
-                        const separatorJoin = responseView.options?.separatorJoin || ',';
-                        let countSeparator = 0;
-                        setFields.forEach((field) => {
-                            EditRowUtils.searchField(editData, field.fieldEdit, (foundFields) => {
-                                if (this.canPushRowData(foundFields.value)) {
-                                    const fieldValue = ('' + foundFields.value).split(separatorJoin);
-                                    if (fieldValue.length > countSeparator) {
-                                        countSeparator = fieldValue.length;
-                                    }
-                                }
-                            });
-                        });
+                        let countSeparator = EditListUtils.getCountSeparatorByEditData(responseView, editData);
                         for (let index = 0; index < countSeparator; index++) {
                             let singleSelectedRowDataTmp = [];
                             setFields.forEach((field) => {
-                                EditRowUtils.searchField(editData, field.fieldEdit, (foundFields) => {
+                                EditRowUtils.searchField(editData, field.fieldEdit, (foundField) => {
                                     let fieldTmp = {};
-                                    if (this.canPushRowData(foundFields.value)) {
-                                        const fieldValue = ('' + foundFields.value).split(separatorJoin);
-                                        fieldTmp[field.fieldList] = fieldValue[index];
+                                    if (EditListUtils.canPushRowData(foundField.value)) {
+                                        const fieldValues = EditListUtils.getFieldValues(foundField, responseView);
+                                        fieldTmp[field.fieldList] = fieldValues[index];
                                         singleSelectedRowDataTmp.push(fieldTmp);
                                     }
                                 });
                             });
-
-                            if (singleSelectedRowDataTmp.length !== 0) {
-                                const indexOfId =
-                                    EditListUtils.findIdIndexFromSelectedRowData(singleSelectedRowDataTmp);
-                                let CALC_CRC = EditListUtils.calculateCRC([singleSelectedRowDataTmp[indexOfId]]);
-                                singleSelectedRowDataTmp[indexOfId].CALC_CRC = CALC_CRC;
-                                selectedRowDataTmp.push(singleSelectedRowDataTmp);
-                                defaultSelectedRowKeysTmp.push(CALC_CRC);
-                            }
+                            selectedRowDataTmp.push(EditListUtils.convertArrayToObject(singleSelectedRowDataTmp));
                         }
                         let filtersListTmp = [];
                         this.setState({

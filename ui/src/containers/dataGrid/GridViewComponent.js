@@ -444,9 +444,9 @@ class GridViewComponent extends CellEditComponent {
                     showColumnLines={showColumnLines}
                     showRowLines={showRowLines}
                     showBorders={showBorders}
-                    onCellPrepared={(e) => {
-                        this.mergeColumns(e);
-                    }}
+                    // onCellPrepared={(e) => {
+                    //     this.mergeColumns(e);
+                    // }}
                     showColumnHeaders={showColumnHeaders}
                     columnHidingEnabled={false}
                     height={dataGridHeight ? dataGridHeight + 'px' : '100%'}

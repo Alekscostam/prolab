@@ -25,7 +25,6 @@ export const MemoizedBoolInput = React.memo(
                             onOperationClick(e.value);
                         }}
                         defaultValue={inputValue === true || TreeListUtils.conditionForTrueValue(inputValue)}
-                        value={inputValue === true || TreeListUtils.conditionForTrueValue(inputValue)}
                         disabled={!field.edit}
                         required={required}
                     />

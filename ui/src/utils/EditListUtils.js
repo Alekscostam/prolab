@@ -1,5 +1,7 @@
 import hash from 'object-hash';
 import {v4 as uuidv4} from 'uuid';
+import EditRowUtils from './EditRowUtils';
+import {StringUtils} from './StringUtils';
 
 export class EditListUtils {
     static transformBySetFields(rowData, setFields) {
@@ -103,7 +105,7 @@ export class EditListUtils {
         callback({value: editData[searchFieldName]});
         return;
     }
-    static selectedRowData(e, setFields, prevSelectedRowData, multiSelect) {
+    static selectedRowData(e, prevSelectedRowData, multiSelect) {
         const addMode = !!(e.currentSelectedRowKeys.length !== 0);
         const currentSelectedRowsData = e.selectedRowsData;
         const selectedRowsKeys = e.selectedRowKeys;
@@ -116,31 +118,79 @@ export class EditListUtils {
                 const foundedElementToAdd = currentSelectedRowsData.find(
                     (el) => el.CALC_CRC === e.currentSelectedRowKeys[0]
                 );
-                const transformedSingleRowData = this.transformBySetFields(foundedElementToAdd, setFields);
-                const CALC_CRC = this.calculateCRC(transformedSingleRowData[0]);
-                transformedSingleRowData[0].CALC_CRC = CALC_CRC;
-                transformedRowsData.push(transformedSingleRowData);
+                transformedRowsData.push(foundedElementToAdd);
             } else {
                 const foundedElementToRemove = prevSelectedRowData.find(
-                    (el) => el[0].CALC_CRC === e.currentDeselectedRowKeys[0]
+                    (el) => el.CALC_CRC === e.currentDeselectedRowKeys[0]
                 );
                 transformedRowsData = transformedRowsData.filter(
-                    (el) => el[0].CALC_CRC !== foundedElementToRemove[0].CALC_CRC
+                    (el) => el.CALC_CRC !== foundedElementToRemove.CALC_CRC
                 );
             }
         } else {
             for (let selectedRowData in currentSelectedRowsData) {
                 let selectedRow = currentSelectedRowsData[selectedRowData];
-                let transformedSingleRowData = this.transformBySetFields(selectedRow, setFields);
-                let CALC_CRC = this.calculateCRC(transformedSingleRowData);
-                transformedRowsData.push(transformedSingleRowData);
-                transformedRowsCRC.push(CALC_CRC);
+                transformedRowsData.push(selectedRow);
+                transformedRowsCRC.push(selectedRow.CALC_CRC);
             }
         }
         return {
             rowsData: transformedRowsData,
             rowsCrc: transformedRowsCRC,
         };
+    }
+    static convertArrayToObject(arr) {
+        const result = {};
+        arr.forEach((obj) => {
+            const [key, value] = Object.entries(obj)[0];
+            result[key] = value;
+        });
+        return result;
+    }
+    static getFieldValues(foundField, responseView) {
+        const {multiSelect, options} = responseView.gridOptions || {};
+        const separator = multiSelect ? options?.separatorJoin || ',' : null;
+        const value = String(foundField.value ?? '');
+        if (!separator || StringUtils.isBlank(separator)) {
+            return [value];
+        }
+        return value.split(separator);
+    }
+    static canPushRowData(value) {
+        if (StringUtils.isBlank(value)) {
+            return false;
+        }
+        if (typeof value !== 'number' && !(value instanceof Date)) {
+            if (StringUtils.isEmpty(value)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    static getCountSeparatorGeneric(responseView, data, searchFn) {
+        const setFields = structuredClone(responseView.setFields);
+        let countSeparator = 0;
+
+        setFields.forEach((field) => {
+            searchFn(data, field.fieldEdit, (foundField) => {
+                if (EditListUtils.canPushRowData(foundField.value)) {
+                    const fieldValues = EditListUtils.getFieldValues(foundField, responseView);
+                    if (fieldValues.length > countSeparator) {
+                        countSeparator = fieldValues.length;
+                    }
+                }
+            });
+        });
+
+        return countSeparator;
+    }
+
+    static getCountSeparatorByEditData(responseView, editData) {
+        return this.getCountSeparatorGeneric(responseView, editData, EditRowUtils.searchField);
+    }
+
+    static getCountSeparatorByRowData(responseView, rowData) {
+        return this.getCountSeparatorGeneric(responseView, rowData, EditListUtils.searchField);
     }
 }
 

@@ -8,6 +8,7 @@ import {OperationType} from '../../enum/OperationType';
 import {TranslationUtils} from '../../utils/TranslationUtils';
 import EditListUtils from '../../utils/EditListUtils';
 import EditListDataStore from '../../containers/dao/DataEditListStore';
+import {StringUtils} from '../../utils/StringUtils';
 
 export default class ListOfHintsDialogComponent extends React.Component {
     constructor(props) {
@@ -39,10 +40,9 @@ export default class ListOfHintsDialogComponent extends React.Component {
     }
 
     handleSelectedRowData(e) {
-        const setFields = this.props.parsedGridView.setFields;
         const prevSelectedRowData = this.state.selectedRowData;
         const multiSelect = this.props?.parsedGridView?.gridOptions?.multiSelect;
-        const result = EditListUtils.selectedRowData(e, setFields, prevSelectedRowData, multiSelect);
+        const result = EditListUtils.selectedRowData(e, prevSelectedRowData, multiSelect);
         this.setState({selectedRowData: result.rowsData, defaultSelectedRowKeys: result.rowsCrc});
     }
 
@@ -60,6 +60,46 @@ export default class ListOfHintsDialogComponent extends React.Component {
             () => {}
         );
     };
+
+    findDefaultSelectedRows = (data, selectedRows, setFields) => {
+        const alreadySelected = [];
+        for (const key in selectedRows) {
+            const sr = selectedRows[key];
+            for (const key2 in data) {
+                const rowData = data[key2];
+                const objToHash = EditListUtils.transformBySetFields(sr, setFields);
+                const idIndexFromSelectedRowData = EditListUtils.findIdIndexFromSelectedRowData(objToHash);
+                const elementToCompare = objToHash[idIndexFromSelectedRowData];
+                const isFound = this.checkValueExists(rowData, elementToCompare);
+                if (isFound) {
+                    alreadySelected.push(rowData);
+                    break;
+                }
+            }
+        }
+        return alreadySelected;
+    };
+
+    checkValueExists(rowData, element) {
+        if (!rowData || !element) {
+            return false;
+        }
+        const entries = Object.entries(element);
+        if (entries.length === 0) {
+            return false;
+        }
+        const [key, value] = entries[0];
+
+        if (!(key in rowData)) {
+            return false;
+        }
+        const rowValue = rowData[key];
+        const elementValue = value;
+        const rowStr = rowValue != null ? String(rowValue) : '';
+        const elemStr = elementValue != null ? String(elementValue) : '';
+        return rowStr === elemStr;
+    }
+
     fetchEditListData = () => {
         const {viewId, parentId, field, editListBody, recordId, parsedGridView, selectedRowData} = this.props;
         try {
@@ -72,20 +112,24 @@ export default class ListOfHintsDialogComponent extends React.Component {
                 null,
                 null,
                 editListBody,
-                parsedGridView.setFields,
                 (err) => {
                     this.props.showErrorMessages(err);
                 },
-                (defaultSelectedRowKeys) => {
+                (data) => {
+                    const defaultSelectedRows = this.findDefaultSelectedRows(
+                        data,
+                        selectedRowData,
+                        parsedGridView.setFields
+                    );
                     this.setState({
                         dataGridStoreSuccess: true,
-                        defaultSelectedRowKeys: defaultSelectedRowKeys,
+                        selectedRowData: defaultSelectedRows,
+                        defaultSelectedRowKeys: defaultSelectedRows.map((el) => el.CALC_CRC),
                     });
                 },
                 () => {
                     return {selectAll: this.state.selectAll};
-                },
-                selectedRowData
+                }
             );
             this.setState(
                 {
@@ -126,18 +170,23 @@ export default class ListOfHintsDialogComponent extends React.Component {
                                     type='button'
                                     onClick={() => {
                                         const setFields = this.props.parsedGridView?.setFields || [];
-                                        const separatorJoin = this.props.parsedGridView?.options?.separatorJoin || ',';
+                                        const multiSelect = this.props.parsedGridView?.gridOptions.multiSelect;
+                                        const separatorJoin = multiSelect
+                                            ? this.props.parsedGridView?.options?.separatorJoin || ','
+                                            : undefined;
                                         let selectedRowData = this.state.selectedRowData || [];
                                         setFields.forEach((field) => {
                                             const fieldKey = field.fieldList;
                                             let values = [];
                                             selectedRowData.forEach((row) => {
-                                                for (const item in row) {
-                                                    const object = row[item];
-                                                    const firstObjKey = Object.keys(object)[0];
-                                                    if (firstObjKey === fieldKey) {
-                                                        const foundValue = object[firstObjKey];
-                                                        values.push(foundValue === 'null' ? '' : '' + foundValue);
+                                                for (const itemField in row) {
+                                                    if (itemField === fieldKey) {
+                                                        const foundValue = row[itemField];
+                                                        values.push(
+                                                            foundValue === 'null' || StringUtils.isBlank(foundValue)
+                                                                ? ''
+                                                                : '' + foundValue
+                                                        );
                                                         break;
                                                     }
                                                 }

@@ -295,42 +295,26 @@ class CellEditComponent extends PureComponent {
                 this.crudService
                     .getListOfHints(viewId, paramId, fieldId, editListBodyObject)
                     .then((responseView) => {
-                        const setFields = responseView.setFields;
-                        const separatorJoin = responseView.options?.separatorJoin || ',';
                         const editData = this.findRowDataById(recordId);
+                        const setFields = responseView.setFields;
+                        let countSeparator = EditListUtils.getCountSeparatorByRowData(responseView, editData);
                         let selectedRowDataTmp = [];
-                        let defaultSelectedRowKeysTmp = [];
-                        let countSeparator = 0;
-                        setFields.forEach((field) => {
-                            EditListUtils.searchField(editData, field.fieldEdit, (foundFields) => {
-                                if (StringUtils.isBlank(foundFields.value)) {
-                                    foundFields.value = '';
-                                }
-                                const fieldValue = ('' + foundFields.value).split(separatorJoin);
-                                if (fieldValue.length > countSeparator) {
-                                    countSeparator = fieldValue.length;
-                                }
-                            });
-                        });
                         for (let index = 0; index < countSeparator; index++) {
                             let singleSelectedRowDataTmp = [];
                             setFields.forEach((field) => {
-                                EditListUtils.searchField(editData, field.fieldEdit, (foundFields) => {
+                                EditListUtils.searchField(editData, field.fieldEdit, (foundField) => {
                                     let fieldTmp = {};
-                                    if (StringUtils.isBlank(foundFields.value)) {
-                                        foundFields.value = '';
+                                    if (StringUtils.isBlank(foundField.value)) {
+                                        foundField.value = '';
                                     }
-                                    const fieldValue = ('' + foundFields.value).split(separatorJoin);
-                                    fieldTmp[field.fieldList] = fieldValue[index];
-                                    singleSelectedRowDataTmp.push(fieldTmp);
+                                    if (EditListUtils.canPushRowData(foundField.value)) {
+                                        const fieldValues = EditListUtils.getFieldValues(foundField, responseView);
+                                        fieldTmp[field.fieldList] = fieldValues[index];
+                                        singleSelectedRowDataTmp.push(fieldTmp);
+                                    }
                                 });
                             });
-                            if (singleSelectedRowDataTmp.length !== 0) {
-                                let CALC_CRC = EditListUtils.calculateCRC([singleSelectedRowDataTmp[0]]);
-                                singleSelectedRowDataTmp[0].CALC_CRC = CALC_CRC;
-                                selectedRowDataTmp.push(singleSelectedRowDataTmp);
-                                defaultSelectedRowKeysTmp.push(CALC_CRC);
-                            }
+                            selectedRowDataTmp.push(EditListUtils.convertArrayToObject(singleSelectedRowDataTmp));
                         }
                         this.setState(
                             () => ({
@@ -341,7 +325,7 @@ class CellEditComponent extends PureComponent {
                                 filtersList: [],
                                 packageRows: responseView?.viewInfo?.dataPackageSize,
                                 selectedRowDataEditList: selectedRowDataTmp,
-                                defaultSelectedRowKeys: defaultSelectedRowKeysTmp,
+                                defaultSelectedRowKeys: [],
                                 editListRecordId: recordId,
                                 editListField: {id: fieldId},
                                 editListVisible: true,

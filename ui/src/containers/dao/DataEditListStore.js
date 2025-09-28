@@ -113,11 +113,9 @@ export default class EditListDataStore extends BaseService {
         filterIdArg,
         kindViewArg,
         elementArg,
-        setFields,
         onError,
         onSuccess,
-        onStart,
-        selectedRows
+        onStart
     ) {
         useStore.getState().setFetchData(true);
         if (!viewIdArg) {
@@ -176,7 +174,6 @@ export default class EditListDataStore extends BaseService {
                 };
                 const url = `${this.domain}/${this.path}/${viewIdArg}/${point}/${recordIdArg}/list/${fieldIdArg}/data${params}${parentIdParam}${filterIdParam}${selectAllParam}${viewTypeParam}${kindViewParam}`;
                 const crcFilter = 'CRC' + (filter?.toString() === undefined ? '' : filter.toString());
-
                 if (crcFilter.indexOf(_key) > 0) {
                     //myk blokujący nadmiarowo generowane requesty przez store odnośnie selection
                     return Promise.reject('');
@@ -186,15 +183,10 @@ export default class EditListDataStore extends BaseService {
                         body: JSON.stringify(requestBody),
                     })
                         .then((response) => {
-                            this.setKeys(response.data, selectedRows, setFields);
-                            const defaultSelectedRowKeys = this.findDefaultSelectedRowKeys(
-                                response.data,
-                                selectedRows,
-                                setFields
-                            );
+                            this.setKeys(response.data);
                             ConsoleHelper('EditListDataStore -> fetch data');
                             if (onSuccess) {
-                                onSuccess(defaultSelectedRowKeys);
+                                onSuccess(response.data);
                             }
                             this.response = {
                                 data: response.data,
@@ -223,6 +215,7 @@ export default class EditListDataStore extends BaseService {
     }
     setKeys = (data) => {
         EditListUtils.determineKey(data);
+
         data.forEach((rowData, index) => {
             if (rowData.CALC_CRC === undefined || rowData.CALC_CRC === null) {
                 rowData.CALC_CRC = EditListUtils.calculateCrcById(rowData);

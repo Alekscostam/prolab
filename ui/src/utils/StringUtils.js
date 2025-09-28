@@ -65,4 +65,33 @@ export class StringUtils {
         };
         return normalizedText.replace(/[¹²³⁴⁵⁶⁷⁸⁹⁰⁺⁻⁼ⁱʳⁿ]/g, (match) => superscriptToStandard[match] || match);
     }
+
+    static normalizeNumberString(value) {
+        if (value == null || value === '') return '';
+
+        if (typeof value !== 'string') value = String(value);
+        let separator = null;
+        const firstComma = value.indexOf(',');
+        const firstDot = value.indexOf('.');
+
+        if (firstComma !== -1 && (firstComma < firstDot || firstDot === -1)) separator = ',';
+        else if (firstDot !== -1) separator = '.';
+
+        let normalized = value.replace(/[^0-9,.-]/g, '');
+        normalized = normalized.replace(/(?!^)-/g, ''); // tylko minus na początku
+
+        if (separator) {
+            const firstSepIndex = normalized.indexOf(separator);
+            normalized =
+                normalized.slice(0, firstSepIndex + 1) +
+                normalized.slice(firstSepIndex + 1).replace(new RegExp(`[.,]`, 'g'), '');
+
+            const lastChar = normalized[normalized.length - 1];
+            if (lastChar === separator && firstSepIndex !== normalized.length - 1) {
+                normalized = normalized.slice(0, -1);
+            }
+        }
+
+        return normalized;
+    }
 }
