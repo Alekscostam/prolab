@@ -8,11 +8,21 @@
           "type": "FIX",
           "color": "red",
           "date": "",
+          "link":"",
+          "text": "Zapamiętywanie zaznaczonych wierszy w liscie podpowiedzi po scrollu"
+        }
+      ]
+     },  {
+      "title":"",
+      "data": [
+          {
+          "type": "FIX",
+          "color": "red",
+          "date": "",
           "link":"https://trello.com/c/UEeO9Xzq/798-zaznaczanie-pola-logicznego-w-specyfikacji",
           "text": "Naprawa pola logicznego w edycji specyfikacji"
         },
         {
-          "isNew":true,
           "type": "FIX",
           "color": "red",
           "link":"https://trello.com/c/5UOh45vs/799-od%C5%9Bwie%C5%BCanie-po-zaznaczeniu-checkbox-w-specyfikacji",
@@ -20,7 +30,6 @@
           "text": "Usunięcie mrugania poprzez wyłączenie isMerge"
         },
         {
-          "isNew":true,
           "type": "FIX",
           "color": "red",
           "date": "",
@@ -28,7 +37,6 @@
           "text": "Zmiana działa listy podpowiedzi różnych rodzaji w edycji nagłówka i w edycji specyfikacji"
         },
         {
-          "isNew":true,
           "type": "FIX",
           "link":"https://trello.com/c/jLtIglPG/801-warto%C5%9Bci-z-przecinkiem-w-polu-liczbowym",
           "color": "red",

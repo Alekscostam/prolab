@@ -61,7 +61,7 @@ export default class ListOfHintsDialogComponent extends React.Component {
         );
     };
 
-    findDefaultSelectedRows = (data, selectedRows, setFields) => {
+    findAlreadySelectedAndReplaceToSelectedRows = (data, selectedRows, setFields) => {
         const alreadySelected = [];
         for (const key in selectedRows) {
             const sr = selectedRows[key];
@@ -72,6 +72,7 @@ export default class ListOfHintsDialogComponent extends React.Component {
                 const elementToCompare = objToHash[idIndexFromSelectedRowData];
                 const isFound = this.checkValueExists(rowData, elementToCompare);
                 if (isFound) {
+                    selectedRows[key] = rowData;
                     alreadySelected.push(rowData);
                     break;
                 }
@@ -101,7 +102,7 @@ export default class ListOfHintsDialogComponent extends React.Component {
     }
 
     fetchEditListData = () => {
-        const {viewId, parentId, field, editListBody, recordId, parsedGridView, selectedRowData} = this.props;
+        const {viewId, parentId, field, editListBody, recordId, parsedGridView} = this.props;
         try {
             const res = this.editListDataStore.getEditListDataStore(
                 viewId,
@@ -116,14 +117,15 @@ export default class ListOfHintsDialogComponent extends React.Component {
                     this.props.showErrorMessages(err);
                 },
                 (data) => {
-                    const defaultSelectedRows = this.findDefaultSelectedRows(
+                    const {selectedRowData} = this.state;
+                    const defaultSelectedRows = this.findAlreadySelectedAndReplaceToSelectedRows(
                         data,
                         selectedRowData,
                         parsedGridView.setFields
                     );
                     this.setState({
                         dataGridStoreSuccess: true,
-                        selectedRowData: defaultSelectedRows,
+                        selectedRowData: selectedRowData,
                         defaultSelectedRowKeys: defaultSelectedRows.map((el) => el.CALC_CRC),
                     });
                 },
