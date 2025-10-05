@@ -103,6 +103,7 @@ export const OperationsButtons = ({
                                     title={operations.label}
                                     handleClick={(e) => {
                                         SessionStoreUtils.saveFiltersFromView();
+                                        SessionStoreUtils.saveStore();
                                         e.selectAll = !atLeastOneSelected && !!operations.showAlways;
                                         return afterClickOperation(() => handleEditSpec(Object.assign(e, operations)));
                                     }}
@@ -150,6 +151,7 @@ export const OperationsButtons = ({
                                     title={operations.label}
                                     handleClick={() => {
                                         SessionStoreUtils.saveFiltersFromView();
+                                        SessionStoreUtils.saveStore();
                                         SessionStoreUtils.saveClickedRowFromView(info?.data?.ID);
                                         afterClickOperation(() => handleBlockUi());
                                     }}
@@ -512,12 +514,14 @@ export const OperationsButtons = ({
                     case OperationType.OP_PREVIEW:
                         return handlePreview(i);
                     case OperationType.OP_EDIT_SPEC:
+                        SessionStoreUtils.saveStore();
                         SessionStoreUtils.saveFiltersFromView();
                         SessionStoreUtils.saveClickedRowFromView(info?.data?.ID);
                         return () => {};
                     case OperationType.OP_ADDSPEC_SPEC:
                         return handleAddSpecSpec(i);
                     case OperationType.OP_SUBVIEWS:
+                        SessionStoreUtils.saveStore();
                         SessionStoreUtils.saveFiltersFromView();
                         SessionStoreUtils.saveClickedRowFromView(info?.data?.ID);
                         return () => {};

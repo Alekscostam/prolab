@@ -270,7 +270,7 @@ export class BaseRowComponent extends BaseContainer {
                     .then((responseView) => {
                         let selectedRowDataTmp = [];
                         const editData = this.props.editData;
-                        const setFields = structuredClone(responseView.setFields);
+                        const setFields = EditListUtils.getIdFieldOrFirst(structuredClone(responseView.setFields));
                         let countSeparator = EditListUtils.getCountSeparatorByEditData(responseView, editData);
                         for (let index = 0; index < countSeparator; index++) {
                             let singleSelectedRowDataTmp = [];
@@ -280,11 +280,15 @@ export class BaseRowComponent extends BaseContainer {
                                     if (EditListUtils.canPushRowData(foundField.value)) {
                                         const fieldValues = EditListUtils.getFieldValues(foundField, responseView);
                                         fieldTmp[field.fieldList] = fieldValues[index];
-                                        singleSelectedRowDataTmp.push(fieldTmp);
+                                        if (!StringUtils.isBlank(fieldTmp[field.fieldList])) {
+                                            singleSelectedRowDataTmp.push(fieldTmp);
+                                        }
                                     }
                                 });
                             });
-                            selectedRowDataTmp.push(EditListUtils.convertArrayToObject(singleSelectedRowDataTmp));
+                            if (singleSelectedRowDataTmp.length !== 0) {
+                                selectedRowDataTmp.push(EditListUtils.convertArrayToObject(singleSelectedRowDataTmp));
+                            }
                         }
                         let filtersListTmp = [];
                         this.setState({

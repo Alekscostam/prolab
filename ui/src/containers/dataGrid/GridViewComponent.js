@@ -14,6 +14,7 @@ import DataGrid, {
     Scrolling,
     Selection,
     Sorting,
+    StateStoring,
 } from 'devextreme-react/data-grid';
 import Constants from '../../utils/Constants';
 import ConsoleHelper from '../../utils/ConsoleHelper';
@@ -60,6 +61,7 @@ class GridViewComponent extends CellEditComponent {
         this.dataGrid = null;
         this.crudService = new CrudService();
         this.menuRef = React.createRef();
+        this.canApplyFilter = React.createRef();
         this.switchRef = React.createRef();
         this.refDateTime = React.createRef();
         this.clickedPosition = React.createRef();
@@ -93,6 +95,7 @@ class GridViewComponent extends CellEditComponent {
             selectedRecordId: undefined,
         };
         this.allowWrapping = this.props.parsedGridView?.gridOptions?.rowAutoHeight;
+        this.hasResized = false;
         this.rowRenderingMode = UrlUtils.isBatch() ? 'standard' : 'virtual';
         ConsoleHelper('GridViewComponent -> constructor');
     }
@@ -145,7 +148,9 @@ class GridViewComponent extends CellEditComponent {
     }
 
     componentDidMount() {
-        // ResponseUtils.test();
+        if (SessionStoreUtils.canApplyStore()) {
+            this.canApplyFilter.current = true;
+        }
         super.componentDidMount();
         this.unregisterKeydownEvent();
         this.registerKeydownEvent();
@@ -438,6 +443,7 @@ class GridViewComponent extends CellEditComponent {
                         if (this.props.onContentReady) {
                             this.props.onContentReady(e);
                         }
+                        this.resizeAfterDelay(e);
                     }}
                     repaintChangesOnly={this.repaintChangesOnly()}
                     allowColumnResizing={true}
@@ -481,7 +487,6 @@ class GridViewComponent extends CellEditComponent {
                         }
                     }}
                     onInitialized={(ref) => {
-                        this.resizeAfterDelay();
                         if (ref?.component) {
                             this.registerMouseEvent(this.getScrollableContainer());
                         }
@@ -537,6 +542,23 @@ class GridViewComponent extends CellEditComponent {
                         showPane={false}
                         position='absolute'
                     />
+                    <StateStoring
+                        enabled={true}
+                        type='custom'
+                        customLoad={(e) => {
+                            if (this.canApplyFilter.current) {
+                                const si = SessionStoreUtils.getStoreInformation();
+                                SessionStoreUtils.clearStoreInformation();
+                                this.canApplyFilter.current = false;
+                                return si.store;
+                            }
+                            return null;
+                        }}
+                        customSave={(state) => {
+                            getStore().setGridStateStore(state);
+                        }}
+                    />
+
                     {this.preGenerateColumnsDefinition()}
                 </DataGrid>
 
@@ -728,7 +750,6 @@ class GridViewComponent extends CellEditComponent {
                             column.allowGrouping = columnDefinition?.isGroup;
                             column.allowReordering = true;
                             column.allowResizing = true;
-                            ColumnUtils.applyFilters(this.props.filtersCached, column);
                             column.allowSorting = columnDefinition?.isSort;
                             column.allowWrapping = this.props.parsedGridView?.gridOptions?.rowAutoHeight || false;
                             column.visibleIndex = columnDefinition?.columnOrder;
@@ -769,6 +790,7 @@ class GridViewComponent extends CellEditComponent {
             });
             // Bardzo ważne!!! clear pol bo w tym utilsie są parametry typu let
             DataGridUtils.clearProperties();
+
             let operationsRecord = this.props.parsedGridView?.operationsRecord;
             let operationsRecordList = this.props.parsedGridView?.operationsRecordList;
             if (!(operationsRecord instanceof Array)) {
@@ -893,14 +915,16 @@ class GridViewComponent extends CellEditComponent {
         window.location.href = UrlUtils.deleteParameterFromURL(currentUrl, 'selectedFromPrevGrid');
     };
 
-    resizeAfterDelay = () => {
-        if (this.allowWrapping) {
-            setTimeout(() => {
-                const ref = this.props?.getRef()?._instance;
-                if (ref) {
-                    ref.resize();
-                }
-            }, 3000);
+    resizeAfterDelay = (ref) => {
+        if (this.allowWrapping && !this.hasResized && ref?.component) {
+            this.hasResized = true;
+            try {
+                setTimeout(() => {
+                    ref.component.resize();
+                }, 1000);
+            } catch (ex) {
+                console.error(ex);
+            }
         }
     };
 
@@ -976,7 +1000,7 @@ class GridViewComponent extends CellEditComponent {
     handleHrefSubview(viewId, recordId) {
         const result = this.props.handleBlockUi();
         if (result) {
-            SessionStoreUtils.saveFiltersFromView();
+            SessionStoreUtils.saveStore(getStore().gridStateStore);
             const newUrl = this.subViewHref(viewId, recordId);
             SessionStoreUtils.saveClickedRowFromView(recordId);
             window.location.assign(newUrl);
@@ -1029,7 +1053,7 @@ class GridViewComponent extends CellEditComponent {
     }
 
     handleEditSpec(viewId, parentId, recordId) {
-        SessionStoreUtils.saveFiltersFromView();
+        SessionStoreUtils.saveStore(getStore().gridStateStore);
         SessionStoreUtils.saveClickedRowFromView(recordId);
         TreeListUtils.openEditSpec(
             viewId,

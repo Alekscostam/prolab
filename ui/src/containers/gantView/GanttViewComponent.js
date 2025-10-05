@@ -244,7 +244,7 @@ class GanttViewComponent extends React.Component {
                             }}
                         />
                     </Toolbar>
-                    <FilterRow visible={true}></FilterRow>
+                    <FilterRow visible={true} />
                     <Tasks
                         keyExpr={KEY}
                         dataSource={this.state.tasks}

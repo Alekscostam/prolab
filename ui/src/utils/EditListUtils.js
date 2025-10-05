@@ -192,6 +192,15 @@ export class EditListUtils {
     static getCountSeparatorByRowData(responseView, rowData) {
         return this.getCountSeparatorGeneric(responseView, rowData, EditListUtils.searchField);
     }
+
+    static getIdFieldOrFirst(setFields) {
+        if (!Array.isArray(setFields) || setFields.length === 0) {
+            return [];
+        }
+
+        const idField = setFields.find((f) => f.fieldList === 'ID');
+        return idField ? [idField] : [setFields[0]];
+    }
 }
 
 export default EditListUtils;

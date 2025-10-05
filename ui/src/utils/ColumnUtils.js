@@ -23,13 +23,17 @@ export class ColumnUtils {
     }
     static getFilter(filtersIn = [], columnName) {
         if (columnName) {
-            return filtersIn?.find((filter) => Array.isArray(filter) && filter[0] === columnName);
+            return filtersIn?.find(
+                (filter) => (Array.isArray(filter) && filter[0] === columnName) || filter === columnName
+            );
         }
         return null;
     }
     static getFiltersForColumn(filtersIn = [], columnName) {
         if (columnName) {
-            return filtersIn?.filter((filter) => Array.isArray(filter) && filter[0] === columnName);
+            return filtersIn?.filter(
+                (filter) => (Array.isArray(filter) && filter[0] === columnName) || filter === columnName
+            );
         }
         return null;
     }

@@ -95,6 +95,9 @@ class CellEditComponent extends PureComponent {
             }
         });
     }
+    componentWillUnmount() {
+        super.componentWillUnmount();
+    }
 
     editorComponent = (editable, eViewier) => {
         const {editorViewer} = this.state;
@@ -296,7 +299,7 @@ class CellEditComponent extends PureComponent {
                     .getListOfHints(viewId, paramId, fieldId, editListBodyObject)
                     .then((responseView) => {
                         const editData = this.findRowDataById(recordId);
-                        const setFields = responseView.setFields;
+                        const setFields = EditListUtils.getIdFieldOrFirst(structuredClone(responseView.setFields));
                         let countSeparator = EditListUtils.getCountSeparatorByRowData(responseView, editData);
                         let selectedRowDataTmp = [];
                         for (let index = 0; index < countSeparator; index++) {
@@ -310,11 +313,15 @@ class CellEditComponent extends PureComponent {
                                     if (EditListUtils.canPushRowData(foundField.value)) {
                                         const fieldValues = EditListUtils.getFieldValues(foundField, responseView);
                                         fieldTmp[field.fieldList] = fieldValues[index];
-                                        singleSelectedRowDataTmp.push(fieldTmp);
+                                        if (!StringUtils.isBlank(fieldTmp[field.fieldList])) {
+                                            singleSelectedRowDataTmp.push(fieldTmp);
+                                        }
                                     }
                                 });
                             });
-                            selectedRowDataTmp.push(EditListUtils.convertArrayToObject(singleSelectedRowDataTmp));
+                            if (singleSelectedRowDataTmp.length !== 0) {
+                                selectedRowDataTmp.push(EditListUtils.convertArrayToObject(singleSelectedRowDataTmp));
+                            }
                         }
                         this.setState(
                             () => ({

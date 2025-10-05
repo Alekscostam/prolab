@@ -10,6 +10,32 @@
           "date": "",
           "link":"",
           "text": "Zapamiętywanie zaznaczonych wierszy w liscie podpowiedzi po scrollu"
+        },
+          {
+          "isNew":true,
+          "type": "FIX",
+          "color": "red",
+          "date": "",
+                    "importanceColor":"#ff6666",
+
+          "link":"https://trello.com/c/0DdZQhjw/800-cofni%C4%99cie-widoku-przegl%C4%85darki",
+          "text": "Naprawa filtrowania w datagrid"
+        },
+          {
+          "isNew":true,
+          "type": "FIX",
+          "color": "red",
+          "date": "",
+          "link":"https://trello.com/c/VfRM8ts7/807-kontrola-wymagalno%C5%9Bci-pole-data",
+          "text": "Komponent data przwrócenie obramowania"
+        },
+          {
+          "isNew":true,
+          "type": "FIX",
+          "color": "red",
+          "date": "",
+          "link":"https://trello.com/c/5clKl6um/804-separator-przecinek-w-polu-multiwyb%C3%B3r",
+          "text": "Usunięcie przeicnikó z setfields"
         }
       ]
      },  {

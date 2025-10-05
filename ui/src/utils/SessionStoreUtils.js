@@ -1,5 +1,6 @@
 import useStore from '../store';
 import {ColumnUtils} from './ColumnUtils';
+import {getStore} from './helper/StoreHelper';
 import {StringUtils} from './StringUtils';
 import UrlUtils from './UrlUtils';
 
@@ -46,6 +47,55 @@ export class SessionStoreUtils {
             }
             SessionStoreUtils.saveFilters(filters);
         }
+    }
+    static getStoreInformation() {
+        const clickedRowFromView = sessionStorage.getItem('storeInformation');
+        if (clickedRowFromView) {
+            return JSON.parse(clickedRowFromView);
+        }
+        return null;
+    }
+    static saveStore(
+        store = getStore()?.gridStateStore,
+        recordId = UrlUtils.getRecordId(),
+        parentId = UrlUtils.getParentId(),
+        viewId = UrlUtils.getIdFromUrl()
+    ) {
+        const storeInformation = {
+            view: {
+                id: viewId,
+                recordId: recordId,
+                parentId: parentId,
+            },
+            store: store,
+        };
+        sessionStorage.setItem('storeInformation', JSON.stringify(storeInformation));
+    }
+    static clearStoreInformation() {
+        sessionStorage.removeItem('storeInformation');
+    }
+    static canApplyStore(
+        recordId = UrlUtils.getRecordId(),
+        parentId = UrlUtils.getParentId(),
+        viewId = UrlUtils.getIdFromUrl()
+    ) {
+        const store = this.getStoreInformation();
+        const viewIdFromCookie = StringUtils.isBlank(store?.view?.id) ? null : String(store?.view?.id);
+        const recordIdFromCookie = StringUtils.isBlank(store?.view?.recordId) ? null : String(store?.view?.recordId);
+        const parentIdFromCookie = StringUtils.isBlank(store?.view?.parentId) ? null : String(store?.view?.parentId);
+
+        recordId = StringUtils.isBlank(recordId) ? null : String(recordId);
+        parentId = StringUtils.isBlank(parentId) ? null : String(parentId);
+        viewId = StringUtils.isBlank(viewId) ? null : String(viewId);
+
+        const viewIdsAreEquals = viewIdFromCookie === viewId;
+        const recordIdsAreEquals = recordIdFromCookie === recordId;
+        const parentIdsAreEquals = parentIdFromCookie === parentId;
+
+        if (viewIdsAreEquals && recordIdsAreEquals && parentIdsAreEquals) {
+            return true;
+        }
+        return false;
     }
 
     static clearFiltersInformation() {
