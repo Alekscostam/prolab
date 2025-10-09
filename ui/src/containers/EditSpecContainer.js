@@ -488,7 +488,12 @@ export class EditSpecContainer extends BaseContainer {
             const processedRow = {...row};
             for (const field in processedRow) {
                 if (booleanLogicFields.has(field)) {
-                    processedRow[field] = processedRow[field] ? 'T' : 'N';
+                    const value = processedRow[field];
+                    if (value === 'T' || value === 'N') {
+                        processedRow[field] = value;
+                    } else {
+                        processedRow[field] = value ? 'T' : 'N';
+                    }
                 }
                 if (booleanNumberFields.has(field)) {
                     processedRow[field] = this.booleanShouldBeZero(processedRow, field) ? 0 : 1;
