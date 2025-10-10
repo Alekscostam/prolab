@@ -148,12 +148,20 @@ export class EditListUtils {
         return result;
     }
     static getFieldValues(foundField, responseView) {
-        const {multiSelect, options} = responseView.gridOptions || {};
-        const separator = multiSelect ? options?.separatorJoin || ',' : null;
+        const {gridOptions, options} = responseView || {};
+        let separator = '';
+        debugger;
+        if (gridOptions?.multiSelect) {
+            separator = options?.separatorJoin || ',';
+        } else {
+            separator = null;
+        }
         const value = String(foundField.value ?? '');
+
         if (!separator || StringUtils.isBlank(separator)) {
             return [value];
         }
+
         return value.split(separator);
     }
     static canPushRowData(value) {
