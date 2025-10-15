@@ -191,7 +191,10 @@ export class ViewContainer extends BaseViewContainer {
                                     .catch((err) => {
                                         this.setState({loading: false});
                                         this.showGlobalErrorMessage(err);
-                                        window.location.href = UrlUtils.mainViewUrl();
+                                        const mainViewUrl = UrlUtils.mainViewUrl();
+                                        setTimeout(() => {
+                                            window.location.href = mainViewUrl;
+                                        }, 1000);
                                     });
                             } else {
                                 this.unblockUi();
@@ -201,7 +204,6 @@ export class ViewContainer extends BaseViewContainer {
                         () => this.unblockUi()
                     );
                 })
-                .then()
                 .catch((err) => {
                     this.showGlobalErrorMessage(err);
                     this.setState({loading: false});
