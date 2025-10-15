@@ -150,7 +150,6 @@ export class EditListUtils {
     static getFieldValues(foundField, responseView) {
         const {gridOptions, options} = responseView || {};
         let separator = '';
-        debugger;
         if (gridOptions?.multiSelect) {
             separator = options?.separatorJoin || ',';
         } else {
