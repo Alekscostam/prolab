@@ -39,6 +39,7 @@ export class EditHeaderComponent extends BaseRowComponent {
             selectedRowData: [],
             defaultSelectedRowKeys: [],
             preventSave: false,
+            saveEnabled: true,
         };
 
         this.editListDataStore = new EditListDataStore();
@@ -46,8 +47,6 @@ export class EditHeaderComponent extends BaseRowComponent {
 
         this.messages = React.createRef();
         this.sidebarRef = React.createRef();
-        this.handleAutoFill = this.handleAutoFill.bind(this);
-        this.handleCancel = this.handleCancel.bind(this);
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -175,10 +174,11 @@ export class EditHeaderComponent extends BaseRowComponent {
                                             <ShortcutButton
                                                 id={'opSave'}
                                                 className={`grid-button-panel inverse mt-1 mb-1 mr-1`}
-                                                handleClick={this.handleFormSubmit}
+                                                handleClick={this.handleSave}
                                                 title={opSave?.label}
                                                 label={opSave?.label}
                                                 rendered={opSave}
+                                                disabled={!this.state.saveEnabled}
                                             />
                                         )}
                                         {opFill && EditRowUtils.hasAnyToFillField(editData) && (
@@ -257,48 +257,6 @@ export class EditHeaderComponent extends BaseRowComponent {
         );
     }
 
-    handleFormSubmit(event) {
-        if (event !== undefined) {
-            event.preventDefault();
-        }
-        if (this.validator.allValid()) {
-            this.setState({preventSave: false}, () => {
-                this.blockUi(this.handleValidForm);
-            });
-        } else {
-            this.setState({preventSave: true}, () => {
-                this.validator.showMessages();
-                this.props.showErrorMessages(this.fieldsMandatoryLabel);
-                // rerender to show messages for the first time
-                this.scrollToError = true;
-                this.preventSave = true;
-                this.forceUpdate();
-            });
-        }
-    }
-
-    handleValidForm() {
-        const editInfo = this.props.editData?.editInfo;
-        this.props.onSave(editInfo.viewId, editInfo.recordId, editInfo.parentId);
-        this.refreshView();
-    }
-
-    handleAutoFill() {
-        const editInfo = this.props.editData?.editInfo;
-        const kindView = this.props.kindView;
-        this.props.onAutoFill(editInfo.viewId, editInfo.recordId, editInfo.parentId, kindView);
-    }
-
-    handleCancel() {
-        const editInfo = this.props.editData?.editInfo;
-        this.props.onCancel(editInfo.viewId, editInfo.recordId, editInfo.parentId);
-    }
-    handleAttachment = () => {
-        const editInfo = this.props.editData?.editInfo;
-        if (this.props.onAttachment) {
-            this.props.onAttachment(editInfo.recordId);
-        }
-    };
     renderGroup(group, groupIndex) {
         if (EditRowUtils.hasAnyVisibleField(group)) {
             return (

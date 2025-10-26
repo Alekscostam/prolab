@@ -260,6 +260,7 @@ class LoginContainer extends BaseContainer {
     onKeyDown(e) {
         if (e.key === 'Enter') {
             e.preventDefault();
+            this.handleFormSubmit();
         }
     }
     loginDisabled = () => {

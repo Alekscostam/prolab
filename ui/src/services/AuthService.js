@@ -178,6 +178,37 @@ export default class AuthService {
         return StringUtils.isBlank(localStorage.getItem(CookiesName.ID_TOKEN));
     }
 
+    // heartbeat() {
+    //     const idToken = localStorage.getItem(CookiesName.ID_TOKEN);
+    //     const idRefreshToken = localStorage.getItem(CookiesName.ID_REFRESH_TOKEN);
+    //     return this.fetch(`${this.getAndSetDomainIfNeccessery()}/auth/heartbeat`, {
+    //         method: 'GET',
+    //     })
+    //         .then((res) => {
+    //             this.setRefreshedToken(res.accessToken, res.refreshToken); // Setting the token in localStorage
+    //             if (reStateApp) {
+    //                 reStateApp();
+    //             }
+    //             return Promise.resolve(res);
+    //         })
+    //         .catch((err) => {
+    //             this.removeLoginCookies();
+    //             const textAfterHash = window.location.href.split('/#/')[1];
+    //             const onLogoutUrl = !(textAfterHash && textAfterHash.trim() !== '');
+    //             if (!onLogoutUrl) {
+    //                 err.idToken = idToken;
+    //                 err.idRefreshToken = idRefreshToken;
+    //                 localStorage.setItem(CookiesName.ERROR_AFTER_REFRESH, JSON.stringify(err));
+    //                 setTimeout(() => {
+    //                     window.location.reload();
+    //                 }, 100);
+    //             }
+    //             useStore.getState().setAccessToken(undefined);
+    //             useStore.getState().setRefreshToken(undefined);
+    //             return Promise.reject(err);
+    //         });
+    // }
+
     refresh() {
         const idToken = localStorage.getItem(CookiesName.ID_TOKEN);
         const idRefreshToken = localStorage.getItem(CookiesName.ID_REFRESH_TOKEN);

@@ -8,6 +8,9 @@ $edit-padding-bottom: 11px;
 #right-sidebar {
     background: transparent linear-gradient(90deg, #f7f9fd 0%, #ecf2fb 100%) 0% 0% no-repeat padding-box !important;
     z-index: 1;
+  transform: translateZ(0);
+  will-change: transform;
+
 }
 @media (max-width: 868px) {
     #right-sidebar {

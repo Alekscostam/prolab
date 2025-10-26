@@ -67,6 +67,7 @@ import {
     isSecondMethodShowBarCode,
     isThirdMethodShowBarCode,
 } from '../utils/helper/StoreHelper';
+import {ArrayUtils} from '../utils/ArrayUtils';
 
 let dataGrid;
 
@@ -471,7 +472,7 @@ export class BaseViewContainer extends BaseContainer {
         const viewId = UrlUtils.getIdFromUrlOrAlternative(this.props.id);
         const kindView = UrlUtils.getKindView();
         const parentId = UrlUtils.getParentId();
-        if (StringUtils.isBlank(result.listId) || Array.isEmpty(result?.listId)) {
+        if (StringUtils.isBlank(result.listId) || ArrayUtils.isEmpty(result?.listId)) {
             this.unblockUi();
             return;
         }
@@ -486,7 +487,9 @@ export class BaseViewContainer extends BaseContainer {
                     kindView,
                     (res) => this.handleShowEditPanel(res),
                     () => this.handleUnBlockUi(),
-                    (err) => this.showGlobalErrorMessage(err)
+                    (err) => this.showGlobalErrorMessage(err),
+                    false,
+                    result?.param
                 );
                 break;
             case CodeOperationType.EDIT_SPEC:

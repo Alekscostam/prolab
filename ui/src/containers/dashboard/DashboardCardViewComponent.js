@@ -146,7 +146,7 @@ class DashboardCardViewComponent extends React.Component {
                                                         let result = this.props.handleBlockUi();
                                                         if (result) {
                                                             this.crudService
-                                                                .edit(viewId, recordId, subviewId, elementKindView)
+                                                                .edit(viewId, recordId, subviewId)
                                                                 .then((editDataResponse) => {
                                                                     this.setState(
                                                                         {

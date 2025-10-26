@@ -11,7 +11,8 @@ export const handleEdit = (
     handleShowEditPanel,
     handleUnblockUi,
     showErrorMessages,
-    readOnly
+    readOnly,
+    param
 ) => {
     crudService
         .editEntry(viewId, recordId, parentId, kindView, '')
@@ -21,7 +22,7 @@ export const handleEdit = (
                 () => {
                     if (!!entryResponse.next) {
                         crudService
-                            .edit(viewId, recordId, parentId, kindView)
+                            .edit(viewId, recordId, parentId, param)
                             .then((editDataResponse) => {
                                 SessionStoreUtils.saveClickedRowFromView(recordId);
                                 editDataResponse.editInfo.readOnly = readOnly;

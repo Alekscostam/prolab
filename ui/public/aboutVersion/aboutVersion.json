@@ -5,6 +5,59 @@
       "data": [
           {
           "isNew":true,
+          "type": "NEW",
+          "color": "green",
+          "date": "",
+          "link":"https://trello.com/c/IZOo262S/823-rozszerzenie-opcji-kod-kreskowyo",
+          "text": "Rozszerzenie wywołania punktu edit"
+         },
+          {
+          "isNew":true,
+          "type": "NEW",
+          "color": "green",
+          "date": "",
+          "link":"https://trello.com/c/UNYtdCkb/822-wywo%C5%82anie-punktu-heartbeat",
+          "text": "Enter działa po zaakceptowaniu captchy"
+         },
+          {
+          "isNew":true,
+          "type": "NEW",
+          "color": "green",
+          "date": "",
+          "description":"Koniecznie przetestować wsyzstkie operacje w edycji nagłówka!!! W edycji FULLSCREEN tez przetestujcie",
+          "importanceColor":"#ff6666",
+          "link": "https://trello.com/c/xIXi4qx0/825-edycja-nag%C5%82%C3%B3wka-uruchomienie-skr%C3%B3t%C3%B3w-klawiszowych-dla-operacji",
+          "text": "Skróty klawiszowe w edycji nagłówka"
+        },
+        {
+          "isNew":true,
+          "type": "NEW",
+          "color": "green",
+          "date": "",
+          "link":"https://trello.com/c/T2RReFlM/824-edycja-nag%C5%82%C3%B3wka-ustawienie-focusa-na-zadanym-polu",
+          "text": "Focus na wybrany komponentt z edycji nagłówka po inicjalizacji"
+        },
+          {
+          "isNew":true,
+          "type": "FIX",
+          "color": "red",
+          "date": "",
+          "link":"https://trello.com/c/ZIfT5Ejl/826-b%C5%82%C4%85d-przy-realizacji-kodu-kreskowego",
+          "text": "Naprawa wywołania kodu kreskowego"
+        },
+          {
+          "isNew":true,
+          "type": "FIX",
+          "color": "red",
+          "date": "",
+          "link":"https://trello.com/c/LixQZyHu/806-b%C5%82%C4%85d-przy-kopiowaniu-dwuklik",
+          "text": "Blokada podwójnego kliknięcia zapisu nagłówka"
+        }
+      ]
+     },  {
+      "title":"",
+      "data": [
+          {
           "type": "FIX",
           "color": "red",
           "date": "",

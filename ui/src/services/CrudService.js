@@ -75,13 +75,18 @@ export default class CrudService extends BaseService {
                 throw err;
             });
     }
-    edit(viewId, recordId, parentId) {
-        return this.fetch(
-            `${this.getDomain()}/${this.path}/${viewId}/Edit/${recordId}${parentId ? `?parentId=${parentId}` : ''}`,
-            {
-                method: 'GET',
+    edit(viewId, recordId, parentId, param) {
+        let url = `${this.getDomain()}/${this.path}/${viewId}/Edit/${recordId}`;
+        if (parentId || param) {
+            url += '?';
+            if (parentId) {
+                url += `parentId=${parentId}`;
             }
-        )
+            if (param) {
+                url += parentId ? `&${param}` : param;
+            }
+        }
+        return this.fetch(url, {method: 'GET'})
             .then((editDataResponse) => {
                 EditListUtils.addUuidToFields(editDataResponse);
                 return Promise.resolve(EditRowUtils.convertEditResponse(editDataResponse));

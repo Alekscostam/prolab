@@ -31,6 +31,9 @@ import {InputTextarea} from 'primereact/inputtextarea';
 import MarkupDialogComponent from '../components/prolab/MarkupDialog';
 import useStore from '../store';
 import EditListDataStore from '../containers/dao/DataEditListStore';
+import KeyCombinationDetector from '../utils/KeyCombinationDetector';
+import {OperationType} from '../enum/OperationType';
+import {TranslationUtils} from '../utils/TranslationUtils';
 
 export class BaseRowComponent extends BaseContainer {
     constructor(props) {
@@ -43,7 +46,7 @@ export class BaseRowComponent extends BaseContainer {
                 isValidNumberFormat: true,
                 prevNumber: undefined,
             },
-
+            saveEnabled: true,
             editListField: {},
             editListVisible: false,
             parsedGridView: {},
@@ -72,7 +75,6 @@ export class BaseRowComponent extends BaseContainer {
         this.messages = React.createRef();
         this.calendarDateTimeRef = React.createRef();
         this.selectionListValuesToJson = this.selectionListValuesToJson.bind(this);
-        this.handleCancel = this.handleCancel.bind(this);
         this.validateDate = this.validateDate.bind(this);
         this.editListVisible = this.editListVisible.bind(this);
 
@@ -86,20 +88,10 @@ export class BaseRowComponent extends BaseContainer {
         const editData = this.props.editData;
         return editData?.editInfo?.readOnly;
     };
-    canRegisterKeyDownEvent() {
-        const kindOperation = this.props.editData?.editInfo?.kindOperation;
-        if (kindOperation) {
-            if (kindOperation.toUpperCase() === 'ADD') {
-                return true;
-            }
-        }
-        return false;
-    }
+
     componentDidMount() {
         super.componentDidMount();
-        if (this.canRegisterKeyDownEvent()) {
-            this.registerKeydownEvent();
-        }
+        this.registerKeydownEvent();
     }
     registerKeydownEvent() {
         document.addEventListener('keydown', this.keydownEvent);
@@ -107,11 +99,72 @@ export class BaseRowComponent extends BaseContainer {
     unregisterKeydownEvent() {
         document.removeEventListener('keydown', this.keydownEvent);
     }
+
+    handleValidForm() {
+        try {
+            const editInfo = this.props.editData?.editInfo;
+            this.props.onSave(editInfo.viewId, editInfo.recordId, editInfo.parentId);
+            this.refreshView();
+        } catch (ex) {
+            console.log(ex);
+        } finally {
+            setTimeout(() => {
+                this.setState({
+                    saveEnabled: true,
+                });
+            }, 1500);
+        }
+    }
+    handleSave = () => {
+        if (this.state.saveEnabled) {
+            this.setState({saveEnabled: false}, () => {
+                this.handleFormSubmit();
+            });
+        }
+    };
+
+    handleAutoFill = () => {
+        const editInfo = this.props.editData?.editInfo;
+        const kindView = this.props.kindView;
+        this.props.onAutoFill(editInfo.viewId, editInfo.recordId, editInfo.parentId, kindView);
+    };
+
+    handleCancel = () => {
+        const editInfo = this.props.editData?.editInfo;
+        this.props.onCancel(editInfo.viewId, editInfo.recordId, editInfo.parentId);
+    };
+    handleAttachment = () => {
+        const editInfo = this.props.editData?.editInfo;
+        if (this.props.onAttachment) {
+            this.props.onAttachment(editInfo.recordId);
+        }
+    };
+
     keydownEvent = (event) => {
-        if (event.key === 'F5' || event.keyCode === 116) {
+        const operations = this.props?.editData?.operations || [];
+        const operationHandlers = {
+            [OperationType.OP_SAVE]: this.handleSave,
+            [OperationType.OP_CANCEL]: this.handleCancel,
+            [OperationType.OP_FILL]: this.handleAutoFill,
+            [OperationType.OP_CLOSE]: this.handleCancel,
+            [OperationType.OP_ATTACHMENTS]: this.handleAttachment,
+        };
+        const kindOperation = this.props.editData?.editInfo?.kindOperation;
+        if ((event.key === 'F5' || event.keyCode === 116) && kindOperation.toUpperCase() === 'ADD') {
             this.handleCancel();
             this.unregisterKeydownEvent();
         }
+        Object.entries(operationHandlers).forEach(([type, handler]) => {
+            const op = TranslationUtils.getOpButton(operations, type);
+            const key = op?.key;
+
+            if (!StringUtils.isBlankOrEmpty(key)) {
+                const combination = new KeyCombinationDetector(event, key);
+                if (combination.isExecuted()) {
+                    handler.call(this);
+                }
+            }
+        });
     };
     componentWillUnmount() {
         super.componentWillUnmount();
@@ -151,7 +204,6 @@ export class BaseRowComponent extends BaseContainer {
         }
     }
 
-    handleValidForm() {}
     canRenderInputComponent(field) {
         const visibleDocumentPanel = this.props?.visibleDocumentPanel;
         if (!visibleDocumentPanel) {
@@ -358,6 +410,16 @@ export class BaseRowComponent extends BaseContainer {
         return e;
     };
 
+    autoFocus = (field) => {
+        if (this.isDisabled(field)) {
+            return false;
+        }
+        const focusField = this.props.editData?.editInfo?.focusField;
+        if (field.fieldName === focusField) {
+            return true;
+        }
+        return false;
+    };
     renderInputComponent(field, fieldIndex, onChange, onBlur, groupUuid, required, validatorMsgs, onClickEditList) {
         //mock functionality
         const visibleDocumentCriteria = this.props?.visibleDocumentPanel;
@@ -420,6 +482,7 @@ export class BaseRowComponent extends BaseContainer {
                             ) : (
                                 <div className={`${selectionList} ${editable}`}>
                                     <InputText
+                                        autoFocus={this.autoFocus(field)}
                                         id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                                         name={field.fieldName}
                                         className={`${editable} ${autoFill} ${validate}`}
@@ -460,6 +523,7 @@ export class BaseRowComponent extends BaseContainer {
                         </label>
                         <div className={`${selectionList} ${editable}`}>
                             <Password
+                                autoFocus={this.autoFocus(field)}
                                 id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                                 name={field.fieldName}
                                 className={`${autoFill} ${editable} ${validate}`}
@@ -515,6 +579,7 @@ export class BaseRowComponent extends BaseContainer {
                             ) : (
                                 <div className={`${selectionList} ${editable}`}>
                                     <InputText
+                                        autoFocus={this.autoFocus(field)}
                                         id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                                         name={field.fieldName}
                                         onBeforeInput={(e) => {
@@ -664,6 +729,15 @@ export class BaseRowComponent extends BaseContainer {
                             {required ? '*' : ''}
                         </label>
                         <DateBox
+                            onInitialized={(e) => {
+                                if (this.autoFocus(field)) {
+                                    setTimeout(() => {
+                                        try {
+                                            e.component.focus();
+                                        } catch (ex) {}
+                                    }, 1000);
+                                }
+                            }}
                             firstDayOfWeek={1}
                             onValueChanged={(e) => {
                                 e = this.prepareEvent(e, field);
@@ -699,6 +773,15 @@ export class BaseRowComponent extends BaseContainer {
                             {required ? '*' : ''}
                         </label>
                         <DateBox
+                            onInitialized={(e) => {
+                                if (this.autoFocus(field)) {
+                                    setTimeout(() => {
+                                        try {
+                                            e.component.focus();
+                                        } catch (ex) {}
+                                    }, 1000);
+                                }
+                            }}
                             firstDayOfWeek={1}
                             onValueChanged={(e) => {
                                 e = this.prepareEvent(e, field);
@@ -733,6 +816,15 @@ export class BaseRowComponent extends BaseContainer {
                             {required ? '*' : ''}
                         </label>
                         <DateBox
+                            onInitialized={(e) => {
+                                if (this.autoFocus(field)) {
+                                    setTimeout(() => {
+                                        try {
+                                            e.component.focus();
+                                        } catch (ex) {}
+                                    }, 1000);
+                                }
+                            }}
                             id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                             name={field.fieldName}
                             onValueChanged={(e) => {
@@ -765,6 +857,7 @@ export class BaseRowComponent extends BaseContainer {
                             {required ? '*' : ''}
                         </label>
                         <InputTextarea
+                            autoFocus={this.autoFocus(field)}
                             name={field.fieldName}
                             disabled={this.isDisabled(field)}
                             required={required}
@@ -833,8 +926,15 @@ export class BaseRowComponent extends BaseContainer {
                         </label>
                         <div>
                             <HtmlEditor
+                                onInitialized={(e) => {
+                                    if (this.autoFocus(field)) {
+                                        setTimeout(() => {
+                                            e.component.focus();
+                                        }, 1000);
+                                    }
+                                }}
                                 // mentions={mentionsConfig}
-                                key={`html-editor_${fieldIndex}-${groupUuid}`}
+                                key={`html-editor_${fieldIndex}-${groupUuid}-`}
                                 ref={(el) => (this.refsTextAreaArray[fieldIndex] = el)}
                                 id={`editor_${fieldIndex}-${groupUuid}`}
                                 readOnly={this.isDisabled(field)}
@@ -857,6 +957,7 @@ export class BaseRowComponent extends BaseContainer {
                                     const editable = field?.edit ? '' : 'not-editable';
                                     e.element.className = `editor ${editable} dx-show-invalid-badge dx-htmleditor dx-htmleditor-custom-underlined dx-widget`;
                                 }}
+                                name={field.fieldName}
                                 style={{width: '100%'}}
                                 className={`editor ${autoFill} ${validate}`}
                                 defaultValue={field.value}
@@ -1045,6 +1146,7 @@ export class BaseRowComponent extends BaseContainer {
                             {required ? '*' : ''}
                         </label>
                         <InputText
+                            autoFocus={this.autoFocus(field)}
                             id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                             name={field.fieldName}
                             className={`${autoFill} ${editable} ${validate}`}

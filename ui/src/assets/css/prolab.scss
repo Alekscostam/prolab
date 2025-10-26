@@ -47,6 +47,10 @@ html * {
     text-rendering: optimizeLegibility;
 }
 
+.p-dialog{
+     transform: translateZ(0);
+  will-change: transform;
+}
 html {
     height: 100%;
 }

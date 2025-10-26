@@ -1195,7 +1195,7 @@ class BaseContainer extends React.Component {
                     () => {
                         if (uploadResponse?.status === ResponseStatus.OK) {
                             this.crudService
-                                .edit(viewId, uploadResponse.recordId, parentId, 'View')
+                                .edit(viewId, uploadResponse.recordId, parentId)
                                 .then((editDataResponse) => {
                                     const renderEditData = gridView.options.addFilesAddForm;
                                     if (renderEditData) {
@@ -1750,9 +1750,7 @@ class BaseContainer extends React.Component {
 
     handleCancelRowChange(viewId, recordId, parentId) {
         SessionStoreUtils.clearClickedRowFromView();
-        ConsoleHelper(`handleCancelRowChange: viewId = ${viewId} recordId = ${recordId} parentId = ${parentId}`);
         const cancelElement = RequestUtils.createObjectDataToRequest(this.state);
-        ConsoleHelper(`handleCancelRowChange: element to cancel = ${JSON.stringify(cancelElement)}`);
         this.rowCancel(viewId, recordId, parentId, cancelElement, false);
     }
 
