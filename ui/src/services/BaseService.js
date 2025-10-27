@@ -1,6 +1,7 @@
 import moment from 'moment';
 import AuthService from './AuthService';
 import {readObjFromCookieGlobal} from '../utils/Cookie';
+import {updateHeartbeatDate} from '../utils/helper/StoreHelper';
 
 let lastRefreshTime = null;
 let isRefreshing = false;
@@ -62,6 +63,92 @@ export default class BaseService {
         this.blockUi = blockUi;
         this.unblockUi = unblockUi;
     }
+    fetchWithoutRefresh(url, options, headers, token) {
+        const method = options !== undefined ? options.method : undefined;
+
+        if (headers === null || headers === undefined) {
+            headers = {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                Pragma: 'no-cache',
+            };
+        }
+
+        if (this.auth.isLoggedUser()) {
+            headers['Authorization'] = 'Bearer ' + this.auth.getToken();
+        }
+
+        if (token) {
+            headers['Authorization'] = 'Bearer ' + token;
+        }
+
+        if (method === 'POST' || method === 'PUT') {
+            this.counter += 1;
+            if (this.blockUi !== undefined) {
+                this.blockUi();
+            }
+        }
+
+        return new Promise((resolve, reject) => {
+            fetch(url, {
+                headers,
+                ...options,
+            })
+                .then((response) => this.parseJSON(response, headers))
+                .then((response) => {
+                    updateHeartbeatDate();
+                    if (method === 'POST' || method === 'PUT') {
+                        this.counter -= 1;
+                        if (this.counter <= 0 && this.unblockUi !== undefined) {
+                            this.unblockUi();
+                        }
+                    }
+                    if (response.status === 401) {
+                        this.clearRefreshCache();
+                        this.auth.logout();
+                        return reject({status: 401, message: 'Unauthorized'});
+                    }
+                    if (response.ok) {
+                        if (headers.Accept === 'application/json') {
+                            return resolve(response.json);
+                        } else if (headers.Accept === 'application/octet-stream') {
+                            return resolve(response.blob);
+                        } else {
+                            return resolve(response.body);
+                        }
+                    } else {
+                        throw response.json;
+                    }
+                })
+                .catch((error) => {
+                    if (error.status === 401) {
+                        this.clearRefreshCache();
+                        this.auth.logout();
+                        return reject(error);
+                    }
+                    if (method === 'POST' || method === 'PUT') {
+                        this.counter -= 1;
+                        if (this.counter <= 0 && this.unblockUi !== undefined) {
+                            this.unblockUi();
+                        }
+                    }
+                    if (
+                        error !== undefined &&
+                        error !== null &&
+                        error.message !== undefined &&
+                        error.message !== null &&
+                        (error.message.includes('NetworkError when attempting to fetch resource') ||
+                            error.message.includes('Failed to fetch') ||
+                            error.message.includes('NetworkError'))
+                    ) {
+                        error.message = 'komunikacji z serwerem podczas pobierania danych.';
+                    }
+
+                    reject(error);
+                });
+        });
+    }
 
     fetch(url, options, headers, token) {
         const method = options !== undefined ? options.method : undefined;
@@ -92,6 +179,7 @@ export default class BaseService {
             })
                 .then((response) => this.parseJSON(response, headers))
                 .then((response) => {
+                    updateHeartbeatDate();
                     if (method === 'POST' || method === 'PUT') {
                         this.counter -= 1;
                         if (this.counter <= 0 && this.unblockUi !== undefined) {

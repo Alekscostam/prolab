@@ -38,8 +38,9 @@ import useStore from './store';
 import {SessionStoreUtils} from './utils/SessionStoreUtils';
 import WebSocket from './socket/WebSocket';
 import BarcodeScannerSimulator from './reader/BarcodeScannerSimulator';
-import {getStore} from './utils/helper/StoreHelper';
+import {getStore, updateHeartbeatDate} from './utils/helper/StoreHelper';
 import AboutVersionService from './services/AboutVersionService';
+import HeartbeatService from './services/HearbeatService';
 
 export let clearState;
 export let reStateApp;
@@ -56,6 +57,7 @@ class App extends Component {
         this.historyBrowser = this.history;
         this.selectedDataGrid = React.createRef();
         this.localizationService = new LocalizationService();
+        this.heartbeatService = new HeartbeatService();
         this.viewContainer = React.createRef();
         this.editSpecContainer = React.createRef();
         this.state = {
@@ -265,6 +267,7 @@ class App extends Component {
         if (duration.seconds() < 0) {
             this.authService.logout();
         }
+        this.heartBeat();
         useStore.getState().webSocket?.connect();
         if (sessionTimeout < tickerPopupDate && !this.state?.renderSessionTimeoutDialog) {
             this.setState({renderSessionTimeoutDialog: true, secondsToPopupTicker: duration.seconds()}, () => {
@@ -274,6 +277,26 @@ class App extends Component {
             });
         }
     }
+    heartBeat = () => {
+        const heartbeatTimeMinutes = getStore().heartbeatTimeMinutes;
+        if (heartbeatTimeMinutes) {
+            const heartbeatDate = getStore().heartbeatDate;
+            const now = new Date();
+            if (heartbeatDate) {
+                const hbDate = new Date(heartbeatDate);
+                if (now < hbDate) {
+                    return;
+                } else {
+                    updateHeartbeatDate();
+                    this.heartbeatService.heartbeat();
+                }
+            } else {
+                updateHeartbeatDate();
+                this.heartbeatService.heartbeat();
+            }
+        }
+    };
+
     isDurationFromSessionTimeoutPositive() {
         const duration = this.getDurationToLogout();
         return duration.asMilliseconds() > 5000;
@@ -343,6 +366,7 @@ class App extends Component {
             const showMerge = configuration.SHOW_MERGE;
             const rememberMe = configuration.REMEMBER_ME;
             const barCodeShowMethod = configuration.BAR_CODE_SHOW_METHOD;
+            const heartbeatTimeMinutes = configuration.HEARTBEAT_TIME_MINUTES;
             const draggableGridEnabled = configuration.DRAGGABLE_GRID_ENABLED;
             const wssUrl = configuration.WSS_URL;
             const showFilterClear = configuration.SHOW_FILTER_CLEAR;
@@ -365,6 +389,7 @@ class App extends Component {
             getStore().setCaptcha(captcha);
             getStore().setRememberMe(rememberMe);
             getStore().setBarCodeShowMethod(barCodeShowMethod);
+            getStore().setHeartbeatTimeMinutes(heartbeatTimeMinutes);
             getStore().setDraggableGridEnabled(draggableGridEnabled);
             getStore().setShowFilterClear(showFilterClear);
             getStore().setShowHintListButtons(showHintListButtons);

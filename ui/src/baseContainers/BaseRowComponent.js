@@ -200,6 +200,11 @@ export class BaseRowComponent extends BaseContainer {
                 this.scrollToError = true;
                 this.preventSave = true;
                 this.forceUpdate();
+                setTimeout(() => {
+                    this.setState({
+                        saveEnabled: true,
+                    });
+                }, 1000);
             });
         }
     }

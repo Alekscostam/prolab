@@ -7,12 +7,31 @@
           "isNew":true,
           "type": "NEW",
           "color": "green",
+          "description":"Zadziała tylko wtedy kiedy ustawiomy jakąs wartość w parametrze HEARTBEAT_TIME_MINUTES",
+          "date": "",
+          "link":"https://trello.com/c/UNYtdCkb/822-wywo%C5%82anie-punktu-heartbeat",
+          "text": "Implementacja hearbeat"
+         },
+          {
+          "isNew":true,
+          "type": "FIX",
+          "color": "red",
+          "date": "",
+          "link":"https://trello.com/c/LixQZyHu/806-b%C5%82%C4%85d-przy-kopiowaniu-dwuklik",
+          "text": "Blokada podwójnego kliknięcia zapisu nagłówka fix do poprzedniego zadania"
+        }
+      ]
+     }, {
+      "title":"",
+      "data": [
+          {
+          "type": "NEW",
+          "color": "green",
           "date": "",
           "link":"https://trello.com/c/IZOo262S/823-rozszerzenie-opcji-kod-kreskowyo",
           "text": "Rozszerzenie wywołania punktu edit"
          },
           {
-          "isNew":true,
           "type": "NEW",
           "color": "green",
           "date": "",
@@ -20,7 +39,6 @@
           "text": "Enter działa po zaakceptowaniu captchy"
          },
           {
-          "isNew":true,
           "type": "NEW",
           "color": "green",
           "date": "",
@@ -30,7 +48,6 @@
           "text": "Skróty klawiszowe w edycji nagłówka"
         },
         {
-          "isNew":true,
           "type": "NEW",
           "color": "green",
           "date": "",
@@ -38,7 +55,6 @@
           "text": "Focus na wybrany komponentt z edycji nagłówka po inicjalizacji"
         },
           {
-          "isNew":true,
           "type": "FIX",
           "color": "red",
           "date": "",
@@ -46,7 +62,6 @@
           "text": "Naprawa wywołania kodu kreskowego"
         },
           {
-          "isNew":true,
           "type": "FIX",
           "color": "red",
           "date": "",

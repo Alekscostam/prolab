@@ -1,5 +1,5 @@
 {
-    "REACT_APP_BACKEND_URL": "https://rdprolab.inform-tech.pl:444/PPA/api",
+    "REACT_APP_BACKEND_URL": "https://prolabrd.inform-tech.pl:444/PPA/api",
     "REACT_APP_URL_PREFIX": "",
     "LANG": "PL",
     "LANG_LIST": ["PL", "ENG", "DE"],
@@ -17,6 +17,7 @@
     "REMEMBER_ME":true,
     "BAR_CODE_SHOW_METHOD":"FIRST",
     "DRAGGABLE_GRID_ENABLED":false,
+    "HEARTBEAT_TIME_MINUTES":1,
     "CAPTCHA": {
         "SITE_KEY": "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI",
         "ENABLED": true
