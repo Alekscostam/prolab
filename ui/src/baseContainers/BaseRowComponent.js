@@ -34,6 +34,7 @@ import EditListDataStore from '../containers/dao/DataEditListStore';
 import KeyCombinationDetector from '../utils/KeyCombinationDetector';
 import {OperationType} from '../enum/OperationType';
 import {TranslationUtils} from '../utils/TranslationUtils';
+import {getStore} from '../utils/helper/StoreHelper';
 
 export class BaseRowComponent extends BaseContainer {
     constructor(props) {
@@ -102,17 +103,13 @@ export class BaseRowComponent extends BaseContainer {
 
     handleValidForm() {
         try {
+            getStore().setUnlockSave(this.unlockSave);
             const editInfo = this.props.editData?.editInfo;
             this.props.onSave(editInfo.viewId, editInfo.recordId, editInfo.parentId);
             this.refreshView();
         } catch (ex) {
             console.log(ex);
-        } finally {
-            setTimeout(() => {
-                this.setState({
-                    saveEnabled: true,
-                });
-            }, 1500);
+            this.unlockSave();
         }
     }
     handleSave = () => {
@@ -127,6 +124,12 @@ export class BaseRowComponent extends BaseContainer {
         const editInfo = this.props.editData?.editInfo;
         const kindView = this.props.kindView;
         this.props.onAutoFill(editInfo.viewId, editInfo.recordId, editInfo.parentId, kindView);
+    };
+
+    unlockSave = () => {
+        this.setState({
+            saveEnabled: true,
+        });
     };
 
     handleCancel = () => {

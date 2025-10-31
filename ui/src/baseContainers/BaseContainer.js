@@ -37,6 +37,7 @@ import useStore from '../store';
 import LocUtils from '../utils/LocUtils';
 import {ViewUtils} from '../utils/ViewUtils';
 import {SessionStoreUtils} from '../utils/SessionStoreUtils';
+import {getStore} from '../utils/helper/StoreHelper';
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -807,6 +808,13 @@ class BaseContainer extends React.Component {
             })
             .catch((err) => {
                 this.showGlobalErrorMessage(err);
+            })
+            .finally(() => {
+                const unlockSave = getStore().unlockSave;
+                if (unlockSave) {
+                    unlockSave();
+                    getStore().setUnlockSave(undefined);
+                }
             });
     };
     shouldRefreshSubView(kindOperation) {
