@@ -1,713 +1,716 @@
 {
-  "changeLog": [
-     {
-      "title":"",
-      "data": [
-          {
-          "isNew":true,
-          "type": "NEW",
-          "color": "green",
-          "description":"Zadziała tylko wtedy kiedy ustawiomy jakąs wartość w parametrze HEARTBEAT_TIME_MINUTES",
-          "date": "",
-          "link":"https://trello.com/c/UNYtdCkb/822-wywo%C5%82anie-punktu-heartbeat",
-          "text": "Implementacja hearbeat"
-         },
-          {
-          "isNew":true,
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "link":"https://trello.com/c/LixQZyHu/806-b%C5%82%C4%85d-przy-kopiowaniu-dwuklik",
-          "text": "Blokada podwójnego kliknięcia zapisu nagłówka fix do poprzedniego zadania"
+    "changeLog": [
+        {
+            "title": "",
+            "data": [
+                {
+                    "isNew": true,
+                    "type": "NEW",
+                    "color": "green",
+                    "description": "Zadziała tylko wtedy kiedy ustawiomy jakąs wartość w parametrze HEARTBEAT_TIME_MINUTES",
+                    "date": "",
+                    "link": "https://trello.com/c/UNYtdCkb/822-wywo%C5%82anie-punktu-heartbeat",
+                    "text": "Implementacja hearbeat i obsluga NOK"
+                },
+                {
+                    "isNew": true,
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/LixQZyHu/806-b%C5%82%C4%85d-przy-kopiowaniu-dwuklik",
+                    "text": "Blokada podwójnego kliknięcia zapisu nagłówka fix do poprzedniego zadania"
+                }
+            ]
+        },
+        {
+            "title": "",
+            "data": [
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "link": "https://trello.com/c/IZOo262S/823-rozszerzenie-opcji-kod-kreskowyo",
+                    "text": "Rozszerzenie wywołania punktu edit"
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "link": "https://trello.com/c/UNYtdCkb/822-wywo%C5%82anie-punktu-heartbeat",
+                    "text": "Enter działa po zaakceptowaniu captchy"
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "description": "Koniecznie przetestować wsyzstkie operacje w edycji nagłówka!!! W edycji FULLSCREEN tez przetestujcie",
+                    "importanceColor": "#ff6666",
+                    "link": "https://trello.com/c/xIXi4qx0/825-edycja-nag%C5%82%C3%B3wka-uruchomienie-skr%C3%B3t%C3%B3w-klawiszowych-dla-operacji",
+                    "text": "Skróty klawiszowe w edycji nagłówka"
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "link": "https://trello.com/c/T2RReFlM/824-edycja-nag%C5%82%C3%B3wka-ustawienie-focusa-na-zadanym-polu",
+                    "text": "Focus na wybrany komponentt z edycji nagłówka po inicjalizacji"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/ZIfT5Ejl/826-b%C5%82%C4%85d-przy-realizacji-kodu-kreskowego",
+                    "text": "Naprawa wywołania kodu kreskowego"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/LixQZyHu/806-b%C5%82%C4%85d-przy-kopiowaniu-dwuklik",
+                    "text": "Blokada podwójnego kliknięcia zapisu nagłówka"
+                }
+            ]
+        },
+        {
+            "title": "",
+            "data": [
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/nH8Cjrw0/813-modyfikacja-pola-logicznego-t-n",
+                    "text": "Pole logiczne T i N naprawa"
+                }
+            ]
+        },
+        {
+            "title": "",
+            "data": [
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "",
+                    "text": "Zapamiętywanie zaznaczonych wierszy w liscie podpowiedzi po scrollu"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "importanceColor": "#ff6666",
+                    "link": "https://trello.com/c/0DdZQhjw/800-cofni%C4%99cie-widoku-przegl%C4%85darki",
+                    "text": "Naprawa filtrowania w datagrid"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/VfRM8ts7/807-kontrola-wymagalno%C5%9Bci-pole-data",
+                    "text": "Komponent data przwrócenie obramowania"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/5clKl6um/804-separator-przecinek-w-polu-multiwyb%C3%B3r",
+                    "text": "Usunięcie przeicnikó z setfields"
+                }
+            ]
+        },
+        {
+            "title": "",
+            "data": [
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/UEeO9Xzq/798-zaznaczanie-pola-logicznego-w-specyfikacji",
+                    "text": "Naprawa pola logicznego w edycji specyfikacji"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "link": "https://trello.com/c/5UOh45vs/799-od%C5%9Bwie%C5%BCanie-po-zaznaczeniu-checkbox-w-specyfikacji",
+                    "date": "",
+                    "text": "Usunięcie mrugania poprzez wyłączenie isMerge"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "importanceColor": "#ff6666",
+                    "text": "Zmiana działa listy podpowiedzi różnych rodzaji w edycji nagłówka i w edycji specyfikacji"
+                },
+                {
+                    "type": "FIX",
+                    "link": "https://trello.com/c/jLtIglPG/801-warto%C5%9Bci-z-przecinkiem-w-polu-liczbowym",
+                    "color": "red",
+                    "date": "",
+                    "importanceColor": "#ff6666",
+                    "text": "Wymiana komponentu liczbowego w edycji specyfikacji"
+                }
+            ]
+        },
+        {
+            "title": "Wersja któraś tam",
+            "data": [
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "text": "Filtrowanie w batch wraz z licznikiem wierszy"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "text": "Usunięcie zbędnego footera w dialogu załączników."
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "text": "Zmniejszenie rerenderu FilterClear co powodowało niemożliwość autoamtycznego zaznaczenia filtru"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "text": "Dodanie polskiego tłumaczenia w komponencie DxExtremeEditor na Toolbar"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "text": "Zmiana przycisku „Zamknij” na ikonę krzyżyka w celu ujednolicenia z innymi dialogami w dialogu historii operacji."
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "description": "",
+                    "date": "",
+                    "text": "Usunięcie błędu białej strony w przypadku braku coockies'a dotyczacego batchy po wejsciu w widok modyfikacji nagłowka/seryjnej"
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "description": "",
+                    "date": "",
+                    "text": "Dynamiczne wyliczanie defaultPackageCount jeśli z BE nie będzie szła ta informacja"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "description": "",
+                    "link": "https://trello.com/c/xOzKbDP0/514-zamkni%C4%99cie-okna-z-za%C5%82%C4%85cznikami-od%C5%9Bwie%C5%BCenie-view-lub-rekordu",
+                    "date": "",
+                    "text": "Zamknięcie okna z załącznikami - Odświeżenie view i rekordu"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "description": "",
+                    "date": "",
+                    "text": "Zwiększenie z-indexu na toasty dzięki czemu zawsze są nad maską w przypadku pojawiania sie dialogu"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "description": "",
+                    "date": "",
+                    "text": "Ukrywanie filtrów w Treelist, GridView, Gantt na parametr z BE (do ustalenia jaki)"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "description": "Frontend respektuje grupowanie z BE, ale daje użytkownikowi kontrolę, żeby to zmienić. Należy przetestować grupowanie jak i te multi headery czy na pewno nic sie nie rozjechało",
+                    "date": "",
+                    "importanceColor": "#fff666",
+                    "text": "BE wysyła do FE informację o grupowaniu i do tej pory FE nie miało możliwości tego nadpisać/zdjąć. FE zostało poprawione, aby użytkownik mógł zdjąć grupowanie ustawione domyślnie przez BE."
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "importanceColor": "#fff666",
+                    "description": "Usuwanie customowego eventu(ktory jest tworzony w momencie onChange) oraz zabezpiecznie przed wyjątkami runtime. Należy przetestować ten komponent w batch i treelist",
+                    "date": "",
+                    "text": "Zabezpieczenie i optymalizacja MemoizedDateTimeInput"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "description": "",
+                    "date": "",
+                    "text": "Wyłączenie zapisywania danych widoku w ciasteczku, jeśli informacje o widoku są zbyt duże, co wcześniej powodowało błąd zapisu do ciasteczka"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "description": "",
+                    "date": "",
+                    "text": "Wyrownanie obrazka w edycji nagłówka"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "description": "",
+                    "date": "",
+                    "text": "Wyrównano kolumnę „Operations” w TreeList."
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "description": "Ten widok podany w linku już mi nie działa, więc cięzko mi było testować. To sie psuło jak była włączona opcja 'rowAutoHeight' i było duzo tekstu ",
+                    "link": "https://trello.com/c/Ueh5FkDM/695-viewgrid-rozje%C5%BCd%C5%BCa-si%C4%99",
+                    "date": "",
+                    "text": "Dodano automatyczny resize rozmiaru DataGrid w przypadku niedopasowania siatki."
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "description": "Ważna zmiana",
+                    "link": "https://trello.com/c/0uuwSYsl/794-fix-problem-z-wyborem-na-li%C5%9Bcie-podpowiedzi-w-przypadku-tych-samych-pozycji-do-wpisania-dla-pola-wirtualnego",
+                    "date": "",
+                    "importanceColor": "#ff6666",
+                    "text": "Zmiana brania pod uwage columny do wyliczenia hasha klucza w liście podpowiedzi."
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "link": "https://trello.com/c/n4Pdw1hF/788-ppm-b%C5%82%C4%85d",
+                    "description": "",
+                    "date": "",
+                    "text": "Naprawiono działanie PPM na ekranie startowym"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "link": "https://trello.com/c/8U8a1YoA/790-widok-kafelki",
+                    "description": "",
+                    "date": "",
+                    "text": "Powrót kart do lewej strony"
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "description": "",
+                    "date": "",
+                    "text": "Parsowanie dat rzymskich kalendarza w edycji nagłówka"
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "link": "https://trello.com/c/b8J002cp/792-nie-obs%C5%82uguje-%C5%82%C4%85czenia-p%C3%B3l-parametr-ismerge",
+                    "description": "Parametr SHOW_MERGE - w przyszlosci po testach ten parametr będzie do usunięcia",
+                    "date": "",
+                    "text": "Mergowanie wierszy w wybranych kolumnach"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "description": "",
+                    "date": "",
+                    "text": "Drop region mniejszy dla dialogu image"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "description": "",
+                    "link": "https://trello.com/c/EHp8R7q7/427-wprowadzi%C4%87-captcha-przy-logowaniu",
+                    "date": "",
+                    "text": "Wyłączenie logowania na enter"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "link": "https://trello.com/c/I7ZLb4YS/789-od%C5%9Bwie%C5%BCanie-po-dodaniu-obrazka-i-obs%C5%82uga-kosza",
+                    "description": "Należy dokładnie przetestować różne warianty zwiazane z obrazkami czy sie nie rozjechało",
+                    "date": "",
+                    "importanceColor": "#ff6666",
+                    "text": "Naprawa wyswietlania kosza w treelist, poprawa refresha image po jego dodaniu w treelist"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "link": "https://trello.com/c/hKUeKpIF/793-ikonki-przy-edycji-pola-podpowied%C5%BA-i-wype%C5%82nij-w-d%C3%B3%C5%82",
+                    "description": "",
+                    "date": "",
+                    "text": "Naprawa nieskalowalnych ikon do prawej w edycji specyfikacji"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "link": "https://trello.com/c/9WIT2EU7/791-zmiana-kalendarza-by-tydzie%C5%84-zaczyna%C5%82-si%C4%99-od-poniedzia%C5%82ku",
+                    "description": "Należy dokładnie przetestować w edycji nagłówka. Musiałem wymienić cały komponent, bo nie dalo sie ustawić daty na poniedziałek...",
+                    "date": "",
+                    "importanceColor": "#ff6666",
+                    "text": "Wymiana komponentów date, datetime, time z biblioteki primereact na devextreme"
+                }
+            ]
+        },
+        {
+            "title": "Wersja któraś tam",
+            "data": [
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "text": "CTRL+K - jeśli idzie pusta lista lub null z find - to nic sie nie wywoła"
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "text": "Wymiana komponentu wyboru kopii w dialogu kopiowania"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "text": "Draggable grid czasami nie działał jak były widoczne obrazki"
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "text": "Draggable na gantt widok"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "text": "fix na zliczanie taskow w preview version"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "text": "Brakujące key w componentach - fix wydajnosciowy"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "text": "PPM i potem wejscie do edycji i anulacja wymazuje zaznaczony row - gantt"
+                },
+                {
+                    "type": "FIX",
+                    "description": "W niektórych przypadkach, gdy zaznaczone były dwa filtry i użytkownik przechodził do edycji specyfikacji, a następnie wracał za pomocą przycisku wstecz w przeglądarce, następowało nieprawidłowe odświeżenie widoku siatki (gridu). Błąd powiązany z funkcjonalnością, ktora dotyczyła kolorowania wybranego rekordu z którego weszliśmy do modyfikacji specyfikacji",
+                    "color": "red",
+                    "date": "",
+                    "text": "Poprawa błędu związanego z psuciem sie grida"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "text": "Wyrowanie kart do brzegów w widoku kart"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "text": "Wyrowanie grida w załącznikach do brzegów"
+                },
+                {
+                    "type": "FIX",
+                    "importanceColor": "#ff6666",
+                    "description": "jak dodawaliśmy nowy parametr to bralo złe pola do kolorowania na szaro. Sparawdźcie czy wszystkie cellsy w treelist teraz dobrze sie wysweitlają i czy nie ma jakichś błedów",
+                    "color": "red",
+                    "date": "",
+                    "text": "Prawidłowe wyświetlanie disabled background w treelist jak dodajemy parametr"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/Ud8poNz8/717-okno-potwierdzenia-usuni%C4%99cia-specyfikacji-%C5%BAle-wy%C5%9Bwietla",
+                    "text": "Potwierdzenie usuwania w modyfikacji specyfikacji"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "description": "Poprawa wizualna. Blokowanie ekranu trwa teraz do momentu pojawienia się edycji nagłówka",
+                    "text": "Przedłużenie blockUI w momencie wywoływania zatwierdzenia w dialogu kopiowania"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "text": "Usunięcie skoku wysokości przy wejsciu w konkretny cell w treelist"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "text": "Domyślne tytuły w przypadku kiedy w komunikatach typ warning i succesfull jest null"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "text": "Minimalna wysokość i szerokość dla dialogu"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "text": "Resize dialogu w załącznikach psuł cały datagrid - robił go niewidocznym"
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "text": "React ERROR BOUNDARY do obsługi błędów białej strony"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "link": "https://trello.com/c/u3RiHzgl/783-edycja-pola-obrazkowego-w-specyfikacji",
+                    "date": "",
+                    "description": "Należy sprawdzić czy w róznych trybach dobrze wyswietla się kosz",
+                    "text": "Ikona usuwania (kosza) przy obrazku została ukryta, gdy edit jest ustawiony na false, czyli w trybie tylko do odczytu"
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "text": "Obrazek w kolumnie został odpowiednio wycentrowany w widoku TreeList dla lepszej estetyki i spójności interfejsu."
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "description": "Należy sprawdzić czy w róznych trybach dobrze wyswietla się obrazek zarówno po kliknięciu jak i bez kliknięcia",
+                    "text": "Dodano możliwość wyświetlania podglądu obrazka również w trybie view, dzięki czemu użytkownik może zobaczyć obraz nawet bez możliwości edycji w Treelist."
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "link": "https://trello.com/c/T8nCSkCp/782-przegl%C4%85d-pola-logicznego-w-edycji-specyfikacji",
+                    "date": "",
+                    "description": "Należy sprawdzić czy w róznych trybach dobrze wyswietla się bool i logic",
+                    "text": "Naprawiono sposób prezentacji komponentów bool i logic w trybie podglądu w Treelist."
+                },
+
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "description": "Należy sprawdzić czy w róznych trybach dobrze wyswietla się obrazek zarówno po kliknięciu jak i bez kliknięcia",
+                    "text": "Dodano możliwość wyświetlania podglądu obrazka również w trybie view, dzięki czemu użytkownik może zobaczyć obraz nawet bez możliwości edycji w Treelist."
+                },
+
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "description": "",
+                    "text": "W przypadku wystąpienia błędu walidacji, po najechaniu kursorem na komórkę z błędem, tekst w komórce był podświetlany na czarno. Na ciemnym tle powodowało to brak czytelności - treelist"
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "link": "https://trello.com/c/EHp8R7q7/427-wprowadzi%C4%87-captcha-przy-logowaniu",
+                    "date": "",
+                    "more": "<div>Parametry wyglądają w sposób następujący:<br><pre>{\n  'CAPTCHA': {\n    'SITE_KEY': '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',\n    'ENABLED': true\n  }\n}</pre></div> <br> Do Romana idzie nowy parametr w punkcie do logowania o nazwie RecaptchaToken - nie musisicie nic z nim robic jak nie chcecie ",
+                    "description": "Miałem kiedyś przypadek, że po włączeniu testowej reCAPTCHY strona została zablokowana – ekran był nieaktywny i nie dało się z niego korzystać. Możliwe, że Google celowo stosuje jakieś ramki blokujące .",
+                    "text": "Implementacja captchy"
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "link": "https://trello.com/c/TaAshKOH/654-wy%C5%82%C4%85czenie-zapami%C4%99tywania-warto%C5%9Bci-w-polu-username",
+                    "date": "",
+                    "description": "",
+                    "text": "Wyłączenie remember me na parametr 'REMEMBER_ME' false"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "link": "https://trello.com/c/yTtIEhSm/785-gantt-dopasowanie-wysoko%C5%9Bci-rekordu-w-cz%C4%99%C5%9Bci-z-datami",
+                    "date": "",
+                    "description": "",
+                    "text": "Naprawa wysokości header w gantt"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "description": "",
+                    "text": "Naprawa zapamietywnia filtru od dat w gantt"
+                },
+                {
+                    "type": "FIX",
+                    "link": "https://trello.com/c/E1bcGug6/784-licznik-rekord%C3%B3w-w-widoku-gantt",
+                    "color": "red",
+                    "date": "",
+                    "description": "",
+                    "text": "Prawidłwoe wylicznie totalcount w gantt"
+                },
+                {
+                    "type": "FIX",
+                    "link": "",
+                    "color": "red",
+                    "importanceColor": "#ff6666",
+                    "date": "",
+                    "description": "Należy sprawdzić zapamiętywnie wsyztskich filtrów w zwykłym grid",
+                    "text": "Zapamietywnie filtra typu beetween w zwykłym grid"
+                },
+                {
+                    "type": "FIX",
+                    "link": "",
+                    "color": "red",
+                    "importanceColor": "#ff6666",
+                    "date": "",
+                    "description": "Nie działało jak należy szcególnie przy datach i operacjach na nich",
+                    "text": "Zbiorcza naprawa zapamiętywnia filtrów w gantt"
+                },
+                {
+                    "type": "FIX",
+                    "link": "",
+                    "color": "red",
+                    "date": "",
+                    "description": "Pierwsza koluman w gantt nie była widoczna",
+                    "text": "Naprawa niewidocznej pierwszej kolumny w gantt"
+                },
+                {
+                    "type": "FIX",
+                    "link": "",
+                    "color": "red",
+                    "date": "",
+                    "description": "Jak klikało się PPM na grid to było podwójne mrugnięcie",
+                    "text": "Naprawa podwójnego mrugniecia po kliknieciu PPM na głównym gridzie"
+                },
+                {
+                    "type": "FIX",
+                    "link": "",
+                    "color": "red",
+                    "date": "",
+                    "description": "Czasami było źle dopasowanie jeśli header był wysoki, wtedy columna z buttonem 'Dodaj' skakała, przy zaczytywaniu danych",
+                    "text": "Autodopasowanie wysokości headera z przyciskiem 'Dodaj' na głónym gridzie przy rerenderze"
+                },
+                {
+                    "type": "NEW",
+                    "link": "",
+                    "color": "green",
+                    "importanceColor": "#ff6666",
+                    "date": "",
+                    "description": "Niby pozytywnie wpływają te opcje na wydajność. Należy sprawdzić czy orbazki dobrze się wysświetlają na głównym gridzie",
+                    "text": "Zamiana base64 na blob w obrazkach oraz dodawanie leniwego ładowania"
+                }
+            ]
+        },
+        {
+            "title": "Wersja któraś tam",
+            "data": [
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "link": "https://trello.com/c/m86Ak3yF/779-edycja-pola-czas-w-specyfikacji",
+                    "date": "",
+                    "text": "Naprawa blank strony po kliknięcie w Date component w treelist"
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "link": "https://trello.com/c/OLbI1QnR/778-mo%C5%BCliwo%C5%9B%C4%87-zaznaczenia-warto%C5%9Bci-w-kom%C3%B3rce-double-click",
+                    "date": "",
+                    "text": "Double click zaznacza text na datagrid"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "text": "Kasowanie parametrów z URL w przypadku wystąpienia błędu na edycji nagłówka"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "text": "Naprawa blank strony po wywołaniu ctrl + k"
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "text": "Otwieranie linku w nowej karcie po kliknieciu z dialogu wersji"
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "text": "Wersja w pliku aboutVersion.json w katalogu aboutVersion"
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "text": "Zakładka historii w dialogu wersji"
+                }
+            ]
+        },
+        {
+            "title": "Wersja któraś tam",
+            "data": [
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "text": "Usunięcie zbędnych chmurek na gridach, których nie powinno być"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "description": "@Roman miał problem, że nie działały strzałki",
+                    "date": "",
+                    "text": "Wymiana komponentu Liczby kopii w dodawaniu parametru"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "description": "",
+                    "date": "",
+                    "text": "Naprawa PPM w dodawaniu parametrów (dublowały się z tymi z głównego widoku w treelist)"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "description": "Istnieją trzy wersje na wypadek, gdyby któraś nie działała — parametr BAR_CODE_SHOW_METHOD na FIRST/SECOND/THIRD",
+                    "date": "",
+                    "text": "Kreski - zmiana wywoływania poprzez czytnik",
+                    "more": "<b>FIRST:</b> po naciśnięciu Ctrl + K w JavaScripcie pojawia się okno (wcześniej było to robione w React), w którym aktywowany jest input, a następnie do niego trafia kod.<br><b>SECOND:</b> istnieje ukryty input, niewidoczny dla użytkownika. Po wywołaniu Ctrl + K ten input staje się aktywny, a następnie otwierane jest okno, do którego przekazywana jest jego wartość.<br><b>THIRD:</b> po naciśnięciu Ctrl + K aktywowany zostaje ukryty input, ale bez otwierania okna — od razu wywoływana jest metoda find()."
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "description": "",
+                    "date": "",
+                    "text": "Blokada wywołania kreski, gdy jest otwarty jakiś dialog"
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "description": "",
+                    "date": "",
+                    "text": "Show more w dialogu wersji"
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "description": "Aby włączyć tę opcję, należy ustawić parametr DRAGGABLE_GRID_ENABLED na true",
+                    "date": "",
+                    "text": "Możliwość przeciągania datagrida w momencie kliknięcia i przytrzymania lewego klawisza myszy"
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "description": "",
+                    "date": "",
+                    "text": "Opis parametrów apliakcji w dialogu aktualnej wersji"
+                }
+            ]
         }
-      ]
-     }, {
-      "title":"",
-      "data": [
-          {
-          "type": "NEW",
-          "color": "green",
-          "date": "",
-          "link":"https://trello.com/c/IZOo262S/823-rozszerzenie-opcji-kod-kreskowyo",
-          "text": "Rozszerzenie wywołania punktu edit"
-         },
-          {
-          "type": "NEW",
-          "color": "green",
-          "date": "",
-          "link":"https://trello.com/c/UNYtdCkb/822-wywo%C5%82anie-punktu-heartbeat",
-          "text": "Enter działa po zaakceptowaniu captchy"
-         },
-          {
-          "type": "NEW",
-          "color": "green",
-          "date": "",
-          "description":"Koniecznie przetestować wsyzstkie operacje w edycji nagłówka!!! W edycji FULLSCREEN tez przetestujcie",
-          "importanceColor":"#ff6666",
-          "link": "https://trello.com/c/xIXi4qx0/825-edycja-nag%C5%82%C3%B3wka-uruchomienie-skr%C3%B3t%C3%B3w-klawiszowych-dla-operacji",
-          "text": "Skróty klawiszowe w edycji nagłówka"
-        },
-        {
-          "type": "NEW",
-          "color": "green",
-          "date": "",
-          "link":"https://trello.com/c/T2RReFlM/824-edycja-nag%C5%82%C3%B3wka-ustawienie-focusa-na-zadanym-polu",
-          "text": "Focus na wybrany komponentt z edycji nagłówka po inicjalizacji"
-        },
-          {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "link":"https://trello.com/c/ZIfT5Ejl/826-b%C5%82%C4%85d-przy-realizacji-kodu-kreskowego",
-          "text": "Naprawa wywołania kodu kreskowego"
-        },
-          {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "link":"https://trello.com/c/LixQZyHu/806-b%C5%82%C4%85d-przy-kopiowaniu-dwuklik",
-          "text": "Blokada podwójnego kliknięcia zapisu nagłówka"
-        }
-      ]
-     },  {
-      "title":"",
-      "data": [
-          {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "link":"https://trello.com/c/nH8Cjrw0/813-modyfikacja-pola-logicznego-t-n",
-          "text": "Pole logiczne T i N naprawa"
-        }
-      ]
-     },{
-      "title":"",
-      "data": [
-          {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "link":"",
-          "text": "Zapamiętywanie zaznaczonych wierszy w liscie podpowiedzi po scrollu"
-        },
-          {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-                    "importanceColor":"#ff6666",
-          "link":"https://trello.com/c/0DdZQhjw/800-cofni%C4%99cie-widoku-przegl%C4%85darki",
-          "text": "Naprawa filtrowania w datagrid"
-        },
-          {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "link":"https://trello.com/c/VfRM8ts7/807-kontrola-wymagalno%C5%9Bci-pole-data",
-          "text": "Komponent data przwrócenie obramowania"
-        },
-          {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "link":"https://trello.com/c/5clKl6um/804-separator-przecinek-w-polu-multiwyb%C3%B3r",
-          "text": "Usunięcie przeicnikó z setfields"
-        }
-      ]
-     },  {
-      "title":"",
-      "data": [
-          {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "link":"https://trello.com/c/UEeO9Xzq/798-zaznaczanie-pola-logicznego-w-specyfikacji",
-          "text": "Naprawa pola logicznego w edycji specyfikacji"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "link":"https://trello.com/c/5UOh45vs/799-od%C5%9Bwie%C5%BCanie-po-zaznaczeniu-checkbox-w-specyfikacji",
-          "date": "",
-          "text": "Usunięcie mrugania poprzez wyłączenie isMerge"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "importanceColor":"#ff6666",
-          "text": "Zmiana działa listy podpowiedzi różnych rodzaji w edycji nagłówka i w edycji specyfikacji"
-        },
-        {
-          "type": "FIX",
-          "link":"https://trello.com/c/jLtIglPG/801-warto%C5%9Bci-z-przecinkiem-w-polu-liczbowym",
-          "color": "red",
-          "date": "",
-          "importanceColor":"#ff6666",
-          "text": "Wymiana komponentu liczbowego w edycji specyfikacji"
-        }
-      ]
-     },
-     {
-     
-      "title":"Wersja któraś tam",
-      "data": [
-        {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "text": "Filtrowanie w batch wraz z licznikiem wierszy"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "text": "Usunięcie zbędnego footera w dialogu załączników."
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "text": "Zmniejszenie rerenderu FilterClear co powodowało niemożliwość autoamtycznego zaznaczenia filtru"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "text": "Dodanie polskiego tłumaczenia w komponencie DxExtremeEditor na Toolbar"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "text": "Zmiana przycisku „Zamknij” na ikonę krzyżyka w celu ujednolicenia z innymi dialogami w dialogu historii operacji."
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "description": "",
-          "date": "",
-          "text": "Usunięcie błędu białej strony w przypadku braku coockies'a dotyczacego batchy po wejsciu w widok modyfikacji nagłowka/seryjnej"
-        },
-        {
-          "type": "NEW",
-          "color": "green",
-          "description": "",
-          "date": "",
-          "text": "Dynamiczne wyliczanie defaultPackageCount jeśli z BE nie będzie szła ta informacja"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "description": "",
-          "link": "https://trello.com/c/xOzKbDP0/514-zamkni%C4%99cie-okna-z-za%C5%82%C4%85cznikami-od%C5%9Bwie%C5%BCenie-view-lub-rekordu",
-          "date": "",
-          "text": "Zamknięcie okna z załącznikami - Odświeżenie view i rekordu"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "description": "",
-          "date": "",
-          "text": "Zwiększenie z-indexu na toasty dzięki czemu zawsze są nad maską w przypadku pojawiania sie dialogu"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "description": "",
-          "date": "",
-          "text": "Ukrywanie filtrów w Treelist, GridView, Gantt na parametr z BE (do ustalenia jaki)"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "description": "Frontend respektuje grupowanie z BE, ale daje użytkownikowi kontrolę, żeby to zmienić. Należy przetestować grupowanie jak i te multi headery czy na pewno nic sie nie rozjechało",
-          "date": "",
-          "importanceColor":"#fff666",
-          "text": "BE wysyła do FE informację o grupowaniu i do tej pory FE nie miało możliwości tego nadpisać/zdjąć. FE zostało poprawione, aby użytkownik mógł zdjąć grupowanie ustawione domyślnie przez BE."
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "importanceColor":"#fff666",
-          "description": "Usuwanie customowego eventu(ktory jest tworzony w momencie onChange) oraz zabezpiecznie przed wyjątkami runtime. Należy przetestować ten komponent w batch i treelist",
-          "date": "",
-          "text": "Zabezpieczenie i optymalizacja MemoizedDateTimeInput"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "description":"",
-          "date": "",
-          "text": "Wyłączenie zapisywania danych widoku w ciasteczku, jeśli informacje o widoku są zbyt duże, co wcześniej powodowało błąd zapisu do ciasteczka"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "description":"",
-          "date": "",
-          "text": "Wyrownanie obrazka w edycji nagłówka"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "description":"",
-          "date": "",
-          "text": "Wyrównano kolumnę „Operations” w TreeList."
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "description":"Ten widok podany w linku już mi nie działa, więc cięzko mi było testować. To sie psuło jak była włączona opcja 'rowAutoHeight' i było duzo tekstu ",
-          "link": "https://trello.com/c/Ueh5FkDM/695-viewgrid-rozje%C5%BCd%C5%BCa-si%C4%99",
-          "date": "",
-          "text": "Dodano automatyczny resize rozmiaru DataGrid w przypadku niedopasowania siatki."
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "description":"Ważna zmiana",
-          "link": "https://trello.com/c/0uuwSYsl/794-fix-problem-z-wyborem-na-li%C5%9Bcie-podpowiedzi-w-przypadku-tych-samych-pozycji-do-wpisania-dla-pola-wirtualnego",
-          "date": "",
-          "importanceColor":"#ff6666",
-          "text": "Zmiana brania pod uwage columny do wyliczenia hasha klucza w liście podpowiedzi."
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "link":"https://trello.com/c/n4Pdw1hF/788-ppm-b%C5%82%C4%85d",
-          "description":"",
-          "date": "",
-          "text": "Naprawiono działanie PPM na ekranie startowym"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "link":"https://trello.com/c/8U8a1YoA/790-widok-kafelki",
-          "description":"",
-          "date": "",
-          "text": "Powrót kart do lewej strony"
-        },
-        {
-          "type": "NEW",
-          "color": "green",
-          "description":"",
-          "date": "",
-          "text": "Parsowanie dat rzymskich kalendarza w edycji nagłówka"
-        },
-        {
-          "type": "NEW",
-          "color": "green",
-          "link":"https://trello.com/c/b8J002cp/792-nie-obs%C5%82uguje-%C5%82%C4%85czenia-p%C3%B3l-parametr-ismerge",
-          "description":"Parametr SHOW_MERGE - w przyszlosci po testach ten parametr będzie do usunięcia",
-          "date": "",
-          "text": "Mergowanie wierszy w wybranych kolumnach"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "description":"",
-          "date": "",
-          "text": "Drop region mniejszy dla dialogu image"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "description":"",
-          "link":"https://trello.com/c/EHp8R7q7/427-wprowadzi%C4%87-captcha-przy-logowaniu",
-          "date": "",
-          "text": "Wyłączenie logowania na enter"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "link":"https://trello.com/c/I7ZLb4YS/789-od%C5%9Bwie%C5%BCanie-po-dodaniu-obrazka-i-obs%C5%82uga-kosza",
-          "description":"Należy dokładnie przetestować różne warianty zwiazane z obrazkami czy sie nie rozjechało",
-          "date": "",
-          "importanceColor":"#ff6666",
-          "text": "Naprawa wyswietlania kosza w treelist, poprawa refresha image po jego dodaniu w treelist"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "link":"https://trello.com/c/hKUeKpIF/793-ikonki-przy-edycji-pola-podpowied%C5%BA-i-wype%C5%82nij-w-d%C3%B3%C5%82",
-          "description":"",
-          "date": "",
-          "text": "Naprawa nieskalowalnych ikon do prawej w edycji specyfikacji"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "link":"https://trello.com/c/9WIT2EU7/791-zmiana-kalendarza-by-tydzie%C5%84-zaczyna%C5%82-si%C4%99-od-poniedzia%C5%82ku",
-          "description":"Należy dokładnie przetestować w edycji nagłówka. Musiałem wymienić cały komponent, bo nie dalo sie ustawić daty na poniedziałek...",
-          "date": "",
-          "importanceColor":"#ff6666",
-          "text": "Wymiana komponentów date, datetime, time z biblioteki primereact na devextreme"
-        }
-      ]
-    },
-     {
-      "title":"Wersja któraś tam",
-      "data": [
-        {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "text": "CTRL+K - jeśli idzie pusta lista lub null z find - to nic sie nie wywoła"
-        },
-        {
-          "type": "NEW",
-          "color": "green",
-          "date": "",
-          "text": "Wymiana komponentu wyboru kopii w dialogu kopiowania"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "text": "Draggable grid czasami nie działał jak były widoczne obrazki"
-        },
-        {
-          "type": "NEW",
-          "color": "green",
-          "date": "",
-          "text": "Draggable na gantt widok"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "text": "fix na zliczanie taskow w preview version"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "text": "Brakujące key w componentach - fix wydajnosciowy"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "text": "PPM i potem wejscie do edycji i anulacja wymazuje zaznaczony row - gantt"
-        }, 
-        {
-          "type": "FIX",
-          "description": "W niektórych przypadkach, gdy zaznaczone były dwa filtry i użytkownik przechodził do edycji specyfikacji, a następnie wracał za pomocą przycisku wstecz w przeglądarce, następowało nieprawidłowe odświeżenie widoku siatki (gridu). Błąd powiązany z funkcjonalnością, ktora dotyczyła kolorowania wybranego rekordu z którego weszliśmy do modyfikacji specyfikacji",
-          "color": "red",
-          "date": "",
-          "text": "Poprawa błędu związanego z psuciem sie grida"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "text": "Wyrowanie kart do brzegów w widoku kart"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "text": "Wyrowanie grida w załącznikach do brzegów"
-        },
-        {
-          "type": "FIX",
-          "importanceColor":"#ff6666",
-          "description": "jak dodawaliśmy nowy parametr to bralo złe pola do kolorowania na szaro. Sparawdźcie czy wszystkie cellsy w treelist teraz dobrze sie wysweitlają i czy nie ma jakichś błedów",
-          "color": "red",
-          "date": "",
-          "text": "Prawidłowe wyświetlanie disabled background w treelist jak dodajemy parametr"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "link":"https://trello.com/c/Ud8poNz8/717-okno-potwierdzenia-usuni%C4%99cia-specyfikacji-%C5%BAle-wy%C5%9Bwietla",
-          "text": "Potwierdzenie usuwania w modyfikacji specyfikacji"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "description": "Poprawa wizualna. Blokowanie ekranu trwa teraz do momentu pojawienia się edycji nagłówka",
-          "text": "Przedłużenie blockUI w momencie wywoływania zatwierdzenia w dialogu kopiowania"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "text": "Usunięcie skoku wysokości przy wejsciu w konkretny cell w treelist"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "text": "Domyślne tytuły w przypadku kiedy w komunikatach typ warning i succesfull jest null"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "text": "Minimalna wysokość i szerokość dla dialogu"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "text": "Resize dialogu w załącznikach psuł cały datagrid - robił go niewidocznym"
-        },
-        {
-          "type": "NEW",
-          "color": "green",
-          "date": "",
-          "text": "React ERROR BOUNDARY do obsługi błędów białej strony"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "link":"https://trello.com/c/u3RiHzgl/783-edycja-pola-obrazkowego-w-specyfikacji",
-          "date": "",
-          "description":"Należy sprawdzić czy w róznych trybach dobrze wyswietla się kosz",
-          "text": "Ikona usuwania (kosza) przy obrazku została ukryta, gdy edit jest ustawiony na false, czyli w trybie tylko do odczytu"
-        },
-        {
-          "type": "NEW",
-          "color": "green",
-          "date": "",
-          "text": "Obrazek w kolumnie został odpowiednio wycentrowany w widoku TreeList dla lepszej estetyki i spójności interfejsu."
-        },
-        {
-          "type": "NEW",
-          "color": "green",
-          "date": "",
-          "description":"Należy sprawdzić czy w róznych trybach dobrze wyswietla się obrazek zarówno po kliknięciu jak i bez kliknięcia",
-          "text": "Dodano możliwość wyświetlania podglądu obrazka również w trybie view, dzięki czemu użytkownik może zobaczyć obraz nawet bez możliwości edycji w Treelist."
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "link":"https://trello.com/c/T8nCSkCp/782-przegl%C4%85d-pola-logicznego-w-edycji-specyfikacji",
-          "date": "",
-          "description":"Należy sprawdzić czy w róznych trybach dobrze wyswietla się bool i logic",
-          "text": "Naprawiono sposób prezentacji komponentów bool i logic w trybie podglądu w Treelist."
-        },
-      
-        {
-          "type": "NEW",
-          "color": "green",
-          "date": "",
-          "description":"Należy sprawdzić czy w róznych trybach dobrze wyswietla się obrazek zarówno po kliknięciu jak i bez kliknięcia",
-          "text": "Dodano możliwość wyświetlania podglądu obrazka również w trybie view, dzięki czemu użytkownik może zobaczyć obraz nawet bez możliwości edycji w Treelist."
-        },
-      
-        {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "description":"",
-          "text": "W przypadku wystąpienia błędu walidacji, po najechaniu kursorem na komórkę z błędem, tekst w komórce był podświetlany na czarno. Na ciemnym tle powodowało to brak czytelności - treelist"
-        },
-        {
-          "type": "NEW",
-          "color": "green",
-          "link":"https://trello.com/c/EHp8R7q7/427-wprowadzi%C4%87-captcha-przy-logowaniu",
-          "date": "",
-          "more": "<div>Parametry wyglądają w sposób następujący:<br><pre>{\n  'CAPTCHA': {\n    'SITE_KEY': '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',\n    'ENABLED': true\n  }\n}</pre></div> <br> Do Romana idzie nowy parametr w punkcie do logowania o nazwie RecaptchaToken - nie musisicie nic z nim robic jak nie chcecie ",
-          "description":"Miałem kiedyś przypadek, że po włączeniu testowej reCAPTCHY strona została zablokowana – ekran był nieaktywny i nie dało się z niego korzystać. Możliwe, że Google celowo stosuje jakieś ramki blokujące .",
-          "text": "Implementacja captchy"
-        },
-        {
-          "type": "NEW",
-          "color": "green",
-          "link":"https://trello.com/c/TaAshKOH/654-wy%C5%82%C4%85czenie-zapami%C4%99tywania-warto%C5%9Bci-w-polu-username",
-          "date": "",
-          "description":"",
-          "text": "Wyłączenie remember me na parametr 'REMEMBER_ME' false"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "link":"https://trello.com/c/yTtIEhSm/785-gantt-dopasowanie-wysoko%C5%9Bci-rekordu-w-cz%C4%99%C5%9Bci-z-datami",
-          "date": "",
-          "description":"",
-          "text": "Naprawa wysokości header w gantt"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "description":"",
-          "text": "Naprawa zapamietywnia filtru od dat w gantt"
-        },
-        {
-          "type": "FIX",
-            "link":"https://trello.com/c/E1bcGug6/784-licznik-rekord%C3%B3w-w-widoku-gantt",
-          "color": "red",
-          "date": "",
-          "description":"",
-          "text": "Prawidłwoe wylicznie totalcount w gantt"
-        },
-        {
-          "type": "FIX",
-          "link":"",
-          "color": "red",
-          "importanceColor":"#ff6666",
-          "date": "",
-          "description":"Należy sprawdzić zapamiętywnie wsyztskich filtrów w zwykłym grid",
-          "text": "Zapamietywnie filtra typu beetween w zwykłym grid"
-        },
-        {
-          "type": "FIX",
-          "link":"",
-          "color": "red",
-          "importanceColor":"#ff6666",
-          "date": "",
-          "description":"Nie działało jak należy szcególnie przy datach i operacjach na nich",
-          "text": "Zbiorcza naprawa zapamiętywnia filtrów w gantt"
-        },
-        {
-          "type": "FIX",
-          "link":"",
-          "color": "red",
-          "date": "",
-          "description":"Pierwsza koluman w gantt nie była widoczna",
-          "text": "Naprawa niewidocznej pierwszej kolumny w gantt"
-        },
-        {
-          "type": "FIX",
-          "link":"",
-          "color": "red",
-          "date": "",
-          "description":"Jak klikało się PPM na grid to było podwójne mrugnięcie",
-          "text": "Naprawa podwójnego mrugniecia po kliknieciu PPM na głównym gridzie"
-        },
-        {
-          "type": "FIX",
-          "link":"",
-          "color": "red",
-          "date": "",
-          "description":"Czasami było źle dopasowanie jeśli header był wysoki, wtedy columna z buttonem 'Dodaj' skakała, przy zaczytywaniu danych",
-          "text": "Autodopasowanie wysokości headera z przyciskiem 'Dodaj' na głónym gridzie przy rerenderze"
-        },
-        {
-          "type": "NEW",
-          "link":"",
-          "color": "green",
-          "importanceColor":"#ff6666",
-          "date": "",
-          "description":"Niby pozytywnie wpływają te opcje na wydajność. Należy sprawdzić czy orbazki dobrze się wysświetlają na głównym gridzie",
-          "text": "Zamiana base64 na blob w obrazkach oraz dodawanie leniwego ładowania"
-        }
-      ]
-    },
-    {
-      "title":"Wersja któraś tam",
-      "data": [
-        {
-          "type": "FIX",
-          "color": "red",
-          "link":"https://trello.com/c/m86Ak3yF/779-edycja-pola-czas-w-specyfikacji",
-          "date": "",
-          "text": "Naprawa blank strony po kliknięcie w Date component w treelist"
-        },
-        {
-          "type": "NEW",
-          "color": "green",
-          "link":"https://trello.com/c/OLbI1QnR/778-mo%C5%BCliwo%C5%9B%C4%87-zaznaczenia-warto%C5%9Bci-w-kom%C3%B3rce-double-click",
-          "date": "",
-          "text": "Double click zaznacza text na datagrid"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "text": "Kasowanie parametrów z URL w przypadku wystąpienia błędu na edycji nagłówka"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "text": "Naprawa blank strony po wywołaniu ctrl + k"
-        },
-        {
-          "type": "NEW",
-          "color": "green",
-          "date": "",
-          "text": "Otwieranie linku w nowej karcie po kliknieciu z dialogu wersji"
-        },
-        {
-          "type": "NEW",
-          "color": "green",
-          "date": "",
-          "text": "Wersja w pliku aboutVersion.json w katalogu aboutVersion"
-        },
-        {
-          "type": "NEW",
-          "color": "green",
-          "date": "",
-          "text": "Zakładka historii w dialogu wersji"
-        }
-      ]
-    },
-    {
-      "title":"Wersja któraś tam",
-      "data": [
-        {
-          "type": "FIX",
-          "color": "red",
-          "date": "",
-          "text": "Usunięcie zbędnych chmurek na gridach, których nie powinno być"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "description": "@Roman miał problem, że nie działały strzałki",
-          "date": "",
-          "text": "Wymiana komponentu Liczby kopii w dodawaniu parametru"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "description": "",
-          "date": "",
-          "text": "Naprawa PPM w dodawaniu parametrów (dublowały się z tymi z głównego widoku w treelist)"
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "description": "Istnieją trzy wersje na wypadek, gdyby któraś nie działała — parametr BAR_CODE_SHOW_METHOD na FIRST/SECOND/THIRD",
-          "date": "",
-          "text": "Kreski - zmiana wywoływania poprzez czytnik",
-          "more": "<b>FIRST:</b> po naciśnięciu Ctrl + K w JavaScripcie pojawia się okno (wcześniej było to robione w React), w którym aktywowany jest input, a następnie do niego trafia kod.<br><b>SECOND:</b> istnieje ukryty input, niewidoczny dla użytkownika. Po wywołaniu Ctrl + K ten input staje się aktywny, a następnie otwierane jest okno, do którego przekazywana jest jego wartość.<br><b>THIRD:</b> po naciśnięciu Ctrl + K aktywowany zostaje ukryty input, ale bez otwierania okna — od razu wywoływana jest metoda find()."
-        },
-        {
-          "type": "FIX",
-          "color": "red",
-          "description": "",
-          "date": "",
-          "text": "Blokada wywołania kreski, gdy jest otwarty jakiś dialog"
-        },
-        {
-          "type": "NEW",
-          "color": "green",
-          "description": "",
-          "date": "",
-          "text": "Show more w dialogu wersji"
-        },
-        {
-          "type": "NEW",
-          "color": "green",
-          "description": "Aby włączyć tę opcję, należy ustawić parametr DRAGGABLE_GRID_ENABLED na true",
-          "date": "",
-          "text": "Możliwość przeciągania datagrida w momencie kliknięcia i przytrzymania lewego klawisza myszy"
-        },
-        {
-          "type": "NEW",
-          "color": "green",
-          "description": "",
-          "date": "",
-          "text": "Opis parametrów apliakcji w dialogu aktualnej wersji"
-        }
-      ]
-    }
-  ]
+    ]
 }

@@ -288,15 +288,28 @@ class App extends Component {
                     return;
                 } else {
                     updateHeartbeatDate();
-                    this.heartbeatService.heartbeat();
+                    this.heartBeatApply();
                 }
             } else {
                 updateHeartbeatDate();
-                this.heartbeatService.heartbeat();
+                this.heartBeatApply();
             }
         }
     };
 
+    heartBeatApply = () => {
+        this.heartbeatService.heartbeat().then((res) => {
+            if (res?.status === 'NOK') {
+                this.authService.logout();
+                this.messages?.show({
+                    severity: 'error',
+                    sticky: false,
+                    life: 10000,
+                    summary: res.message,
+                });
+            }
+        });
+    };
     isDurationFromSessionTimeoutPositive() {
         const duration = this.getDurationToLogout();
         return duration.asMilliseconds() > 5000;

@@ -90,6 +90,7 @@ export default class BaseService {
             }
         }
 
+        const mockErrorEnabled = false;
         return new Promise((resolve, reject) => {
             fetch(url, {
                 headers,
@@ -104,10 +105,10 @@ export default class BaseService {
                             this.unblockUi();
                         }
                     }
-                    if (response.status === 401) {
+                    if ((response?.status === 200 && response?.json?.status === 'NOK') || mockErrorEnabled) {
                         this.clearRefreshCache();
                         this.auth.logout();
-                        return reject({status: 401, message: 'Unauthorized'});
+                        return reject({status: 200, message: mockErrorEnabled ? 'BŁAÐ' : response?.json?.message});
                     }
                     if (response.ok) {
                         if (headers.Accept === 'application/json') {
@@ -122,11 +123,6 @@ export default class BaseService {
                     }
                 })
                 .catch((error) => {
-                    if (error.status === 401) {
-                        this.clearRefreshCache();
-                        this.auth.logout();
-                        return reject(error);
-                    }
                     if (method === 'POST' || method === 'PUT') {
                         this.counter -= 1;
                         if (this.counter <= 0 && this.unblockUi !== undefined) {

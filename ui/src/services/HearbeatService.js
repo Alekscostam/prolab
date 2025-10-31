@@ -7,7 +7,7 @@ export default class HeartbeatService extends BaseService {
     }
 
     heartbeat() {
-        return this.fetchWithoutRefresh(`${this.domain}/${this.path}`, {
+        return this.fetch(`${this.domain}/${this.path}`, {
             method: 'POST',
         }).catch((err) => {
             throw err;
