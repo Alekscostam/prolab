@@ -112,6 +112,10 @@ export class DocumentRowComponent extends BaseRowComponent {
         );
     }
 
+    handleCancel = () => {
+        this.props.onHide();
+    };
+
     handleValidForm() {
         const data = this.createObjectToApprove(this.props.documentInfo.inputDataFields);
         const info = this.props.documentInfo.info;

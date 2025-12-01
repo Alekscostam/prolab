@@ -203,6 +203,7 @@ export class EditHeaderDialogComponent extends BaseRowComponent {
         const opAttachment = TranslationUtils.getOpButton(operations, OperationType.OP_ATTACHMENTS);
         const editData = this.props.editData;
         const editInfo = editData?.editInfo;
+        const visibleEditPanel = this.props.visibleEditPanel;
 
         return (
             <React.Fragment>
@@ -291,7 +292,17 @@ export class EditHeaderDialogComponent extends BaseRowComponent {
                                     <ShortcutButton
                                         id={'opCancel'}
                                         className={`grid-button-panel-big normal mt-1 mb-1 mr-1 `}
-                                        handleClick={this.handleCancel}
+                                        handleClick={() => {
+                                            const editInfo = this.props.editData?.editInfo;
+                                            if (editInfo) {
+                                                this.props.onHide(
+                                                    !visibleEditPanel,
+                                                    editInfo.viewId,
+                                                    editInfo.recordId,
+                                                    editInfo.parentId
+                                                );
+                                            }
+                                        }}
                                         title={opCancel?.label}
                                         label={opCancel?.label}
                                         rendered={opCancel}
@@ -301,7 +312,17 @@ export class EditHeaderDialogComponent extends BaseRowComponent {
                                     <ShortcutButton
                                         id={'opClose'}
                                         className={`grid-button-panel-big normal mt-1 mb-1 mr-1`}
-                                        handleClick={this.handleCancel}
+                                        handleClick={() => {
+                                            const editInfo = this.props.editData?.editInfo;
+                                            if (editInfo) {
+                                                this.props.onHide(
+                                                    !visibleEditPanel,
+                                                    editInfo.viewId,
+                                                    editInfo.recordId,
+                                                    editInfo.parentId
+                                                );
+                                            }
+                                        }}
                                         title={opClose?.label}
                                         label={opClose?.label}
                                         rendered={opClose}
