@@ -5,6 +5,26 @@
             "data": [
                 {
                     "isNew": true,
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/tcHNInn2/867-edycja-pe%C5%82noekranowa-nie-dzia%C5%82a-przycisk-anuluj",
+                    "text": "Naprawa przycsku anuluj w trybie fullscreen"
+                },
+                {
+                    "isNew": true,
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/wnmFbT5r/861-nie-dzia%C5%82a-przycisk-anuluj",
+                    "text": "Naprawa przycisku anuluj we wtyczce"
+                }
+            ]
+        },
+        {
+            "title": "",
+            "data": [
+                {
                     "type": "NEW",
                     "color": "green",
                     "description": "Zadziała tylko wtedy kiedy ustawiomy jakąs wartość w parametrze HEARTBEAT_TIME_MINUTES",
@@ -13,7 +33,6 @@
                     "text": "Implementacja hearbeat i obsluga NOK"
                 },
                 {
-                    "isNew": true,
                     "type": "FIX",
                     "color": "red",
                     "date": "",
