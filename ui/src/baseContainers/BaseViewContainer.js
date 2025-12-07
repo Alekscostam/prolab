@@ -1504,42 +1504,6 @@ export class BaseViewContainer extends BaseContainer {
             </React.Fragment>
         );
     }
-    addView() {
-        this.blockUi();
-        const subViewId = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
-        const parentId = this.state.subView == null ? UrlUtils.getParentId() : this.state.elementRecordId;
-        const viewId = DataGridUtils.getRealViewId(subViewId, this.props.id);
-        this.crudService
-            .addEntry(viewId, parentId)
-            .then((entryResponse) => {
-                EntryResponseHelper.run(
-                    entryResponse,
-                    () => {
-                        if (!!entryResponse.next) {
-                            this.crudService
-                                .add(viewId, parentId)
-                                .then((editDataResponse) => {
-                                    this.setState({
-                                        visibleEditPanel: true,
-                                        editData: editDataResponse,
-                                    });
-                                    this.unblockUi();
-                                })
-                                .catch((err) => {
-                                    this.showGlobalErrorMessage(err);
-                                });
-                        } else {
-                            this.unblockUi();
-                        }
-                    },
-                    () => this.unblockUi(),
-                    () => this.unblockUi()
-                );
-            })
-            .catch((err) => {
-                this.showGlobalErrorMessage(err);
-            });
-    }
 
     openEditRowIfPossible() {
         if (UrlUtils.isEditRowOpen()) {
@@ -1769,12 +1733,46 @@ export class BaseViewContainer extends BaseContainer {
             </React.Fragment>
         );
     };
+    addView() {
+        this.blockUi();
+        const subViewId = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
+        const parentId = this.state.subView == null ? UrlUtils.getParentId() : this.state.elementRecordId;
+        const viewId = DataGridUtils.getRealViewId(subViewId, this.props.id);
+        this.crudService
+            .addEntry(viewId, parentId)
+            .then((entryResponse) => {
+                EntryResponseHelper.run(
+                    entryResponse,
+                    () => {
+                        if (!!entryResponse.next) {
+                            this.crudService
+                                .add(viewId, parentId)
+                                .then((editDataResponse) => {
+                                    this.setState({
+                                        visibleEditPanel: true,
+                                        editData: editDataResponse,
+                                    });
+                                    this.unblockUi();
+                                })
+                                .catch((err) => {
+                                    this.showGlobalErrorMessage(err);
+                                });
+                        } else {
+                            this.unblockUi();
+                        }
+                    },
+                    () => this.unblockUi(),
+                    () => this.unblockUi()
+                );
+            })
+            .catch((err) => {
+                this.showGlobalErrorMessage(err);
+            });
+    }
 
     findCode = (code) => {
-        const isSubView = !StringUtils.isBlank(this.state.subView);
-        const viewId = isSubView ? this.state.elementRecordId : UrlUtils.getIdFromUrlOrAlternative(this.props.id);
+        this.blockUi();
         const kindView = UrlUtils.getKindView();
-        const parentId = isSubView ? this.state.elementParentId : UrlUtils.getParentId();
         const filterId = UrlUtils.getFilterId();
         const body = {
             filter: null,
@@ -1782,7 +1780,9 @@ export class BaseViewContainer extends BaseContainer {
             barCode: code,
             value: '',
         };
-        this.blockUi();
+        const subViewId = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
+        const parentId = this.state.subView == null ? UrlUtils.getParentId() : this.state.elementRecordId;
+        const viewId = DataGridUtils.getRealViewId(subViewId, this.props.id);
         this.codeService
             .find(viewId, parentId, kindView, body)
             .then((result) => {
