@@ -10,6 +10,17 @@ export class StringUtils {
         const text = div.textContent || div.innerText || '';
         return text;
     }
+
+    static objToQueryString(obj) {
+        const keyValuePairs = [];
+        for (const key in obj) {
+            if (obj[key] !== null && obj[key] !== undefined) {
+                keyValuePairs.push(`${encodeURIComponent(key)}=${encodeURIComponent(obj[key])}`);
+            }
+        }
+        return (keyValuePairs.length > 0 ? '?' : '') + keyValuePairs.join('&');
+    }
+
     static isBlank(value) {
         return value !== undefined && value !== null ? false : true;
     }

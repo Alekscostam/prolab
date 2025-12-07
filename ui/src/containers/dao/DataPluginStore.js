@@ -12,7 +12,7 @@ export default class DataPluginStore extends BaseService {
         this.path = 'view';
     }
 
-    getPluginExecuteDataStore(viewIdArg, pluginId, elementArg, parentIdArg, onError, onSuccess) {
+    getPluginExecuteDataStore(viewIdArg, pluginId, elementArg, parentIdArg, onError, onSuccess, type = 'PLUGIN') {
         if (!viewIdArg) {
             return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0});
         }
@@ -52,14 +52,14 @@ export default class DataPluginStore extends BaseService {
 
                 const parentIdParam =
                     parentIdArg !== undefined && parentIdArg != null ? `&parentId=${parentIdArg}` : '';
-
+                const typeParam = `&type=${type}`;
                 const requestBody = {
                     filter: filter,
                     sort: sort,
                     group: group,
                     listId: elementArg?.listId,
                 };
-                const url = `${this.domain}/${this.path}/${viewIdArg}/plugin/${pluginId}/execute/data/${params}${parentIdParam}`;
+                const url = `${this.domain}/${this.path}/${viewIdArg}/plugin/${pluginId}/execute/data/${params}${parentIdParam}${typeParam}`;
                 if (url.indexOf(_key) > 0) {
                     //myk blokujący nadmiarowo generowane requesty przez store odnośnie selection
                     return Promise.reject('');
@@ -97,7 +97,7 @@ export default class DataPluginStore extends BaseService {
         });
     }
 
-    getPluginDataStore(viewIdArg, pluginId, elementArg, parentIdArg, onError, onSuccess) {
+    getPluginDataStore(viewIdArg, pluginId, elementArg, parentIdArg, onError, onSuccess, type = 'PLUGIN') {
         if (!viewIdArg) {
             return Promise.resolve({totalCount: 0, data: [], skip: 0, take: 0});
         }
@@ -138,6 +138,7 @@ export default class DataPluginStore extends BaseService {
 
                 const parentIdParam =
                     parentIdArg !== undefined && parentIdArg != null ? `&parentId=${parentIdArg}` : '';
+                const typeParam = `&type=${type}`;
                 const requestBody = {
                     filter: filter,
                     sort: sort,
@@ -145,7 +146,7 @@ export default class DataPluginStore extends BaseService {
                     listId: elementArg?.listId,
                 };
 
-                let url = `${this.domain}/${this.path}/${viewIdArg}/plugin/${pluginId}/data/${params}${parentIdParam}`;
+                let url = `${this.domain}/${this.path}/${viewIdArg}/plugin/${pluginId}/data/${params}${parentIdParam}${typeParam}`;
                 url = this.commonCorrectUrl(url);
                 return this.fetch(url, {
                     method: 'POST',

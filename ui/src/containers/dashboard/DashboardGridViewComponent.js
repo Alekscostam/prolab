@@ -4,7 +4,7 @@ import React from 'react';
 import BaseContainer from '../../baseContainers/BaseContainer';
 import ActionButton from '../../components/ActionButton';
 import ActionButtonWithMenu from '../../components/prolab/ActionButtonWithMenu';
-import EditHeaderComponent from '../../components/prolab/EditHeaderComponent';
+import EditHeaderComponent from '../../components/editHeader/EditHeaderComponent';
 import HeadPanel from '../../components/prolab/HeadPanel';
 import ShortcutsButton from '../../components/prolab/ShortcutsButton';
 import CrudService from '../../services/CrudService';
@@ -26,13 +26,13 @@ import PluginListDialog from '../../components/prolab/PluginListDialog';
 import HistoryLogDialog from '../../components/prolab/HistoryLogDialog';
 import {OperationType} from '../../enum/OperationType';
 import ReactDOM from 'react-dom/client';
-import {StringUtils} from '../../utils/StringUtils';
 import {ResponseUtils} from '../../utils/ResponseUtils';
 import {TranslationUtils} from '../../utils/TranslationUtils';
 import {ConfirmPluginDialog} from '../../components/prolab/ConfirmPluginDialog';
 import {EditFormType} from '../../enum/EditFormType';
-import EditHeaderDialogComponent from '../../components/prolab/EditHeaderDialogComponent';
+import EditHeaderFullScreenComponent from '../../components/editHeader/EditHeaderFullScreenComponent';
 import {ConfirmationOperationDialog} from '../../components/prolab/ConfirmOperationDialog';
+import EditHeaderWindowComponent from '../../components/editHeader/EditHeaderWindowComponent';
 //
 //    https://js.devexpress.com/Demos/WidgetsGallery/Demo/DataGrid/Overview/React/Light/
 //
@@ -282,61 +282,95 @@ export class DashboardGridViewComponent extends BaseContainer {
         }
     };
 
+    renderEditHeader = () => {
+        const formType = this.state.editData?.editInfo?.editFormType;
+        switch (formType) {
+            case EditFormType.WINDOW:
+                <EditHeaderWindowComponent
+                    selectedRowKeysFromMainView={this.state.selectedRowKeys}
+                    visibleEditPanel={this.state.visibleEditPanel}
+                    editData={this.state.editData}
+                    kindView={this.state.elementKindView}
+                    onChange={this.handleEditRowChange}
+                    onBlur={this.handleEditRowBlur}
+                    onSave={this.handleEditRowSave}
+                    onAttachment={(id) => {
+                        this.attachment(id);
+                    }}
+                    onAutoFill={this.handleAutoFillRowChange}
+                    onEditList={this.handleEditListRowChange}
+                    onCancel={this.handleCancelRowChange}
+                    validator={this.validator}
+                    onHide={(e, viewId, recordId, parentId) => {
+                        this.onHideEditPanel(e, viewId, recordId, parentId);
+                    }}
+                    onError={(e) => this.showErrorMessage(e)}
+                    showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
+                />;
+            case EditFormType.FULLSCREEN:
+                return (
+                    <EditHeaderFullScreenComponent
+                        selectedRowKeysFromMainView={this.state.selectedRowKeys}
+                        visibleEditPanel={this.state.visibleEditPanel}
+                        editData={this.state.editData}
+                        kindView={this.state.elementKindView}
+                        onChange={this.handleEditRowChange}
+                        onBlur={this.handleEditRowBlur}
+                        onSave={this.handleEditRowSave}
+                        onAttachment={(id) => {
+                            this.attachment(id);
+                        }}
+                        onAutoFill={this.handleAutoFillRowChange}
+                        onEditList={this.handleEditListRowChange}
+                        onCancel={this.handleCancelRowChange}
+                        validator={this.validator}
+                        onHide={(e, viewId, recordId, parentId) => {
+                            this.onHideEditPanel(e, viewId, recordId, parentId);
+                        }}
+                        onError={(e) => this.showErrorMessage(e)}
+                        showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
+                    />
+                );
+            case EditFormType.SIDEPANEL:
+                return (
+                    <EditHeaderComponent
+                        selectedRowKeysFromMainView={this.state.selectedRowKeys}
+                        visibleEditPanel={this.state.visibleEditPanel}
+                        editData={this.state.editData}
+                        onChange={this.handleEditRowChange}
+                        onBlur={this.handleEditRowBlur}
+                        onAttachment={(id) => {
+                            this.attachment(id);
+                        }}
+                        onSave={this.handleEditRowSave}
+                        onAutoFill={this.handleAutoFillRowChange}
+                        onEditList={this.handleEditListRowChange}
+                        onCancel={this.handleCancelRowChange}
+                        onCloseCustom={() => {
+                            this.setState({
+                                visibleEditPanel: false,
+                            });
+                        }}
+                        validator={this.validator}
+                        onHide={(e, viewId, recordId, parentId) => {
+                            this.onHideEditPanel(e, viewId, recordId, parentId);
+                        }}
+                        onError={(e) => this.showErrorMessage(e)}
+                        showErrorMessages={(err) => this.customShowErrorMessages(err)}
+                    />
+                );
+            default:
+                return <></>;
+        }
+    };
+
     //override
     renderGlobalTop() {
         const formType = this.state.editData?.editInfo?.editFormType;
         return (
             <React.Fragment>
                 <React.Fragment>
-                    {this.state.visibleEditPanel ? (
-                        !StringUtils.isBlank(formType) && formType.toUpperCase() === EditFormType.FULLSCREEN ? (
-                            <EditHeaderDialogComponent
-                                visibleEditPanel={this.state.visibleEditPanel}
-                                editData={this.state.editData}
-                                kindView={this.state.elementKindView}
-                                onChange={this.handleEditRowChange}
-                                onBlur={this.handleEditRowBlur}
-                                onSave={this.handleEditRowSave}
-                                onAttachment={(id) => {
-                                    this.attachment(id);
-                                }}
-                                onAutoFill={this.handleAutoFillRowChange}
-                                onEditList={this.handleEditListRowChange}
-                                onCancel={this.handleCancelRowChange}
-                                validator={this.validator}
-                                onHide={(e, viewId, recordId, parentId) => {
-                                    this.onHideEditPanel(e, viewId, recordId, parentId);
-                                }}
-                                onError={(e) => this.showErrorMessage(e)}
-                                showErrorMessages={(err) => this.showGlobalErrorMessage(err)}
-                            />
-                        ) : (
-                            <EditHeaderComponent
-                                visibleEditPanel={this.state.visibleEditPanel}
-                                editData={this.state.editData}
-                                onChange={this.handleEditRowChange}
-                                onBlur={this.handleEditRowBlur}
-                                onAttachment={(id) => {
-                                    this.attachment(id);
-                                }}
-                                onSave={this.handleEditRowSave}
-                                onAutoFill={this.handleAutoFillRowChange}
-                                onEditList={this.handleEditListRowChange}
-                                onCancel={this.handleCancelRowChange}
-                                onCloseCustom={() => {
-                                    this.setState({
-                                        visibleEditPanel: false,
-                                    });
-                                }}
-                                validator={this.validator}
-                                onHide={(e, viewId, recordId, parentId) => {
-                                    this.onHideEditPanel(e, viewId, recordId, parentId);
-                                }}
-                                onError={(e) => this.showErrorMessage(e)}
-                                showErrorMessages={(err) => this.customShowErrorMessages(err)}
-                            />
-                        )
-                    ) : null}
+                    {this.state.visibleEditPanel && this.renderEditHeader()}
 
                     {this.state.visibleCopyDialog ? (
                         <CopyDialog

@@ -35,12 +35,17 @@ import KeyCombinationDetector from '../utils/KeyCombinationDetector';
 import {OperationType} from '../enum/OperationType';
 import {TranslationUtils} from '../utils/TranslationUtils';
 import {getStore} from '../utils/helper/StoreHelper';
+import PluginService from '../services/PluginService';
+import HeaderService from '../services/HeaderService';
 
 export class BaseRowComponent extends BaseContainer {
     constructor(props) {
         super(props);
         this.service = new CrudService();
+        this.pluginService = new PluginService();
+        this.headerService = new HeaderService();
         this.state = {
+            selectedRowKeysFromMainView: [],
             loading: true,
             preventSave: false,
             numberFormat: {
@@ -325,8 +330,20 @@ export class BaseRowComponent extends BaseContainer {
                 dataGridStoreSuccess: false,
             },
             () => {
-                this.service
-                    .editList(editInfo.viewId, editInfo.recordId, editInfo.parentId, field.id, kindView, editListObject)
+                this.getProperServiceForHeader(this.props.editData)
+                    .editList(
+                        editInfo.viewId,
+                        this.getProperRecordIdForHeader(editInfo.recordId, this.props.editData),
+                        editInfo.parentId,
+                        field.id,
+                        kindView,
+                        this.prepareElementToEditHeaderRequest(
+                            editListObject,
+                            editInfo.recordId,
+                            this.state.selectedRowKeysFromMainView
+                        ),
+                        this.getEditDataInfoType()
+                    )
                     .then((responseView) => {
                         let selectedRowDataTmp = [];
                         const editData = this.props.editData;

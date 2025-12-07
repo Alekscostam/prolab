@@ -5,6 +5,51 @@
             "data": [
                 {
                     "isNew": true,
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "link": "https://trello.com/c/yIQzxKVO/865-dodanie-punktu-entry-przed-plugin",
+                    "text": "Dodanie entry do punktu z pluginami"
+                },
+                {
+                    "isNew": true,
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "link": "https://trello.com/c/xW27tnKB/869-rozszerzenie-wtyczek",
+                    "text": "Dodanie type do punktów ze wtyczkami"
+                },
+                {
+                    "isNew": true,
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "link": "https://trello.com/c/8xo9Ut1i/868-edycja-w-oknie-editformtype-window",
+                    "text": "Nowy widok typ WINDOW"
+                },
+                {
+                    "isNew": true,
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/JMM9k1xg/875-z%C5%82e-wywo%C5%82anie-findkreski-w-podwidokach",
+                    "text": "Fix na kreski w podwidoku zgodnie z tym co na MT"
+                },
+                {
+                    "isNew": true,
+                    "type": "NEW",
+                    "color": "green",
+                    "description": "Należy przetestować całościowo całą edycję nagłówka, nawet tej która nie jest wywoływana za pośrednictwem wtyczek. Czyli testować wywołanie edycje nagłówka z wtyczek i z nroamlengo punktu",
+                    "date": "",
+                    "link": "https://trello.com/c/r4qqrpnI/864-wtyczka-edycyjna",
+                    "text": "Wtyczka edycyjna"
+                }
+            ]
+        },
+        {
+            "title": "",
+            "data": [
+                {
                     "type": "FIX",
                     "color": "red",
                     "date": "",
@@ -12,7 +57,6 @@
                     "text": "Naprawa przycsku anuluj w trybie fullscreen"
                 },
                 {
-                    "isNew": true,
                     "type": "FIX",
                     "color": "red",
                     "date": "",

@@ -18,8 +18,6 @@ export default class CrudService extends BaseService {
         this.edit = this.edit.bind(this);
         this.editAutoFill = this.editAutoFill.bind(this);
         this.editList = this.editList.bind(this);
-        this.refreshFieldVisibility = this.refreshFieldVisibility.bind(this);
-        this.save = this.save.bind(this);
         this.deleteEntry = this.deleteEntry.bind(this);
         this.delete = this.delete.bind(this);
         this.archiveEntry = this.archiveEntry.bind(this);
@@ -134,21 +132,7 @@ export default class CrudService extends BaseService {
             throw err;
         });
     }
-    getPluginColumnsDefnitions(viewId, pluginId, listId, parentId) {
-        return this.fetch(
-            `${this.getDomain()}/${this.path}/${viewId}/plugin/${pluginId}${parentId ? `?parentId=${parentId}` : ''}`,
-            {
-                method: 'POST',
-                body: JSON.stringify(listId),
-            }
-        )
-            .then((pluginResponse) => {
-                return Promise.resolve(pluginResponse);
-            })
-            .catch((err) => {
-                throw err;
-            });
-    }
+
     getHistoryLogColumnsDefinitions(viewId, recordId, parentId, kindView) {
         const queryStringTmp = [];
         if (!!parentId) {
@@ -171,24 +155,6 @@ export default class CrudService extends BaseService {
             });
     }
 
-    getPluginExecuteColumnsDefinitions(viewId, pluginId, requestBody, parentId) {
-        return this.fetch(
-            `${this.getDomain()}/${this.path}/${viewId}/plugin/${pluginId}/execute${
-                parentId ? `?parentId=${parentId}` : ''
-            }`,
-            {
-                method: 'POST',
-                body: JSON.stringify(requestBody),
-            }
-        )
-            .then((pluginResponse) => {
-                return Promise.resolve(pluginResponse);
-            })
-            .catch((err) => {
-                throw err;
-            });
-    }
-
     getDocumentDataInfo(viewId, documentId, listId, parentId) {
         return this.fetch(
             `${this.getDomain()}/${this.path}/${viewId}/document/${documentId}${parentId ? `?parentId=${parentId}` : ''}
@@ -198,8 +164,8 @@ export default class CrudService extends BaseService {
                 body: JSON.stringify(listId),
             }
         )
-            .then((pluginResponse) => {
-                return Promise.resolve(pluginResponse);
+            .then((response) => {
+                return Promise.resolve(response);
             })
             .catch((err) => {
                 throw err;
@@ -319,53 +285,6 @@ export default class CrudService extends BaseService {
         );
         return this.fetchFileResponse(url, {
             method: 'GET',
-        }).catch((err) => {
-            throw err;
-        });
-    }
-    refreshFieldVisibility(viewId, recordId, parentId, kindView, element) {
-        return this.fetch(
-            `${this.getDomain()}/${this.path}/${viewId}/Edit/${recordId}/RefreshFieldVisibility${
-                parentId ? `?parentId=${parentId}` : ''
-            }${parentId && kindView ? `&kindView=${kindView}` : ''}`,
-            {
-                method: 'POST',
-                body: JSON.stringify(element),
-            }
-        ).catch((err) => {
-            throw err;
-        });
-    }
-
-    save(viewId, recordId, parentId, kindView, kindOperation, elementToSave, confirmSave, token) {
-        const queryString = this.objToQueryString({
-            parentId: parentId,
-            confirmSave: confirmSave,
-            kindView: parentId && kindView ? kindView : undefined,
-            kindOperation: kindOperation,
-        });
-        return this.fetch(
-            `${this.getDomain()}/${this.path}/${viewId}/Edit/${recordId}/Save${queryString}`,
-            {
-                method: 'POST',
-                body: JSON.stringify(elementToSave),
-            },
-            undefined,
-            token
-        ).catch((err) => {
-            throw err;
-        });
-    }
-
-    cancel(viewId, recordId, parentId, kindView, kindOperation, elementToCancel) {
-        const queryString = this.objToQueryString({
-            parentId: parentId,
-            kindView: parentId && kindView ? kindView : undefined,
-            kindOperation: kindOperation,
-        });
-        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/Edit/${recordId}/Cancel${queryString}`, {
-            method: 'POST',
-            body: JSON.stringify(elementToCancel),
         }).catch((err) => {
             throw err;
         });

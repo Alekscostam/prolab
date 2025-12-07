@@ -38,6 +38,9 @@ import LocUtils from '../utils/LocUtils';
 import {ViewUtils} from '../utils/ViewUtils';
 import {SessionStoreUtils} from '../utils/SessionStoreUtils';
 import {getStore} from '../utils/helper/StoreHelper';
+import PluginService from '../services/PluginService';
+import {EditHeaderType} from '../enum/EditHeaderType';
+import HeaderService from '../services/HeaderService';
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -47,6 +50,8 @@ class BaseContainer extends React.Component {
         this.service = service;
         this.authService = new AuthService(this.props.backendUrl);
         this.crudService = new CrudService();
+        this.pluginService = new PluginService();
+        this.headerService = new HeaderService();
         this.batchService = new BatchService();
         this.editSpecService = new EditSpecService();
         this.dataHistoryLogStore = new DataHistoryLogStore();
@@ -86,6 +91,8 @@ class BaseContainer extends React.Component {
         this.refreshView = this.refreshView.bind(this);
         this.prepareCalculateFormula = this.prepareCalculateFormula.bind(this);
         this.validator = new SimpleReactValidator();
+
+        this.dataPluginStore = new DataPluginStore();
         this.localizationService = new LocalizationService();
         this._isMounted = false;
         this.jwtRefreshBlocked = false;
@@ -766,12 +773,53 @@ class BaseContainer extends React.Component {
     kindOperationForRow() {
         return this.state.editData.editInfo?.kindOperation ? this.state.editData.editInfo?.kindOperation : undefined;
     }
+
+    getProperRecordIdForHeader = (recordId, editData = this?.state?.editData) => {
+        const infoExists = !!editData?.info;
+        if (infoExists) {
+            return editData?.info?.viewObjectId || recordId;
+        } else {
+            return recordId;
+        }
+    };
+
+    getProperServiceForHeader = (editData = this?.state?.editData) => {
+        const type = editData?.type;
+        if (type === EditHeaderType.PLUGIN) {
+            return this.pluginService;
+        } else {
+            return this.headerService;
+        }
+    };
+
+    getListId = (recordId, selectedRowKeys = this.state?.selectedRowKeys) => {
+        const idRowKeys = (selectedRowKeys || []).map((el) => el.ID);
+        const listId = recordId ? {listId: [recordId]} : {listId: idRowKeys};
+        return listId;
+    };
+
+    prepareElementToEditHeaderRequest = (element, recordId, selectedRowKeys) => {
+        return {
+            ...this.getListId(recordId, selectedRowKeys),
+            data: element.data,
+        };
+    };
     rowSave = (viewId, recordId, parentId, saveElement, confirmSave, token, isCopy = false) => {
         this.blockUi();
         const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
         const kindOperation = this.kindOperationForRow();
-        this.crudService
-            .save(viewId, recordId, parentId, kindView, kindOperation, saveElement, confirmSave, token)
+        this.getProperServiceForHeader()
+            .editSave(
+                viewId,
+                this.getProperRecordIdForHeader(recordId),
+                parentId,
+                kindView,
+                kindOperation,
+                this.prepareElementToEditHeaderRequest(saveElement, recordId),
+                confirmSave,
+                token,
+                this.getEditDataInfoType()
+            )
             .then((saveResponse) => {
                 ResponseHelper.run(
                     saveResponse,
@@ -868,8 +916,16 @@ class BaseContainer extends React.Component {
         this.blockUi();
         const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
         const kindOperation = this.kindOperationForRow();
-        this.crudService
-            .cancel(viewId, recordId, parentId, kindView, kindOperation, saveElement)
+        this.getProperServiceForHeader()
+            .editCancel(
+                viewId,
+                this.getProperRecordIdForHeader(recordId),
+                parentId,
+                kindView,
+                kindOperation,
+                this.prepareElementToEditHeaderRequest(saveElement),
+                this.getEditDataInfoType()
+            )
             .then(() => {
                 window.location.href = UrlUtils.getUrlWithoutEditRowParams();
                 this.unselectAllDataGrid();
@@ -975,8 +1031,8 @@ class BaseContainer extends React.Component {
         const parentIdArg = this.getParentIdForView();
         let visiblePluginPanel = false;
         let visibleMessagePluginPanel = false;
-        this.crudService
-            .getPluginExecuteColumnsDefinitions(viewIdArg, pluginId, requestBody, parentIdArg)
+        this.pluginService
+            .getExecuteColumnsDefinitions(viewIdArg, pluginId, requestBody, parentIdArg)
             .then((res) => {
                 let parsedPluginViewData;
                 let renderNextStep = true;
@@ -995,7 +1051,8 @@ class BaseContainer extends React.Component {
                         },
                         () => {
                             return {selectAll: this.state.selectAll};
-                        }
+                        },
+                        res?.info?.type
                     );
                     parsedPluginViewData = datas;
                 } else {
@@ -1023,53 +1080,79 @@ class BaseContainer extends React.Component {
                 this.showGlobalErrorMessage(ex);
             });
     }
+
     plugin(id, recordId) {
         const viewId = this.getRealViewId();
         const parentId = this.getParentIdForView();
         const idRowKeys = this.state.selectedRowKeys.map((el) => el.ID);
-        const listId = recordId ? {listId: [recordId]} : {listId: idRowKeys};
+        const listIds = recordId ? {listId: [recordId]} : {listId: idRowKeys};
         let visiblePluginPanel = false;
         let visibleMessagePluginPanel = false;
-        this.crudService
-            .getPluginColumnsDefnitions(viewId, id, listId, parentId)
-            .then((res) => {
-                let parsedPluginViewData;
-                if (res.info.kind === 'GRID') {
-                    visiblePluginPanel = true;
-                    if (!this.dataPluginStore) {
-                        this.dataPluginStore = new DataPluginStore();
-                    }
-                    const datas = this.dataPluginStore.getPluginDataStore(
-                        viewId,
-                        id,
-                        listId,
-                        parentId,
-                        (err) => {
-                            if (typeof this.showErrorMessage === 'undefined') {
-                                this.props.showErrorMessage(err);
-                            } else {
-                                this.showGlobalErrorMessage(err);
-                            }
-                        },
-                        () => {
-                            this.setState({dataPluginStoreSuccess: true});
+        this.pluginService
+            .entry(viewId, id, listIds)
+            .then((entryResponse) => {
+                EntryResponseHelper.run(
+                    entryResponse,
+                    () => {
+                        if (!!entryResponse.next) {
+                            this.pluginService
+                                .getColumnsDefnitions(viewId, id, listIds, parentId)
+                                .then((res) => {
+                                    const editInfoExists = !!res.editInfo;
+                                    if (editInfoExists) {
+                                        res.type = EditHeaderType.PLUGIN;
+                                        this.setState({
+                                            visibleEditPanel: true,
+                                            editData: res,
+                                        });
+                                        return;
+                                    }
+                                    let parsedPluginViewData;
+                                    if (res.info.kind === 'GRID') {
+                                        visiblePluginPanel = true;
+                                        const datas = this.dataPluginStore.getPluginDataStore(
+                                            viewId,
+                                            id,
+                                            listIds,
+                                            parentId,
+                                            (err) => {
+                                                if (typeof this.showErrorMessage === 'undefined') {
+                                                    this.props.showErrorMessage(err);
+                                                } else {
+                                                    this.showGlobalErrorMessage(err);
+                                                }
+                                            },
+                                            () => {
+                                                this.setState({dataPluginStoreSuccess: true});
+                                            },
+                                            res?.info?.type
+                                        );
+                                        parsedPluginViewData = datas;
+                                    } else {
+                                        if (res?.info?.message === null && res.info.question == null) {
+                                            this.afterNoMessageFromPlugin(res, listIds, id);
+                                            return;
+                                        } else visibleMessagePluginPanel = true;
+                                    }
+                                    this.setState({
+                                        parsedPluginView: res,
+                                        parsedPluginViewData: parsedPluginViewData,
+                                        visiblePluginPanel: visiblePluginPanel,
+                                        visibleMessagePluginPanel: visibleMessagePluginPanel,
+                                        isPluginFirstStep: true,
+                                        pluginId: id,
+                                    });
+                                })
+                                .catch((err) => {
+                                    this.showGlobalErrorMessage(err);
+                                });
+                        } else {
+                            this.unblockUi();
                         }
-                    );
-                    parsedPluginViewData = datas;
-                } else {
-                    if (res?.info?.message === null && res.info.question == null) {
-                        this.afterNoMessageFromPlugin(res, listId, id);
-                        return;
-                    } else visibleMessagePluginPanel = true;
-                }
-                this.setState({
-                    parsedPluginView: res,
-                    parsedPluginViewData: parsedPluginViewData,
-                    visiblePluginPanel: visiblePluginPanel,
-                    visibleMessagePluginPanel: visibleMessagePluginPanel,
-                    isPluginFirstStep: true,
-                    pluginId: id,
-                });
+                    },
+                    () => this.unblockUi(),
+                    () => this.unblockUi()
+                );
             })
             .catch((err) => {
                 this.showGlobalErrorMessage(err);
@@ -1740,8 +1823,15 @@ class BaseContainer extends React.Component {
     handleAutoFillRowChange(viewId, recordId, parentId, kindView) {
         this.blockUi();
         const autofillBodyRequest = RequestUtils.createObjectDataToRequest(this.state);
-        this.crudService
-            .editAutoFill(viewId, recordId, parentId, kindView, autofillBodyRequest)
+        this.getProperServiceForHeader()
+            .editAutoFill(
+                viewId,
+                this.getProperRecordIdForHeader(recordId),
+                parentId,
+                kindView,
+                this.prepareElementToEditHeaderRequest(autofillBodyRequest, recordId),
+                this.getEditDataInfoType()
+            )
             .then((editAutoFillResponse) => {
                 const arrayTmp = editAutoFillResponse?.data;
                 const editData = this.state.editData;
@@ -1925,8 +2015,15 @@ class BaseContainer extends React.Component {
         this.blockUi();
         const refreshObject = RequestUtils.createObjectDataToRequest(this.state);
         const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
-        this.crudService
-            .refreshFieldVisibility(info.viewId, info.recordId, info.parentId, kindView, refreshObject)
+        this.getProperServiceForHeader()
+            .editRefreshFieldVisibility(
+                info.viewId,
+                this.getProperRecordIdForHeader(info.recordId),
+                info.parentId,
+                kindView,
+                this.prepareElementToEditHeaderRequest(refreshObject, info.recordId),
+                this.getEditDataInfoType()
+            )
             .then((editRefreshResponse) => {
                 const arrayTmp = editRefreshResponse?.data;
                 const editData = this.state.editData;
@@ -1943,6 +2040,9 @@ class BaseContainer extends React.Component {
             });
     }
 
+    getEditDataInfoType = () => {
+        return this?.state?.editData?.info?.type;
+    };
     handleShowEditPanel(editDataResponse) {
         this.setState({
             visibleEditPanel: true,
