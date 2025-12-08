@@ -31,7 +31,10 @@ export default class EditListDataStore extends BaseService {
         kindViewArg,
         fieldIdArg,
         filters,
-        onSuccessCallback
+        onSuccessCallback,
+        point = 'edit',
+        selectedRowKeys = [],
+        typeArg = 'PLUGIN'
     ) {
         let params = '?';
         let filter = undefined;
@@ -73,18 +76,19 @@ export default class EditListDataStore extends BaseService {
             }
         });
         recordIdArg = UrlUtils.batchIdParamExist() ? UrlUtils.getBatchIdParam() : recordIdArg;
-        const point = UrlUtils.batchIdParamExist() ? 'batch' : 'edit';
         const viewTypeParam = this.createParam(viewTypeArg, 'viewType');
         const filterIdParam = this.createParam(filterIdArg, 'filter');
         const parentIdParam = this.createParam(parentIdArg, 'parentId');
+        const typeParam = this.createParam(typeArg, 'type');
         const kindViewParam = !!kindViewArg && !!parentIdParam ? `&kindView=${kindViewArg}` : '';
         const selectAllParam = `&selection=true`;
         const requestBody = {
             filter: filter,
             sort: sort,
             group: group,
+            listId: selectedRowKeys,
         };
-        let url = `${this.domain}/${this.path}/${viewIdArg}/${point}/${recordIdArg}/list/${fieldIdArg}/data${params}${parentIdParam}${filterIdParam}${selectAllParam}${viewTypeParam}${kindViewParam}`;
+        let url = `${this.domain}/${this.path}/${viewIdArg}/${point}/${recordIdArg}/list/${fieldIdArg}/data${params}${parentIdParam}${filterIdParam}${selectAllParam}${viewTypeParam}${kindViewParam}${typeParam}`;
         url = this.commonCorrectUrl(url);
         return this.fetch(url, {
             method: 'POST',
@@ -115,7 +119,10 @@ export default class EditListDataStore extends BaseService {
         elementArg,
         onError,
         onSuccess,
-        onStart
+        onStart,
+        point = 'edit',
+        selectedRowKeys = [],
+        typeArg = 'PLUGIN'
     ) {
         useStore.getState().setFetchData(true);
         if (!viewIdArg) {
@@ -162,17 +169,19 @@ export default class EditListDataStore extends BaseService {
                 const viewTypeParam = this.createParam(viewTypeArg, 'viewType');
                 const filterIdParam = this.createParam(filterIdArg, 'filter');
                 const parentIdParam = this.createParam(parentIdArg, 'parentId');
+                const typeParam = this.createParam(typeArg, 'type');
                 const kindViewParam = !!kindViewArg && !!parentIdParam ? `&kindView=${kindViewArg}` : '';
                 const selectAllParam = !!selectAll ? `&selection=true` : '';
-                const point = UrlUtils.batchIdParamExist() ? 'batch' : 'edit';
+                // const point = UrlUtils.batchIdParamExist() ? 'batch' : 'edit';
                 recordIdArg = UrlUtils.batchIdParamExist() ? UrlUtils.getBatchIdParam() : recordIdArg;
                 const requestBody = {
                     filter: filter,
                     sort: sort,
                     group: group,
                     data: elementArg.data,
+                    listId: selectedRowKeys,
                 };
-                const url = `${this.domain}/${this.path}/${viewIdArg}/${point}/${recordIdArg}/list/${fieldIdArg}/data${params}${parentIdParam}${filterIdParam}${selectAllParam}${viewTypeParam}${kindViewParam}`;
+                const url = `${this.domain}/${this.path}/${viewIdArg}/${point}/${recordIdArg}/list/${fieldIdArg}/data${params}${parentIdParam}${filterIdParam}${selectAllParam}${viewTypeParam}${kindViewParam}${typeParam}`;
                 const crcFilter = 'CRC' + (filter?.toString() === undefined ? '' : filter.toString());
                 if (crcFilter.indexOf(_key) > 0) {
                     //myk blokujący nadmiarowo generowane requesty przez store odnośnie selection

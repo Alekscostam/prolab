@@ -1792,6 +1792,11 @@ export class BaseViewContainer extends BaseContainer {
                     const title = message?.title;
                     this.showErrorMessage(text, 3000, true, title);
                 }
+                if (result?.viewOptions?.refreshAll) {
+                    this.unselectAllDataGrid(false);
+                    this.refreshView();
+                    if (ViewUtils.haveSubView()) this.downloadSubViewData(true);
+                }
                 this.handleQrCodeResponse(result);
             })
             .catch((ex) => {

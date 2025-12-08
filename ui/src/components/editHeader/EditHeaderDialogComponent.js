@@ -68,7 +68,7 @@ export class EditHeaderDialogComponent extends BaseRowComponent {
             <React.Fragment>
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
                 <Dialog
-                    id='fullscreen-dialog'
+                    id='edit-header-dialog'
                     header={undefined}
                     headerStyle={{padding: '10px'}}
                     closable={false}
@@ -82,6 +82,8 @@ export class EditHeaderDialogComponent extends BaseRowComponent {
                 >
                     {this.state.editListVisible && (
                         <ListOfHintsDialogComponent
+                            selectedRowKeysFromMainView={this.state.selectedRowKeysFromMainView}
+                            editData={editData}
                             field={this.state.editListField}
                             viewId={editInfo?.viewId}
                             recordId={editInfo?.recordId}

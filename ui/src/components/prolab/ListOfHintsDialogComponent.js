@@ -9,11 +9,14 @@ import {TranslationUtils} from '../../utils/TranslationUtils';
 import EditListUtils from '../../utils/EditListUtils';
 import EditListDataStore from '../../containers/dao/DataEditListStore';
 import {StringUtils} from '../../utils/StringUtils';
+import {EditHeaderType} from '../../enum/EditHeaderType';
+import UrlUtils from '../../utils/UrlUtils';
 
 export default class ListOfHintsDialogComponent extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            selectedRowKeysFromMainView: this.props.selectedRowKeysFromMainView || [],
             isGridInitialized: false,
             canViewSelect: false,
             parsedGridViewData: undefined,
@@ -38,7 +41,34 @@ export default class ListOfHintsDialogComponent extends React.Component {
             this.props.blockUiIfNeccessery();
         }
     }
-
+    getEditDataInfoType = () => {
+        return this.props?.editData?.info?.type;
+    };
+    getProperRecordId = () => {
+        const editData = this.props?.editData;
+        const recordId = this.props?.recordId;
+        const infoExists = !!editData?.info;
+        if (infoExists) {
+            return editData?.info?.viewObjectId || recordId;
+        } else {
+            return recordId;
+        }
+    };
+    getSelectedIdRowKeys = () => {
+        const idRowKeys = (this?.state?.selectedRowKeysFromMainView || []).map((el) => el.ID);
+        return idRowKeys;
+    };
+    getProperRestPoint = () => {
+        const editData = this.props?.editData;
+        const type = editData?.type;
+        if (UrlUtils.batchIdParamExist()) {
+            return 'batch';
+        } else if (type === EditHeaderType.PLUGIN) {
+            return 'plugin/edit';
+        } else {
+            return 'edit';
+        }
+    };
     handleSelectedRowData(e) {
         const prevSelectedRowData = this.state.selectedRowData;
         const multiSelect = this.props?.parsedGridView?.gridOptions?.multiSelect;
@@ -53,11 +83,14 @@ export default class ListOfHintsDialogComponent extends React.Component {
             'gridView',
             parentId,
             null,
-            recordId,
+            this.getProperRecordId(),
             null,
             field.id,
             null,
-            () => {}
+            () => {},
+            this.getProperRestPoint(),
+            this.getSelectedIdRowKeys(),
+            this.getEditDataInfoType()
         );
     };
 
@@ -107,7 +140,7 @@ export default class ListOfHintsDialogComponent extends React.Component {
             const res = this.editListDataStore.getEditListDataStore(
                 viewId,
                 'gridView',
-                recordId,
+                this.getProperRecordId(),
                 field?.id,
                 parentId,
                 null,
@@ -131,7 +164,10 @@ export default class ListOfHintsDialogComponent extends React.Component {
                 },
                 () => {
                     return {selectAll: this.state.selectAll};
-                }
+                },
+                this.getProperRestPoint(),
+                this.getSelectedIdRowKeys(),
+                this.getEditDataInfoType()
             );
             this.setState(
                 {
@@ -159,6 +195,7 @@ export default class ListOfHintsDialogComponent extends React.Component {
         return (
             <React.Fragment>
                 <Dialog
+                    appendTo={document.body}
                     id='editListDialog'
                     header={
                         <div>

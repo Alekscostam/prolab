@@ -28,6 +28,7 @@ export class EditHeaderComponent extends BaseRowComponent {
         super(props);
         this.service = new CrudService();
         this.state = {
+            selectedRowKeysFromMainView: this.props.selectedRowKeysFromMainView,
             loading: true,
             editListField: {},
             editListVisible: false,
@@ -113,6 +114,8 @@ export class EditHeaderComponent extends BaseRowComponent {
                 <Toast id='toast-messages' position='top-center' ref={(el) => (this.messages = el)} />
                 {editListVisible && (
                     <ListOfHintsDialogComponent
+                        editData={this.props.editData}
+                        selectedRowKeysFromMainView={this.state.selectedRowKeysFromMainView}
                         field={this.state.editListField}
                         viewId={editInfo?.viewId}
                         recordId={editInfo?.recordId}
