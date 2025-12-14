@@ -7,7 +7,7 @@ import OperationsButtons from './OperationsButtons';
 import {Breadcrumb} from '../../utils/BreadcrumbUtils';
 import {DataGridUtils} from '../../utils/component/DataGridUtils';
 import {TreeListUtils} from '../../utils/component/TreeListUtils';
-import LocUtils from '../../utils/LocUtils';
+import {showBarCode} from '../../utils/BarCodeUtils';
 //Komponent wyświetlający górną ramkę i okalający wszystkie przyciski, filtry ....
 export const HeadPanel = (props) => {
     const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();

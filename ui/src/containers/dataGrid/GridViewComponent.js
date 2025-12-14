@@ -702,7 +702,6 @@ class GridViewComponent extends CellEditComponent {
     getInstance = () => {
         return this.props?.getRef()?._instance;
     };
-    // TODO:
     getVisibleRows = () => {
         const isntance = this.getInstance();
         const visibleRows = isntance?.getVisibleRows();

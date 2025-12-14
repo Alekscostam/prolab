@@ -61,14 +61,10 @@ import {ConfirmationOperationDialog} from '../components/prolab/ConfirmOperation
 import {SessionStoreUtils} from '../utils/SessionStoreUtils';
 import useStore from '../store';
 import KeyCombinationDetector from '../utils/KeyCombinationDetector';
-import {
-    getStore,
-    isFirstMethodShowBarCode,
-    isSecondMethodShowBarCode,
-    isThirdMethodShowBarCode,
-} from '../utils/helper/StoreHelper';
 import {ArrayUtils} from '../utils/ArrayUtils';
 import EditHeaderWindowComponent from '../components/editHeader/EditHeaderWindowComponent';
+import {showBarCode} from '../utils/BarCodeUtils';
+import {getStore} from '../utils/helper/StoreHelper';
 
 let dataGrid;
 
@@ -176,6 +172,8 @@ export class BaseViewContainer extends BaseContainer {
     }
 
     componentDidMount() {
+        getStore().baseViewBlockUi = () => this.blockUi();
+        getStore().baseViewUnblockUi = () => this.unblockUi();
         this._isMounted = true;
         const subViewId = UrlUtils.getSubViewId();
         const recordId = this.props.recordId || UrlUtils.getRecordId();
@@ -297,17 +295,20 @@ export class BaseViewContainer extends BaseContainer {
         window.removeEventListener('keydown', this.keyDownFunction);
     }
     keyDownFunction = (event) => {
-        const findKey = this.state?.parsedGridView?.options?.findKey;
-        if (!StringUtils.isBlank(findKey)) {
-            const keyCombinationDetector = new KeyCombinationDetector(event, findKey);
-            if (keyCombinationDetector.isExecuted()) {
-                const dialogsOpened = document.getElementsByClassName('p-dialog-mask');
-                if (dialogsOpened.length > 1) {
+        const opBarCode = this.state.parsedGridView?.operations.find((op) => op.type === OperationType.OP_FIND_BARCODE);
+        if (opBarCode) {
+            const findKey = opBarCode.key;
+            if (!StringUtils.isBlank(findKey)) {
+                const keyCombinationDetector = new KeyCombinationDetector(event, findKey);
+                if (keyCombinationDetector.isExecuted()) {
+                    const dialogsOpened = document.getElementsByClassName('p-dialog-mask');
+                    if (dialogsOpened.length > 1) {
+                        event.preventDefault();
+                        return;
+                    }
+                    showBarCode();
                     event.preventDefault();
-                    return;
                 }
-                this.showBarCode();
-                event.preventDefault();
             }
         }
     };
@@ -1152,6 +1153,21 @@ export class BaseViewContainer extends BaseContainer {
                             )}
                         </React.Fragment>
                     );
+                case OperationType.OP_FIND_BARCODE:
+                    return (
+                        <React.Fragment>
+                            {operation.showAlways && (
+                                <ActionShortcutWithoutMenu
+                                    id='button_bar_code'
+                                    className={`${margin}`}
+                                    iconName={operation?.iconCode || 'mdi-cogs'}
+                                    operationType={OperationType.OP_FIND_BARCODE}
+                                    title={operation?.label}
+                                    customEventClick={() => showBarCode()}
+                                />
+                            )}
+                        </React.Fragment>
+                    );
                 case OperationType.OP_CARDVIEW:
                 case OperationType.OP_GRIDVIEW:
                     return this.viewOperation(index);
@@ -1608,68 +1624,6 @@ export class BaseViewContainer extends BaseContainer {
             });
         };
         return <PDFViewerDialog onHide={onHide} name={this.state.fileViewer.name} file={this.state.fileViewer.file} />;
-    };
-    showBarCode = () => {
-        const second = isSecondMethodShowBarCode();
-        const first = isFirstMethodShowBarCode();
-        const third = isThirdMethodShowBarCode();
-
-        const barCode = document.getElementById('barCode');
-        const hiddenInput = document.getElementById('hidden-input');
-        const qrCodeTextbox = document.getElementById('qrCode-textbox')?.children?.[0]?.children?.[0]?.children?.[0];
-
-        const showBarCodeElement = () => {
-            if (barCode) barCode.style.display = 'flex';
-            else console.warn('Element #barCode nie został znaleziony.');
-        };
-
-        const focusQrCodeTextbox = () => {
-            if (qrCodeTextbox) {
-                qrCodeTextbox.focus();
-                qrCodeTextbox.click();
-            } else console.warn('Element qrCodeTextbox nie został znaleziony.');
-        };
-
-        const handleHiddenInputRead = (onSuccess, fallback) => {
-            if (hiddenInput) hiddenInput.focus();
-            setTimeout(() => {
-                const inputValue = hiddenInput?.value;
-                if (inputValue) {
-                    console.log('value of barcode: ' + inputValue);
-                    onSuccess(inputValue);
-                    if (hiddenInput) hiddenInput.value = '';
-                } else fallback?.();
-            }, 200);
-        };
-
-        if (first) {
-            console.log('firstMethodShowBarCode executed');
-            showBarCodeElement();
-            focusQrCodeTextbox();
-        } else if (second) {
-            console.log('secondMethodShowBarCode executed');
-            showBarCodeElement();
-            handleHiddenInputRead(
-                (value) => {
-                    if (qrCodeTextbox) qrCodeTextbox.value = value;
-                    document.getElementById('opConfirm-qr-code')?.click();
-                },
-                () => {
-                    focusQrCodeTextbox();
-                }
-            );
-        } else if (third) {
-            console.log('thirdMethodShowBarCode executed');
-            handleHiddenInputRead(
-                (value) => {
-                    this.findCode?.(value);
-                },
-                () => {
-                    showBarCodeElement();
-                    focusQrCodeTextbox();
-                }
-            );
-        } else console.error('Method to show barcode not exist: ' + getStore().barCodeShowMethod);
     };
 
     closeBarCode = () => {

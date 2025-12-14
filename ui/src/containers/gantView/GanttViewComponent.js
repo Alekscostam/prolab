@@ -56,6 +56,7 @@ import {handleSwitchFilterForGantt} from '../../utils/handler/FilterSwitchHandle
 import {MouseDragScroller} from '../../utils/MouseDragScroller.js';
 import {getStore} from '../../utils/helper/StoreHelper.js';
 import {ViewUtils} from '../../utils/ViewUtils.js';
+import {showBarCode} from '../../utils/BarCodeUtils.js';
 
 const UNCOLLAPSED_CUT_SIZE = 314;
 const COLLAPSED_CUT_SIZE = 125;
@@ -935,6 +936,9 @@ class GanttViewComponent extends React.Component {
                                         handleRestore={(e) =>
                                             this.preAction(e, () => this.props.handleRestoreRow(recordId), recordId)
                                         }
+                                        handleFindBarCode={(e) =>
+                                            this.preAction(e, () => this.props.handleFindBarCodeRow(recordId), recordId)
+                                        }
                                         handleBlockUi={() => this.props.handleBlockUi()}
                                     />
                                 </div>
@@ -1034,6 +1038,9 @@ class GanttViewComponent extends React.Component {
                         break;
                     case OperationType.OP_SAVE:
                         this.props.handleSaveAction();
+                        break;
+                    case OperationType.OP_FIND_BARCODE:
+                        showBarCode();
                         break;
                     default:
                         console.log('error not found type: ' + e.name?.toUpperCase());

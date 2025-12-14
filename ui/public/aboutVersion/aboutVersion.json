@@ -5,6 +5,26 @@
             "data": [
                 {
                     "isNew": true,
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "link": "https://trello.com/c/cJItkYpb/879-operacja-opfindbarcode",
+                    "text": "barcode w operations"
+                },
+                {
+                    "isNew": true,
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/2BQSR5w8/873-przyblokowanie-by-si%C4%99-nie-da%C5%82o-wsz%C4%99dzie-kilka%C4%87-jak-co%C5%9B-mieli",
+                    "text": "Blokwoanie UI po wywolaniu listy podpwoiedzi"
+                }
+            ]
+        },
+        {
+            "title": "",
+            "data": [
+                {
                     "type": "FIX",
                     "color": "red",
                     "date": "",
@@ -12,7 +32,6 @@
                     "text": "Porpawa punktu data w liscie podpowiedzi"
                 },
                 {
-                    "isNew": true,
                     "type": "FIX",
                     "color": "red",
                     "date": "",
@@ -20,7 +39,6 @@
                     "text": "Refresh na findKey"
                 },
                 {
-                    "isNew": true,
                     "type": "FIX",
                     "color": "red",
                     "date": "",

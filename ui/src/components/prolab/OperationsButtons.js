@@ -7,6 +7,7 @@ import {sessionExtendFnc} from '../../App';
 import {OperationType} from '../../enum/OperationType';
 import {SessionStoreUtils} from '../../utils/SessionStoreUtils';
 import LocUtils from '../../utils/LocUtils';
+import {showBarCode} from '../../utils/BarCodeUtils';
 
 export const OperationsButtons = ({
     operations = [],
@@ -460,6 +461,22 @@ export const OperationsButtons = ({
                                     handleClick={(e) =>
                                         afterClickOperation(() => handleUncheck(Object.assign(e, operations)))
                                     }
+                                    iconName={operations?.iconCode || 'mdi-arrow-down-thin'}
+                                    iconColor={`${inverseColor ? `white` : `blue`}`}
+                                    buttonShadow={buttonShadow}
+                                    iconSide='left'
+                                    title={operations?.label}
+                                />
+                            </React.Fragment>
+                        );
+                    break;
+                case OperationType.OP_FIND_BARCODE:
+                    if (!!atLeastOneSelected)
+                        return (
+                            <React.Fragment>
+                                <ShortcutButton
+                                    className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
+                                    handleClick={(e) => afterClickOperation(() => showBarCode())}
                                     iconName={operations?.iconCode || 'mdi-arrow-down-thin'}
                                     iconColor={`${inverseColor ? `white` : `blue`}`}
                                     buttonShadow={buttonShadow}

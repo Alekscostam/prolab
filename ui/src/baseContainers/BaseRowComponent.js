@@ -319,7 +319,7 @@ export class BaseRowComponent extends BaseContainer {
     }
 
     editListVisible(field) {
-        this.blockUi();
+        getStore().onBaseViewBlockUi(true);
         ConsoleHelper('EditHeaderComponent::editListVisible');
         const editInfo = this.props.editData?.editInfo;
         const kindView = this.props.kindView;
@@ -368,22 +368,28 @@ export class BaseRowComponent extends BaseContainer {
                             }
                         }
                         let filtersListTmp = [];
-                        this.setState({
-                            gridViewType: responseView?.viewInfo?.type,
-                            parsedGridView: responseView,
-                            gridViewColumns: responseView.gridColumns,
-                            filtersList: filtersListTmp,
-                            packageRows: responseView?.viewInfo?.dataPackageSize,
-                            selectedRowData: selectedRowDataTmp,
-                            defaultSelectedRowKeys: [],
-                            editListField: field,
-                            editListVisible: true,
-                        });
+                        this.setState(
+                            {
+                                gridViewType: responseView?.viewInfo?.type,
+                                parsedGridView: responseView,
+                                gridViewColumns: responseView.gridColumns,
+                                filtersList: filtersListTmp,
+                                packageRows: responseView?.viewInfo?.dataPackageSize,
+                                selectedRowData: selectedRowDataTmp,
+                                defaultSelectedRowKeys: [],
+                                editListField: field,
+                                editListVisible: true,
+                            },
+                            () => {
+                                getStore().onBaseViewBlockUi(false);
+                            }
+                        );
                     })
                     .catch((err) => {
                         console.error('Error getEditList in EditHeaderComponent. Exception = ', err);
                         this.props.showErrorMessages(err);
                         this.unblockUi();
+                        getStore().onBaseViewBlockUi(false);
                     });
             }
         );

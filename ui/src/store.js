@@ -1,7 +1,7 @@
 import {create} from 'zustand';
 import {StringUtils} from './utils/StringUtils';
 
-const useStore = create((set) => ({
+const useStore = create((set, get) => ({
     fetchData: true,
     filterClearFnc: null,
     draggableGridEnabled: false,
@@ -12,6 +12,8 @@ const useStore = create((set) => ({
     captcha: undefined,
     unlockSave: undefined,
     barCodeShowMethod: undefined,
+    baseViewBlockUi: undefined,
+    baseViewUnblockUi: undefined,
     wssUrl: undefined,
     aboutVersion: undefined,
     webSocket: undefined,
@@ -42,6 +44,8 @@ const useStore = create((set) => ({
     setDraggableGridEnabled: (value) => set({draggableGridEnabled: value}),
     setCaptcha: (value) => set({captcha: value}),
     setRememberMe: (value) => set({rememberMe: value}),
+    setBaseViewBlockUi: (value) => set({baseViewBlockUi: value}),
+    setBaseViewUnblockUi: (value) => set({baseViewUnblockUi: value}),
     setGanttView: (value) => set({ganttView: value}),
     setDataGridView: (value) => set({dataGridView: value}),
     setHeartbeatTimeMinutes: (value) => set({heartbeatTimeMinutes: value}),
@@ -68,6 +72,15 @@ const useStore = create((set) => ({
     callToggleFn: (val) => {
         const {filterClearFnc} = useStore.getState();
         if (filterClearFnc) filterClearFnc(val);
+    },
+    onBaseViewBlockUi: (block) => {
+        const {baseViewBlockUi, baseViewUnblockUi} = get();
+
+        if (block) {
+            baseViewBlockUi?.();
+        } else {
+            baseViewUnblockUi?.();
+        }
     },
 }));
 export default useStore;
