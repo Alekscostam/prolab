@@ -45,7 +45,7 @@ EntryResponseHelper.run = (entryResponse, accept, reject, unblockUi) => {
                     reject();
                     safeRemoveChild();
                 }}
-                rejectClassName={entryResponse?.message || entryResponse?.question ? 'hidden' : undefined} // Ukryj przycisk reject dla pytania i odpowiedzi
+                rejectClassName={entryResponse?.question?.text ? undefined : 'hidden'}
             />
         );
         const safeRemoveChild = () => {

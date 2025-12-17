@@ -93,7 +93,7 @@ export default class HeaderService extends BaseService {
     }
 
     editAutoFill(viewId, recordId, parentId, kindView, element, type, path = 'edit') {
-        const queryString = HeaderService.getQueryString(parentId, kindView, undefined, undefined, undefined, type);
+        const queryString = HeaderService.getQueryString(parentId, kindView, undefined, undefined, type);
         return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/${path}/${recordId}/AutoFill${queryString}`, {
             method: 'POST',
             body: JSON.stringify(element),

@@ -1838,7 +1838,19 @@ class BaseContainer extends React.Component {
                 arrayTmp.forEach((element) => {
                     EditRowUtils.searchAndAutoFill(editData, element.fieldName, element.value);
                 });
+                let canBeRefreshed = true;
                 this.setEditData(editData);
+                for (let index = 0; index < editAutoFillResponse?.data?.length; index++) {
+                    const element = editAutoFillResponse?.data[index];
+                    const foundedElement = EditRowUtils.findField(editData, element.fieldName);
+                    if (foundedElement) {
+                        canBeRefreshed = true;
+                        break;
+                    }
+                }
+                if (canBeRefreshed) {
+                    this.refreshFieldVisibility(editData?.editInfo);
+                }
                 this.unblockUi();
             })
             .catch((err) => {

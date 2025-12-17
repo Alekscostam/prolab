@@ -318,6 +318,10 @@ export class BaseRowComponent extends BaseContainer {
         e.component.option('toolbar.items', [...currentToolbarItems, markup]);
     }
 
+    getEditDataInfoType = () => {
+        return this?.props?.editData?.info?.type;
+    };
+
     editListVisible(field) {
         getStore().onBaseViewBlockUi(true);
         ConsoleHelper('EditHeaderComponent::editListVisible');

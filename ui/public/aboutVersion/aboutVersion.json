@@ -4,7 +4,32 @@
             "title": "",
             "data": [
                 {
-                    "isNew": true,
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/WrbVyXmf/863-wtyczka-edycyjna-api",
+                    "text": "Brakujące typy"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/yIQzxKVO/865-dodanie-punktu-entry-przed-plugin",
+                    "text": "Poprawa pytania z buttonem"
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "link": "https://trello.com/c/lXjmpaRa/882-autofill",
+                    "text": "Autofill połączone z refreshfieldVisibility"
+                }
+            ]
+        },
+        {
+            "title": "",
+            "data": [
+                {
                     "type": "NEW",
                     "color": "green",
                     "date": "",
@@ -12,7 +37,6 @@
                     "text": "barcode w operations"
                 },
                 {
-                    "isNew": true,
                     "type": "FIX",
                     "color": "red",
                     "date": "",

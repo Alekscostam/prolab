@@ -19,6 +19,15 @@ export class EditRowUtils {
             });
         });
     }
+    static findField(editData, searchFieldName) {
+        return (
+            editData.editFields
+                ?.flatMap((e) => e.panels ?? [])
+                .flatMap((p) => p.groups ?? [])
+                .flatMap((g) => g.fields ?? [])
+                .find((f) => f.fieldName === searchFieldName) ?? null
+        );
+    }
 
     static searchAndAutoFill(editData, searchFieldName, newFieldValue, autoFillOnlyEmpty) {
         EditRowUtils.searchField(editData, searchFieldName, (field) => {
