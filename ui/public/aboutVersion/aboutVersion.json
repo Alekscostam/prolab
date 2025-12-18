@@ -4,6 +4,43 @@
             "title": "",
             "data": [
                 {
+                    "isNew": true,
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/lXjmpaRa/882-autofill",
+                    "text": "Autofill połączone z refreshfieldVisibility"
+                },
+                {
+                    "isNew": true,
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/CsYPil4N/885-edycja-w-oknie-za%C5%82acznik%C3%B3w",
+                    "text": "Edycja w załącznikach"
+                },
+                {
+                    "isNew": true,
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/LoRnmq51/884-nie-otwiera-si%C4%99-edycja-w-dashboard",
+                    "text": "Fix dashboard"
+                },
+                {
+                    "isNew": true,
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/ogKsS0hc/816-kopiowanie-npr%C3%B3bek",
+                    "text": "fix na kopiowanie"
+                }
+            ]
+        },
+        {
+            "title": "",
+            "data": [
+                {
                     "type": "FIX",
                     "color": "red",
                     "date": "",

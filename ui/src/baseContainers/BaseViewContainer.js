@@ -589,7 +589,7 @@ export class BaseViewContainer extends BaseContainer {
             SessionStoreUtils.clearFiltersInformation();
         }
     };
-    renderEditHeader() {
+    renderEditHeader = () => {
         const formType = this.state.editData?.editInfo?.editFormType?.toUpperCase();
         switch (formType) {
             case EditFormType.FULLSCREEN:
@@ -671,7 +671,7 @@ export class BaseViewContainer extends BaseContainer {
                     />
                 );
         }
-    }
+    };
 
     renderGlobalTop() {
         const {parsedPluginView} = this.state;

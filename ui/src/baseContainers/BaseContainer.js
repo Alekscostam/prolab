@@ -889,22 +889,26 @@ class BaseContainer extends React.Component {
             this.copyEntry(currentSelectedRowKeyId);
         } else {
             selectedRowKeys = selectedRowKeys.filter((rowKey) => rowKey.ID !== currentSelectedRowKeyId);
-            this.setState({
-                currentSelectedRowKeyId: undefined,
-                selectedRowKeys: selectedRowKeys,
-            });
-            if (selectedRowKeys.length !== 0 && !this.state.copyId) {
-                copyCounter.counter = copyCounter.reInitializeCounter;
-                this.copyEntry();
-            } else {
-                this.setState({
-                    copyData: undefined,
-                    copyId: undefined,
-                });
-                this.refreshView();
-                this.unselectAllDataGrid();
-                return;
-            }
+            this.setState(
+                {
+                    currentSelectedRowKeyId: undefined,
+                    selectedRowKeys: selectedRowKeys,
+                },
+                () => {
+                    if (selectedRowKeys.length !== 0 && !this.state.copyId) {
+                        copyCounter.counter = copyCounter.reInitializeCounter;
+                        this.copyEntry();
+                    } else {
+                        this.setState({
+                            copyData: undefined,
+                            copyId: undefined,
+                        });
+                        this.refreshView();
+                        this.unselectAllDataGrid();
+                        return;
+                    }
+                }
+            );
         }
         this.setState((prevState) => ({
             ...prevState,
@@ -1838,12 +1842,12 @@ class BaseContainer extends React.Component {
                 arrayTmp.forEach((element) => {
                     EditRowUtils.searchAndAutoFill(editData, element.fieldName, element.value);
                 });
-                let canBeRefreshed = true;
+                let canBeRefreshed = false;
                 this.setEditData(editData);
                 for (let index = 0; index < editAutoFillResponse?.data?.length; index++) {
                     const element = editAutoFillResponse?.data[index];
                     const foundedElement = EditRowUtils.findField(editData, element.fieldName);
-                    if (foundedElement) {
+                    if (foundedElement?.refreshFieldVisibility) {
                         canBeRefreshed = true;
                         break;
                     }

@@ -147,6 +147,7 @@ export class EditHeaderComponent extends BaseRowComponent {
                 <Sidebar
                     ref={this.sidebarRef}
                     id='right-sidebar'
+                    appendTo={document.body}
                     visible={visibleEditPanel}
                     modal={true}
                     dismissable={false}

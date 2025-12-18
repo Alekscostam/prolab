@@ -283,7 +283,7 @@ export class DashboardGridViewComponent extends BaseContainer {
     };
 
     renderEditHeader = () => {
-        const formType = this.state.editData?.editInfo?.editFormType;
+        const formType = this.state.editData?.editInfo?.editFormType?.toUpperCase();
         switch (formType) {
             case EditFormType.WINDOW:
                 <EditHeaderWindowComponent
@@ -366,7 +366,6 @@ export class DashboardGridViewComponent extends BaseContainer {
 
     //override
     renderGlobalTop() {
-        const formType = this.state.editData?.editInfo?.editFormType;
         return (
             <React.Fragment>
                 <React.Fragment>

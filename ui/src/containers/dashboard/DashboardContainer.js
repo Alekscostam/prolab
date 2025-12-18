@@ -267,7 +267,7 @@ class DashboardContainer extends BaseContainer {
     };
 
     renderEditHeader = () => {
-        const formType = this.state.editData?.editInfo?.editFormType;
+        const formType = this.state.editData?.editInfo?.editFormType?.toUpperCase();
         switch (formType) {
             case EditFormType.WINDOW:
                 return (
