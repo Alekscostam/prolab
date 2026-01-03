@@ -470,22 +470,6 @@ export const OperationsButtons = ({
                             </React.Fragment>
                         );
                     break;
-                case OperationType.OP_FIND_BARCODE:
-                    if (!!atLeastOneSelected)
-                        return (
-                            <React.Fragment>
-                                <ShortcutButton
-                                    className={`grid-button-panel ${inverseColor ? `inverse` : `normal`} ${margin}`}
-                                    handleClick={(e) => afterClickOperation(() => showBarCode())}
-                                    iconName={operations?.iconCode || 'mdi-arrow-down-thin'}
-                                    iconColor={`${inverseColor ? `white` : `blue`}`}
-                                    buttonShadow={buttonShadow}
-                                    iconSide='left'
-                                    title={operations?.label}
-                                />
-                            </React.Fragment>
-                        );
-                    break;
                 default:
                     return null;
             }

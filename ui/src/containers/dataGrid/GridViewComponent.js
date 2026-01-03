@@ -97,7 +97,6 @@ class GridViewComponent extends CellEditComponent {
         this.allowWrapping = this.props.parsedGridView?.gridOptions?.rowAutoHeight;
         this.hasResized = false;
         this.rowRenderingMode = UrlUtils.isBatch() ? 'standard' : 'virtual';
-        ConsoleHelper('GridViewComponent -> constructor');
     }
 
     selectRowKeys = (selectedRows, callback) => {

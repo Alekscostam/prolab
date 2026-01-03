@@ -14,6 +14,8 @@ const useStore = create((set, get) => ({
     barCodeShowMethod: undefined,
     baseViewBlockUi: undefined,
     baseViewUnblockUi: undefined,
+    headerOperationBlock: undefined,
+    headerOperationUnblock: undefined,
     wssUrl: undefined,
     aboutVersion: undefined,
     webSocket: undefined,
@@ -46,11 +48,12 @@ const useStore = create((set, get) => ({
     setRememberMe: (value) => set({rememberMe: value}),
     setBaseViewBlockUi: (value) => set({baseViewBlockUi: value}),
     setBaseViewUnblockUi: (value) => set({baseViewUnblockUi: value}),
+    setHeaderOperationBlock: (value) => set({headerOperationBlock: value}),
+    setHeaderOperationUnblock: (value) => set({headerOperationUnblock: value}),
     setGanttView: (value) => set({ganttView: value}),
     setDataGridView: (value) => set({dataGridView: value}),
     setHeartbeatTimeMinutes: (value) => set({heartbeatTimeMinutes: value}),
     setHeartbeatDate: (value) => set({heartbeatDate: value}),
-    setUnlockSave: (value) => set({unlockSave: value}),
     setAppVersion: (value) => set({appVersion: value}),
     setAboutVersion: (value) => set({aboutVersion: value}),
     setShowMerge: (value) => set({showMerge: value}),
@@ -72,6 +75,16 @@ const useStore = create((set, get) => ({
     callToggleFn: (val) => {
         const {filterClearFnc} = useStore.getState();
         if (filterClearFnc) filterClearFnc(val);
+    },
+    onHeaderOperationBlock: (block) => {
+        const {headerOperationBlock, headerOperationUnblock} = get();
+        if (block) {
+            headerOperationBlock?.();
+        } else {
+            setTimeout(() => {
+                headerOperationUnblock?.();
+            }, 1500);
+        }
     },
     onBaseViewBlockUi: (block) => {
         const {baseViewBlockUi, baseViewUnblockUi} = get();

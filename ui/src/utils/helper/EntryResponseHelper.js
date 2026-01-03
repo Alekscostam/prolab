@@ -3,6 +3,7 @@ import {localeOptions} from 'primereact/api';
 import ReactDOM from 'react-dom/client';
 import UrlUtils from '../UrlUtils';
 import {HtmlUtils} from '../HtmlUtils';
+import {StringUtils} from '../StringUtils';
 
 function EntryResponseHelper() {}
 EntryResponseHelper.run = (entryResponse, accept, reject, unblockUi) => {
@@ -14,8 +15,19 @@ EntryResponseHelper.run = (entryResponse, accept, reject, unblockUi) => {
             }
         }
         const getMessage = () => {
-            const msg = entryResponse?.question?.text || entryResponse?.message?.text;
-            return HtmlUtils.createHtmlFromString(msg);
+            const isMessageHtml = HtmlUtils.isValidHtml(entryResponse?.message?.text);
+            const isQuestionHtml = HtmlUtils.isValidHtml(entryResponse?.question?.text);
+            if (isMessageHtml || isQuestionHtml) {
+                const msg = entryResponse?.question?.text || entryResponse?.message?.text;
+                return HtmlUtils.createHtmlFromString(msg);
+            } else {
+                const message = entryResponse?.message?.text;
+                const question = entryResponse?.question?.text;
+                if (!StringUtils.isBlank(message) && !StringUtils.isBlank(question)) {
+                    return message + '\n' + question;
+                }
+                return HtmlUtils.createHtmlFromString(message || question);
+            }
         };
         const getHeader = () => {
             const header = entryResponse?.question?.title || entryResponse?.message?.title;

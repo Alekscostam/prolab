@@ -194,13 +194,9 @@ export class Breadcrumb {
         if (encodedValue) {
             try {
                 const breadcrumb = JSON.parse(this.b64_to_utf8(encodedValue));
-                ConsoleHelper('Breadcrumb::readFromUrl breadcrumb', breadcrumb);
                 return breadcrumb;
-            } catch (err) {
-                ConsoleHelper('Breadcrumb::readFromUrl error', err);
-            }
+            } catch (err) {}
         }
-        ConsoleHelper('Breadcrumb::readFromUrl breadcrumb', []);
         return [];
     }
     static shouldShowEditQuitConfirmationDialog() {

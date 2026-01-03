@@ -52,7 +52,7 @@ export class BaseRowComponent extends BaseContainer {
                 isValidNumberFormat: true,
                 prevNumber: undefined,
             },
-            saveEnabled: true,
+            operationEnabled: true,
             editListField: {},
             editListVisible: false,
             parsedGridView: {},
@@ -60,7 +60,6 @@ export class BaseRowComponent extends BaseContainer {
             gridViewColumns: [],
             gridViewTypes: [],
         };
-        this.editListDataStore = new EditListDataStore();
         this.yesNoTypes = [
             {name: 'Tak', code: 'T'},
             {name: 'Nie', code: 'N'},
@@ -96,9 +95,15 @@ export class BaseRowComponent extends BaseContainer {
     };
 
     componentDidMount() {
+        this.registerLockOperation();
         super.componentDidMount();
         this.registerKeydownEvent();
     }
+    registerLockOperation = () => {
+        getStore().setHeaderOperationBlock(this.lockOperation);
+        getStore().setHeaderOperationUnblock(this.unlockOperation);
+    };
+
     registerKeydownEvent() {
         document.addEventListener('keydown', this.keydownEvent);
     }
@@ -108,32 +113,34 @@ export class BaseRowComponent extends BaseContainer {
 
     handleValidForm() {
         try {
-            getStore().setUnlockSave(this.unlockSave);
             const editInfo = this.props.editData?.editInfo;
             this.props.onSave(editInfo.viewId, editInfo.recordId, editInfo.parentId);
             this.refreshView();
         } catch (ex) {
             console.log(ex);
-            this.unlockSave();
+            this.unlockOperation();
         }
     }
     handleSave = () => {
-        if (this.state.saveEnabled) {
-            this.setState({saveEnabled: false}, () => {
-                this.handleFormSubmit();
-            });
-        }
+        getStore().onHeaderOperationBlock(true);
+        this.handleFormSubmit();
     };
 
     handleAutoFill = () => {
+        getStore().onHeaderOperationBlock(true);
         const editInfo = this.props.editData?.editInfo;
         const kindView = this.props.kindView;
         this.props.onAutoFill(editInfo.viewId, editInfo.recordId, editInfo.parentId, kindView);
     };
 
-    unlockSave = () => {
+    unlockOperation = () => {
         this.setState({
-            saveEnabled: true,
+            operationEnabled: true,
+        });
+    };
+    lockOperation = () => {
+        this.setState({
+            operationEnabled: false,
         });
     };
 
@@ -142,6 +149,7 @@ export class BaseRowComponent extends BaseContainer {
         this.props.onCancel(editInfo.viewId, editInfo.recordId, editInfo.parentId);
     };
     handleAttachment = () => {
+        getStore().onHeaderOperationBlock(true);
         const editInfo = this.props.editData?.editInfo;
         if (this.props.onAttachment) {
             this.props.onAttachment(editInfo.recordId);
@@ -209,10 +217,8 @@ export class BaseRowComponent extends BaseContainer {
                 this.preventSave = true;
                 this.forceUpdate();
                 setTimeout(() => {
-                    this.setState({
-                        saveEnabled: true,
-                    });
-                }, 1000);
+                    getStore().onHeaderOperationBlock(false);
+                }, 2000);
             });
         }
     }

@@ -1,8 +1,29 @@
 import moment from 'moment/moment';
 import {ColumnType} from '../enum/ColumnType';
 import Constants from './Constants';
+import {StringUtils} from './StringUtils';
 
 export class RequestUtils {
+    static createObjectToDocumentExecute(rowArray) {
+        const booleanShouldBeZero = (row) => {
+            return (
+                StringUtils.isBlank(row.value) ||
+                row?.value === false ||
+                row?.value === 'false' ||
+                row?.value === 0 ||
+                row?.value === '0'
+            );
+        };
+        const arrayTmp = [];
+        for (let row of rowArray) {
+            if (row.type === ColumnType.B) {
+                row.value = booleanShouldBeZero(row) ? '0' : '1';
+            }
+            arrayTmp.push({fieldName: row.fieldName, value: row.value});
+        }
+        return arrayTmp;
+    }
+
     static createObjectDataToRequest(state) {
         const editData = state.editData;
         const arrayTmp = [];

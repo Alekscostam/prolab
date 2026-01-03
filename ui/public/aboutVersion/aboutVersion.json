@@ -5,11 +5,35 @@
             "data": [
                 {
                     "isNew": true,
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "link": "https://trello.com/c/PKhZ50Fq/887-zast%C4%85pienie-kryteri%C3%B3w-dokument%C3%B3w-wtyczka-edycyjn%C4%85",
+                    "text": "Wtyczka edycyjna wywoływana z dokumentów"
+                },
+                {
+                    "isNew": true,
                     "type": "FIX",
                     "color": "red",
                     "date": "",
-                    "link": "https://trello.com/c/lXjmpaRa/882-autofill",
-                    "text": "Autofill połączone z refreshfieldVisibility"
+                    "link": "https://trello.com/c/pEHnN2PQ/888-operacja-opfindbarcode-podw%C3%B3jna-ikonka",
+                    "text": "Usunięcie podwójnej ikonki barcode"
+                },
+                {
+                    "isNew": true,
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "link": "https://trello.com/c/6CG0sAZ1/878-po-operacji-findkreski-ctrl-k-nie-ustawia-si%C4%99-na-znalezionych-rekordach",
+                    "text": "Włączenie filtrowania na barcode, jeśli dostarczane jest z api listIds"
+                },
+                {
+                    "isNew": true,
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "link": "https://trello.com/c/yIQzxKVO/865-dodanie-punktu-entry-przed-plugin",
+                    "text": "Łączenie tekstów w komuniacie odpowiedzi"
                 },
                 {
                     "isNew": true,
@@ -17,10 +41,28 @@
                     "color": "red",
                     "date": "",
                     "link": "https://trello.com/c/CsYPil4N/885-edycja-w-oknie-za%C5%82acznik%C3%B3w",
+                    "text": "Wyrzucenie edycji z okna załączników"
+                }
+            ]
+        },
+        {
+            "title": "",
+            "data": [
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/lXjmpaRa/882-autofill",
+                    "text": "Autofill połączone z refreshfieldVisibility"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/CsYPil4N/885-edycja-w-oknie-za%C5%82acznik%C3%B3w",
                     "text": "Edycja w załącznikach"
                 },
                 {
-                    "isNew": true,
                     "type": "FIX",
                     "color": "red",
                     "date": "",
@@ -28,7 +70,6 @@
                     "text": "Fix dashboard"
                 },
                 {
-                    "isNew": true,
                     "type": "FIX",
                     "color": "red",
                     "date": "",

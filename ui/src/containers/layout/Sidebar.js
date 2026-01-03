@@ -137,25 +137,11 @@ class Sidebar extends React.Component {
             currentUrl.includes('force=')
         ) {
             this.doNotUpdate = false;
-            ConsoleHelper(
-                'sidebar => shouldComponentUpdate=%s prev_view_id=%s next_view_id=%s url=%s',
-                false,
-                this.state.viewId,
-                nextState.viewId,
-                window.location.href
-            );
             return false;
         } else {
             const history = this.props.history;
             const result =
                 history.action !== 'PUSH' || (history.action !== 'PUSH' && nextProps.location.pathname === '/start');
-            ConsoleHelper(
-                'sidebar => shouldComponentUpdate=%s prev_view_id=%s next_view_id=%s url=%s',
-                result,
-                this.state.viewId,
-                nextState.viewId,
-                window.location.href
-            );
             return result;
         }
     }

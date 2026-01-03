@@ -12,7 +12,6 @@ import {Sidebar} from 'primereact/sidebar';
 import ConsoleHelper from '../../utils/ConsoleHelper';
 import ListOfHintsDialogComponent from '../prolab/ListOfHintsDialogComponent';
 import {Toast} from 'primereact/toast';
-import EditListDataStore from '../../containers/dao/DataEditListStore';
 import CrudService from '../../services/CrudService';
 import BaseRowComponent from '../../baseContainers/BaseRowComponent';
 import LocUtils from '../../utils/LocUtils';
@@ -40,12 +39,9 @@ export class EditHeaderComponent extends BaseRowComponent {
             selectedRowData: [],
             defaultSelectedRowKeys: [],
             preventSave: false,
-            saveEnabled: true,
+            operationEnabled: true,
         };
-
-        this.editListDataStore = new EditListDataStore();
         this.editListDataGrid = null;
-
         this.messages = React.createRef();
         this.sidebarRef = React.createRef();
     }
@@ -182,7 +178,7 @@ export class EditHeaderComponent extends BaseRowComponent {
                                                 title={opSave?.label}
                                                 label={opSave?.label}
                                                 rendered={opSave}
-                                                disabled={!this.state.saveEnabled}
+                                                disabled={!this.state.operationEnabled}
                                             />
                                         )}
                                         {opFill && EditRowUtils.hasAnyToFillField(editData) && (
@@ -193,6 +189,7 @@ export class EditHeaderComponent extends BaseRowComponent {
                                                 title={opFill?.label}
                                                 label={opFill?.label}
                                                 rendered={opFill}
+                                                disabled={!this.state.operationEnabled}
                                             />
                                         )}
                                         {opCancel && (
@@ -213,6 +210,7 @@ export class EditHeaderComponent extends BaseRowComponent {
                                                 title={opCancel?.label}
                                                 label={opCancel?.label}
                                                 rendered={opCancel}
+                                                disabled={!this.state.operationEnabled}
                                             />
                                         )}
                                         {opClose && (
@@ -243,6 +241,7 @@ export class EditHeaderComponent extends BaseRowComponent {
                                                 title={opAttachment?.label}
                                                 label={opAttachment?.label}
                                                 rendered={opAttachment}
+                                                disabled={!this.state.operationEnabled}
                                             />
                                         )}
                                     </div>

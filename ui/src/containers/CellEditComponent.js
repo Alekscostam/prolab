@@ -50,7 +50,6 @@ class CellEditComponent extends PureComponent {
             },
             editorViewer: this.clearedEditorViewerObj(),
         };
-        ConsoleHelper('CellEditComponent -> constructor');
     }
 
     modifyCurrentClickedCell(id) {

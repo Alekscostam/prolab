@@ -544,6 +544,7 @@ export class BaseViewContainer extends BaseContainer {
                 />
             );
         } else {
+            getStore().onHeaderOperationBlock(true);
             this.setState({visibleEditPanel: e}, () => {
                 this.handleCancelRowChange(viewId, recordId, parentId);
             });
@@ -1734,6 +1735,7 @@ export class BaseViewContainer extends BaseContainer {
             barCode: code,
             value: '',
         };
+
         const subViewId = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
         const parentId = this.state.subView == null ? UrlUtils.getParentId() : this.state.elementRecordId;
         const viewId = DataGridUtils.getRealViewId(subViewId, this.props.id);
@@ -1746,10 +1748,23 @@ export class BaseViewContainer extends BaseContainer {
                     const title = message?.title;
                     this.showErrorMessage(text, 3000, true, title);
                 }
+                const getFilter = () => {
+                    return result.listId.flatMap((id, index) =>
+                        index === 0 ? [['ID', '=', id]] : ['or', ['ID', '=', id]]
+                    );
+                };
                 if (result?.viewOptions?.refreshAll) {
                     this.unselectAllDataGrid(false);
-                    this.refreshView();
                     if (ViewUtils.haveSubView()) this.downloadSubViewData(true);
+                    if (!ArrayUtils.isEmpty(result.listId)) {
+                        this.getRefGridView()?.instance?.filter(getFilter());
+                    } else {
+                        this.refreshView();
+                    }
+                } else {
+                    if (!ArrayUtils.isEmpty(result.listId)) {
+                        this.getRefGridView()?.instance?.filter(getFilter());
+                    }
                 }
                 this.handleQrCodeResponse(result);
             })

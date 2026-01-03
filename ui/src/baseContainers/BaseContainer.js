@@ -89,6 +89,7 @@ class BaseContainer extends React.Component {
         this.getConfigUrl = this.getConfigUrl.bind(this);
         this.refreshSubView = this.refreshSubView.bind(this);
         this.refreshView = this.refreshView.bind(this);
+        this.executeDocument = this.executeDocument.bind(this);
         this.prepareCalculateFormula = this.prepareCalculateFormula.bind(this);
         this.validator = new SimpleReactValidator();
 
@@ -98,7 +99,7 @@ class BaseContainer extends React.Component {
         this.jwtRefreshBlocked = false;
         this.scrollToError = false;
     }
-
+    async executeDocument(data, viewId, elementId, parentId, recordId) {}
     getMessages() {}
 
     shouldComponentUpdate() {
@@ -784,12 +785,19 @@ class BaseContainer extends React.Component {
     };
 
     getProperServiceForHeader = (editData = this?.state?.editData) => {
-        const type = editData?.type;
-        if (type === EditHeaderType.PLUGIN) {
+        if (this.isPluginType(editData)) {
             return this.pluginService;
         } else {
             return this.headerService;
         }
+    };
+
+    isPluginType = (editData) => {
+        const type = editData?.type;
+        if (type === EditHeaderType.PLUGIN || type === EditHeaderType.DOC) {
+            return true;
+        }
+        return false;
     };
 
     getListId = (recordId, selectedRowKeys = this.state?.selectedRowKeys) => {
@@ -804,6 +812,16 @@ class BaseContainer extends React.Component {
             data: element.data,
         };
     };
+
+    documentExecuteAfterRowSave = (response) => {
+        if (response?.data?.data) {
+            const data = RequestUtils.createObjectToDocumentExecute(response?.data?.data);
+            const info = this.state.editData?.info;
+            const parentIdArg = info.parentId ? `${info.parentId}` : null;
+            this.executeDocument(data, `${info.viewId}`, `${info.viewObjectId}`, parentIdArg);
+        }
+    };
+
     rowSave = (viewId, recordId, parentId, saveElement, confirmSave, token, isCopy = false) => {
         this.blockUi();
         const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
@@ -827,6 +845,7 @@ class BaseContainer extends React.Component {
                     () => {
                         this.setState({visibleEditPanel: false});
                         window.location.href = UrlUtils.getUrlWithoutEditRowParams();
+                        this.documentExecuteAfterRowSave(saveResponse);
                     },
                     (res) => {
                         this.showGlobalErrorMessage(res);
@@ -858,11 +877,7 @@ class BaseContainer extends React.Component {
                 this.showGlobalErrorMessage(err);
             })
             .finally(() => {
-                const unlockSave = getStore().unlockSave;
-                if (unlockSave) {
-                    unlockSave();
-                    getStore().setUnlockSave(undefined);
-                }
+                getStore().onHeaderOperationBlock(false);
             });
     };
     shouldRefreshSubView(kindOperation) {
@@ -937,6 +952,9 @@ class BaseContainer extends React.Component {
             })
             .catch((err) => {
                 this.showGlobalErrorMessage(err);
+            })
+            .finally(() => {
+                getStore().onHeaderOperationBlock(false);
             });
     };
     delete(id) {
@@ -988,6 +1006,7 @@ class BaseContainer extends React.Component {
                 this.showGlobalErrorMessage(err);
             });
     }
+
     generate(id, recordId) {
         const viewId = this.getRealViewId();
         const parentId = this.getParentIdForView();
@@ -1004,7 +1023,16 @@ class BaseContainer extends React.Component {
                             this.executeDocument(null, viewId, id, parentId, recordId);
                         }
                     } else {
-                        if (res.inputDataFields?.length) {
+                        if (res?.info?.kind === 'EDIT' && res?.info?.type === 'DOC') {
+                            const editInfoExists = !!res.editInfo;
+                            if (editInfoExists) {
+                                res.type = EditHeaderType.DOC;
+                                this.setState({
+                                    visibleEditPanel: true,
+                                    editData: res,
+                                });
+                            }
+                        } else if (res.inputDataFields?.length) {
                             const documentInfo = {
                                 inputDataFields: res.inputDataFields,
                                 info: res.info,
@@ -1526,6 +1554,9 @@ class BaseContainer extends React.Component {
             })
             .catch((err) => {
                 this.showGlobalErrorMessage(err);
+            })
+            .finally(() => {
+                getStore().onHeaderOperationBlock(false);
             });
     }
     isKindViewSpec(recordId) {
@@ -1859,6 +1890,9 @@ class BaseContainer extends React.Component {
             })
             .catch((err) => {
                 this.showGlobalErrorMessage(err);
+            })
+            .finally(() => {
+                getStore().onHeaderOperationBlock(false);
             });
     }
 
