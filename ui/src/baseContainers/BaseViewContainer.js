@@ -867,6 +867,7 @@ export class BaseViewContainer extends BaseContainer {
         // to overide
     }
     async executeDocument(data, viewId, elementId, parentId, recordId) {
+        this.blockUi();
         const idRowKeys = this.state.selectedRowKeys.map((el) => el.ID);
         const requestBody = recordId
             ? {listId: [recordId], data: data}
@@ -875,7 +876,6 @@ export class BaseViewContainer extends BaseContainer {
                   data: data,
               };
         let info = undefined;
-        this.blockUi();
         await this.crudService
             .executeDocument(requestBody, viewId, elementId, parentId)
             .then((res) => {
@@ -883,6 +883,7 @@ export class BaseViewContainer extends BaseContainer {
                     this.showSuccessMessage(res?.message?.text, undefined, res?.message?.title);
                 }
                 info = res?.info;
+                this.unblockUi();
             })
             .catch((ex) => {
                 this.showGlobalErrorMessage(ex);
@@ -901,7 +902,6 @@ export class BaseViewContainer extends BaseContainer {
         if (isPreview) {
             this.showDocumentViewer(viewId, elementId, fileId, fileName);
         }
-        this.unblockUi();
     }
     showDocumentViewer = (viewId, elementId, fileId, fileName) => {
         this.crudService
@@ -1840,7 +1840,6 @@ export class BaseViewContainer extends BaseContainer {
                         this.onGroupIndexChange(index, value);
                     }}
                     showColumnHeaders={this.state.showColumnHeaders}
-                    filtersCached={this.state.filtersCached}
                     multiLevelHeaders={this.isGridViewBands()}
                     gridViewColumns={this.state.gridViewColumns}
                     ppmEnabled={true}
@@ -1882,7 +1881,7 @@ export class BaseViewContainer extends BaseContainer {
                     handleSelectRows={(rowData, callback) => {
                         this.handleSelectRow(rowData, callback);
                     }}
-                    handleSelectAll={(selectionValue) => {
+                    handleSelectAll={(selectionValue, data) => {
                         this.blockUi();
                         const prevDataGridGlobalReference = this.state?.prevDataGridGlobalReference;
                         if (prevDataGridGlobalReference) {
@@ -1890,15 +1889,18 @@ export class BaseViewContainer extends BaseContainer {
                             dataGrid = prevDataGridGlobalReference;
                         }
                         if (selectionValue === null) {
-                            this.setState({
-                                selectAll: false,
-                                select: true,
-                            });
-                            dataGrid.getSelectedRowsData().then((rowData) => {
-                                rowData = this.removeDuplicates(rowData);
+                            const selectedRowKeys = [...this.state.selectedRowKeys];
+                            if (data && data.ID) {
+                                const dataIdStr = String(data.ID);
+                                const index = selectedRowKeys.findIndex((el) => String(el.ID) === dataIdStr);
+                                if (index === -1) {
+                                    selectedRowKeys.push({ID: data.ID});
+                                } else {
+                                    selectedRowKeys.splice(index, 1);
+                                }
                                 this.setState(
                                     {
-                                        selectedRowKeys: rowData,
+                                        selectedRowKeys: selectedRowKeys,
                                         selectAll: false,
                                         select: false,
                                         prevDataGridGlobalReference: null,
@@ -1907,8 +1909,27 @@ export class BaseViewContainer extends BaseContainer {
                                         this.unblockUi();
                                     }
                                 );
-                            });
-                            this.unblockUi();
+                            } else {
+                                this.setState({
+                                    selectAll: false,
+                                    select: true,
+                                });
+                                dataGrid.getSelectedRowsData().then((rowData) => {
+                                    rowData = this.removeDuplicates(rowData);
+                                    this.setState(
+                                        {
+                                            selectedRowKeys: rowData,
+                                            selectAll: false,
+                                            select: false,
+                                            prevDataGridGlobalReference: null,
+                                        },
+                                        () => {
+                                            this.unblockUi();
+                                        }
+                                    );
+                                });
+                                this.unblockUi();
+                            }
                         } else {
                             if (selectionValue) this.selectAllDataGrid(selectionValue);
                             else this.unselectAllDataGrid(selectionValue);

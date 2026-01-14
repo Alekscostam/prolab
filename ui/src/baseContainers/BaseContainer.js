@@ -1008,6 +1008,7 @@ class BaseContainer extends React.Component {
     }
 
     generate(id, recordId) {
+        this.blockUi();
         const viewId = this.getRealViewId();
         const parentId = this.getParentIdForView();
         const idRowKeys = this.state.selectedRowKeys.map((el) => el.ID);
@@ -1019,6 +1020,7 @@ class BaseContainer extends React.Component {
                     if (res.info.kind === 'GE') {
                         if (res.message) {
                             this.showSuccessMessage(res.message.text, undefined, res.message.title);
+                            this.unblockUi();
                         } else {
                             this.executeDocument(null, viewId, id, parentId, recordId);
                         }
@@ -1027,29 +1029,41 @@ class BaseContainer extends React.Component {
                             const editInfoExists = !!res.editInfo;
                             if (editInfoExists) {
                                 res.type = EditHeaderType.DOC;
-                                this.setState({
-                                    visibleEditPanel: true,
-                                    editData: res,
-                                });
+                                this.setState(
+                                    {
+                                        visibleEditPanel: true,
+                                        editData: res,
+                                    },
+                                    () => {
+                                        this.unblockUi();
+                                    }
+                                );
                             }
                         } else if (res.inputDataFields?.length) {
                             const documentInfo = {
                                 inputDataFields: res.inputDataFields,
                                 info: res.info,
                             };
-                            this.setState({
-                                visibleDocumentPanel: true,
-                                documentInfo: documentInfo,
-                            });
+                            this.setState(
+                                {
+                                    visibleDocumentPanel: true,
+                                    documentInfo: documentInfo,
+                                },
+                                () => {
+                                    this.unblockUi();
+                                }
+                            );
                         } else {
                             this.executeDocument(null, viewId, id, parentId, recordId);
                         }
                     }
                 } else if (res?.info?.message) {
+                    this.unblockUi();
                     this.showSuccessMessage(res.info?.message?.text, undefined, res.info?.message?.title);
                 }
             })
             .catch((ex) => {
+                this.unblockUi();
                 this.showGlobalErrorMessage(ex);
             });
     }

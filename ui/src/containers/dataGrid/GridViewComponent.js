@@ -477,10 +477,10 @@ class GridViewComponent extends CellEditComponent {
                                 let event = this.selectAllEvent(e);
                                 this.props.handleSelectAll(event);
                             } else if (this.ifSelectEvent(e)) {
-                                this.props.handleSelectAll(null);
+                                this.props.handleSelectAll(null, e?.data);
                             } else if (this.hasSelectClass(e)) {
                                 // global dla mobile
-                                this.props.handleSelectAll(null);
+                                this.props.handleSelectAll(null, e?.data);
                             }
                             this.keyDownClicked.current = false;
                         }

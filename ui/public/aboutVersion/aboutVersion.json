@@ -4,7 +4,25 @@
             "title": "",
             "data": [
                 {
-                    "isNew": true,
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/0zoRpJBq/889-%C5%BAle-zaznacza-pozycje-gdy-zaznacza-si%C4%99-ni%C5%BC-39",
+                    "text": "Możliwość zaznaczania ponad 39"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/JaIoaK2X/891-problem-z-ci%C4%85g%C5%82o%C5%9Bci%C4%85-operacji",
+                    "text": "Zabezpieczenie przed operacji document przed klikaniem w tle"
+                }
+            ]
+        },
+        {
+            "title": "",
+            "data": [
+                {
                     "type": "NEW",
                     "color": "green",
                     "date": "",
@@ -12,7 +30,6 @@
                     "text": "Wtyczka edycyjna wywoływana z dokumentów"
                 },
                 {
-                    "isNew": true,
                     "type": "FIX",
                     "color": "red",
                     "date": "",
@@ -20,7 +37,6 @@
                     "text": "Usunięcie podwójnej ikonki barcode"
                 },
                 {
-                    "isNew": true,
                     "type": "NEW",
                     "color": "green",
                     "date": "",
@@ -28,7 +44,6 @@
                     "text": "Włączenie filtrowania na barcode, jeśli dostarczane jest z api listIds"
                 },
                 {
-                    "isNew": true,
                     "type": "NEW",
                     "color": "green",
                     "date": "",
@@ -36,7 +51,6 @@
                     "text": "Łączenie tekstów w komuniacie odpowiedzi"
                 },
                 {
-                    "isNew": true,
                     "type": "FIX",
                     "color": "red",
                     "date": "",
@@ -44,7 +58,6 @@
                     "text": "Wyrzucenie edycji z okna załączników"
                 },
                 {
-                    "isNew": true,
                     "type": "FIX",
                     "color": "red",
                     "description": "Należy dokłądnie sprawdzić, bo dosyć duża zmiana ",
