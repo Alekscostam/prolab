@@ -1020,6 +1020,7 @@ export class BaseViewContainer extends BaseContainer {
                                             this.setState(
                                                 {
                                                     elementFilterId: filterId,
+                                                    selectedRowKeys: [],
                                                 },
                                                 () => {
                                                     this.getDataByViewResponse(
