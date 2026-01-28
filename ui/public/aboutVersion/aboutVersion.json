@@ -8,18 +8,27 @@
                     "type": "FIX",
                     "color": "red",
                     "date": "",
+                    "text": "Poprawka na niemożliwość zmiany opcji w edycji nagłówka wywołanej z pozycji"
+                }
+            ]
+        },
+        {
+            "title": "",
+            "data": [
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
                     "link": "https://trello.com/c/0zoRpJBq/889-%C5%BAle-zaznacza-pozycje-gdy-zaznacza-si%C4%99-ni%C5%BC-39",
                     "text": "Odznaczanie jak klikamy w combobox"
                 },
                 {
-                    "isNew": true,
                     "type": "FIX",
                     "color": "red",
                     "date": "",
                     "text": "Usunięcie nadmiarowego viewdata po wywłaniu pluginu documentu"
                 },
                 {
-                    "isNew": true,
                     "type": "FIX",
                     "color": "red",
                     "date": "",

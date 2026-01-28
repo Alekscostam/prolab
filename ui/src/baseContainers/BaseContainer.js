@@ -1157,6 +1157,7 @@ class BaseContainer extends React.Component {
                                 .then((res) => {
                                     const editInfoExists = !!res.editInfo;
                                     if (editInfoExists) {
+                                        EditListUtils.addUuidToFields(res);
                                         res.type = EditHeaderType.PLUGIN;
                                         this.setState({
                                             visibleEditPanel: true,
