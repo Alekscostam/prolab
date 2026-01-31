@@ -5,6 +5,25 @@
             "data": [
                 {
                     "isNew": true,
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "text": "Refresh na pole typu combobox"
+                },
+                {
+                    "isNew": true,
+                    "type": "FIX",
+                    "color": "red",
+                    "link": "https://trello.com/c/el8Q6F7A/895-nie-mo%C5%BCna-przestawi%C4%87-okna-dodawania-za%C5%82%C4%85cznika",
+                    "date": "",
+                    "text": "Fix na dialog uplaodu, żeby nie skakał"
+                }
+            ]
+        },
+        {
+            "title": "",
+            "data": [
+                {
                     "type": "FIX",
                     "color": "red",
                     "date": "",

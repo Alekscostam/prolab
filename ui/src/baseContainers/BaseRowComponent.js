@@ -747,7 +747,12 @@ export class BaseRowComponent extends BaseContainer {
                             style={{width: '100%'}}
                             value={field.value}
                             options={this.yesNoTypes}
-                            onChange={(e) => (onChange ? onChange(InputType.DROPDOWN, e, groupUuid, info) : null)}
+                            onChange={(e) => {
+                                if (onChange) {
+                                    e.refreshFieldVisibility = field.refreshFieldVisibility;
+                                    onChange(InputType.DROPDOWN, e, groupUuid, info);
+                                }
+                            }}
                             appendTo='self'
                             showClear
                             optionLabel='name'

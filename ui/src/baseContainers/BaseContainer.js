@@ -2000,7 +2000,7 @@ class BaseContainer extends React.Component {
     setVariableFromEvent(inputType, event) {
         let varName;
         let varValue;
-        let refreshFieldVisibility = false;
+        let refreshFieldVisibility = event.refreshFieldVisibility ? true : false;
         switch (inputType) {
             case InputType.IMAGE64:
                 varName = event == null ? null : event.fieldName;
@@ -2013,7 +2013,6 @@ class BaseContainer extends React.Component {
             case InputType.CHECKBOX:
                 varName = event.target.name;
                 varValue = event.checked ? event.checked : false;
-                refreshFieldVisibility = event.refreshFieldVisibility;
                 break;
             case InputType.EDITOR:
                 varName = event.name;
