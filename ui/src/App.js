@@ -132,8 +132,26 @@ class App extends Component {
             }, 15000);
         }
     }
+    removeWatermark = () => {
+        const existing = document.querySelector('dx-license');
+        if (existing) {
+            return;
+        }
+        const observer = new MutationObserver(() => {
+            const el = document.querySelector('dx-license');
+            if (el) {
+                el.children[1].click();
+                observer.disconnect();
+            }
+        });
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+        });
+    };
 
     componentDidMount() {
+        this.removeWatermark();
         this.simulateBarCodeScanner();
         const webSocket = new WebSocket();
         useStore.getState().setWebSocket(webSocket);

@@ -35,7 +35,7 @@ export const TickerSessionDialog = (props) => {
                     clearInterval(intervalId.current);
                     onLogout();
                 }
-                if (progressBar.current?.instance?.option('value') <= 0) {
+                if (progressBar.current?.instance()?.option('value') <= 0) {
                     clearInterval(intervalId.current);
                     onLogout();
                 }

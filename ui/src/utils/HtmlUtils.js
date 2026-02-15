@@ -43,4 +43,19 @@ export class HtmlUtils {
         }
         return stringHtml;
     }
+
+    static findElementByClass(root, className) {
+        if (!(root instanceof Element)) return null;
+
+        if (root.classList.contains(className)) {
+            return root;
+        }
+
+        for (const child of root.children) {
+            const found = this.findElementByClass(child, className);
+            if (found) return found;
+        }
+
+        return null;
+    }
 }

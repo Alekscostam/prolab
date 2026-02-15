@@ -620,7 +620,7 @@ export class DashboardGridViewComponent extends BaseContainer {
     };
 
     unselectedDataGrid() {
-        this.getRefGridView().instance?.deselectAll();
+        this.getGridInstance()?.deselectAll();
         this.setState({
             selectedRowKeys: {},
         });

@@ -153,7 +153,7 @@ export const MenuWithButtons = (props) => {
                 target={props.target}
                 onItemClick={(e) => {
                     if (e.itemData.command) {
-                        props.menuRef.current.instance.hide();
+                        props.menuRef.current.instance().hide();
                         e.itemData.command();
                     }
                 }}

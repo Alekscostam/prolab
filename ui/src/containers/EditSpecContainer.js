@@ -511,9 +511,11 @@ export class EditSpecContainer extends BaseContainer {
         });
         return arrayTmp;
     }
-
+    treeListInstance() {
+        return this.refTreeList?.instance();
+    }
     unselectAllDataGrid() {
-        this.refTreeList?.instance.deselectAll();
+        this.treeListInstance().deselectAll();
         this.setState({
             selectAll: false,
             select: false,
@@ -608,7 +610,7 @@ export class EditSpecContainer extends BaseContainer {
     //override
     delete(id) {
         let data = this.state?.parsedData;
-        this.refTreeList?.instance?.beginCustomLoading();
+        this.treeListInstance()?.beginCustomLoading();
         if (!!id) {
             data = this.deleteSingleRow(id, data);
         } else {
@@ -621,7 +623,7 @@ export class EditSpecContainer extends BaseContainer {
                 this.refreshTable();
             });
         }
-        this.refTreeList?.instance?.endCustomLoading();
+        this.treeListInstance()?.endCustomLoading();
     }
 
     deleteSingleRow(id, data) {
@@ -803,7 +805,7 @@ export class EditSpecContainer extends BaseContainer {
     getMaxViewid() {}
 
     disableAllSort() {
-        this.refTreeList?.instance?.clearSorting();
+        this.treeListInstance()?.clearSorting();
     }
 
     getLastId() {
@@ -817,7 +819,7 @@ export class EditSpecContainer extends BaseContainer {
     }
 
     refreshTable(callbackAction) {
-        this.refTreeList?.instance?.refresh();
+        this.treeListInstance()?.refresh();
         if (!!callbackAction) callbackAction();
     }
 

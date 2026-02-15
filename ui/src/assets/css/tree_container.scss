@@ -20,8 +20,13 @@ $base-color: #0e49eb;
     background: red !important;
 }
 
-
-
+.dx-treelist-headers .dx-header-row > td.dx-treelist-select-all .dx-treelist-select-checkbox-container {
+    margin: 0 8px 0 17px !important;
+    margin-top: 12px !important;
+}
+.dx-treelist-rowsview .dx-row > td.dx-treelist-cell-expandable .dx-treelist-empty-space--last {
+    margin: 0 0px 0 0 !important;
+}
 .dx-datagrid-rowsview tr > td {
     color: $data-label;
     text-align: left;
@@ -33,10 +38,10 @@ $base-color: #0e49eb;
     font-weight: 500;
 }
 #spec-edit {
-    .dx-item.dx-menu-item.dx-menu-item-has-icon.dx-menu-item-has-submenu{
+    .dx-item.dx-menu-item.dx-menu-item-has-icon.dx-menu-item-has-submenu {
         margin-left: -5px;
     }
-    .dx-show-invalid-badge.dx-textbox.dx-texteditor.dx-editor-filled.dx-widget.dx-validator.dx-visibility-change-handler{
+    .dx-show-invalid-badge.dx-textbox.dx-texteditor.dx-editor-filled.dx-widget.dx-validator.dx-visibility-change-handler {
         width: 100%;
     }
     .line-treelist {
@@ -47,18 +52,19 @@ $base-color: #0e49eb;
         width: 15px; /* Szerokość paska */
     }
 }
-.dx-treelist-content .dx-treelist-table .dx-row .dx-editor-cell .dx-texteditor, .dx-treelist-content .dx-treelist-table .dx-row .dx-editor-cell .dx-texteditor-container{
-    margin-left: -2px!important;
-    margin-right: -2px!important;
+.dx-treelist-content .dx-treelist-table .dx-row .dx-editor-cell .dx-texteditor,
+.dx-treelist-content .dx-treelist-table .dx-row .dx-editor-cell .dx-texteditor-container {
+    margin-left: -2px !important;
+    margin-right: -2px !important;
 }
-#spec-edit{
-        .tex-box-view-field-invalid.dx-texteditor.dx-editor-filled {
-            background: rgba(51, 51, 51, .05);
-            border: 0px!important; 
-            margin-bottom: -2px;
-            margin-top: -2px;
-            margin-left: -5px !important;
-        }
+#spec-edit {
+    .tex-box-view-field-invalid.dx-texteditor.dx-editor-filled {
+        background: rgba(51, 51, 51, 0.05);
+        border: 0px !important;
+        margin-bottom: -2px;
+        margin-top: -2px;
+        margin-left: -5px !important;
+    }
 }
 .dx-treelist-rowsview .dx-treelist-expanded span::before {
     margin-left: -2px !important;
@@ -77,64 +83,71 @@ $base-color: #0e49eb;
 .dx-treelist-rowsview {
     z-index: 0;
 }
+.operation-column {
+    background-color: white !important;
+}
 #spec-edit {
-    .dx-treelist-rowsview .dx-row-focused.dx-data-row .dx-command-edit .dx-link, .dx-treelist-rowsview .dx-row-focused.dx-data-row>td:not(.dx-cell-modified):not(.disabled-background):not(.dx-treelist-invalid){
-        background: transparent ; 
+    .dx-treelist-rowsview .dx-row-focused.dx-data-row .dx-command-edit .dx-link,
+    .dx-treelist-rowsview
+        .dx-row-focused.dx-data-row
+        > td:not(.dx-cell-modified):not(.disabled-background):not(.dx-treelist-invalid) {
+        background: transparent;
     }
-     .dx-treelist-rowsview .dx-row-focused.dx-data-row>td.disabled-background:not(.dx-cell-modified):not(.dx-treelist-invalid){
-        background-color:  #f5f5f5!important;;
+    .dx-treelist-rowsview
+        .dx-row-focused.dx-data-row
+        > td.disabled-background:not(.dx-cell-modified):not(.dx-treelist-invalid) {
+        background-color: #f5f5f5 !important;
     }
-    .dx-treelist-rowsview .dx-row-focused.dx-state-hover.dx-data-row .dx-command-edit .dx-link, .dx-treelist-rowsview .dx-row-focused.dx-state-hover.dx-data-row>td:not(.dx-cell-modified):not(.dx-treelist-invalid){
-        background-color: $base-color!important;;
+    .dx-treelist-rowsview .dx-row-focused.dx-state-hover.dx-data-row .dx-command-edit .dx-link,
+    .dx-treelist-rowsview
+        .dx-row-focused.dx-state-hover.dx-data-row
+        > td:not(.dx-cell-modified):not(.dx-treelist-invalid) {
+        background-color: $base-color !important;
     }
-    .dx-treelist-rowsview .dx-row-focused.dx-selection.dx-data-row .dx-command-edit .dx-link, .dx-treelist-rowsview .dx-row-focused.dx-selection.dx-data-row>td:not(.dx-cell-modified):not(.dx-treelist-invalid){
-        background-color: $table-selection!important;;
+    .dx-treelist-rowsview .dx-row-focused.dx-selection.dx-data-row .dx-command-edit .dx-link,
+    .dx-treelist-rowsview
+        .dx-row-focused.dx-selection.dx-data-row
+        > td:not(.dx-cell-modified):not(.dx-treelist-invalid) {
+        background-color: $table-selection !important;
     }
-    .dx-treelist-rowsview .dx-row-focused.dx-selection.dx-state-hover.dx-data-row .dx-command-edit .dx-link, .dx-treelist-rowsview .dx-row-focused.dx-state-hover.dx-selection.dx-data-row>td:not(.dx-cell-modified):not(.dx-treelist-invalid){
-        background-color: $base-color!important;;
+    .dx-treelist-rowsview .dx-row-focused.dx-selection.dx-state-hover.dx-data-row .dx-command-edit .dx-link,
+    .dx-treelist-rowsview
+        .dx-row-focused.dx-state-hover.dx-selection.dx-data-row
+        > td:not(.dx-cell-modified):not(.dx-treelist-invalid) {
+        background-color: $base-color !important;
     }
-    .dx-treelist-rowsview .dx-state-hover{
-        td{
-            span, div {
-                i{
-                    color:$base-color!important;;  
+    .dx-treelist-rowsview .dx-state-hover {
+        td {
+            span,
+            div {
+                i {
+                    color: $base-color !important;
                 }
-                i.trash-icon-treeview{
-                    color:white!important    
+                i.trash-icon-treeview {
+                    color: white !important;
                 }
-                color:white!important
+                color: white !important;
             }
         }
     }
-    .dx-state-hover{
-        .disabled-background{
-            span{
-                color:white!important
+    .dx-state-hover {
+        .disabled-background {
+            span {
+                color: white !important;
             }
         }
     }
-
 }
-.dx-show-invalid-badge.dx-textbox.dx-texteditor.dx-editor-filled.dx-widget.dx-validator.dx-visibility-change-handler.dx-state-hover{
-    .dx-texteditor-input{
-        color: white!important;
-
+.dx-show-invalid-badge.dx-textbox.dx-texteditor.dx-editor-filled.dx-widget.dx-validator.dx-visibility-change-handler.dx-state-hover {
+    .dx-texteditor-input {
+        color: white !important;
     }
 }
-.dx-row-focused{
-    td{ 
-        border-bottom:1px solid #ddd!important;
-
+.dx-row-focused {
+    td {
+        border-bottom: 1px solid #ddd !important;
     }
 }
-// #spec-edit{
-//     .dx-row-focused{
-//         td{ 
-//             border-bottom:1px solid #ddd!important;
-
-//         }
-//     }
-// }
 .dx-datagrid .dx-column-lines > td {
     border-left: 1px solid $table-border;
     border-right: 1px solid $table-border;
@@ -263,11 +276,10 @@ $base-color: #0e49eb;
     border: 2px solid $base-color;
 }
 
-
 .number-of-copies-header {
     font-size: 15px;
     text-align: right;
-    #numberOfCopyText{
+    #numberOfCopyText {
         text-align: left;
     }
     #numberOsfCopy {
@@ -299,7 +311,6 @@ $base-color: #0e49eb;
     }
     // pointer-events: none !important;
 }
-
 
 .card-grid-body {
     flex-basis: initial;
@@ -458,34 +469,33 @@ body .grid-container {
         margin-top: 7px;
     }
 }
-.tree-view-text-box{
-    .dx-texteditor.dx-editor-filled::after{
+.tree-view-text-box {
+    .dx-texteditor.dx-editor-filled::after {
         border: none;
     }
-    .dx-show-invalid-badge.dx-textbox.dx-texteditor.dx-editor-filled.dx-widget{
+    .dx-show-invalid-badge.dx-textbox.dx-texteditor.dx-editor-filled.dx-widget {
         background: none;
         border: 0px;
-        
     }
-    .p-button-secondary.p-button.p-component.p-button-icon-only{
-        max-height: 34px!important;
-        .p-button-icon.p-c.mdi{
-            margin-top: 1px ;
+    .p-button-secondary.p-button.p-component.p-button-icon-only {
+        max-height: 34px !important;
+        .p-button-icon.p-c.mdi {
+            margin-top: 1px;
         }
     }
-    .dx-texteditor-input-container{
+    .dx-texteditor-input-container {
         margin-left: -5px;
     }
-    .dx-texteditor-input{
+    .dx-texteditor-input {
         font-size: 13px;
     }
 }
-.dx-row.dx-data-row.dx-row-lines.dx-column-lines.dx-state-hover{
-    .tree-view-text-box{
-        .dx-texteditor-input{
+.dx-row.dx-data-row.dx-row-lines.dx-column-lines.dx-state-hover {
+    .tree-view-text-box {
+        .dx-texteditor-input {
             color: white;
         }
-    }  
+    }
 }
 .dx-htmleditor-content {
     background: white;
@@ -535,7 +545,7 @@ body .grid-container {
 .infinite-loader-card::-webkit-scrollbar-thumb {
     background-color: silver;
 }
-#popup-add-spec {   
+#popup-add-spec {
     padding-right: 0px;
     padding-left: 0px;
     .dx-popup-content,

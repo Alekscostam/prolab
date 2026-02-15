@@ -95,15 +95,18 @@ class TreeViewComponent extends CellEditComponent {
     componentDidUpdate(prevProps, prevState, snapshot) {
         return prevProps.id !== prevState.id && prevProps.elementRecordId !== prevState.elementRecordId;
     }
+    treeRefInstance() {
+        return this.ref?.instance();
+    }
 
     mergeKeysWithRecordId = (id) => {
         const selectedRowsKeys = SelectedRowKeysUtils.mergeKeysWithRecordId(
             id,
-            this.ref.instance.getSelectedRowsData(),
+            this.treeRefInstance().getSelectedRowsData(),
             false,
             '_ID'
         );
-        this.ref.instance.selectRows(selectedRowsKeys.map((el) => el._ID));
+        this.treeRefInstance().selectRows(selectedRowsKeys.map((el) => el._ID));
     };
 
     manageKeydownEvent(action) {
@@ -144,7 +147,7 @@ class TreeViewComponent extends CellEditComponent {
         return currentEditListRow;
     }
     refreshComponent() {
-        this.ref.instance.refresh();
+        this.treeRefInstance().refresh();
     }
     isSpecialCell(columnDefinition) {
         const type = columnDefinition?.type;
@@ -235,7 +238,7 @@ class TreeViewComponent extends CellEditComponent {
                     onOptionChanged={(e) => {
                         if (e.fullName.includes('filterValue') && e.name === 'columns') {
                             if (this.ref) {
-                                this.ref.instance.clearSelection();
+                                this.treeRefInstance().clearSelection();
                                 clearSelection = true;
                             }
                         }
@@ -399,7 +402,7 @@ class TreeViewComponent extends CellEditComponent {
     }
 
     preAction = (operation, callback, recordId = this.selectedRecordIdRef.current) => {
-        const refInstance = this.ref.instance;
+        const refInstance = this.treeRefInstance();
         if (refInstance) {
             refInstance.closeEditCell();
             refInstance.cancelEditData();
@@ -458,10 +461,12 @@ class TreeViewComponent extends CellEditComponent {
                     if (HtmlUtils.clickedInsideComponent(event, 'spec-edit')) {
                         if (this.ref) {
                             const clickedCell = parseInt(this.currentClickedCell.current);
-                            const treeRef = this.ref.instance;
-                            let selectedRows = this.ref.instance.getSelectedRowsData().map((selectedRow) => {
-                                return {ID: parseInt(selectedRow.ID)};
-                            });
+                            const treeRef = this.treeRefInstance();
+                            let selectedRows = this.treeRefInstance()
+                                .getSelectedRowsData()
+                                .map((selectedRow) => {
+                                    return {ID: parseInt(selectedRow.ID)};
+                                });
                             if (selectedRows.find((row) => row.ID === clickedCell))
                                 selectedRows = selectedRows.filter((selectedRow) => selectedRow.ID !== clickedCell);
                             else selectedRows.push({ID: clickedCell});
@@ -477,20 +482,20 @@ class TreeViewComponent extends CellEditComponent {
         const parentId = recordId === undefined ? this.selectedRecordIdRef.current : recordId;
         const tree = this.props.parsedGridViewData;
         const descendants = TreeListUtils.findAllDescendants(tree, parentId);
-        const selectedRowsData = this.ref.instance.getSelectedRowsData();
+        const selectedRowsData = this.treeRefInstance().getSelectedRowsData();
         descendants.push(tree.find((el) => el._ID === parentId));
         descendants.forEach((item2) => {
             if (!selectedRowsData.some((item1) => item1._ID === item2._ID)) {
                 selectedRowsData.push(item2);
             }
         });
-        this.ref.instance.selectRows(selectedRowsData.map((el) => el._ID));
+        this.treeRefInstance().selectRows(selectedRowsData.map((el) => el._ID));
     }
     handleUncheck(recordId) {
         const parentId = recordId === undefined ? this.selectedRecordIdRef.current : recordId;
         const tree = this.props.parsedGridViewData;
         const descendants = TreeListUtils.findAllDescendants(tree, parentId);
-        let selectedRowsData = this.ref.instance.getSelectedRowsData();
+        let selectedRowsData = this.treeRefInstance().getSelectedRowsData();
         descendants.push(tree.find((el) => el._ID === parentId));
         const isParentAlreadySelected = selectedRowsData.find((el) => {
             return el._ID === parentId;
@@ -502,7 +507,7 @@ class TreeViewComponent extends CellEditComponent {
                 }
             });
         }
-        this.ref.instance.selectRows(selectedRowsData.map((el) => el._ID));
+        this.treeRefInstance().selectRows(selectedRowsData.map((el) => el._ID));
     }
     handleHrefSubview(viewId, recordId) {
         const parentId = StringUtils.isBlank(this.props.elementRecordId) ? 0 : this.props.elementRecordId;
@@ -573,8 +578,8 @@ class TreeViewComponent extends CellEditComponent {
     rerenderColorCheckboxIfPossible = () => {
         if (this.shouldBeRepainting()) {
             setTimeout(() => {
-                if (this.ref?.instance) {
-                    const rowDatas = this.ref.instance.getVisibleRows();
+                if (this.treeRefInstance()) {
+                    const rowDatas = this.treeRefInstance().getVisibleRows();
                     this.paintLineIfPossible(rowDatas);
                 }
             }, 10);
@@ -611,7 +616,7 @@ class TreeViewComponent extends CellEditComponent {
                                 column.allowEditing = false;
                             }
                             this.fillOrderColumn(column, columnDefinition);
-                            column.headerId =
+                            column.cssClass =
                                 'column_' + INDEX_COLUMN + '_' + columnDefinition?.fieldName?.toLowerCase();
                             column.width = this.getColumnWidth(columnDefinition);
                             column.name = columnDefinition?.fieldName;
@@ -653,6 +658,7 @@ class TreeViewComponent extends CellEditComponent {
                         id: 'OP_COLUMN',
                         caption: '',
                         fixed: true,
+                        cssClass: 'operation-column',
                         headerCellTemplate: (element) => {
                             element.offsetParent.style.alignItems = 'center';
                             element.offsetParent.style.justifyContent = 'center';
@@ -817,7 +823,7 @@ class TreeViewComponent extends CellEditComponent {
     }
 
     onHideImageCallBack() {
-        const treeList = this.ref?.instance;
+        const treeList = this.treeRefInstance();
         if (this.props.forceUpdate && treeList) {
             this.props.forceUpdate(() => {
                 setTimeout(() => {
@@ -826,11 +832,11 @@ class TreeViewComponent extends CellEditComponent {
                 }, 500);
             });
         }
-        const rowDatas = this.ref?.instance?.getVisibleRows();
+        const rowDatas = this.treeRefInstance()?.getVisibleRows();
         this.paintLineIfPossible(rowDatas);
     }
     onHideEditMode = () => {
-        const treeList = this.ref?.instance;
+        const treeList = this.treeRefInstance();
         if (treeList) {
             treeList.closeEditCell();
             treeList.cancelEditData();
@@ -956,17 +962,24 @@ class TreeViewComponent extends CellEditComponent {
         );
         return columnDefinitionArray[0];
     }
-    // doklejamy style
-    paintLineIfPossible = (datas) => {
-        const elements = Array.from(document.querySelectorAll('td[aria-describedby=column_0_selection-fixed]')).filter(
-            (el) => el.className !== 'dx-editor-cell'
-        );
+    availableRowsToPaint = (datas) => {
+        const elements = Array.from(document.querySelectorAll('.column_0_selection'))
+            .filter((el) => el.className !== 'dx-editor-cell')
+            .filter((el) => !el?.parentElement?.className?.includes('dx-treelist-first-header'))
+            .filter((el) => !el?.parentElement?.className?.includes('dx-header-row'))
+            .filter((el) => el?.className?.includes('dx-treelist-cell-expandable'))
+            .filter((el) => !el?.parentElement?.className?.includes('dx-treelist-filter-row'));
         if (elements.length - datas.length) {
             const differenceInLength = elements.length - datas.length;
             for (let index = 0; index < differenceInLength; index++) {
                 elements.shift();
             }
         }
+        return elements;
+    };
+
+    paintLineIfPossible = (datas) => {
+        const elements = this.availableRowsToPaint(datas);
         Array.from(elements).forEach((row, elementIndex) => {
             datas.forEach((idata, dataIndex) => {
                 if (elementIndex === dataIndex) {

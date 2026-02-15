@@ -277,8 +277,8 @@ export class BatchContainer extends BaseContainer {
         const globalComponents = document.getElementById('global-top-components');
         globalComponents.click();
         this.handleBatchSave(viewIdArg, parentIdArg, () => {
-            if (this.refDataGrid?.instance) {
-                this.refDataGrid?.instance?.refresh();
+            if (this.refDataGridInstance()) {
+                this.refDataGridInstance()?.refresh();
             }
         });
     }
@@ -430,7 +430,9 @@ export class BatchContainer extends BaseContainer {
     valueIsEqualToId(newObject, oldData) {
         return parseInt(newObject[0].value) === parseInt(oldData.ID);
     }
-
+    refDataGridInstance() {
+        return this.refDataGrid?.instance();
+    }
     fillData(id) {
         this.blockUi();
         const {parsedData} = this.state;
@@ -452,7 +454,7 @@ export class BatchContainer extends BaseContainer {
                         parsedData: parsedDataAfterFill,
                     },
                     () => {
-                        this.refDataGrid?.instance?.getDataSource()?.reload();
+                        this.refDataGridInstance()?.getDataSource()?.reload();
                     }
                 );
             })
@@ -495,7 +497,7 @@ export class BatchContainer extends BaseContainer {
                         parsedData: parsedDataAfterCalculate,
                     },
                     () => {
-                        this.refDataGrid?.instance?.getDataSource()?.reload();
+                        this.refDataGridInstance()?.getDataSource()?.reload();
                     }
                 );
                 this.showSuccessMessage(saveResponse.message);

@@ -6,12 +6,31 @@
                 {
                     "isNew": true,
                     "type": "NEW",
+                    "importanceColor": "#ff6666",
+                    "color": "green",
+                    "date": "",
+                    "text": "Aktualizacja do wersji 25.2.4"
+                },
+                {
+                    "isNew": true,
+                    "type": "FIX",
+                    "color": "red",
+                    "link": "https://trello.com/c/qZcaV7di/797-rozje%C5%BCd%C5%BCa-si%C4%99-nag%C5%82%C3%B3wek-po-wyj%C5%9Bciu-z-podwidoku-filtrowaniu",
+                    "date": "",
+                    "text": "Naprawa renderingu column w związku z aktualizacją wersji"
+                }
+            ]
+        },
+        {
+            "title": "",
+            "data": [
+                {
+                    "type": "NEW",
                     "color": "green",
                     "date": "",
                     "text": "Refresh na pole typu combobox"
                 },
                 {
-                    "isNew": true,
                     "type": "FIX",
                     "color": "red",
                     "link": "https://trello.com/c/el8Q6F7A/895-nie-mo%C5%BCna-przestawi%C4%87-okna-dodawania-za%C5%82%C4%85cznika",

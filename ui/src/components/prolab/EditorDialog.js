@@ -42,7 +42,7 @@ export const EditorDialog = (props) => {
                 type='button'
                 onClick={() => {
                     if (onSave) {
-                        onSave(editor.current?.instance?.option('value'));
+                        onSave(editor.current?.instance()?.option('value'));
                     }
                     hideDialog();
                 }}
@@ -141,9 +141,9 @@ export const EditorDialog = (props) => {
                                             MarkupDialogComponent.render({
                                                 onAccept: (value) => {
                                                     setValue(value);
-                                                    editor.current?.instance?.option('value', value);
+                                                    editor.current?.instance()?.option('value', value);
                                                 },
-                                                initValue: editor.current?.instance?.option('value'),
+                                                initValue: editor.current?.instance()?.option('value'),
                                             });
                                         },
                                     }}

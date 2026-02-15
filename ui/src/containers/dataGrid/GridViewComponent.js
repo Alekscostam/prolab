@@ -101,8 +101,7 @@ class GridViewComponent extends CellEditComponent {
 
     selectRowKeys = (selectedRows, callback) => {
         if (this.props.handleSelectRows) {
-            const gridRef = this.props.getRef()._instance;
-            gridRef.selectRows(selectedRows.map((el) => el.ID));
+            this.getInstance().selectRows(selectedRows.map((el) => el.ID));
             this.props.handleSelectRows(selectedRows, () => {
                 if (callback) {
                     callback();
@@ -141,7 +140,7 @@ class GridViewComponent extends CellEditComponent {
     };
 
     getScrollableContainer() {
-        const gridRef = this.props?.getRef()?._instance;
+        const gridRef = this.getInstance();
         const scrollableContainer = gridRef?.element()?.querySelector('.dx-scrollable-container');
         return scrollableContainer;
     }
@@ -280,8 +279,7 @@ class GridViewComponent extends CellEditComponent {
             this._filterClearRoot.render(
                 <FilterClear
                     clearFnc={() => {
-                        const gridRef = this.props.getRef()._instance;
-                        gridRef.clearFilter();
+                        this.getInstance().clearFilter();
                     }}
                     filters={window?.dataGrid?.getCombinedFilter()}
                 />
@@ -306,7 +304,7 @@ class GridViewComponent extends CellEditComponent {
                 this.props.handleOnFilterChange();
             }
             if (this.props?.getRef) {
-                this.props.getRef().instance.clearSelection();
+                this.getInstance().clearSelection();
                 if (this.props?.handleUnselectAll) {
                     this.props.handleUnselectAll();
                 }
@@ -699,7 +697,14 @@ class GridViewComponent extends CellEditComponent {
         return structuredClone(this.props.gridViewColumns);
     }
     getInstance = () => {
-        return this.props?.getRef()?._instance;
+        const ref = this.props?.getRef();
+        if (ref?.current === null) {
+            return null;
+        }
+        if (typeof ref?.instance !== 'function') {
+            return null;
+        }
+        return this.props?.getRef()?.instance();
     };
     getVisibleRows = () => {
         const isntance = this.getInstance();
@@ -798,6 +803,7 @@ class GridViewComponent extends CellEditComponent {
             if (this.canRenderAdditionalOperationCol()) {
                 columns?.push({
                     fixed: true,
+                    cssClass: 'operation-column',
                     fixedPosition: 'right',
                     headerCellTemplate: (element) => {
                         if (this.props.showAddButton) {
@@ -1198,8 +1204,7 @@ class GridViewComponent extends CellEditComponent {
                     allRowsShow: true,
                 },
                 () => {
-                    const refGrid = this.props.getRef();
-                    refGrid.instance.getDataSource().reload();
+                    this.getInstance().getDataSource().reload();
                     setTimeout(() => {
                         this.dawnFillParsedData(rowIndex, fieldName, value);
                     }, 100);
@@ -1209,11 +1214,10 @@ class GridViewComponent extends CellEditComponent {
     }
 
     dawnFillParsedData = (selectedRowIndex, fieldName, value) => {
-        const refGrid = this.props.getRef();
         const elementRowsToEdit = [];
         this.props.parsedGridViewData.forEach((row) => {
             const key = row.ID;
-            const rIndex = refGrid.instance.getRowIndexByKey(key);
+            const rIndex = this.getInstance().getRowIndexByKey(key);
             if (rIndex > selectedRowIndex) {
                 row[fieldName] = value;
             }
@@ -1226,7 +1230,7 @@ class GridViewComponent extends CellEditComponent {
             },
             () => {
                 this.props.handleUnblockUi();
-                refGrid.instance.getDataSource().reload();
+                this.getInstance().getDataSource().reload();
             }
         );
     };

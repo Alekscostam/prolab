@@ -506,7 +506,7 @@ export class BaseViewContainer extends BaseContainer {
                 );
                 break;
             case CodeOperationType.FIND:
-                const datagridInstance = this.getRefGridView()?.instance;
+                const datagridInstance = this.getGridInstance();
                 if (datagridInstance) {
                     datagridInstance.filter(['ID', 'contains', result.listId[0]]);
                 }
@@ -1264,9 +1264,9 @@ export class BaseViewContainer extends BaseContainer {
                 const filterArray = this.filterArrayFromInitialize(tr);
                 this.dataGridStore.clearCache();
                 if (filterArray.length > 0) {
-                    this.getRefGridView()?.instance?.filter(filterArray);
+                    this.getGridInstance()?.filter(filterArray);
                 } else {
-                    this.getRefGridView()?.instance?.clearFilter('dataSource');
+                    this.getGridInstance()?.clearFilter('dataSource');
                 }
             } catch (err) {
                 this.showGlobalErrorMessage(err);
@@ -1359,7 +1359,7 @@ export class BaseViewContainer extends BaseContainer {
                     select: false,
                 },
                 () => {
-                    this.getRefGridView()?.instance.clearSelection();
+                    this.getGridInstance().clearSelection();
                     this.dataGridStore
                         .getSelectAllDataGridStore(
                             this.state.subView == null ? this.state.elementId : this.state.elementSubViewId,
@@ -1369,7 +1369,7 @@ export class BaseViewContainer extends BaseContainer {
                                 : this.state.elementRecordId,
                             this.state.elementFilterId,
                             this.state.kindView,
-                            this.getRefGridView()?.instance.getCombinedFilter(),
+                            this.getGridInstance().getCombinedFilter(),
                             undefined,
                             undefined,
                             undefined,
@@ -1387,7 +1387,7 @@ export class BaseViewContainer extends BaseContainer {
                                     selectedRowKeys: result.data,
                                 },
                                 () => {
-                                    this.getRefGridView()?.instance.selectAll();
+                                    this.getGridInstance().selectAll();
                                     this.unblockUi();
                                 }
                             );
@@ -1410,8 +1410,8 @@ export class BaseViewContainer extends BaseContainer {
                 },
                 () => {
                     this.dataGridStore.clearCache();
-                    this.getRefGridView()?.instance?.deselectAll();
-                    this.getRefGridView()?.instance?.clearSelection();
+                    this.getGridInstance()?.deselectAll();
+                    this.getGridInstance()?.clearSelection();
                     this.setState(
                         {
                             selectAll: false,
@@ -1459,9 +1459,11 @@ export class BaseViewContainer extends BaseContainer {
                                 if (e?.element) {
                                     e.element.children[0].className = 'dx-wrapper';
                                     Array.from(e.element.children[0].children).forEach((child) => {
-                                        if (child.classList.contains('dx-tab-selected')) {
-                                            child.className = 'dx-item dx-tab dx-tab-selected-item';
-                                        }
+                                        setTimeout(() => {
+                                            if (child.classList.contains('dx-tab-selected')) {
+                                                child.className = 'dx-item dx-tab dx-tab-selected-item';
+                                            }
+                                        }, 0);
                                     });
                                 }
                             }}
@@ -1758,13 +1760,13 @@ export class BaseViewContainer extends BaseContainer {
                     this.unselectAllDataGrid(false);
                     if (ViewUtils.haveSubView()) this.downloadSubViewData(true);
                     if (!ArrayUtils.isEmpty(result.listId)) {
-                        this.getRefGridView()?.instance?.filter(getFilter());
+                        this.getGridInstance()?.filter(getFilter());
                     } else {
                         this.refreshView();
                     }
                 } else {
                     if (!ArrayUtils.isEmpty(result.listId)) {
-                        this.getRefGridView()?.instance?.filter(getFilter());
+                        this.getGridInstance()?.filter(getFilter());
                     }
                 }
                 this.handleQrCodeResponse(result);

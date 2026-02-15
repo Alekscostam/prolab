@@ -109,13 +109,13 @@ class GanttViewComponent extends React.Component {
                     },
                 };
                 this.selectAll(fakeEvent);
-                const instance = this.selectAllRef.current.instance;
+                const instance = this.selectAllRef.current.instance();
                 instance.option('value', false);
             }
         };
         this.refreshRef = () => {
-            if (this.ganttRef?.current?.instance) {
-                this.ganttRef.current.instance._treeList.refresh();
+            if (this.ganttInstance()) {
+                this.ganttInstance()._treeList.refresh();
                 setTimeout(() => {
                     ViewUtils.removeClassFromAllElements('dx-selection');
                 }, 1000);
@@ -137,7 +137,7 @@ class GanttViewComponent extends React.Component {
     }
     registerMouseEvent = () => {
         if (getStore().draggableGridEnabled) {
-            const ganttRef = this.ganttRef?.current?.instance?._treeList;
+            const ganttRef = this.ganttInstance()?._treeList;
             const scrollableContainer = ganttRef?.element()?.querySelector('.dx-scrollable-container');
             this.mouseDragScroller = new MouseDragScroller(scrollableContainer);
             this.mouseDragScroller.init();
@@ -189,7 +189,7 @@ class GanttViewComponent extends React.Component {
                             e.cancel = true;
                         }
                         this.setState({selectedRecordId: e.data.ID});
-                        const checkboxToSelect = this.refsCheckboxArray[e.data.ID].instance;
+                        const checkboxToSelect = this.refsCheckboxArray[e.data.ID].instance();
                         checkboxToSelect.option('value', true);
                     }}
                     stripLines={this.getStripLines()}
@@ -200,7 +200,7 @@ class GanttViewComponent extends React.Component {
                     onContentReady={(e) => {
                         this.registerOnFilterValuesChange();
                         this.highlightRow(e);
-                        const ganttRef = this.ganttRef?.current?.instance?._treeList;
+                        const ganttRef = this.ganttInstance()?._treeList;
                         this.registerMouseEvent();
                         useStore.getState().setGanttView(ganttRef);
                         this.filterTasksByFilters();
@@ -318,7 +318,7 @@ class GanttViewComponent extends React.Component {
         const isLandscape = this.state.landscapeCheckBoxValue;
         const exportMode = this.state.exportModeBoxValue.toLowerCase();
         const dataRangeMode = this.state.dateRangeBoxValue.toLowerCase();
-        const gantt = this.ganttRef.current.instance;
+        const gantt = this.ganttInstance();
         try {
             exportGanttToPdf({
                 component: gantt,
@@ -406,10 +406,15 @@ class GanttViewComponent extends React.Component {
 
     initGantt = () => {
         if (this?.ganttRef?.current) {
-            this.ganttRef.current.instance.option('scaleType', 'weeks');
-            this.ganttRef.current.instance.refresh();
+            this.ganttInstance().option('scaleType', 'weeks');
+            this.ganttInstance().refresh();
         }
     };
+
+    ganttInstance() {
+        return this.ganttRef.current.instance();
+    }
+
     componentWillUnmount() {
         this.unregisterKeydownEvent();
         this.unregisterOnFilterValuesChangeEvent();
@@ -423,7 +428,7 @@ class GanttViewComponent extends React.Component {
 
     get gantt() {
         if (this.ganttRef) {
-            return this.ganttRef.current.instance;
+            return this.ganttInstance();
         }
         return null;
     }
@@ -519,9 +524,9 @@ class GanttViewComponent extends React.Component {
         const onlyOneRecord = operation?.onlyOneRecord;
         if (onlyOneRecord) {
             const toUnselect = this.refsCheckboxArray.filter((_, index) => String(index) !== String(recordId));
-            toUnselect.forEach((el) => el.instance.option('value', false));
+            toUnselect.forEach((el) => el.instance().option('value', false));
             const toSelect = this.refsCheckboxArray.filter((_, index) => String(index) === String(recordId));
-            toSelect.forEach((el) => el.instance.option('value', true));
+            toSelect.forEach((el) => el.instance().option('value', true));
             callback();
             return;
         }
@@ -749,7 +754,7 @@ class GanttViewComponent extends React.Component {
     }
 
     getCells(recordId) {
-        const visibleRows = this.ganttRef.current.instance._treeList.getVisibleRows();
+        const visibleRows = this.ganttInstance()._treeList.getVisibleRows();
         const visibleRow = visibleRows?.find((row) => row.data?.ID === recordId);
         const element = visibleRow.cells[0];
         if (element) {
@@ -848,13 +853,13 @@ class GanttViewComponent extends React.Component {
                                 element.parentElement.style.textAlign = 'center';
                             }
                             ReactDOM.createRoot(element).render(this.addButton());
-                            const combinedFilter = this.ganttRef.current.instance._treeList.getCombinedFilter();
+                            const combinedFilter = this.ganttInstance()._treeList.getCombinedFilter();
                             const filterLastRow = element.parentNode.parentNode.parentNode.lastChild.lastChild;
                             if (useStore.getState()?.showFilterClear) {
                                 ReactDOM.createRoot(filterLastRow).render(
                                     <FilterClear
                                         clearFnc={() => {
-                                            const ganttRef = this.ganttRef.current.instance._treeList;
+                                            const ganttRef = this.ganttInstance()._treeList;
                                             ganttRef.clearFilter();
                                         }}
                                         filters={combinedFilter}

@@ -213,7 +213,7 @@ const renderCharacter = (
                 <div
                     title={StringUtils.textFromHtmlString(value)}
                     className={isWart(cellInfo?.column?.dataField) ? 'WART' : ''}
-                    style={{color: fontColorFinal, background: bgColorFinal}}
+                    style={{color: fontColorFinal, background: bgColorFinal, lineHeight: '14px'}}
                     dangerouslySetInnerHTML={{__html: value}}
                 />
             );

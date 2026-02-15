@@ -199,7 +199,7 @@ export class ViewDataCompUtils {
     }
     static operationsColumnLength(operationsRecord, operationsRecordList, addButtonExists) {
         const showMoreExists = operationsRecordList?.length > 0;
-        const result = 10 + (33 * operationsRecord.length + (showMoreExists > 0 ? 33 : 0));
+        const result = 10 + (35 * operationsRecord.length + (showMoreExists > 0 ? 33 : 0));
         if (addButtonExists) {
             if (result < 80) return 90;
         } else {

@@ -80,7 +80,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
                 select: false,
             },
             () => {
-                this.getRefGridView().instance.clearSelection();
+                this.getGridInstance().clearSelection();
                 const {viewInfo} = this.state.attachmentResponseView;
                 const parentIdArg = viewInfo.parentId === 0 ? UrlUtils.getRecordId() : viewInfo.parentId;
                 this.dataGridStore
@@ -90,7 +90,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
                         parentIdArg,
                         viewInfo.filterdId,
                         'View',
-                        this.getRefGridView().instance.getCombinedFilter(),
+                        this.getGridInstance().getCombinedFilter(),
                         viewInfo.parentViewId,
                         true,
                         this.props.isKindViewSpec
@@ -103,7 +103,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
                                 selectedRowKeys: result.data,
                             },
                             () => {
-                                this.getRefGridView().instance.selectAll();
+                                this.getGridInstance().selectAll();
                                 this.unblockUi();
                             }
                         );

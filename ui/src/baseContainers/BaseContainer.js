@@ -655,10 +655,10 @@ class BaseContainer extends React.Component {
                 if (window?.dataGrid) {
                     if (this.state?.gridViewType !== 'cardView') window.dataGrid.clearSelection();
                 }
-                this.getRefGridView().instance.getDataSource().reload();
+                this.getGridInstance().getDataSource().reload();
             }
         } else if (this.isDashboard()) {
-            this.getRefGridView()?.instance?.getDataSource()?.reload();
+            this.getGridInstance()?.getDataSource()?.reload();
         }
     }
     windowHaveSubView() {
@@ -706,15 +706,18 @@ class BaseContainer extends React.Component {
         );
     };
 
+    getGridInstance() {
+        return this.getRefGridView()?.instance();
+    }
     reloadOnlyDataGrid() {
         if (this.isTypeOfGrid()) {
-            if (!!this.getRefGridView()) this.getRefGridView().instance.getDataSource().reload();
+            if (!!this.getRefGridView()) this.getGridInstance().getDataSource().reload();
         }
     }
 
     repaintGridView() {
         if (!!this.getRefGridView()) {
-            this.getRefGridView().instance.repaint();
+            this.getGridInstance().repaint();
         }
     }
 
@@ -734,7 +737,7 @@ class BaseContainer extends React.Component {
                 if (fncRedirect) {
                     fncRedirect();
                 }
-                this.getRefGridView().instance.getDataSource().reload();
+                this.getGridInstance().getDataSource().reload();
                 this.unblockUi();
             })
             .catch((ex) => {
@@ -1600,7 +1603,7 @@ class BaseContainer extends React.Component {
         let datas = [];
         if (this.state?.elementViewType?.toUpperCase() !== 'CARDVIEW') {
             if (!!this.getRefGridView()) {
-                datas = this.getRefGridView()?.instance?.getDataSource()?._items;
+                datas = this.getGridInstance()?.getDataSource()?._items;
             }
             if (!this.state.gridViewType) {
                 datas = this.state.parsedData;
@@ -1851,8 +1854,8 @@ class BaseContainer extends React.Component {
     }
 
     unselectAllDataGrid() {
-        if (this.refTreeList?.instance) {
-            this.refTreeList?.instance.deselectAll();
+        if (this.refTreeList?.instance()) {
+            this.refTreeList?.instance().deselectAll();
         }
         this.setState({
             selectAll: false,

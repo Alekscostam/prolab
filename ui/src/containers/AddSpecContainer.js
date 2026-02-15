@@ -191,7 +191,7 @@ export class AddSpecContainer extends BaseContainer {
                 this.processingViewResponse(resView, parentId, recordId);
             })
             .catch((err) => {
-                this.refTreeList?.instance?.endCustomLoading();
+                this.treeListInstance()?.endCustomLoading();
                 console.error('Error getViewSpec in EditSpec. Exception = ', err);
                 this.setState({loading: false}, () => {
                     this.showGlobalErrorMessage(err); //'Nie udało się pobrać danych strony o id: ' + viewId);
@@ -202,7 +202,9 @@ export class AddSpecContainer extends BaseContainer {
                 this.unblockUi();
             });
     }
-
+    treeListInstance() {
+        return this.refTreeList?.instance();
+    }
     processingViewResponse(responseView, parentId, recordId) {
         if (this._isMounted) {
             ViewValidatorUtils.validation(responseView);
@@ -339,6 +341,7 @@ export class AddSpecContainer extends BaseContainer {
                                     this.hideTreeView();
                                     this.onItemTabClick(event.itemIndex);
                                 }}
+                                stylingMode='secondary'
                                 onOptionChanged={(args, e, b, d) => {
                                     const element = args?.element;
                                     if (element) {
@@ -391,11 +394,11 @@ export class AddSpecContainer extends BaseContainer {
         }
     }
     getNumberOfCopies = () => {
-        const value = this.numberOfCopiesRef.current.instance.option('value');
+        const value = this.numberOfCopiesRef.current.instance().option('value');
         return parseInt(value);
     };
     setNumberOfCopies = (newValue) => {
-        this.numberOfCopiesRef.current.current.instance.option('value', newValue);
+        this.numberOfCopiesRef.current.current.instance().option('value', newValue);
     };
 
     //override
