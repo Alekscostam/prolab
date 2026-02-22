@@ -1,6 +1,6 @@
 import decode from 'jwt-decode';
 import moment from 'moment';
-import {canFitInCookie, readObjFromCookieGlobal, saveObjToCookieGlobal} from '../utils/Cookie';
+import {canFitInCookie, readObjFromCookieGlobal} from '../utils/Cookie';
 import ConsoleHelper from '../utils/ConsoleHelper';
 import AppPrefixUtils from '../utils/AppPrefixUtils';
 import {reStateApp} from '../App';

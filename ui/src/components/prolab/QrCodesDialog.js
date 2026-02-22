@@ -1,6 +1,6 @@
 import {TextBox} from 'devextreme-react';
 import {Dialog} from 'primereact/dialog';
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useRef} from 'react';
 
 import PropTypes from 'prop-types';
 import ShortcutButton from './ShortcutButton';
@@ -8,7 +8,6 @@ import LocUtils from '../../utils/LocUtils';
 export const QrCodesDialog = (props) => {
     const {onHide, findCode} = props;
     const qrCodeRef = useRef(undefined);
-    const [visible, setVisible] = useState(props.visible);
 
     useEffect(() => {
         const handleGlobalKeyDown = (event) => {

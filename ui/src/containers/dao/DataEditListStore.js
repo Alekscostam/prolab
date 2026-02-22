@@ -6,7 +6,6 @@ import ConsoleHelper from '../../utils/ConsoleHelper';
 import EditListUtils from '../../utils/EditListUtils';
 import UrlUtils from '../../utils/UrlUtils';
 import TansformFiltersUtil from '../dao/util/TransformFiltersUtil';
-import {StringUtils} from '../../utils/StringUtils';
 import useStore from '../../store';
 //example
 //api//View/{id}/Edit/{recordId}/list/{fieldId}/data?skip={skip}&take={take}&parentId={parentId}&sort={sort}&filter={filter}

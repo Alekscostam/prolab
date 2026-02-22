@@ -7,7 +7,6 @@ import {sessionExtendFnc} from '../../App';
 import {OperationType} from '../../enum/OperationType';
 import {SessionStoreUtils} from '../../utils/SessionStoreUtils';
 import LocUtils from '../../utils/LocUtils';
-import {showBarCode} from '../../utils/BarCodeUtils';
 
 export const OperationsButtons = ({
     operations = [],

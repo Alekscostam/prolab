@@ -3,7 +3,6 @@ import 'whatwg-fetch';
 import BaseService from '../../services/BaseService';
 import ConsoleHelper from '../../utils/ConsoleHelper';
 import CustomStore from 'devextreme/data/custom_store';
-import TransformFiltersUtil from './util/TransformFiltersUtil';
 import TansformFiltersUtil from '../dao/util/TransformFiltersUtil';
 
 export default class DataPluginStore extends BaseService {

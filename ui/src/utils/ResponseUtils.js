@@ -147,24 +147,6 @@ export class ResponseUtils {
         return rows;
     }
 
-    static test() {
-        const xd = this.mergeRows(
-            [
-                {fieldName: 'country', isMerge: true},
-                {fieldName: 'city', isMerge: true},
-            ],
-            [
-                {country: 'PL'},
-                {country: 'PL'},
-                {country: 'DE'},
-                {country: 'DE'},
-                {country: 'DE'},
-                {country: 'FR'},
-                {country: 'DE'},
-                {country: 'PL'},
-            ]
-        );
-    }
     static editInfoToViewInfo(response, type, kindView) {
         return {
             ...response,

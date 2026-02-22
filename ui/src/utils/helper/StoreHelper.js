@@ -1,5 +1,4 @@
 import useStore from '../../store';
-import {StringUtils} from '../StringUtils';
 
 export const getStore = () => useStore?.getState();
 

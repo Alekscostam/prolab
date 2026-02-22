@@ -8,9 +8,7 @@ import DateBox from 'devextreme-react/date-box';
 
 import SimpleReactValidator from '../components/validator';
 import HtmlEditor, {Item, MediaResizing, TableResizing, Toolbar} from 'devextreme-react/html-editor';
-import {Validator} from 'devextreme-react';
 import {Button} from 'primereact/button';
-import {RequiredRule} from 'devextreme-react/validator';
 import moment from 'moment';
 import EditListUtils from '../utils/EditListUtils';
 import UploadMultiImageFileBase64 from '../components/prolab/UploadMultiImageFileBase64';
@@ -30,7 +28,6 @@ import Constants from '../utils/Constants';
 import {InputTextarea} from 'primereact/inputtextarea';
 import MarkupDialogComponent from '../components/prolab/MarkupDialog';
 import useStore from '../store';
-import EditListDataStore from '../containers/dao/DataEditListStore';
 import KeyCombinationDetector from '../utils/KeyCombinationDetector';
 import {OperationType} from '../enum/OperationType';
 import {TranslationUtils} from '../utils/TranslationUtils';

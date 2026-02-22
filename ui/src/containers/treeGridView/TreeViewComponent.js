@@ -239,6 +239,7 @@ class TreeViewComponent extends CellEditComponent {
                         if (e.fullName.includes('filterValue') && e.name === 'columns') {
                             if (this.ref) {
                                 this.treeRefInstance().clearSelection();
+                                this.treeRefInstance().deselectAll();
                                 clearSelection = true;
                             }
                         }

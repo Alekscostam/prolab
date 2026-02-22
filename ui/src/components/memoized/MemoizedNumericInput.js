@@ -1,5 +1,5 @@
 import React from 'react';
-import Validator, {PatternRule, RequiredRule} from 'devextreme-react/validator';
+import Validator, {RequiredRule} from 'devextreme-react/validator';
 import EditRowUtils from '../../utils/EditRowUtils';
 import {TextBox} from 'devextreme-react';
 import {MemoizedOperations} from './MemoizedOperations';

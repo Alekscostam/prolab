@@ -6,7 +6,6 @@ import PropTypes from 'prop-types';
 import DivContainer from '../DivContainer';
 import {Panel} from 'primereact/panel';
 import ShortcutButton from '../prolab/ShortcutButton';
-import {DataGridUtils} from '../../utils/component/DataGridUtils';
 import SimpleReactValidator from '../validator';
 import {Sidebar} from 'primereact/sidebar';
 import ConsoleHelper from '../../utils/ConsoleHelper';

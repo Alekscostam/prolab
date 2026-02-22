@@ -8,7 +8,6 @@ import {Panel} from 'primereact/panel';
 import DivContainer from '../DivContainer';
 import EditRowUtils from '../../utils/EditRowUtils';
 import BaseRowComponent from '../../baseContainers/BaseRowComponent';
-import {DataGridUtils} from '../../utils/component/DataGridUtils';
 import {OperationType} from '../../enum/OperationType';
 import {TranslationUtils} from '../../utils/TranslationUtils';
 

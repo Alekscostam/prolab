@@ -78,7 +78,7 @@ export default class CellCustomBackground {
             if (rowWithMostChildren) {
                 if (!StringUtils.isBlank(this.cellInfo?.column?.headerId)) {
                     const elements = Array.from(rowWithMostChildren.children).filter(
-                        (child) => child.getAttribute('aria-describedby') === this.cellInfo.column.headerId
+                        (child) => child.className === this.cellInfo.column.cssClass
                     );
                     if (elements.length !== 0) {
                         const element = elements[0];

@@ -6,7 +6,6 @@ import ConsoleHelper from '../../utils/ConsoleHelper';
 import TansformFiltersUtil from '../dao/util/TransformFiltersUtil';
 import {StringUtils} from '../../utils/StringUtils';
 import {handleSwitchFilterForGrid} from '../../utils/handler/FilterSwitchHandler';
-import {ResponseUtils} from '../../utils/ResponseUtils';
 
 export default class DataGridStore extends BaseService {
     constructor() {
@@ -151,16 +150,6 @@ export default class DataGridStore extends BaseService {
                 if (StringUtils.isBlank(loadOptions?.take)) {
                     loadOptions.take = 60;
                 }
-                // else {
-                //     if (
-                //         !StringUtils.isBlank(loadOptions?.take) &&
-                //         !StringUtils.isBlank(this.lastFetchedData?.totalCount)
-                //     ) {
-                //         if (loadOptions.take > this.lastFetchedData.totalCount) {
-                //             return Promise.resolve(this.lastFetchedData);
-                //         }
-                //     }
-                // }
                 loadOptions = TansformFiltersUtil.replaceNullFilters(loadOptions);
                 this.cachedLoadOptions = loadOptions;
                 let params = '?';
@@ -276,14 +265,16 @@ export default class DataGridStore extends BaseService {
     }
 
     selectWhenIsNotSelectAll(loadOptions) {
-        const filterIds = JSON.stringify(loadOptions['filter']);
-        const selectionIds = filterIds?.match(/-?\d+/g).map((id) => ({ID: id})) || [];
-        if (selectionIds instanceof Array && selectionIds.length > 0) {
-            let selectionIdsResponse = {
-                data: selectionIds,
-                totalCount: selectionIds.length,
-            };
-            return Promise.resolve(selectionIdsResponse);
+        if (loadOptions.filter) {
+            const filterIds = JSON.stringify(loadOptions['filter']);
+            const selectionIds = filterIds?.match(/-?\d+/g).map((id) => ({ID: id})) || [];
+            if (selectionIds instanceof Array && selectionIds.length > 0) {
+                let selectionIdsResponse = {
+                    data: selectionIds,
+                    totalCount: selectionIds.length,
+                };
+                return Promise.resolve(selectionIdsResponse);
+            }
         }
     }
 

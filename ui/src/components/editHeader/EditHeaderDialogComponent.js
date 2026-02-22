@@ -12,7 +12,6 @@ import BaseRowComponent from '../../baseContainers/BaseRowComponent';
 import {OperationType} from '../../enum/OperationType';
 import {TranslationUtils} from '../../utils/TranslationUtils';
 import {Dialog} from 'primereact/dialog';
-import EditListDataStore from '../../containers/dao/DataEditListStore';
 import EditRowUtils from '../../utils/EditRowUtils';
 import {RequestUtils} from '../../utils/RequestUtils';
 import {StickyHeader} from '../../utils/StickyHeader';

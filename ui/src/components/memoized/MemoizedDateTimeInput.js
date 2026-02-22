@@ -39,7 +39,6 @@ export const MemoizedDateTimeInput = React.memo(({field, cellInfo, fieldIndex, r
             setTimeout(() => {
                 const cells = Array.from(document.getElementsByClassName('dx-calendar-cell'));
                 calendarCellsRef.current = cells;
-
                 cells.forEach((cell) => {
                     cell.addEventListener('click', handleCalendarClick);
                 });

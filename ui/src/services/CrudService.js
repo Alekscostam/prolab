@@ -1,5 +1,4 @@
 import BaseService from './BaseService';
-import moment from 'moment';
 import EditRowUtils from '../utils/EditRowUtils';
 import {saveAs} from 'file-saver';
 import UrlUtils from '../utils/UrlUtils';

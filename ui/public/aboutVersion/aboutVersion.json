@@ -5,6 +5,50 @@
             "data": [
                 {
                     "isNew": true,
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/8jGEuS6U/907-widoczno%C5%9B%C4%87-wyniku-po-wej%C5%9Bciu-do-edycji",
+                    "text": "Widocznośc wyniku po wejściu do edycji"
+                },
+                {
+                    "isNew": true,
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/8jGEuS6U/907-widoczno%C5%9B%C4%87-wyniku-po-wej%C5%9Bciu-do-edycji",
+                    "text": "Widocznośc wyniku po wejściu do edycji"
+                },
+                {
+                    "isNew": true,
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/uEHKDGZq/910-zaznaczanie-pozycji-%C5%BAle-liczy-i-przekazuje-zaznaczone",
+                    "text": "Zaznaczanie pozycji - poprawa liczenia i przekazywania zaznaczenia"
+                },
+                {
+                    "isNew": true,
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/RmXiUGJa/905-kolor-dla-pola-wynik-z-formu%C5%82%C4%85",
+                    "text": "Wynik z formułą popraw ana kolor zielony"
+                },
+                {
+                    "isNew": true,
+                    "type": "FIX",
+                    "color": "red",
+                    "link": "https://trello.com/c/oNoHRyWW/904-checkbox-zaznaczanie-wszystkiego-z-nag%C5%82%C3%B3wka",
+                    "date": "",
+                    "text": "Naprawa popsutego zaznaczania wszystkiego"
+                }
+            ]
+        },
+        {
+            "title": "",
+            "data": [
+                {
                     "type": "NEW",
                     "importanceColor": "#ff6666",
                     "color": "green",
@@ -12,7 +56,6 @@
                     "text": "Aktualizacja do wersji 25.2.4"
                 },
                 {
-                    "isNew": true,
                     "type": "FIX",
                     "color": "red",
                     "link": "https://trello.com/c/qZcaV7di/797-rozje%C5%BCd%C5%BCa-si%C4%99-nag%C5%82%C3%B3wek-po-wyj%C5%9Bciu-z-podwidoku-filtrowaniu",

@@ -1,14 +1,10 @@
-/* eslint-disable no-script-url */
-/* eslint-disable jsx-a11y/anchor-is-valid */
-/* eslint-disable react/jsx-max-props-per-line */
 import React from 'react';
 import PropTypes from 'prop-types';
 import OperationsButtons from './OperationsButtons';
 import {Breadcrumb} from '../../utils/BreadcrumbUtils';
 import {DataGridUtils} from '../../utils/component/DataGridUtils';
 import {TreeListUtils} from '../../utils/component/TreeListUtils';
-import {showBarCode} from '../../utils/BarCodeUtils';
-//Komponent wyświetlający górną ramkę i okalający wszystkie przyciski, filtry ....
+
 export const HeadPanel = (props) => {
     const currentBreadcrumb = Breadcrumb.currentBreadcrumbAsUrlParam();
     const subViewId = props.elementSubViewId;

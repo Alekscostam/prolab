@@ -89,7 +89,6 @@ class DashboardCardViewComponent extends React.Component {
                     );
                     const canRenderEdit = !!(showEditButton && oppEdit);
                     const elementSubViewId = this.props.elementSubViewId;
-                    const elementKindView = this.props.elementKindView;
                     const elementId = this.props.id;
                     const viewId = DataGridUtils.getRealViewId(elementSubViewId, elementId);
                     const recordId = rowData.ID;

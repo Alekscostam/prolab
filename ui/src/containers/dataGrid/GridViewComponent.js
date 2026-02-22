@@ -17,7 +17,6 @@ import DataGrid, {
     StateStoring,
 } from 'devextreme-react/data-grid';
 import Constants from '../../utils/Constants';
-import ConsoleHelper from '../../utils/ConsoleHelper';
 import CrudService from '../../services/CrudService';
 import {DataGridUtils} from '../../utils/component/DataGridUtils';
 import {Breadcrumb} from '../../utils/BreadcrumbUtils';
@@ -111,18 +110,16 @@ class GridViewComponent extends CellEditComponent {
     };
 
     ifSelectAllEvent(e) {
-        return (
-            e.cellElement?.className?.includes(
-                'dx-command-select dx-cell-focus-disabled dx-editor-cell dx-editor-inline-block'
-            ) && e?.rowType === 'header'
-        );
+        return this.isSelectColumn(e) && e?.rowType === 'header';
     }
 
     ifSelectEvent(e) {
-        return e.cellElement?.className?.includes(
-            'dx-command-select dx-editor-cell dx-editor-inline-block dx-cell-focus-disabled'
-        );
+        return this.isSelectColumn(e) && e?.rowType === 'data';
     }
+
+    isSelectColumn = (e) => {
+        return e.column?.type === 'selection' && e.column?.command === 'select';
+    };
 
     hasSelectClass = (e) => {
         return e.cellElement?.className?.includes('dx-command-select');
@@ -267,12 +264,14 @@ class GridViewComponent extends CellEditComponent {
         );
         return !UrlUtils.isBatch() && (opAdd || opAddSpec || opAddFile);
     }
+
     onKeyDown = (e) => {
         if (e.event.key === 'ArrowUp' || e.event.key === 'ArrowDown') {
             e.component.closeEditCell();
             e.component.cancelEditData();
         }
     };
+
     renderClearFilter = () => {
         const clearFilter = document.getElementById('clear-filter-outside');
         if (this._filterClearRoot && !clearFilter) {
@@ -305,50 +304,10 @@ class GridViewComponent extends CellEditComponent {
             }
             if (this.props?.getRef) {
                 this.getInstance().clearSelection();
+                this.getInstance().deselectAll();
                 if (this.props?.handleUnselectAll) {
                     this.props.handleUnselectAll();
                 }
-            }
-        }
-    };
-
-    isMergeColumn = (dataField) => {
-        return this.mergedColumns.find((mc) => (mc.fieldName = dataField));
-    };
-
-    mergeColumns = (e) => {
-        if (getStore().showMerge) {
-            if (e.rowType === 'data' && e.rowIndex > 0) {
-                setTimeout(() => {
-                    const dataField = e.column.dataField;
-                    if (this.isMergeColumn(dataField)) {
-                        const previousCellValue = e.component.cellValue(e.rowIndex - 1, dataField);
-                        if (e.value === previousCellValue) {
-                            let previousCellElement = e.component.getCellElement(e.rowIndex - 1, dataField);
-                            if (previousCellElement?.style) {
-                                let rowspan = 2;
-                                while (
-                                    previousCellElement &&
-                                    previousCellElement.style &&
-                                    previousCellElement.style.display === 'none' &&
-                                    e.rowIndex - rowspan + 1 >= 0 // nie wychodzimy poza początek tabeli
-                                ) {
-                                    rowspan++;
-                                    previousCellElement = e.component.getCellElement(
-                                        e.rowIndex - rowspan + 1,
-                                        dataField
-                                    );
-                                }
-                                if (previousCellElement?.setAttribute) {
-                                    previousCellElement.setAttribute('rowspan', rowspan);
-                                    if (e.cellElement?.style) {
-                                        e.cellElement.style.display = 'none';
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
             }
         }
     };
@@ -370,7 +329,6 @@ class GridViewComponent extends CellEditComponent {
         const allowSelectAll = selectAll === undefined || selectAll === null || !!selectAll;
         const defaultSelectedRowKeys = this.props.defaultSelectedRowKeys;
         const selectedRowKeys = this.props.selectedRowKeys;
-        const packageCount = this.getPackageCount();
         const kindView = this.props.elementKindView;
         const subViewId = this.props.elementSubViewId;
         const selectedRecordId = this.state.selectedRecordId;
@@ -430,7 +388,6 @@ class GridViewComponent extends CellEditComponent {
                     columnResizingMode='widget'
                     allowColumnReordering={true}
                     onOptionChanged={(e) => {
-                        this.unclickAfterFilter(e);
                         this.onFilterChange(e);
                         this.onGroupIndexChange(e);
                     }}
@@ -447,9 +404,6 @@ class GridViewComponent extends CellEditComponent {
                     showColumnLines={showColumnLines}
                     showRowLines={showRowLines}
                     showBorders={showBorders}
-                    // onCellPrepared={(e) => {
-                    //     this.mergeColumns(e);
-                    // }}
                     showColumnHeaders={showColumnHeaders}
                     columnHidingEnabled={false}
                     height={dataGridHeight ? dataGridHeight + 'px' : '100%'}
@@ -705,13 +659,6 @@ class GridViewComponent extends CellEditComponent {
             return null;
         }
         return this.props?.getRef()?.instance();
-    };
-    getVisibleRows = () => {
-        const isntance = this.getInstance();
-        const visibleRows = isntance?.getVisibleRows();
-        const element1 = Array.from(document.querySelectorAll('tr[aria-rowindex="2"]'))?.[0];
-        const element2 = Array.from(document.querySelectorAll('tr[aria-rowindex="2"]'))?.[1];
-        return isntance?.getVisibleRows();
     };
     fillHeightForGrid = (element) => {
         try {
@@ -1234,53 +1181,6 @@ class GridViewComponent extends CellEditComponent {
             }
         );
     };
-    unclickAfterFilter = (e) => {
-        if (e.fullName && e.fullName.includes('.filterValue')) {
-            if (
-                Array.isArray(e.value) &&
-                e.value.length === 2 &&
-                e.value[0] !== undefined &&
-                e.value[1] !== undefined
-            ) {
-                // const root = document.getElementById('root');
-                // root.click();
-                // e.component.closeEditCell();
-                // e.component.cancelEditData();
-                // const refGrid = this.props.getRef().instance;
-                // refGrid.closeEditCell();
-                // const aaa = Array.from(document.getElementsByClassName('dx-checkbox-icon'));
-                // if (aaa.length != 0) {
-                //     aaa[0].click();
-                // }
-                // if (this.numberBoxRef.current) {
-                //     setTimeout(() => {
-                //         const hiddenInput = document.getElementById('hidden-input');
-                //         hiddenInput.focus();
-                //         const xxx = document.getElementById('XDD').children[1].children[0].children[0];
-                //         xxx.focus();
-                //         setTimeout(() => {
-                //             const element = document.querySelector(
-                //                 '.dx-command-select.dx-cell-focus-disabled.dx-editor-cell.dx-editor-inline-block'
-                //             );
-                //             element.click();
-                //             // document.getElementsByClassName("dx-command-select.dx-cell-focus-disabled.dx-editor-cell.dx-editor-inline-block")[0].click()
-                //             xxx.click();
-                //         }, 1000);
-                //         debugger;
-                //     }, 2000);
-                //     // Znajdujemy input w środku NumberBox i wywołujemy focus()
-                //     // const inputElement = this.numberBoxRef.current.element().querySelector('input');
-                //     // if (inputElement) {
-                //     //     inputElement.focus();
-                //     // }
-                // }
-                // e.element.click();
-                // console.log('Ustawiono zakres dat:', e.value[0], e.value[1]);
-                // console.log('Ustawiono zakres dat:', e.component);
-                // Możesz teraz np. ukryć edytor, zareagować itd.
-            }
-        }
-    };
 }
 
 GridViewComponent.defaultProps = {
@@ -1320,7 +1220,6 @@ GridViewComponent.propTypes = {
     handleOnDataGrid: PropTypes.func.isRequired,
     handleOnInitialized: PropTypes.func,
     showRenderingViewMode: PropTypes.bool,
-    ppmEnabled: PropTypes.bool,
     handleShowEditPanel: PropTypes.func,
 
     //selection

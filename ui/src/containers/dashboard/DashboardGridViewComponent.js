@@ -10,7 +10,6 @@ import ShortcutsButton from '../../components/prolab/ShortcutsButton';
 import CrudService from '../../services/CrudService';
 import ViewService from '../../services/ViewService';
 import AppPrefixUtils from '../../utils/AppPrefixUtils';
-import {DataGridUtils} from '../../utils/component/DataGridUtils';
 import {ViewValidatorUtils} from '../../utils/parser/ViewValidatorUtils';
 import UrlUtils from '../../utils/UrlUtils';
 import DataGridStore from '../dao/DataGridStore';

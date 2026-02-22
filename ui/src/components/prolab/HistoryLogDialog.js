@@ -1,11 +1,7 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import {Dialog} from 'primereact/dialog';
 import GridViewComponent from '../../containers/dataGrid/GridViewComponent';
-import {Button} from 'primereact/button';
 import {Toast} from 'primereact/toast';
-import {OperationType} from '../../enum/OperationType';
-import {TranslationUtils} from '../../utils/TranslationUtils';
 import {useRef, useCallback} from 'react';
 
 const HistoryLogDialog = ({
@@ -25,8 +21,6 @@ const HistoryLogDialog = ({
     const handleHide = useCallback(() => {
         onHide();
     }, [onHide]);
-
-    const opClose = TranslationUtils.getOpButton(parsedHistoryLogView?.operations, OperationType.OP_CLOSE);
 
     const convertedParsedView = {...parsedHistoryLogView};
     if (parsedHistoryLogView?.viewOptions) {

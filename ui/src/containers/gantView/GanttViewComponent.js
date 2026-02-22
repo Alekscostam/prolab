@@ -8,7 +8,6 @@ import Gantt, {
     ResourceAssignments,
     Column,
     Editing,
-    StripLine,
     HeaderFilter,
     ContextMenu,
     FilterRow,

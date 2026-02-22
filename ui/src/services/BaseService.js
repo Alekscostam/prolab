@@ -3,7 +3,6 @@ import AuthService from './AuthService';
 import {readObjFromCookieGlobal} from '../utils/Cookie';
 import {updateHeartbeatDate} from '../utils/helper/StoreHelper';
 
-let lastRefreshTime = null;
 let isRefreshing = false;
 let refreshPromise = null;
 

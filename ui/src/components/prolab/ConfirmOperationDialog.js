@@ -1,4 +1,3 @@
-import {ConfirmDialog} from 'primereact/confirmdialog';
 import {OperationType} from '../../enum/OperationType';
 import LocUtils from '../../utils/LocUtils';
 import PropTypes from 'prop-types';

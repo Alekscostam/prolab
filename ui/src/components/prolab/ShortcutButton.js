@@ -11,7 +11,6 @@ export const ShortcutButton = (props) => {
         className,
         disabled = false,
         handleClick,
-        handleBlur,
         href,
         iconColor,
         iconName,

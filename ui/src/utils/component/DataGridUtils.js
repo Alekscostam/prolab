@@ -4,25 +4,18 @@ import {StringUtils} from '../StringUtils';
 import {ViewDataCompUtils} from './ViewDataCompUtils';
 import EditRowUtils from '../EditRowUtils';
 import {ColumnType} from '../../enum/ColumnType';
-import {getStore} from '../helper/StoreHelper';
 
 let _rowIndex = null;
 let _bgColor = null;
 let _fontcolor = null;
 const _FONTCOLOR = '_FONTCOLOR';
 const _BGCOLOR = '_BGCOLOR';
-const _rowSpanMap = {}; // pamięta scalone wiersze
-let arrayOfUniqueElements = [];
-let arrayOfUniqueData = [];
-let uniqueMap = new Map();
 
 export class DataGridUtils extends ViewDataCompUtils {
     static clearProperties() {
         _rowIndex = null;
         _bgColor = null;
         _fontcolor = null;
-        arrayOfUniqueElements = [];
-        arrayOfUniqueData = [];
     }
     static isWart(dataField) {
         return dataField?.toUpperCase() === 'WART';

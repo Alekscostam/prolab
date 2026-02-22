@@ -78,7 +78,6 @@ $base-color: #0e49eb;
     margin-top: -8px;
     margin-left: 0px;
 }
-
 .dx-treelist-headers,
 .dx-treelist-rowsview {
     z-index: 0;
@@ -87,11 +86,19 @@ $base-color: #0e49eb;
     background-color: white !important;
 }
 #spec-edit {
+    .dx-editor-cell .dx-texteditor:not(.dx-tagbox) .dx-texteditor-input {
+        color: black;
+    }
     .dx-treelist-rowsview .dx-row-focused.dx-data-row .dx-command-edit .dx-link,
     .dx-treelist-rowsview
         .dx-row-focused.dx-data-row
         > td:not(.dx-cell-modified):not(.disabled-background):not(.dx-treelist-invalid) {
         background: transparent;
+    }
+    .dx-row.dx-data-row.dx-row-lines.dx-column-lines:not(.dx-state-hover):not(.dx-selection) {
+        .column_0_selection {
+            background-color: white !important;
+        }
     }
     .dx-treelist-rowsview
         .dx-row-focused.dx-data-row

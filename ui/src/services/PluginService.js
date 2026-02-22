@@ -1,5 +1,4 @@
 import {StringUtils} from '../utils/StringUtils';
-import BaseService from './BaseService';
 import HeaderService from './HeaderService';
 
 export default class PluginService extends HeaderService {

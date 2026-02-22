@@ -88,7 +88,6 @@ const useStore = create((set, get) => ({
     },
     onBaseViewBlockUi: (block) => {
         const {baseViewBlockUi, baseViewUnblockUi} = get();
-
         if (block) {
             baseViewBlockUi?.();
         } else {
