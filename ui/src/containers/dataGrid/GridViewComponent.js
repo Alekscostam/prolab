@@ -470,7 +470,7 @@ class GridViewComponent extends CellEditComponent {
                     <Sorting mode='multiple' />
                     <Selection
                         mode={this.selectionMode()}
-                        selectAllMode='allPages'
+                        selectAllMode='page'
                         showCheckBoxesMode='always'
                         allowSelectAll={allowSelectAll}
                         deferred={this.props.selectionDeferred}

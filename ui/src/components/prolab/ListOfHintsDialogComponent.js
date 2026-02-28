@@ -65,6 +65,8 @@ export default class ListOfHintsDialogComponent extends React.Component {
             return 'batch';
         } else if (type === EditHeaderType.PLUGIN || type === EditHeaderType.DOC) {
             return 'plugin/edit';
+        } else if (UrlUtils.isEditSpec()) {
+            return 'editspec';
         } else {
             return 'edit';
         }

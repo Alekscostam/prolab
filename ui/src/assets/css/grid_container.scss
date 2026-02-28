@@ -495,7 +495,7 @@ td.dx-command-select {
     .dx-datagrid-rowsview
         .dx-row-focused.dx-data-row
         > td:not(.dx-focused):not(.dx-cell-modified):not(.dx-datagrid-invalid) {
-        background-color: transparent;
+        background-color: white;
     }
     .dx-row.dx-data-row.dx-row-lines.dx-column-lines.dx-state-hover,
     .dx-row.dx-data-row.dx-row-lines.dx-state-hover {

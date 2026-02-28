@@ -319,11 +319,15 @@ class App extends Component {
         this.heartbeatService.heartbeat().then((res) => {
             if (res?.status === 'NOK') {
                 this.authService.logout();
+                const message =
+                    typeof res?.message === 'object'
+                        ? res?.message?.text ?? res?.message?.title ?? JSON.stringify(res?.message)
+                        : res?.message ?? 'Wystąpił błąd sesji';
                 this.messages?.show({
                     severity: 'error',
                     sticky: false,
                     life: 10000,
-                    summary: res.message,
+                    summary: message,
                 });
             }
         });
