@@ -303,8 +303,8 @@ class GridViewComponent extends CellEditComponent {
                 this.props.handleOnFilterChange();
             }
             if (this.props?.getRef) {
-                this.getInstance().clearSelection();
                 this.getInstance().deselectAll();
+                this.getInstance().clearSelection();
                 if (this.props?.handleUnselectAll) {
                     this.props.handleUnselectAll();
                 }
@@ -470,7 +470,7 @@ class GridViewComponent extends CellEditComponent {
                     <Sorting mode='multiple' />
                     <Selection
                         mode={this.selectionMode()}
-                        selectAllMode='page'
+                        selectAllMode='allPages'
                         showCheckBoxesMode='always'
                         allowSelectAll={allowSelectAll}
                         deferred={this.props.selectionDeferred}

@@ -229,7 +229,7 @@ class CellEditComponent extends PureComponent {
             this.state.editListVisible && (
                 <ListOfHintsDialogComponent
                     viewId={viewId}
-                    recordId={recordId}
+                    recordId={parentId}
                     parentId={parentId}
                     editListBody={editListBodyObject}
                     className

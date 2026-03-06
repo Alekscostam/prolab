@@ -8,8 +8,8 @@
                     "type": "FIX",
                     "color": "red",
                     "date": "",
-                    "link": "https://trello.com/c/NG9oxqpU/914-wy%C5%9Bwietlanie-w-tle-w-kolumnie-z-checkbox",
-                    "text": "Wyświetlenie w tle w kolumnie checkbox poprawka"
+                    "link": "https://trello.com/c/hQ0gsaIQ/912-domy%C5%9Blna-podpowied%C5%BA-do-pola-w-specyfikacji",
+                    "text": "Poprawka parent id w liście podpowiedzi"
                 },
                 {
                     "isNew": true,
@@ -18,10 +18,29 @@
                     "date": "",
                     "importanceColor": "#ff6666",
                     "link": "https://trello.com/c/uEHKDGZq/910-zaznaczanie-pozycji-%C5%BAle-liczy-i-przekazuje-zaznaczone",
+                    "text": "Powrót do allPages i poprawka w inny sposób"
+                }
+            ]
+        },
+        {
+            "title": "",
+            "data": [
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/NG9oxqpU/914-wy%C5%9Bwietlanie-w-tle-w-kolumnie-z-checkbox",
+                    "text": "Wyświetlenie w tle w kolumnie checkbox poprawka"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "importanceColor": "#ff6666",
+                    "link": "https://trello.com/c/uEHKDGZq/910-zaznaczanie-pozycji-%C5%BAle-liczy-i-przekazuje-zaznaczone",
                     "text": "Poprawa zaznaczania pozycji po wyborze z filtrów"
                 },
                 {
-                    "isNew": true,
                     "type": "FIX",
                     "color": "red",
                     "date": "",
@@ -29,7 +48,6 @@
                     "text": "Lista podowiedzi poprawa wywołania punktu z API w edit spec"
                 },
                 {
-                    "isNew": true,
                     "type": "FIX",
                     "color": "red",
                     "date": "",

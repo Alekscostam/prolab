@@ -3,6 +3,7 @@ import EditRowUtils from '../utils/EditRowUtils';
 import {saveAs} from 'file-saver';
 import UrlUtils from '../utils/UrlUtils';
 import EditListUtils from '../utils/EditListUtils';
+import ConsoleHelper from '../utils/ConsoleHelper';
 /*
 Kontroler do edycji danych.
  */
@@ -123,6 +124,7 @@ export default class CrudService extends BaseService {
     }
 
     getListOfHints(viewId, paramId, fieldId, element) {
+        ConsoleHelper(`/api/View/${viewId}/editspec/${paramId}/list/${fieldId}`);
         const partOfUrl = UrlUtils.batchIdParamExist() ? 'batch' : 'editspec';
         return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/${partOfUrl}/${paramId}/list/${fieldId}`, {
             method: 'POST',
