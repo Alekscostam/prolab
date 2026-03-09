@@ -5,6 +5,18 @@
             "data": [
                 {
                     "isNew": true,
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "link": "https://trello.com/c/nJ8OIvlo/915-ustawienie-by-nie-filtrowa%C5%82o-po-findkreski",
+                    "text": "Nowy parametr w find kreski"
+                }
+            ]
+        },
+        {
+            "title": "",
+            "data": [
+                {
                     "type": "FIX",
                     "color": "red",
                     "date": "",
@@ -12,7 +24,6 @@
                     "text": "Poprawka parent id w liście podpowiedzi"
                 },
                 {
-                    "isNew": true,
                     "type": "FIX",
                     "color": "red",
                     "date": "",

@@ -1751,23 +1751,22 @@ export class BaseViewContainer extends BaseContainer {
                     const title = message?.title;
                     this.showErrorMessage(text, 3000, true, title);
                 }
-                const getFilter = () => {
-                    return result.listId.flatMap((id, index) =>
-                        index === 0 ? [['ID', '=', id]] : ['or', ['ID', '=', id]]
-                    );
+                const getListId = () => {
+                    if (ArrayUtils.isEmpty(result.listId)) {
+                        return ['0'];
+                    }
+                    return result.listId;
                 };
-                if (result?.viewOptions?.refreshAll) {
+                const getFilter = () => {
+                    const listId = getListId();
+                    return listId.flatMap((id, index) => (index === 0 ? [['ID', '=', id]] : ['or', ['ID', '=', id]]));
+                };
+                if (result?.viewOptions?.filter) {
+                    this.getGridInstance()?.filter(getFilter());
+                } else if (result?.viewOptions?.refreshAll) {
                     this.unselectAllDataGrid(false);
                     if (ViewUtils.haveSubView()) this.downloadSubViewData(true);
-                    if (!ArrayUtils.isEmpty(result.listId)) {
-                        this.getGridInstance()?.filter(getFilter());
-                    } else {
-                        this.refreshView();
-                    }
-                } else {
-                    if (!ArrayUtils.isEmpty(result.listId)) {
-                        this.getGridInstance()?.filter(getFilter());
-                    }
+                    this.refreshView();
                 }
                 this.handleQrCodeResponse(result);
             })
