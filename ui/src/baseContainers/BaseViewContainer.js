@@ -406,7 +406,6 @@ export class BaseViewContainer extends BaseContainer {
                     select: false,
                     selectAll: false,
                     isSelectAll: false,
-                    visibleEditPanel: false,
                     attachmentViewInfo: null,
                     visibleUploadFile: false,
                     visiblePluginPanel: false,
@@ -535,7 +534,7 @@ export class BaseViewContainer extends BaseContainer {
                     rejectLabel={localeOptions('reject')}
                     accept={() => {
                         this.handleCancelRowChange(viewId, recordId, parentId);
-                        this.setState({visibleEditPanel: false});
+                        this.handleHideEditPanel();
                         document.body.removeChild(confirmDialogWrapper);
                     }}
                     reject={() => {
@@ -660,9 +659,7 @@ export class BaseViewContainer extends BaseContainer {
                         }}
                         copyData={this.state.copyData}
                         onCloseCustom={() => {
-                            this.setState({
-                                visibleEditPanel: false,
-                            });
+                            this.handleHideEditPanel();
                         }}
                         onHide={(e, viewId, recordId, parentId) => {
                             this.onHideEditPanel(e, viewId, recordId, parentId);
@@ -1563,7 +1560,7 @@ export class BaseViewContainer extends BaseContainer {
             e.recordId,
             parentId,
             kindView,
-            (editDataResponse) => this.setState({editData: editDataResponse, visibleEditPanel: true}),
+            (editDataResponse) => this.handleShowEditPanel(editDataResponse, () => {}, false),
             () => this.unblockUi(),
             (err) => this.showErrorMessage(err)
         );
@@ -1706,10 +1703,7 @@ export class BaseViewContainer extends BaseContainer {
                             this.crudService
                                 .add(viewId, parentId)
                                 .then((editDataResponse) => {
-                                    this.setState({
-                                        visibleEditPanel: true,
-                                        editData: editDataResponse,
-                                    });
+                                    this.handleShowEditPanel(editDataResponse);
                                     this.unblockUi();
                                 })
                                 .catch((err) => {

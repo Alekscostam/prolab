@@ -335,9 +335,7 @@ class DashboardContainer extends BaseContainer {
                         copyData={this.state?.copyData}
                         validator={this.validator}
                         onCloseCustom={() => {
-                            this.setState({
-                                visibleEditPanel: false,
-                            });
+                            this.handleHideEditPanel();
                         }}
                         onHide={(e, viewId, recordId, parentId) => {
                             this.onHideEditPanel(e, viewId, recordId, parentId);
@@ -557,10 +555,7 @@ class DashboardContainer extends BaseContainer {
                             this.crudService
                                 .add(viewId, parentId)
                                 .then((editDataResponse) => {
-                                    this.setState({
-                                        visibleEditPanel: true,
-                                        editData: editDataResponse,
-                                    });
+                                    this.handleShowEditPanel(editDataResponse, () => {}, false);
                                 })
                                 .catch((err) => {
                                     this.showGlobalErrorMessage(err);

@@ -496,13 +496,26 @@ class GridViewComponent extends CellEditComponent {
                     <StateStoring
                         enabled={true}
                         type='custom'
-                        customLoad={(e) => {
+                        customLoad={() => {
                             if (this.canApplyFilter.current) {
                                 const si = SessionStoreUtils.getStoreInformation();
+                                const state = si.store;
+                                if (state?.columns) {
+                                    state.columns.forEach((col) => {
+                                        if (col.dataType === 'date') {
+                                            if (Array.isArray(col.filterValue)) {
+                                                col.filterValue = col.filterValue.map((v) => new Date(v));
+                                            } else if (col.filterValue) {
+                                                col.filterValue = new Date(col.filterValue);
+                                            }
+                                        }
+                                    });
+                                }
                                 SessionStoreUtils.clearStoreInformation();
                                 this.canApplyFilter.current = false;
-                                return si.store;
+                                return state;
                             }
+
                             return null;
                         }}
                         customSave={(state) => {

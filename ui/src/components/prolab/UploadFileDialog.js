@@ -47,7 +47,6 @@ export default class UploadFileDialog extends React.Component {
             formData.append('file', selectedFile);
             fileArrays.push(formData);
         });
-
         this.props.upload(fileArrays);
     };
 

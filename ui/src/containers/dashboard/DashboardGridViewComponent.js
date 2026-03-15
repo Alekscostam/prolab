@@ -346,9 +346,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                         onEditList={this.handleEditListRowChange}
                         onCancel={this.handleCancelRowChange}
                         onCloseCustom={() => {
-                            this.setState({
-                                visibleEditPanel: false,
-                            });
+                            this.handleHideEditPanel();
                         }}
                         validator={this.validator}
                         onHide={(e, viewId, recordId, parentId) => {
@@ -714,12 +712,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                             showAddButton={false}
                             packageRows={this.state.packageRows}
                             handleShowEditPanel={(editDataResponse) => {
-                                this.setState({
-                                    visibleEditPanel: true,
-                                    modifyEditData: false,
-                                    editData: editDataResponse,
-                                });
-                                this.unblockUi();
+                                this.handleShowEditPanel(editDataResponse);
                             }}
                             handleSelectedRowKeys={(e) => this.setState({selectedRowKeys: e?.selectedRowKeys})}
                             showColumnLines={this.props.showColumnLines}

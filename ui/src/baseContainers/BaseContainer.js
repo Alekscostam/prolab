@@ -638,25 +638,29 @@ class BaseContainer extends React.Component {
     }
 
     refreshView() {
-        if (this.isCardView()) {
-            if (!!this.getRefCardGrid()) {
-                this.getRefCardGrid().current?.refresh(true);
-            }
-        } else if (this.isGanttView()) {
-            if (!!this.getRefGanttView()) {
-                if (this.getRefGanttView()?.current) {
-                    this.getRefGanttView().current.refresh();
+        try {
+            if (this.isCardView()) {
+                if (!!this.getRefCardGrid()) {
+                    this.getRefCardGrid().current?.refresh(true);
                 }
-            }
-        } else if (this.isTypeOfGrid()) {
-            if (!!this.getRefGridView()) {
-                if (window?.dataGrid) {
-                    if (this.state?.gridViewType !== 'cardView') window.dataGrid.clearSelection();
+            } else if (this.isGanttView()) {
+                if (!!this.getRefGanttView()) {
+                    if (this.getRefGanttView()?.current) {
+                        this.getRefGanttView().current.refresh();
+                    }
                 }
-                this.getGridInstance().getDataSource().reload();
+            } else if (this.isTypeOfGrid()) {
+                if (!!this.getRefGridView()) {
+                    if (window?.dataGrid) {
+                        if (this.state?.gridViewType !== 'cardView') window.dataGrid.clearSelection();
+                    }
+                    this.getGridInstance().getDataSource().reload();
+                }
+            } else if (this.isDashboard()) {
+                this.getGridInstance()?.getDataSource()?.reload();
             }
-        } else if (this.isDashboard()) {
-            this.getGridInstance()?.getDataSource()?.reload();
+        } catch (ex) {
+            console.log(ex);
         }
     }
     windowHaveSubView() {
@@ -848,7 +852,7 @@ class BaseContainer extends React.Component {
                     saveResponse,
                     () => this.rowSave(viewId, recordId, parentId, saveElement, true),
                     () => {
-                        this.setState({visibleEditPanel: false});
+                        this.handleHideEditPanel();
                         window.location.href = UrlUtils.getUrlWithoutEditRowParams();
                         this.documentExecuteAfterRowSave(saveResponse);
                     },
@@ -1041,15 +1045,9 @@ class BaseContainer extends React.Component {
                             const editInfoExists = !!res.editInfo;
                             if (editInfoExists) {
                                 res.type = EditHeaderType.DOC;
-                                this.setState(
-                                    {
-                                        visibleEditPanel: true,
-                                        editData: res,
-                                    },
-                                    () => {
-                                        this.unblockUi();
-                                    }
-                                );
+                                this.handleShowEditPanel(res, () => {
+                                    this.unblockUi();
+                                });
                             }
                         } else if (res.inputDataFields?.length) {
                             const documentInfo = {
@@ -1160,10 +1158,7 @@ class BaseContainer extends React.Component {
                                     if (editInfoExists) {
                                         EditListUtils.addUuidToFields(res);
                                         res.type = EditHeaderType.PLUGIN;
-                                        this.setState({
-                                            visibleEditPanel: true,
-                                            editData: res,
-                                        });
+                                        this.handleShowEditPanel(res);
                                         return;
                                     }
                                     let parsedPluginViewData;
@@ -1351,7 +1346,6 @@ class BaseContainer extends React.Component {
                                     if (renderEditData) {
                                         let attachmentFiles = this.state.attachmentFiles;
                                         attachmentFiles.shift();
-                                        // editDataResponse.parentId = parentId;
                                         this.setState(
                                             {
                                                 attachmentFiles: attachmentFiles,
@@ -1441,17 +1435,11 @@ class BaseContainer extends React.Component {
                                     } else if (!!copyResponse.error) {
                                         this.showResponseErrorMessage(copyResponse);
                                     }
-                                    this.setState(
-                                        {
-                                            visibleEditPanel: true,
-                                            editData: copyResponse,
-                                        },
-                                        () => {
-                                            if (callBack) {
-                                                callBack(copyData);
-                                            }
+                                    this.handleShowEditPanel(copyResponse, () => {
+                                        if (callBack) {
+                                            callBack(copyData);
                                         }
-                                    );
+                                    });
                                     this.unblockUi();
                                 })
                                 .catch((err) => {
@@ -1494,6 +1482,7 @@ class BaseContainer extends React.Component {
             }
         );
     }
+
     restore(id) {
         this.blockUi();
         const viewId = this.getRealViewId();
@@ -2119,14 +2108,39 @@ class BaseContainer extends React.Component {
     getEditDataInfoType = () => {
         return this?.state?.editData?.info?.type;
     };
-    handleShowEditPanel(editDataResponse) {
-        this.setState({
-            visibleEditPanel: true,
-            modifyEditData: false,
-            editData: editDataResponse,
-        });
-        this.unblockUi();
-    }
+
+    handleShowEditPanel = (editData, callBack, shouldUnblockUi = true) => {
+        this.setState(
+            {
+                visibleEditPanel: true,
+                modifyEditData: false,
+                editData: editData,
+            },
+            () => {
+                if (callBack) {
+                    callBack();
+                }
+            }
+        );
+        if (shouldUnblockUi) {
+            this.unblockUi();
+        }
+    };
+    handleHideEditPanel = (callBack, shouldUnblockUi = false) => {
+        this.setState(
+            {
+                visibleEditPanel: false,
+            },
+            () => {
+                if (callBack) {
+                    callBack();
+                }
+            }
+        );
+        if (shouldUnblockUi) {
+            this.unblockUi();
+        }
+    };
     getRefGridView() {
         return !!this.refDataGrid ? this.refDataGrid : null;
     }
