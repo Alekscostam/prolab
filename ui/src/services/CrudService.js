@@ -192,14 +192,13 @@ export default class CrudService extends BaseService {
     }
 
     attachmentEntry(viewId, recordId, parentIdParam, isKindViewSpec) {
-        return this.fetch(
-            `${this.getDomain()}/${this.path}/${viewId}/attachment/${recordId}/Entry${parentIdParam}${
-                isKindViewSpec ? '&kindView=ViewSpec' : ''
-            }`,
-            {
-                method: 'POST',
-            }
-        )
+        const URL = `${this.getDomain()}/${this.path}/${viewId}/attachment/${recordId}/Entry${parentIdParam}${
+            isKindViewSpec ? '&kindView=ViewSpec' : ''
+        }`;
+        console.log('attachmentEntry -> ' + URL);
+        return this.fetch(URL, {
+            method: 'POST',
+        })
             .then((attachmentEntryResponse) => {
                 return Promise.resolve(attachmentEntryResponse);
             })

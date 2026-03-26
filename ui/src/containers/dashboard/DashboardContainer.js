@@ -49,6 +49,10 @@ class DashboardContainer extends BaseContainer {
             loading: true,
             copyData: null,
             cardView: undefined,
+            cardViewInfo: {
+                parentId: undefined,
+                viewId: undefined,
+            },
         };
         this.dashboardGridRefs = [];
     }
@@ -280,7 +284,12 @@ class DashboardContainer extends BaseContainer {
                         onBlur={this.handleEditRowBlur}
                         onSave={this.handleEditRowSave}
                         onAttachment={(id) => {
-                            this.attachment(id);
+                            this.attachment(
+                                id,
+                                undefined,
+                                this.state.cardViewInfo.viewId,
+                                this.state.cardViewInfo.parentId
+                            );
                         }}
                         onAutoFill={this.handleAutoFillRowChange}
                         onEditList={this.handleEditListRowChange}
@@ -304,7 +313,12 @@ class DashboardContainer extends BaseContainer {
                         onBlur={this.handleEditRowBlur}
                         onSave={this.handleEditRowSave}
                         onAttachment={(id) => {
-                            this.attachment(id);
+                            this.attachment(
+                                id,
+                                undefined,
+                                this.state.cardViewInfo.viewId,
+                                this.state.cardViewInfo.parentId
+                            );
                         }}
                         onAutoFill={this.handleAutoFillRowChange}
                         onEditList={this.handleEditListRowChange}
@@ -327,7 +341,12 @@ class DashboardContainer extends BaseContainer {
                         onBlur={this.handleEditRowBlur}
                         onSave={this.handleEditRowSave}
                         onAttachment={(id) => {
-                            this.attachment(id);
+                            this.attachment(
+                                id,
+                                undefined,
+                                this.state.cardViewInfo.viewId,
+                                this.state.cardViewInfo.parentId
+                            );
                         }}
                         onEditList={this.handleEditListRowChange}
                         onAutoFill={this.handleAutoFillRowChange}
@@ -457,6 +476,14 @@ class DashboardContainer extends BaseContainer {
             },
         });
     };
+    componentWillUnmount() {
+        this.setState({
+            cardViewInfo: {
+                parentId: undefined,
+                viewId: undefined,
+            },
+        });
+    }
     renderContent() {
         const imageViewer = this.state.imageViewer;
         const recordId = UrlUtils.getRecordId();
@@ -555,7 +582,18 @@ class DashboardContainer extends BaseContainer {
                             this.crudService
                                 .add(viewId, parentId)
                                 .then((editDataResponse) => {
-                                    this.handleShowEditPanel(editDataResponse, () => {}, false);
+                                    this.handleShowEditPanel(
+                                        editDataResponse,
+                                        () => {
+                                            this.setState({
+                                                cardViewInfo: {
+                                                    parentId,
+                                                    viewId,
+                                                },
+                                            });
+                                        },
+                                        false
+                                    );
                                 })
                                 .catch((err) => {
                                     this.showGlobalErrorMessage(err);

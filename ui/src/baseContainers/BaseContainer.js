@@ -1523,12 +1523,13 @@ class BaseContainer extends React.Component {
                 this.showGlobalErrorMessage(err);
             });
     }
-    attachment(id, isAttachmentFromHeader) {
-        let viewId = isAttachmentFromHeader ? this.props.id : this.getRealViewId();
-        viewId = StringUtils.isBlank(viewId) ? UrlUtils.getIdFromUrl() : viewId;
-        let recordId = this.getSelectedRowKeysIds(id);
-        if (Array.isArray(recordId)) {
-            recordId = recordId[0];
+    attachment(id, isAttachmentFromHeader, viewId, parentId) {
+        let viewIdParam = isAttachmentFromHeader ? this.props.id : this.getRealViewId();
+        viewIdParam = StringUtils.isBlank(viewIdParam) ? UrlUtils.getIdFromUrl() : viewIdParam;
+
+        let recordIdParam = this.getSelectedRowKeysIds(id);
+        if (Array.isArray(recordIdParam)) {
+            recordIdParam = recordIdParam[0];
         }
         let parentIdParam = '';
         if (!isAttachmentFromHeader) {
@@ -1539,12 +1540,18 @@ class BaseContainer extends React.Component {
                 parentIdParam = '?parentId=' + UrlUtils.getParentId();
             }
         }
-        const isKindViewSpec = this.isKindViewSpec(recordId);
+        const isKindViewSpec = this.isKindViewSpec(recordIdParam);
         // const isKindViewSpec = false;
-        if (recordId === '0' || recordId === 0) {
-            recordId = this.state.elementRecordId;
+        if (recordIdParam === '0' || recordIdParam === 0) {
+            recordIdParam = this.state.elementRecordId;
         }
-        this.handleAttachmentEntry(viewId, recordId, parentIdParam, isKindViewSpec);
+        if (parentId !== undefined) {
+            parentIdParam = '?parentId=' + parentId;
+        }
+        if (viewId !== undefined) {
+            viewIdParam = viewId;
+        }
+        this.handleAttachmentEntry(viewIdParam, recordIdParam, parentIdParam, isKindViewSpec);
     }
     handleAttachmentEntry(viewId, recordId, parentIdParam, isKindViewSpec) {
         this.crudService

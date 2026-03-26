@@ -7,6 +7,18 @@
                     "isNew": true,
                     "type": "FIX",
                     "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/GDNeqQXP/922-b%C5%82%C4%85d-przy-dodawaniu-za%C5%82%C4%85cznika",
+                    "text": "Błąd załącznika w dashboard"
+                }
+            ]
+        },
+        {
+            "title": "",
+            "data": [
+                {
+                    "type": "FIX",
+                    "color": "red",
                     "importanceColor": "#ff6666",
                     "description": "Wprowadzono dużą zmianę w sposobie wywoływania edycji nagłówka, dlatego należy dokładnie przetestować różne scenariusze jego uruchamiania.",
                     "date": "",
@@ -14,7 +26,6 @@
                     "text": "Poprawa pętli w widoku załączników"
                 },
                 {
-                    "isNew": true,
                     "type": "FIX",
                     "color": "red",
                     "date": "",
