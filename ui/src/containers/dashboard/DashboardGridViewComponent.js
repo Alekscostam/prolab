@@ -684,6 +684,7 @@ export class DashboardGridViewComponent extends BaseContainer {
                 {this.state.loading ? null : (
                     <React.Fragment>
                         <GridViewComponent
+                            gridId={this.props.id}
                             multiLevelHeaders={this.isGridViewBands()}
                             targetContextMenu={'.dx-row.dx-data-row.dx-row-lines'}
                             id={this.props.id}

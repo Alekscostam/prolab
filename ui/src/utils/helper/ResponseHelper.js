@@ -26,6 +26,7 @@ ResponseHelper.run = (response, nokAcceptFnc, okAcceptFnc, resErrorMessage, onAf
         case ResponseStatus.OK:
             if (response.message) {
                 renderConfirmDialog(response.message.text, response.message.title, 'pi pi-info-circle', okAcceptFnc);
+                okAcceptFnc();
             } else if (response.error) {
                 resErrorMessage(response);
             } else {

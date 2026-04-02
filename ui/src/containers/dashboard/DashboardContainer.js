@@ -49,10 +49,6 @@ class DashboardContainer extends BaseContainer {
             loading: true,
             copyData: null,
             cardView: undefined,
-            cardViewInfo: {
-                parentId: undefined,
-                viewId: undefined,
-            },
         };
         this.dashboardGridRefs = [];
     }
@@ -287,8 +283,8 @@ class DashboardContainer extends BaseContainer {
                             this.attachment(
                                 id,
                                 undefined,
-                                this.state.cardViewInfo.viewId,
-                                this.state.cardViewInfo.parentId
+                                this.state.editData?.editInfo?.viewId,
+                                this.state.editData?.editInfo?.parentId
                             );
                         }}
                         onAutoFill={this.handleAutoFillRowChange}
@@ -316,8 +312,8 @@ class DashboardContainer extends BaseContainer {
                             this.attachment(
                                 id,
                                 undefined,
-                                this.state.cardViewInfo.viewId,
-                                this.state.cardViewInfo.parentId
+                                this.state.editData?.editInfo?.viewId,
+                                this.state.editData?.editInfo?.parentId
                             );
                         }}
                         onAutoFill={this.handleAutoFillRowChange}
@@ -344,8 +340,8 @@ class DashboardContainer extends BaseContainer {
                             this.attachment(
                                 id,
                                 undefined,
-                                this.state.cardViewInfo.viewId,
-                                this.state.cardViewInfo.parentId
+                                this.state.editData?.editInfo?.viewId,
+                                this.state.editData?.editInfo?.parentId
                             );
                         }}
                         onEditList={this.handleEditListRowChange}
@@ -476,14 +472,8 @@ class DashboardContainer extends BaseContainer {
             },
         });
     };
-    componentWillUnmount() {
-        this.setState({
-            cardViewInfo: {
-                parentId: undefined,
-                viewId: undefined,
-            },
-        });
-    }
+    componentWillUnmount() {}
+
     renderContent() {
         const imageViewer = this.state.imageViewer;
         const recordId = UrlUtils.getRecordId();
@@ -582,18 +572,7 @@ class DashboardContainer extends BaseContainer {
                             this.crudService
                                 .add(viewId, parentId)
                                 .then((editDataResponse) => {
-                                    this.handleShowEditPanel(
-                                        editDataResponse,
-                                        () => {
-                                            this.setState({
-                                                cardViewInfo: {
-                                                    parentId,
-                                                    viewId,
-                                                },
-                                            });
-                                        },
-                                        false
-                                    );
+                                    this.handleShowEditPanel(editDataResponse, () => {}, false);
                                 })
                                 .catch((err) => {
                                     this.showGlobalErrorMessage(err);

@@ -74,12 +74,11 @@ export default class ViewService extends BaseService {
         if (Array.isArray(recordId)) {
             recordId = recordId[0];
         }
-        return this.fetch(
-            `${this.getDomain()}/${this.path}/${viewId}/subview/${recordId}/Entry?${queryStringTmp.join('&')}`,
-            {
-                method: 'POST',
-            }
-        ).catch((err) => {
+        const URL = `${this.getDomain()}/${this.path}/${viewId}/subview/${recordId}/Entry?${queryStringTmp.join('&')}`;
+        console.log(URL);
+        return this.fetch(URL, {
+            method: 'POST',
+        }).catch((err) => {
             throw err;
         });
     }

@@ -286,6 +286,14 @@ class GridViewComponent extends CellEditComponent {
         }
     };
 
+    getTargetContextMenu = () => {
+        if (this.props.gridId) {
+            return '.gridId-' + this.props.gridId + ' ' + this.props.targetContextMenu;
+        } else {
+            return this.props.targetContextMenu;
+        }
+    };
+
     onGroupIndexChange = (e) => {
         if (e?.fullName?.includes('groupIndex')) {
             const match = e?.fullName.match(/columns\[(\d+)\]\.groupIndex/);
@@ -366,7 +374,9 @@ class GridViewComponent extends CellEditComponent {
                         this.props.ppmEnabled ? 'ppm-enabled' : ''
                     } ${this.props?.className ? this.props?.className : ''} grid-container${
                         headerAutoHeight ? ' grid-header-auto-height' : ''
-                    } ${this.canRenderAdditionalOperationCol() ? 'grid-with-opperations' : ''} `}
+                    } ${this.canRenderAdditionalOperationCol() ? 'grid-with-opperations' : ''}  ${
+                        this.props.gridId ? 'gridId-' + this.props.gridId : ''
+                    } `}
                     ref={(ref) => {
                         this.props.handleOnDataGrid(ref);
                     }}
@@ -529,7 +539,7 @@ class GridViewComponent extends CellEditComponent {
                 {this.props.parsedGridView?.operationsPPM && this.props.parsedGridView.operationsPPM.length !== 0 && (
                     <MenuWithButtons
                         menuRef={this.menuRef}
-                        target={this.props.targetContextMenu}
+                        target={this.getTargetContextMenu()}
                         gridView={this.props.parsedGridView}
                         handlePlugins={(e) => this.preAction(e, () => this.props.handlePluginRow(e.id))}
                         handleDocuments={(e) => {
@@ -1207,6 +1217,7 @@ GridViewComponent.defaultProps = {
     showColumnHeaders: true,
     showFilterRow: true,
     gridFromDashboard: false,
+    gridId: '',
     multiLevelHeaders: false,
     showSelection: true,
     targetContextMenu: '.ppm-enabled .dx-row.dx-data-row.dx-row-lines.dx-column-lines',

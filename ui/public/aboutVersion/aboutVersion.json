@@ -8,6 +8,34 @@
                     "type": "FIX",
                     "color": "red",
                     "date": "",
+                    "link": "https://trello.com/c/Q6Vn23jR/934-zepsu%C5%82o-si%C4%99-dodawanie-do-podwidoku-np-nie-mo%C5%BCna-doda%C4%87-awarii",
+                    "text": "Fix zamykania okna edycji nagłówka"
+                },
+                {
+                    "isNew": true,
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/4uqDwNYp/926-b%C5%82%C4%85d-definicji-widoku-za%C5%82%C4%85cznik%C3%B3w",
+                    "text": "poprawa wywowałania attachmentów w dashboard"
+                },
+                {
+                    "isNew": true,
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/OR7sLHT1/925-ppm-w-widoku-dashboard",
+                    "text": "Błąd dupliakcji PPM w dashbaord"
+                }
+            ]
+        },
+        {
+            "title": "",
+            "data": [
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
                     "link": "https://trello.com/c/GDNeqQXP/922-b%C5%82%C4%85d-przy-dodawaniu-za%C5%82%C4%85cznika",
                     "text": "Błąd załącznika w dashboard"
                 }
