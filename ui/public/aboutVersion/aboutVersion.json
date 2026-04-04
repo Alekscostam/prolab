@@ -5,6 +5,21 @@
             "data": [
                 {
                     "isNew": true,
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "more": "Należy dodać do config mapy taki JSON:\n\n{\n  \"CHAT_AI\": {\n    \"ENABLED\": true,\n    \"API\": \"https://public-api.devexpress.com/demo-openai/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-02-01\",\n    \"MODEL\": \"gpt-4o-mini\"\n  }\n}",
+                    "description": "Na tym API co podałem musi być internet oczywiście, więc i tak nie bedzie wam działać. Musicie podmienić na swój Backend integrujący się z jakimś modelem przez ofline",
+                    "link": "https://trello.com/c/Q6Vn23jR/934-zepsu%C5%82o-si%C4%99-dodawanie-do-podwidoku-np-nie-mo%C5%BCna-doda%C4%87-awarii",
+                    "text": "Chat demo"
+                }
+            ]
+        },
+        {
+            "title": "",
+            "data": [
+                {
+                    "isNew": true,
                     "type": "FIX",
                     "color": "red",
                     "date": "",

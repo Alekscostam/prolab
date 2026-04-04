@@ -41,6 +41,7 @@ import BarcodeScannerSimulator from './reader/BarcodeScannerSimulator';
 import {getStore, updateHeartbeatDate} from './utils/helper/StoreHelper';
 import AboutVersionService from './services/AboutVersionService';
 import HeartbeatService from './services/HearbeatService';
+import Widget from './components/widget/Widget';
 
 export let clearState;
 export let reStateApp;
@@ -403,6 +404,7 @@ class App extends Component {
             const barCodeShowMethod = configuration.BAR_CODE_SHOW_METHOD;
             const heartbeatTimeMinutes = configuration.HEARTBEAT_TIME_MINUTES;
             const draggableGridEnabled = configuration.DRAGGABLE_GRID_ENABLED;
+            const chatAi = configuration.CHAT_AI;
             const wssUrl = configuration.WSS_URL;
             const showFilterClear = configuration.SHOW_FILTER_CLEAR;
             const showMarkupOnHtmlEditor = configuration.SHOW_MARKUP_ON_HTML_EDITOR;
@@ -431,6 +433,7 @@ class App extends Component {
             getStore().setShowAddFromDashboard(showAddFromDashboard);
             getStore().setShowMerge(showMerge);
             getStore().setAppVersion(appVersion);
+            getStore().setChatAi(chatAi);
             getStore().setAppName(appName);
             getStore().setDeviceName(deviceName);
             getStore().setShowMarkupOnHtmlEditor(showMarkupOnHtmlEditor);
@@ -968,6 +971,7 @@ class App extends Component {
                         {LocUtils.locFromStoreWithDefault('App_Loading', 'Proszę czekać, trwa ładowanie aplikacji....')}
                     </React.Fragment>
                 )}
+                {useStore.getState().chatAi?.ENABLED && <Widget />}
             </React.Fragment>
         );
     }

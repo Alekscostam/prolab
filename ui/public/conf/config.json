@@ -1,5 +1,5 @@
 {
-    "REACT_APP_BACKEND_URL": "https://rdprolab.inform-tech.pl:444/PPA/api",
+    "REACT_APP_BACKEND_URL": "http://prolabrd-test.informtech.local/PPA/api",
     "REACT_APP_URL_PREFIX": "",
     "LANG": "PL",
     "LANG_LIST": ["PL", "ENG", "DE"],
@@ -12,7 +12,7 @@
     "SHOW_HINT_LIST_BUTTONS": true,
     "SHOW_MERGE": false,
     "SHOW_MARKUP_ON_HTML_EDITOR": true,
-    "SHOW_ADD_FROM_DASHBOARD": false,
+    "SHOW_ADD_FROM_DASHBOARD": true,
     "SHOW_FILTER_CLEAR": true,
     "REMEMBER_ME": true,
     "BAR_CODE_SHOW_METHOD": "FIRST",
@@ -22,5 +22,10 @@
         "SITE_KEY": "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI",
         "ENABLED": true
     },
-    "WSS_URL": ""
+    "WSS_URL": "",
+    "CHAT_AI": {
+        "ENABLED": true,
+        "API": "https://public-api.devexpress.com/demo-openai/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-02-01",
+        "MODEL": "gpt-4o-mini"
+    }
 }
