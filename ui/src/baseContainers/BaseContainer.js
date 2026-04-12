@@ -962,7 +962,10 @@ class BaseContainer extends React.Component {
                 this.getEditDataInfoType()
             )
             .then(() => {
-                window.location.href = UrlUtils.getUrlWithoutEditRowParams();
+                if (!this.props.isEditHeaderOpen) {
+                    window.location.href = UrlUtils.getUrlWithoutEditRowParams();
+                    UrlUtils.deleteIsSubViewClickedParameterFromCurrentURL();
+                }
                 this.unselectAllDataGrid();
                 this.unblockUi();
             })
@@ -1524,38 +1527,51 @@ class BaseContainer extends React.Component {
             });
     }
     attachment(id, isAttachmentFromHeader, viewId, parentId) {
-        let viewIdParam = isAttachmentFromHeader ? this.props.id : this.getRealViewId();
-        viewIdParam = StringUtils.isBlank(viewIdParam) ? UrlUtils.getIdFromUrl() : viewIdParam;
+        if (UrlUtils.isSubViewClickedParamExist()) {
+            this.attachmentForSubView();
+        } else {
+            let viewIdParam = isAttachmentFromHeader ? this.props.id : this.getRealViewId();
+            viewIdParam = StringUtils.isBlank(viewIdParam) ? UrlUtils.getIdFromUrl() : viewIdParam;
 
-        let recordIdParam = this.getSelectedRowKeysIds(id);
-        if (Array.isArray(recordIdParam)) {
-            recordIdParam = recordIdParam[0];
-        }
-        let parentIdParam = '';
-        if (!isAttachmentFromHeader) {
-            const recordId = UrlUtils.getRecordId();
-            if (recordId !== undefined && recordId !== null) {
-                parentIdParam = '?parentId=' + recordId;
-            } else if (UrlUtils.parentIdParamExist() && !UrlUtils.recordIdParamExist()) {
-                parentIdParam = '?parentId=' + UrlUtils.getParentId();
+            let recordIdParam = this.getSelectedRowKeysIds(id);
+            if (Array.isArray(recordIdParam)) {
+                recordIdParam = recordIdParam[0];
             }
+            let parentIdFinal = undefined;
+            if (!isAttachmentFromHeader) {
+                const recordId = UrlUtils.getRecordId();
+                if (recordId !== undefined && recordId !== null) {
+                    parentIdFinal = recordId;
+                } else if (UrlUtils.parentIdParamExist() && !UrlUtils.recordIdParamExist()) {
+                    parentIdFinal = UrlUtils.getParentId();
+                }
+            }
+            const isKindViewSpec = this.isKindViewSpec(recordIdParam);
+            // const isKindViewSpec = false;
+            if (recordIdParam === '0' || recordIdParam === 0) {
+                recordIdParam = this.state.elementRecordId;
+            }
+            if (parentId !== undefined) {
+                parentIdFinal = parentId;
+            }
+            if (viewId !== undefined) {
+                viewIdParam = viewId;
+            }
+            this.handleAttachmentEntry(viewIdParam, recordIdParam, parentIdFinal, isKindViewSpec);
         }
-        const isKindViewSpec = this.isKindViewSpec(recordIdParam);
-        // const isKindViewSpec = false;
-        if (recordIdParam === '0' || recordIdParam === 0) {
-            recordIdParam = this.state.elementRecordId;
-        }
-        if (parentId !== undefined) {
-            parentIdParam = '?parentId=' + parentId;
-        }
-        if (viewId !== undefined) {
-            viewIdParam = viewId;
-        }
-        this.handleAttachmentEntry(viewIdParam, recordIdParam, parentIdParam, isKindViewSpec);
     }
-    handleAttachmentEntry(viewId, recordId, parentIdParam, isKindViewSpec) {
+    attachmentForSubView = () => {
+        const id = UrlUtils.getIdFromUrl();
+        const recordId = UrlUtils.getRecordId();
+        let parentId = '';
+        if (UrlUtils.isParentParamExist()) {
+            parentId = UrlUtils.getParentId();
+        }
+        this.handleAttachmentEntry(id, recordId, parentId);
+    };
+    handleAttachmentEntry(viewId, recordId, parentId, isKindViewSpec) {
         this.crudService
-            .attachmentEntry(viewId, recordId, parentIdParam)
+            .attachmentEntry(viewId, recordId, parentId)
             .then((attachmentResponse) => {
                 EntryResponseHelper.run(
                     attachmentResponse,
@@ -1567,6 +1583,7 @@ class BaseContainer extends React.Component {
                                     viewId,
                                     recordId,
                                     isKindViewSpec,
+                                    parentId,
                                 },
                             });
                         }

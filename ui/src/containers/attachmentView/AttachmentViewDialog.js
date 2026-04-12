@@ -62,13 +62,14 @@ export class AttachmentViewDialog extends BaseViewContainer {
     }
 
     componentWillUnmount() {
-        const {prevElementSubViewId} = this.state;
         this.setState({
-            elementSubViewId: prevElementSubViewId,
             updateBreadcrumb: true,
             cardId: null,
         });
         this.props.handleBackToOldGlobalReference();
+        if (!this.props.isEditHeaderOpen) {
+            UrlUtils.deleteIsSubViewClickedParameterFromCurrentURL();
+        }
         super.componentWillUnmount();
     }
 
@@ -82,7 +83,7 @@ export class AttachmentViewDialog extends BaseViewContainer {
             () => {
                 this.getGridInstance().clearSelection();
                 const {viewInfo} = this.state.attachmentResponseView;
-                const parentIdArg = viewInfo.parentId === 0 ? UrlUtils.getRecordId() : viewInfo.parentId;
+                let parentIdArg = viewInfo.parentId === 0 ? UrlUtils.getRecordId() : viewInfo.parentId;
                 this.dataGridStore
                     .getSelectAllDataGridStore(
                         viewInfo.id,
@@ -139,30 +140,26 @@ export class AttachmentViewDialog extends BaseViewContainer {
         return viewType;
     }
     getViewById(viewId, recordId, filterId, parentId, viewType, isSubView) {
-        ConsoleHelper(
-            `AttachmentViewDialog::getViewById: viewId=${viewId}, isSubView=${isSubView} recordId=${recordId}, filterId=${filterId}, parentId=${parentId}, viewType=${viewType},`
-        );
-        if (viewId === null || viewId === undefined) {
-            // przypadek dashboardu
-            viewId = this.props.id;
-        }
-        if (recordId === parentId && UrlUtils.urlParamExists('subview')) {
-            viewId = UrlUtils.getIdFromUrl();
-        }
-        if (!UrlUtils.recordIdParamExist() && UrlUtils.parentIdParamExist()) {
-            parentId = UrlUtils.getParentId();
-        }
+        const {attachmentViewInfo} = this.props;
         this.setState({loading: true}, () => {
             this.viewService
-                .getAttachmentView(viewId, recordId, parentId, this.getKindView(viewType))
+                .getAttachmentView(
+                    attachmentViewInfo.viewId,
+                    attachmentViewInfo.recordId,
+                    attachmentViewInfo.parentId,
+                    this.getKindView(viewType)
+                )
                 .then((responseView) => {
-                    const {elementSubViewId} = this.state;
                     this.setState({
-                        prevElementSubViewId: elementSubViewId,
                         elementSubViewId: responseView.viewInfo.id,
                         attachmentResponseView: responseView,
                     });
-                    this.processViewResponse(responseView, parentId, recordId, isSubView);
+                    this.processViewResponse(
+                        responseView,
+                        attachmentViewInfo.parentId,
+                        attachmentViewInfo.recordId,
+                        isSubView
+                    );
                 })
                 .catch((err) => {
                     console.error('Error getView in GridView. Exception = ', err);

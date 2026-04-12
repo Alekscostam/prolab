@@ -65,6 +65,7 @@ import {ArrayUtils} from '../utils/ArrayUtils';
 import EditHeaderWindowComponent from '../components/editHeader/EditHeaderWindowComponent';
 import {showBarCode} from '../utils/BarCodeUtils';
 import {getStore} from '../utils/helper/StoreHelper';
+import {ColumnUtils} from '../utils/ColumnUtils';
 
 let dataGrid;
 
@@ -1727,7 +1728,7 @@ export class BaseViewContainer extends BaseContainer {
         const kindView = UrlUtils.getKindView();
         const filterId = UrlUtils.getFilterId();
         const body = {
-            filter: null,
+            filter: ColumnUtils.getForRequest(this.getGridInstance().getCombinedFilter()),
             filterId: StringUtils.isBlank(filterId) ? 0 : filterId,
             barCode: code,
             value: '',
@@ -1755,9 +1756,14 @@ export class BaseViewContainer extends BaseContainer {
                     const listId = getListId();
                     return listId.flatMap((id, index) => (index === 0 ? [['ID', '=', id]] : ['or', ['ID', '=', id]]));
                 };
+                let filter = getFilter();
+                if (result?.viewOptions?.clearFilter) {
+                    this.getGridInstance().clearFilter();
+                }
                 if (result?.viewOptions?.filter) {
-                    this.getGridInstance()?.filter(getFilter());
-                } else if (result?.viewOptions?.refreshAll) {
+                    this.getGridInstance()?.filter(filter);
+                }
+                if (result?.viewOptions?.refreshAll) {
                     this.unselectAllDataGrid(false);
                     if (ViewUtils.haveSubView()) this.downloadSubViewData(true);
                     this.refreshView();

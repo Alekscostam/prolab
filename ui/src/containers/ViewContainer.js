@@ -365,11 +365,13 @@ export class ViewContainer extends BaseViewContainer {
                 {this.state.attachmentViewInfo ? (
                     <AttachmentViewDialog
                         ref={this.viewContainer}
+                        attachmentViewInfo={this.state.attachmentViewInfo}
                         recordId={this.state.attachmentViewInfo.recordId}
                         id={this.state.attachmentViewInfo.viewId}
                         handleRenderNoRefreshContent={(renderNoRefreshContent) =>
                             this.setState({renderNoRefreshContent: renderNoRefreshContent})
                         }
+                        isEditHeaderOpen={this.state.visibleEditPanel}
                         isKindViewSpec={this.state?.attachmentViewInfo?.isKindViewSpec}
                         prevDataGridGlobalReference={this.state.prevDataGridGlobalReference}
                         setPrevDataGridGlobalReference={() => {

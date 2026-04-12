@@ -384,6 +384,8 @@ export class DashboardGridViewComponent extends BaseContainer {
                     ) : null}
                     {this.state.attachmentViewInfo ? (
                         <AttachmentViewDialog
+                            isEditHeaderOpen={this.state.visibleEditPanel}
+                            attachmentViewInfo={this.state.attachmentViewInfo}
                             ref={this.viewContainer}
                             recordId={this.state.attachmentViewInfo.recordId}
                             id={this.state.attachmentViewInfo.viewId}

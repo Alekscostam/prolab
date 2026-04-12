@@ -90,6 +90,12 @@ class UrlUtils {
     static isBcParamExist() {
         return window.location.href.includes('bc');
     }
+    static isParentParamExist() {
+        return window.location.href.includes('parentId');
+    }
+    static isSubViewClickedParamExist() {
+        return window.location.href.includes('isSubViewClicked');
+    }
     static isRefreshParamExist() {
         return window.location.href.includes('refresh');
     }
@@ -213,6 +219,13 @@ class UrlUtils {
             return str;
         }
     }
+    static deleteIsSubViewClickedParameterFromCurrentURL() {
+        this.deleteParameterFromCurrentURL('isSubViewClicked');
+    }
+    static deleteParameterFromCurrentURL(paramName) {
+        const url = window.location.href;
+        window.location.href = this.deleteParameterFromURL(url, paramName);
+    }
     static deleteParameterFromURL(url, paramName) {
         let rtn = url.split('?')[0],
             param,
@@ -230,7 +243,10 @@ class UrlUtils {
         }
         return rtn;
     }
-
+    static addParameterToCurrentURL(paramName, paramValue) {
+        const url = window.location.href;
+        window.location.href = this.addParameterToURL(url, paramName, paramValue);
+    }
     static addParameterToURL(url, paramName, paramValue) {
         let updateMode = false;
         if (url === null || url === undefined) {

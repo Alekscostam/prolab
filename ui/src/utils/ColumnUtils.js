@@ -21,6 +21,53 @@ export class ColumnUtils {
             }
         }
     }
+    static getForRequest(combinedFilter) {
+        let result = [];
+        if (combinedFilter?.selectedFilterOperation) {
+            result = [[combinedFilter[0], combinedFilter[1], combinedFilter[2]]];
+        } else if (!StringUtils.isBlank(combinedFilter)) {
+            result = combinedFilter;
+        }
+        return result;
+    }
+    static normalizeFilter(filter) {
+        const seen = new Set();
+        const flat = [];
+
+        function traverse(node) {
+            if (!Array.isArray(node)) return;
+
+            // warunek prosty
+            if (node.length === 3 && typeof node[0] === 'string' && typeof node[1] === 'string') {
+                const key = node.join('|');
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    flat.push(node);
+                }
+                return;
+            }
+
+            // jeśli np. [[["ID","=",...]]] → wchodzimy głębiej
+            for (let el of node) {
+                if (el === 'and' || el === 'or') continue;
+                traverse(el);
+            }
+        }
+
+        traverse(filter);
+
+        // składanie w płaskie AND
+        if (flat.length === 0) return [];
+        if (flat.length === 1) return flat;
+
+        const result = [];
+        flat.forEach((cond, index) => {
+            if (index > 0) result.push('and');
+            result.push(cond);
+        });
+
+        return result;
+    }
     static getFilter(filtersIn = [], columnName) {
         if (columnName) {
             return filtersIn?.find(

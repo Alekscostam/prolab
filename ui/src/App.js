@@ -688,7 +688,9 @@ class App extends Component {
         }
         return null;
     }
-
+    addSubViewClickedToParameter = () => {
+        UrlUtils.addParameterToCurrentURL('isSubViewClicked', true);
+    };
     render() {
         const authService = this.authService;
         const loggedIn = authService.isLoggedUser();
@@ -810,7 +812,13 @@ class App extends Component {
                                                         subView={this.state.subView}
                                                         handleRightHeadPanelContent={(e) => {
                                                             if (e.type === OperationType.OP_EDIT) {
+                                                                this.addSubViewClickedToParameter();
                                                                 this.viewContainer?.current?.editSubView(e);
+                                                            } else if (e.type === OperationType.OP_ATTACHMENTS) {
+                                                                this.addSubViewClickedToParameter();
+                                                                this.viewContainer?.current?.handleRightHeadPanelContent(
+                                                                    e
+                                                                );
                                                             } else {
                                                                 this.viewContainer?.current?.handleRightHeadPanelContent(
                                                                     e
@@ -819,6 +827,7 @@ class App extends Component {
                                                             saveValueToCookieGlobal(CookiesName.REFRESH_SUB_VIEW, true);
                                                         }}
                                                         handleOnEditClick={(e) => {
+                                                            this.addSubViewClickedToParameter();
                                                             this.viewContainer?.current?.editSubView(e);
                                                             saveValueToCookieGlobal(CookiesName.REFRESH_SUB_VIEW, true);
                                                         }}

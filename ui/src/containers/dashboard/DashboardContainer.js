@@ -389,7 +389,9 @@ class DashboardContainer extends BaseContainer {
                 ) : null}
                 {this.state.attachmentViewInfo ? (
                     <AttachmentViewDialog
+                        isEditHeaderOpen={this.state.visibleEditPanel}
                         ref={this.viewContainer}
+                        attachmentViewInfo={this.state.attachmentViewInfo}
                         recordId={this.state.attachmentViewInfo.recordId}
                         id={this.state.attachmentViewInfo.viewId}
                         handleRenderNoRefreshContent={(renderNoRefreshContent) => {
@@ -449,12 +451,7 @@ class DashboardContainer extends BaseContainer {
     handleOperation = (operation) => {
         switch (operation.type) {
             case OperationType.OP_ATTACHMENTS:
-                this.handleAttachmentEntry(
-                    UrlUtils.getViewIdFromURL(),
-                    UrlUtils.getRecordId(),
-                    '?parentId=' + operation.id,
-                    false
-                );
+                this.handleAttachmentEntry(UrlUtils.getViewIdFromURL(), UrlUtils.getRecordId(), operation.id, false);
                 break;
             case OperationType.OP_HISTORY:
             case OperationType.SK_HISTORY:

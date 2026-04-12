@@ -4,6 +4,7 @@ import {saveAs} from 'file-saver';
 import UrlUtils from '../utils/UrlUtils';
 import EditListUtils from '../utils/EditListUtils';
 import ConsoleHelper from '../utils/ConsoleHelper';
+import {StringUtils} from '../utils/StringUtils';
 /*
 Kontroler do edycji danych.
  */
@@ -191,7 +192,13 @@ export default class CrudService extends BaseService {
             });
     }
 
-    attachmentEntry(viewId, recordId, parentIdParam, isKindViewSpec) {
+    attachmentEntry(viewId, recordId, parentId, isKindViewSpec) {
+        let parentIdParam = '';
+        if (!StringUtils.isBlank(parentId)) {
+            parentIdParam = '?parentId=' + parentId;
+        } else if (StringUtils.isBlank(parentId)) {
+            parentIdParam = '?parentId=' + 0;
+        }
         const URL = `${this.getDomain()}/${this.path}/${viewId}/attachment/${recordId}/Entry${parentIdParam}${
             isKindViewSpec ? '&kindView=ViewSpec' : ''
         }`;
