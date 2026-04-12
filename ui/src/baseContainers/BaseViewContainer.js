@@ -1729,11 +1729,10 @@ export class BaseViewContainer extends BaseContainer {
         const filterId = UrlUtils.getFilterId();
         const body = {
             filter: ColumnUtils.getForRequest(this.getGridInstance().getCombinedFilter()),
-            filterId: StringUtils.isBlank(filterId) ? 0 : filterId,
+            filterId: filterId,
             barCode: code,
             value: '',
         };
-
         const subViewId = this.state.subView == null ? this.state.elementId : this.state.elementSubViewId;
         const parentId = this.state.subView == null ? UrlUtils.getParentId() : this.state.elementRecordId;
         const viewId = DataGridUtils.getRealViewId(subViewId, this.props.id);
@@ -1746,24 +1745,8 @@ export class BaseViewContainer extends BaseContainer {
                     const title = message?.title;
                     this.showErrorMessage(text, 3000, true, title);
                 }
-                const getListId = () => {
-                    if (ArrayUtils.isEmpty(result.listId)) {
-                        return ['0'];
-                    }
-                    return result.listId;
-                };
-                const getFilter = () => {
-                    const listId = getListId();
-                    return listId.flatMap((id, index) => (index === 0 ? [['ID', '=', id]] : ['or', ['ID', '=', id]]));
-                };
-                let filter = getFilter();
-                if (result?.viewOptions?.clearFilter) {
-                    this.getGridInstance().clearFilter();
-                }
-                if (result?.viewOptions?.filter) {
-                    this.getGridInstance()?.filter(filter);
-                }
                 if (result?.viewOptions?.refreshAll) {
+                    this.getGridInstance()?.filter(result.filter || []);
                     this.unselectAllDataGrid(false);
                     if (ViewUtils.haveSubView()) this.downloadSubViewData(true);
                     this.refreshView();
