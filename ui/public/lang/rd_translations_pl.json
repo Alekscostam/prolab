@@ -1,5 +1,6 @@
 {
     "labels": [
+        {"code": "Functionality_Blocked_In_This_View", "caption": "Funkcjonalność niedostępna w tym widoku"},
         {"code": "Copying", "caption": "Kopiowanie"},
         {"code": "Document_publication_completed", "caption": "Zakończono publikacje dokumentów"},
         {"code": "Next", "caption": "Dalej"},
@@ -17,7 +18,7 @@
         {"code": "Login_Signin", "caption": "Zaloguj się"},
         {"code": "Not_selected_elements", "caption": "Nie wybrano żadnych elementów"},
         {"code": "Move_To", "caption": "Przenieś do"},
-        
+
         {"code": "Login_Signup", "caption": "Stwórz profil"},
         {"code": "Login_Signup_Info", "caption": "Nie masz swojego konta?"},
         {"code": "Login_ResetPassword", "caption": "Zapomniałeś hasła?"},
@@ -43,7 +44,7 @@
         {"code": "Number_of_copy", "caption": "Liczba kopii"},
         {"code": "Copy_last_modified", "caption": "Kopiuj ostatni zmodyfikowany"},
         {"code": "Copy_spec_result", "caption": "Z wynikami"},
-        {"code": "Attachments", "caption": "Załączniki"},        
+        {"code": "Attachments", "caption": "Załączniki"},
         {"code": "Operation_in_progress", "caption": "Operacja w toku, proszę czekać."},
         {"code": "Drag_and_drop", "caption": "Przeciągnij i upuść pliki tutaj, aby je przesłać"},
         {"code": "Unexpected_Error_Occurred", "caption": "Wystąpił nieoczekiwany błąd"},
@@ -115,7 +116,8 @@
         {
             "code": "OP_SELECT",
             "caption": "Wybierz"
-        }, {
+        },
+        {
             "code": "OP_CLOSE",
             "caption": "Zamknij"
         }

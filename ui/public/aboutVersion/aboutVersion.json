@@ -5,6 +5,17 @@
             "data": [
                 {
                     "isNew": true,
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "link": "https://trello.com/c/QW4AsqHW/941-operacja-opfindbarcode-komunikat-i-ikonka",
+                    "text": "Dialog zablokowanej operacji"
+                }
+            ]
+        },{
+            "title": "",
+            "data": [
+                {
                     "type": "FIX",
                     "color": "red",
                     "date": "",
@@ -12,7 +23,6 @@
                     "text": "Poprawki w attachmentach"
                 },
                 {
-                    "isNew": true,
                     "type": "FIX",
                     "color": "red",
                     "date": "",

@@ -66,6 +66,7 @@ import EditHeaderWindowComponent from '../components/editHeader/EditHeaderWindow
 import {showBarCode} from '../utils/BarCodeUtils';
 import {getStore} from '../utils/helper/StoreHelper';
 import {ColumnUtils} from '../utils/ColumnUtils';
+import BlockedFunctionalityDialog from '../components/prolab/BlockedFunctionalityDialog';
 
 let dataGrid;
 
@@ -143,6 +144,7 @@ export class BaseViewContainer extends BaseContainer {
             updateBreadcrumb: true,
             visiblePluginPanel: false,
             visibleCopyDialog: false,
+            visibleBlockedFunctionalityDialog: false,
             visiblePublishDialog: false,
             visiblePublishSummaryDialog: false,
             visibleMessagePluginPanel: false,
@@ -297,21 +299,38 @@ export class BaseViewContainer extends BaseContainer {
     }
     keyDownFunction = (event) => {
         const opBarCode = this.state.parsedGridView?.operations.find((op) => op.type === OperationType.OP_FIND_BARCODE);
-        if (opBarCode) {
-            const findKey = opBarCode.key;
-            if (!StringUtils.isBlank(findKey)) {
-                const keyCombinationDetector = new KeyCombinationDetector(event, findKey);
-                if (keyCombinationDetector.isExecuted()) {
-                    const dialogsOpened = document.getElementsByClassName('p-dialog-mask');
-                    if (dialogsOpened.length > 1) {
-                        event.preventDefault();
-                        return;
-                    }
-                    showBarCode();
-                    event.preventDefault();
-                }
-            }
+
+        const findKey = !StringUtils.isBlank(opBarCode?.key) ? opBarCode.key : 'Ctrl-K';
+
+        const keyCombinationDetector = new KeyCombinationDetector(event, findKey);
+
+        if (!keyCombinationDetector.isExecuted()) {
+            return;
         }
+
+        const dialogsOpened = document.getElementsByClassName('p-dialog-mask');
+        if (dialogsOpened.length > 1) {
+            event.preventDefault();
+            return;
+        }
+
+        event.preventDefault();
+
+        if (opBarCode) {
+            showBarCode();
+        } else {
+            this.showFunctionalityBlockerDialog();
+        }
+    };
+    showFunctionalityBlockerDialog = () => {
+        this.setState({
+            visibleBlockedFunctionalityDialog: true,
+        });
+    };
+    hideFunctionalityBlockerDialog = () => {
+        this.setState({
+            visibleBlockedFunctionalityDialog: false,
+        });
     };
     componentWillUnmount() {
         super.componentWillUnmount();
@@ -815,7 +834,14 @@ export class BaseViewContainer extends BaseContainer {
                         defaultSelectedRowKeys={this.state.defaultSelectedRowKeys}
                     />
                 )}
-
+                {this.state.visibleBlockedFunctionalityDialog && (
+                    <BlockedFunctionalityDialog
+                        visible={this.state.visibleBlockedFunctionalityDialog}
+                        onHide={() => {
+                            this.hideFunctionalityBlockerDialog();
+                        }}
+                    />
+                )}
                 {this.state.visibleHistoryLogPanel ? (
                     <HistoryLogDialog
                         visible={this.state.visibleHistoryLogPanel}
@@ -1156,7 +1182,7 @@ export class BaseViewContainer extends BaseContainer {
                 case OperationType.OP_FIND_BARCODE:
                     return (
                         <React.Fragment>
-                            {operation.showAlways && (
+                            {operation.showAlways && operation?.iconCode !== '' && (
                                 <ActionShortcutWithoutMenu
                                     id='button_bar_code'
                                     className={`${margin}`}

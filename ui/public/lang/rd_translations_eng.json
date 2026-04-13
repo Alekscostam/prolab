@@ -1,5 +1,6 @@
 {
     "labels": [
+        {"code": "Functionality_Blocked_In_This_View", "caption": "Functionality blocked"},
         {"code": "Copying", "caption": "Copying"},
         {"code": "Document_publication_completed", "caption": "Document publication completed"},
         {"code": "Next", "caption": "Next"},
@@ -12,7 +13,7 @@
         {"code": "Document_unpublished", "caption": "Document unpublished"},
         {"code": "Login_SigninError", "caption": "Login Error"},
         {"code": "Login_ConnectionError", "caption": "Could not connect to the server"},
-        {"code": "Login_UserName", "caption": "Username"},        
+        {"code": "Login_UserName", "caption": "Username"},
         {"code": "Selection_List_Label", "caption": "List of hints"},
         {"code": "Login_Password", "caption": "Password"},
         {"code": "Login_Signin", "caption": "Sign In"},
@@ -29,7 +30,7 @@
         {"code": "Confirm_Label", "caption": "Confirmation"},
         {"code": "Session_expiration_time", "caption": "Session expiration time: "},
         {"code": "Add_button", "caption": "Add"},
-        {"code": "Close_dialog", "caption": "Close"},       
+        {"code": "Close_dialog", "caption": "Close"},
         {"code": "Fields_Mandatory_Label", "caption": "Please fill out all required fields"},
         {"code": "Barcode", "caption": "barcode"},
         {"code": "Filters", "caption": "Filters"},
@@ -45,7 +46,7 @@
         {"code": "Markup", "caption": "Markup"},
         {"code": "Copy_last_modified", "caption": "Copy last modified"},
         {"code": "Copy_spec_result", "caption": "With results"},
-        {"code": "Confirm_criteria", "caption": "Confirm criteria"},        
+        {"code": "Confirm_criteria", "caption": "Confirm criteria"},
         {"code": "Error", "caption": "Error"},
         {"code": "Copy_spec", "caption": "Copy specification"},
         {"code": "Copy_header", "caption": "Copy header"},
@@ -126,7 +127,8 @@
         {
             "code": "OP_SELECT",
             "caption": "Select"
-        }, {
+        },
+        {
             "code": "OP_CLOSE",
             "caption": "Close"
         },
