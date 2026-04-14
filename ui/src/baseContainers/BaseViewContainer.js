@@ -1775,7 +1775,7 @@ export class BaseViewContainer extends BaseContainer {
                     if (result?.viewOptions?.clearFilter) {
                         this.getGridInstance()?.clearFilter();
                     }
-                    this.getGridInstance()?.filter(result.filter || []);
+                    this.getGridInstance()?.filter(result?.filter?.length === 0 ? null : result?.filter);
                     this.unselectAllDataGrid(false);
                     if (ViewUtils.haveSubView()) this.downloadSubViewData(true);
                     this.refreshView();

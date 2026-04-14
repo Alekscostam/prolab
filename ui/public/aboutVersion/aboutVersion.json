@@ -9,6 +9,18 @@
                     "color": "red",
                     "date": "",
                     "link": "https://trello.com/c/QW4AsqHW/941-operacja-opfindbarcode-komunikat-i-ikonka",
+                    "text": "Brak wywołania filter jesli filter jest pusty"
+                }
+            ]
+        },
+        {
+            "title": "",
+            "data": [
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/QW4AsqHW/941-operacja-opfindbarcode-komunikat-i-ikonka",
                     "text": "Zmiana w wywołaniu filter"
                 }
             ]
