@@ -5,6 +5,18 @@
             "data": [
                 {
                     "isNew": true,
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/QW4AsqHW/941-operacja-opfindbarcode-komunikat-i-ikonka",
+                    "text": "Zmiana w wywołaniu filter"
+                }
+            ]
+        },
+        {
+            "title": "",
+            "data": [
+                {
                     "type": "NEW",
                     "color": "green",
                     "date": "",
@@ -12,7 +24,8 @@
                     "text": "Dialog zablokowanej operacji"
                 }
             ]
-        },{
+        },
+        {
             "title": "",
             "data": [
                 {
@@ -27,7 +40,8 @@
                     "color": "red",
                     "date": "",
                     "link": "https://trello.com/c/6tUWI5BE/942-operacja-opfindbarcode-przekazywanie-filtr%C3%B3w-do-pkt-find",
-                    "text": "Dodanie filter do find"                }
+                    "text": "Dodanie filter do find"
+                }
             ]
         },
         {

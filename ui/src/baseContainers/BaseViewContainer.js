@@ -1752,7 +1752,7 @@ export class BaseViewContainer extends BaseContainer {
     findCode = (code) => {
         this.blockUi();
         const kindView = UrlUtils.getKindView();
-        const filterId = UrlUtils.getFilterId();
+        const filterId = UrlUtils.getFilterId() || 0;
         const body = {
             filter: ColumnUtils.getForRequest(this.getGridInstance().getCombinedFilter()),
             filterId: filterId,
@@ -1772,6 +1772,9 @@ export class BaseViewContainer extends BaseContainer {
                     this.showErrorMessage(text, 3000, true, title);
                 }
                 if (result?.viewOptions?.refreshAll) {
+                    if (result?.viewOptions?.clearFilter) {
+                        this.getGridInstance()?.clearFilter();
+                    }
                     this.getGridInstance()?.filter(result.filter || []);
                     this.unselectAllDataGrid(false);
                     if (ViewUtils.haveSubView()) this.downloadSubViewData(true);
