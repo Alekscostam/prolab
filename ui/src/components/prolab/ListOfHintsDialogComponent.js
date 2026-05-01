@@ -42,6 +42,9 @@ export default class ListOfHintsDialogComponent extends React.Component {
         }
     }
     getEditDataInfoType = () => {
+        if (this.props.type) {
+            return this.props.type;
+        }
         return this.props?.editData?.info?.type;
     };
     getProperRecordId = () => {
@@ -199,11 +202,7 @@ export default class ListOfHintsDialogComponent extends React.Component {
                 <Dialog
                     appendTo={document.body}
                     id='editListDialog'
-                    header={
-                        <div>
-                            {LocUtils.locFromStoreWithDefault('Selection_List_Label', 'Lista podpowiedzi')} - {name}
-                        </div>
-                    }
+                    header={<div>{name}</div>}
                     footer={
                         <div style={{height: '40px'}}>
                             {opSelect && this.state.canViewSelect && (
@@ -238,7 +237,6 @@ export default class ListOfHintsDialogComponent extends React.Component {
                                                     : values.join(separatorJoin);
                                         });
                                         this.props.handleOnChosen(setFields, this.props.field);
-                                        this.props.onHide();
                                     }}
                                     label={opSelect?.label}
                                 />

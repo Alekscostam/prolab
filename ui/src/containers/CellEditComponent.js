@@ -41,6 +41,7 @@ class CellEditComponent extends PureComponent {
             parsedEditListView: undefined,
             selectedRowDataEditList: undefined,
             parsedEditListViewData: undefined,
+            listOfHintsType: undefined,
             imageViewer: {
                 imageBtnClicked: false, //optional
                 imageViewDialogVisible: false,
@@ -229,6 +230,7 @@ class CellEditComponent extends PureComponent {
             this.state.editListVisible && (
                 <ListOfHintsDialogComponent
                     viewId={viewId}
+                    type={this.state.listOfHintsType}
                     recordId={parentId}
                     parentId={parentId}
                     editListBody={editListBodyObject}
@@ -239,10 +241,8 @@ class CellEditComponent extends PureComponent {
                     parsedGridViewData={this.state.parsedEditListViewData}
                     gridViewColumns={this.state.editViewColumns}
                     onHide={() => {
-                        this.setState({editListVisible: false});
-                        if (this.props.onCloseEditList) {
-                            this.props.onCloseEditList();
-                        }
+                        this.validateCellIfPossible();
+                        this.closeListOfHInts();
                     }}
                     handleBlockUi={() => {
                         this.handleBlockUi();
@@ -265,6 +265,8 @@ class CellEditComponent extends PureComponent {
                                 }
                             }
                             this.props.modifyParsedGridViewData(rowReplacementCopy);
+                            this.validateCellIfPossible(rowReplacementCopy);
+                            this.closeListOfHInts();
                         } finally {
                             this.props.handleUnblockUi();
                         }
@@ -276,6 +278,23 @@ class CellEditComponent extends PureComponent {
             )
         );
     };
+    closeListOfHInts = () => {
+        this.setState({editListVisible: false});
+        if (this.props.onCloseEditList) {
+            this.props.onCloseEditList();
+        }
+    };
+    validateCellIfPossible(rowReplacementCopy) {
+        const validatorForCell = this.state.validatorForCell;
+        if (validatorForCell) {
+            const {cellValidator, value} = validatorForCell;
+            if (rowReplacementCopy) {
+                cellValidator.replaceData(rowReplacementCopy);
+            }
+            cellValidator.validateChain(value);
+            this.afterValidatorExecute(cellValidator, value);
+        }
+    }
 
     // to overide
     findRowDataById(recordId) {}
@@ -283,7 +302,7 @@ class CellEditComponent extends PureComponent {
     // to overide
     currentEditListRow(recordId) {}
 
-    editListVisible = (recordId, fieldId) => {
+    editListVisible = (recordId, fieldId, type, validatorForCell) => {
         this.props.handleBlockUi();
         this.setState(
             {
@@ -295,7 +314,7 @@ class CellEditComponent extends PureComponent {
                 const currentEditListRow = this.currentEditListRow(recordId);
                 const editListBodyObject = EditListUtils.createBodyToEditList(currentEditListRow[0]);
                 this.crudService
-                    .getListOfHints(viewId, paramId, fieldId, editListBodyObject)
+                    .getListOfHints(viewId, paramId, fieldId, editListBodyObject, type)
                     .then((responseView) => {
                         const editData = this.findRowDataById(recordId);
                         const setFields = EditListUtils.getIdFieldOrFirst(structuredClone(responseView.setFields));
@@ -327,6 +346,7 @@ class CellEditComponent extends PureComponent {
                                 loading: false,
                                 gridViewType: responseView?.viewInfo?.type,
                                 parsedEditListView: responseView,
+                                listOfHintsType: type,
                                 editViewColumns: responseView.gridColumns,
                                 filtersList: [],
                                 packageRows: responseView?.viewInfo?.dataPackageSize,
@@ -335,6 +355,7 @@ class CellEditComponent extends PureComponent {
                                 editListRecordId: recordId,
                                 editListField: {id: fieldId},
                                 editListVisible: true,
+                                validatorForCell: validatorForCell,
                             }),
                             () => {
                                 this.props.handleUnblockUi();

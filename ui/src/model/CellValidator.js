@@ -1,31 +1,59 @@
 import {StringUtils} from '../utils/StringUtils';
-
+export const ResultType = {
+    REGEX: 'REGEX',
+    NOK: 'NOK',
+    OK: 'OK',
+    NONE: 'NONE',
+};
 export default class CellValidator {
     constructor(cellInfo, field) {
         this.dataField = cellInfo?.column?.dataField || '';
         this.data = cellInfo?.data || {};
+        this.resultCode = '';
         this.pierwType = cellInfo?.data?.PIERW_TYP || '';
         this.field = field || {};
         this.required = field.requiredValue && field.visible && !field.hidden;
         this.text = cellInfo?.text;
         this.key = cellInfo?.key;
+        this.cellInfo = cellInfo;
     }
-    isValidField(inputValue) {
-        let valueToCompare = this.text;
-        if (!StringUtils.isBlank(inputValue)) {
-            valueToCompare = inputValue;
-        }
-        try {
-            if (this.required && valueToCompare === '') {
-                return false;
-            } else if (this.expressionSatisfiesCondition() && !this.test(valueToCompare)) {
-                return false;
-            } else {
-                return true;
-            }
-        } catch (err) {
+    shouldRunListOfHintsIfPossible() {
+        if (this.autoEditListOk()) {
             return true;
         }
+        if (this.autoEditListNok()) {
+            return true;
+        }
+        return false;
+    }
+    autoEditListOk() {
+        return !!this.field?.validationReason?.autoEditListOk;
+    }
+    autoEditListNok() {
+        return !!this.field?.validationReason?.autoEditListNok;
+    }
+    isValidField(inputValue) {
+        if (this.isWart()) {
+            let valueToCompare = this.text;
+            if (!StringUtils.isBlank(inputValue)) {
+                valueToCompare = inputValue;
+            }
+            try {
+                if (this.required && valueToCompare === '') {
+                    return false;
+                } else if (this.expressionSatisfiesCondition() && !this.test(valueToCompare)) {
+                    return false;
+                } else {
+                    return true;
+                }
+            } catch (err) {
+                return true;
+            }
+        }
+        return true;
+    }
+    isWart() {
+        return this.field?.fieldName === 'WART';
     }
     getValidOperator(operator) {
         switch (operator) {
@@ -35,6 +63,8 @@ export default class CellValidator {
                 return '===';
             case '>=':
                 return '>=';
+            case '<>':
+                return '!==';
             case '<=':
                 return '<=';
             case '<':
@@ -177,7 +207,14 @@ export default class CellValidator {
         return false;
     }
 
+    replaceData(data) {
+        this.data = data;
+    }
+
     test(text) {
+        if (!this.isWart()) {
+            return true;
+        }
         const regex = this.getRegex();
         if (StringUtils.isBlank(text) || text === '') return true;
         if (StringUtils.isBlank(regex) || regex === '') return true;
@@ -185,8 +222,135 @@ export default class CellValidator {
         return regexResult;
     }
 
+    testNok(text) {
+        if (!this.isWart()) {
+            return true;
+        }
+        if (this.isCondidtionsNokExists()) {
+            return this.testReason(text, this.getCondidtionsNok());
+        }
+        return false;
+    }
+    testOk(text) {
+        if (!this.isWart()) {
+            return true;
+        }
+        if (this.isCondidtionsOkExists()) {
+            return this.testReason(text, this.getCondidtionsOk());
+        }
+        return false;
+    }
+    validateChain(text) {
+        try {
+            if (this.isWart()) {
+                this.resultCode = ResultType.NONE;
+
+                if (this.shouldBeRegexUse()) {
+                    const regexValid = this.test(text);
+
+                    if (!regexValid) {
+                        this.resultCode = ResultType.REGEX;
+                        return false;
+                    }
+                }
+
+                if (this.isCondidtionsNokExists()) {
+                    const nokValid = this.testNok(text);
+                    if (!nokValid) {
+                        this.resultCode = ResultType.NOK;
+                        return false;
+                    }
+                }
+
+                if (this.isCondidtionsOkExists()) {
+                    const okValid = this.testOk(text);
+                    if (okValid) {
+                        this.resultCode = ResultType.OK;
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        } catch (ex) {
+            console.error('validation column data error', ex);
+        }
+    }
+    getCondidtionsNok() {
+        return this.field?.validationReason?.conditionsReason?.conditionsNOK;
+    }
+    getCondidtionsOk() {
+        return this.field?.validationReason?.conditionsReason?.conditionsOK;
+    }
+    isCondidtionsNokExists() {
+        return this.field?.validationReason?.conditionsReason?.conditionsNOK;
+    }
+    isCondidtionsOkExists() {
+        return this.field?.validationReason?.conditionsReason?.conditionsOK;
+    }
+    testReason(text, conditions) {
+        const data = {
+            ...this.data,
+            WART: text,
+        };
+        if (!conditions) return;
+        const conditionString = this.buildConditionForReason(conditions);
+        const result = this.evaluateCondition(conditionString, data);
+        return result;
+    }
+    buildConditionForReason = (array) => {
+        if (!Array.isArray(array) || array.length === 0) return '';
+        if (array.length === 3 && typeof array[0] === 'string') {
+            const [column, operator, value] = array;
+
+            const op = this.getValidOperator(operator);
+
+            let rightSide;
+
+            if (value === "''") {
+                rightSide = '""';
+            } else if (value === 'WART') {
+                rightSide = 'data["WART"]';
+            } else {
+                rightSide = `"${value}"`;
+            }
+            return `data["${column}"] ${op} ${rightSide}`;
+        }
+
+        return array
+            .map((item) => {
+                if (Array.isArray(item)) {
+                    return `(${this.buildConditionForReason(item)})`;
+                }
+
+                if (typeof item === 'string') {
+                    const op = item.toUpperCase();
+                    return this.getValidVerbalOperator(op);
+                }
+
+                return '';
+            })
+            .join('');
+    };
     getMessage() {
-        return this.field?.validationEdit?.messageNoValid || '';
+        if (this.resultCode === ResultType.REGEX) {
+            return this.field?.validationEdit?.messageNoValid || '';
+        } else if (this.resultCode === ResultType.NOK) {
+            return this.field?.validationReason?.messageNoValid || '';
+        }
+        return undefined;
+    }
+
+    canShowReasonsChanges(text) {
+        if (!this.isWart()) {
+            return false;
+        }
+        if ((this.isCondidtionsOkExists() || this.isCondidtionsNokExists()) && this.test(text)) {
+            return true;
+        }
+        return false;
     }
 
     getRegex() {

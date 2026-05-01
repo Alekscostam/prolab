@@ -56,8 +56,8 @@ const Widget = () => {
                         💬 ChatAi
                     </div>
 
-                    <div style={styles.menuItem}>⚙️ Ustawienia</div>
-                    <div style={styles.menuItem}>📄 Pomoc</div>
+                    {/* <div style={styles.menuItem}>⚙️ Ustawienia</div>
+                    <div style={styles.menuItem}>📄 Pomoc</div> */}
                 </div>
             )}
 
@@ -102,7 +102,7 @@ const styles = {
     },
     header: {
         padding: '10px 15px',
-        background: '#1976d2',
+        background: '#0e49eb',
         color: 'white',
         display: 'flex',
         justifyContent: 'space-between',
@@ -127,7 +127,7 @@ const styles = {
         width: 60,
         height: 60,
         borderRadius: '50%',
-        background: '#1976d2',
+        background: '#0e49eb',
         color: 'white',
         display: 'flex',
         alignItems: 'center',

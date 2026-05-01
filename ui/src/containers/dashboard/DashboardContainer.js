@@ -86,7 +86,7 @@ class DashboardContainer extends BaseContainer {
     }
 
     downloadDashboardData = (viewId) => {
-        UrlUtils.isStartPage() ? this.initializeDashboard() : this.getSubViewEntry(viewId);
+        UrlUtils.isStartPage() ? this.initializeDashboard(viewId) : this.getSubViewEntry(viewId);
     };
 
     getSubViewEntry(viewId) {
@@ -136,7 +136,7 @@ class DashboardContainer extends BaseContainer {
         }
     }
 
-    initializeDashboard = () => {
+    initializeDashboard = (viewId) => {
         this.dashboardService
             .getDashboard()
             .then((response) => {
@@ -146,7 +146,7 @@ class DashboardContainer extends BaseContainer {
                         loading: false,
                     },
                     () => {
-                        this.prepareCardView();
+                        this.prepareCardView(viewId);
                         this.forceUpdate();
                         this.unblockUi();
                     }

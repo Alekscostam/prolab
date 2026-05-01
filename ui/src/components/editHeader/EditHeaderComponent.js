@@ -133,6 +133,7 @@ export class EditHeaderComponent extends BaseRowComponent {
                             let editInfo = this.props.editData?.editInfo;
                             editInfo.field = field;
                             this.props.onEditList(editInfo, editListData);
+                            this.setState({editListVisible: false});
                         }}
                         showErrorMessages={(err) => this.props.showErrorMessages(err)}
                         selectedRowData={this.state.selectedRowData}

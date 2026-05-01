@@ -429,6 +429,7 @@ class App extends Component {
             getStore().setHeartbeatTimeMinutes(heartbeatTimeMinutes);
             getStore().setDraggableGridEnabled(draggableGridEnabled);
             getStore().setShowFilterClear(showFilterClear);
+            getStore().setMessages(this.messages);
             getStore().setShowHintListButtons(showHintListButtons);
             getStore().setShowAddFromDashboard(showAddFromDashboard);
             getStore().setShowMerge(showMerge);

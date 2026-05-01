@@ -50,6 +50,7 @@ import useStore from '../../store';
 import {ArrayUtils} from '../../utils/ArrayUtils';
 import {getStore} from '../../utils/helper/StoreHelper';
 import {MouseDragScroller} from '../../utils/MouseDragScroller';
+import {ListOfHintType} from '../../enum/ListOfHintType';
 
 class GridViewComponent extends CellEditComponent {
     _filterClearRoot = null;
@@ -1078,6 +1079,14 @@ class GridViewComponent extends CellEditComponent {
                                     switch (operation) {
                                         case OperationCell.EDIT_LIST:
                                             this.editListVisible(cellInfo.row?.data?.ID, columnDefinition.id);
+                                            break;
+                                        case OperationCell.EDIT_LIST_REASON:
+                                            this.editListVisible(
+                                                cellInfo.row?.data?.ID,
+                                                columnDefinition.id,
+                                                false,
+                                                ListOfHintType.REASON
+                                            );
                                             break;
                                         case OperationCell.FILL_DOWN:
                                             this.downFill(cellInfo, columnDefinition);

@@ -1,17 +1,9 @@
 import React, {useCallback, useState} from 'react';
 import Chat from 'devextreme-react/chat';
-import {loadMessages} from 'devextreme-react/common/core/localization';
 import {user, assistant, CHAT_DISABLED_CLASS} from './data.js';
 import Message from './Message.js';
 import {dataSource, useApi} from './useApi.js';
 
-loadMessages({
-    en: {
-        'dxChat-emptyListMessage': 'Chat is Empty',
-        'dxChat-emptyListPrompt': 'AI Assistant is ready to answer your questions.',
-        'dxChat-textareaPlaceholder': 'Ask AI Assistant...',
-    },
-});
 export default function ChatAi() {
     const {alerts, insertMessage, fetchAIResponse, regenerateLastAIResponse} = useApi();
     const [typingUsers, setTypingUsers] = useState([]);
@@ -51,6 +43,7 @@ export default function ChatAi() {
             className={isProcessing ? CHAT_DISABLED_CLASS : ''}
             dataSource={dataSource}
             reloadOnChange={false}
+            height={600}
             showAvatar={false}
             showDayHeaders={false}
             user={user}

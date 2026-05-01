@@ -124,10 +124,13 @@ export default class CrudService extends BaseService {
         });
     }
 
-    getListOfHints(viewId, paramId, fieldId, element) {
+    getListOfHints(viewId, paramId, fieldId, element, type) {
+
         ConsoleHelper(`/api/View/${viewId}/editspec/${paramId}/list/${fieldId}`);
         const partOfUrl = UrlUtils.batchIdParamExist() ? 'batch' : 'editspec';
-        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/${partOfUrl}/${paramId}/list/${fieldId}`, {
+        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/${partOfUrl}/${paramId}/list/${fieldId}${
+                    type ? `?type=${type}` : ''
+        }`, {
             method: 'POST',
             body: JSON.stringify(element),
         }).catch((err) => {

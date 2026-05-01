@@ -1220,6 +1220,9 @@ class BaseContainer extends React.Component {
             return this.state.elementRecordId;
         }
         if (UrlUtils.subViewParamExists()) {
+            if (UrlUtils.isEditSpec()) {
+                return UrlUtils.getParentId();
+            }
             return this.state.elementRecordId;
         }
         return UrlUtils.getParentId();

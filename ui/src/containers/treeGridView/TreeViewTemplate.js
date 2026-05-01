@@ -7,8 +7,11 @@ import {StringUtils} from '../../utils/StringUtils';
 import useStore from '../../store';
 import {MemoizedOperations} from '../../components/memoized/MemoizedOperations';
 import {ViewDataCompUtils} from '../../utils/component/ViewDataCompUtils';
+import {ResultType} from '../../model/CellValidator';
+import {Button} from 'primereact/button';
+import OperationCell from '../../enum/OperationCell';
 
-export const cellRenderSpecial = (cellInfo, columnDefinition, keyExistsInInvalidCellKeys, onOperationClick) => {
+export const cellRenderSpecial = (cellInfo, columnDefinition, keyExistsInValidationCellKeys, onOperationClick) => {
     try {
         const cellBackground = new CellCustomBackground(cellInfo, columnDefinition);
         cellBackground.paintRowExecute();
@@ -26,7 +29,7 @@ export const cellRenderSpecial = (cellInfo, columnDefinition, keyExistsInInvalid
                     cellInfo,
                     fontColorFinal,
                     bgColorFinal,
-                    keyExistsInInvalidCellKeys,
+                    keyExistsInValidationCellKeys,
                     columnDefinition,
                     onOperationClick
                 );
@@ -174,19 +177,19 @@ const renderCharacter = (
     cellInfo,
     fontColorFinal,
     bgColorFinal,
-    findInvalidCellKeys,
+    findValidationCellKeys,
     columnDefinition,
     onOperationClick
 ) => {
-    const keyExistsInInvalidCellKeys = findInvalidCellKeys
-        ? findInvalidCellKeys(cellInfo.key, cellInfo?.column?.dataField)
+    const keyExistsInValidationCellKeys = findValidationCellKeys
+        ? findValidationCellKeys(cellInfo.key, cellInfo?.column?.dataField)
         : false;
 
-    if (!keyExistsInInvalidCellKeys) {
+    const value = cellInfo.data[cellInfo?.column?.dataField];
+    const selectionList = columnDefinition?.selectionList ? 'p-inputgroup' : null;
+    const downFill = columnDefinition?.downFill;
+    if (!keyExistsInValidationCellKeys) {
         try {
-            const value = cellInfo.data[cellInfo?.column?.dataField];
-            const selectionList = columnDefinition?.selectionList ? 'p-inputgroup' : null;
-            const downFill = columnDefinition?.downFill;
             return showHintListButtons() && (columnDefinition.edit || selectionList) ? (
                 <div className='row tree-view-text-box'>
                     <div className={`${selectionList} col-12 d-flex align-items-center`}>
@@ -222,17 +225,87 @@ const renderCharacter = (
         }
     } else {
         try {
-            return (
-                <TextBox
-                    className='tex-box-view-field-invalid'
-                    mode={'text'}
-                    isValid={false}
-                    validationMessagePosition='left'
-                    defaultValue={cellInfo?.text}
-                    stylingMode={'filled'}
-                    valueChangeEvent={'keyup'}
-                />
-            );
+            const field = findValidationCellKeys(cellInfo.key, cellInfo?.column?.dataField);
+            switch (field.type) {
+                case ResultType.NOK:
+                    return (
+                        <div className='row tree-view-text-box'>
+                            <div className={`${selectionList} col-12 d-flex align-items-center`}>
+                                <TextBox
+                                    mode='text'
+                                    isValid={true}
+                                    value={value}
+                                    validationMessagePosition='left'
+                                    disabled={!columnDefinition.edit}
+                                    defaultValue={value}
+                                    stylingMode='filled'
+                                    valueChangeEvent='keyup'
+                                    className='flex-grow-1 '
+                                />
+
+                                <Button
+                                    type='button'
+                                    severity='danger'
+                                    style={{maxWidth: '41px', backgroundColor: 'red'}}
+                                    onClick={() => onOperationClick(false, 'REASON')}
+                                    icon='mdi mdi-help'
+                                    className='p-button-danger invalid-field'
+                                />
+                                <MemoizedOperations
+                                    editListVisible={!!selectionList}
+                                    onOperationClick={columnDefinition.edit ? onOperationClick : () => {}}
+                                    fillDownVisible={!!downFill}
+                                    className='ms-2'
+                                />
+                            </div>
+                        </div>
+                    );
+                case ResultType.OK:
+                    return (
+                        <div className='row tree-view-text-box'>
+                            <div className={`${selectionList} col-12 d-flex align-items-center`}>
+                                <TextBox
+                                    mode='text'
+                                    isValid={true}
+                                    value={value}
+                                    validationMessagePosition='left'
+                                    disabled={!columnDefinition.edit}
+                                    defaultValue={value}
+                                    stylingMode='filled'
+                                    valueChangeEvent='keyup'
+                                    className='flex-grow-1'
+                                />
+                                <Button
+                                    severity='danger'
+                                    type='button'
+                                    style={{maxWidth: '41px', backgroundColor: 'green'}}
+                                    onClick={() => onOperationClick(false, 'REASON')}
+                                    icon='mdi mdi-help'
+                                    className='p-button-danger'
+                                />
+                                <MemoizedOperations
+                                    editListVisible={!!selectionList}
+                                    onOperationClick={columnDefinition.edit ? onOperationClick : () => {}}
+                                    fillDownVisible={!!downFill}
+                                    className='ms-2'
+                                />
+                            </div>
+                        </div>
+                    );
+                case ResultType.REGEX:
+                default:
+                    return (
+                        <TextBox
+                            className='tex-box-view-field-invalid invalid-field'
+                            mode={'text'}
+                            isValid={false}
+                            validationMessagePosition='left'
+                            defaultValue={cellInfo?.text}
+                            stylingMode={'filled'}
+                            valueChangeEvent={'keyup'}
+                        />
+                    );
+            }
         } catch (err) {
             ConsoleHelper('Error render htmloutput. Exception=', err);
         }

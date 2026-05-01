@@ -31,6 +31,7 @@ import {ResponseUtils} from '../utils/ResponseUtils';
 import {TranslationUtils} from '../utils/TranslationUtils';
 import LocUtils from '../utils/LocUtils';
 import {ConfirmationOperationDialog} from '../components/prolab/ConfirmOperationDialog';
+import {ResultType} from '../model/CellValidator';
 
 export let operationClicked = false;
 export class EditSpecContainer extends BaseContainer {
@@ -44,7 +45,7 @@ export class EditSpecContainer extends BaseContainer {
         this.crudService = new CrudService();
         this.dataTreeStore = new DataTreeStore();
         this.refTreeList = React.createRef();
-        this.invalidCellKeys = React.createRef([]);
+        this.validationCellKeyResults = React.createRef([]);
         this.treeListComponentRef = React.createRef();
         this.messages = React.createRef();
         this.state = {
@@ -73,7 +74,7 @@ export class EditSpecContainer extends BaseContainer {
     }
 
     componentDidMount() {
-        this.invalidCellKeys.current = [];
+        this.validationCellKeyResults.current = [];
         this._isMounted = true;
         let id = UrlUtils.getViewIdFromURL();
         if (id === undefined) {
@@ -433,7 +434,8 @@ export class EditSpecContainer extends BaseContainer {
 
     handleSaveAction() {
         const dxInvalids = Array.from(document.getElementsByClassName('dx-invalid'));
-        if (dxInvalids.length !== 0) {
+        const invalidFields = Array.from(document.getElementsByClassName('invalid-field'));
+        if (dxInvalids.length !== 0 || invalidFields.length !== 0) {
             this.showErrorMessage(LocUtils.locFromStore('Exists_invalid_cells'), 3000, false);
             return;
         }
@@ -824,39 +826,38 @@ export class EditSpecContainer extends BaseContainer {
     }
 
     validCellAction(cellValidator) {
-        if (!StringUtils.isBlank(this.invalidCellKeys?.current)) {
-            this.invalidCellKeys.current = this.invalidCellKeys.current.filter(
+        if (!StringUtils.isBlank(this.validationCellKeyResults?.current)) {
+            this.validationCellKeyResults.current = this.validationCellKeyResults.current.filter(
                 (el) => !(el.key === cellValidator.key && el.fieldName === cellValidator?.dataField)
             );
         }
     }
-    invalidCellAction(cellValidator, withMessage = true) {
-        if (withMessage) {
+    validationCellAction(cellValidator, withMessage = true) {
+        const type = cellValidator.resultCode;
+
+        if (!type || type === ResultType.NONE) return;
+
+        if (withMessage && type !== ResultType.OK) {
             this.showErrorMessage(cellValidator.getMessage(), 2500, true);
         }
-        if (!StringUtils.isBlank(this.invalidCellKeys?.current)) {
-            if (Array.isArray(this.invalidCellKeys.current)) {
+        if (!StringUtils.isBlank(this.validationCellKeyResults?.current)) {
+            if (Array.isArray(this.validationCellKeyResults.current)) {
                 const object = {
                     key: cellValidator.key,
                     fieldName: cellValidator.dataField,
+                    type: type,
                 };
-                if (
-                    !(
-                        this.invalidCellKeys.current.length !== 0 &&
-                        this.invalidCellKeys.current.some(
-                            (el) => el.key === object.key && el.fieldName === object.fieldName
-                        )
-                    )
-                ) {
-                    this.invalidCellKeys.current.push(object);
-                }
+                this.validationCellKeyResults.current = this.validationCellKeyResults.current.filter(
+                    (el) => !(el.key === object.key && el.fieldName === object.fieldName)
+                );
+                this.validationCellKeyResults.current.push(object);
             }
         }
     }
-    keyExistsInInvalidCellKeys(key, fieldName) {
-        if (!StringUtils.isBlank(this.invalidCellKeys?.current)) {
-            if (Array.isArray(this.invalidCellKeys.current)) {
-                return this.invalidCellKeys.current.some((el) => el.key === key && el.fieldName === fieldName);
+    keyExistsInValidationCellKeys(key, fieldName) {
+        if (!StringUtils.isBlank(this.validationCellKeyResults?.current)) {
+            if (Array.isArray(this.validationCellKeyResults.current)) {
+                return this.validationCellKeyResults.current.find((el) => el.key === key && el.fieldName === fieldName);
             }
         }
         return false;
@@ -888,19 +889,17 @@ export class EditSpecContainer extends BaseContainer {
                     <React.Fragment>
                         <div id='spec-edit'>
                             <TreeViewComponent
-                                invalidCellKeys={this.invalidCellKeys}
+                                validationCellKeys={this.validationCellKeyResults}
                                 ref={this.treeListComponentRef}
                                 altAndLeftClickEnabled={true}
                                 showColumnHeaders={this.state.showColumnHeaders}
                                 afterFinishEditCell={(cellValidator, value, withMessage) => {
                                     if (!StringUtils.isBlank(cellValidator)) {
-                                        if (!cellValidator.test(value))
-                                            this.invalidCellAction(cellValidator, withMessage);
-                                        else this.validCellAction(cellValidator);
+                                        this.validationCellAction(cellValidator, withMessage);
                                     }
                                 }}
-                                keyExistsInInvalidCellKeys={(key, fieldName) => {
-                                    return this.keyExistsInInvalidCellKeys(key, fieldName);
+                                keyExistsInValidationCellKeys={(key, fieldName) => {
+                                    return this.keyExistsInValidationCellKeys(key, fieldName);
                                 }}
                                 id={this.props.id}
                                 onHideEditorCallback={() => this.forceUpdate()}

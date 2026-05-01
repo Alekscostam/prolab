@@ -1,4 +1,7 @@
 {
+    "dxChat-emptyListMessage": "Czat jest pusty",
+    "dxChat-emptyListPrompt": "AI asystent jest gotowy na pytania",
+    "dxChat-textareaPlaceholder": "Zapytaj asystenta...",
     "Yes": "Tak",
     "No": "Nie",
     "Cancel": "Anuluj",

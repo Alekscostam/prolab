@@ -7,6 +7,7 @@ const useStore = create((set, get) => ({
     draggableGridEnabled: false,
     gridStateStore: undefined,
     rememberMe: false,
+    messages: undefined,
     chatAi: undefined,
     ganttView: undefined,
     showMerge: undefined,
@@ -45,6 +46,7 @@ const useStore = create((set, get) => ({
         });
     },
     setDraggableGridEnabled: (value) => set({draggableGridEnabled: value}),
+    setMessages: (value) => set({messages: value}),
     setCaptcha: (value) => set({captcha: value}),
     setRememberMe: (value) => set({rememberMe: value}),
     setBaseViewBlockUi: (value) => set({baseViewBlockUi: value}),

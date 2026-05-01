@@ -5,6 +5,18 @@
             "data": [
                 {
                     "isNew": true,
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "link": "https://trello.com/c/Hn7BbCXV/938-powody-zmian-specyfikacja",
+                    "text": "Krok od 1-4 - powodów zmian"
+                }
+            ]
+        },
+        {
+            "title": "",
+            "data": [
+                {
                     "type": "FIX",
                     "color": "red",
                     "date": "",

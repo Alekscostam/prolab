@@ -877,15 +877,15 @@ class TreeViewComponent extends CellEditComponent {
                                   cellRenderSpecial(
                                       cellInfo,
                                       columnDefinition,
-                                      this.props.keyExistsInInvalidCellKeys,
-                                      (deleteOperation) =>
-                                          this.onOperationCellClick(cellInfo, columnDefinition, deleteOperation)
+                                      this.props.keyExistsInValidationCellKeys,
+                                      (deleteOperation, type) =>
+                                          this.onOperationCellClick(cellInfo, columnDefinition, deleteOperation, type)
                                   )
                             : undefined
                     }
                     editCellRender={(cellInfo) =>
-                        this.editCellRender(cellInfo, columnDefinition, (deleteOperation) => {
-                            this.onOperationCellClick(cellInfo, columnDefinition, deleteOperation);
+                        this.editCellRender(cellInfo, columnDefinition, (deleteOperation, type, validator) => {
+                            this.onOperationCellClick(cellInfo, columnDefinition, deleteOperation, type, validator);
                         })
                     }
                 />
@@ -894,14 +894,14 @@ class TreeViewComponent extends CellEditComponent {
         return columns;
     }
 
-    onOperationCellClick = (cellInfo, columnDefinition, deleteOperation = false) => {
+    onOperationCellClick = (cellInfo, columnDefinition, deleteOperation = false, type, validator) => {
         if (deleteOperation === true) {
             this.trashClicked.current = true;
             return;
         }
         switch (columnDefinition.type) {
             case ColumnType.C:
-                this.editListVisible(cellInfo.row?.data?._ID, columnDefinition.id);
+                this.editListVisible(cellInfo.row?.data?._ID, columnDefinition.id, type, validator);
                 break;
             case ColumnType.L:
             case ColumnType.B:
@@ -916,10 +916,10 @@ class TreeViewComponent extends CellEditComponent {
     };
 
     cColumnTypeRender(cellInfo, fontColorFinal, bgColorFinal, className) {
-        const keyExistsInInvalidCellKeys = this.props.keyExistsInInvalidCellKeys
-            ? this.props.keyExistsInInvalidCellKeys(cellInfo.key, cellInfo?.column?.dataField)
+        const keyExistsInValidationCellKeys = this.props.keyExistsInValidationCellKeys
+            ? this.props.keyExistsInValidationCellKeys(cellInfo.key, cellInfo?.column?.dataField)
             : false;
-        if (!keyExistsInInvalidCellKeys) {
+        if (!keyExistsInValidationCellKeys) {
             try {
                 return (
                     <div
@@ -1052,7 +1052,7 @@ TreeViewComponent.propTypes = {
     handleBlockUi: PropTypes.func.isRequired,
     handleUnblockUi: PropTypes.func.isRequired,
     handleAddSpecSpec: PropTypes.func,
-    keyExistsInInvalidCellKeys: PropTypes.func,
+    keyExistsInValidationCellKeys: PropTypes.func,
     afterFinishEditCell: PropTypes.func,
     handleUnselectAll: PropTypes.func,
     showErrorMessages: PropTypes.func.isRequired,
