@@ -76,6 +76,7 @@ export const MemoizedTextInput = React.memo(
                             onDisposing={(e) => {
                                 const value = cellInfo?.value;
                                 if (afterValidatorExecute) {
+                                    cellValidator.validateChain(value);
                                     afterValidatorExecute(cellValidator, value);
                                     if (cellValidator.shouldRunListOfHintsIfPossible()) {
                                         onOperationClick(false, ListOfHintType.REASON, {cellValidator, value: value});
@@ -126,7 +127,9 @@ export const MemoizedTextInput = React.memo(
                             <Button
                                 type='button'
                                 style={{maxWidth: '41px'}}
-                                onClick={() => onOperationClick(false, 'REASON', {cellValidator, value: currentVal})}
+                                onClick={() => {
+                                    onOperationClick(false, ListOfHintType.REASON, {cellValidator, value: currentVal});
+                                }}
                                 icon='mdi mdi-help'
                                 className='p-button-danger'
                             />

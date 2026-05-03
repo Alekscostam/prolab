@@ -110,13 +110,6 @@ export const VersionPreviewDialog = (props) => {
         },
         {
             type: 'PARAMETERS',
-            text: 'SHOW_ADD_FROM_DASHBOARD',
-            description: 'Włączenie możliwości dodawania na dashboard',
-            isNew: true,
-            color: 'orange',
-        },
-        {
-            type: 'PARAMETERS',
             text: 'SHOW_FILTER_CLEAR',
             description: 'Przycisk czyszczenia filtrów na widokach',
             isNew: true,

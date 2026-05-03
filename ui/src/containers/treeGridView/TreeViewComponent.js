@@ -878,8 +878,14 @@ class TreeViewComponent extends CellEditComponent {
                                       cellInfo,
                                       columnDefinition,
                                       this.props.keyExistsInValidationCellKeys,
-                                      (deleteOperation, type) =>
-                                          this.onOperationCellClick(cellInfo, columnDefinition, deleteOperation, type)
+                                      (deleteOperation, type, validator) =>
+                                          this.onOperationCellClick(
+                                              cellInfo,
+                                              columnDefinition,
+                                              deleteOperation,
+                                              type,
+                                              validator
+                                          )
                                   )
                             : undefined
                     }

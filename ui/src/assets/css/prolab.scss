@@ -1970,24 +1970,38 @@ td[aria-roledescription='Editable'] {
         }
     }
 }
+.base-row.dx-datebox,
 .base-row.dx-datebox-calendar,
 .base-row.dx-datebox-time {
+    margin-inline-end: 0px !important;
     border-radius: 6px !important;
     .dx-texteditor-input {
-        color: #182d67;
-        font-weight: 650;
         font-size: 12px;
-        padding-left: 8px;
-        padding-right: 8px;
+        font-weight: 650;
+        color: #182d67;
         padding-top: 13px;
         padding-bottom: 13px;
-        font-family: Roboto, RobotoFallback, 'Noto Kufi Arabic', Helvetica, Arial, sans-serif;
     }
-    .dx-dropdowneditor-icon {
-        width: 45px !important;
-        position: relative;
-        left: -8px;
-        background: rgba(0, 0, 0, 0.12) !important;
+    .dx-texteditor-container {
+        display: flex;
+    }
+
+    .dx-texteditor-input-container {
+        flex: 1;
+    }
+
+    .dx-dropdowneditor-button {
+        width: 47px;
+        min-width: 47px;
+        margin-inline-end: 0px !important;
+        .dx-button-content {
+            padding: 0;
+            background: rgb(222, 222, 222) !important;
+            border-radius: 4px;
+        }
+        .dx-dropdowneditor-icon {
+            background: rgb(222, 222, 222) !important;
+        }
     }
 }
 .dx-overlay-wrapper.dx-popup-wrapper.dx-dropdowneditor-overlay.dx-popup-cancel-visible.dx-popup-done-visible.dx-datebox-wrapper.dx-datebox-wrapper-datetime.dx-datebox-wrapper-calendar {

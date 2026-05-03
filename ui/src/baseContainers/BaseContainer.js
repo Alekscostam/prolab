@@ -830,7 +830,6 @@ class BaseContainer extends React.Component {
             this.executeDocument(data, `${info.viewId}`, `${info.viewObjectId}`, parentIdArg);
         }
     };
-
     rowSave = (viewId, recordId, parentId, saveElement, confirmSave, token, isCopy = false) => {
         this.blockUi();
         const kindView = this.state.elementKindView ? this.state.elementKindView : undefined;
@@ -885,6 +884,8 @@ class BaseContainer extends React.Component {
                 }
                 if (saveResponse?.status === ResponseStatus.NOK) {
                     this.unblockUi();
+                } else if (saveResponse?.status === ResponseStatus.OK) {
+                    this.removeSubviewClickedIfEditHeaderOpen();
                 }
             })
             .catch((err) => {
@@ -962,10 +963,7 @@ class BaseContainer extends React.Component {
                 this.getEditDataInfoType()
             )
             .then(() => {
-                if (!this.props.isEditHeaderOpen) {
-                    window.location.href = UrlUtils.getUrlWithoutEditRowParams();
-                    UrlUtils.deleteIsSubViewClickedParameterFromCurrentURL();
-                }
+                this.removeSubviewClickedIfEditHeaderOpen();
                 this.unselectAllDataGrid();
                 this.unblockUi();
             })
@@ -975,6 +973,12 @@ class BaseContainer extends React.Component {
             .finally(() => {
                 getStore().onHeaderOperationBlock(false);
             });
+    };
+    removeSubviewClickedIfEditHeaderOpen = () => {
+        if (!this.props.isEditHeaderOpen) {
+            window.location.href = UrlUtils.getUrlWithoutEditRowParams();
+            UrlUtils.deleteIsSubViewClickedParameterFromCurrentURL();
+        }
     };
     delete(id) {
         this.blockUi();

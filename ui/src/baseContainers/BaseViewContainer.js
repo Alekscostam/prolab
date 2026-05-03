@@ -309,7 +309,12 @@ export class BaseViewContainer extends BaseContainer {
         }
 
         const dialogsOpened = document.getElementsByClassName('p-dialog-mask');
+        const sidebarOpened = document.getElementById('right-sidebar');
         if (dialogsOpened.length > 1) {
+            event.preventDefault();
+            return;
+        }
+        if (sidebarOpened || UrlUtils.isEditRowOpen()) {
             event.preventDefault();
             return;
         }

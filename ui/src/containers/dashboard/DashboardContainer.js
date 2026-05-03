@@ -73,6 +73,7 @@ class DashboardContainer extends BaseContainer {
 
     restateDashboard() {
         this.blockUi();
+        this.addOperationsFromExistingViewsToResponse(this.props.dashboard);
         this.setState(
             {
                 dashboard: this.props.dashboard,
@@ -140,6 +141,7 @@ class DashboardContainer extends BaseContainer {
         this.dashboardService
             .getDashboard()
             .then((response) => {
+                this.addOperationsFromExistingViewsToResponse(response);
                 this.setState(
                     {
                         dashboard: response,
@@ -591,7 +593,6 @@ class DashboardContainer extends BaseContainer {
     };
 
     renderGridView(item, cardViewId, currentBreadcrumb, _cardHeight, recordId) {
-        const showAddFromDashboard = useStore.getState().showAddFromDashboard;
         const opADD = TranslationUtils.getOpButton(item?.operations, OperationType.OP_ADD);
         const opADDButton = TranslationUtils.getOpButton(item?.operations, OperationType.OP_ADD_BUTTON);
         return (
@@ -599,7 +600,7 @@ class DashboardContainer extends BaseContainer {
                 <span className='title-dashboard'>{item.label}</span>
                 <div style={{float: 'right'}}>
                     <ShortcutButton
-                        key={`${item.id}_shortcut`}
+                        key={`${item.id}_edit_shortcut`}
                         id={`_menu_button`}
                         className={`action-button-with-menu`}
                         iconName={'mdi-open-in-new'}
@@ -611,9 +612,9 @@ class DashboardContainer extends BaseContainer {
                         rendered={true}
                         buttonShadow={false}
                     />
-                    {(opADD || opADDButton) && showAddFromDashboard && (
+                    {(opADD || opADDButton) && (
                         <ShortcutButton
-                            key={`${item.id}_shortcut`}
+                            key={`${item.id}_add_shortcut`}
                             id={`_menu_button`}
                             className={`action-button-with-menu`}
                             iconName={opADD?.iconCode ? opADD?.iconCode : 'mdi-plus'}

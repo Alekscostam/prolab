@@ -30,7 +30,6 @@ const useStore = create((set, get) => ({
     heartbeatDate: undefined,
     heartbeatTimeMinutes: undefined,
     showMarkupOnHtmlEditor: undefined,
-    showAddFromDashboard: undefined,
     appName: undefined,
     appVersion: undefined,
     deviceName: undefined,
@@ -74,7 +73,6 @@ const useStore = create((set, get) => ({
     setGridStateStore: (value) => set({gridStateStore: value}),
     setListOfHintsElements: (value) => set({listOfHintsElements: value}),
     setShowMarkupOnHtmlEditor: (value) => set({showMarkupOnHtmlEditor: value}),
-    setShowAddFromDashboard: (value) => set({showAddFromDashboard: value}),
     setFilterClearFnc: (fn) => set({filterClearFnc: fn}),
     callToggleFn: (val) => {
         const {filterClearFnc} = useStore.getState();

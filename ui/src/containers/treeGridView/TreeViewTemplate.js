@@ -10,6 +10,8 @@ import {ViewDataCompUtils} from '../../utils/component/ViewDataCompUtils';
 import {ResultType} from '../../model/CellValidator';
 import {Button} from 'primereact/button';
 import OperationCell from '../../enum/OperationCell';
+import {ListOfHintType} from '../../enum/ListOfHintType';
+import CellValidator from '../../model/CellValidator';
 
 export const cellRenderSpecial = (cellInfo, columnDefinition, keyExistsInValidationCellKeys, onOperationClick) => {
     try {
@@ -226,6 +228,8 @@ const renderCharacter = (
     } else {
         try {
             const field = findValidationCellKeys(cellInfo.key, cellInfo?.column?.dataField);
+            const cellValidator = new CellValidator(cellInfo, columnDefinition);
+            cellValidator.validateChain();
             switch (field.type) {
                 case ResultType.NOK:
                     return (
@@ -242,12 +246,13 @@ const renderCharacter = (
                                     valueChangeEvent='keyup'
                                     className='flex-grow-1 '
                                 />
-
                                 <Button
                                     type='button'
                                     severity='danger'
                                     style={{maxWidth: '41px', backgroundColor: 'red'}}
-                                    onClick={() => onOperationClick(false, 'REASON')}
+                                    onClick={() => {
+                                        onOperationClick(false, ListOfHintType.REASON, {cellValidator, value: value});
+                                    }}
                                     icon='mdi mdi-help'
                                     className='p-button-danger invalid-field'
                                 />
@@ -279,7 +284,9 @@ const renderCharacter = (
                                     severity='danger'
                                     type='button'
                                     style={{maxWidth: '41px', backgroundColor: 'green'}}
-                                    onClick={() => onOperationClick(false, 'REASON')}
+                                    onClick={() =>
+                                        onOperationClick(false, ListOfHintType.REASON, {cellValidator, value: value})
+                                    }
                                     icon='mdi mdi-help'
                                     className='p-button-danger'
                                 />

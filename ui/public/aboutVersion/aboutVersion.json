@@ -5,6 +5,50 @@
             "data": [
                 {
                     "isNew": true,
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/MdVDlQxo/924-po-dodaniu-znika",
+                    "text": "Fix na znikającego plusa"
+                },
+                {
+                    "isNew": true,
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "",
+                    "text": "Poprawka przechodzenia po edycjach komórki w edycji specyfikacji"
+                },
+                {
+                    "isNew": true,
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/8HtDZEls/945-dodawanie-w-podwidoku-w-dashboard-koniguracja-w-widoku",
+                    "text": "Usunięcie SHOW_ADD_FROM_DASHBARD i korzystanie tylko z parametru w BE"
+                },
+                {
+                    "isNew": true,
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/g2NmaIgE/919-nie-dzia%C5%82a-dobrze-dodawanie-wielu-za%C5%82%C4%85cznik%C3%B3w-za-jednym-razem",
+                    "text": "Usunięcie cache powodującego błąd wywołania załączników"
+                },
+                {
+                    "isNew": true,
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/IblOyl3E/950-ikonki-podpowiedzi-do-wyr%C3%B3wnania",
+                    "text": "Wyrównanie ikonek podpowiedzi"
+                }
+            ]
+        },
+        {
+            "title": "",
+            "data": [
+                {
                     "type": "NEW",
                     "color": "green",
                     "date": "",

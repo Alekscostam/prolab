@@ -408,7 +408,6 @@ class App extends Component {
             const wssUrl = configuration.WSS_URL;
             const showFilterClear = configuration.SHOW_FILTER_CLEAR;
             const showMarkupOnHtmlEditor = configuration.SHOW_MARKUP_ON_HTML_EDITOR;
-            const showAddFromDashboard = configuration.SHOW_ADD_FROM_DASHBOARD;
             const appVersion = packageJson.version + '_' + process.env.REACT_APP_BUILD_NUMBER;
             this.setState({
                 canRenderAboutVersionDialog: canRenderAboutVersionDialog,
@@ -431,7 +430,6 @@ class App extends Component {
             getStore().setShowFilterClear(showFilterClear);
             getStore().setMessages(this.messages);
             getStore().setShowHintListButtons(showHintListButtons);
-            getStore().setShowAddFromDashboard(showAddFromDashboard);
             getStore().setShowMerge(showMerge);
             getStore().setAppVersion(appVersion);
             getStore().setChatAi(chatAi);

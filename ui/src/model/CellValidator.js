@@ -297,6 +297,7 @@ export default class CellValidator {
         };
         if (!conditions) return;
         const conditionString = this.buildConditionForReason(conditions);
+        console.log('condition in string', conditionString);
         const result = this.evaluateCondition(conditionString, data);
         return result;
     }
