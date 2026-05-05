@@ -1,6 +1,7 @@
 {
     "changeLog": [
         {
+            "version": "1.6.4.266",
             "title": "",
             "data": [
                 {
@@ -8,32 +9,7 @@
                     "type": "FIX",
                     "color": "red",
                     "date": "",
-                    "link": "https://trello.com/c/MdVDlQxo/924-po-dodaniu-znika",
-                    "text": "Fix na znikającego plusa"
-                },
-                {
-                    "isNew": true,
-                    "type": "FIX",
-                    "color": "red",
-                    "date": "",
-                    "link": "",
-                    "text": "Poprawka przechodzenia po edycjach komórki w edycji specyfikacji"
-                },
-                {
-                    "isNew": true,
-                    "type": "FIX",
-                    "color": "red",
-                    "date": "",
-                    "link": "https://trello.com/c/8HtDZEls/945-dodawanie-w-podwidoku-w-dashboard-koniguracja-w-widoku",
-                    "text": "Usunięcie SHOW_ADD_FROM_DASHBARD i korzystanie tylko z parametru w BE"
-                },
-                {
-                    "isNew": true,
-                    "type": "FIX",
-                    "color": "red",
-                    "date": "",
-                    "link": "https://trello.com/c/g2NmaIgE/919-nie-dzia%C5%82a-dobrze-dodawanie-wielu-za%C5%82%C4%85cznik%C3%B3w-za-jednym-razem",
-                    "text": "Usunięcie cache powodującego błąd wywołania załączników"
+                    "text": "Poprawki w interpretacji condition w powodach zmian"
                 },
                 {
                     "isNew": true,
@@ -46,7 +22,49 @@
             ]
         },
         {
+            "version": "1.6.4.265",
             "title": "",
+            "data": [
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/MdVDlQxo/924-po-dodaniu-znika",
+                    "text": "Fix na znikającego plusa"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "",
+                    "text": "Poprawka przechodzenia po edycjach komórki w edycji specyfikacji"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/8HtDZEls/945-dodawanie-w-podwidoku-w-dashboard-koniguracja-w-widoku",
+                    "text": "Usunięcie SHOW_ADD_FROM_DASHBARD i korzystanie tylko z parametru w BE"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/g2NmaIgE/919-nie-dzia%C5%82a-dobrze-dodawanie-wielu-za%C5%82%C4%85cznik%C3%B3w-za-jednym-razem",
+                    "text": "Usunięcie cache powodującego błąd wywołania załączników"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/IblOyl3E/950-ikonki-podpowiedzi-do-wyr%C3%B3wnania",
+                    "text": "Wyrównanie ikonek podpowiedzi"
+                }
+            ]
+        },
+        {
+            "title": "",
+            "version": "1.6.4.264",
             "data": [
                 {
                     "type": "NEW",
@@ -59,6 +77,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.263",
             "data": [
                 {
                     "type": "FIX",
@@ -71,6 +90,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.262",
             "data": [
                 {
                     "type": "FIX",
@@ -83,6 +103,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.261",
             "data": [
                 {
                     "type": "FIX",
@@ -95,6 +116,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.260",
             "data": [
                 {
                     "type": "NEW",
@@ -107,6 +129,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.259",
             "data": [
                 {
                     "type": "FIX",
@@ -126,6 +149,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.258",
             "data": [
                 {
                     "type": "NEW",
@@ -140,6 +164,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.257",
             "data": [
                 {
                     "type": "FIX",
@@ -166,6 +191,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.256",
             "data": [
                 {
                     "type": "FIX",
@@ -178,6 +204,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.255",
             "data": [
                 {
                     "type": "FIX",
@@ -199,6 +226,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.254",
             "data": [
                 {
                     "type": "NEW",
@@ -211,6 +239,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.253",
             "data": [
                 {
                     "type": "FIX",
@@ -231,6 +260,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.252",
             "data": [
                 {
                     "type": "FIX",
@@ -265,6 +295,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.251",
             "data": [
                 {
                     "type": "FIX",
@@ -305,6 +336,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.250",
             "data": [
                 {
                     "type": "NEW",
@@ -324,6 +356,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.249",
             "data": [
                 {
                     "type": "NEW",
@@ -342,6 +375,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.248",
             "data": [
                 {
                     "type": "FIX",
@@ -353,6 +387,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.247",
             "data": [
                 {
                     "type": "FIX",
@@ -378,6 +413,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.246",
             "data": [
                 {
                     "type": "FIX",
@@ -397,6 +433,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.245",
             "data": [
                 {
                     "type": "NEW",
@@ -446,6 +483,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.244",
             "data": [
                 {
                     "type": "FIX",
@@ -479,6 +517,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.243",
             "data": [
                 {
                     "type": "FIX",
@@ -505,6 +544,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.242",
             "data": [
                 {
                     "type": "NEW",
@@ -524,6 +564,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.241",
             "data": [
                 {
                     "type": "FIX",
@@ -550,6 +591,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.240",
             "data": [
                 {
                     "type": "NEW",
@@ -591,6 +633,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.239",
             "data": [
                 {
                     "type": "FIX",
@@ -610,6 +653,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.238",
             "data": [
                 {
                     "type": "NEW",
@@ -630,6 +674,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.237",
             "data": [
                 {
                     "type": "NEW",
@@ -679,6 +724,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.236",
             "data": [
                 {
                     "type": "FIX",
@@ -691,6 +737,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.235",
             "data": [
                 {
                     "type": "FIX",
@@ -725,6 +772,7 @@
         },
         {
             "title": "",
+            "version": "1.6.4.234",
             "data": [
                 {
                     "type": "FIX",
@@ -759,6 +807,7 @@
         },
         {
             "title": "Wersja któraś tam",
+            "version": "1.6.4.233",
             "data": [
                 {
                     "type": "FIX",
@@ -956,6 +1005,7 @@
         },
         {
             "title": "Wersja któraś tam",
+            "version": "1.6.4.232",
             "data": [
                 {
                     "type": "FIX",
@@ -1210,6 +1260,7 @@
         },
         {
             "title": "Wersja któraś tam",
+            "version": "1.6.4.231",
             "data": [
                 {
                     "type": "FIX",
@@ -1259,6 +1310,7 @@
         },
         {
             "title": "Wersja któraś tam",
+            "version": "1.6.4.230",
             "data": [
                 {
                     "type": "FIX",

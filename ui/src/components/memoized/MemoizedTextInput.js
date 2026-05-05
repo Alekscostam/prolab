@@ -18,6 +18,7 @@ export const MemoizedTextInput = React.memo(
         cellInfo,
         inputValue,
         fieldIndex,
+        className,
         mode,
         required,
         validate,
@@ -34,7 +35,7 @@ export const MemoizedTextInput = React.memo(
         const handleValidation = (value) => {
             cellValidator.validateChain(value);
             const isValid = cellValidator.isValidField(value);
-            if (!isValid || !cellValidator.testNok(value)) {
+            if (!isValid || cellValidator.testNok(value)) {
                 const title = LocUtils.locFromStoreWithDefault('Error', 'Błąd');
                 getStore().messages?.show({
                     severity: 'error',
@@ -64,7 +65,7 @@ export const MemoizedTextInput = React.memo(
         return (
             <React.Fragment>
                 <div className={`row`}>
-                    <div className={`${selectionList} col-12`}>
+                    <div className={`${className} col-12`}>
                         <TextBox
                             id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                             className={`${validate}`}

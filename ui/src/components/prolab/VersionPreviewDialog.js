@@ -221,7 +221,12 @@ export const VersionPreviewDialog = (props) => {
             type: 'FIX',
             title: LocUtils.locFromStore('FIX'),
             tasks: aboutVersion
-                ?.flatMap((v) => v.data)
+                ?.flatMap((v) =>
+                    v.data.map((item) => ({
+                        ...item,
+                        version: v.version,
+                    }))
+                )
                 ?.filter((item) => item.type === 'FIX')
                 ?.filter((item) => item.isNew),
         },
@@ -229,7 +234,12 @@ export const VersionPreviewDialog = (props) => {
             type: 'NEW',
             title: LocUtils.locFromStore('NEW'),
             tasks: aboutVersion
-                ?.flatMap((v) => v.data)
+                ?.flatMap((v) =>
+                    v.data.map((item) => ({
+                        ...item,
+                        version: v.version,
+                    }))
+                )
                 ?.filter((item) => item.type === 'NEW')
                 ?.filter((item) => item.isNew),
         },
@@ -241,7 +251,12 @@ export const VersionPreviewDialog = (props) => {
         {
             type: 'HISTORY',
             title: LocUtils.locFromStore('HISTORY'),
-            tasks: aboutVersion?.flatMap((v) => v.data),
+            tasks: aboutVersion?.flatMap((v) =>
+                v.data.map((item) => ({
+                    ...item,
+                    version: v.version,
+                }))
+            ),
         },
         {
             type: 'PARAMETERS',
@@ -357,9 +372,11 @@ export const VersionPreviewDialog = (props) => {
                 className={`ver-item ver-item-color-${task.color}`}
                 style={{background: task.importanceColor}}
             >
-                <span className='ver-item-text'>{task.text}</span>
+                <span className='ver-item-text'>
+                    {task.text} {StringUtils.isBlankOrEmpty(task.version) ? '' : '(' + task.version + ')'}
+                </span>
                 <span className='ver-item-info'>{`${task.description || ''}`}</span>
-                {!StringUtils.isBlank(task?.link) && (
+                {!StringUtils.isBlankOrEmpty(task?.link) && (
                     <span className='ver-item-text'>
                         <a href={`${task.link}`} rel='noopener noreferrer' target='_blank'>
                             {LocUtils.locFromStore('Link_to_task')}{' '}

@@ -835,7 +835,15 @@ export class EditSpecContainer extends BaseContainer {
     validationCellAction(cellValidator, withMessage = true) {
         const type = cellValidator.resultCode;
 
-        if (!type || type === ResultType.NONE) return;
+        if (!type || type === ResultType.NONE) {
+            if (Array.isArray(this.validationCellKeyResults?.current)) {
+                this.validationCellKeyResults.current = this.validationCellKeyResults.current.filter(
+                    (el) => !(el.key === cellValidator.key && el.fieldName === cellValidator.dataField)
+                );
+            }
+
+            return;
+        }
 
         if (withMessage && type !== ResultType.OK) {
             this.showErrorMessage(cellValidator.getMessage(), 2500, true);

@@ -33,27 +33,22 @@ export default class CellValidator {
         return !!this.field?.validationReason?.autoEditListNok;
     }
     isValidField(inputValue) {
-        if (this.isWart()) {
-            let valueToCompare = this.text;
-            if (!StringUtils.isBlank(inputValue)) {
-                valueToCompare = inputValue;
-            }
-            try {
-                if (this.required && valueToCompare === '') {
-                    return false;
-                } else if (this.expressionSatisfiesCondition() && !this.test(valueToCompare)) {
-                    return false;
-                } else {
-                    return true;
-                }
-            } catch (err) {
+        let valueToCompare = this.text;
+        if (!StringUtils.isBlank(inputValue)) {
+            valueToCompare = inputValue;
+        }
+        try {
+            if (this.required && valueToCompare === '') {
+                return false;
+            } else if (this.expressionSatisfiesCondition() && !this.test(valueToCompare)) {
+                return false;
+            } else {
                 return true;
             }
+        } catch (err) {
+            return true;
         }
         return true;
-    }
-    isWart() {
-        return this.field?.fieldName === 'WART';
     }
     getValidOperator(operator) {
         switch (operator) {
@@ -212,9 +207,6 @@ export default class CellValidator {
     }
 
     test(text) {
-        if (!this.isWart()) {
-            return true;
-        }
         const regex = this.getRegex();
         if (StringUtils.isBlank(text) || text === '') return true;
         if (StringUtils.isBlank(regex) || regex === '') return true;
@@ -223,18 +215,12 @@ export default class CellValidator {
     }
 
     testNok(text) {
-        if (!this.isWart()) {
-            return true;
-        }
         if (this.isCondidtionsNokExists()) {
             return this.testReason(text, this.getCondidtionsNok());
         }
         return false;
     }
     testOk(text) {
-        if (!this.isWart()) {
-            return true;
-        }
         if (this.isCondidtionsOkExists()) {
             return this.testReason(text, this.getCondidtionsOk());
         }
@@ -242,38 +228,38 @@ export default class CellValidator {
     }
     validateChain(text) {
         try {
-            if (this.isWart()) {
-                this.resultCode = ResultType.NONE;
+            this.resultCode = ResultType.NONE;
 
-                if (this.shouldBeRegexUse()) {
-                    const regexValid = this.test(text);
-
-                    if (!regexValid) {
-                        this.resultCode = ResultType.REGEX;
-                        return false;
-                    }
+            if (this.shouldBeRegexUse()) {
+                const regexValid = this.test(text);
+                if (!regexValid) {
+                    console.log('IS REGEX');
+                    this.resultCode = ResultType.REGEX;
+                    return false;
                 }
-
-                if (this.isCondidtionsNokExists()) {
-                    const nokValid = this.testNok(text);
-                    if (!nokValid) {
-                        this.resultCode = ResultType.NOK;
-                        return false;
-                    }
-                }
-
-                if (this.isCondidtionsOkExists()) {
-                    const okValid = this.testOk(text);
-                    if (okValid) {
-                        this.resultCode = ResultType.OK;
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-
-                return true;
             }
+
+            if (this.isCondidtionsNokExists()) {
+                const nokValid = this.testNok(text);
+                if (nokValid) {
+                    console.log('IS NOK');
+                    this.resultCode = ResultType.NOK;
+                    return false;
+                }
+            }
+
+            if (this.isCondidtionsOkExists()) {
+                const okValid = this.testOk(text);
+                if (okValid) {
+                    console.log('IS OK');
+                    this.resultCode = ResultType.OK;
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            return true;
         } catch (ex) {
             console.error('validation column data error', ex);
         }
@@ -293,7 +279,7 @@ export default class CellValidator {
     testReason(text, conditions) {
         const data = {
             ...this.data,
-            WART: text,
+            [this.field.fieldName]: text,
         };
         if (!conditions) return;
         const conditionString = this.buildConditionForReason(conditions);
@@ -345,9 +331,6 @@ export default class CellValidator {
     }
 
     canShowReasonsChanges(text) {
-        if (!this.isWart()) {
-            return false;
-        }
         if ((this.isCondidtionsOkExists() || this.isCondidtionsNokExists()) && this.test(text)) {
             return true;
         }

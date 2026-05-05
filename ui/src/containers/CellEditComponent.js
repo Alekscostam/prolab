@@ -397,6 +397,7 @@ class CellEditComponent extends PureComponent {
             case ColumnType.C:
                 return (
                     <MemoizedTextInput
+                        className='p-inputgroup'
                         field={field}
                         cellInfo={cellInfo}
                         inputValue={cellInfo.value}
