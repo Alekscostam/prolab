@@ -1,7 +1,7 @@
 {
     "changeLog": [
         {
-            "version": "1.6.4.266",
+            "version": "1.6.4.267",
             "title": "",
             "data": [
                 {
@@ -9,10 +9,21 @@
                     "type": "FIX",
                     "color": "red",
                     "date": "",
+                    "text": "Poprawki w interpretacji condition w powodach zmian - poprawka data"
+                }
+            ]
+        },
+        {
+            "version": "1.6.4.266",
+            "title": "",
+            "data": [
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
                     "text": "Poprawki w interpretacji condition w powodach zmian"
                 },
                 {
-                    "isNew": true,
                     "type": "FIX",
                     "color": "red",
                     "date": "",

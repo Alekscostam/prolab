@@ -282,8 +282,12 @@ export default class CellValidator {
             [this.field.fieldName]: text,
         };
         if (!conditions) return;
+        console.log(`CURRENT VALUE FROM ${this.field.fieldName} is:`, text);
         const conditionString = this.buildConditionForReason(conditions);
         console.log('condition in string', conditionString);
+        const usedFields = [...conditionString.matchAll(/data\["([^"]+)"\]/g)].map((m) => m[1]);
+        const relevantData = Object.fromEntries(usedFields.map((f) => [f, data[f]]));
+        console.log('relevant fields:', relevantData);
         const result = this.evaluateCondition(conditionString, data);
         return result;
     }
@@ -298,10 +302,8 @@ export default class CellValidator {
 
             if (value === "''") {
                 rightSide = '""';
-            } else if (value === 'WART') {
-                rightSide = 'data["WART"]';
             } else {
-                rightSide = `"${value}"`;
+                rightSide = `data["${value}"]`;
             }
             return `data["${column}"] ${op} ${rightSide}`;
         }
