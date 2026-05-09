@@ -1,11 +1,32 @@
 {
     "changeLog": [
         {
-            "version": "1.6.4.267",
+            "version": "1.6.4.268",
             "title": "",
             "data": [
                 {
                     "isNew": true,
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/GgGjpoSz/962-nie-wymusza-podania-kodu-przyczyny-zmiany",
+                    "text": "Dopasowanie listy podpowiedzi do powodów zmian"
+                },
+                {
+                    "isNew": true,
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/qfjMkUnZ/961-komunikat-kod-przyczyny-zmiany",
+                    "text": "Ograniczenie komunikatów"
+                }
+            ]
+        },
+        {
+            "version": "1.6.4.267",
+            "title": "",
+            "data": [
+                {
                     "type": "FIX",
                     "color": "red",
                     "date": "",

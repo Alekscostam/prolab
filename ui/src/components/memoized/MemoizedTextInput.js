@@ -34,17 +34,6 @@ export const MemoizedTextInput = React.memo(
         let currentVal = inputValue;
         const handleValidation = (value) => {
             cellValidator.validateChain(value);
-            const isValid = cellValidator.isValidField(value);
-            if (!isValid || cellValidator.testNok(value)) {
-                const title = LocUtils.locFromStoreWithDefault('Error', 'Błąd');
-                getStore().messages?.show({
-                    severity: 'error',
-                    sticky: false,
-                    life: 3000,
-                    detail: cellValidator.getMessage(),
-                    summary: title,
-                });
-            }
             const helpBtn = document.getElementById('helpBtn');
             if (cellValidator.canShowReasonsChanges(value)) {
                 helpBtn.style.display = 'flex';
@@ -137,7 +126,9 @@ export const MemoizedTextInput = React.memo(
                         </div>
                         <MemoizedOperations
                             editListVisible={!!selectionList}
-                            onOperationClick={onOperationClick}
+                            onOperationClick={(type) => {
+                                onOperationClick(false, type, {cellValidator, value: currentVal});
+                            }}
                             fillDownVisible={!!downFill}
                             onFillDownClick={onFillDownClick}
                         />

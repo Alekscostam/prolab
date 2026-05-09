@@ -22,6 +22,7 @@ import {MemoizedDateTimeInput} from '../components/memoized/MemoizedDateTimeInpu
 import {MemoizedTimeInput} from '../components/memoized/MemoizedTimeInput';
 import {EditorTextAreaDialog} from '../components/prolab/EditorTextAreaDialog';
 import useStore from '../store';
+import {ListOfHintType} from '../enum/ListOfHintType';
 
 class CellEditComponent extends PureComponent {
     constructor(props) {
@@ -287,9 +288,12 @@ class CellEditComponent extends PureComponent {
     validateCellIfPossible(rowReplacementCopy) {
         const validatorForCell = this.state.validatorForCell;
         if (validatorForCell) {
-            const {cellValidator, value} = validatorForCell;
+            let {cellValidator, value} = validatorForCell;
             if (rowReplacementCopy) {
                 cellValidator.replaceData(rowReplacementCopy);
+            }
+            if (this.state.listOfHintsType !== ListOfHintType.REASON && rowReplacementCopy) {
+                value = rowReplacementCopy[cellValidator.dataField];
             }
             cellValidator.validateChain(value);
             this.afterValidatorExecute(cellValidator, value);

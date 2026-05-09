@@ -186,6 +186,8 @@ const renderCharacter = (
     const keyExistsInValidationCellKeys = findValidationCellKeys
         ? findValidationCellKeys(cellInfo.key, cellInfo?.column?.dataField)
         : false;
+    const cellValidator = new CellValidator(cellInfo, columnDefinition);
+    cellValidator.validateChain();
 
     const value = cellInfo.data[cellInfo?.column?.dataField];
     const selectionList = columnDefinition?.selectionList ? 'p-inputgroup' : null;
@@ -208,7 +210,13 @@ const renderCharacter = (
                         />
                         <MemoizedOperations
                             editListVisible={!!selectionList}
-                            onOperationClick={columnDefinition.edit ? onOperationClick : () => {}}
+                            onOperationClick={
+                                columnDefinition.edit
+                                    ? (type) => {
+                                          onOperationClick(false, type, {cellValidator, value: value});
+                                      }
+                                    : () => {}
+                            }
                             fillDownVisible={!!downFill}
                             className='ms-2'
                         />
@@ -228,8 +236,6 @@ const renderCharacter = (
     } else {
         try {
             const field = findValidationCellKeys(cellInfo.key, cellInfo?.column?.dataField);
-            const cellValidator = new CellValidator(cellInfo, columnDefinition);
-            cellValidator.validateChain();
             switch (field.type) {
                 case ResultType.NOK:
                     return (
