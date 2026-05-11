@@ -45,9 +45,11 @@ export const MemoizedTextInput = React.memo(
                     helpBtn.children[0].classList.remove('dx-invalid');
                 } else {
                     helpBtn.style.display = 'none';
+                    helpBtn.children[0].classList.remove('dx-invalid');
                 }
             } else {
                 helpBtn.style.display = 'none';
+                helpBtn?.children[0]?.classList.remove('dx-invalid');
             }
         };
 

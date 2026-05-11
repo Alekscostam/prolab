@@ -1,7 +1,7 @@
 {
     "changeLog": [
         {
-            "version": "1.6.4.268",
+            "version": "1.6.4.269",
             "title": "",
             "data": [
                 {
@@ -9,11 +9,23 @@
                     "type": "FIX",
                     "color": "red",
                     "date": "",
+                    "link": "https://trello.com/c/dwlEEExe/964-b%C5%82%C4%85d-istniej%C4%85-nieprawid%C5%82owe-kom%C3%B3rki",
+                    "text": "Usunięcie blokady zapisu"
+                }
+            ]
+        },
+        {
+            "version": "1.6.4.268",
+            "title": "",
+            "data": [
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
                     "link": "https://trello.com/c/GgGjpoSz/962-nie-wymusza-podania-kodu-przyczyny-zmiany",
                     "text": "Dopasowanie listy podpowiedzi do powodów zmian"
                 },
                 {
-                    "isNew": true,
                     "type": "FIX",
                     "color": "red",
                     "date": "",
