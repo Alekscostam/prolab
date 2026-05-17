@@ -16,6 +16,8 @@ import * as serviceWorker from './serviceWorker';
 // import './assets/css/mdi.scss';
 import '@mdi/font/css/materialdesignicons.min.css';
 import {MyProvider} from './MyProvider';
+import './patch/devextremeSelectiopnPatch';
+
 import ErrorBoundary from './ErrorBoundary';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

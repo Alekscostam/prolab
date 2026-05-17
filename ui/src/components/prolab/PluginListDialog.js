@@ -19,9 +19,11 @@ const PluginListDialog = (props) => {
         };
     }, []);
 
-    const handleSelectedRowData = (selectedRowData) => {
-        if (selectedRowData) {
-            setSelectedRowKeys(selectedRowData.selectedRowKeys);
+    const handleSelectedRowData = (event) => {
+        if (event) {
+            event.component.getSelectedRowKeys().then((rowsKeys) => {
+                setSelectedRowKeys(rowsKeys);
+            });
         }
     };
 
@@ -90,6 +92,7 @@ const PluginListDialog = (props) => {
                 <GridViewComponent
                     altAndLeftClickEnabled={true}
                     id={props.id}
+                    selectionDeferred={true}
                     showRenderingViewMode={false}
                     elementSubViewId={null}
                     handleOnDataGrid={(ref) => (refDataGrid.current = ref)}
@@ -109,7 +112,6 @@ const PluginListDialog = (props) => {
                         }
                     }}
                     showSelection={true}
-                    selectedRowKeys={selectedRowKeys}
                     handleUnselectAll={() => {
                         unselectAllDataGrid();
                         if (props?.unselectAllDataGrid) {

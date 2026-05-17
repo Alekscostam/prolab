@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import CellValidator, {ResultType} from '../../model/CellValidator';
 import {TextBox, Validator} from 'devextreme-react';
 import EditRowUtils from '../../utils/EditRowUtils';
@@ -29,14 +29,35 @@ export const MemoizedTextInput = React.memo(
         afterValidatorExecute,
         refreshComponent,
     }) => {
+        const revertClicked = useRef(false);
         const cellValidator = new CellValidator(cellInfo, field);
         const [isValid, setIsValid] = useState(cellValidator.isValidField(inputValue));
         let currentVal = inputValue;
+        const observeRevertButton = (element, onRevert) => {
+            const cellContainer = element.closest('.dx-editor-cell') ?? element.parentElement;
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    mutation.addedNodes.forEach((node) => {
+                        if (node.classList?.contains('dx-revert-button')) {
+                            node.addEventListener('click', onRevert);
+                        }
+                    });
+                });
+            });
+            observer.observe(cellContainer, {childList: true, subtree: true});
+            return observer;
+        };
+
         const handleValidation = (value) => {
             cellValidator.validateChain(value);
             const helpBtn = document.getElementById('helpBtn');
+            const isAvailableToChangeHelpBtn = () => {
+                return !!helpBtn?.style;
+            };
             if (cellValidator.canShowReasonsChanges(value)) {
-                helpBtn.style.display = 'flex';
+                if (isAvailableToChangeHelpBtn()) {
+                    helpBtn.style.display = 'flex';
+                }
                 if (cellValidator.resultCode === ResultType.NOK) {
                     helpBtn.children[0].style.backgroundColor = 'red';
                     helpBtn.children[0].classList.add('dx-invalid');
@@ -44,11 +65,15 @@ export const MemoizedTextInput = React.memo(
                     helpBtn.children[0].style.backgroundColor = 'green';
                     helpBtn.children[0].classList.remove('dx-invalid');
                 } else {
-                    helpBtn.style.display = 'none';
+                    if (isAvailableToChangeHelpBtn()) {
+                        helpBtn.style.display = 'none';
+                    }
                     helpBtn.children[0].classList.remove('dx-invalid');
                 }
             } else {
-                helpBtn.style.display = 'none';
+                if (isAvailableToChangeHelpBtn()) {
+                    helpBtn.style.display = 'none';
+                }
                 helpBtn?.children[0]?.classList.remove('dx-invalid');
             }
         };
@@ -60,30 +85,40 @@ export const MemoizedTextInput = React.memo(
                         <TextBox
                             id={`${EditRowUtils.getType(field.type)}${fieldIndex}`}
                             className={`${validate}`}
-                            onContentReady={() => {
+                            onContentReady={(e) => {
                                 handleValidation(currentVal);
+                                const observer = observeRevertButton(e.element, () => {
+                                    revertClicked.current = true;
+                                });
+                                e.component.on('disposing', () => observer.disconnect());
                             }}
                             mode={mode || 'text'}
                             isValid={isValid}
                             onDisposing={(e) => {
-                                const value = cellInfo?.value;
-                                if (afterValidatorExecute) {
-                                    cellValidator.validateChain(value);
-                                    afterValidatorExecute(cellValidator, value);
-                                    if (cellValidator.shouldRunListOfHintsIfPossible()) {
-                                        onOperationClick(false, ListOfHintType.REASON, {cellValidator, value: value});
+                                setTimeout(() => {
+                                    const value = revertClicked.current ? inputValue : cellInfo?.value;
+                                    revertClicked.current = false;
+                                    if (afterValidatorExecute) {
+                                        cellValidator.validateChain(value);
+                                        afterValidatorExecute(cellValidator, value);
+                                        if (cellValidator.shouldRunListOfHintsIfPossible()) {
+                                            onOperationClick(false, ListOfHintType.REASON, {
+                                                cellValidator,
+                                                value: value,
+                                            });
+                                        }
                                     }
-                                }
-                                if (field.fieldName === 'FORMULA') {
-                                    if (
-                                        (StringUtils.isBlankOrEmpty(cellInfo.displayValue) &&
-                                            !StringUtils.isBlankOrEmpty(value)) ||
-                                        (!StringUtils.isBlankOrEmpty(cellInfo.displayValue) &&
-                                            StringUtils.isBlankOrEmpty(value))
-                                    ) {
-                                        refreshComponent();
+                                    if (field.fieldName === 'FORMULA') {
+                                        if (
+                                            (StringUtils.isBlankOrEmpty(cellInfo.displayValue) &&
+                                                !StringUtils.isBlankOrEmpty(value)) ||
+                                            (!StringUtils.isBlankOrEmpty(cellInfo.displayValue) &&
+                                                StringUtils.isBlankOrEmpty(value))
+                                        ) {
+                                            refreshComponent();
+                                        }
                                     }
-                                }
+                                });
                             }}
                             validationMessagePosition='left'
                             defaultValue={inputValue}
