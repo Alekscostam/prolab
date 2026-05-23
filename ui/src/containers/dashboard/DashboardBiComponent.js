@@ -6,7 +6,7 @@ import 'devexpress-dashboard/dist/css/dx-dashboard.light.css';
 
 import {getStore} from '../../utils/helper/StoreHelper';
 
-const DashboardViewer = () => {
+const DashboardBiComponent = () => {
     const dashboardRef = useRef(null);
 
     const [config, setConfig] = useState(null);
@@ -56,4 +56,4 @@ const DashboardViewer = () => {
     );
 };
 
-export default DashboardViewer;
+export default DashboardBiComponent;

@@ -42,7 +42,7 @@ import {getStore, updateHeartbeatDate} from './utils/helper/StoreHelper';
 import AboutVersionService from './services/AboutVersionService';
 import HeartbeatService from './services/HearbeatService';
 import Widget from './components/widget/Widget';
-import DashboardViewer from './components/prolab/DashboardViewer';
+import DashboardBiComponent from './containers/dashboard/DashboardBiComponent';
 
 export let clearState;
 export let reStateApp;
@@ -848,7 +848,7 @@ class App extends Component {
                                             exact
                                             path='/dashbi'
                                             render={(props) => {
-                                                return <DashboardViewer />;
+                                                return <DashboardBiComponent />;
                                             }}
                                         />
                                         <Route path='/login' render={(props) => this.renderLoginContainer(props)} />
