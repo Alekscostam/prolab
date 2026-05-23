@@ -51,6 +51,7 @@ import {ArrayUtils} from '../../utils/ArrayUtils';
 import {getStore} from '../../utils/helper/StoreHelper';
 import {MouseDragScroller} from '../../utils/MouseDragScroller';
 import {ListOfHintType} from '../../enum/ListOfHintType';
+import StyleInterpreter from '../../components/vo/StyleInterpreter';
 
 class GridViewComponent extends CellEditComponent {
     _filterClearRoot = null;
@@ -405,6 +406,9 @@ class GridViewComponent extends CellEditComponent {
                     onContentReady={(e) => {
                         this.highlightRow(e);
                         this.renderClearFilter();
+                        this.registerHeaderStyleObserver();
+                        this.registerCellStyleObserver();
+
                         if (this.props.onContentReady) {
                             this.props.onContentReady(e);
                         }
@@ -599,6 +603,70 @@ class GridViewComponent extends CellEditComponent {
                 }
             }
         }
+    };
+    registerHeaderStyleObserver = () => {
+        const gridOptions = this.props.parsedGridView?.gridOptions;
+        if (!gridOptions) {
+            return;
+        }
+        const grid = this.getInstance()?.element();
+        if (!grid) {
+            return;
+        }
+        const styleInterpreter = new StyleInterpreter(gridOptions.headerFont);
+        const applyStyles = () => {
+            const headers = grid.querySelectorAll('td[role="columnheader"]');
+            headers.forEach((el) => {
+                const textContent = el.querySelector('.dx-datagrid-text-content');
+                if (textContent && !textContent.dataset.customStyled) {
+                    Object.assign(textContent.style, styleInterpreter.style);
+                    textContent.dataset.customStyled = 'true';
+                }
+            });
+        };
+        applyStyles();
+        if (this.headerStyleObserver) {
+            this.headerStyleObserver.disconnect();
+        }
+        this.headerStyleObserver = new MutationObserver(() => {
+            applyStyles();
+        });
+        this.headerStyleObserver.observe(grid, {
+            childList: true,
+            subtree: true,
+        });
+    };
+    registerCellStyleObserver = () => {
+        const gridOptions = this.props.parsedGridView?.gridOptions;
+        if (!gridOptions) {
+            return;
+        }
+        const grid = this.getInstance()?.element();
+        if (!grid) {
+            return;
+        }
+        const styleInterpreter = new StyleInterpreter(gridOptions.cellFont);
+        const applyStyles = () => {
+            const cells = grid.querySelectorAll('td[role="gridcell"]');
+            cells.forEach((el) => {
+                const firstChild = el.firstElementChild;
+                if (firstChild && !firstChild.dataset.customStyled) {
+                    Object.assign(firstChild.style, styleInterpreter.style);
+                    firstChild.dataset.customStyled = 'true';
+                }
+            });
+        };
+        applyStyles();
+        if (this.cellStyleObserver) {
+            this.cellStyleObserver.disconnect();
+        }
+        this.cellStyleObserver = new MutationObserver(() => {
+            applyStyles();
+        });
+        this.cellStyleObserver.observe(grid, {
+            childList: true,
+            subtree: true,
+        });
     };
     preAction = (operation, callback, recordId = this.state.selectedRecordId) => {
         const onlyOneRecord = operation?.onlyOneRecord;

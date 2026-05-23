@@ -1,11 +1,46 @@
 {
     "changeLog": [
         {
+            "version": "1.6.4.271",
+            "title": "",
+            "data": [
+                {
+                    "type": "NEW",
+                    "isNew": true,
+                    "color": "green",
+                    "date": "",
+                    "text": "Podbicie wersji devextreme"
+                },
+                {
+                    "type": "FIX",
+                    "isNew": true,
+                    "color": "red",
+                    "date": "",
+                    "text": "Fix w dodawaniu specyfiakcji na widoczność kolumn"
+                },
+                {
+                    "type": "FIX",
+                    "isNew": true,
+                    "color": "red",
+                    "date": "",
+                    "description": " trzy parametry: BI_RELOAD_IN_MILISECONDS, BI_BE_URL, BI_WORKING_MODE(Designer, Viewer, ViewerOnly). Widok dostępny pod /#/dashbi",
+                    "text": "Dashboard component"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "isNew": true,
+                    "date": "",
+                    "link": "https://trello.com/c/0ZT6S5Q2/939-mo%C5%BCliwo%C5%9B%C4%87-zmiany-czcionki",
+                    "text": "Zmiana stylu header i cell"
+                }
+            ]
+        },
+        {
             "version": "1.6.4.270",
             "title": "",
             "data": [
                 {
-                    "isNew": true,
                     "type": "FIX",
                     "color": "red",
                     "date": "",
@@ -13,7 +48,6 @@
                     "text": "Poprawka na cofanie zmian w edycji specyfikacji"
                 },
                 {
-                    "isNew": true,
                     "type": "FIX",
                     "color": "red",
                     "date": "",

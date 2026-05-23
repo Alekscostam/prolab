@@ -35,6 +35,9 @@ const useStore = create((set, get) => ({
     deviceName: undefined,
     refreshToken: undefined,
     currentViewType: undefined,
+    biWorkingMode: undefined,
+    biReloadInMiliseconds: undefined,
+    biBeUrl: undefined,
     setLabels: (value) => set({labels: value}),
     setBarCodeShowMethod: (value) => {
         if (StringUtils.isBlank(value)) {
@@ -44,6 +47,9 @@ const useStore = create((set, get) => ({
             barCodeShowMethod: value,
         });
     },
+    setBiReloadInMiliseconds: (value) => set({biReloadInMiliseconds: value}),
+    setBiWorkingMode: (value) => set({biWorkingMode: value}),
+    setBiBeUrl: (value) => set({biBeUrl: value}),
     setDraggableGridEnabled: (value) => set({draggableGridEnabled: value}),
     setMessages: (value) => set({messages: value}),
     setCaptcha: (value) => set({captcha: value}),

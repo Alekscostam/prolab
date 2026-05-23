@@ -2041,6 +2041,15 @@ td[aria-roledescription='Editable'] {
         }
     }
 }
+#customBiDashboard {
+    .dx-dashboard-item-shield,
+    .dx-overlay-wrapper.dx-overlay-shader {
+        display: none !important;
+    }
+    .dx-dashboard-item-loading-panel {
+        display: none !important;
+    }
+}
 
 @import 'edit_spec_field';
 @import 'edit_row';

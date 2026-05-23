@@ -1,5 +1,5 @@
 {
-    "REACT_APP_BACKEND_URL": "http://prolabrd-test.informtech.local/PPA/api",
+    "REACT_APP_BACKEND_URL": "http://prolabrd-dev.informtech.local/PPA/api",
     "REACT_APP_URL_PREFIX": "",
     "LANG": "PL",
     "LANG_LIST": ["PL", "ENG", "DE"],
@@ -12,15 +12,17 @@
     "SHOW_HINT_LIST_BUTTONS": true,
     "SHOW_MERGE": false,
     "SHOW_MARKUP_ON_HTML_EDITOR": true,
-    "SHOW_ADD_FROM_DASHBOARD": true,
     "SHOW_FILTER_CLEAR": true,
     "REMEMBER_ME": true,
     "BAR_CODE_SHOW_METHOD": "FIRST",
     "DRAGGABLE_GRID_ENABLED": false,
+    "BI_RELOAD_IN_MILISECONDS": 5000,
+    "BI_WORKING_MODE": "Designer",
+    "BI_BE_URL": "https://demos.devexpress.com/services/dashboard/api",
     "HEARTBEAT_TIME_MINUTES": 1,
     "CAPTCHA": {
         "SITE_KEY": "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI",
-        "ENABLED": true
+        "ENABLED": false
     },
     "WSS_URL": "",
     "CHAT_AI": {

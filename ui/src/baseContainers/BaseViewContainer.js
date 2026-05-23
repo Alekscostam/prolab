@@ -102,6 +102,7 @@ export class BaseViewContainer extends BaseContainer {
                 type: '',
             },
             totalCounts: undefined,
+            gridOptions: undefined,
             elementId: props.id,
             elementSubViewId: null,
             qrCodesDialog: false,
@@ -418,6 +419,7 @@ export class BaseViewContainer extends BaseContainer {
                     gridViewType: responseView?.viewInfo?.type,
                     kindView: responseView?.viewInfo?.kindView,
                     parsedGridView: responseView,
+                    gridOptions: responseView?.gridOptions,
                     // showColumnHeaders: responseView?.gridOptions?.dashboardHeader,
                     gridViewColumns: gridViewColumnsTmp,
                     pluginsList: pluginsListTmp,
@@ -1858,6 +1860,7 @@ export class BaseViewContainer extends BaseContainer {
                     handleOnGroupIndexChange={(index, value) => {
                         this.onGroupIndexChange(index, value);
                     }}
+                    gridOptions={this.state.gridOptions}
                     showColumnHeaders={this.state.showColumnHeaders}
                     multiLevelHeaders={this.isGridViewBands()}
                     gridViewColumns={this.state.gridViewColumns}

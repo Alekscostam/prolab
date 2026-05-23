@@ -45,14 +45,21 @@ export default class CellCustomBackground {
         }
     }
 
+    canPaint() {
+        const addSpecPopup = document.getElementById('popup-add-spec');
+        return !addSpecPopup;
+    }
+
     paintRowExecute() {
-        if (this.isFormulaWart()) {
-            this.paintRowByClassAndStyle('', '#93ffb8!important');
-        } else if (this.isBgColor() && this.cellInfo.columnIndex !== 0) {
-            this.paintRowByClassAndStyle('', this.cellInfo.data['_BGCOLOR']);
-        } else if (!this.isBgColor() && !this.isSpecialBgColor()) {
-            if (this.isDisabled()) {
-                this.paintRowByClassAndStyle('disabled-background', null);
+        if (this.canPaint()) {
+            if (this.isFormulaWart()) {
+                this.paintRowByClassAndStyle('', '#93ffb8!important');
+            } else if (this.isBgColor() && this.cellInfo.columnIndex !== 0) {
+                this.paintRowByClassAndStyle('', this.cellInfo.data['_BGCOLOR']);
+            } else if (!this.isBgColor() && !this.isSpecialBgColor()) {
+                if (this.isDisabled()) {
+                    this.paintRowByClassAndStyle('disabled-background', null);
+                }
             }
         }
     }

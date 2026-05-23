@@ -7,7 +7,7 @@ import {StringUtils} from '../../utils/StringUtils';
 import ActionButton from '../ActionButton';
 import useStore from '../../store';
 import {CookiesName} from '../../enum/CookieName';
-
+import DashboardControl from 'devexpress-dashboard-react';
 import {version as devExtremeVersion} from 'devextreme/core/version';
 import {getStore} from '../../utils/helper/StoreHelper';
 
@@ -147,6 +147,27 @@ export const VersionPreviewDialog = (props) => {
             type: 'PARAMETERS',
             text: 'SIGNIN_VIEWID',
             description: 'Przycisk rejestracji na stronie logowania',
+            isNew: true,
+            color: 'orange',
+        },
+        {
+            type: 'PARAMETERS',
+            text: 'BI_RELOAD_IN_MILISECONDS',
+            description: 'Odświeżanie dashboardu',
+            isNew: true,
+            color: 'orange',
+        },
+        {
+            type: 'PARAMETERS',
+            text: 'BI_BE_URL',
+            description: 'Link do BE dla Dashboardu',
+            isNew: true,
+            color: 'orange',
+        },
+        {
+            type: 'PARAMETERS',
+            text: 'BI_WORKING_MODE',
+            description: 'Working mode dla dashboardu',
             isNew: true,
             color: 'orange',
         },
@@ -429,7 +450,7 @@ export const VersionPreviewDialog = (props) => {
                         stylingMode={stylingMode}
                         iconPosition={iconPosition}
                         itemComponent={(data) => tabPanelItem(data)}
-                    ></TabPanel>
+                    />
                 </div>
             </Dialog>
             <Dialog

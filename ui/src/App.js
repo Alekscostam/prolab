@@ -42,6 +42,7 @@ import {getStore, updateHeartbeatDate} from './utils/helper/StoreHelper';
 import AboutVersionService from './services/AboutVersionService';
 import HeartbeatService from './services/HearbeatService';
 import Widget from './components/widget/Widget';
+import DashboardViewer from './components/prolab/DashboardViewer';
 
 export let clearState;
 export let reStateApp;
@@ -407,6 +408,9 @@ class App extends Component {
             const chatAi = configuration.CHAT_AI;
             const wssUrl = configuration.WSS_URL;
             const showFilterClear = configuration.SHOW_FILTER_CLEAR;
+            const biWorkingMode = configuration.BI_WORKING_MODE;
+            const biReloadInMiliseconds = configuration.BI_RELOAD_IN_MILISECONDS;
+            const biBeUrl = configuration.BI_BE_URL;
             const showMarkupOnHtmlEditor = configuration.SHOW_MARKUP_ON_HTML_EDITOR;
             const appVersion = packageJson.version + '_' + process.env.REACT_APP_BUILD_NUMBER;
             this.setState({
@@ -421,6 +425,9 @@ class App extends Component {
                     appVersion,
                 },
             });
+            getStore().setBiWorkingMode(biWorkingMode);
+            getStore().setBiReloadInMiliseconds(biReloadInMiliseconds);
+            getStore().setBiBeUrl(biBeUrl);
             getStore().setWssUrl(wssUrl);
             getStore().setCaptcha(captcha);
             getStore().setRememberMe(rememberMe);
@@ -837,6 +844,13 @@ class App extends Component {
                                     ) : null}
                                     <Switch>
                                         <Route exact path='/' render={(props) => this.renderLoginOrStartPage(props)} />
+                                        <Route
+                                            exact
+                                            path='/dashbi'
+                                            render={(props) => {
+                                                return <DashboardViewer />;
+                                            }}
+                                        />
                                         <Route path='/login' render={(props) => this.renderLoginContainer(props)} />
                                         {this.state.user && (
                                             <React.Fragment>
