@@ -299,9 +299,10 @@ export default class CellValidator {
             const op = this.getValidOperator(operator);
 
             let rightSide;
-
             if (value === "''") {
                 rightSide = '""';
+            } else if (typeof value === 'number' && !isNaN(value)) {
+                rightSide = value;
             } else {
                 rightSide = `data["${value}"]`;
             }
