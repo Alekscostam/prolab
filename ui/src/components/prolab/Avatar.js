@@ -5,12 +5,15 @@ import PropTypes from 'prop-types';
 import Image from '../Image';
 
 export const Avatar = ({userName, base64, rendered = true, collapsed = false}) => {
-    const initials = userName
-        .match(/(\b\S)?/g)
+    const initials = (userName || '')
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean)
+        .map(function (part) {
+            return part.charAt(0);
+        })
         .join('')
-        .match(/(^\S|\S$)?/g)
-        .join('')
-        .toUpperCase();
+        .toLocaleUpperCase('pl-PL');
     if (rendered) {
         return (
             <React.Fragment>

@@ -1,26 +1,70 @@
 {
     "changeLog": [
         {
+            "version": "1.6.4.274",
+            "title": "",
+            "data": [
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "isNew": true,
+                    "date": "",
+                    "text": "Poprawa inicjałów przy zalogowanej osobie"
+                }
+            ]
+        },
+        {
+            "version": "1.6.4.273",
+            "title": "",
+            "data": [
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "isNew": true,
+                    "date": "",
+                    "text": "Filtr na treelist(edycja specyfikacji)"
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "isNew": true,
+                    "link": "https://trello.com/c/aQnydsYS/953-przycisk-czyszczenia-filtr%C3%B3w",
+                    "text": "Zmiana przycisku i miejsca filtra"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "isNew": true,
+                    "link": "https://trello.com/c/qfjMkUnZ/961-komunikat-kod-przyczyny-zmiany",
+                    "text": "Usunięcie nadmiernego komunikatu powodu zmian"
+                }
+            ]
+        },
+        {
+            "version": "1.6.4.272",
+            "title": "",
+            "data": []
+        },
+        {
             "version": "1.6.4.271",
             "title": "",
             "data": [
                 {
                     "type": "NEW",
-                    "isNew": true,
                     "color": "green",
                     "date": "",
                     "text": "Podbicie wersji devextreme"
                 },
                 {
                     "type": "FIX",
-                    "isNew": true,
                     "color": "red",
                     "date": "",
                     "text": "Fix w dodawaniu specyfiakcji na widoczność kolumn"
                 },
                 {
                     "type": "FIX",
-                    "isNew": true,
                     "color": "red",
                     "date": "",
                     "description": " trzy parametry: BI_RELOAD_IN_MILISECONDS, BI_BE_URL, BI_WORKING_MODE(Designer, Viewer, ViewerOnly). Widok dostępny pod /#/dashbi",
@@ -29,7 +73,6 @@
                 {
                     "type": "FIX",
                     "color": "red",
-                    "isNew": true,
                     "date": "",
                     "link": "https://trello.com/c/0ZT6S5Q2/939-mo%C5%BCliwo%C5%9B%C4%87-zmiany-czcionki",
                     "text": "Zmiana stylu header i cell"
