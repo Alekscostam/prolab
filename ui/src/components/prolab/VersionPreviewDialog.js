@@ -110,13 +110,6 @@ export const VersionPreviewDialog = (props) => {
         },
         {
             type: 'PARAMETERS',
-            text: 'SHOW_FILTER_CLEAR',
-            description: 'Przycisk czyszczenia filtrów na widokach',
-            isNew: true,
-            color: 'orange',
-        },
-        {
-            type: 'PARAMETERS',
             text: 'SHOW_HINT_LIST_BUTTONS',
             description: 'Widoczność przycisków listy podpowiedzi w TreeList w trybie podglądu',
             isNew: true,

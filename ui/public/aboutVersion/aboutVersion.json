@@ -1,13 +1,41 @@
 {
     "changeLog": [
         {
+            "version": "1.6.4.274",
+            "title": "",
+            "data": [
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "isNew": true,
+                    "date": "",
+                    "text": "Filtr na treelist(edycja specyfikacji)"
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "isNew": true,
+                    "link": "https://trello.com/c/aQnydsYS/953-przycisk-czyszczenia-filtr%C3%B3w",
+                    "text": "Zmiana przycisku i miejsca filtra"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "isNew": true,
+                    "link": "https://trello.com/c/qfjMkUnZ/961-komunikat-kod-przyczyny-zmiany",
+                    "text": "Usunięcie nadmiernego komunikatu powodu zmian"
+                }
+            ]
+        },
+        {
             "version": "1.6.4.273",
             "title": "",
             "data": [
                 {
                     "type": "FIX",
                     "color": "red",
-                    "isNew": true,
                     "date": "",
                     "text": "Poprawa inicjałów przy zalogowanej osobie"
                 }

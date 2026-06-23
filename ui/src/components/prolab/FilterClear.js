@@ -32,23 +32,11 @@ const FilterClear = ({clearFnc, filters}) => {
     return (
         <div className='row'>
             <div className='col-12'>
-                <div
-                    id='clear-filter-outside'
-                    className='d-flex justify-content-center align-items-center'
-                    style={{height: '35px'}}
-                >
-                    <InputSwitch
-                        disabled={disabled}
-                        id='clear-filter'
+                <div id='clear-filter-outside' className='d-flex justify-content-center align-items-center'>
+                    <button
+                        class='btn-clear-filter mdi mdi-filter-variant-remove'
                         onClick={() => {
                             if (clearFnc) clearFnc();
-                        }}
-                        checked={filterEnabled}
-                        onChange={(e) => {
-                            setDisabled(true);
-                            if (!e.value) {
-                                handleChange(e.value);
-                            }
                         }}
                     />
                 </div>

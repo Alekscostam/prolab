@@ -274,20 +274,12 @@ class GridViewComponent extends CellEditComponent {
         }
     };
 
-    renderClearFilter = () => {
-        const clearFilter = document.getElementById('clear-filter-outside');
-        if (this._filterClearRoot && !clearFilter) {
-            this._filterClearRoot.render(
-                <FilterClear
-                    clearFnc={() => {
-                        this.getInstance().clearFilter();
-                    }}
-                    filters={window?.dataGrid?.getCombinedFilter()}
-                />
-            );
-        }
-    };
-
+    clearFilter() {
+        return this.getInstance().clearFilter();
+    }
+    getCombinedFilter() {
+        return window?.dataGrid?.getCombinedFilter();
+    }
     getTargetContextMenu = () => {
         if (this.props.gridId) {
             return '.gridId-' + this.props.gridId + ' ' + this.props.targetContextMenu;
@@ -850,9 +842,9 @@ class GridViewComponent extends CellEditComponent {
                             this.fillHeightForGrid(element);
                             const root = ReactDOM.createRoot(element);
                             root.render(this.addButton());
-                            const filterLastRow = element?.parentNode?.parentNode?.parentNode?.lastChild?.lastChild;
-                            if (!this.props?.isAttachment && useStore.getState()?.showFilterClear) {
-                                this._filterClearRoot = ReactDOM.createRoot(filterLastRow);
+                            const filterFirstRow = this.getElementToClearFilter();
+                            if (!this.props?.isAttachment) {
+                                this._filterClearRoot = ReactDOM.createRoot(filterFirstRow);
                             }
                         }
                     },
@@ -957,7 +949,17 @@ class GridViewComponent extends CellEditComponent {
         const currentUrl = window.location.href;
         window.location.href = UrlUtils.deleteParameterFromURL(currentUrl, 'selectedFromPrevGrid');
     };
-
+    // TODO:
+    getElementToClearFilter = () => {
+        const filterRow = document.querySelector('.dx-row.dx-column-lines.dx-datagrid-filter-row');
+        if (!filterRow) {
+            return null;
+        }
+        if (!filterRow.children || filterRow.children.length === 0) {
+            return null;
+        }
+        return filterRow.children[0] || null;
+    };
     resizeAfterDelay = (ref) => {
         if (this.allowWrapping && !this.hasResized && ref?.component) {
             this.hasResized = true;

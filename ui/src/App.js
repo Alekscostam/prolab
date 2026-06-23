@@ -407,7 +407,6 @@ class App extends Component {
             const draggableGridEnabled = configuration.DRAGGABLE_GRID_ENABLED;
             const chatAi = configuration.CHAT_AI;
             const wssUrl = configuration.WSS_URL;
-            const showFilterClear = configuration.SHOW_FILTER_CLEAR;
             const biWorkingMode = configuration.BI_WORKING_MODE;
             const biReloadInMiliseconds = configuration.BI_RELOAD_IN_MILISECONDS;
             const biBeUrl = configuration.BI_BE_URL;
@@ -434,7 +433,6 @@ class App extends Component {
             getStore().setBarCodeShowMethod(barCodeShowMethod);
             getStore().setHeartbeatTimeMinutes(heartbeatTimeMinutes);
             getStore().setDraggableGridEnabled(draggableGridEnabled);
-            getStore().setShowFilterClear(showFilterClear);
             getStore().setMessages(this.messages);
             getStore().setShowHintListButtons(showHintListButtons);
             getStore().setShowMerge(showMerge);

@@ -12,7 +12,6 @@
     "SHOW_HINT_LIST_BUTTONS": true,
     "SHOW_MERGE": false,
     "SHOW_MARKUP_ON_HTML_EDITOR": true,
-    "SHOW_FILTER_CLEAR": true,
     "REMEMBER_ME": true,
     "BAR_CODE_SHOW_METHOD": "FIRST",
     "DRAGGABLE_GRID_ENABLED": false,

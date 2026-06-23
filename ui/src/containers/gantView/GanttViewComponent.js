@@ -853,9 +853,9 @@ class GanttViewComponent extends React.Component {
                             }
                             ReactDOM.createRoot(element).render(this.addButton());
                             const combinedFilter = this.ganttInstance()._treeList.getCombinedFilter();
-                            const filterLastRow = element.parentNode.parentNode.parentNode.lastChild.lastChild;
-                            if (useStore.getState()?.showFilterClear) {
-                                ReactDOM.createRoot(filterLastRow).render(
+                            const filterFirstRow = this.getElementToClearFilter(element);
+                            if (filterFirstRow) {
+                                ReactDOM.createRoot(filterFirstRow).render(
                                     <FilterClear
                                         clearFnc={() => {
                                             const ganttRef = this.ganttInstance()._treeList;
@@ -977,6 +977,9 @@ class GanttViewComponent extends React.Component {
             }
         );
     }
+    getElementToClearFilter = (element) => {
+        return element?.parentNode?.parentNode?.parentNode?.lastChild?.firstChild;
+    };
     clearProperties() {
         _rowIndex = null;
         _bgcolor = null;

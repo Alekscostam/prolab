@@ -23,8 +23,10 @@ import {MemoizedTimeInput} from '../components/memoized/MemoizedTimeInput';
 import {EditorTextAreaDialog} from '../components/prolab/EditorTextAreaDialog';
 import useStore from '../store';
 import {ListOfHintType} from '../enum/ListOfHintType';
+import FilterClear from '../components/prolab/FilterClear';
 
 class CellEditComponent extends PureComponent {
+    _filterClearRoot = null;
     constructor(props) {
         super(props);
         this.dataGrid = null;
@@ -53,7 +55,21 @@ class CellEditComponent extends PureComponent {
             editorViewer: this.clearedEditorViewerObj(),
         };
     }
-
+    renderClearFilter = () => {
+        const clearFilter = document.getElementById('clear-filter-outside');
+        if (this._filterClearRoot && !clearFilter) {
+            this._filterClearRoot.render(
+                <FilterClear
+                    clearFnc={() => {
+                        this.clearFilter();
+                    }}
+                    filters={this.getCombinedFilter()}
+                />
+            );
+        }
+    };
+    clearFilter() {}
+    getCombinedFilter() {}
     modifyCurrentClickedCell(id) {
         this.currentClickedCell.current = id;
     }

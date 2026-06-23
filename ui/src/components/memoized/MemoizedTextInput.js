@@ -100,7 +100,8 @@ export const MemoizedTextInput = React.memo(
                                     revertClicked.current = false;
                                     if (afterValidatorExecute) {
                                         cellValidator.validateChain(value);
-                                        afterValidatorExecute(cellValidator, value);
+                                        const editListDialog = document.getElementById('editListDialog');
+                                        afterValidatorExecute(cellValidator, value, !editListDialog);
                                         if (cellValidator.shouldRunListOfHintsIfPossible()) {
                                             onOperationClick(false, ListOfHintType.REASON, {
                                                 cellValidator,

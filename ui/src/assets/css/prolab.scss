@@ -2050,7 +2050,12 @@ td[aria-roledescription='Editable'] {
         display: none !important;
     }
 }
-
+.btn-clear-filter {
+    border: none;
+    background: transparent;
+    font-size: 20px;
+    outline: none !important;
+}
 @import 'edit_spec_field';
 @import 'edit_row';
 @import 'chat';

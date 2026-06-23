@@ -38,10 +38,13 @@ import {TranslationUtils} from '../../utils/TranslationUtils';
 import {SelectedRowKeysUtils} from '../../utils/SelectedRowKeysUtils';
 import {handleEdit} from '../../utils/handler/EditHandler';
 import {cellRenderSpecial} from './TreeViewTemplate';
+import FilterClear from '../../components/prolab/FilterClear';
 
 let clearSelection = false;
 
 class TreeViewComponent extends CellEditComponent {
+    _filterClearRoot = null;
+
     constructor(props) {
         super(props);
         this.crudService = new CrudService();
@@ -109,6 +112,12 @@ class TreeViewComponent extends CellEditComponent {
         this.treeRefInstance().selectRows(selectedRowsKeys.map((el) => el._ID));
     };
 
+    clearFilter() {
+        return this.ref.instance().clearFilter();
+    }
+    getCombinedFilter() {
+        return this.ref.instance()?.getCombinedFilter();
+    }
     manageKeydownEvent(action) {
         const specEdit = document.getElementById('spec-edit');
         const allSpecEdit = document.querySelectorAll('#spec-edit');
@@ -261,6 +270,8 @@ class TreeViewComponent extends CellEditComponent {
                         }
                     }}
                     onContentReady={(e) => {
+                        this.renderClearFilter();
+
                         const editListDialog = document.getElementById('editListDialog');
                         if (!editListDialog) {
                             this.rerenderRows(e);
@@ -664,6 +675,10 @@ class TreeViewComponent extends CellEditComponent {
                             element.offsetParent.style.alignItems = 'center';
                             element.offsetParent.style.justifyContent = 'center';
                             element.offsetParent.style.display = 'flex';
+                            const filterFirstRow = this.getElementToClearFilter(element);
+                            if (filterFirstRow) {
+                                this._filterClearRoot = ReactDOM.createRoot(filterFirstRow);
+                            }
                             if (this.props?.addButtonFunction) {
                                 ReactDOM.createRoot(element).render(this.addButton());
                             }
@@ -786,7 +801,9 @@ class TreeViewComponent extends CellEditComponent {
             });
         }
     };
-
+    getElementToClearFilter(element) {
+        return element?.parentNode?.parentNode?.parentNode?.lastChild?.firstChild;
+    }
     fillOrderColumn = (column, columnDefinition) => {
         if (column?.name === '_ORDER') {
             column.sortOrder = columnDefinition.sortOrder;
