@@ -12,6 +12,14 @@
                     "text": "Filtr na treelist(edycja specyfikacji)"
                 },
                 {
+                    "type": "FIX",
+                    "color": "red",
+                    "isNew": true,
+                    "date": "",
+                    "link": "https://trello.com/c/2q1lIJFP/966-kr%C4%99c%C4%85ce-k%C3%B3%C5%82ko",
+                    "text": "Możliwa naprawa kółka podczas łądowania - nie wiadomo do końca czy zadziała"
+                },
+                {
                     "type": "NEW",
                     "color": "green",
                     "date": "",
@@ -37,11 +45,11 @@
                     "type": "FIX",
                     "color": "red",
                     "date": "",
-                    "text": "Poprawa inicjałów przy zalogowanej osobie"
+                    "text": "Poprawa inicjałów przy zalogowanej osobie",
+                    "link": "https://trello.com/c/p210hsMr/980-poprawa-inicja%C5%82%C3%B3w-przy-zalogowanej-osobie"
                 }
             ]
         },
-
         {
             "version": "1.6.4.272",
             "title": "",
