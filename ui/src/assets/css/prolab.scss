@@ -2029,6 +2029,13 @@ td[aria-roledescription='Editable'] {
 .base-row.dx-dropdowneditor-icon {
     color: $base-color !important;
 }
+.btn-clear-filter.filter-active {
+    color: #007bff;
+}
+.btn-clear-filter:disabled {
+    color: #999;
+    cursor: not-allowed;
+}
 #row-edit {
     .p-button-secondary.p-button.p-component.p-button-icon-only {
         .mdi:before {

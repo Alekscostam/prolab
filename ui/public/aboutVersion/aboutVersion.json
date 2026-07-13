@@ -1,7 +1,7 @@
 {
     "changeLog": [
         {
-            "version": "1.6.4.274",
+            "version": "1.6.4.275",
             "title": "",
             "data": [
                 {
@@ -9,12 +9,48 @@
                     "color": "green",
                     "isNew": true,
                     "date": "",
+                    "link": "https://trello.com/c/Gu5P6YDt/982-mechanizm-automatycznego-odswiezania",
+                    "text": "Aktualziacja aplikacji i wyświetlenie dialogu aktualziacji - parametr UPDATE_APP_DIALOG_ENABLED"
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "isNew": true,
+                    "link": "https://trello.com/c/aQnydsYS/953-przycisk-czyszczenia-filtr%C3%B3w",
+                    "text": "Zmiana kolorów jak coś jest we filtrach"
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "isNew": true,
+                    "link": "https://trello.com/c/ikE10seX/989-disableloginpage",
+                    "text": "Parametr DISABLE_LOGIN_PAGE"
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
+                    "isNew": true,
+                    "link": "https://trello.com/c/qEfnYgVx/992-komunikat-przy-401",
+                    "text": "Osbługa komunikatu błędu w loginie "
+                }
+            ]
+        },
+        {
+            "version": "1.6.4.274",
+            "title": "",
+            "data": [
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
                     "text": "Filtr na treelist(edycja specyfikacji)"
                 },
                 {
                     "type": "FIX",
                     "color": "red",
-                    "isNew": true,
                     "date": "",
                     "link": "https://trello.com/c/2q1lIJFP/966-kr%C4%99c%C4%85ce-k%C3%B3%C5%82ko",
                     "text": "Możliwa naprawa kółka podczas łądowania - nie wiadomo do końca czy zadziała"
@@ -23,7 +59,6 @@
                     "type": "NEW",
                     "color": "green",
                     "date": "",
-                    "isNew": true,
                     "link": "https://trello.com/c/aQnydsYS/953-przycisk-czyszczenia-filtr%C3%B3w",
                     "text": "Zmiana przycisku i miejsca filtra"
                 },

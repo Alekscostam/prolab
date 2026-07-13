@@ -43,6 +43,7 @@ import AboutVersionService from './services/AboutVersionService';
 import HeartbeatService from './services/HearbeatService';
 import Widget from './components/widget/Widget';
 import DashboardBiComponent from './containers/dashboard/DashboardBiComponent';
+import UpdateApp from './components/prolab/UpdateApp';
 
 export let clearState;
 export let reStateApp;
@@ -397,6 +398,7 @@ class App extends Component {
                 ? Boolean(configuration?.SHOW_VERSION_DIALOG)
                 : false;
             const deviceName = configuration.DEVICE_NAME;
+            const disableLoginPage = configuration.DISABLE_LOGIN_PAGE;
             const appName = configuration.APP_NAME;
             const captcha = configuration.CAPTCHA;
             const showHintListButtons = configuration.SHOW_HINT_LIST_BUTTONS;
@@ -405,6 +407,7 @@ class App extends Component {
             const barCodeShowMethod = configuration.BAR_CODE_SHOW_METHOD;
             const heartbeatTimeMinutes = configuration.HEARTBEAT_TIME_MINUTES;
             const draggableGridEnabled = configuration.DRAGGABLE_GRID_ENABLED;
+            const updateAppDialogEnabled = configuration.UPDATE_APP_DIALOG_ENABLED;
             const chatAi = configuration.CHAT_AI;
             const wssUrl = configuration.WSS_URL;
             const biWorkingMode = configuration.BI_WORKING_MODE;
@@ -424,6 +427,8 @@ class App extends Component {
                     appVersion,
                 },
             });
+            getStore().setDisableLoginPage(disableLoginPage);
+            getStore().setUpdateAppDialogEnabled(updateAppDialogEnabled);
             getStore().setBiWorkingMode(biWorkingMode);
             getStore().setBiReloadInMiliseconds(biReloadInMiliseconds);
             getStore().setBiBeUrl(biBeUrl);
@@ -700,6 +705,7 @@ class App extends Component {
         const loggedIn = authService.isLoggedUser();
         return (
             <React.Fragment>
+                {useStore.getState().updateAppDialogEnabled && <UpdateApp />}
                 {this.state.renderAboutVersionDialog && this.state.canRenderAboutVersionDialog && (
                     <VersionPreviewDialog
                         visible={this.state.renderAboutVersionDialog}

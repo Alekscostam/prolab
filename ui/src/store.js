@@ -23,6 +23,8 @@ const useStore = create((set, get) => ({
     webSocket: undefined,
     dataGridView: undefined,
     listOfHintsElements: true,
+    updateAppDialogEnabled: false,
+    disableLoginPage: false,
     labels: [],
     accessToken: undefined,
     showHintListButtons: undefined,
@@ -47,6 +49,8 @@ const useStore = create((set, get) => ({
         });
     },
     setBiReloadInMiliseconds: (value) => set({biReloadInMiliseconds: value}),
+    setUpdateAppDialogEnabled: (value) => set({updateAppDialogEnabled: value}),
+    setDisableLoginPage: (value) => set({disableLoginPage: value}),
     setBiWorkingMode: (value) => set({biWorkingMode: value}),
     setBiBeUrl: (value) => set({biBeUrl: value}),
     setDraggableGridEnabled: (value) => set({draggableGridEnabled: value}),

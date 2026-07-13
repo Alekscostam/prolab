@@ -7,6 +7,11 @@
         {"code": "Session_prelong", "caption": "Przedłużenie sesji"},
         {"code": "Document_pdf", "caption": "Dokument PDF"},
         {"code": "Prev", "caption": "Poprzednia"},
+        {"code": "Disable_Login_Title", "caption": "Scheduled Maintenance"},
+        {
+            "code": "Disable_Login_Content",
+            "caption": "The system is currently undergoing scheduled maintenance.\n\nLogin has been temporarily disabled while maintenance work is in progress.\nPlease try again later.\n\nWe apologize for the inconvenience and appreciate your patience.\n\n© Inform-Tech Sp. z o.o."
+        },
         {"code": "Published", "caption": "Opublikowano"},
         {"code": "Document_published", "caption": "Dokumenty zostały opublikowane"},
         {"code": "Document_unpublished", "caption": "Dokumenty nie zostały opublikowane"},
@@ -18,7 +23,8 @@
         {"code": "Login_Signin", "caption": "Zaloguj się"},
         {"code": "Not_selected_elements", "caption": "Nie wybrano żadnych elementów"},
         {"code": "Move_To", "caption": "Przenieś do"},
-
+        {"code": "Later", "caption": "Później"},
+        {"code": "Refresh_Now", "caption": "Odśwież teraz"},
         {"code": "Login_Signup", "caption": "Stwórz profil"},
         {"code": "Login_Signup_Info", "caption": "Nie masz swojego konta?"},
         {"code": "Login_ResetPassword", "caption": "Zapomniałeś hasła?"},

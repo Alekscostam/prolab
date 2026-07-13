@@ -276,7 +276,7 @@ class BaseContainer extends React.Component {
             messages.push(message);
         }
         if (title) {
-            const result = LocUtils.locFromStoreWithDefault('Error', 'Błąd') + ':' + title;
+            const result = title;
             title = result;
         } else {
             title = LocUtils.locFromStoreWithDefault('Error', 'Błąd');

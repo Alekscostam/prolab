@@ -131,6 +131,13 @@ export const VersionPreviewDialog = (props) => {
         },
         {
             type: 'PARAMETERS',
+            text: 'DISABLE_LOGIN_PAGE',
+            description: 'Brak możliwości zalogowania',
+            isNew: true,
+            color: 'orange',
+        },
+        {
+            type: 'PARAMETERS',
             text: 'WSS_URL',
             description: 'URL BE do websocketów',
             isNew: true,

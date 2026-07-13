@@ -21,6 +21,7 @@ import {getStore} from '../utils/helper/StoreHelper';
 import ReCAPTCHA from 'react-google-recaptcha';
 import {readValueCookieGlobal, saveValueToCookieGlobal} from '../utils/Cookie';
 import {StringUtils} from '../utils/StringUtils';
+import ApiService from '../services/ApiService';
 
 class LoginContainer extends BaseContainer {
     constructor(props) {
@@ -30,6 +31,7 @@ class LoginContainer extends BaseContainer {
         this.resetPassword = this.resetPassword.bind(this);
         this.registration = this.registration.bind(this);
         this.userService = new UserService();
+        this.apiService = new ApiService();
         this.messages = React.createRef();
         this.recaptchaRef = React.createRef();
         this._isMounted = false;
@@ -184,24 +186,18 @@ class LoginContainer extends BaseContainer {
                     }
                 })
                 .catch((err) => {
-                    ConsoleHelper(`LoginContainer:handleFormSubmit error`, err);
-                    if (err.status === 401 || err.status === 403) {
-                        this.setState((state) => ({
-                            authValid: false,
-                        }));
-                        this.validator.showMessages();
-                        this.forceUpdate();
-                        this.showErrorMessages(
-                            LocUtils.locFromStore('Login_SigninError'),
-                            10000,
-                            true,
-                            LocUtils.locFromStore('Error') + err.status
-                        );
-                        this.unblockUi();
-                        return;
+                    if (err.status === 401 || err.status === 403 || err.status === '401') {
+                        this.showErrorMessage(err?.message?.text, 10000, true, err?.message?.title);
+                    } else {
+                        this.showGlobalErrorMessage(err);
                     }
-                    this.showErrorMessages(LocUtils.locFromStore('Login_ConnectionError'), 10000);
+                    this.setState({
+                        authValid: false,
+                    });
+                    this.validator.showMessages();
+                    this.forceUpdate();
                     this.unblockUi();
+                    return;
                 });
         } else {
             this.validator.showMessages();
@@ -244,7 +240,7 @@ class LoginContainer extends BaseContainer {
                                 handleUnselectAllData={this.unselectAllDataGrid}
                             />
                         ) : null}
-                        {this.renderBeforeAuth()}
+                        {this.renderLoginPage()}
                     </BlockUi>
                 )
             );
@@ -271,6 +267,152 @@ class LoginContainer extends BaseContainer {
         }
         return false;
     };
+
+    disableLoginPage() {
+        return getStore().disableLoginPage;
+    }
+
+    renderLoginPage() {
+        return this.renderBeforeAuth();
+    }
+
+    renderNoLogin() {
+        return (
+            <div className='col-lg-10 col-xl-9 mx-auto'>
+                <div
+                    className='maintenance-title font-big font-weight-bold mb-4'
+                    style={{
+                        width: '100%',
+                        textAlign: 'center',
+                        fontSize: '32px',
+                        lineHeight: '1.2',
+                    }}
+                >
+                    {LocUtils.locFromStoreWithDefault('Disable_Login_Title', 'Scheduled Maintenance')}
+                </div>
+                <div className='mb-4'></div>
+                <div
+                    className='form-group mb-4 mx-auto text-center'
+                    style={{
+                        maxWidth: '800px',
+                        whiteSpace: 'pre-line',
+                        fontSize: '17px',
+                        lineHeight: '1.7',
+                    }}
+                >
+                    {LocUtils.locFromStoreWithDefault(
+                        'Disable_Login_Content',
+                        'The system is currently undergoing scheduled maintenance.\n\n' +
+                            'Login has been temporarily disabled while maintenance work is in progress.\n' +
+                            'Please try again later.\n\n' +
+                            'We apologize for the inconvenience and appreciate your patience.\n\n' +
+                            '© Inform-Tech Sp. z o.o.'
+                    )}
+                </div>
+            </div>
+        );
+    }
+
+    renderLogin() {
+        return (
+            <div className='col-lg-10 col-xl-9 mx-auto'>
+                <div className='font-big  mb-4 '>{LocUtils.locFromStore('Login_Signin')}</div>
+                <div>
+                    <div className='form-group mb-4'>
+                        <label htmlFor='username'>{LocUtils.locFromStore('Login_UserName')}</label>
+                        <InputText
+                            key={'username'}
+                            id={'username'}
+                            name={'username'}
+                            placeholder={''}
+                            style={{
+                                width: '100%',
+                            }}
+                            value={this.state.username}
+                            onChange={(e) => {
+                                const value = e.currentTarget.value;
+                                this.setState({username: value});
+                            }}
+                            autoComplete={getStore().rememberMe ? 'on' : 'off'}
+                            required={true}
+                            validator={this.validator}
+                            validators='required|max:50'
+                        />
+                    </div>
+                    <div className='form-group mb-3'>
+                        <label htmlFor='password'>{LocUtils.locFromStore('Login_Password')}</label>
+                        <Password
+                            key={'password'}
+                            id={'password'}
+                            name={'login_pass_hlogin_pass_hiddenidden'}
+                            placeholder={''}
+                            style={{
+                                width: '100%',
+                            }}
+                            autoComplete={getStore().rememberMe ? '' : 'new-password'}
+                            value={this.state.password}
+                            onChange={(e) => {
+                                const value = e.currentTarget.value;
+                                this.setState({password: value});
+                            }}
+                            promptLabel={LocUtils.locFromStore('Login_Password')}
+                            feedback={false}
+                            required={true}
+                            validator={this.authValidValidator}
+                            validators='not_required'
+                        />
+                    </div>
+                    {this.state.renderForgotPassword && (
+                        <div>
+                            <p className='text-right'>
+                                <ActionLink
+                                    handleClick={this.resetPassword}
+                                    label={LocUtils.locFromStore('Login_ResetPassword')}
+                                />
+                            </p>
+                        </div>
+                    )}
+                    {getStore()?.captcha?.ENABLED && (
+                        <ReCAPTCHA
+                            id='re-captcha'
+                            sitekey={getStore().captcha?.SITE_KEY}
+                            ref={this.recaptchaRef}
+                            onChange={(value) => {
+                                this.setState({captchaToken: value});
+                            }}
+                            onExpired={() => {
+                                this.setState({captchaToken: null});
+                            }}
+                            hl={this.state.lang}
+                        />
+                    )}
+
+                    <div>
+                        <ActionButton
+                            label={LocUtils.locFromStore('Login_Signin')}
+                            className='mt-4'
+                            disabled={this.loginDisabled()}
+                            variant='login-button'
+                            handleClick={this.handleFormSubmit}
+                        />
+                        {this.state.renderSignIn && (
+                            <div className='mt-4'>
+                                <p className='font-normal text-center'>
+                                    {LocUtils.locFromStore('Login_Signup_Info')}
+                                    &nbsp;
+                                    <ActionLink
+                                        handleClick={this.registration}
+                                        label={LocUtils.locFromStore('Login_Signup')}
+                                    />
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     renderBeforeAuth() {
         return (
             <React.Fragment>
@@ -319,115 +461,9 @@ class LoginContainer extends BaseContainer {
                                         <div className='login d-flex align-items-center py-5'>
                                             <div className='container'>
                                                 <div className='row'>
-                                                    <div className='col-lg-10 col-xl-9 mx-auto'>
-                                                        <div className='font-big  mb-4 '>
-                                                            {LocUtils.locFromStore('Login_Signin')}
-                                                        </div>
-                                                        <div>
-                                                            <div className='form-group mb-4'>
-                                                                <label htmlFor='username'>
-                                                                    {LocUtils.locFromStore('Login_UserName')}
-                                                                </label>
-                                                                <InputText
-                                                                    key={'username'}
-                                                                    id={'username'}
-                                                                    name={'username'}
-                                                                    placeholder={''}
-                                                                    style={{
-                                                                        width: '100%',
-                                                                    }}
-                                                                    value={this.state.username}
-                                                                    onChange={(e) => {
-                                                                        const value = e.currentTarget.value;
-                                                                        this.setState({username: value});
-                                                                    }}
-                                                                    autoComplete={getStore().rememberMe ? 'on' : 'off'}
-                                                                    required={true}
-                                                                    validator={this.validator}
-                                                                    validators='required|max:50'
-                                                                />
-                                                            </div>
-                                                            <div className='form-group mb-3'>
-                                                                <label htmlFor='password'>
-                                                                    {LocUtils.locFromStore('Login_Password')}
-                                                                </label>
-                                                                <Password
-                                                                    key={'password'}
-                                                                    id={'password'}
-                                                                    name={'login_pass_hlogin_pass_hiddenidden'}
-                                                                    placeholder={''}
-                                                                    style={{
-                                                                        width: '100%',
-                                                                    }}
-                                                                    autoComplete={
-                                                                        getStore().rememberMe ? '' : 'new-password'
-                                                                    }
-                                                                    value={this.state.password}
-                                                                    onChange={(e) => {
-                                                                        const value = e.currentTarget.value;
-                                                                        this.setState({password: value});
-                                                                    }}
-                                                                    promptLabel={LocUtils.locFromStore(
-                                                                        'Login_Password'
-                                                                    )}
-                                                                    feedback={false}
-                                                                    required={true}
-                                                                    validator={this.authValidValidator}
-                                                                    validators='not_required'
-                                                                />
-                                                            </div>
-                                                            {this.state.renderForgotPassword && (
-                                                                <div>
-                                                                    <p className='text-right'>
-                                                                        <ActionLink
-                                                                            handleClick={this.resetPassword}
-                                                                            label={LocUtils.locFromStore(
-                                                                                'Login_ResetPassword'
-                                                                            )}
-                                                                        />
-                                                                    </p>
-                                                                </div>
-                                                            )}
-                                                            {getStore()?.captcha?.ENABLED && (
-                                                                <ReCAPTCHA
-                                                                    id='re-captcha'
-                                                                    sitekey={getStore().captcha?.SITE_KEY}
-                                                                    ref={this.recaptchaRef}
-                                                                    onChange={(value) => {
-                                                                        this.setState({captchaToken: value});
-                                                                    }}
-                                                                    onExpired={() => {
-                                                                        this.setState({captchaToken: null});
-                                                                    }}
-                                                                    hl={this.state.lang}
-                                                                />
-                                                            )}
-
-                                                            <div>
-                                                                <ActionButton
-                                                                    label={LocUtils.locFromStore('Login_Signin')}
-                                                                    className='mt-4'
-                                                                    disabled={this.loginDisabled()}
-                                                                    variant='login-button'
-                                                                    handleClick={this.handleFormSubmit}
-                                                                />
-                                                                {this.state.renderSignIn && (
-                                                                    <div className='mt-4'>
-                                                                        <p className='font-normal text-center'>
-                                                                            {LocUtils.locFromStore('Login_Signup_Info')}
-                                                                            &nbsp;
-                                                                            <ActionLink
-                                                                                handleClick={this.registration}
-                                                                                label={LocUtils.locFromStore(
-                                                                                    'Login_Signup'
-                                                                                )}
-                                                                            />
-                                                                        </p>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                                    {this.disableLoginPage()
+                                                        ? this.renderNoLogin()
+                                                        : this.renderLogin()}
                                                 </div>
                                             </div>
                                         </div>

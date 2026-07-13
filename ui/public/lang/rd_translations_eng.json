@@ -16,9 +16,23 @@
         {"code": "Login_UserName", "caption": "Username"},
         {"code": "Selection_List_Label", "caption": "List of hints"},
         {"code": "Login_Password", "caption": "Password"},
+        {"code": "Disable_Login_Title", "caption": "Scheduled Maintenance"},
+        {
+            "code": "Disable_Login_Content",
+            "caption": "The system is currently undergoing scheduled maintenance.\n\nLogin has been temporarily disabled while maintenance work is in progress.\nPlease try again later.\n\nWe apologize for the inconvenience and appreciate your patience.\n\n© Inform-Tech Sp. z o.o."
+        },
+
         {"code": "Login_Signin", "caption": "Sign In"},
         {"code": "Login_Signup", "caption": "Sign Up"},
         {"code": "Move_To", "caption": "Move to"},
+        {"code": "New_Version", "caption": "Nowa wersja"},
+        {"code": "Later", "caption": "Później"},
+        {"code": "Refresh_Now", "caption": "Odśwież teraz"},
+        {
+            "code": "Application_Updated_Refresh_Page",
+            "caption": "Aplikacja została zaktualizowana. Odśwież stronę, aby korzystać z najnowszej wersji"
+        },
+        {"code": "Current_Version", "caption": "Aktualna wersja"},
         {"code": "Login_Signup_Info", "caption": "Don't have an account?"},
         {"code": "Login_ResetPassword", "caption": "Forgot Password?"},
         {"code": "Menu_Search", "caption": "Search in menu"},
