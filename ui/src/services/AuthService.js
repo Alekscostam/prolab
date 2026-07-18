@@ -84,8 +84,9 @@ export default class AuthService {
                     } else if (response.ok) {
                         return resolve(response.body);
                     }
-                    // extract the error from the server's json
-                    return reject(response.json);
+                    const jsonResponse = response.json;
+                    jsonResponse.responseStatusCode = response.status;
+                    return reject(jsonResponse);
                 })
                 .catch((error) => {
                     if (method === 'POST' || method === 'PUT') {
@@ -123,6 +124,7 @@ export default class AuthService {
                     response.json().then(
                         (json) => {
                             resolve({
+                                statusText: response?.statusText,
                                 status: response.status,
                                 ok: response.ok,
                                 json,
@@ -130,6 +132,7 @@ export default class AuthService {
                         },
                         (reason) => {
                             reject({
+                                statusText: response?.statusText,
                                 status: response.status,
                                 ok: response.ok,
                                 json: {message: reason},
@@ -138,6 +141,7 @@ export default class AuthService {
                     );
                 } else {
                     resolve({
+                        statusText: response?.statusText,
                         status: response.status,
                         ok: response.ok,
                         body: response.body,
@@ -147,6 +151,7 @@ export default class AuthService {
         } else {
             return new Promise((resolve) =>
                 resolve({
+                    statusText: response?.statusText,
                     status: response.status,
                     ok: response.ok,
                     json: {message: ''},

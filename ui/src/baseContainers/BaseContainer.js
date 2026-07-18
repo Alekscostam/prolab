@@ -195,6 +195,14 @@ class BaseContainer extends React.Component {
         this.unblockUi();
     }
 
+    showErrorMessageByStatusCode(err) {
+        if (err.responseStatusCode === 401) {
+            this.showErrorMessage(err?.message?.text, 10000, true, err?.message?.title);
+        } else {
+            this.showGlobalErrorMessage(err);
+        }
+    }
+
     showGlobalErrorMessage(err) {
         console.error(err);
         if (!!err?.error) {
@@ -886,6 +894,9 @@ class BaseContainer extends React.Component {
                     this.unblockUi();
                 } else if (saveResponse?.status === ResponseStatus.OK) {
                     this.removeSubviewClickedIfEditHeaderOpen();
+                }
+                if (saveResponse?.options?.refreshGUI) {
+                    getStore().refreshGui(true);
                 }
             })
             .catch((err) => {

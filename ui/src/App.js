@@ -44,6 +44,8 @@ import HeartbeatService from './services/HearbeatService';
 import Widget from './components/widget/Widget';
 import DashboardBiComponent from './containers/dashboard/DashboardBiComponent';
 import UpdateApp from './components/prolab/UpdateApp';
+import {handleEdit} from './utils/handler/EditHandler';
+import CrudService from './services/CrudService';
 
 export let clearState;
 export let reStateApp;
@@ -56,7 +58,10 @@ class App extends Component {
     constructor() {
         super();
         this.history = createBrowserHistory();
+
         this.authService = new AuthService();
+        this.crudService = new CrudService();
+
         this.historyBrowser = this.history;
         this.selectedDataGrid = React.createRef();
         this.localizationService = new LocalizationService();
@@ -64,6 +69,7 @@ class App extends Component {
         this.viewContainer = React.createRef();
         this.editSpecContainer = React.createRef();
         this.state = {
+            guiRefreshKey: 0,
             configApp: {
                 lang: 'PL',
                 renderForgotPassword: false,
@@ -171,15 +177,26 @@ class App extends Component {
     appInitialize = () => {
         const urlPrefixCookie = readObjFromCookieGlobal('REACT_APP_URL_PREFIX');
         const configUrl = UrlUtils.makeConfigUrl(urlPrefixCookie);
-        this.extendSessionByRootClick();
+
+        const readAboutVersion = () => this.readAboutVersion(configUrl);
+
+        const refreshGui = (forceReload) => {
+            return this.refreshGui(configUrl, forceReload);
+        };
+
+        getStore().setReadAboutVersion(readAboutVersion);
+        getStore().setRefreshGui(refreshGui);
+
         this.setRestateApp();
         this.setClearState();
         this.setRenderNoRefreshContent();
         this.showSessionTimeoutIfPossible();
         this.saveCookieUrlAfterLogin();
+
         this.readConfigAndSaveInCookie(configUrl).catch((err) => {
             console.error('Error start application = ', err);
         });
+
         this.readAboutVersion(configUrl).catch((err) => {
             console.error('Cant read version info = ', err);
         });
@@ -187,7 +204,9 @@ class App extends Component {
 
     readAboutVersion = (configUrl) => {
         return new AboutVersionService(configUrl).getAboutVersion().then((response) => {
-            getStore().setAboutVersion(response.changeLog);
+            const changeLog = response && Array.isArray(response.changeLog) ? response.changeLog : [];
+            getStore().setAboutVersion(changeLog);
+            return changeLog;
         });
     };
     componentDidUpdate() {
@@ -544,49 +563,106 @@ class App extends Component {
             this.setState({user: null, renderNoRefreshContent: false});
         }
     }
+    refreshGui = (configUrl, forceReload = false) => {
+        if (!forceReload) {
+            return this.getLocalization(configUrl);
+        }
+
+        return this.authService
+            .refresh()
+            .catch((error) => {
+                console.error('Nie udało się odświeżyć sesji przed przeładowaniem GUI:', error);
+            })
+            .then(() => {
+                return this.getLocalization(configUrl);
+            })
+            .then((labels) => {
+                return new Promise((resolve) => {
+                    this.setState(
+                        (prevState) => ({
+                            guiRefreshKey: prevState.guiRefreshKey + 1,
+                        }),
+                        () => {
+                            resolve(labels);
+                        }
+                    );
+                });
+            });
+    };
     getLocalization(configUrl) {
         this.localizationService.reConfigureDomain();
+
         if (this.authService.isLoggedUser()) {
             try {
-                const language = JSON.parse(localStorage.getItem(CookiesName.LOGGED_USER)).lang.toLowerCase();
-                // const language = 'ENG';
-                this.getTranslations(configUrl, language);
-            } catch (ex) {
-                console.error(ex);
+                const loggedUser = JSON.parse(localStorage.getItem(CookiesName.LOGGED_USER));
+
+                const language = loggedUser && loggedUser.lang ? loggedUser.lang.toLowerCase() : 'pl';
+
+                return this.getTranslations(configUrl, language);
+            } catch (error) {
+                console.error('Nie udało się odczytać języka użytkownika:', error);
+
                 if (localStorage.getItem(CookiesName.LOGGED_USER) === null) {
                     this.authService.logout();
                 }
+
+                return Promise.reject(error);
             }
-        } else {
-            this.getTranslations(configUrl, 'pl');
         }
+
+        return this.getTranslations(configUrl, 'pl');
     }
     getTranslations(configUrl, language) {
         const localizationService = new LocalizationService(configUrl);
-        localizationService.getTranslationsFromFile('rd', language.toLowerCase()).then((res) => {
-            const config = this.state.config;
-            const langs = config.LANG_LIST;
-            const realLang = language;
+        const realLang = (language || 'pl').toLowerCase();
+        const shortLang = realLang.substr(0, 2);
+
+        return localizationService.getTranslationsFromFile('rd', realLang).then((response) => {
+            const config = this.state.config || {};
+            const langs = Array.isArray(config.LANG_LIST) ? config.LANG_LIST : [];
             const labels = {};
-            if (res.labels) {
-                res.labels.forEach((label) => (labels[label.code] = label.caption));
-            }
-            this.setState({langs, labels});
-            const shortLang = realLang.toLowerCase().substr(0, 2);
-            localizationService.getTranslationsFromFile('dev', realLang).then((devExpressTranslation) => {
-                res.labels.forEach((label) => {
-                    devExpressTranslation[label.code] = label.caption;
+            const responseLabels = response && Array.isArray(response.labels) ? response.labels : [];
+
+            responseLabels.forEach((label) => {
+                labels[label.code] = label.caption;
+            });
+
+            return Promise.all([
+                localizationService.getTranslationsFromFile('dev', realLang),
+                localizationService.getTranslationsFromFile('primi', realLang),
+            ]).then(([devExpressTranslation, primeReactTranslation]) => {
+                const devTranslations = devExpressTranslation || {};
+
+                responseLabels.forEach((label) => {
+                    devTranslations[label.code] = label.caption;
                 });
+
                 loadMessages({
-                    [shortLang]: devExpressTranslation,
+                    [shortLang]: devTranslations,
                 });
+
                 devExpressLocale(shortLang);
+
+                if (primeReactTranslation && primeReactTranslation[shortLang]) {
+                    addLocale(shortLang, primeReactTranslation[shortLang]);
+
+                    primeReactLocale(shortLang);
+                }
+
+                useStore.getState().setLabels(labels);
+
+                return new Promise((resolve) => {
+                    this.setState(
+                        {
+                            langs: langs,
+                            labels: labels,
+                        },
+                        () => {
+                            resolve(labels);
+                        }
+                    );
+                });
             });
-            localizationService.getTranslationsFromFile('primi', realLang).then((primeReactTranslation) => {
-                addLocale(shortLang, primeReactTranslation[shortLang]);
-                primeReactLocale(shortLang);
-            });
-            useStore.getState().setLabels(labels);
         });
     }
     canRenderLogin = () => {
@@ -704,7 +780,8 @@ class App extends Component {
         const authService = this.authService;
         const loggedIn = authService.isLoggedUser();
         return (
-            <React.Fragment>
+            <React.Fragment key={'gui-' + this.state.guiRefreshKey}>
+                {' '}
                 {useStore.getState().updateAppDialogEnabled && <UpdateApp />}
                 {this.state.renderAboutVersionDialog && this.state.canRenderAboutVersionDialog && (
                     <VersionPreviewDialog
@@ -762,6 +839,21 @@ class App extends Component {
                         <div className={`${loggedIn ? 'app' : ''}`}>
                             {this.showSidebar() && (
                                 <Sidebar
+                                    onEditClick={() => {
+                                        const viewId = UrlUtils.getViewIdFromURL();
+                                        const parentId = UrlUtils.getParentId();
+                                        const kindView = UrlUtils.getKindView();
+                                        if (getStore().baseViewHandleEdit) {
+                                            getStore().baseViewHandleEdit(
+                                                viewId,
+                                                undefined,
+                                                parentId,
+                                                kindView,
+                                                undefined
+                                            );
+                                            getStore().baseViewBlockUi();
+                                        }
+                                    }}
                                     authService={this.authService}
                                     historyBrowser={this.historyBrowser}
                                     handleLogoutUser={() => this.handleLogoutBySideBar()}

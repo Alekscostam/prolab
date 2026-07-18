@@ -23,6 +23,8 @@ import ConsoleHelper from '../../utils/ConsoleHelper';
 import AuthService from '../../services/AuthService';
 import {CookiesName} from '../../enum/CookieName';
 import LocUtils from '../../utils/LocUtils';
+import {Dropdown} from 'primereact/dropdown';
+import {readValueCookieGlobal, saveValueToCookieGlobal} from '../../utils/Cookie';
 
 class Sidebar extends React.Component {
     constructor(props) {
@@ -235,6 +237,141 @@ class Sidebar extends React.Component {
             (UrlUtils.isEditRowOpen() || UrlUtils.isBatch() || UrlUtils.isEditSpec())
         );
     }
+
+    renderViewType(item) {
+        const activeItem = this.containsViewId(item, this.state.viewId, item.id);
+
+        const timestamp = Date.now();
+        const itemType = String(item?.type || '')
+            .trim()
+            .toUpperCase();
+
+        const isEdit = itemType === 'EDIT';
+
+        return (
+            <React.Fragment key={`menu_item_id_${item.id}_fragment`}>
+                <MenuItem
+                    id={`menu_item_id_${item.id}`}
+                    key={`menu_item_key_${item.id}`}
+                    className={activeItem ? 'active' : ''}
+                    icon={this.displayIcon(item)}
+                    onClick={() => {
+                        this.doNotUpdate = true;
+                    }}
+                >
+                    <div className='menu_arrow_active' />
+
+                    {isEdit ? (
+                        <div
+                            id={`menu_link_item_${item.id}`}
+                            key={`menu_link_item_${item.id}`}
+                            className='title'
+                            style={{
+                                fontSize: '14px',
+                                fontWeight: 'normal',
+                                cursor: 'pointer',
+                            }}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                this.props.onEditClick();
+                            }}
+                        >
+                            <div className='title'>{item?.name}</div>
+                        </div>
+                    ) : (
+                        <a
+                            id={`menu_link_item_${item.id}`}
+                            key={`menu_link_item_${item.id}`}
+                            href={AppPrefixUtils.locationHrefUrl(`/#/grid-view/${item.id}?force=${timestamp}`)}
+                            className='title'
+                            style={{
+                                fontSize: '14px',
+                                fontWeight: 'normal',
+                            }}
+                            onClick={(e) => {
+                                this.viewItemAction(e, item);
+                            }}
+                        >
+                            <div className='title'>{item?.name}</div>
+                        </a>
+                    )}
+                </MenuItem>
+
+                {item?.sub && this.renderDynamicMenu(item?.sub)}
+            </React.Fragment>
+        );
+    }
+
+    viewItemAction(e, item) {
+        const href = e.target.href;
+        const targetHref = UrlUtils.addParameterToURL(href, 'force', Date.now());
+        if (this.onClickItemHrefReactionEnabled()) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.props.onShowEditQuitConfirmDialog(item.id);
+        } else {
+            e.target.href = targetHref;
+        }
+    }
+
+    containsViewId = (item, viewId, currId, type) => {
+        var result = false;
+        if (item?.sub && item?.sub?.length > 0) {
+            for (let i in item?.sub) {
+                let subItem = item?.sub[i];
+                result = result || parseInt(subItem.id) === parseInt(viewId);
+                result = result || this.containsViewId(subItem, viewId, currId, type);
+                if (result) {
+                    return true;
+                }
+            }
+        } else {
+            result = result || parseInt(item.id) === parseInt(viewId);
+            if (result) {
+                return true;
+            }
+        }
+        return result;
+    };
+    getNormalizedItemType = (item) => {
+        return String(item?.type || '')
+            .trim()
+            .toUpperCase();
+    };
+    renderDynamicMenu = (items) => {
+        let {authService} = this.props;
+        const loggedIn = authService.isLoggedUser();
+
+        const timestamp = Date.now();
+        return loggedIn ? (
+            <Menu iconShape='circle' popperArrow='false'>
+                {items?.map((item) => {
+                    const itemType = this.getNormalizedItemType(item);
+
+                    const activeItem = this.containsViewId(item, this.state.viewId, item.id);
+
+                    if (itemType === 'VIEW') {
+                        return this.renderViewType(item);
+                    } else if (itemType === 'EDIT') {
+                        return this.renderViewType(item);
+                    } else {
+                        return (
+                            <SubMenu
+                                key={`menu_sub_${item.id}`}
+                                icon={this.displayIcon(item)}
+                                className={activeItem ? 'active' : ''}
+                                defaultOpen={activeItem}
+                                title={item?.name}
+                            >
+                                {item?.sub && this.renderDynamicMenu(item?.sub)}
+                            </SubMenu>
+                        );
+                    }
+                })}
+            </Menu>
+        ) : null;
+    };
     render() {
         ConsoleHelper('sidebar => render', this.state.viewId);
         let {authService} = this.props;
@@ -256,89 +393,11 @@ class Sidebar extends React.Component {
         const userName = !loggedIn ? null : JSON.parse(profile).name;
         const avatar = !loggedIn ? null : JSON.parse(profile).avatar;
         const dynamicMenuJSON = !loggedIn ? [] : this.state.filteredMenu;
-        const renderDynamicMenu = (items) => {
-            const timestamp = Date.now();
-            return loggedIn ? (
-                <Menu iconShape='circle' popperArrow='false'>
-                    {items?.map((item) => {
-                        const activeItem = containsViewId(item, this.state.viewId, item.id);
-                        return item.type === 'View' ? (
-                            <React.Fragment key={`menu_item_id_${item.id}_fragment`}>
-                                <MenuItem
-                                    id={`menu_item_id_${item.id}`}
-                                    key={`menu_item_key_${item.id}`}
-                                    className={activeItem ? 'active' : ''}
-                                    icon={this.displayIcon(item)}
-                                    onClick={() => {
-                                        this.doNotUpdate = true;
-                                    }}
-                                >
-                                    <div className='menu_arrow_active' />
-                                    <a
-                                        id={`menu_link_item_${item.id}`}
-                                        key={`menu_link_item_${item.id}`}
-                                        href={AppPrefixUtils.locationHrefUrl(
-                                            `/#/grid-view/${item.id}?force=${timestamp}`
-                                        )}
-                                        className='title'
-                                        style={{fontSize: '14px', fontWeight: 'normal'}}
-                                        onClick={(e) => {
-                                            const href = e.target.href;
-                                            const targetHref = UrlUtils.addParameterToURL(href, 'force', Date.now());
-                                            if (this.onClickItemHrefReactionEnabled()) {
-                                                e.preventDefault();
-                                                e.stopPropagation();
-                                                this.props.onShowEditQuitConfirmDialog(item.id);
-                                            } else {
-                                                e.target.href = targetHref;
-                                            }
-                                        }}
-                                    >
-                                        <div className='title'>{item?.name}</div>
-                                    </a>
-                                </MenuItem>
-                                {item?.sub && renderDynamicMenu(item?.sub)}
-                            </React.Fragment>
-                        ) : (
-                            <SubMenu
-                                key={`menu_sub_${item.id}`}
-                                icon={this.displayIcon(item)}
-                                className={activeItem ? 'active' : ''}
-                                defaultOpen={activeItem}
-                                title={item?.name}
-                            >
-                                {item?.sub && renderDynamicMenu(item?.sub)}
-                            </SubMenu>
-                        );
-                    })}
-                </Menu>
-            ) : null;
-        };
-
-        const containsViewId = (item, viewId, currId, type) => {
-            var result = false;
-            if (item?.sub && item?.sub?.length > 0) {
-                for (let i in item?.sub) {
-                    let subItem = item?.sub[i];
-                    result = result || parseInt(subItem.id) === parseInt(viewId);
-                    result = result || containsViewId(subItem, viewId, currId, type);
-                    if (result) {
-                        return true;
-                    }
-                }
-            } else {
-                result = result || parseInt(item.id) === parseInt(viewId);
-                if (result) {
-                    return true;
-                }
-            }
-            return result;
-        };
 
         const DynamicMenu = (data) => {
             return (
                 <SidebarContent id={'menu-content'} key='menu-content-key-1'>
-                    {renderDynamicMenu(data?.data)}
+                    {this.renderDynamicMenu(data?.data)}
                 </SidebarContent>
             );
         };
@@ -466,6 +525,7 @@ class Sidebar extends React.Component {
                                 <span>{LocUtils.locFromStore('Menu_Logout')}</span>
                             </div>
                         </div>
+
                         <input
                             id='hidden-input'
                             style={{
@@ -507,6 +567,7 @@ class Sidebar extends React.Component {
 Sidebar.propTypes = {
     handleCollapseChange: PropTypes.func.isRequired,
     onShowEditQuitConfirmDialog: PropTypes.func,
+    onEditClick: PropTypes.func,
     loggedUser: PropTypes.any,
     onClickItemHrefReactionEnabled: PropTypes.bool,
     handleLogoutUser: PropTypes.any,

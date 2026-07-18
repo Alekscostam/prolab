@@ -58,8 +58,10 @@ export default class CrudService extends BaseService {
             });
     }
     editEntry(viewId, recordId, parentId, kindView) {
+        const recordIdPath = recordId !== undefined && recordId !== null && recordId !== '' ? `/${recordId}` : '';
+
         return this.fetch(
-            `${this.getDomain()}/${this.path}/${viewId}/Edit/${recordId}/Entry${
+            `${this.getDomain()}/${this.path}/${viewId}/Edit${recordIdPath}/Entry${
                 parentId ? `?parentId=${parentId}` : ''
             }`,
             {
@@ -68,6 +70,7 @@ export default class CrudService extends BaseService {
         )
             .then((editDataEntryResponse) => {
                 window.location.href = UrlUtils.getUrlWithEditRowParams(recordId, parentId, viewId, kindView);
+
                 return Promise.resolve(editDataEntryResponse);
             })
             .catch((err) => {
@@ -75,7 +78,9 @@ export default class CrudService extends BaseService {
             });
     }
     edit(viewId, recordId, parentId, param) {
-        let url = `${this.getDomain()}/${this.path}/${viewId}/Edit/${recordId}`;
+        const recordIdPath = recordId !== undefined && recordId !== null && recordId !== '' ? `/${recordId}` : '';
+
+        let url = `${this.getDomain()}/${this.path}/${viewId}/Edit${recordIdPath}`;
         if (parentId || param) {
             url += '?';
             if (parentId) {
@@ -85,9 +90,11 @@ export default class CrudService extends BaseService {
                 url += parentId ? `&${param}` : param;
             }
         }
+
         return this.fetch(url, {method: 'GET'})
             .then((editDataResponse) => {
                 EditListUtils.addUuidToFields(editDataResponse);
+
                 return Promise.resolve(EditRowUtils.convertEditResponse(editDataResponse));
             })
             .catch((err) => {
@@ -125,15 +132,17 @@ export default class CrudService extends BaseService {
     }
 
     getListOfHints(viewId, paramId, fieldId, element, type) {
-
         ConsoleHelper(`/api/View/${viewId}/editspec/${paramId}/list/${fieldId}`);
         const partOfUrl = UrlUtils.batchIdParamExist() ? 'batch' : 'editspec';
-        return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/${partOfUrl}/${paramId}/list/${fieldId}${
-                    type ? `?type=${type}` : ''
-        }`, {
-            method: 'POST',
-            body: JSON.stringify(element),
-        }).catch((err) => {
+        return this.fetch(
+            `${this.getDomain()}/${this.path}/${viewId}/${partOfUrl}/${paramId}/list/${fieldId}${
+                type ? `?type=${type}` : ''
+            }`,
+            {
+                method: 'POST',
+                body: JSON.stringify(element),
+            }
+        ).catch((err) => {
             throw err;
         });
     }

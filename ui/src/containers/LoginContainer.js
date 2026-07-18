@@ -41,6 +41,7 @@ class LoginContainer extends BaseContainer {
             redirectToReferrer: true,
             editData: {},
             captchaToken: undefined,
+            disableLoginPage: getStore().disableLoginPage,
             authValid: true,
             lang: undefined,
             visibleUserComponent: false,
@@ -163,6 +164,13 @@ class LoginContainer extends BaseContainer {
     };
 
     handleFormSubmit(e) {
+        const disableLoginPage = process.env.DISABLE_LOGIN_PAGE;
+        if (disableLoginPage) {
+            this.setState({
+                disableLoginPage: true,
+            });
+            return;
+        }
         if (e !== undefined) {
             e.preventDefault();
         }
@@ -186,11 +194,7 @@ class LoginContainer extends BaseContainer {
                     }
                 })
                 .catch((err) => {
-                    if (err.status === 401 || err.status === 403 || err.status === '401') {
-                        this.showErrorMessage(err?.message?.text, 10000, true, err?.message?.title);
-                    } else {
-                        this.showGlobalErrorMessage(err);
-                    }
+                    this.showErrorMessageByStatusCode(err);
                     this.setState({
                         authValid: false,
                     });
@@ -267,10 +271,6 @@ class LoginContainer extends BaseContainer {
         }
         return false;
     };
-
-    disableLoginPage() {
-        return getStore().disableLoginPage;
-    }
 
     renderLoginPage() {
         return this.renderBeforeAuth();
@@ -461,7 +461,7 @@ class LoginContainer extends BaseContainer {
                                         <div className='login d-flex align-items-center py-5'>
                                             <div className='container'>
                                                 <div className='row'>
-                                                    {this.disableLoginPage()
+                                                    {this.state.disableLoginPage
                                                         ? this.renderNoLogin()
                                                         : this.renderLogin()}
                                                 </div>

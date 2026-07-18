@@ -11,7 +11,7 @@
     "APP_NAME": "ProlabRD",
     "APP_FULL_NAME": "ProlabRD",
     "SHOW_HINT_LIST_BUTTONS": true,
-    "UPDATE_APP_DIALOG_ENABLED": false,
+    "UPDATE_APP_DIALOG_ENABLED": true,
     "SHOW_MERGE": false,
     "SHOW_MARKUP_ON_HTML_EDITOR": true,
     "REMEMBER_ME": true,
