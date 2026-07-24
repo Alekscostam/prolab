@@ -61,7 +61,7 @@ class App extends Component {
 
         this.authService = new AuthService();
         this.crudService = new CrudService();
-
+        this.lastConfigSnapshot = null;
         this.historyBrowser = this.history;
         this.selectedDataGrid = React.createRef();
         this.localizationService = new LocalizationService();
@@ -80,6 +80,7 @@ class App extends Component {
                 appVersion: undefined,
             },
             loadedConfiguration: false,
+            enableUpdateDialog: false,
             editData: undefined,
             secondsToPopupTicker: undefined,
             confirmationQuitDialog: {
@@ -122,6 +123,41 @@ class App extends Component {
         });
         ConsoleHelper('App version = ' + packageJson.version);
         this.handleCollapseChange = this.handleCollapseChange.bind(this);
+    }
+    sortConfig(configuration) {
+        if (Array.isArray(configuration)) {
+            return configuration.map((item) => this.sortConfig(item));
+        }
+
+        if (configuration !== null && typeof configuration === 'object') {
+            return Object.keys(configuration)
+                .sort()
+                .reduce((sortedConfiguration, key) => {
+                    sortedConfiguration[key] = this.sortConfig(configuration[key]);
+
+                    return sortedConfiguration;
+                }, {});
+        }
+
+        return configuration;
+    }
+
+    createConfigSnapshot(configuration) {
+        return JSON.stringify(this.sortConfig(configuration || {}));
+    }
+    checkConfigChanged(configUrl) {
+        return new ReadConfigService(configUrl).getConfiguration().then((configuration) => {
+            const currentConfigSnapshot = this.createConfigSnapshot(configuration);
+
+            const changed = this.lastConfigSnapshot !== null && this.lastConfigSnapshot !== currentConfigSnapshot;
+
+            this.lastConfigSnapshot = currentConfigSnapshot;
+
+            return {
+                changed,
+                configuration,
+            };
+        });
     }
     setFakeSessionTimeout() {
         const myDate = new Date();
@@ -177,23 +213,32 @@ class App extends Component {
     appInitialize = () => {
         const urlPrefixCookie = readObjFromCookieGlobal('REACT_APP_URL_PREFIX');
         const configUrl = UrlUtils.makeConfigUrl(urlPrefixCookie);
+        this.extendSessionByRootClick();
 
         const readAboutVersion = () => this.readAboutVersion(configUrl);
 
         const refreshGui = (forceReload) => {
             return this.refreshGui(configUrl, forceReload);
         };
-
+        const checkConfigChanged = () => {
+            return this.checkConfigChanged(configUrl);
+        };
+        const configValue = (parameterName, defaultValue) => {
+            return this.getConfigValue(configUrl, parameterName, defaultValue);
+        };
+        getStore().setGetConfigValue(configValue);
         getStore().setReadAboutVersion(readAboutVersion);
         getStore().setRefreshGui(refreshGui);
-
+        getStore().setCheckConfigChanged(checkConfigChanged);
         this.setRestateApp();
         this.setClearState();
         this.setRenderNoRefreshContent();
         this.showSessionTimeoutIfPossible();
         this.saveCookieUrlAfterLogin();
 
-        this.readConfigAndSaveInCookie(configUrl).catch((err) => {
+        this.readConfigAndSaveInCookie(configUrl, () => {
+            this.setState({enableUpdateDialog: true});
+        }).catch((err) => {
             console.error('Error start application = ', err);
         });
 
@@ -403,7 +448,12 @@ class App extends Component {
             console.log(err);
         }
     }
-
+    getConfigValue(configUrl, parameterName, defaultValue = null) {
+        return new ReadConfigService(configUrl).getConfiguration().then((configuration) => {
+            const value = configuration[parameterName];
+            return value !== undefined && value !== null ? value : defaultValue;
+        });
+    }
     readConfigAndSaveInCookie(configUrl, afterSaveCookiesFnc) {
         return new ReadConfigService(configUrl).getConfiguration().then((configuration) => {
             document.title = !StringUtils.isBlank(configuration.APP_FULL_NAME)
@@ -426,9 +476,9 @@ class App extends Component {
             const barCodeShowMethod = configuration.BAR_CODE_SHOW_METHOD;
             const heartbeatTimeMinutes = configuration.HEARTBEAT_TIME_MINUTES;
             const draggableGridEnabled = configuration.DRAGGABLE_GRID_ENABLED;
-            const updateAppDialogEnabled = configuration.UPDATE_APP_DIALOG_ENABLED;
             const chatAi = configuration.CHAT_AI;
             const wssUrl = configuration.WSS_URL;
+            const updateApp = configuration.UPDATE_APP;
             const biWorkingMode = configuration.BI_WORKING_MODE;
             const biReloadInMiliseconds = configuration.BI_RELOAD_IN_MILISECONDS;
             const biBeUrl = configuration.BI_BE_URL;
@@ -446,8 +496,8 @@ class App extends Component {
                     appVersion,
                 },
             });
+            getStore().setUpdateApp(updateApp);
             getStore().setDisableLoginPage(disableLoginPage);
-            getStore().setUpdateAppDialogEnabled(updateAppDialogEnabled);
             getStore().setBiWorkingMode(biWorkingMode);
             getStore().setBiReloadInMiliseconds(biReloadInMiliseconds);
             getStore().setBiBeUrl(biBeUrl);
@@ -781,8 +831,20 @@ class App extends Component {
         const loggedIn = authService.isLoggedUser();
         return (
             <React.Fragment key={'gui-' + this.state.guiRefreshKey}>
-                {' '}
-                {useStore.getState().updateAppDialogEnabled && <UpdateApp />}
+                {this.state.enableUpdateDialog && (
+                    <UpdateApp
+                        disableLoginPageAction={() => {
+                            getStore()
+                                .getConfigValue('DISABLE_LOGIN_PAGE', false)
+                                .then((value) => {
+                                    const disableLoginPage = value === true || value === 'true';
+                                    if (disableLoginPage) {
+                                        authService.logout();
+                                    }
+                                });
+                        }}
+                    />
+                )}
                 {this.state.renderAboutVersionDialog && this.state.canRenderAboutVersionDialog && (
                     <VersionPreviewDialog
                         visible={this.state.renderAboutVersionDialog}
@@ -839,18 +901,11 @@ class App extends Component {
                         <div className={`${loggedIn ? 'app' : ''}`}>
                             {this.showSidebar() && (
                                 <Sidebar
-                                    onEditClick={() => {
-                                        const viewId = UrlUtils.getViewIdFromURL();
+                                    onEditClick={(id) => {
                                         const parentId = UrlUtils.getParentId();
                                         const kindView = UrlUtils.getKindView();
                                         if (getStore().baseViewHandleEdit) {
-                                            getStore().baseViewHandleEdit(
-                                                viewId,
-                                                undefined,
-                                                parentId,
-                                                kindView,
-                                                undefined
-                                            );
+                                            getStore().baseViewHandleEdit(id, undefined, parentId, kindView, undefined);
                                             getStore().baseViewBlockUi();
                                         }
                                     }}

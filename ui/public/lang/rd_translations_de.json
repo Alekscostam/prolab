@@ -4,6 +4,14 @@
         {"code": "Login_ConnectionError", "caption": "Verbindungsfehler: Server nicht erreichbar"},
         {"code": "Login_UserName", "caption": "Benutzername"},
         {"code": "Login_Password", "caption": "Passwort"},
+		{
+			"code": "Disable_Login_Title",
+			"caption": "Geplante Wartungsarbeiten"
+		},
+		{
+			"code": "Disable_Login_Content",
+			"caption": "Das System befindet sich derzeit in einer geplanten Wartung.\n\nDie Anmeldung wurde während der Wartungsarbeiten vorübergehend deaktiviert.\nBitte versuchen Sie es später erneut.\n\nWir entschuldigen uns für die Unannehmlichkeiten und danken Ihnen für Ihr Verständnis.\n\n© Inform-Tech Sp. z o.o."
+		},		
         {"code": "Login_Signin", "caption": "Profil erstellen"},
         {"code": "Login_Signup", "caption": "Sign Up"},
         {"code": "Login_Signup_Info", "caption": "Sie haben noch keinen Account?"},

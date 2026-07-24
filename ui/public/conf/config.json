@@ -11,7 +11,6 @@
     "APP_NAME": "ProlabRD",
     "APP_FULL_NAME": "ProlabRD",
     "SHOW_HINT_LIST_BUTTONS": true,
-    "UPDATE_APP_DIALOG_ENABLED": true,
     "SHOW_MERGE": false,
     "SHOW_MARKUP_ON_HTML_EDITOR": true,
     "REMEMBER_ME": true,
@@ -21,6 +20,10 @@
     "BI_WORKING_MODE": "Designer",
     "BI_BE_URL": "https://demos.devexpress.com/services/dashboard/api",
     "HEARTBEAT_TIME_MINUTES": 1,
+    "UPDATE_APP": {
+        "REMIND_AGAIN_TIME": 60000,
+        "VERSION_CHECK_INTERVAL": 60000
+    },
     "CAPTCHA": {
         "SITE_KEY": "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI",
         "ENABLED": false

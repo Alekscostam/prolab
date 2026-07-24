@@ -274,7 +274,7 @@ class Sidebar extends React.Component {
                             onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                this.props.onEditClick();
+                                this.props.onEditClick(item?.id);
                             }}
                         >
                             <div className='title'>{item?.name}</div>

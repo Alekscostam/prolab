@@ -126,6 +126,14 @@ class LoginContainer extends BaseContainer {
         const values = queryString.parse(this.props.location.search);
         this.targetLocation = values.location;
         this.getConfigForLoginPage(readValueCookieGlobal('chosen-lang'));
+        if (getStore().getConfigValue)
+            getStore()
+                .getConfigValue('DISABLE_LOGIN_PAGE', false)
+                .then((value) => {
+                    this.setState({
+                        disableLoginPage: value,
+                    });
+                });
     }
     componentDidUpdate() {
         super.componentDidUpdate();
@@ -164,52 +172,67 @@ class LoginContainer extends BaseContainer {
     };
 
     handleFormSubmit(e) {
-        const disableLoginPage = process.env.DISABLE_LOGIN_PAGE;
-        if (disableLoginPage) {
-            this.setState({
-                disableLoginPage: true,
-            });
-            return;
-        }
         if (e !== undefined) {
             e.preventDefault();
         }
-        if (this.loginDisabled()) {
-            return;
-        }
-        if (this.validator.allValid()) {
-            this.blockUi();
-            this.authService
-                .login(
-                    this.state.username,
-                    this.state.password,
-                    this.state.appName,
-                    this.state.deviceName,
-                    this.state.appVersion,
-                    this.state.captchaToken
-                )
-                .then(() => {
-                    if (this.props.onAfterLogin) {
-                        this.props.onAfterLogin();
-                    }
-                })
-                .catch((err) => {
-                    this.showErrorMessageByStatusCode(err);
-                    this.setState({
-                        authValid: false,
-                    });
-                    this.validator.showMessages();
-                    this.forceUpdate();
-                    this.unblockUi();
-                    return;
-                });
-        } else {
-            this.validator.showMessages();
-            this.scrollToError = true;
-            this.forceUpdate();
-        }
-    }
 
+        getStore()
+            .getConfigValue('DISABLE_LOGIN_PAGE', false)
+            .then((value) => {
+                const disableLoginPage = value === true || value === 'true';
+                this.setState(
+                    {
+                        disableLoginPage,
+                    },
+                    () => {
+                        if (disableLoginPage) {
+                            return;
+                        }
+                        if (this.loginDisabled()) {
+                            return;
+                        }
+
+                        if (this.validator.allValid()) {
+                            this.blockUi();
+
+                            this.authService
+                                .login(
+                                    this.state.username,
+                                    this.state.password,
+                                    this.state.appName,
+                                    this.state.deviceName,
+                                    this.state.appVersion,
+                                    this.state.captchaToken
+                                )
+                                .then(() => {
+                                    if (this.props.onAfterLogin) {
+                                        this.props.onAfterLogin();
+                                    }
+                                })
+                                .catch((err) => {
+                                    this.showErrorMessageByStatusCode(err);
+
+                                    this.setState({
+                                        authValid: false,
+                                    });
+
+                                    this.validator.showMessages();
+                                    this.forceUpdate();
+                                    this.unblockUi();
+                                });
+                        } else {
+                            this.validator.showMessages();
+                            this.scrollToError = true;
+                            this.forceUpdate();
+                        }
+                    }
+                );
+            })
+            .catch((err) => {
+                console.error('Nie udało się pobrać parametru DISABLE_LOGIN_PAGE:', err);
+                this.showErrorMessageByStatusCode(err);
+            });
+    }
     render() {
         if (this.authService.isLoggedUser()) {
             return this.renderAfterAuth();

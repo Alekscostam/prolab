@@ -7,10 +7,25 @@
         {"code": "Session_prelong", "caption": "Przedłużenie sesji"},
         {"code": "Document_pdf", "caption": "Dokument PDF"},
         {"code": "Prev", "caption": "Poprzednia"},
-        {"code": "Disable_Login_Title", "caption": "Scheduled Maintenance"},
+        {
+            "code": "Disable_Login_Title",
+            "caption": "Przerwa techniczna"
+        },
         {
             "code": "Disable_Login_Content",
-            "caption": "The system is currently undergoing scheduled maintenance.\n\nLogin has been temporarily disabled while maintenance work is in progress.\nPlease try again later.\n\nWe apologize for the inconvenience and appreciate your patience.\n\n© Inform-Tech Sp. z o.o."
+            "caption": "System jest obecnie poddawany planowanym pracom serwisowym.\n\nLogowanie zostało tymczasowo wyłączone na czas trwania prac konserwacyjnych.\nProsimy spróbować ponownie później.\n\nPrzepraszamy za utrudnienia i dziękujemy za wyrozumiałość.\n\n© Inform-Tech Sp. z o.o."
+        },
+        {
+            "code": "Application_Config_Updated_Refresh_Page",
+            "caption": "Parametry aplikacji zostały zaktualizowane. Odśwież stronę, aby zastosować nowe ustawienia."
+        },
+        {
+            "code": "Application_And_Config_Updated_Refresh_Page",
+            "caption": "Wykryto nową wersję aplikacji oraz aktualizację parametrów. Odśwież stronę, aby zastosować zmiany."
+        },
+        {
+            "code": "Application_Updated_Refresh_Page",
+            "caption": "Aplikacja została zaktualizowana. Odśwież stronę, aby korzystać z najnowszej wersji."
         },
         {"code": "Published", "caption": "Opublikowano"},
         {"code": "Document_published", "caption": "Dokumenty zostały opublikowane"},

@@ -1,7 +1,7 @@
 {
     "changeLog": [
         {
-            "version": "1.6.4.276",
+            "version": "1.6.4.277",
             "title": "",
             "data": [
                 {
@@ -9,13 +9,50 @@
                     "color": "green",
                     "isNew": true,
                     "date": "",
+                    "link": "https://trello.com/c/UEOfy1ev/995-obs%C5%82uga-typu-edit-z-menu-refreshgui",
+                    "text": "Poprawka na przekazywany ID"
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "isNew": true,
+                    "date": "",
+                    "link": "https://trello.com/c/Y1vaHMH0/998-nie-od%C5%9Bwie%C5%BCa-czasu-do-wylogowania",
+                    "text": "naprawa nie wykrywania klkikania w apliakcji i wyd łużania sesji"
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "isNew": true,
+                    "date": "",
+                    "link": "https://trello.com/c/hVrCUAp0/997-prametry-w-config-dzia%C5%82anielang",
+                    "text": "Wykrywanie zmian w config i aktualziacja aplikacji"
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "isNew": true,
+                    "date": "",
+                    "link": "https://trello.com/c/hVrCUAp0/997-prametry-w-config-dzia%C5%82anielang",
+                    "more": "Dodano nowe parametry konfiguracji UPDATE_APP: REMIND_AGAIN_TIME – czas ponownego przypomnienia o aktualizacji oraz VERSION_CHECK_INTERVAL – częstotliwość sprawdzania dostępności nowej wersji aplikacji. Obie wartości podawane są w milisekundach.",
+                    "text": "Nowe parametry"
+                }
+            ]
+        },
+        {
+            "version": "1.6.4.276",
+            "title": "",
+            "data": [
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "date": "",
                     "link": "",
                     "text": "Dodatkowe sprawdzenie disable login page przy kliknięciu logowania"
                 },
                 {
                     "type": "NEW",
                     "color": "green",
-                    "isNew": true,
                     "date": "",
                     "link": "",
                     "text": "Wybranie odpowiedniego komunikatu w zależności od status code"
@@ -25,7 +62,6 @@
                     "type": "NEW",
                     "color": "green",
                     "date": "",
-                    "isNew": true,
                     "link": "https://trello.com/c/UEOfy1ev/995-obs%C5%82uga-typu-edit-z-menu-refreshgui",
                     "text": "refreshGUI - obsługa"
                 },
@@ -33,14 +69,12 @@
                     "type": "NEW",
                     "color": "green",
                     "date": "",
-                    "isNew": true,
                     "link": "https://trello.com/c/UEOfy1ev/995-obs%C5%82uga-typu-edit-z-menu-refreshgui",
                     "text": "Nowy typ EDIT w sidebar"
                 },
                 {
                     "type": "NEW",
                     "color": "green",
-                    "isNew": true,
                     "date": "",
                     "link": "",
                     "text": "Wymszenie aktualizacji poprzez cykliczne sprawdzanie aboutVersion"
@@ -49,7 +83,6 @@
                     "type": "NEW",
                     "color": "green",
                     "date": "",
-                    "isNew": true,
                     "description": "Dodano wspólny moduł Logger umożliwiający sterowanie logami za pomocą zmiennej środowiskowej REACT_APP_LOG_MODE. Dostępne tryby: ALL – wszystkie logi, MEDIUM – logi informacyjne, ostrzeżenia i błędy, IMPORTANT – tylko ostrzeżenia i błędy.",
                     "more": "<div>Dodano wspólny moduł <strong>Logger</strong>, który umożliwia sterowanie poziomem logów wyświetlanych w konsoli przeglądarki.<br><br>Tryb logowania ustawiany jest za pomocą zmiennej środowiskowej:<br><pre>REACT_APP_LOG_MODE=ALL</pre>Dostępne są cztery tryby logowania:<br><pre>ALL\n- wyświetla wszystkie logi\n- logi diagnostyczne DEBUG\n- komunikaty informacyjne INFO\n- ostrzeżenia WARN\n- błędy ERROR\n\nMEDIUM\n- wyświetla logi informacyjne INFO\n- ostrzeżenia WARN\n- błędy ERROR\n- ukrywa szczegółowe logi DEBUG\n\nIMPORTANT\n- wyświetla tylko ostrzeżenia WARN\n- wyświetla błędy ERROR\n\nOFF\n- całkowicie wyłącza logowanie\n- żadne logi nie są wyświetlane w konsoli przeglądarki</pre>Przykładowa konfiguracja dla środowiska produkcyjnego:<br><pre>REACT_APP_LOG_MODE=IMPORTANT</pre>Przykładowa konfiguracja używana podczas diagnostyki problemów:<br><pre>REACT_APP_LOG_MODE=ALL</pre>Przykładowa konfiguracja całkowicie wyłączająca logowanie:<br><pre>REACT_APP_LOG_MODE=OFF</pre>Zmiana wartości <strong>REACT_APP_LOG_MODE</strong> wymaga ponownego zbudowania i wdrożenia aplikacji frontendowej, ponieważ wartość zmiennej środowiskowej jest zapisywana w bundlu podczas procesu budowania.</div>"
                 }

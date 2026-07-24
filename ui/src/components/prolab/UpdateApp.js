@@ -4,6 +4,7 @@ import Button from 'devextreme-react/button';
 import useStore from '../../store';
 import LocUtils from '../../utils/LocUtils';
 import Logger from '../../utils/Logger';
+import {getStore} from '../../utils/helper/StoreHelper';
 
 const REMIND_AGAIN_TIME = 1 * 60 * 1000;
 const VERSION_CHECK_INTERVAL = 1 * 60 * 1000;
@@ -38,9 +39,9 @@ const getBuildNumberVersion = () => {
     log('getBuildNumberVersion - REACT_APP_BUILD_NUMBER:', buildNumber);
 
     if (!buildNumber || buildNumber === '#BUILD_NUMBER#') {
-        log('getBuildNumberVersion - brak build number, używam wartości domyślnej: .276');
+        log('getBuildNumberVersion - brak build number, używam wartości domyślnej: .277');
 
-        return '.276';
+        return '.277';
     }
 
     log('getBuildNumberVersion - używam build number:', buildNumber);
@@ -169,12 +170,11 @@ const removeReloadTimeFromHash = () => {
 const UpdateApp = () => {
     const aboutVersion = useStore((state) => state.aboutVersion);
 
-    const readAboutVersion = useStore((state) => state.readAboutVersion);
-
     const currentVersion = getCurrentVersion();
 
     const [visible, setVisible] = useState(false);
     const [serverVersion, setServerVersion] = useState('');
+    const [configChanged, setConfigChanged] = useState(false);
 
     const remindAgainTimeoutRef = useRef(null);
     const remindBlockedUntilRef = useRef(0);
@@ -192,12 +192,6 @@ const UpdateApp = () => {
 
         log('Interwał sprawdzania wersji:', VERSION_CHECK_INTERVAL, 'ms');
 
-        if (typeof readAboutVersion !== 'function') {
-            logError('Funkcja readAboutVersion nie została jeszcze ustawiona w store.');
-
-            return;
-        }
-
         const refreshAboutVersion = () => {
             const requestStartTime = new Date().getTime();
 
@@ -206,6 +200,14 @@ const UpdateApp = () => {
             log('Czas rozpoczęcia requestu:', new Date(requestStartTime).toISOString());
 
             try {
+                const readAboutVersion = getStore().readAboutVersion;
+
+                if (typeof readAboutVersion !== 'function') {
+                    logError('Funkcja readAboutVersion nie została jeszcze ustawiona w store.');
+
+                    return Promise.resolve(null);
+                }
+
                 const result = readAboutVersion();
 
                 log('readAboutVersion zostało wywołane.');
@@ -221,8 +223,6 @@ const UpdateApp = () => {
                 result
                     .then((changeLog) => {
                         const requestEndTime = new Date().getTime();
-
-                        log('Pobieranie wersji zakończone sukcesem.');
 
                         log('Pobrany changeLog:', changeLog);
 
@@ -245,14 +245,68 @@ const UpdateApp = () => {
             }
         };
 
-        log('Pierwsze sprawdzenie wersji wykonywane natychmiast.');
+        const refreshConfigChanged = () => {
+            const checkConfigChanged = getStore().checkConfigChanged;
 
-        refreshAboutVersion();
+            if (typeof checkConfigChanged !== 'function') {
+                logError('Funkcja checkConfigChanged nie została jeszcze ustawiona w store.');
+
+                return Promise.resolve(false);
+            }
+
+            try {
+                const result = checkConfigChanged();
+
+                if (!result || typeof result.then !== 'function') {
+                    logError('checkConfigChanged nie zwróciło Promise.');
+
+                    return Promise.resolve(false);
+                }
+
+                return result
+                    .then((response) => {
+                        const changed = typeof response === 'boolean' ? response : !!(response && response.changed);
+
+                        log('Wynik sprawdzenia parametrów konfiguracji:', changed);
+
+                        if (changed) {
+                            log('Wykryto zmianę parametrów konfiguracji.');
+
+                            setConfigChanged(true);
+
+                            const currentTime = new Date().getTime();
+
+                            if (currentTime >= remindBlockedUntilRef.current) {
+                                setVisible(true);
+                            }
+                        }
+
+                        return changed;
+                    })
+                    .catch((error) => {
+                        logError('Nie udało się sprawdzić parametrów konfiguracji:', error);
+
+                        return false;
+                    });
+            } catch (error) {
+                logError('Błąd podczas wywołania checkConfigChanged:', error);
+
+                return Promise.resolve(false);
+            }
+        };
+
+        const refreshUpdateStatus = () => {
+            refreshAboutVersion();
+            refreshConfigChanged();
+        };
+
+        log('Pierwsze sprawdzenie wersji i konfiguracji wykonywane natychmiast.');
+
+        refreshUpdateStatus();
 
         const intervalId = setInterval(() => {
-            log('Minął interwał. Ponownie sprawdzam wersję aplikacji.');
-
-            refreshAboutVersion();
+            log('Minął interwał. Ponownie sprawdzam wersję i konfigurację aplikacji.');
+            refreshUpdateStatus();
         }, VERSION_CHECK_INTERVAL);
 
         log('Utworzono interval:', intervalId);
@@ -262,7 +316,7 @@ const UpdateApp = () => {
 
             clearInterval(intervalId);
         };
-    }, [readAboutVersion]);
+    }, []);
 
     useEffect(() => {
         log('Wykryto zmianę aboutVersion lub currentVersion.');
@@ -291,9 +345,7 @@ const UpdateApp = () => {
 
         if (latestVersion !== currentVersion) {
             log('Wykryto różnicę wersji.');
-
             log('Stara wersja:', currentVersion);
-
             log('Nowa wersja:', latestVersion);
 
             setServerVersion(latestVersion);
@@ -320,8 +372,11 @@ const UpdateApp = () => {
         log('Wersje są zgodne. Aktualizacja nie jest wymagana.');
 
         setServerVersion('');
-        setVisible(false);
-    }, [aboutVersion, currentVersion]);
+
+        if (!configChanged) {
+            setVisible(false);
+        }
+    }, [aboutVersion, currentVersion, configChanged]);
 
     useEffect(() => {
         log('Zmiana widoczności popupu:', visible);
@@ -344,8 +399,6 @@ const UpdateApp = () => {
     }, []);
 
     const remindLater = () => {
-        log('Użytkownik wybrał opcję „Później”.');
-
         setVisible(false);
 
         const currentTime = new Date().getTime();
@@ -354,12 +407,8 @@ const UpdateApp = () => {
 
         remindBlockedUntilRef.current = blockedUntil;
 
-        log('Popup został ukryty.');
-
         log('Aktualny czas:', currentTime);
-
         log('Popup będzie ponownie dostępny od:', blockedUntil);
-
         log('Ponowne przypomnienie za:', REMIND_AGAIN_TIME, 'ms');
 
         if (remindAgainTimeoutRef.current) {
@@ -375,12 +424,12 @@ const UpdateApp = () => {
 
             log('currentVersion:', currentVersion);
 
-            if (serverVersion && serverVersion !== currentVersion) {
-                log('Wersje nadal się różnią. Ponownie pokazuję popup.');
+            if ((serverVersion && serverVersion !== currentVersion) || configChanged) {
+                log('Aktualizacja nadal wymaga odświeżenia. Ponownie pokazuję popup.');
 
                 setVisible(true);
             } else {
-                log('Wersje są zgodne lub brak serverVersion. Popup nie zostanie pokazany.');
+                log('Brak zmian wymagających odświeżenia. Popup nie zostanie pokazany.');
             }
         }, REMIND_AGAIN_TIME);
 
@@ -388,19 +437,18 @@ const UpdateApp = () => {
     };
 
     const handleRefreshNow = () => {
-        log('Użytkownik wybrał opcję „Odśwież teraz”.');
-
         log('Aktualna wersja:', currentVersion);
-
         log('Wersja serwera:', serverVersion);
-
         reloadApplication();
     };
 
     return (
         <Popup
             visible={visible}
-            title='Dostępna jest nowa wersja aplikacji'
+            title={LocUtils.locFromStoreWithDefault(
+                'Application_Update_Available',
+                'Dostępna jest aktualizacja aplikacji'
+            )}
             width={430}
             height='auto'
             showCloseButton={false}
@@ -409,18 +457,31 @@ const UpdateApp = () => {
         >
             <div style={{padding: '10px 5px'}}>
                 <p>
-                    {LocUtils.locFromStoreWithDefault(
-                        'Application_Updated_Refresh_Page',
-                        'Aplikacja została zaktualizowana. Odśwież stronę, aby korzystać z najnowszej wersji.'
-                    )}
+                    {configChanged && serverVersion && serverVersion !== currentVersion
+                        ? LocUtils.locFromStoreWithDefault(
+                              'Application_And_Config_Updated_Refresh_Page',
+                              'Wykryto nową wersję aplikacji oraz aktualizację parametrów. Odśwież stronę, aby zastosować zmiany.'
+                          )
+                        : configChanged
+                        ? LocUtils.locFromStoreWithDefault(
+                              'Application_Config_Updated_Refresh_Page',
+                              'Parametry aplikacji zostały zaktualizowane. Odśwież stronę, aby zastosować nowe ustawienia.'
+                          )
+                        : LocUtils.locFromStoreWithDefault(
+                              'Application_Updated_Refresh_Page',
+                              'Aplikacja została zaktualizowana. Odśwież stronę, aby korzystać z najnowszej wersji.'
+                          )}
                 </p>
 
-                <p>
-                    {LocUtils.locFromStoreWithDefault('Current_Version', 'Aktualna wersja')}:{' '}
-                    <strong>{currentVersion}</strong>
-                    <br />
-                    {LocUtils.locFromStoreWithDefault('New_Version', 'Nowa wersja')}: <strong>{serverVersion}</strong>
-                </p>
+                {serverVersion && serverVersion !== currentVersion && (
+                    <p>
+                        {LocUtils.locFromStoreWithDefault('Current_Version', 'Aktualna wersja')}:{' '}
+                        <strong>{currentVersion}</strong>
+                        <br />
+                        {LocUtils.locFromStoreWithDefault('New_Version', 'Nowa wersja')}:{' '}
+                        <strong>{serverVersion}</strong>
+                    </p>
+                )}
 
                 <div
                     style={{
