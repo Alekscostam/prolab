@@ -39,6 +39,7 @@ import {getStore} from '../utils/helper/StoreHelper';
 import PluginService from '../services/PluginService';
 import {EditHeaderType} from '../enum/EditHeaderType';
 import HeaderService from '../services/HeaderService';
+import {handleEdit} from '../utils/handler/EditHandler';
 
 class BaseContainer extends React.Component {
     constructor(props, service) {
@@ -123,7 +124,25 @@ class BaseContainer extends React.Component {
             this.scrollToFirstError();
         }
     }
-
+    saveEditToStore() {
+        getStore().setBaseViewHandleEdit((viewId, recordId, parentId, kindView, param) => {
+            return this.handleEditToStore(viewId, recordId, parentId, kindView, param);
+        });
+    }
+    handleEditToStore(viewId, recordId, parentId, kindView, param) {
+        handleEdit(
+            this.crudService,
+            viewId,
+            recordId,
+            parentId,
+            kindView,
+            (res) => this.handleShowEditPanel(res),
+            () => this.handleUnBlockUi(),
+            (err) => this.showGlobalErrorMessage(err),
+            false,
+            param
+        );
+    }
     componentWillUnmount() {
         this._isMounted = false;
     }

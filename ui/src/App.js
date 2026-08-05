@@ -906,7 +906,7 @@ class App extends Component {
                                         const kindView = UrlUtils.getKindView();
                                         if (getStore().baseViewHandleEdit) {
                                             getStore().baseViewHandleEdit(id, undefined, parentId, kindView, undefined);
-                                            getStore().baseViewBlockUi();
+                                            if (getStore().baseViewBlockUi) getStore().baseViewBlockUi();
                                         }
                                     }}
                                     authService={this.authService}

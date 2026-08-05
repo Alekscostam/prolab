@@ -178,9 +178,7 @@ export class BaseViewContainer extends BaseContainer {
     componentDidMount() {
         getStore().baseViewBlockUi = () => this.blockUi();
         getStore().baseViewUnblockUi = () => this.unblockUi();
-        getStore().setBaseViewHandleEdit((viewId, recordId, parentId, kindView, param) => {
-            return this.handleEditToStore(viewId, recordId, parentId, kindView, param);
-        });
+        this.saveEditToStore();
         this._isMounted = true;
         const subViewId = UrlUtils.getSubViewId();
         const recordId = this.props.recordId || UrlUtils.getRecordId();
@@ -498,21 +496,6 @@ export class BaseViewContainer extends BaseContainer {
             default:
                 return null;
         }
-    }
-
-    handleEditToStore(viewId, recordId, parentId, kindView, param) {
-        handleEdit(
-            this.crudService,
-            viewId,
-            recordId,
-            parentId,
-            kindView,
-            (res) => this.handleShowEditPanel(res),
-            () => this.handleUnBlockUi(),
-            (err) => this.showGlobalErrorMessage(err),
-            false,
-            param
-        );
     }
 
     handleQrCodeResponse = (result) => {

@@ -31,6 +31,8 @@ import NumberUtil from '../../utils/NumberUtil';
 import {TranslationUtils} from '../../utils/TranslationUtils';
 import useStore from '../../store';
 import EditHeaderWindowComponent from '../../components/editHeader/EditHeaderWindowComponent';
+import {handleEdit} from '../../utils/handler/EditHandler';
+import {getStore} from '../../utils/helper/StoreHelper';
 
 class DashboardContainer extends BaseContainer {
     constructor(props) {
@@ -61,6 +63,7 @@ class DashboardContainer extends BaseContainer {
         } else {
             this.initializeDashboard();
         }
+        this.saveEditToStore();
     }
 
     refreshDashboard(savedElement, viewId) {
