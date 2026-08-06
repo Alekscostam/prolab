@@ -1,13 +1,26 @@
 {
     "changeLog": [
         {
+            "version": "1.6.4.279",
+            "title": "",
+            "data": [
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "isNew": true,
+                    "date": "",
+                    "link": "https://trello.com/c/hVrCUAp0/997-prametry-w-config-dzia%C5%82anielang",
+                    "text": "Poprawka paramtery"
+                }
+            ]
+        },
+        {
             "version": "1.6.4.278",
             "title": "",
             "data": [
                 {
                     "type": "NEW",
                     "color": "green",
-                    "isNew": true,
                     "date": "",
                     "link": "https://trello.com/c/UEOfy1ev/995-obs%C5%82uga-typu-edit-z-menu-refreshgui",
                     "text": "Poprawka na Edit"

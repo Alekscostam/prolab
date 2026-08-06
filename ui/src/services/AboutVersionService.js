@@ -14,4 +14,11 @@ export default class AboutVersionService extends BaseService {
             throw err;
         });
     }
+    getHistory() {
+        return this.fetch(`${this.domain}/${this.path}/history.json`, {
+            method: 'GET',
+        }).catch((err) => {
+            throw err;
+        });
+    }
 }

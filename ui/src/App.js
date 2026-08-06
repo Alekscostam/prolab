@@ -216,6 +216,7 @@ class App extends Component {
         this.extendSessionByRootClick();
 
         const readAboutVersion = () => this.readAboutVersion(configUrl);
+        const readHistory = () => this.readHistory(configUrl);
 
         const refreshGui = (forceReload) => {
             return this.refreshGui(configUrl, forceReload);
@@ -228,6 +229,7 @@ class App extends Component {
         };
         getStore().setGetConfigValue(configValue);
         getStore().setReadAboutVersion(readAboutVersion);
+        getStore().setReadHistoryVersion(readHistory);
         getStore().setRefreshGui(refreshGui);
         getStore().setCheckConfigChanged(checkConfigChanged);
         this.setRestateApp();
@@ -254,6 +256,15 @@ class App extends Component {
             return changeLog;
         });
     };
+
+    readHistory(configUrl) {
+        return new AboutVersionService(configUrl).getHistory().then((response) => {
+            const changeLog = response && Array.isArray(response.changeLog) ? response.changeLog : [];
+            getStore().setHistoryVersion(changeLog);
+            return changeLog;
+        });
+    }
+
     componentDidUpdate() {
         this.showSessionTimeoutIfPossible();
     }
@@ -834,14 +845,7 @@ class App extends Component {
                 {this.state.enableUpdateDialog && (
                     <UpdateApp
                         disableLoginPageAction={() => {
-                            getStore()
-                                .getConfigValue('DISABLE_LOGIN_PAGE', false)
-                                .then((value) => {
-                                    const disableLoginPage = value === true || value === 'true';
-                                    if (disableLoginPage) {
-                                        authService.logout();
-                                    }
-                                });
+                            authService.logout();
                         }}
                     />
                 )}
