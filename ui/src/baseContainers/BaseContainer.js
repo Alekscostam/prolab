@@ -568,7 +568,7 @@ class BaseContainer extends React.Component {
         }
         return (
             <div id='cover-spin-container'>
-                <LoadIndicator visible={true} height={40} width={40} />
+                <div id='cover-spin' />
                 <div id='cover-spin-text'>
                     <p>{label}</p>
                 </div>

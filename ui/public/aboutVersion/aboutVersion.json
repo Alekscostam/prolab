@@ -1,7 +1,7 @@
 {
     "changeLog": [
         {
-            "version": "1.6.4.280",
+            "version": "1.6.4.281",
             "title": "",
             "data": [
                 {
@@ -9,13 +9,25 @@
                     "color": "red",
                     "isNew": true,
                     "date": "",
+                    "link": "https://trello.com/c/2q1lIJFP/966-kr%C4%99c%C4%85ce-k%C3%B3%C5%82ko",
+                    "text": "Wymiana indicatora"
+                }
+            ]
+        },
+        {
+            "version": "1.6.4.280",
+            "title": "",
+            "data": [
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
                     "link": "https://trello.com/c/hVrCUAp0/997-prametry-w-config-dzia%C5%82anielang",
                     "text": "Usunięcie sprawdzenia aktualziacji przed zalogowanie w wyniku czego od razu poi zlaogowniu sprawdzana jest wersja"
                 },
                 {
                     "type": "FIX",
                     "color": "red",
-                    "isNew": true,
                     "date": "",
                     "link": "https://trello.com/c/hVrCUAp0/997-prametry-w-config-dzia%C5%82anielang",
                     "text": "Dodanie parametrów"

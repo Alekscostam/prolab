@@ -198,11 +198,7 @@ class BlockUi extends Component {
                             >
                                 <div className='block-ui-message'>
                                     {message}
-                                    {React.isValidElement(loader) || loader instanceof Function ? (
-                                        loader(waitPanelLabel)
-                                    ) : (
-                                        <Loader waitPanelLabel={waitPanelLabel} />
-                                    )}
+                                    <Loader waitPanelLabel={waitPanelLabel} />
                                 </div>
                             </div>
                         </div>
