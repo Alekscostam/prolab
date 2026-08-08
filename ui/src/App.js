@@ -842,7 +842,7 @@ class App extends Component {
         const loggedIn = authService.isLoggedUser();
         return (
             <React.Fragment key={'gui-' + this.state.guiRefreshKey}>
-                {this.state.enableUpdateDialog && (
+                {this.state.enableUpdateDialog && loggedIn && (
                     <UpdateApp
                         disableLoginPageAction={() => {
                             authService.logout();

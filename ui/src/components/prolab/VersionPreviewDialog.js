@@ -26,6 +26,14 @@ export const VersionPreviewDialog = (props) => {
     const parameters = [
         {
             type: 'PARAMETERS',
+            text: 'UPDATE_APP -> REMIND_AGAIN_TIME i VERSION_CHECK_INTERVAL',
+            description:
+                'Czasy w milisekundach. REMIND_AGAIN_TIME - ponowne wyświetlenie dialogu aktualizacji, VERSION_CHECK_INTERVAL - sprawdzenie aktualnej wersji',
+            isNew: true,
+            color: 'orange',
+        },
+        {
+            type: 'PARAMETERS',
             text: 'APP_FULL_NAME',
             description: 'Pełna nazwa aplikacji',
             isNew: true,

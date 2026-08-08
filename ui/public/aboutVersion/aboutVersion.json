@@ -1,13 +1,34 @@
 {
     "changeLog": [
         {
-            "version": "1.6.4.279",
+            "version": "1.6.4.280",
             "title": "",
             "data": [
                 {
                     "type": "FIX",
                     "color": "red",
                     "isNew": true,
+                    "date": "",
+                    "link": "https://trello.com/c/hVrCUAp0/997-prametry-w-config-dzia%C5%82anielang",
+                    "text": "Usunięcie sprawdzenia aktualziacji przed zalogowanie w wyniku czego od razu poi zlaogowniu sprawdzana jest wersja"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "isNew": true,
+                    "date": "",
+                    "link": "https://trello.com/c/hVrCUAp0/997-prametry-w-config-dzia%C5%82anielang",
+                    "text": "Dodanie parametrów"
+                }
+            ]
+        },
+        {
+            "version": "1.6.4.279",
+            "title": "",
+            "data": [
+                {
+                    "type": "FIX",
+                    "color": "red",
                     "date": "",
                     "link": "https://trello.com/c/hVrCUAp0/997-prametry-w-config-dzia%C5%82anielang",
                     "text": "Poprawka paramtery"
