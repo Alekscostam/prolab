@@ -1,13 +1,39 @@
 {
     "changeLog": [
         {
+            "version": "1.6.4.282",
+            "title": "",
+            "data": [
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/hVrCUAp0/997-prametry-w-config-dzia%C5%82anie",
+                    "text": "Naprawa czasów"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/HMD9EkLk/1005-po-edycji-rekordu-zaznacza-si%C4%99-ikona-kasowania-filtra",
+                    "text": "Naprawa czyszczenia filtru"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/2q1lIJFP/966-kr%C4%99c%C4%85ce-k%C3%B3%C5%82ko",
+                    "text": "Naprawa kółka"
+                }
+            ]
+        },
+        {
             "version": "1.6.4.281",
             "title": "",
             "data": [
                 {
                     "type": "FIX",
                     "color": "red",
-                    "isNew": true,
                     "date": "",
                     "link": "https://trello.com/c/2q1lIJFP/966-kr%C4%99c%C4%85ce-k%C3%B3%C5%82ko",
                     "text": "Wymiana indicatora"

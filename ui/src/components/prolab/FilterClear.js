@@ -14,6 +14,7 @@ const FilterClear = ({clearFnc, filters}) => {
 
     const initFunction = useCallback(() => {
         useStore.getState().setFilterClearFnc((val) => {
+            val = val === false ? undefined : true;
             const hasFilters = !StringUtils.isBlank(val);
             if (ignoreNextFiltersUpdateRef.current) {
                 ignoreNextFiltersUpdateRef.current = false;
@@ -45,7 +46,6 @@ const FilterClear = ({clearFnc, filters}) => {
             clearFnc();
         }
     };
-
     return (
         <div className='row'>
             <div className='col-12'>

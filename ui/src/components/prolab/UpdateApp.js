@@ -6,8 +6,8 @@ import LocUtils from '../../utils/LocUtils';
 import Logger from '../../utils/Logger';
 import {getStore} from '../../utils/helper/StoreHelper';
 
-const REMIND_AGAIN_TIME = 1 * 60 * 1000;
-const VERSION_CHECK_INTERVAL = 1 * 60 * 1000;
+// const REMIND_AGAIN_TIME = 1 * 60 * 1000;
+// const VERSION_CHECK_INTERVAL = 1 * 60 * 1000;
 
 const LOG_PREFIX = '[UpdateApp]';
 
@@ -31,7 +31,7 @@ const getBuildNumberVersion = () => {
     const buildNumber = process.env.REACT_APP_BUILD_NUMBER;
 
     if (!buildNumber || buildNumber === '#BUILD_NUMBER#') {
-        return '.279';
+        return '.281';
     }
     return '.' + buildNumber;
 };
@@ -210,6 +210,7 @@ const UpdateApp = ({disableLoginPageAction}) => {
         };
 
         refreshUpdateStatus();
+        const VERSION_CHECK_INTERVAL = getStore()?.updateApp?.VERSION_CHECK_INTERVAL || 60000;
 
         const intervalId = setInterval(() => {
             refreshUpdateStatus();
@@ -269,6 +270,7 @@ const UpdateApp = ({disableLoginPageAction}) => {
 
         const currentTime = new Date().getTime();
 
+        const REMIND_AGAIN_TIME = getStore()?.updateApp?.REMIND_AGAIN_TIME || 60000;
         const blockedUntil = currentTime + REMIND_AGAIN_TIME;
 
         remindBlockedUntilRef.current = blockedUntil;

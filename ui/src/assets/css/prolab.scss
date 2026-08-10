@@ -2063,6 +2063,73 @@ td[aria-roledescription='Editable'] {
     font-size: 20px;
     outline: none !important;
 }
+.dx-loadpanel-content:after {
+    position: relative;
+    top: -40px;
+}
+.dx-loadindicator-content-circle.dx-loadindicator-content {
+    display: none !important;
+}
+// .logged-change-lang {
+//     .p-icon {
+//         color: white;
+//     }
+//     border: 1px solid $base-color !important;
+//     .p-dropdown {
+//     }
+//     .p-dropdown-label {
+//         border-radius: 0px !important;
+//     }
+//     .p-dropdown,
+//     .p-dropdown .p-dropdown-label {
+//         background-color: #ffffff;
+//         color: #182d67;
+//         font-weight: 500;
+//         font-size: 16px;
+//         letter-spacing: 0;
+//         text-align: left;
+//         border: 1px solid $base-color !important;
+//         border-radius: 0px;
+//         box-shadow: none;
+//     }
+//     .p-dropdown-label.p-inputtext.p-placeholder,
+//     .logged-change-lang.p-dropdown.p-component.p-inputwrapper.p-inputwrapper-filled {
+//         background: $base-color;
+//     }
+
+//     .logged-change-lang.p-dropdown.p-component.p-inputwrapper.p-inputwrapper-filled {
+//         background-color: $base-color !important;
+//     }
+//     .p-dropdown-trigger {
+//         background: $base-color;
+//     }
+
+//     .p-dropdown.p-component.p-inputwrapper.p-inputwrapper-filled {
+//         background: $base-color !important;
+//     }
+
+//     .p-dropdown,
+//     .p-dropdown .p-dropdown-label {
+//         background-color: $base-color !important;
+//         color: $base-color !important;
+//     }
+//     .p-dropdown-label.p-inputtext.p-placeholder {
+//         color: white !important;
+//         text-align: center;
+//     }
+//     display: flex !important;
+//     // width: 180px !important;
+//     // min-height: 44px !important;w
+//     // margin: 0 auto !important;
+
+//     // background: rgba(255, 255, 255, 0.12) !important;
+//     // border: 1px solid rgba(255, 255, 255, 0.35) !important;
+//     // border-radius: 10px !important;
+
+//     // box-shadow: none !important;
+//     // transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease !important;
+// }
+
 @import 'edit_spec_field';
 @import 'edit_row';
 @import 'chat';

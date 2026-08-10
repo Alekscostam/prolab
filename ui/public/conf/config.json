@@ -21,12 +21,12 @@
     "BI_BE_URL": "https://demos.devexpress.com/services/dashboard/api",
     "HEARTBEAT_TIME_MINUTES": 1,
     "UPDATE_APP": {
-        "REMIND_AGAIN_TIME": 60000,
-        "VERSION_CHECK_INTERVAL": 60000
+        "REMIND_AGAIN_TIME": 10000,
+        "VERSION_CHECK_INTERVAL": 10000
     },
     "CAPTCHA": {
         "SITE_KEY": "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI",
-        "ENABLED": false
+        "ENABLED": true
     },
     "WSS_URL": "",
     "CHAT_AI": {
