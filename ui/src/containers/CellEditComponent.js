@@ -24,6 +24,7 @@ import {EditorTextAreaDialog} from '../components/prolab/EditorTextAreaDialog';
 import useStore from '../store';
 import {ListOfHintType} from '../enum/ListOfHintType';
 import FilterClear from '../components/prolab/FilterClear';
+import {getStore} from '../utils/helper/StoreHelper';
 
 class CellEditComponent extends PureComponent {
     _filterClearRoot = null;
@@ -56,8 +57,9 @@ class CellEditComponent extends PureComponent {
         };
     }
     renderClearFilter = () => {
+        const showFilterClear = getStore().showFilterClear;
         const clearFilter = document.getElementById('clear-filter-outside');
-        if (this._filterClearRoot && !clearFilter) {
+        if (this._filterClearRoot && !clearFilter && showFilterClear) {
             this._filterClearRoot.render(
                 <FilterClear
                     clearFnc={() => {

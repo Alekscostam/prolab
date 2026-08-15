@@ -39,6 +39,8 @@ import {SelectedRowKeysUtils} from '../../utils/SelectedRowKeysUtils';
 import {handleEdit} from '../../utils/handler/EditHandler';
 import {cellRenderSpecial} from './TreeViewTemplate';
 import FilterClear from '../../components/prolab/FilterClear';
+import {getStore} from '../../utils/helper/StoreHelper';
+import {handleCallToggle} from '../../utils/handler/FilterSwitchHandler';
 
 let clearSelection = false;
 
@@ -243,6 +245,28 @@ class TreeViewComponent extends CellEditComponent {
                     wordWrapEnabled={rowAutoHeight}
                     columnAutoWidth={columnAutoWidth}
                     columnResizingMode='widget'
+                    onEditorPreparing={(e) => {
+                        if (e.parentType === 'filterRow') {
+                            const defaultValueChangeHandler = e.editorOptions.onValueChanged;
+
+                            e.updateValueTimeout = 0;
+                            e.editorOptions.valueChangeEvent = 'input';
+
+                            e.editorOptions.onValueChanged = (args) => {
+                                defaultValueChangeHandler(args);
+
+                                setTimeout(() => {
+                                    const showFilterClear = getStore().showFilterClear;
+
+                                    if (showFilterClear && this.treeRefInstance()) {
+                                        const combinedFilter = this.treeRefInstance().getCombinedFilter();
+
+                                        handleCallToggle(combinedFilter);
+                                    }
+                                }, 0);
+                            };
+                        }
+                    }}
                     repaintChangesOnly={true}
                     onOptionChanged={(e) => {
                         if (e.fullName.includes('filterValue') && e.name === 'columns') {
@@ -307,7 +331,7 @@ class TreeViewComponent extends CellEditComponent {
                     parentIdExpr='_ID_PARENT'
                     onCellClick={(e) => {
                         if (e?.column?.ownOnlySelectList) {
-                            if (!StringUtils.isBlank(e.data._ID)) {
+                            if (!StringUtils.isBlank(e?.data?._ID)) {
                                 this.editListVisible(e.data._ID, e.column.ownFieldId);
                             }
                         }

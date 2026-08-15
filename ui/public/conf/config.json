@@ -11,7 +11,7 @@
     "APP_NAME": "ProlabRD",
     "APP_FULL_NAME": "ProlabRD",
     "SHOW_HINT_LIST_BUTTONS": true,
-    "SHOW_MERGE": false,
+    "SHOW_FILTER_CLEAR": true,
     "SHOW_MARKUP_ON_HTML_EDITOR": true,
     "REMEMBER_ME": true,
     "BAR_CODE_SHOW_METHOD": "FIRST",

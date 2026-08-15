@@ -10,7 +10,7 @@ export const handleSwitchFilterForGrid = (filters) => {
     handleCallToggle(filters);
 };
 
-const handleCallToggle = (filters) => {
+export const handleCallToggle = (filters) => {
     const callToggleFn = useStore.getState().callToggleFn;
     if (!StringUtils.isBlank(filters)) {
         callToggleFn(true);

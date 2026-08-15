@@ -16,7 +16,7 @@ const stylingModes = ['secondary', 'primary'];
 const iconPositions = ['top', 'start', 'end', 'bottom'];
 
 export const VersionPreviewDialog = (props) => {
-    const [aboutVersion, setAboutVersion] = useState([]);
+    const [aboutVersion, setAboutVersion] = useState(getStore().aboutVersion);
 
     useEffect(() => {
         setAboutVersion(getStore().aboutVersion);
@@ -29,6 +29,20 @@ export const VersionPreviewDialog = (props) => {
             text: 'UPDATE_APP -> REMIND_AGAIN_TIME i VERSION_CHECK_INTERVAL',
             description:
                 'Czasy w milisekundach. REMIND_AGAIN_TIME - ponowne wyświetlenie dialogu aktualizacji, VERSION_CHECK_INTERVAL - sprawdzenie aktualnej wersji',
+            isNew: true,
+            color: 'orange',
+        },
+        {
+            type: 'PARAMETERS',
+            text: 'HEARTBEAT_TIME_MINUTES',
+            description: 'Cykliczne sprawdzanie tokenu w minutach',
+            isNew: true,
+            color: 'orange',
+        },
+        {
+            type: 'PARAMETERS',
+            text: 'SHOW_FILTER_CLEAR',
+            description: 'Włączenie/wyłączenie clear filter',
             isNew: true,
             color: 'orange',
         },

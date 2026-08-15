@@ -243,10 +243,6 @@ class App extends Component {
         }).catch((err) => {
             console.error('Error start application = ', err);
         });
-
-        this.readAboutVersion(configUrl).catch((err) => {
-            console.error('Cant read version info = ', err);
-        });
     };
 
     readAboutVersion = (configUrl) => {
@@ -482,8 +478,8 @@ class App extends Component {
             const appName = configuration.APP_NAME;
             const captcha = configuration.CAPTCHA;
             const showHintListButtons = configuration.SHOW_HINT_LIST_BUTTONS;
-            const showMerge = configuration.SHOW_MERGE;
             const rememberMe = configuration.REMEMBER_ME;
+            const showFilterClear = configuration.SHOW_FILTER_CLEAR;
             const barCodeShowMethod = configuration.BAR_CODE_SHOW_METHOD;
             const heartbeatTimeMinutes = configuration.HEARTBEAT_TIME_MINUTES;
             const draggableGridEnabled = configuration.DRAGGABLE_GRID_ENABLED;
@@ -507,6 +503,7 @@ class App extends Component {
                     appVersion,
                 },
             });
+            getStore().setShowFilterClear(showFilterClear);
             getStore().setUpdateApp(updateApp);
             getStore().setDisableLoginPage(disableLoginPage);
             getStore().setBiWorkingMode(biWorkingMode);
@@ -520,7 +517,6 @@ class App extends Component {
             getStore().setDraggableGridEnabled(draggableGridEnabled);
             getStore().setMessages(this.messages);
             getStore().setShowHintListButtons(showHintListButtons);
-            getStore().setShowMerge(showMerge);
             getStore().setAppVersion(appVersion);
             getStore().setChatAi(chatAi);
             getStore().setAppName(appName);
@@ -920,9 +916,16 @@ class App extends Component {
                                         this.showEditQuitConfirmDialog(menuItemClickedId)
                                     }
                                     onShowAboutVersionDialog={() => {
-                                        this.setState({
-                                            renderAboutVersionDialog: true,
-                                        });
+                                        getStore()
+                                            .readAboutVersion()
+                                            .then(() => {
+                                                this.setState({
+                                                    renderAboutVersionDialog: true,
+                                                });
+                                            })
+                                            .catch((ex) => {
+                                                console.log(ex);
+                                            });
                                     }}
                                     onClickItemHrefReactionEnabled={this.state.sidebarClickItemReactionEnabled}
                                     collapsed={true}
