@@ -47,6 +47,7 @@ class Sidebar extends React.Component {
             },
         };
         this.doNotUpdate = false;
+        this.unlistenHistory = null;
         this.menuService = new MenuService();
         this.viewService = new ViewService();
         this.versionService = new VersionService();
@@ -57,6 +58,31 @@ class Sidebar extends React.Component {
     }
     componentDidMount() {
         ConsoleHelper('sidebar => componentDidMount');
+        $(document)
+            .off('click.sidebarActiveMenu', '.pro-inner-item')
+            .on('click.sidebarActiveMenu', '.pro-inner-item', function () {
+                $('.pro-inner-item').each(function () {
+                    $(this).removeClass('active');
+                });
+
+                $('.pro-menu-item').each(function () {
+                    $(this).removeClass('active');
+                });
+
+                $(this).addClass('active').siblings().removeClass('active');
+                $(this).parents('.pro-inner-item').addClass('active');
+                $(this).parents('.pro-menu-item').addClass('active');
+            });
+        if (this.props.history && this.props.history.listen) {
+            this.unlistenHistory = this.props.history.listen((location, action) => {
+                if (action === 'POP') {
+                    setTimeout(() => {
+                        this.syncActiveMenu();
+                    }, 0);
+                }
+            });
+        }
+
         if (
             !localStorage.getItem(CookiesName.MENU) ||
             !localStorage.getItem(CookiesName.VERSION_API) ||
@@ -94,6 +120,45 @@ class Sidebar extends React.Component {
             this.handleFilter('');
         }
     }
+
+    componentWillUnmount() {
+        if (this.unlistenHistory) {
+            this.unlistenHistory();
+            this.unlistenHistory = null;
+        }
+        $(document).off('click.sidebarActiveMenu', '.pro-inner-item');
+    }
+
+    syncActiveMenu = () => {
+        const viewId = UrlUtils.getIdFromUrl();
+
+        if (!viewId) {
+            return;
+        }
+
+        const menuItem = $('#menu_item_id_' + viewId);
+
+        if (!menuItem || menuItem.length === 0) {
+            return;
+        }
+        $('.pro-inner-item').each(function () {
+            $(this).removeClass('active');
+        });
+
+        $('.pro-menu-item').each(function () {
+            $(this).removeClass('active');
+        });
+
+        const innerItem = menuItem.children('.pro-inner-item').first();
+
+        if (!innerItem || innerItem.length === 0) {
+            return;
+        }
+
+        innerItem.addClass('active').siblings().removeClass('active');
+        innerItem.parents('.pro-inner-item').addClass('active');
+        innerItem.parents('.pro-menu-item').addClass('active');
+    };
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         const viewId = UrlUtils.getIdFromUrl();
@@ -161,13 +226,16 @@ class Sidebar extends React.Component {
 
     handleCollapseChange() {
         this.setState(
-            (prevState) => ({collapsed: !prevState.collapsed}),
+            (prevState) => ({
+                collapsed: !prevState.collapsed,
+            }),
             () => {
                 if (this.state.collapsed) {
                     $('.pro-sidebar-inner').css('position', 'relative');
                 } else {
                     $('.pro-sidebar-inner').css('position', 'fixed');
                 }
+
                 this.props.handleCollapseChange(this.state.collapsed);
             }
         );
@@ -175,18 +243,30 @@ class Sidebar extends React.Component {
 
     handleFilter(filterValue) {
         const menu = JSON.parse(localStorage.getItem(CookiesName.MENU));
+
         if (menu !== undefined && filterValue !== null) {
             if (filterValue === undefined || filterValue === null || filterValue === '') {
-                this.setState({filteredMenu: menu, filterValue});
+                this.setState({
+                    filteredMenu: menu,
+                    filterValue,
+                });
             } else {
                 let filteredMenu = [];
+
                 menu.forEach((item) => {
                     this.processItem(item, filteredMenu, filterValue);
                 });
-                this.setState({filteredMenu, filterValue});
+
+                this.setState({
+                    filteredMenu,
+                    filterValue,
+                });
             }
         } else {
-            this.setState({filteredMenu: [], filterValue});
+            this.setState({
+                filteredMenu: [],
+                filterValue,
+            });
         }
     }
 
@@ -213,7 +293,9 @@ class Sidebar extends React.Component {
     }
 
     handleToggleSidebar() {
-        this.setState((prevState) => ({toggled: !prevState.toggled}));
+        this.setState((prevState) => ({
+            toggled: !prevState.toggled,
+        }));
     }
 
     displayIcon(item) {
@@ -342,7 +424,6 @@ class Sidebar extends React.Component {
     renderDynamicMenu = (items) => {
         let {authService} = this.props;
         const loggedIn = authService.isLoggedUser();
-
         const timestamp = Date.now();
         return loggedIn ? (
             <Menu iconShape='circle' popperArrow='false'>
@@ -377,17 +458,6 @@ class Sidebar extends React.Component {
         let {authService} = this.props;
         const {collapsed, filterValue} = this.state;
         const loggedIn = authService.isLoggedUser();
-        $(document).on('click', '.pro-inner-item', function () {
-            $('.pro-inner-item').each(function () {
-                $(this).removeClass('active');
-            });
-            $('.pro-menu-item').each(function () {
-                $(this).removeClass('active');
-            });
-            $(this).addClass('active').siblings().removeClass('active');
-            $(this).parents('.pro-inner-item').addClass('active');
-            $(this).parents('.pro-menu-item').addClass('active');
-        });
         /*------------------------  PROPS  ---------------------------*/
         const profile = !loggedIn ? null : authService.getProfile();
         const userName = !loggedIn ? null : JSON.parse(profile).name;

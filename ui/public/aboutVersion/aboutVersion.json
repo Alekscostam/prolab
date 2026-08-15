@@ -1,7 +1,7 @@
 {
     "changeLog": [
         {
-            "version": "1.6.4.283",
+            "version": "1.6.4.284",
             "title": "",
             "data": [
                 {
@@ -9,13 +9,49 @@
                     "color": "red",
                     "isNew": true,
                     "date": "",
+                    "link": "https://trello.com/c/EaksOpFo/1019-od%C5%9Bwie%C5%BCanie-widoku-po-cofni%C4%99ciu",
+                    "text": "Refresh sidebara"
+                },
+                {
+                    "type": "NEW",
+                    "color": "green",
+                    "isNew": true,
+                    "date": "",
+                    "link": "https://trello.com/c/aQnydsYS/953-przycisk-czyszczenia-filtr%C3%B3w",
+                    "text": "Obsługa ctrl + a"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "isNew": true,
+                    "date": "",
+                    "link": "https://trello.com/c/lr80s3vb/1009-typ-widoku-widok-kolumn-z-grupami",
+                    "text": "Naprawa subgridView"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "isNew": true,
+                    "date": "",
+                    "link": "https://trello.com/c/ILZZBqG1/1013-widok-grupowania",
+                    "text": "Zamiana znaku nieznanego na strzałki"
+                }
+            ]
+        },
+        {
+            "version": "1.6.4.283",
+            "title": "",
+            "data": [
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
                     "link": "https://trello.com/c/hVrCUAp0/997-prametry-w-config-dzia%C5%82anie",
                     "text": "Opisy parametrów, usuwanie niepotrzebnych parametrów, przywrócenie flagi Clear_filter"
                 },
                 {
                     "type": "FIX",
                     "color": "red",
-                    "isNew": true,
                     "date": "",
                     "link": "https://trello.com/c/aQnydsYS/953-przycisk-czyszczenia-filtr%C3%B3w",
                     "text": "Naprawa czyszczenia filtru"
@@ -23,7 +59,6 @@
                 {
                     "type": "FIX",
                     "color": "red",
-                    "isNew": true,
                     "date": "",
                     "link": "https://trello.com/c/vZqnFF5E/1016-usuni%C4%99cie-pe%C5%82nej-historii-przy-starcie-aplikacji-wyciek-danych-osobom-nieuprawnionym",
                     "text": "Wywołanie pełnej hisotrii dopiero po kliknięciu wersji"

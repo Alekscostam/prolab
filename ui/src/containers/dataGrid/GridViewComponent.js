@@ -267,10 +267,17 @@ class GridViewComponent extends CellEditComponent {
         return !UrlUtils.isBatch() && (opAdd || opAddSpec || opAddFile);
     }
 
-    onKeyDown = (e) => {
-        if (e.event.key === 'ArrowUp' || e.event.key === 'ArrowDown') {
-            e.component.closeEditCell();
-            e.component.cancelEditData();
+    handleGridKeyDown = (e) => {
+        if (UrlUtils.isBatch()) {
+            this.onKeyDown(e);
+        }
+
+        this.keyDownClicked.current = true;
+
+        const event = e?.event;
+
+        if (event?.ctrlKey && event?.key?.toLowerCase() === 'a') {
+            this.props.handleSelectAll(true);
         }
     };
 
@@ -357,10 +364,7 @@ class GridViewComponent extends CellEditComponent {
                             }
                         }
                     }}
-                    onKeyDown={(e) => {
-                        if (UrlUtils.isBatch()) this.onKeyDown(e);
-                        this.keyDownClicked.current = true;
-                    }}
+                    onKeyDown={this.handleGridKeyDown}
                     id={`grid-container`}
                     defaultFocusedRowKey={this.state.focusedRowKey}
                     keyExpr='ID'
@@ -1120,9 +1124,11 @@ class GridViewComponent extends CellEditComponent {
     preGenerateColumnsDefinition = () => {
         const multiLevelHeaders = this.props.multiLevelHeaders;
         const gridViewColumns = this.props.gridViewColumns;
+
         if (multiLevelHeaders) {
-            return this.generateGroupColumns(gridViewColumns);
+            return ColumnUtils.generateGroupColumns(gridViewColumns, this.groupCellTemplate, false);
         }
+
         return this.generateColumns();
     };
 
@@ -1179,43 +1185,6 @@ class GridViewComponent extends CellEditComponent {
                 )
             );
         });
-        return columns;
-    }
-
-    generateGroupColumns() {
-        const renderColumns = (groupDefinition, keyPrefix = '') => {
-            if (groupDefinition.isBand && Array.isArray(groupDefinition.columns)) {
-                return (
-                    <Column
-                        visible={groupDefinition.visible}
-                        alignment='center'
-                        fixed={ColumnUtils.getFixed(groupDefinition)}
-                        fixedPosition={ColumnUtils.getFixedPosition(groupDefinition)}
-                        key={keyPrefix + '-column-group'}
-                        caption={groupDefinition.caption}
-                        isBand={true}
-                    >
-                        {groupDefinition.columns.map((child, idx) => renderColumns(child, keyPrefix + '-' + idx))}
-                    </Column>
-                );
-            } else {
-                let sortOrder;
-                if (!!groupDefinition?.sortIndex && groupDefinition?.sortIndex > 0 && !!groupDefinition?.sortOrder) {
-                    sortOrder = groupDefinition?.sortOrder?.toLowerCase();
-                }
-                return (
-                    <Column
-                        visible={groupDefinition.visible}
-                        key={keyPrefix + '-column'}
-                        dataField={groupDefinition.fieldName}
-                        sortOrder={sortOrder}
-                        sortIndex={groupDefinition?.sortIndex}
-                        groupCellTemplate={this.groupCellTemplate}
-                    />
-                );
-            }
-        };
-        const columns = this.props.gridViewColumns.map((group, index) => renderColumns(group, 'col-' + index));
         return columns;
     }
 

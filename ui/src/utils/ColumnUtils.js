@@ -1,7 +1,7 @@
-import {Column} from 'devextreme-react/cjs/data-grid';
 import {ArrayUtils} from './ArrayUtils';
 import {StringUtils} from './StringUtils';
 import {DateUtils} from './DateUtlis';
+import {Column} from 'devextreme-react/data-grid';
 
 export class ColumnUtils {
     static applyFilters(filtersIn = [], column) {
@@ -219,15 +219,15 @@ export class ColumnUtils {
         return null;
     }
 
-    static generateGroupColumns(viewColumns) {
+    static generateGroupColumns(viewColumns, groupCellTemplate = undefined, useLeafCaption = true) {
         const renderColumns = (group, keyPrefix = '') => {
             if (group.isBand && Array.isArray(group.columns)) {
                 return (
                     <Column
                         visible={group.visible}
                         alignment='center'
-                        fixed={this.getFixed(group)}
-                        fixedPosition={this.getFixedPosition(group)}
+                        fixed={ColumnUtils.getFixed(group)}
+                        fixedPosition={ColumnUtils.getFixedPosition(group)}
                         key={keyPrefix + '-column-group'}
                         caption={group.caption}
                         isBand={true}
@@ -235,25 +235,28 @@ export class ColumnUtils {
                         {group.columns.map((child, idx) => renderColumns(child, keyPrefix + '-' + idx))}
                     </Column>
                 );
-            } else {
-                let sortOrder;
-                if (!!group?.sortIndex && group?.sortIndex > 0 && !!group?.sortOrder) {
-                    sortOrder = group?.sortOrder?.toLowerCase();
-                }
-                return (
-                    <Column
-                        visible={group.visible}
-                        key={keyPrefix + '-column'}
-                        dataField={group.fieldName}
-                        sortOrder={sortOrder}
-                        caption={group.caption}
-                        sortIndex={group?.sortIndex}
-                    />
-                );
             }
+
+            let sortOrder;
+
+            if (!!group?.sortIndex && group?.sortIndex > 0 && !!group?.sortOrder) {
+                sortOrder = group.sortOrder.toLowerCase();
+            }
+
+            return (
+                <Column
+                    visible={group.visible}
+                    key={keyPrefix + '-column'}
+                    dataField={group.fieldName}
+                    sortOrder={sortOrder}
+                    caption={useLeafCaption ? group.caption : undefined}
+                    sortIndex={group?.sortIndex}
+                    groupCellTemplate={groupCellTemplate}
+                />
+            );
         };
-        const columns = viewColumns.map((group, index) => renderColumns(group, 'col-' + index));
-        return columns;
+
+        return viewColumns.map((group, index) => renderColumns(group, 'col-' + index));
     }
 
     static filteredResults(array = [], filters = []) {

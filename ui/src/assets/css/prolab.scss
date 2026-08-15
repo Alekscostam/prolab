@@ -2070,6 +2070,13 @@ td[aria-roledescription='Editable'] {
 .dx-loadindicator-content-circle.dx-loadindicator-content {
     display: none !important;
 }
+.dx-datagrid-group-closed,
+.dx-datagrid-group-opened {
+    font-family: DXIcons !important;
+    font-size: 18px !important;
+    font-weight: normal !important;
+    line-height: 18px !important;
+}
 // .logged-change-lang {
 //     .p-icon {
 //         color: white;
