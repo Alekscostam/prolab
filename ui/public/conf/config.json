@@ -1,5 +1,6 @@
 {
-    "REACT_APP_BACKEND_URL": "http://prolabrd-dev.informtech.local/PPA/api",
+    "REACT_APP_BACKEND_URL": "http://prolabrd-c5.informtech.local/PPA/api",
+
     "REACT_APP_URL_PREFIX": "",
     "LANG": "PL",
     "LANG_LIST": ["PL", "ENG", "DE"],
@@ -26,7 +27,8 @@
     },
     "CAPTCHA": {
         "SITE_KEY": "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI",
-        "ENABLED": true
+        "ENABLED": true,
+        "ENV_KEY_ENABLED": false
     },
     "WSS_URL": "",
     "CHAT_AI": {

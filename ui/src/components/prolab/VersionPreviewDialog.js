@@ -69,8 +69,8 @@ export const VersionPreviewDialog = (props) => {
         },
         {
             type: 'PARAMETERS',
-            text: 'CAPTCHA -> SITE_KEY i ENABLED',
-            description: 'Parametry do wyświetlenia captchy',
+            text: 'CAPTCHA -> SITE_KEY, ENABLED, ENV_KEY_ENABLED',
+            description: 'Parametry do wyświetlenia captchy. ENV_KEY_ENABLED - oznacza, że uzyty zostanie klucz z ENV',
             isNew: true,
             color: 'orange',
         },

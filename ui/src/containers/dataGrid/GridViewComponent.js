@@ -1009,10 +1009,7 @@ class GridViewComponent extends CellEditComponent {
     }
 
     canReplaceFilterExpression(columnDefinition) {
-        if (
-            (columnDefinition?.type === ColumnType.L || columnDefinition?.type === ColumnType.B) &&
-            UrlUtils.isBatch()
-        ) {
+        if (columnDefinition?.type === ColumnType.L || columnDefinition?.type === ColumnType.B) {
             return true;
         }
         return (columnDefinition?.type === 'D' || columnDefinition?.type === 'E') && !UrlUtils.isBatch();

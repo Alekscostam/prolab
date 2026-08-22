@@ -398,7 +398,11 @@ class LoginContainer extends BaseContainer {
                     {getStore()?.captcha?.ENABLED && (
                         <ReCAPTCHA
                             id='re-captcha'
-                            sitekey={getStore().captcha?.SITE_KEY}
+                            sitekey={
+                                getStore().captcha?.ENV_KEY_ENABLED
+                                    ? process.env.REACT_APP_RECAPTCHA_SITE_KEY
+                                    : getStore().captcha?.SITE_KEY
+                            }
                             ref={this.recaptchaRef}
                             onChange={(value) => {
                                 this.setState({captchaToken: value});

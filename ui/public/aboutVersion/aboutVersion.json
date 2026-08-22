@@ -1,7 +1,7 @@
 {
     "changeLog": [
         {
-            "version": "1.6.4.284",
+            "version": "1.6.4.285",
             "title": "",
             "data": [
                 {
@@ -9,13 +9,33 @@
                     "color": "red",
                     "isNew": true,
                     "date": "",
+                    "link": "https://trello.com/c/uEHKDGZq/910-zaznaczanie-pozycji-%C5%BAle-liczy-i-przekazuje-zaznaczone",
+                    "text": "Poprawiona interpretacja pola logicznego w filtrach"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "isNew": true,
+                    "date": "",
+                    "link": "https://trello.com/c/uEHKDGZq/910-zaznaczanie-pozycji-%C5%BAle-liczy-i-przekazuje-zaznaczone",
+                    "text": "Dodanie klucza do ENV, oraz nowy parametr do captchy ENV_KEY_ENABLED "
+                }
+            ]
+        },
+        {
+            "version": "1.6.4.284",
+            "title": "",
+            "data": [
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
                     "link": "https://trello.com/c/EaksOpFo/1019-od%C5%9Bwie%C5%BCanie-widoku-po-cofni%C4%99ciu",
                     "text": "Refresh sidebara"
                 },
                 {
                     "type": "NEW",
                     "color": "green",
-                    "isNew": true,
                     "date": "",
                     "link": "https://trello.com/c/aQnydsYS/953-przycisk-czyszczenia-filtr%C3%B3w",
                     "text": "Obsługa ctrl + a"
@@ -23,7 +43,6 @@
                 {
                     "type": "FIX",
                     "color": "red",
-                    "isNew": true,
                     "date": "",
                     "link": "https://trello.com/c/lr80s3vb/1009-typ-widoku-widok-kolumn-z-grupami",
                     "text": "Naprawa subgridView"
@@ -31,7 +50,6 @@
                 {
                     "type": "FIX",
                     "color": "red",
-                    "isNew": true,
                     "date": "",
                     "link": "https://trello.com/c/ILZZBqG1/1013-widok-grupowania",
                     "text": "Zamiana znaku nieznanego na strzałki"
