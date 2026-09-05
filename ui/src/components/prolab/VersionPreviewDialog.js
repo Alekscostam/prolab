@@ -26,6 +26,18 @@ export const VersionPreviewDialog = (props) => {
     const parameters = [
         {
             type: 'PARAMETERS',
+            text: 'MAINTENANCE_BANNER',
+            description:
+                'Konfiguracja paska informacyjnego wyświetlanego w górnej części aplikacji. ' +
+                'ENABLED (boolean) – określa, czy pasek jest widoczny; ' +
+                'MESSAGE (string) – treść komunikatu; ' +
+                'TYPE (string) – typ komunikatu: WARN, INFO, NORMAL lub DANGER.' +
+                'SCROLLING (boolean) – tekst ruchomy',
+            isNew: true,
+            color: 'orange',
+        },
+        {
+            type: 'PARAMETERS',
             text: 'UPDATE_APP -> REMIND_AGAIN_TIME i VERSION_CHECK_INTERVAL',
             description:
                 'Czasy w milisekundach. REMIND_AGAIN_TIME - ponowne wyświetlenie dialogu aktualizacji, VERSION_CHECK_INTERVAL - sprawdzenie aktualnej wersji',

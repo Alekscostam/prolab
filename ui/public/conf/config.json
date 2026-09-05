@@ -1,5 +1,5 @@
 {
-    "REACT_APP_BACKEND_URL": "http://prolabrd-c5.informtech.local/PPA/api",
+    "REACT_APP_BACKEND_URL": "http://prolabrd-test.informtech.local/PPA/api",
 
     "REACT_APP_URL_PREFIX": "",
     "LANG": "PL",
@@ -22,8 +22,14 @@
     "BI_BE_URL": "https://demos.devexpress.com/services/dashboard/api",
     "HEARTBEAT_TIME_MINUTES": 1,
     "UPDATE_APP": {
-        "REMIND_AGAIN_TIME": 10000,
-        "VERSION_CHECK_INTERVAL": 10000
+        "REMIND_AGAIN_TIME": 610000,
+        "VERSION_CHECK_INTERVAL": 610000
+    },
+    "MAINTENANCE_BANNER": {
+        "MESSAGE": "Przerwa techniczna w godzinach 15:00 - 16:00",
+        "TYPE": "WARN",
+        "ENABLED": true,
+        "SCROLLING": false
     },
     "CAPTCHA": {
         "SITE_KEY": "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI",

@@ -46,6 +46,7 @@ import DashboardBiComponent from './containers/dashboard/DashboardBiComponent';
 import UpdateApp from './components/prolab/UpdateApp';
 import {handleEdit} from './utils/handler/EditHandler';
 import CrudService from './services/CrudService';
+import MaintenanceBanner from './components/prolab/MaintenanceBanner';
 
 export let clearState;
 export let reStateApp;
@@ -70,6 +71,7 @@ class App extends Component {
         this.editSpecContainer = React.createRef();
         this.state = {
             guiRefreshKey: 0,
+            mockUdpateVersion: false,
             configApp: {
                 lang: 'PL',
                 renderForgotPassword: false,
@@ -98,6 +100,7 @@ class App extends Component {
             labels: [],
             renderNoRefreshContent: false,
             viewInfoName: null,
+            maintenanceBannerEnabled: null,
             renderSessionTimeoutDialog: false,
             subView: null,
             operations: null,
@@ -475,6 +478,7 @@ class App extends Component {
                 : false;
             const deviceName = configuration.DEVICE_NAME;
             const disableLoginPage = configuration.DISABLE_LOGIN_PAGE;
+            const maintenanceBanner = configuration.MAINTENANCE_BANNER;
             const appName = configuration.APP_NAME;
             const captcha = configuration.CAPTCHA;
             const showHintListButtons = configuration.SHOW_HINT_LIST_BUTTONS;
@@ -504,6 +508,7 @@ class App extends Component {
                 },
             });
             getStore().setShowFilterClear(showFilterClear);
+            getStore().setMaintenanceBanner(maintenanceBanner);
             getStore().setUpdateApp(updateApp);
             getStore().setDisableLoginPage(disableLoginPage);
             getStore().setBiWorkingMode(biWorkingMode);
@@ -838,10 +843,15 @@ class App extends Component {
         const loggedIn = authService.isLoggedUser();
         return (
             <React.Fragment key={'gui-' + this.state.guiRefreshKey}>
-                {this.state.enableUpdateDialog && loggedIn && (
+                {this.state.enableUpdateDialog && loggedIn && !this.state.mockUdpateVersion && (
                     <UpdateApp
                         disableLoginPageAction={() => {
                             authService.logout();
+                        }}
+                        maintenanceBannerAction={(maintenanceBannerEnabled) => {
+                            this.setState({
+                                maintenanceBannerEnabled: maintenanceBannerEnabled,
+                            });
                         }}
                     />
                 )}
@@ -916,23 +926,29 @@ class App extends Component {
                                         this.showEditQuitConfirmDialog(menuItemClickedId)
                                     }
                                     onShowAboutVersionDialog={() => {
-                                        getStore()
-                                            .readAboutVersion()
-                                            .then(() => {
-                                                this.setState({
-                                                    renderAboutVersionDialog: true,
+                                        if (this.state.canRenderAboutVersionDialog) {
+                                            getStore()
+                                                .readAboutVersion()
+                                                .then(() => {
+                                                    this.setState({
+                                                        renderAboutVersionDialog: true,
+                                                    });
+                                                })
+                                                .catch((ex) => {
+                                                    console.log(ex);
                                                 });
-                                            })
-                                            .catch((ex) => {
-                                                console.log(ex);
-                                            });
+                                        }
                                     }}
                                     onClickItemHrefReactionEnabled={this.state.sidebarClickItemReactionEnabled}
                                     collapsed={true}
                                     handleCollapseChange={(e) => this.handleCollapseChange(e)}
                                 />
                             )}
+
                             <main>
+                                {this.state.maintenanceBannerEnabled && loggedIn && (
+                                    <MaintenanceBanner visible={this.state.maintenanceBannerEnabled} />
+                                )}
                                 <div className={`${loggedIn ? 'container-fluid' : ''}`}>
                                     {this.state.renderNoRefreshContent && this.enabledTopComponents() ? (
                                         <React.Fragment>

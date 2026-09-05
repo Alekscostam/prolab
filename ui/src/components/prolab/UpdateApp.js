@@ -28,7 +28,7 @@ const getBuildNumberVersion = () => {
     const buildNumber = process.env.REACT_APP_BUILD_NUMBER;
 
     if (!buildNumber || buildNumber === '#BUILD_NUMBER#') {
-        return '.283';
+        return '.284';
     }
     return '.' + buildNumber;
 };
@@ -106,7 +106,7 @@ const removeReloadTimeFromHash = () => {
     window.history.replaceState(null, '', cleanUrl);
 };
 
-const UpdateApp = ({disableLoginPageAction}) => {
+const UpdateApp = ({disableLoginPageAction, maintenanceBannerAction}) => {
     const aboutVersion = useStore((state) => state.historyVersion);
 
     const currentVersion = getCurrentVersion();
@@ -118,11 +118,14 @@ const UpdateApp = ({disableLoginPageAction}) => {
     const remindAgainTimeoutRef = useRef(null);
     const remindBlockedUntilRef = useRef(0);
     const disableLoginPageActionRef = useRef(disableLoginPageAction);
+    const maintenanceBannerActionRef = useRef(maintenanceBannerAction);
 
     useEffect(() => {
         disableLoginPageActionRef.current = disableLoginPageAction;
     }, [disableLoginPageAction]);
-
+    useEffect(() => {
+        maintenanceBannerActionRef.current = maintenanceBannerAction;
+    }, [maintenanceBannerAction]);
     useEffect(() => {
         removeReloadTimeFromHash();
     }, []);
@@ -174,7 +177,15 @@ const UpdateApp = ({disableLoginPageAction}) => {
                         const configuration = response && typeof response !== 'boolean' ? response.configuration : null;
                         const disableLoginPageValue = configuration && configuration.DISABLE_LOGIN_PAGE;
                         const disableLoginPage = disableLoginPageValue === true || disableLoginPageValue === 'true';
+                        const maintenanceBanner = configuration && configuration.MAINTENANCE_BANNER;
 
+                        const maintenanceBannerEnabled =
+                            maintenanceBanner &&
+                            (maintenanceBanner.ENABLED === true || maintenanceBanner.ENABLED === 'true');
+
+                        if (typeof maintenanceBannerActionRef.current === 'function') {
+                            maintenanceBannerActionRef.current(!!maintenanceBannerEnabled);
+                        }
                         if (disableLoginPage && typeof disableLoginPageActionRef.current === 'function') {
                             disableLoginPageActionRef.current();
                         }

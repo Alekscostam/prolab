@@ -4,6 +4,7 @@ import {StringUtils} from './utils/StringUtils';
 const useStore = create((set, get) => ({
     fetchData: true,
     filterClearFnc: null,
+    maintenanceBanner: null,
     draggableGridEnabled: false,
     showFilterClear: false,
     gridStateStore: undefined,
@@ -55,6 +56,7 @@ const useStore = create((set, get) => ({
             barCodeShowMethod: value,
         });
     },
+    setMaintenanceBanner: (value) => set({maintenanceBanner: value}),
     setShowFilterClear: (value) => set({showFilterClear: value}),
     setCheckConfigChanged: (value) => set({checkConfigChanged: value}),
     setUpdateApp: (value) => set({updateApp: value}),
