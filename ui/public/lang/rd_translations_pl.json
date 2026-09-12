@@ -38,7 +38,7 @@
         {"code": "Login_Signin", "caption": "Zaloguj się"},
         {"code": "Not_selected_elements", "caption": "Nie wybrano żadnych elementów"},
         {"code": "Move_To", "caption": "Przenieś do"},
-        {"code": "Later", "caption": "Później"},
+        {"code": "Refresh_Later", "caption": "Odśwież automatycznie za {} min"},
         {"code": "Refresh_Now", "caption": "Odśwież teraz"},
         {"code": "Login_Signup", "caption": "Stwórz profil"},
         {"code": "Login_Signup_Info", "caption": "Nie masz swojego konta?"},

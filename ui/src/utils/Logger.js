@@ -160,6 +160,21 @@ class Logger {
     }
 }
 
+export const logWarn = (...args) => {
+    Logger.warn(...args);
+};
+
+export const logDebug = (...args) => {
+    Logger.debug(...args);
+};
+
+export const logInfo = (...args) => {
+    Logger.info(...args);
+};
+
+export const logError = (...args) => {
+    Logger.error(...args);
+};
 export const LogMode = {
     ALL: 'ALL',
     MEDIUM: 'MEDIUM',

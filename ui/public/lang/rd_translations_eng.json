@@ -37,7 +37,7 @@
         {"code": "Login_Signup", "caption": "Sign Up"},
         {"code": "Move_To", "caption": "Move to"},
         {"code": "New_Version", "caption": "Nowa wersja"},
-        {"code": "Later", "caption": "Później"},
+        {"code": "Refresh_Later", "caption": "Później"},
         {"code": "Refresh_Now", "caption": "Odśwież teraz"},
         {
             "code": "Application_Updated_Refresh_Page",

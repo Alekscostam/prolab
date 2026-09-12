@@ -22,7 +22,7 @@
     "BI_BE_URL": "https://demos.devexpress.com/services/dashboard/api",
     "HEARTBEAT_TIME_MINUTES": 1,
     "UPDATE_APP": {
-        "REMIND_AGAIN_TIME": 610000,
+        "AUTO_REFRESH_DELAY": 5,
         "VERSION_CHECK_INTERVAL": 610000
     },
     "MAINTENANCE_BANNER": {

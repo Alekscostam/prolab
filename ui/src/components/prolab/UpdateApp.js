@@ -30,6 +30,7 @@ const getBuildNumberVersion = () => {
     if (!buildNumber || buildNumber === '#BUILD_NUMBER#') {
         return '.284';
     }
+
     return '.' + buildNumber;
 };
 
@@ -39,8 +40,8 @@ const getCurrentVersion = () => {
     if (!applicationVersion) {
         return '';
     }
-    const currentVersion = applicationVersion + getBuildNumberVersion();
-    return currentVersion;
+
+    return applicationVersion + getBuildNumberVersion();
 };
 
 const getHashParts = (hash) => {
@@ -48,20 +49,16 @@ const getHashParts = (hash) => {
     const questionMarkIndex = safeHash.indexOf('?');
 
     if (questionMarkIndex === -1) {
-        const result = {
+        return {
             hashPath: safeHash,
             queryString: '',
         };
-
-        return result;
     }
 
-    const result = {
+    return {
         hashPath: safeHash.substring(0, questionMarkIndex),
         queryString: safeHash.substring(questionMarkIndex + 1),
     };
-
-    return result;
 };
 
 const reloadApplication = () => {
@@ -95,18 +92,17 @@ const removeReloadTimeFromHash = () => {
         return;
     }
 
-    const oldReloadTime = searchParams.get('_reloadTime');
-
     searchParams.delete('_reloadTime');
 
     const newQueryString = searchParams.toString();
     const newHash = newQueryString ? hashPath + '?' + newQueryString : hashPath;
+
     const cleanUrl = origin + pathname + search + newHash;
 
     window.history.replaceState(null, '', cleanUrl);
 };
 
-const UpdateApp = ({disableLoginPageAction, maintenanceBannerAction}) => {
+const UpdateApp = ({maintenanceBannerAction}) => {
     const aboutVersion = useStore((state) => state.historyVersion);
 
     const currentVersion = getCurrentVersion();
@@ -115,25 +111,21 @@ const UpdateApp = ({disableLoginPageAction, maintenanceBannerAction}) => {
     const [serverVersion, setServerVersion] = useState('');
     const [configChanged, setConfigChanged] = useState(false);
 
-    const remindAgainTimeoutRef = useRef(null);
-    const remindBlockedUntilRef = useRef(0);
-    const disableLoginPageActionRef = useRef(disableLoginPageAction);
+    const autoRefreshTimeoutRef = useRef(null);
     const maintenanceBannerActionRef = useRef(maintenanceBannerAction);
 
-    useEffect(() => {
-        disableLoginPageActionRef.current = disableLoginPageAction;
-    }, [disableLoginPageAction]);
+    const AUTO_REFRESH_DELAY = getStore()?.updateApp?.AUTO_REFRESH_DELAY || 1;
+
     useEffect(() => {
         maintenanceBannerActionRef.current = maintenanceBannerAction;
     }, [maintenanceBannerAction]);
+
     useEffect(() => {
         removeReloadTimeFromHash();
     }, []);
 
     useEffect(() => {
         const refreshAboutVersion = () => {
-            const requestStartTime = new Date().getTime();
-
             try {
                 const readAboutVersion = getStore().readHistoryVersion;
 
@@ -148,13 +140,13 @@ const UpdateApp = ({disableLoginPageAction, maintenanceBannerAction}) => {
                 }
 
                 result
-                    .then((changeLog) => {
-                        const requestEndTime = new Date().getTime();
-                    })
+                    .then(() => {})
                     .catch((error) => {
-                        const requestEndTime = new Date().getTime();
+                        logError('Błąd podczas pobierania wersji aplikacji', error);
                     });
-            } catch (error) {}
+            } catch (error) {
+                logError('Błąd podczas pobierania wersji aplikacji', error);
+            }
         };
 
         const refreshConfigChanged = () => {
@@ -174,9 +166,9 @@ const UpdateApp = ({disableLoginPageAction, maintenanceBannerAction}) => {
                 return result
                     .then((response) => {
                         const changed = typeof response === 'boolean' ? response : !!(response && response.changed);
+
                         const configuration = response && typeof response !== 'boolean' ? response.configuration : null;
-                        const disableLoginPageValue = configuration && configuration.DISABLE_LOGIN_PAGE;
-                        const disableLoginPage = disableLoginPageValue === true || disableLoginPageValue === 'true';
+
                         const maintenanceBanner = configuration && configuration.MAINTENANCE_BANNER;
 
                         const maintenanceBannerEnabled =
@@ -186,9 +178,6 @@ const UpdateApp = ({disableLoginPageAction, maintenanceBannerAction}) => {
                         if (typeof maintenanceBannerActionRef.current === 'function') {
                             maintenanceBannerActionRef.current(!!maintenanceBannerEnabled);
                         }
-                        if (disableLoginPage && typeof disableLoginPageActionRef.current === 'function') {
-                            disableLoginPageActionRef.current();
-                        }
 
                         if (!changed) {
                             return false;
@@ -196,18 +185,24 @@ const UpdateApp = ({disableLoginPageAction, maintenanceBannerAction}) => {
 
                         setConfigChanged(true);
 
-                        const currentTime = new Date().getTime();
-
-                        if (currentTime >= remindBlockedUntilRef.current) {
+                        /*
+                         * Jeżeli użytkownik nie wybrał jeszcze
+                         * automatycznego odświeżenia, pokazujemy dialog.
+                         */
+                        if (!autoRefreshTimeoutRef.current) {
                             setVisible(true);
                         }
 
                         return true;
                     })
                     .catch((error) => {
+                        logError('Błąd podczas sprawdzania konfiguracji', error);
+
                         return false;
                     });
             } catch (error) {
+                logError('Błąd podczas sprawdzania konfiguracji', error);
+
                 return Promise.resolve(false);
             }
         };
@@ -218,6 +213,7 @@ const UpdateApp = ({disableLoginPageAction, maintenanceBannerAction}) => {
         };
 
         refreshUpdateStatus();
+
         const VERSION_CHECK_INTERVAL = getStore()?.updateApp?.VERSION_CHECK_INTERVAL || 60000;
 
         const intervalId = setInterval(() => {
@@ -242,12 +238,13 @@ const UpdateApp = ({disableLoginPageAction, maintenanceBannerAction}) => {
 
         if (latestVersion !== currentVersion) {
             setServerVersion(latestVersion);
-            const currentTime = new Date().getTime();
-            const remindBlockedUntil = remindBlockedUntilRef.current;
 
-            if (currentTime >= remindBlockedUntil) {
+            /*
+             * Jeśli użytkownik wybrał już automatyczny refresh,
+             * nie pokazujemy ponownie dialogu.
+             */
+            if (!autoRefreshTimeoutRef.current) {
                 setVisible(true);
-            } else {
             }
 
             return;
@@ -260,39 +257,24 @@ const UpdateApp = ({disableLoginPageAction, maintenanceBannerAction}) => {
         }
     }, [aboutVersion, currentVersion, configChanged]);
 
-    useEffect(() => {}, [visible]);
-
-    useEffect(() => {}, [serverVersion]);
-
     useEffect(() => {
         return () => {
-            if (remindAgainTimeoutRef.current) {
-                clearTimeout(remindAgainTimeoutRef.current);
-            } else {
+            if (autoRefreshTimeoutRef.current) {
+                clearTimeout(autoRefreshTimeoutRef.current);
             }
         };
     }, []);
 
-    const remindLater = () => {
+    const autoRefresh = () => {
         setVisible(false);
 
-        const currentTime = new Date().getTime();
-
-        const REMIND_AGAIN_TIME = getStore()?.updateApp?.REMIND_AGAIN_TIME || 60000;
-        const blockedUntil = currentTime + REMIND_AGAIN_TIME;
-
-        remindBlockedUntilRef.current = blockedUntil;
-
-        if (remindAgainTimeoutRef.current) {
-            clearTimeout(remindAgainTimeoutRef.current);
+        if (autoRefreshTimeoutRef.current) {
+            clearTimeout(autoRefreshTimeoutRef.current);
         }
 
-        remindAgainTimeoutRef.current = setTimeout(() => {
-            if ((serverVersion && serverVersion !== currentVersion) || configChanged) {
-                setVisible(true);
-            } else {
-            }
-        }, REMIND_AGAIN_TIME);
+        autoRefreshTimeoutRef.current = setTimeout(() => {
+            reloadApplication();
+        }, AUTO_REFRESH_DELAY * 60 * 1000);
     };
 
     const handleRefreshNow = () => {
@@ -306,7 +288,7 @@ const UpdateApp = ({disableLoginPageAction, maintenanceBannerAction}) => {
                 'Application_Update_Available',
                 'Dostępna jest aktualizacja aplikacji'
             )}
-            width={430}
+            width={'auto'}
             height='auto'
             showCloseButton={false}
             closeOnOutsideClick={false}
@@ -349,9 +331,12 @@ const UpdateApp = ({disableLoginPageAction, maintenanceBannerAction}) => {
                     }}
                 >
                     <Button
-                        text={LocUtils.locFromStoreWithDefault('Later', 'Później')}
+                        text={LocUtils.locFromStoreWithDefault(
+                            'Refresh_Later',
+                            'Odśwież automatycznie za {} min'
+                        ).replace('{}', AUTO_REFRESH_DELAY)}
                         type='normal'
-                        onClick={remindLater}
+                        onClick={autoRefresh}
                     />
 
                     <Button

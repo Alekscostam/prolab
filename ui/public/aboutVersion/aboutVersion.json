@@ -1,6 +1,19 @@
 {
     "changeLog": [
         {
+            "version": "1.6.4.287",
+            "title": "",
+            "data": [
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "link": "https://trello.com/c/hVrCUAp0/997-prametry-w-config-dzia%C5%82anie",
+                    "text": "Aktualizacja funkcjonalności"
+                }
+            ]
+        },
+        {
             "version": "1.6.4.286",
             "title": "",
             "data": [

@@ -38,9 +38,9 @@ export const VersionPreviewDialog = (props) => {
         },
         {
             type: 'PARAMETERS',
-            text: 'UPDATE_APP -> REMIND_AGAIN_TIME i VERSION_CHECK_INTERVAL',
+            text: 'UPDATE_APP -> AUTO_REFRESH_DELAY i VERSION_CHECK_INTERVAL',
             description:
-                'Czasy w milisekundach. REMIND_AGAIN_TIME - ponowne wyświetlenie dialogu aktualizacji, VERSION_CHECK_INTERVAL - sprawdzenie aktualnej wersji',
+                'Czas w milisekundach(VERSION_CHECK_INTERVAL), czas w minutach(AUTO_REFRESH_DELAY). AUTO_REFRESH_DELAY - odśwież później po okreslonym czasie w minutach, VERSION_CHECK_INTERVAL - sprawdzenie aktualnej wersji',
             isNew: true,
             color: 'orange',
         },
