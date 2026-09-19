@@ -1,6 +1,27 @@
 {
     "changeLog": [
         {
+            "version": "1.6.4.288",
+            "title": "",
+            "data": [
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "isNew": true,
+                    "date": "",
+                    "text": "Logowanie błędów w config"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "isNew": true,
+                    "date": "",
+                    "link": "https://trello.com/c/hVrCUAp0/997-prametry-w-config-dzia%C5%82anie",
+                    "text": "Aktualizacja parametrów na minuty"
+                }
+            ]
+        },
+        {
             "version": "1.6.4.287",
             "title": "",
             "data": [
@@ -20,7 +41,6 @@
                 {
                     "type": "FIX",
                     "color": "red",
-                    "isNew": true,
                     "date": "",
                     "link": "https://trello.com/c/vZqnFF5E/1016-usuni%C4%99cie-pe%C5%82nej-historii-przy-starcie-aplikacji-wyciek-danych-osobom-nieuprawnionym",
                     "text": "Usunięcie możliowści wywołania aboutVersion"
@@ -29,9 +49,8 @@
                     "type": "NEW",
                     "color": "green",
                     "date": "",
-                    "isNew": true,
-                    "link": "https://trello.com/c/hVrCUAp0/997-prametry-w-config-dzia%C5%82anie",
-                    "more": "Dodano parametr konfiguracyjny MAINTENANCE_BANNER umożliwiający wyświetlanie globalnego komunikatu w górnej części aplikacji. Konfiguracja zawiera: ENABLED (boolean) – włączenie lub wyłączenie komunikatu, MESSAGE (string) – treść komunikatu oraz TYPE (string) – typ komunikatu wpływający na jego wygląd. Dostępne typy: WARN, INFO, NORMAL, DANGER. SCROLLING - teskt ruchomy",
+                    "link": "https://trello.com/c/FthhYxrP/1020-nowy-pasek-komunikat%C3%B3w",
+                    "more": "Dodano parametr konfiguracyjny MAINTENANCE_BANNER umożliwiający wyświetlanie globalnego komunikatu w górnej części aplikacji. Konfiguracja zawiera: ENABLED (boolean) – włączenie lub wyłączenie komunikatu, SCROLLING (boolean) - teskt ruchomy, MESSAGE (string) – treść komunikatu oraz TYPE (string) – typ komunikatu wpływający na jego wygląd. Dostępne typy: WARN, INFO, NORMAL, DANGER. ",
                     "text": "Nowy pasek komunikatów"
                 }
             ]

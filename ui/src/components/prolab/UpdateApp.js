@@ -114,7 +114,7 @@ const UpdateApp = ({maintenanceBannerAction}) => {
     const autoRefreshTimeoutRef = useRef(null);
     const maintenanceBannerActionRef = useRef(maintenanceBannerAction);
 
-    const AUTO_REFRESH_DELAY = getStore()?.updateApp?.AUTO_REFRESH_DELAY || 1;
+    const AUTO_REFRESH_DELAY = getStore()?.updateApp?.AUTO_REFRESH_DELAY || 10;
 
     useEffect(() => {
         maintenanceBannerActionRef.current = maintenanceBannerAction;
@@ -214,7 +214,7 @@ const UpdateApp = ({maintenanceBannerAction}) => {
 
         refreshUpdateStatus();
 
-        const VERSION_CHECK_INTERVAL = getStore()?.updateApp?.VERSION_CHECK_INTERVAL || 60000;
+        const VERSION_CHECK_INTERVAL = (getStore()?.updateApp?.VERSION_CHECK_INTERVAL || 15) * 60 * 1000;
 
         const intervalId = setInterval(() => {
             refreshUpdateStatus();

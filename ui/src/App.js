@@ -47,6 +47,7 @@ import UpdateApp from './components/prolab/UpdateApp';
 import {handleEdit} from './utils/handler/EditHandler';
 import CrudService from './services/CrudService';
 import MaintenanceBanner from './components/prolab/MaintenanceBanner';
+import Logger from './utils/Logger';
 
 export let clearState;
 export let reStateApp;
@@ -245,6 +246,16 @@ class App extends Component {
             this.setState({enableUpdateDialog: true});
         }).catch((err) => {
             console.error('Error start application = ', err);
+            const errorMessage = err?.json?.message || err?.message || 'Nie udało się wczytać konfiguracji aplikacji';
+            if (errorMessage?.message) {
+                Logger.error(errorMessage.message);
+                this.messages?.show({
+                    severity: 'error',
+                    sticky: true,
+                    summary: 'Błąd konfiguracji',
+                    detail: errorMessage.message,
+                });
+            }
         });
     };
 
