@@ -19,7 +19,7 @@ import useStore from '../store';
 import LocUtils from '../utils/LocUtils';
 import {getStore} from '../utils/helper/StoreHelper';
 import ReCAPTCHA from 'react-google-recaptcha';
-import {readValueCookieGlobal, saveValueToCookieGlobal} from '../utils/Cookie';
+import {readLocalStorage, saveLocalStorage} from '../utils/Cookie';
 import {StringUtils} from '../utils/StringUtils';
 import ApiService from '../services/ApiService';
 
@@ -125,7 +125,7 @@ class LoginContainer extends BaseContainer {
         this.authService.removeLoginCookies();
         const values = queryString.parse(this.props.location.search);
         this.targetLocation = values.location;
-        this.getConfigForLoginPage(readValueCookieGlobal('chosen-lang'));
+        this.getConfigForLoginPage(readLocalStorage('chosen-lang'));
         if (getStore().getConfigValue)
             getStore()
                 .getConfigValue('DISABLE_LOGIN_PAGE', false)
@@ -467,8 +467,8 @@ class LoginContainer extends BaseContainer {
                                             options={this.state.langs}
                                             placeholder={'Wybierz język'}
                                             value={
-                                                readValueCookieGlobal('chosen-lang')
-                                                    ? readValueCookieGlobal('chosen-lang')
+                                                readLocalStorage('chosen-lang')
+                                                    ? readLocalStorage('chosen-lang')
                                                     : this.state.lang
                                             }
                                             key='lang'
@@ -476,7 +476,7 @@ class LoginContainer extends BaseContainer {
                                             inputId='langInput'
                                             name='lang'
                                             onChange={(e) => {
-                                                saveValueToCookieGlobal('chosen-lang', e.value);
+                                                saveLocalStorage('chosen-lang', e.value);
                                                 this.setState({lang: e.value}, () =>
                                                     this.getConfigForLoginPage(this.state.lang)
                                                 );

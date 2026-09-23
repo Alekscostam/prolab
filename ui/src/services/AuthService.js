@@ -1,6 +1,6 @@
 import decode from 'jwt-decode';
 import moment from 'moment';
-import {canFitInCookie, readObjFromCookieGlobal} from '../utils/Cookie';
+import {canFitInCookie, readLocalStorage, readObjFromCookieGlobal} from '../utils/Cookie';
 import ConsoleHelper from '../utils/ConsoleHelper';
 import AppPrefixUtils from '../utils/AppPrefixUtils';
 import {reStateApp} from '../App';
@@ -9,6 +9,7 @@ import {CookiesName} from '../enum/CookieName';
 import {StringUtils} from '../utils/StringUtils';
 import useStore from '../store';
 import LocUtils from '../utils/LocUtils';
+import {getStore} from '../utils/helper/StoreHelper';
 
 export default class AuthService {
     // Initializing important variables
@@ -170,6 +171,11 @@ export default class AuthService {
                 AppName: appName,
                 AppVersion: appVersion,
                 RecaptchaToken: recaptchaToken,
+                Lang: readLocalStorage('chosen-lang')
+                    ? readLocalStorage('chosen-lang')
+                    : getStore().defaultLang
+                    ? getStore().defaultLang
+                    : 'PL',
             }),
         }).then((res) => {
             useStore.getState().setRefreshToken(res.refreshToken);

@@ -256,9 +256,7 @@ class TreeViewComponent extends CellEditComponent {
                                 defaultValueChangeHandler(args);
 
                                 setTimeout(() => {
-                                    const showFilterClear = getStore().showFilterClear;
-
-                                    if (showFilterClear && this.treeRefInstance()) {
+                                    if (this.treeRefInstance()) {
                                         const combinedFilter = this.treeRefInstance().getCombinedFilter();
 
                                         handleCallToggle(combinedFilter);

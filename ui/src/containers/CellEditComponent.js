@@ -57,9 +57,8 @@ class CellEditComponent extends PureComponent {
         };
     }
     renderClearFilter = () => {
-        const showFilterClear = getStore().showFilterClear;
         const clearFilter = document.getElementById('clear-filter-outside');
-        if (this._filterClearRoot && !clearFilter && showFilterClear) {
+        if (this._filterClearRoot && !clearFilter) {
             this._filterClearRoot.render(
                 <FilterClear
                     clearFnc={() => {

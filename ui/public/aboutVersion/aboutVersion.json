@@ -1,20 +1,66 @@
 {
     "changeLog": [
         {
+            "version": "1.6.4.289",
+            "title": "",
+            "data": [
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "isNew": true,
+                    "link": "https://trello.com/c/FthhYxrP/1020-nowy-pasek-komunikat%C3%B3w",
+                    "text": "Zmiana z-indexu na pasek"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "isNew": true,
+                    "link": "https://trello.com/c/kh7Fc7vF/990-loginpage-cache",
+                    "text": "Login page cache na język"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "isNew": true,
+                    "link": "https://trello.com/c/DHXiJH0V/1022-usuniecie-flagi-showfilterclear",
+                    "text": "Usunięcie flagi SHOW_FILTER_CLEAR"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "isNew": true,
+                    "importanceColor": "#ff6666",
+                    "description": "Należy dokładnie przetestować kopiownie",
+                    "link": "https://trello.com/c/ZEUCkE5l/1023-zaznaczanie-rekordu-po-edycji",
+                    "text": "Poprawka na clear stanu po błedzie w kopiowaniu"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "isNew": true,
+                    "link": "https://trello.com/c/0KH6rGhX/1024-przekazywanie-lang-na-oknie-logowania",
+                    "text": "Przekazanie Lang do PKT token"
+                }
+            ]
+        },
+        {
             "version": "1.6.4.288",
             "title": "",
             "data": [
                 {
                     "type": "FIX",
                     "color": "red",
-                    "isNew": true,
                     "date": "",
                     "text": "Logowanie błędów w config"
                 },
                 {
                     "type": "FIX",
                     "color": "red",
-                    "isNew": true,
                     "date": "",
                     "link": "https://trello.com/c/hVrCUAp0/997-prametry-w-config-dzia%C5%82anie",
                     "text": "Aktualizacja parametrów na minuty"

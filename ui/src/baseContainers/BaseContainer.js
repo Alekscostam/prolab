@@ -1510,7 +1510,17 @@ class BaseContainer extends React.Component {
         const selectedRowKeys = this.getSelectedRowKeysIds(id);
         selectedRowKeys.shift();
         if (selectedRowKeys.length === 0) {
-            this.unselectAllDataGrid();
+            this.setState(
+                {
+                    copyData: undefined,
+                    copyId: undefined,
+                    currentSelectedRowKeyId: undefined,
+                },
+                () => {
+                    this.unselectAllDataGrid();
+                }
+            );
+
             return;
         }
         this.setState(

@@ -3,10 +3,10 @@ import {StringUtils} from './utils/StringUtils';
 
 const useStore = create((set, get) => ({
     fetchData: true,
+    defaultLang: true,
     filterClearFnc: null,
     maintenanceBanner: null,
     draggableGridEnabled: false,
-    showFilterClear: false,
     gridStateStore: undefined,
     rememberMe: false,
     messages: undefined,
@@ -56,8 +56,8 @@ const useStore = create((set, get) => ({
             barCodeShowMethod: value,
         });
     },
+    setDefaultLang: (value) => set({defaultLang: value}),
     setMaintenanceBanner: (value) => set({maintenanceBanner: value}),
-    setShowFilterClear: (value) => set({showFilterClear: value}),
     setCheckConfigChanged: (value) => set({checkConfigChanged: value}),
     setUpdateApp: (value) => set({updateApp: value}),
     setGetConfigValue: (value) => set({getConfigValue: value}),

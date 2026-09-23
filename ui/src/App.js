@@ -494,7 +494,6 @@ class App extends Component {
             const captcha = configuration.CAPTCHA;
             const showHintListButtons = configuration.SHOW_HINT_LIST_BUTTONS;
             const rememberMe = configuration.REMEMBER_ME;
-            const showFilterClear = configuration.SHOW_FILTER_CLEAR;
             const barCodeShowMethod = configuration.BAR_CODE_SHOW_METHOD;
             const heartbeatTimeMinutes = configuration.HEARTBEAT_TIME_MINUTES;
             const draggableGridEnabled = configuration.DRAGGABLE_GRID_ENABLED;
@@ -518,7 +517,7 @@ class App extends Component {
                     appVersion,
                 },
             });
-            getStore().setShowFilterClear(showFilterClear);
+            getStore().setDefaultLang(lang);
             getStore().setMaintenanceBanner(maintenanceBanner);
             getStore().setUpdateApp(updateApp);
             getStore().setDisableLoginPage(disableLoginPage);
