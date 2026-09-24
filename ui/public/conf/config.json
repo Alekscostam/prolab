@@ -22,7 +22,7 @@
     "HEARTBEAT_TIME_MINUTES": 1,
     "UPDATE_APP": {
         "AUTO_REFRESH_DELAY": 10,
-        "VERSION_CHECK_INTERVAL": 15
+        "VERSION_CHECK_INTERVAL": 4000000
     },
     "MAINTENANCE_BANNER": {
         "MESSAGE": "Przerwa techniczna w godzinach 15:00 - 16:00",

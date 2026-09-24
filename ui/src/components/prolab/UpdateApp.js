@@ -5,6 +5,7 @@ import useStore from '../../store';
 import LocUtils from '../../utils/LocUtils';
 import Logger from '../../utils/Logger';
 import {getStore} from '../../utils/helper/StoreHelper';
+import {setInterval} from '../../utils/Interval';
 
 const LOG_PREFIX = '[UpdateApp]';
 
@@ -215,10 +216,13 @@ const UpdateApp = ({maintenanceBannerAction}) => {
         refreshUpdateStatus();
 
         const VERSION_CHECK_INTERVAL = (getStore()?.updateApp?.VERSION_CHECK_INTERVAL || 15) * 60 * 1000;
-
-        const intervalId = setInterval(() => {
-            refreshUpdateStatus();
-        }, VERSION_CHECK_INTERVAL);
+        const intervalId = setInterval(
+            () => {
+                refreshUpdateStatus();
+            },
+            VERSION_CHECK_INTERVAL,
+            15
+        );
 
         return () => {
             clearInterval(intervalId);

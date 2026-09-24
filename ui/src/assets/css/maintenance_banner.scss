@@ -1,14 +1,153 @@
+:root {
+    --maintenance-banner-height: 44px;
+}
+
+/*
+ * Główna zawartość aplikacji.
+ */
+body.maintenance-active {
+    padding-top: var(--maintenance-banner-height);
+}
+
+/*
+ * Lewy sidebar.
+ */
+body.maintenance-active .pro-sidebar {
+    top: var(--maintenance-banner-height) !important;
+    height: calc(100vh - var(--maintenance-banner-height)) !important;
+}
+
+body.maintenance-active .pro-sidebar > .pro-sidebar-inner {
+    top: var(--maintenance-banner-height) !important;
+    height: calc(100vh - var(--maintenance-banner-height)) !important;
+}
+
+/*
+ * Przycisk zwijania lewego sidebara.
+ */
+body.maintenance-active .btn-toggle {
+    top: var(--maintenance-banner-height) !important;
+}
+
+/*
+ * Prawy PrimeReact Sidebar.
+ *
+ * Maska zajmuje dokładnie przestrzeń
+ * od maintenance bannera do dołu ekranu.
+ */
+body.maintenance-active .p-sidebar-mask.p-sidebar-right {
+    top: var(--maintenance-banner-height) !important;
+    bottom: 0 !important;
+    height: auto !important;
+}
+
+/*
+ * Prawy sidebar wypełnia całą maskę.
+ */
+body.maintenance-active #right-sidebar {
+    height: 100% !important;
+    max-height: 100% !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+body.maintenance-active #right-sidebar > .p-sidebar-header {
+    flex: 0 0 auto !important;
+}
+
+body.maintenance-active #right-sidebar > .p-sidebar-content {
+    flex: 1 1 auto !important;
+
+    height: auto !important;
+    min-height: 0 !important;
+
+    padding-top: 0 !important;
+
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+}
+
+/*
+ * PrimeReact Dialog.
+ *
+ * Tak samo jak dla sidebara:
+ * maska zaczyna się bezpośrednio pod maintenance bannerem
+ * i kończy dokładnie na dole viewportu.
+ */
+body.maintenance-active .p-dialog-mask {
+    top: var(--maintenance-banner-height) !important;
+    bottom: 0 !important;
+    height: auto !important;
+}
+
+/*
+ * Dialog nie może być wyższy niż dostępny obszar maski.
+ *
+ * Nie odejmujemy żadnych dodatkowych 20px,
+ * dzięki czemu nie ma sztucznej przerwy
+ * u góry i u dołu.
+ */
+body.maintenance-active .p-dialog-mask > .p-dialog {
+    max-height: 100% !important;
+}
+
+/*
+ * Pełnoekranowy dialog edycji.
+ *
+ * Ten dialog ma height: 100%, więc powinien
+ * wypełniać dokładnie całą przestrzeń dostępną
+ * pod maintenance bannerem.
+ */
+body.maintenance-active #edit-header-dialog {
+    height: 100% !important;
+    max-height: 100% !important;
+
+    margin: 0 !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/*
+ * Header dialogu zachowuje swoją naturalną wysokość.
+ */
+body.maintenance-active #edit-header-dialog > .p-dialog-header {
+    flex: 0 0 auto !important;
+}
+
+/*
+ * Content zajmuje całą pozostałą przestrzeń.
+ * Jeśli zawartość jest za długa, scrolluje się content,
+ * a nie cały dialog.
+ */
+body.maintenance-active #edit-header-dialog > .p-dialog-content {
+    flex: 1 1 auto !important;
+
+    height: auto !important;
+    min-height: 0 !important;
+
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+}
+
 .maintenance-banner {
     width: 100%;
-    min-height: 44px;
+    min-height: var(--maintenance-banner-height);
 
     box-sizing: border-box;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    // z-index: 2147483647;
 
     display: flex;
     align-items: center;
 
     padding: 10px 16px;
-    margin-top: -5px;
+    margin-top: 0;
 
     font-size: 14px;
     font-weight: 500;
@@ -80,6 +219,7 @@
         color: #842029;
     }
 }
+
 @keyframes maintenance-banner-scroll {
     0% {
         transform: translateX(-100%);

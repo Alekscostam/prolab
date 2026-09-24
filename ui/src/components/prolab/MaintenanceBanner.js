@@ -3,6 +3,29 @@ import '../../assets/css/maintenance_banner.scss';
 import {getStore} from '../../utils/helper/StoreHelper';
 
 class MaintenanceBanner extends Component {
+    componentDidMount() {
+        this.updateBodyClass();
+    }
+
+    componentDidUpdate() {
+        this.updateBodyClass();
+    }
+
+    componentWillUnmount() {
+        document.body.classList.remove('maintenance-active');
+    }
+
+    updateBodyClass() {
+        const maintenanceBanner = getStore().maintenanceBanner;
+
+        const enabled =
+            maintenanceBanner && (maintenanceBanner.ENABLED === true || maintenanceBanner.ENABLED === 'true');
+
+        const visible = enabled && this.props.visible && maintenanceBanner.MESSAGE;
+
+        document.body.classList.toggle('maintenance-active', !!visible);
+    }
+
     getType(type) {
         switch ((type || 'NORMAL').toUpperCase()) {
             case 'WARN':
