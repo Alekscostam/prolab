@@ -1483,13 +1483,12 @@ class BaseContainer extends React.Component {
                                     this.unblockUi();
                                 })
                                 .catch((err) => {
+                                    this.showGlobalErrorMessage(err);
                                     if (err?.error.code === ResponseStatus.COPY_OK) {
-                                        this.showSuccessMessage(err.error?.message);
                                         this.processCopyOk(id, callBack);
                                         return;
                                     }
                                     this.unblockUi();
-                                    this.showGlobalErrorMessage(err);
                                 });
                             this.setState({
                                 currentSelectedRowKeyId: selectedRowKeys[0],

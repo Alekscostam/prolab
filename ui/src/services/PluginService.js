@@ -1,3 +1,4 @@
+import {ComponentViewStateUtils} from '../utils/ComponentViewStateUtils';
 import {StringUtils} from '../utils/StringUtils';
 import HeaderService from './HeaderService';
 
@@ -18,6 +19,10 @@ export default class PluginService extends HeaderService {
         return queryString;
     }
 
+    wrapWithSortAndFilter(element) {
+        return ComponentViewStateUtils.bodyWithSortAndFilter(element);
+    }
+
     editSave(viewId, pluginId, parentId, kindView, kindOperation, element, confirmSave, token, type) {
         return super.editSave(
             viewId,
@@ -25,7 +30,7 @@ export default class PluginService extends HeaderService {
             parentId,
             kindView,
             kindOperation,
-            element,
+            this.wrapWithSortAndFilter(element),
             confirmSave,
             token,
             type,
@@ -34,26 +39,60 @@ export default class PluginService extends HeaderService {
     }
 
     editList(viewId, pluginId, parentId, fieldId, kindView, element, type) {
-        return super.editList(viewId, pluginId, parentId, fieldId, kindView, element, type, 'plugin/edit');
+        return super.editList(
+            viewId,
+            pluginId,
+            parentId,
+            fieldId,
+            kindView,
+            this.wrapWithSortAndFilter(element),
+            type,
+            'plugin/edit'
+        );
     }
 
     editCancel(viewId, pluginId, parentId, kindView, kindOperation, element, type) {
-        return super.editCancel(viewId, pluginId, parentId, kindView, kindOperation, element, type, 'plugin/edit');
+        return super.editCancel(
+            viewId,
+            pluginId,
+            parentId,
+            kindView,
+            kindOperation,
+            this.wrapWithSortAndFilter(element),
+            type,
+            'plugin/edit'
+        );
     }
 
     editAutoFill(viewId, pluginId, parentId, kindView, element, type) {
-        return super.editAutoFill(viewId, pluginId, parentId, kindView, element, type, 'plugin/edit');
+        return super.editAutoFill(
+            viewId,
+            pluginId,
+            parentId,
+            kindView,
+            this.wrapWithSortAndFilter(element),
+            type,
+            'plugin/edit'
+        );
     }
 
     editRefreshFieldVisibility(viewId, pluginId, parentId, kindView, element, type) {
-        return super.editRefreshFieldVisibility(viewId, pluginId, parentId, kindView, element, type, 'plugin/edit');
+        return super.editRefreshFieldVisibility(
+            viewId,
+            pluginId,
+            parentId,
+            kindView,
+            this.wrapWithSortAndFilter(element),
+            type,
+            'plugin/edit'
+        );
     }
 
     entry(viewId, pluginId, listIds) {
         return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/plugin/${pluginId}/entry`, {
             method: 'POST',
 
-            body: JSON.stringify(listIds),
+            body: JSON.stringify(this.wrapWithSortAndFilter(listIds)),
         }).catch((err) => {
             throw err;
         });
@@ -63,7 +102,7 @@ export default class PluginService extends HeaderService {
         const queryString = PluginService.getQueryString(parentId);
         return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/plugin/${pluginId}${queryString}`, {
             method: 'POST',
-            body: JSON.stringify(listIds),
+            body: JSON.stringify(this.wrapWithSortAndFilter(listIds)),
         })
             .then((pluginResponse) => {
                 return Promise.resolve(pluginResponse);
@@ -77,7 +116,7 @@ export default class PluginService extends HeaderService {
         const queryString = PluginService.getQueryString(parentId);
         return this.fetch(`${this.getDomain()}/${this.path}/${viewId}/plugin/${pluginId}/execute${queryString}`, {
             method: 'POST',
-            body: JSON.stringify(requestBody),
+            body: JSON.stringify(this.wrapWithSortAndFilter(requestBody)),
         })
             .then((pluginResponse) => {
                 return Promise.resolve(pluginResponse);

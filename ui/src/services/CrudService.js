@@ -5,6 +5,7 @@ import UrlUtils from '../utils/UrlUtils';
 import EditListUtils from '../utils/EditListUtils';
 import ConsoleHelper from '../utils/ConsoleHelper';
 import {StringUtils} from '../utils/StringUtils';
+import {ComponentViewStateUtils} from '../utils/ComponentViewStateUtils';
 /*
 Kontroler do edycji danych.
  */
@@ -175,7 +176,7 @@ export default class CrudService extends BaseService {
         `,
             {
                 method: 'POST',
-                body: JSON.stringify(listId),
+                body: JSON.stringify(ComponentViewStateUtils.bodyWithSortAndFilter(listId)),
             }
         )
             .then((response) => {
@@ -193,7 +194,7 @@ export default class CrudService extends BaseService {
             }`,
             {
                 method: 'POST',
-                body: JSON.stringify(requestBody),
+                body: JSON.stringify(ComponentViewStateUtils.bodyWithSortAndFilter(requestBody)),
             }
         )
             .then((documentResponse) => {

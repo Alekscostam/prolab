@@ -706,6 +706,9 @@ body main div.container-fluid {
         padding-top: 15px;
     }
 }
+.p-toast-message{
+    z-index: 2147483647;
+}
 .dx-widget.dx-button.dx-button-mode-text.dx-button-normal.dx-button-has-text.dx-button-has-icon.dx-htmleditor-toolbar-format.dx-format-active.dx-state-selected {
     background: darkgray !important;
 }

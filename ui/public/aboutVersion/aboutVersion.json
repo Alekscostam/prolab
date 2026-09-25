@@ -1,7 +1,7 @@
 {
     "changeLog": [
         {
-            "version": "1.6.4.290",
+            "version": "1.6.4.291",
             "title": "",
             "data": [
                 {
@@ -9,6 +9,29 @@
                     "color": "red",
                     "date": "",
                     "isNew": true,
+                    "link": "https://trello.com/c/iFDzBsPj/1028-kopiowanie-nowy-response-komunikatu",
+                    "text": "Zmiana działania copy po wystąpieniu błędu"
+                },
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
+                    "isNew": true,
+                    "importanceColor": "#ff6666",
+                    "description": "trudne należy dokładnie sprawdzić",
+                    "link": "https://trello.com/c/3uAj06LE/1021-struktura-selection-w-przekazywaniu-zaznaczonych-id",
+                    "text": "Zmiana requestów w punktach z ListId dla document execute, document, plugin save"
+                }
+            ]
+        },
+        {
+            "version": "1.6.4.290",
+            "title": "",
+            "data": [
+                {
+                    "type": "FIX",
+                    "color": "red",
+                    "date": "",
                     "importanceColor": "#ff6666",
                     "description": "to było dosyć trudne , więc dokładnie sprawdzić",
                     "link": "https://trello.com/c/FthhYxrP/1020-nowy-pasek-komunikat%C3%B3w",
@@ -18,7 +41,6 @@
                     "type": "FIX",
                     "color": "red",
                     "date": "",
-                    "isNew": true,
                     "link": "https://trello.com/c/hVrCUAp0/997-prametry-w-config-dzia%C5%82anie",
                     "text": "Zabezpieczenie configu przed za duzą wartością"
                 }
